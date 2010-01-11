@@ -1,0 +1,60 @@
+--- ioapi/Makefile.nocpl	2008-12-29 21:53:22.000000000 +0100
++++ Makefile	2009-01-07 13:37:47.000000000 +0100
+@@ -67,15 +67,17 @@
+ 
+ .SUFFIXES: .m4 .c .F .f .mod
+ 
+-BASEDIR = ${HOME}/apps
++BASEDIR = ${MYLIBDIR}/ioapi
++SRCDIR  = ${BASEDIR}/ioapi
+ 
+ IODIR   = ${BASEDIR}/ioapi
+ 
+ # OBJDIR = ${IODIR}/../lib
+ # OBJDIR = ${IODIR}/../${BIN}
+-OBJDIR  = ${BASEDIR}/${BIN}
++# OBJDIR  = ${BASEDIR}/${BIN}
++OBJDIR  = ${SRCDIR}/lib
+ 
+-INSTDIR = ${INSTALL}/${BIN}
++INSTDIR = ${SRCDIR}/bin
+ 
+ FIXDIR  = ${IODIR}/fixed_src
+ 
+@@ -174,9 +176,14 @@
+ mod:  ${MOD}
+ 
+ clean:  ${OBJDIR}
+-	cd ${OBJDIR}; rm $(fOBJ); rm $(FOBJ); rm $(COBJ) $(OOBJ); rm ${LIB} ; \
+-	rm ${MODS} ${MOBJ}
+-	cd ${IODIR}; rm *.o core* *.mod
++	cd ${OBJDIR}
++	-rm $(fOBJ)
++	-rm $(FOBJ)
++	-rm $(COBJ) $(OOBJ)
++	-rm ${LIB} 
++	-rm ${MODS} ${MOBJ}
++	cd ${IODIR}
++	-rm *.o core* *.mod
+ 
+ install: ${INSTDIR}
+ 	echo "Installing I/O API library in ${INSTDIR}"
+@@ -263,13 +270,16 @@
+ 	cd ${OBJDIR}; $(AR) $(ARFLAGS) ${LIB} ${OBJ}
+ 
+ ${OBJDIR}:
+-	mkdir ${OBJDIR}
++	-mkdir ${OBJDIR}
++	
++${INSTDIR}:
++	-mkdir ${INSTDIR}
+ 
+ #  "fixed-source" stuff for use with CMAQ "F90 132-column fixed-source"
+ #  non-standard source code formatting:
+ 
+ ${FIXDIR}:
+-	mkdir ${FIXDIR}
++	-mkdir ${FIXDIR}
+ 
+ ${FIXDIR}/ATDSC3.EXT: ATDSC3.EXT
+ 	${IODIR}/fix_src.csh ATDSC3.EXT ${FIXDIR}/ATDSC3.EXT

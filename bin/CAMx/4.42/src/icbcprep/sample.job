@@ -1,0 +1,41 @@
+#!/bin/csh
+#
+# ICBCPREP prepares initial condition (IC) and boundary condition (BC)
+# with constant values for each species.
+#
+# The constant values are read from an ASCII file having the
+# same format as a CAMx top concentration (TOPCON) file.
+#
+# ICBCPREP uses the subroutine JULDATE which is included with the CAMx
+# source code.
+#
+# This sample job file is for the OTAG domain (i.e., the CAMx
+# test case).  Here are a few comments on the inputs.
+#
+# topcon   | - name of the TOPCON file to use as input
+# ic file  | - name of the IC output file
+# ic messag| - header message for the IC output file
+# bc file  | - name of the BC output file
+# bc messag| - header message for the BC output file
+# nx,ny,nz | - number of cells in the coarse grid
+# x,y,dx,dy| - coarse grid origin and cell size ! (in m, wyin/cemery 05/24/01)
+# iutm     | - UTM zone (enter zero if not using a UTM grid)
+# st date  | - start date/time for the IC/BC output files
+# end date | - end date/time for the BC output file
+#
+#
+rm ic.cc.07jul95.const.bin
+rm bc.cc.07jul95.const.bin
+#
+/bin/time icbcprep << EOF
+topcon   |topc.ng.commonfile.ai.basD
+ic file  |ic.cc.07jul95.const.bin
+ic messag|OTAG grid constant ICs
+bc file  |bc.cc.07jul95.const.bin
+bc messag|OTAG grid constant BCs
+nx,ny,nz |64,63,5
+x,y,dx,dy|-99.0,26.0,0.5,0.3333
+iutm     |0
+st date  |95188,0
+end date |95188,24
+EOF

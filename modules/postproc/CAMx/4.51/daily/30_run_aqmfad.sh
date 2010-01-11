@@ -1,0 +1,1 @@
+../../4.42/daily/30_run_aqmfad.sh

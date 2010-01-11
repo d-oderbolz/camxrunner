@@ -1,0 +1,213 @@
+        Implementation of Schumann-Runge band parameterization
+        ------------------------------------------------------
+
+
+Reference
+---------
+
+The calculation of the equivalent absorption cross section of O2 in the
+Schumann-Runge bands is done according to
+
+Gaston Kockarts, Penetration of solar radiation in the Schumann-Runge bands of
+molecular oxygen:  A robust approximation,  Annales Geophysicae, v12, n12, pp.
+1207 ff., Dec 1994:
+
+"For a monochromatic radiation, the absorption of solar photons is governed by
+Beer-Lambert's law.  The Schumann-Runge bands system can be assimilated to a
+set of 16 000 spectral points with different cross sctions at every 0.5 cm-1
+between 49 000 and 57 000 cm-1.  The whole spectral interval is divided into 16
+subintervals, each having a width of 500 cm-1.  Using the formulation given by
+Kockarts (1971, 1976), it is possible to define reduction factors for each 500
+cm-1 interval as
+                    1000
+              1     ___
+    R_j(M) = ---- x >    Exp(-tau_ij)                                       (1)
+             1000   ---
+                    i=1
+
+and                 
+                     1000
+               1     ___
+    R_j(O2) = ---- x >   e_j x sigma_ij x Exp(-tau_ij)                      (2)
+              1000   ---
+                     i=1
+
+where j corresponds to a 500 cm-1 interval, tau_ij is the slant optical depth
+for O2 in interval j for wave number corresponding to index i, e_j is the
+predissociation efficiency in interval j, and sigma_ij is the O2 absorption
+cross section.
+
+[...]
+
+Having computed the reduction factors (1) and (2), the solar irradiance
+Phi_j(z) at altitude z is given for each 500 cm-1 interval by
+
+Phi_j(z) = Phi_j(oo) x R_j(M) x Exp[-tau_j(O3)],                            (4)
+
+where Phi_j(oo) is the solar irradiance at the top of the atmosphere in the
+wave number interval j and tau_j(O3) is the slant optical depth resulting from
+ozone absorption in the same interval.
+
+[...]
+
+The photodissociation coefficient J_j(O2) for molecular oxygen is obtained from
+expression
+
+J_j(O2) = Phi_j(oo) x R_j(O2) x Exp[-tau_j(O3)].                            (6)
+
+Rayleigh scattering is neglected in Eqs. (4)-(6).
+
+[...]
+
+The definition of the reduction factors given by Eqs. (1) and (2) show that
+these quantities are a sum of 1000 exponentials with always negative arguments.
+The present approximation is based on the same mathematical structure.
+Therefore, the exact expressions are replaced by
+
+R_j(M) = a1 x exp(-a2 x N) + a3 x exp(-a4 x N) + ... + a11 x exp(-a12 x N)  (7)
+
+and
+
+R_j(O2) = b1 x exp(-b2 x N) + b3 x exp(-b4 x N) + ... + b11 x exp(-b12 x N),(8)
+
+where N is the slant O2 total content and a1-a12 and b1-b12 are numerical
+coefficients to be found. 
+
+[...]
+
+The approximations have been developed to cover a decrease by a factor of 1E10
+for all R_j(M) and R_j(O2).  As an example, Figs. 5 and 6 show the results
+obtained in the interval 51 000.5-51 500.0 cm-1.  One sees that the
+approximation holds for the 1E10 range of variation for the reduction factors.
+      Similar results are obtained for the 16 wave number intervals and the a_i
+and b_i coefficients are given in Tables a and 2, respectively. 
+
+[...]
+
+Allen and Fredrick (1982) noted that optical paths with the same O2 column but
+different zenith angles may have significantly different transmission and
+dissociation rates.  As a consequence, they introduced a zenith angle dependent
+factor in the polynomial approximation of effective cross sections.  Nicolet
+and Kennes (1989) used a similar approach.  In both cases, there is a maximum
+value for the solar zenith anfle and the approximation is a function of
+sec(Chi).  It is well known that sec(Chi) should be replaced by a Chapman
+function for zenith angles greater than 65 degrees, so that a polynomial
+correction depending on sec(Chi) should lead itself to errors for large zenith
+distances."
+
+
+Bibliography:
+
+Allen, M. and J.E.Frederick, Effective photodissociation cross sections for
+molecular oxygen and nitric oxide in the Schumann-Runge bands, J.Atmos.Sci.,
+39, 2066-2075, 1982.
+
+Nicolet, M. and R.Kennes, Aeronomic problems of molecular oxygen
+photodissociation - VI. Photodissociation frequency and transmittance in the
+spectral range of the Schumann-Runge bands, Planet.Space Sci., 37, 4590491,
+1989.
+
+Kockarts, G., Penetration of solar radiation in the Schumann-Runge bands of
+molecular oxygen, in Mesospheric models and related experiments, Ed. G.Fiocco,
+pp. 160-176, D.Reidel, 1971.
+
+Kockarts, G., Absorption and photodissociation in the Schumann-Runge bands of
+molecular oxygen in the terrestrial atmosphere, Planet.Space Sci., 24, 589-604,
+1976.
+
+
+Application
+-----------
+ 
+In the model atmosphere, consisting of nz-1 homogeneous layers, we can derive
+the equivalent absoprtion cross section of molecular oxygen and the effective
+O2 vertical optical depth from Kockarts (1994), Eqs. (4) and (6):
+
+It is 
+
+J_j(O2,z) = Phi_j(oo) x R_j(O2,z) x Exp[-tau_j(O3,z)]                       (6)
+
+but also
+
+J_j(O2,z) = Phi_j(z) x sigma_j(O2,z).
+
+With
+
+Phi_j(z) = Phi_j(oo) x R_j(M,z) x Exp[-tau_j(O3,z)],                        (4)
+
+we get
+
+sigma_j(O2,z) = R_j(O2,z) / R_j(M,z) 
+
+as an expression for the equivalent O2 absorption cross section in each 500
+cm-1 wide subinterval j.
+
+
+We generalize Eq. (4) to
+
+Phi_j(z) = Phi_j(oo) x R_j(M,z) x T_j(z)                                    (4')
+
+with T(z) representing a generic transmission function that accounts for
+attenuation and absorption by everything but molecular O2.
+
+The total slant optical depth of layer z (between level z and z+1) can be 
+written as
+
+tau_j(total,z) =  Log[Phi_j(z+1)/Phi_j(z)]
+               =  Log[R_j(M,z+1)/R_j(M,z)] + Log[T_j(z+1)/T_j(z)].
+
+We can now define
+
+taus_j(O2,z) = Log[R_j(M,z+1)/R_j(M,z)]
+
+as the slant optical depth of layer z due to O2, and
+
+taus_j(*,z) = Log[T_j(z+1)/T_j(z)]
+
+as the slant optical depth of layer z due to everything but O2.  Therefore, as a
+first (and hopefully good) approximation, the O2 vertical optical depth of
+layer z can be written as
+
+tauv_j(O2,z) = Log[R_j(M,z+1)/R_j(M,z)] / sec(Chi)  for Chi < 75 deg
+
+and 
+
+tauv_j(O2,z) = Log[R_j(M,z+1)/R_j(M,z)] / Chap(Chi) for 75 deg <= Chi < 95 deg.
+
+At the top of the atmosphere, we define a total overhead O2 column of zero,
+resulting in a O2 optical depth of zero (for the non-existing layer nz), and
+consequently calculate the reduction factors R_j(M) and R_j(O2) according to 
+
+R_j(M,nz) = a1 + a3 + a5 + a7 + a9 + a11,
+
+and
+
+R_j(O2,nz) = b1 + b3 + b5 + b7 + b9 + b11.
+
+
+Implementation
+--------------
+
+The parameterization suggested by Kockarts (1994) is performed on the original
+grid, and values for the vertical optical depth of O2 and for the equivalent O2
+absorption cross section are calculated on the 16 wavelength intervals between
+57 000 and 49 000 cm-1 (seto2.f, schu.f).  Then, an internal working grid is
+defined, utilizing the full resolution of Kockart's grid in the SR-bands and
+of the Brasseur-Solomon/DeMore data outside the SR-bands.  The effective O2
+absorption cross sections and O2 optical depths values on this internal grid 
+within the SR-bands are taken straight from Kockart's parameterization, outside 
+the SR-bands the cross section data from Brasseur and Solomon (1986) (up to 
+204 nm)  and DeMore et al. (1994) (for wavelengths longer than 204 nm) are used
+for the absorption cross section and to derive the corresponding values for the
+O2 optical depth.  The data are then interpolated onto the user-defined working
+grid.
+
+
+Bibliography:
+
+Brasseur, G.P. and S.Solomon, Aeronomy of the Middle Atmosphere, 2nd Edition,
+pg.144 ff, D.Reidel Publishing Company, 1986.
+
+DeMore, W.B. et al., Chemical Kinetics and Photochemical Data for Use in
+Stratospheric Modeling, Evaluation Number 11, JPL Publication 94-26, pg.113 f.,
+Dec 15, 1994.

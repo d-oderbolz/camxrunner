@@ -1,0 +1,6 @@
+#!/bin/csh
+if( "$1" == "" ) then
+   echo Usage: f77 program.f
+   exit
+endif
+pgf77 -o $1:r -byteswapio -Wl -Bstatic $1

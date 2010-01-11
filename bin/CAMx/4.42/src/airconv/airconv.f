@@ -1,0 +1,92 @@
+      PROGRAM AIRCONV
+C  THIS PROGRAM CONVERTS ALL FORMATTED AIRSHED FILES BACK TO BINARY
+C   FOR AIRSHED OR PARIS MODEL SIMULATIONS
+C
+C      CONTROL INPUT ON UNIT 5
+C      INPUT FILE ON UNIT 7
+C      OUTPUT ON UNIT 9
+C      DIAGNOSTICS ON UNIT 8
+C
+C   Slightly changed by Daniel Oderbolz for non-interactive operation
+C
+C   Call it like this: airconv source dest type log
+C   e.g:               airconv terrain_domain1_bx3_lucamx.asc terrain_domain1_bx3_lucamx.asc TERRAIN terrain_domain1_bx3_lucamx.log
+
+      INCLUDE 'nampar.cmd'
+      COMMON /LCM/ EMOB (MXX,MXY,MXSPC)
+      CHARACTER*255 IPATH1,IPATH2,IPATH3,IZERO
+      CHARACTER*10 INFILE
+      IZERO='0'
+      
+c---  Read arguments   
+c---  This is pgf77 specific code!     
+      call getarg(1,IPATH1)
+      call getarg(2,IPATH2)
+      call getarg(3,INFILE)
+      call getarg(4,IPATH3)      
+      
+C      WRITE (*,101)
+C      READ (*,105) INFILE
+C      WRITE (*,102)
+C      READ (*,100) IPATH1
+C      WRITE (*,103)
+C      READ (*,100) IPATH2
+C      WRITE (*,104)
+C      READ (*,100) IPATH3
+C  100 FORMAT (A)
+C  101 FORMAT ('ENTER FILE TYPE TO BE CONVERTED (USE AIRSHED CONVENTION)
+C     1')
+C  102 FORMAT ('ENTER FORMATTED INPUT FILE TO BE CONVERTED')
+C  103 FORMAT ('ENTER NAME OF BINARY OUTPUT FILE')
+C  104 FORMAT ('ENTER NAME FOR DIAGNOSTIC FILE (0 FOR TTY OUTPUT)')
+C  105 FORMAT (A)
+C
+      OPEN (7,FILE=IPATH1)
+      OPEN (9,FORM='UNFORMATTED',FILE=IPATH2)
+      IF (IPATH3.NE.IZERO) OPEN (8,FILE=IPATH3)
+      IOUT=8
+      IF (IPATH3.NE.IZERO) IOUT=8
+C
+      IDONE=0
+      IF (INFILE.EQ. 'AIRQUALITY') CALL AIRCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'AVERAGE   ') CALL AVGCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'AVERAGE-S ') CALL AVGCNS (IOUT,IDONE)
+      IF (INFILE.EQ. 'BOUNDARY  ') CALL BNDCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'CHEMPARAM ') CALL CHECON (IOUT,IDONE)
+      IF (INFILE.EQ. 'DIFFBREAK ') CALL DFBCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'EMISSIONS ') CALL EMICON (IOUT,IDONE)
+      IF (INFILE.EQ. 'HUMIDITY  ') CALL TMPCN3 (IOUT,IDONE)
+      IF (INFILE.EQ. 'METSCALARS') CALL METCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'PTSOURCE  ') CALL PTSCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'REGIONTOP ') CALL REGCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'SIMCONTROL') CALL SIMCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'TEMPERATUR') CALL TMPCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'TEMPER3D  ') CALL TMPCN3 (IOUT,IDONE)
+      IF (INFILE.EQ. 'TERRAIN   ') CALL TERCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'TOPCONC   ') CALL TPCCON (IOUT,IDONE)
+      IF (INFILE.EQ. 'WIND      ') CALL WNDCON (IOUT,IDONE)
+      IF (IDONE.EQ.0) WRITE (*,1111) INFILE
+      IF (IDONE.EQ.0) WRITE (*,1112)
+      IF (IDONE.NE.0) WRITE (*,1113) INFILE
+ 1111 FORMAT ('CANNOT FIND FILE CALLED ',A)
+ 1112 FORMAT ('VALID FILE NAMES ARE:',/,
+     1'        AIRQUALITY',/,
+     2'        AVERAGE   ',/,
+     3'        BOUNDARY  ',/,
+     4'        CHEMPARAM ',/,
+     5'        DIFFBREAK ',/,
+     6'        EMISSIONS ',/,
+     7'        HUMIDITY  ',/,
+     8'        METSCALARS',/,
+     9'        PTSOURCE  ',/,
+     X'        REGIONTOP ',/,
+     1'        SIMCONTROL',/,
+     2'        TEMPERATUR',/,
+     3'        TEMPER3D  ',/,
+     4'        TERRAIN   ',/,
+     5'        TOPCONC   ',/,
+     6'        WIND      ',/,
+     7'RERUN THE PROGRAM WITH ONE OF THE ABOVE NAMES')
+ 1113 FORMAT ('COMPLETED CONVERSION FOR FILE ',A)
+      STOP
+      END

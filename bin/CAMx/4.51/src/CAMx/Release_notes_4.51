@@ -1,0 +1,266 @@
+RELEASE NOTES for CAMx v4.51, 05/22/08
+
+The Comprehensive Air Quality Model with extensions (CAMx) is
+available at http://www.camx.com.  
+
+Join the CAMx User's Group by sending an e-mail message to
+Majordomo@environ.org with the words "subscribe CAMxusers" 
+in the body of the message. When you subscribe, Majordomo 
+will send you a reply that provides details on how to use 
+this list server.
+
+The "camxusers" group is meant for broadcasting useful
+information about CAMx and its pre- and post-processors to
+all users that subscribe to this group, or to ask about
+available datasets or issues that other users may have come
+across.  It is not meant for asking how to run CAMx or how
+to prepare inputs.   
+
+Please direct specific comments or questions about problems
+or bugs with CAMx or its support software to ask-camx@environ.org,
+which comes directly to the developers.
+
+V4.51 is the official release of CAMx v4.5.  A description of
+changes associated with v4.51 (relative to v4.50) is given below.
+This is followed by a description of changes associated with
+v4.50 (relative to the last public release, v4.42).
+
+
+Overview of Version 4.51
+------------------------
+
+Version 4.51 includes Process Analysis for CB05 chemistry and
+modifications to PiG to improve model stability.  It also includes
+a minor bug fix in the wet deposition routine.
+
+
+The CAMx v4.50 User's Guide should be used with v4.51.
+
+
+v4.51 Updates 
+-------------
+
+1) Process Analysis (CPA, IRR, IPR) was added to CB05 chemistry
+   and to LSODE and IEH chemistry solvers. This has included some
+   other updates to the LSODE driver routines.
+
+   Implications: PA tools are now available for any gas-phase
+                 chemical mechanism and all solvers.
+
+   Affected routines: CPAMECH3-6.F, PASETUP.F, IEHSOLV.F,
+                      IERATE*.F, IERSN*.F, IEFAC*.F, LSRATE*.F,
+                      LSBOX.COM, LSCALL.F, LSODE.F, DSLDOE.F,
+                      CHEMDRIV.F, TRAP.F, IRONCHEM.F,
+                      LSJAC*.F (removed)
+
+
+v4.51 Modifications
+-------------------
+
+1) PiG was updated to improve the method by which puff PM 
+   increments are calculated.
+
+   Implications: PiG is much more stable for PM chemistry.
+
+   Affected routines: PIGDRIVE.F, IRONCHEM.F, PIGMSCL.F, PIGPREP.F,
+                      CHEMDRIV.F, TIMESTEP.F, AEROCHEM_CF.F
+                      READCHM.F PIGSTY.COM
+
+
+v4.51 Bug Fixes
+---------------
+
+1) Fixed a bug in the calculation of liquid water concentration
+   reported to the deposition output file.
+
+   Implications: An incorrect rain water volume was used in the
+                 calculation of deposited liquid concentration
+                 fields in the wet deposition routine.  Liquid
+                 concentrations reported in the deposition output
+                 file are reduced by as much as an order of
+                 magnitude. There is no impact on air concentrations
+                 or other deposition fields reported in the dep
+                 output file.
+
+   Affected routines: WETDEP.F, IRONWET.F
+
+
+Overview of Version 4.50
+------------------------
+
+V4.50 is an extension from the previous release (v4.42).
+Version 4.50 introduces updates to incorporate CB05 chemistry
+and to improve the SOA PM algorithm. This version also provides
+several bug fixes.
+
+*** To use CB05 you must prepare photolysis rates using TUV.
+    CB05 can be used with emissions prepared for CB4
+    but it is better to use emissions prepared for CB05.
+
+*** The updated SOA scheme needs new biogenic precursor emissions.
+    Although an emission pre-processor is available to estimate them
+    from traditional emissions, it is recommended to use the latest
+    MEGAN biogenic model to generate the new emissions.
+
+*** The chemistry parameters files for v4.50 have been updated.
+    You must use chemparam files specifically labelled 
+    "VERSION4.5"
+
+There are no changes to other input file formats from version
+4.42.
+
+
+v4.50 Updates
+-------------
+
+1. Added CB05 gas-phase photochemical mechanism.
+
+   Implications: You can now choose among CBM-IV (3 flavors),
+                 SAPRC99, or CB05 photochemistry.  CB05 provides
+                 important updates based on recent research.
+
+   Affected routines: New /CMC/ routines for mechanism 6,
+                      CHMSTRY.COM, IEHCHEM.COM, DDMCHEM.COM,
+                      CAMx.PRM, READCHM.F, CHEMDRIV.F, 
+                      PIGDRIVE.F, IRONCHEM.F, SPCCB05SA.F,
+                      STABSA.F, CYCTPNSA.F, O3PRDSA.F
+
+2. PM modules are linked to CB05 mechanism.
+
+   Implications: Users can now simulate gas and PM species with CB05
+                 mechanism.
+
+   Affected routines: READCHM.F, AEROSET.F, AEROCHEM_CF.F,
+                      AEROCHEM_CMU.F, CAMx.PRM, CAMx_AERO.COM,
+                      CAMx_AERO.INC
+
+3. Updated secondary organic aerosol (SOA) scheme.
+
+   Implications: Improved science in SOA chemistry; users
+                 will see differences in SOA concentrations.
+
+   Affected routines: Mech 4 routines in /CMC/ directory,
+                      CHMSTRY.COM, IEHCHEM.COM, DDMCHEM.COM,
+                      CAMx.PRM, READCHM.F, CHEMDRIV.F, AEROCHEM_CF.F,
+                      SOAP.COM, SOAPDAT.F, SOAP.F, SOACHEM.F,
+                      TRACER.COM, SPCCBIVSA.F, SPCSPRCSA.F,
+                      STABSA.F, SPECSA.F, CYCTPNSA.F, PSATSA.F,
+                      REPARTSA.F, OSATSA.F, APCASA.F, GOATSA.F,
+                      CLCIWT.F, RDSUMBC.F, CPAMECH4.F, AEROSET.F,
+                      AEROCHEM_CMU.F, CAMx_AERO.INC, DYNAMIC.INC,
+                      BLOCK.F, EQPARTO.F
+
+4. Updated heterogeneous N2O5 hydrolysis.
+
+   Implications: If PM is modeled, the rate of N2O5 hydrolysis
+                 depends on particle surface area and acidity;
+                 predicted PM nitrate will be slightly increased.
+
+   Affected routines: CHMSTRY.COM, READCHM.F, CHEMDRIV.F, KHETERO.F
+
+
+v4.50 Modifications
+-------------------
+
+1. Added interpolation of temperature and pressure to PiG sampling
+   grids.
+
+   Implications: Improves concentration distrubtions on sampling
+                 grids in complex terrain.
+
+   Affected routines: PIGSAMPL.F
+
+2. Numerous small modifications to improve robustness of
+   PM calculations in CF and CMU PM chemistry, and to simplify
+   source code.
+
+   Implications: No significant impacts on model speed or results.
+
+   Affected routines: AEROSET.F, CHEMDRIV.F, AEROCHEM_CF.F,
+                      AEROCHEM_CMU.F, IRONCHEM.F 
+
+3. Numerous small modifications to improve robustness of gas-phase
+   chemistry source code in OSAT, PA, and PiG.
+
+   Implications: No significant impacts on model speed or results.
+
+   Affected routines: LSCALL.F, CHEMDRIV.F, EXPTBL.F, PIGDRIVE.F,
+                      SPCSPRCSA.F, SPCCBIVSA.F, CYCTPNSA.F, 
+                      O3PRDSA.F, CLCBWT.F
+
+4. Revised the calculation of ozone destruction for OSAT to
+   improve consistency across chemical mechanisms (CB4, CB05
+   and SAPRC99).
+
+   Implications: Transparent to the user, improves code to handle
+                 any given gas mechanism.
+
+   Affected routines: O3PRDSA.F
+
+5. Revised the calculation of average OH rate constants in the
+   OSAT and APCA source apportionment algorithms to be on a per
+   carbon basis.
+
+   Implications: Testing for a Los Angeles database found small
+                 impacts on ozone apportionments to VOC source
+                 categories.
+
+   Affected routines: STABSA.F
+
+
+v4.50 Bug Fixes
+---------------
+
+1. Removed killing of PiG puffs when they grow into surface layer.
+
+   Implications: A leftover diagnostic check was removed, which
+                 had been terminating PiG puffs whenever puffs
+                 grew into the surface layer.  Puff behavior will
+                 change and higher sampling grid concentrations
+                 should be realized.
+
+   Affected routines: PIGDRIVE.F
+         
+2. Fixed a typo in the code for OSAT/PSAT probing tools.
+
+   Implications: Master grid boundary conditions for tracers were
+                 not updated at each timestep due to a typo, which
+                 is now fixed.  Minor impact on OSAT/PSAT results.
+
+   Affected routines: EMISTRNS.F
+
+3. Fixed a bug in passing snow field to dry deposition routine.
+
+   Implications: Incorrect snow values were passed to dry deposition
+                 routine for the nest grids.  Minor impact on dry
+                 deposition velocities when optional snow field is
+                 used for nest grids.
+
+   Affected routines: CAMx.F
+
+4. Fixed a bug in RTRAC wet deposition routine.
+
+   Implications: Incorrect order of argument variables was leading
+                 to NaNs in RTRAC wet deposition.
+
+   Affected routines: WETDEPRT.F
+
+5. Fixed a bug in rewinding/reading RTRAC point source file.
+
+   Implications: When running CAMx continuously for more than
+                 24 hours, RTRAC was not rewinding and 
+                 synchronizing the RTRAC point source file
+                 correctly, leading to a model crash.  This
+                 only impacted the case when users set the
+                 emissions date-insensitive flag = true.
+
+   Affected routines: RDPTRT.F
+
+6. Fixed minor Process Analysis bugs in vertical advective flux
+   and wet deposition.
+
+   Implications: Occasional large spurios relative errors are
+                 removed in the IPR outuput.
+
+   Affected routines: VRTSLV.F, WETDEP.F
+

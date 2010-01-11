@@ -1,0 +1,270 @@
+Format: 1.4
+
+
+Title: CAMxRunner
+SubTitle: Code documentation
+
+Footer: Copyright (C) Daniel C. Oderbolz
+Timestamp: Updated month day, year
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+File: inc/main_functions.inc  (inc/main_functions.inc)
+File: inc/tap-functions.inc  (inc/tap-functions.inc)
+File: main_usage  (CAMxRunner.sh)
+File: main_usage  (PMCAMx-v2008-blank)
+File: main_usage  (PMCAMx-v2008-test)
+
+Group: Modules  {
+
+   Group: Common  {
+
+      File: 01_math_functions.sh  (modules/common/01_math_functions.sh)
+      File: 10_string_functions.sh  (modules/common/10_string_functions.sh)
+      File: 11_date_functions.sh  (modules/common/11_date_functions.sh)
+      File: 12_path_functions.sh  (modules/common/12_path_functions.sh)
+      File: 30_version_control_functions.sh  (modules/common/30_version_control_functions.sh)
+      File: 40_check_functions.sh  (modules/common/40_check_functions.sh)
+      File: 50_state_functions.sh  (modules/common/50_state_functions.sh)
+      File: 51_task_functions.sh  (modules/common/51_task_functions.sh)
+      File: 60_variable_functions.sh  (modules/common/60_variable_functions.sh)
+      File: 71_camx_runner_functions.sh  (modules/common/71_camx_runner_functions.sh)
+      File: 72_installer_functions.sh  (modules/common/72_installer_functions.sh)
+      File: 73_user_functions.sh  (modules/common/73_user_functions.sh)
+      File: 74_test_functions.sh  (modules/common/74_test_functions.sh)
+      File: 80_array_functions.sh  (modules/common/80_array_functions.sh)
+      File: 90_module_functions.sh  (modules/common/90_module_functions.sh)
+      File: CAMx/01_model_functions.sh  (modules/common/CAMx/01_model_functions.sh)
+      File: PMCAMx/01_model_functions.sh  (modules/common/PMCAMx/01_model_functions.sh)
+      }  # Group: Common
+
+   Group: Installer  {
+
+      File: 10_CAMxRunner_installer.sh  (modules/installer/10_CAMxRunner_installer.sh)
+
+      Group: CAMx  {
+
+         Group: 4.42  {
+
+            File: 11_Converter_installer.sh  (modules/installer/CAMx/4.42/11_Converter_installer.sh)
+            File: 20_HDF_installer.sh  (modules/installer/CAMx/4.42/20_HDF_installer.sh)
+            File: 21_CAMx_installer.sh  (modules/installer/CAMx/4.42/21_CAMx_installer.sh)
+            File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/4.42/22_Pre_and_Postprocessor_installer.sh)
+            }  # Group: 4.42
+
+         Group: 4.51  {
+
+            File: 11_Converter_installer.sh  (modules/installer/CAMx/4.51/11_Converter_installer.sh)
+            File: 20_HDF_installer.sh  (modules/installer/CAMx/4.51/20_HDF_installer.sh)
+            File: 21_CAMx_installer.sh  (modules/installer/CAMx/4.51/21_CAMx_installer.sh)
+            File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/4.51/22_Pre_and_Postprocessor_installer.sh)
+            File: 30_testcase_installer.sh  (modules/installer/CAMx/4.51/30_testcase_installer.sh)
+            }  # Group: 4.51
+
+         Group: 5.10  {
+
+            File: 11_Converter_installer.sh  (modules/installer/CAMx/5.10/11_Converter_installer.sh)
+            File: 20_HDF_installer.sh  (modules/installer/CAMx/5.10/20_HDF_installer.sh)
+            File: 21_CAMx_installer.sh  (modules/installer/CAMx/5.10/21_CAMx_installer.sh)
+            File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/5.10/22_Pre_and_Postprocessor_installer.sh)
+            File: 30_testcase_installer.sh  (modules/installer/CAMx/5.10/30_testcase_installer.sh)
+            }  # Group: 5.10
+
+         }  # Group: CAMx
+
+      File: PMCAMx/2008/10_PMCAMx_installer.sh  (modules/installer/PMCAMx/2008/10_PMCAMx_installer.sh)
+      }  # Group: Installer
+
+   Group: Model  {
+
+      File: CAMx/4.42/10_model.sh  (modules/model/CAMx/4.42/10_model.sh)
+      File: CAMx/4.51/10_model.sh  (modules/model/CAMx/4.51/10_model.sh)
+      File: PMCAMx/2008/10_model.sh  (modules/model/PMCAMx/2008/10_model.sh)
+      }  # Group: Model
+
+   Group: Postproc  {
+
+      Group: 4.42  {
+
+         File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/4.42/once/10_concatenate_station_data.sh)
+
+         Group: Daily  {
+
+            File: 10_prepare_output_dir.sh  (modules/postproc/CAMx/4.42/daily/10_prepare_output_dir.sh)
+            File: 20_convert_output.sh  (modules/postproc/CAMx/4.42/daily/20_convert_output.sh)
+            File: 30_run_aqmfad.sh  (modules/postproc/CAMx/4.42/daily/30_run_aqmfad.sh)
+            File: 40_extract_station_data.sh  (modules/postproc/CAMx/4.42/daily/40_extract_station_data.sh)
+            File: 60_avgdif.sh  (modules/postproc/CAMx/4.42/daily/60_avgdif.sh)
+
+            Group: Extract_station_data  {
+
+               File: extract_arpa_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_arpa_stations.pro)
+               File: extract_nabel_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_nabel_stations.pro)
+               File: extract_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_stations.pro)
+               }  # Group: Extract_station_data
+
+            }  # Group: Daily
+
+         }  # Group: 4.42
+
+      Group: 4.51  {
+
+         File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/4.51/once/10_concatenate_station_data.sh)
+
+         Group: Daily  {
+
+            File: 10_prepare_output_dir.sh  (modules/postproc/CAMx/4.51/daily/10_prepare_output_dir.sh)
+            File: 20_convert_output.sh  (modules/postproc/CAMx/4.51/daily/20_convert_output.sh)
+            File: 30_run_aqmfad.sh  (modules/postproc/CAMx/4.51/daily/30_run_aqmfad.sh)
+            File: 40_extract_station_data.sh  (modules/postproc/CAMx/4.51/daily/40_extract_station_data.sh)
+            File: 60_avgdif.sh  (modules/postproc/CAMx/4.51/daily/60_avgdif.sh)
+
+            Group: Extract_station_data  {
+
+               File: extract_arpa_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_arpa_stations.pro)
+               File: extract_nabel_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_nabel_stations.pro)
+               File: extract_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_stations.pro)
+               }  # Group: Extract_station_data
+
+            }  # Group: Daily
+
+         }  # Group: 4.51
+
+      Group: 5.10  {
+
+         File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/5.10/once/10_concatenate_station_data.sh)
+
+         Group: Daily  {
+
+            File: 10_prepare_output_dir.sh  (modules/postproc/CAMx/5.10/daily/10_prepare_output_dir.sh)
+            File: 20_convert_output.sh  (modules/postproc/CAMx/5.10/daily/20_convert_output.sh)
+            File: 30_run_aqmfad.sh  (modules/postproc/CAMx/5.10/daily/30_run_aqmfad.sh)
+            File: 40_extract_station_data.sh  (modules/postproc/CAMx/5.10/daily/40_extract_station_data.sh)
+            File: 60_avgdif.sh  (modules/postproc/CAMx/5.10/daily/60_avgdif.sh)
+
+            Group: Extract_station_data  {
+
+               File: extract_arpa_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_arpa_stations.pro)
+               File: extract_nabel_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_nabel_stations.pro)
+               File: extract_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_stations.pro)
+               }  # Group: Extract_station_data
+
+            }  # Group: Daily
+
+         }  # Group: 5.10
+
+      }  # Group: Postproc
+
+   Group: Preproc  {
+
+      File: 20_split_emissions.sh  (modules/preproc/PMCAMx/2008/daily/20_split_emissions.sh)
+
+      Group: CAMx  {
+
+         Group: 4.42  {
+
+            Group: Daily  {
+
+               File: 01_boundary_conditions.sh  (modules/preproc/CAMx/4.42/daily/01_boundary_conditions.sh)
+               File: 02_create_emissions.sh  (modules/preproc/CAMx/4.42/daily/02_create_emissions.sh)
+               File: 10_convert_emissions.sh  (modules/preproc/CAMx/4.42/daily/10_convert_emissions.sh)
+               File: 20_run_emifad.sh  (modules/preproc/CAMx/4.42/daily/20_run_emifad.sh)
+               }  # Group: Daily
+
+            Group: Once  {
+
+               File: 00_convert_input.sh  (modules/preproc/CAMx/4.42/once/00_convert_input.sh)
+               File: 10_albedo_haze_ozone.sh  (modules/preproc/CAMx/4.42/once/10_albedo_haze_ozone.sh)
+               File: 20_photolysis_rates.sh  (modules/preproc/CAMx/4.42/once/20_photolysis_rates.sh)
+               File: 40_initial_conditions.sh  (modules/preproc/CAMx/4.42/once/40_initial_conditions.sh)
+               File: 50_check_input.sh  (modules/preproc/CAMx/4.42/once/50_check_input.sh)
+               }  # Group: Once
+
+            }  # Group: 4.42
+
+         Group: 4.51  {
+
+            Group: Daily  {
+
+               File: 01_boundary_conditions.sh  (modules/preproc/CAMx/4.51/daily/01_boundary_conditions.sh)
+               File: 02_create_emissions.sh  (modules/preproc/CAMx/4.51/daily/02_create_emissions.sh)
+               File: 10_convert_emissions.sh  (modules/preproc/CAMx/4.51/daily/10_convert_emissions.sh)
+               File: 20_run_emifad.sh  (modules/preproc/CAMx/4.51/daily/20_run_emifad.sh)
+               }  # Group: Daily
+
+            Group: Once  {
+
+               File: 00_convert_input.sh  (modules/preproc/CAMx/4.51/once/00_convert_input.sh)
+               File: 10_albedo_haze_ozone.sh  (modules/preproc/CAMx/4.51/once/10_albedo_haze_ozone.sh)
+               File: 20_photolysis_rates.sh  (modules/preproc/CAMx/4.51/once/20_photolysis_rates.sh)
+               File: 40_initial_conditions.sh  (modules/preproc/CAMx/4.51/once/40_initial_conditions.sh)
+               File: 50_check_input.sh  (modules/preproc/CAMx/4.51/once/50_check_input.sh)
+               }  # Group: Once
+
+            }  # Group: 4.51
+
+         Group: 5.10  {
+
+            Group: Daily  {
+
+               File: 01_boundary_conditions.sh  (modules/preproc/CAMx/5.10/daily/01_boundary_conditions.sh)
+               File: 02_create_emissions.sh  (modules/preproc/CAMx/5.10/daily/02_create_emissions.sh)
+               File: 10_convert_emissions.sh  (modules/preproc/CAMx/5.10/daily/10_convert_emissions.sh)
+               File: 20_run_emifad.sh  (modules/preproc/CAMx/5.10/daily/20_run_emifad.sh)
+               }  # Group: Daily
+
+            Group: Once  {
+
+               File: 00_convert_input.sh  (modules/preproc/CAMx/5.10/once/00_convert_input.sh)
+               File: 10_albedo_haze_ozone.sh  (modules/preproc/CAMx/5.10/once/10_albedo_haze_ozone.sh)
+               File: 20_photolysis_rates.sh  (modules/preproc/CAMx/5.10/once/20_photolysis_rates.sh)
+               File: 40_initial_conditions.sh  (modules/preproc/CAMx/5.10/once/40_initial_conditions.sh)
+               File: 50_check_input.sh  (modules/preproc/CAMx/5.10/once/50_check_input.sh)
+               }  # Group: Once
+
+            }  # Group: 5.10
+
+         }  # Group: CAMx
+
+      }  # Group: Preproc
+
+   }  # Group: Modules
+
+File: modules/.../5.10/10_model.sh  (modules/model/CAMx/5.10/10_model.sh)
+
+Group: Index  {
+
+   Index: Everything
+   File Index: Files
+   Function Index: Functions
+   }  # Group: Index
+

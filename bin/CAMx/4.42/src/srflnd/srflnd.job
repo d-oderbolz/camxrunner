@@ -1,0 +1,17 @@
+#
+#  SRFLND -  A simple QA program to check landuse
+#
+#  Updated June 24, 2009: Bare-bone version
+#
+#  Job script input data are:
+#
+#  line 1: grid definition (nx, ny, dxy, xorg, yorg)
+#  line 2: landuse file name
+#  
+#
+#
+srflnd << IEOF
+47,41,32.,-300.,2824.
+landuse.etx_32km
+IEOF
+

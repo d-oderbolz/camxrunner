@@ -1,0 +1,493 @@
+pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate,extra=extra
+;
+; Procedure camxbound.pro. Prepares the boundary conditions file for CAMx simulations
+; using MOZART output data. See CAMx User's Guide for and overview of the format of the
+; output file.
+;
+; Since MOZART data is provided 3-hourly, we use this feature of CAMx:
+; "The time span of each set of boundary data records may be set arbitrarily; 
+; e.g., a set of boundary conditions may be specified for a six hour span, 
+; followed by a set spanning just an hour" (CAMx 4.51 Users guide)
+;
+;
+; Iakovos Barmpadimos, PSI, February 2009
+; with some changes by Daniel Oderbolz
+; $Id$
+;
+;
+; Parameters:
+; fmoz - mozart input file for given day
+; fln - name of a MM5 output file of domain 1 for initial day
+; mm5camxinfile - zp file of domain 1 for given day
+; outfile_bc - name of the output file for boundary conditions (ASCII)
+; nlevs - the number of vertical layers in CAMx
+; mozart_specs - string array with mozart species to extract
+; camx_specs - string array with camx species to extract (same order as mozart_specs of course)
+; note - a comment that will be written to the output file 
+; xorg - Grid x-origin at southwest corner
+; yorg - Grid y-origin at southwest corner
+; delx - x resolution in meters or degrees longitute (float)
+; dely - y resolution in meters or degrees longitute (float)
+; ibdate - date in YYDOY form so 02001 is the 1. Jan 2002
+; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+nspec=n_elements(mozart_specs)
+nspec_c=n_elements(camx_specs)
+
+if ( nspec NE nspec_c) then message,"Must get as many mozart as camx species!"
+if ( nspec EQ 0) then message,"Must get more than 0 species to extract!"
+
+;;;;;;;;;;;;;;;;;;;;
+; Extract stuff from extra
+;;;;;;;;;;;;;;;;;;;;
+
+; This variable holds a 'none' if data is taken verbatim, 'constant' if we use constant data or 'increment' if we add an offset
+data_modification='none'
+
+if ( N_tags(extra) GT 0 ) then begin
+	; we got an extra structure
+	; they look like this (for ozone): cO3 or iO3
+	
+	; fetch list 
+	tags = Tag_names(extra)
+	
+	; Make sure we do not mix i and c ones
+	for i=0,n_elements(tags)-1 do begin
+	
+		; The first character is the type of modification
+		type=strmid(tags[i],0,1)
+		
+		case type of
+			'i' : begin
+					if (data_modification EQ 'none') then begin
+						data_modification='increment'
+						data_modification_prefix='i'
+					endif else begin
+						if (data_modification EQ 'constant') then begin
+							message,'You cannot use constant and increment together!"
+						endif
+					endelse
+				  end
+				
+			'c' : begin
+					if (data_modification EQ 'none') then begin
+						data_modification='constant'
+						data_modification_prefix='c'
+					endif else begin
+						if (data_modification EQ 'increment') then begin
+							message,'You cannot use constant and increment together!"
+						endif
+					endelse
+				  end
+				
+			else : message,"Unknown type of modification: " + type
+		endcase
+
+	endfor
+endif
+
+
+; Time Interval between MOZART records in hours
+time_interval_h = 3
+
+; Report my revision
+my_revision_string='$Id$'
+my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
+
+print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
+
+
+; Correction factor to convert Volume mixing ratio to ppm
+vmr2ppm=1E6
+
+; Clean up old headers produced by rv3
+cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
+spawn, cmd
+
+print,'Reading long/lat from MM5 ' + fln + ' ..."
+
+; Read lon-lat from MM5
+rv3, fln, 'longicrs', mm5lon, bhi, bhr
+rv3, fln, 'latitcrs', mm5lat, bhi, bhr
+
+; Interchange the first two dimensions
+; [y,x,z,time] -> [x,y,z,time]
+mm5lon = TRANSPOSE(mm5lon, [1, 0, 2, 3])
+mm5lat = TRANSPOSE(mm5lat, [1, 0, 2, 3])
+
+; Read MOZART input file.
+
+print,'Reading netCDF file ' + fmoz + ' ..."
+
+ncid = NCDF_OPEN(fmoz)            ; Open The NetCDF file
+
+; These variables are needed in any case
+
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'lev') , lev      ; Read in variable 'lev'
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'T') , T      ; Read in variable 'T'
+
+; Reading the dimensions of MOZART output
+dimsmoz = SIZE(T, /DIMENSIONS)
+ncolsmoz = dimsmoz[0]
+nrowsmoz = dimsmoz[1]
+nlevsmoz = dimsmoz[2]
+ntime = dimsmoz[3]
+
+; Height is "the wrong way around"
+lev = REVERSE(lev)
+
+; In order to be able to loop over species, an array containing all of them is created
+allspecs = FLTARR(ncolsmoz, nrowsmoz, nlevsmoz, ntime, nspec)
+
+; Loop through the MOZART species and loading them
+; we ASSUME that all are gaseous and given as Volume mixing ratio
+for ispec=0,nspec-1 do begin
+
+	; Do we have such a variable?
+	varid = NCDF_VARID(ncid, mozart_specs[ispec])
+	
+	if ( varid EQ -1 ) then message,"The MOZART file " + fmoz + " does not contain " + mozart_specs[ispec]
+
+	print,"Loading " + mozart_specs[ispec] + " (CAMx species " + camx_specs[ispec] + ")"
+
+	NCDF_VARGET, ncid, varid ,dummy
+	
+	; Now it depends on whether we need to modify the data or not
+	case data_modification of
+	
+		'none' : begin
+		 			; We also need to reverse all concentrations (3rd dimension, here 1 based)
+					; Also we convert to PPM
+					allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+				end
+	
+		'constant' : begin
+						
+						; Find the correspondig entry in the extra structure
+						; it is called cO3 for Ozone (CAMx convention)
+						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+						Tag_Num = Tag_Num[0]
+						if (Tag_Num LT 0) then begin
+						
+							; Tag not found, no modification
+							print,"You specified constant values for some species but not for " + camx_specs[ispec]
+						
+							; We also need to reverse all concentrations (3rd dimension, here 1 based)
+							; Also we convert to PPM
+							allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+							
+						endif else begin
+						
+							; Found a tag, set the values correspondingly
+						
+							constant_dummy = extra.(Tag_Num)
+							print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
+						
+							allspecs[*,*,*,*,ispec] = constant_dummy
+						endelse
+						
+					 end
+					 
+		'increment' : begin
+		
+						; Find the correspondig entry in the extra structure
+						; it is called iO3 for Ozone (CAMx convention)
+						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+						Tag_Num = Tag_Num[0]
+						if (Tag_Num LT 0) then begin
+							; Tag not found
+							increment_dummy = 0
+						endif else begin
+							; Tag found, get the data 
+							increment_dummy = extra.(Tag_Num)
+							print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
+						endelse
+		
+						; We also need to reverse all concentrations (3rd dimension, here 1 based)
+						; Also we convert to PPM
+						allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
+					  end
+	endcase
+	
+	
+endfor
+
+NCDF_CLOSE, ncid      ; Close the NetCDF file
+
+print,'netCDF file read sucessfully.'
+
+; Definition of some variables required for the horizontal interpolation
+dims = SIZE(mm5lon, /DIMENSIONS)
+ncols = dims[0] - 1
+nrows = dims[1] - 1
+nhours = dims[3]
+t_mm5lon = FLTARR(ncols, nrows, 1, nhours)
+indexlon = FLTARR(ncols, nrows)
+indexlat = FLTARR(ncols, nrows)
+
+; The x and y dimensions are reduced by 1
+mm5lonr = mm5lon[0:ncols-1, 0:nrows-1, *, *]
+mm5latr = mm5lat[0:ncols-1, 0:nrows-1, *, *]
+
+; Cleaning up some trash
+cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
+spawn, cmd
+
+print,'Reading MM5 output...'
+
+; Read MM5CAMx input file
+; Note that free format reading might not work
+; if the height and pressure values have such a number of digits
+; that their field is full and different fields are not separated
+; by space. In that case a format specification is required.
+; This format depends on the converter that was used to produce the
+; ascii height/pressure files and possibly on the platform.
+OPENR, lun, mm5camxinfile, /GET_LUN
+height = FLTARR(ncols,nrows,nlevs,24)
+pres = FLTARR(ncols,nrows,nlevs,24)
+height2d = FLTARR(ncols,nrows)
+pres2d = FLTARR(ncols,nrows)
+datemm5camx = 0.0
+timemm5camx = 0
+
+FOR t = 0, 23 DO BEGIN
+	FOR k = 0, 13 DO BEGIN
+		READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
+		READF, lun, height2d
+		READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
+		READF, lun, pres2d
+		
+		height[*,*,k,t] = height2d
+		pres[*,*,k,t] = pres2d
+		
+	ENDFOR
+ENDFOR
+
+FREE_LUN, lun
+
+mspec = STRARR(1,nspec)
+
+; Define the header array
+mspec[0,*] = camx_specs
+
+print,'Horizontal Interpolation...'
+
+; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
+FOR i = 0, ncols - 1 DO BEGIN
+	FOR j = 0, nrows - 1 DO BEGIN
+		; The MM5 longtitude is converted from the [-180,180] range to the
+		; [0,360] range for compatibility with the MOZART longtitude
+		t_mm5lon[i,j,0,1] = (mm5lonr[i,j,0,1] + 360.0) MOD 360.0
+		
+		; The decimal grid indices in the MOZART grid, which coincide with
+		; the MM5 cross grid points are calculated
+		indexlon[i,j] = t_mm5lon[i,j,0,1] / 1.87500  ; 1.875 is the lon step in MOZART
+		indexlat[i,j] = ((mm5latr[i,j,0,1] - 0.947368) / 1.89474) + 48 ; 1.89474 is the lat step in MOZART
+	ENDFOR
+ENDFOR
+
+; Horizontal interpolation
+allspecinterp = FLTARR(ncols, nrows, nlevsmoz, ntime, nspec)
+FOR ispec = 0, nspec - 1 DO BEGIN
+	FOR k = 0, nlevsmoz - 1 DO BEGIN
+		FOR t = 0, ntime - 1 DO BEGIN
+			allspecred = allspecs[*,*,k,t,ispec]
+			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat)
+			allspecinterp[*,*,k,t,ispec] = allspecinterp2d
+		ENDFOR
+	ENDFOR
+ENDFOR
+
+print,'Vertical interpolation...'
+
+; Vertical interpolation, linear in pressure
+; This is the target array
+allspecinterpv = FLTARR(ncols,nrows,nlevs,ntime,nspec)
+
+; Switches which will be used in order to ensure that certain warnings are printed only once
+l = 1 
+m = 1 
+
+FOR ispec = 0, nspec - 1 DO BEGIN
+	FOR t = 0, ntime - 1 DO BEGIN
+		FOR i = 0, ncols - 1 DO BEGIN
+			FOR j = 0, nrows - 1 DO BEGIN
+				; we have the concentrations (that is our function of p)
+				; in allspecinterp[i,j,ilev,t,ispec]
+				; the pressures at which we want to sample are in pres[i,j,k,t * 3]
+				; the pressures at which the function is defined are in lev
+				interpolated = INTERPOL(allspecinterp[i,j,*,t,ispec],lev,pres[i,j,*,t * 3])
+
+				; If there are CAMx pressure levels below the lowest MOZART level, those CAMx levels
+				; get the value which corresponds to the lowest level of MOZART. This is done
+				; in order to avoid negative, zero or too low values which occured as a result of
+				; the interpolation below the lowest MOZART level.
+				below_mozart_level = WHERE(pres[i,j,*] GT lev[0], count)
+				IF count NE 0 THEN BEGIN
+					interpolated[below_mozart_level] = allspecinterp[i,j,0,t,ispec]
+					
+					IF l EQ 1 THEN print,'WRN: Some negative values below the lowest MOZART level were replaced by the value of the lowest MOZART level.'
+					l = 0
+				ENDIF
+				
+				; Sometimes negative or too low values occur above the lowest MOZART level as well.
+				; This can happen when the values of a pollutant are low and decrease abruptly between two
+				; consecutive MOZART levels. When negative values occur, they are replaced by the first positive
+				; interpolated value which is encountered above the levels where the negative values occured.
+				ind_negative = WHERE(interpolated LT 0, count)
+				IF count NE 0 THEN BEGIN 
+					interpolated[ind_negative] = interpolated[ind_negative[N_ELEMENTS(ind_negative)-1] + 1]
+					
+					IF m EQ 1 THEN print,'WRN: Some negative values which occured above the lowest MOZART level were replaced by the first positive interpolated value which is encountered above the negative values.'
+					m = 0
+				ENDIF
+					
+				allspecinterpv[i,j,*,t,ispec]=interpolated
+			ENDFOR ; rows (CAMx)
+		ENDFOR ; columns (CAMx)
+	ENDFOR ; time 
+ENDFOR ; species (CAMx)
+
+; Definition of variables for the boundary conditions file
+name = 'BOUNDARY  '
+ione = 1
+btime = 00
+; The end of the file is 00 of next day
+iedate = ibdate + 1
+etime = 00
+rdum = 0.0
+iutm = 0
+nx = ncols
+ny = nrows
+nz = nlevs
+idum = 0
+ncell = [0, nrows, nrows, ncols, ncols]
+icell = [0, 2, ncols-1, 2, nrows-1]
+
+header_boundary = FLTARR(ncols*4, 5)
+
+; Creation of an array which contains part of the header. The contents of this array
+; are written later to the output file
+FOR iedge = 1, 4 DO BEGIN
+  FOR i = 0, ncell[iedge] - 1 DO BEGIN
+    j = i * 4
+    ind1 = j
+    ind2 = j + 1
+    ind3 = j + 2
+    ind4 = j + 3
+    header_boundary[ind1, iedge] = icell[iedge]
+    header_boundary[ind2, iedge] = idum
+    header_boundary[ind3, iedge] = idum
+    header_boundary[ind4, iedge] = idum
+    IF (i EQ 0) THEN header_boundary[ind1:ind4, iedge] = [0, 0, 0, 0]
+    IF (i EQ ncell[iedge] - 1) THEN header_boundary[ind1:ind4, iedge] = [0, 0, 0, 0] 
+  ENDFOR
+ENDFOR
+
+print,"******************************************"
+print,'Some overview data of file ' + outfile_bc
+print,'For each species and level, reporting '
+print,'Min, Avg, Max in PPB [col_max, row_max,time_max,0,0]'
+
+FOR ispec = 0, nspec - 1 DO BEGIN
+	print,mspec[0,ispec]
+	FOR k = 0, nlevs - 1 DO BEGIN
+		; Get the maximum
+		max_ppm = MAX(allspecinterpv[*,*,k,*,ispec])
+		; Where is it?
+		ind_max_ppm = WHERE(allspecinterpv[*,*,k,*,ispec] EQ max_ppm)
+		; Turn into array indices
+		arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
+		; And this back into a string
+		str_arr_ind_max_ppm = STRTRIM(arr_ind_max_ppm,2)
+		; Join to beatiful string
+		join_str_arr_ind_max_ppm = STRJOIN(str_arr_ind_max_ppm,',')
+	
+		print,strtrim(k,2)+': ',$
+			MIN(allspecinterpv[*,*,k,*,ispec])*1000,$
+			MEAN(REFORM(allspecinterpv[*,*,k,*,ispec],ncols*nrows*ntime))*1000,$
+			max_ppm*1000,$
+			'[' , join_str_arr_ind_max_ppm ,']'
+	ENDFOR ; Levels
+ENDFOR ; Species
+
+print,"******************************************"
+
+; We create 2 transposed output arrays, one for West/East
+; and one for South/North.
+; This transpose is needed because we need to write the data
+; in the level-first order. Otherwise, we would get the row or column first.
+
+;print, 'We need to transpose the output array for W/E...,
+
+; [x,y,z,time,spec] -> [z,y,x,time,spec]
+allspecinterpvwe = TRANSPOSE(allspecinterpv, [2, 1, 0, 3, 4])
+
+;print, 'We need to transpose the output array for S/N...,
+
+; [x,y,z,time,spec] -> [z,x,y,time,spec]
+allspecinterpvsn = TRANSPOSE(allspecinterpv, [2, 0, 1, 3, 4])
+
+print,'Writing BOUNDARY data file ' + outfile_bc
+
+; Write the data in the output file
+OPENW, lun, outfile_bc, /GET_LUN
+
+; Header
+PRINTF, lun, name, note
+line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
+PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
+line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)
+PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
+line4 = '(4I5)'
+PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
+PRINTF, lun, mspec
+line19 = '(3I10)'
+line20 = '(9I14)'
+FOR iedge = 1, 4 DO BEGIN
+  PRINTF, lun, ione, iedge, ncell[iedge], FORMAT = line19
+  start = 0
+  finish = 4 * ncell[iedge] - 1
+  PRINTF, lun, header_boundary[start:finish, iedge],  FORMAT = line20
+ENDFOR
+
+; Time variant portion. Mozart provides 3-hourly output 
+line127 = '(5X, I10, F10.2, I10, F10.2)'
+line128 = '(6X, I4, A, 6X, I10)'
+line129 = '(9E14.7)'
+
+FOR t = 0, ntime - 1 DO BEGIN
+
+	; n-Hourly data (Start of next record = end of last)
+	
+	; Start time of record
+	t0 = t * time_interval_h
+	; End time of record
+	t1 = t0 + time_interval_h
+	
+	PRINTF, lun, ibdate, t0, ibdate, t1, FORMAT = line127
+	FOR ispec = 0, nspec - 1 DO BEGIN
+	
+		iedge = 1 ; West
+		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
+		PRINTF, lun, allspecinterpvwe[*,*,0,t,ispec], FORMAT = line129
+		
+		iedge = 2 ; East
+		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
+		PRINTF, lun, allspecinterpvwe[*,*,ncols-1,t,ispec], FORMAT = line129
+
+		iedge = 3 ; South
+		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
+		PRINTF, lun, allspecinterpvsn[*,*,0,t,ispec], FORMAT = line129
+		
+		iedge = 4 ; North
+		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
+		PRINTF, lun, allspecinterpvsn[*,*,nrows-1,t,ispec], FORMAT = line129
+	ENDFOR
+ENDFOR
+  
+FREE_LUN, lun
+
+END
+

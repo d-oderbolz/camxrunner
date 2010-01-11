@@ -1,0 +1,42 @@
+#!/bin/csh -f
+#
+#   This is a sample runscript to convert CAMx AVRG/DEPN outputs into I/O API format.
+#   This program keeps CAMx species names and units.
+#
+#   1. set the environmental variable IOAPI_OUT to the I/O API format output filename
+#   2. Input CAMx filename - CAMx avrg or depn filename
+#   3. Data Type           - AVRG for CAMx average outputs
+#                            DDEP for dry deposited mass field of CAMx deposition outputs
+#                            WDEP for wet deposited mass field of CAMx deposition outputs
+#   4. Data Year           - Year of the data (YYYY)
+#   5. Input Time Zone     - Time zone of CAMx file (e.g., 8 for PST)
+#   6. Map Proj Parameters - P_ALP3D (LAMBERT - 1st true latitude; UTM - UTM zone)
+#                            P_BET3D (LAMBERT - 2nd true latitude; UTM - unused)
+#                            P_GAM3D (LAMBERT - central meridian; UTM - unused)
+#                            XCENT3D (LAMBERT - center longitude; UTM - UTM X offset)
+#                            YCENT3D (LAMBERT - center latitude; UTM - UTM Y offset)
+#   7. Sigma Levels        - Sigma coordinates defining upper boundary of each layer
+#
+#   NOTE1: Horizontal coordinate system of the output is assumed to be Lambert (LAMGRD3)
+#          if UTM zone in the CAMx file is zero. Otherwise, it is assumed UTM (UTMGRD3)
+#          and checked against the input UTM zone (P_ALP3D). Vertical coordinate system
+#          of the output is assumed nonhydrostatic sigma-P (VGSGPN3) and the model-top
+#          (VGTOP3D) is set to 10000 Pa.  THIS MAY NOT BE AN APPROPRIATE ASSUMPTION
+#          FOR ALL CAMx CONFIGURATIONS -- IF IT IS NOT SEE NOTE2 BELOW.
+#
+#   NOTE2: By default, this program outputs the same number of layers as the input file.
+#          Users can extract only the surface layer from a 3-D output by setting the
+#          environmental variable "SURFACE_LAYER_ONLY" to T:
+#          ex) setenv SURFACE_LAYER_ONLY T
+#
+
+setenv IOAPI_OUT camx_avrg_ioapi_filename
+
+./camx2ioapi << EOF
+Input CAMx filename|camx.test.2002001.avrg.grd01
+Data Type          |AVRG
+Data Year          |2002
+Input Time Zone    |0
+Map Proj Parameters|33., 45., -97., -97., 40.
+Sigma Levels       |0.995,0.99,0.98,0.96,0.94,0.91,0.86,0.8,0.74,0.65,0.55,0.4,0.2,0.0
+EOF

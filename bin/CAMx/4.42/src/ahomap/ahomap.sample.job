@@ -1,0 +1,100 @@
+#!/bin/csh
+#
+# User input data definition
+#
+# Lines 1 & 2: Coordiniate projection and master/coarse grid location definition
+# Coordinate project |UTM
+# xorg,yorg,izone    |-316.,2808.,15                (km,km,unitless)
+# or
+# Coordinate project |LAMBERT
+# xorg,yrog,clon,clat|-2000,-1700,-100,40,60,30     (km,km,deg,deg,deg,deg)
+# true1,true2
+# or
+# Coordinate project |LATLON
+# xorg,yorg          |30,-120                       (deg,deg)
+# or 
+# Coordinate project |POLAR
+# xorg,yorg,plon,plat|-100,-200,-100,40             (km,km,deg,deg)
+#
+# Line 3: Master/coarse grid cell size (km)
+# dx,dy              |16,16
+#
+# Line 4: Output file name
+# Output filename    |ahomap.test
+#
+# Line 5: Snow flag (T=5th albedo bin set for snow, F=no snow albedo included)
+# Process for snow?  |.true.
+#
+# Line 6: Number of grids to process
+# Number of grids    |1
+#
+# Lines 7 and 8: Landuse filename and domain size (number of grid cells)
+#                List the master/coarse grid first, then any/all fine grids
+# Landuse file       |camx.landuse
+# nx, ny             |95,83
+#
+# Line 9: Number of TOMS input data files
+# Number of TOMS file|28
+#
+# Lines 10+: Begin date, End date,and the Ozone data file name.
+#            Requires begin date (YYMMDD) and end date (YYMMDD) for ozone 
+#            column data.
+#
+# Example: for August 15, 1993 daily ozone data, 
+# Bday,Eday,TOMS file|930815,930815,ozcol_data/ga930815.m3t
+#
+# Example: for August 1993 monthly ozone data,
+# Bday,Eday,TOMS file|930801,930831,ozcol_data/m3_aug93.mon
+#
+./src/ahomap.lnx << EOF
+Coordinate project |UTM
+xorg,yorg,izone    |-316.,2808.,15
+dx,dy              |16.,16.
+Output filename    |ahomap.test.month
+Process for snow?  |.false.
+Number of grids    |1
+Landuse filename   |camx.landuse
+nx,ny              |95,83
+Numbr of TOMS files|1
+TOMS filename      |930801,930831,ozcol_data/m3_aug93.mon
+EOF
+#
+./src/ahomap.lnx << EOF
+Coordinate project |UTM
+xorg,yorg,izone    |-316.,2808.,15
+dx,dy              |16.,16.
+Output filename    |ahomap.test
+Process for snow?  |.true.
+Number of grids    |1
+Landuse filename   |camx.landuse
+nx,ny              |95,83
+Numbr of TOMS files|28
+Bday,Eday,TOMS file|930815,930815,ozcol_data/ga930815.m3t
+Bday,Eday,TOMS file|930816,930816,ozcol_data/ga930816.m3t
+Bday,Eday,TOMS file|930817,930817,ozcol_data/ga930817.m3t 
+Bday,Eday,TOMS file|930818,930818,ozcol_data/ga930818.m3t
+Bday,Eday,TOMS file|930819,930819,ozcol_data/ga930819.m3t
+Bday,Eday,TOMS file|930820,930820,ozcol_data/ga930820.m3t
+Bday,Eday,TOMS file|930821,930821,ozcol_data/ga930821.m3t
+Bday,Eday,TOMS file|930822,930822,ozcol_data/ga930822.m3t
+Bday,Eday,TOMS file|930823,930823,ozcol_data/ga930823.m3t
+Bday,Eday,TOMS file|930824,930824,ozcol_data/ga930824.m3t
+Bday,Eday,TOMS file|930825,930825,ozcol_data/ga930825.m3t
+Bday,Eday,TOMS file|930826,930826,ozcol_data/ga930826.m3t
+Bday,Eday,TOMS file|930827,930827,ozcol_data/ga930827.m3t
+Bday,Eday,TOMS file|930828,930828,ozcol_data/ga930828.m3t
+Bday,Eday,TOMS file|930829,930829,ozcol_data/ga930829.m3t
+Bday,Eday,TOMS file|930830,930830,ozcol_data/ga930830.m3t
+Bday,Eday,TOMS file|930831,930831,ozcol_data/ga930831.m3t
+Bday,Eday,TOMS file|930901,930901,ozcol_data/ga930901.m3t
+Bday,Eday,TOMS file|930902,930902,ozcol_data/ga930902.m3t
+Bday,Eday,TOMS file|930903,930903,ozcol_data/ga930903.m3t
+Bday,Eday,TOMS file|930904,930904,ozcol_data/ga930904.m3t
+Bday,Eday,TOMS file|930905,930905,ozcol_data/ga930905.m3t
+Bday,Eday,TOMS file|930906,930906,ozcol_data/ga930906.m3t
+Bday,Eday,TOMS file|930907,930907,ozcol_data/ga930907.m3t
+Bday,Eday,TOMS file|930908,930908,ozcol_data/ga930908.m3t
+Bday,Eday,TOMS file|930909,930909,ozcol_data/ga930909.m3t
+Bday,Eday,TOMS file|930910,930910,ozcol_data/ga930910.m3t
+Bday,Eday,TOMS file|930911,930911,ozcol_data/ga930911.m3t
+EOF

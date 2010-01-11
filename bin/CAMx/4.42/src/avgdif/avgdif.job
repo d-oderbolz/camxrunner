@@ -1,0 +1,45 @@
+#!/bin/csh
+#
+# AVGDIF is a simple program to compare two binary coarse grid
+# average files (CAMx *.avrg files) and print a summary of the
+# differences.  This is useful for confirming that the test case
+# benchmark is accurately reproduced.  AVGDIF can tolerate
+# some differences in the species lists and species order
+# on the average files.  You could compare fine grid average
+# files (CAMx *.favrg) by running FINE2UAM then AVGDIF.
+#
+# Remember to compile AVGDIF for the same binary format as you
+# are using for CAMx.  For example, with the Portland Group 
+# compiler on Linux this probably means:
+#    "pgf77 avgdif.f -o avgdif.linux -byteswapio"
+#
+# The input parameters for avgdif are:
+#   output file name
+#   name of input file #1
+#   name of input file #2
+#   min and max layers to calculate differences for
+#
+# The example compares results for the CAMx version 3.1
+# test case on DEC/Alpha and Linux workstations.  The 
+# output files (included  with the AVGDIF distribution) 
+# show that the results on the two workstations differ
+# by an amount consistent with the limits of single precision
+# arithmetic.
+#
+foreach DAY (7 8)
+set I1 = "OTAG"
+set I2 = "DEC.OTAG"
+set S1 = "../../outputs/CAMx_v3.10.${I1}.95070${DAY}.avrg"
+set S2 = "../../outputs/CAMx_v3.10.${I2}.95070${DAY}.avrg"
+#
+rm -rf ${I2}-${I1}.jul${DAY}
+#
+cat << eof > avgdif.in
+${I2}-${I1}.jul${DAY}
+${S1}
+${S2}
+1 1
+eof
+#
+./avgdif < avgdif.in
+end

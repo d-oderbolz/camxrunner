@@ -1,0 +1,11 @@
+#
+extstat << EOF
+Output file        |stats.nox.mokan_4km
+# of files         |6
+Input files        |stats.nox.980817.base.mokan_4km
+                   |stats.nox.980818.base.mokan_4km
+                   |stats.nox.980819.base.mokan_4km
+                   |stats.nox.980820.base.mokan_4km
+                   |stats.nox.980821.base.mokan_4km
+                   |stats.nox.980822.base.mokan_4km
+EOF

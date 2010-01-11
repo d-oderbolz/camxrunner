@@ -1,0 +1,45 @@
+--- airascii.f	2002-07-03 20:23:56.506602096 +0200
++++ ../airascii.f	2008-05-21 16:20:36.353559354 +0200
+@@ -5,19 +5,35 @@
+ C      OUTPUT ON UNIT 9
+ C      DIAGNOSTICS ON UNIT 8
+ C
++C   Slightly changed by Daniel Oderbolz for non-interactive operation
++C
++C   Call it like this: airascii source dest type
++C   e.g:               airascii terrain_domain1_bx3_lucamx.bin terrain_domain1_bx3_lucamx.bin.asc TERRAIN
++
++      character*255 source
++      character*255 dest
++
+       include 'nampar.cmd'
+       COMMON /LCM/ EMOB (MXX,MXY)
+-      CHARACTER*80 IPATH1,IPATH2,IPATH3,IZERO
++      CHARACTER*255 IPATH1,IPATH2,IPATH3,IZERO
+       CHARACTER*10 mfile
+       IZERO='6'
+-      WRITE (*,101)
+-      READ (*,105) mfile
+-      WRITE (*,102)
+-      READ (*,100) IPATH1
++      
++c---  Read arguments   
++c---  This is pgf77 specific code!     
++      call getarg(1,IPATH1)
++      call getarg(2,IPATH2)
++      call getarg(3,mfile)
++      
++      
++C      WRITE (*,101)
++C      READ (*,105) mfile
++C      WRITE (*,102)
++C      READ (*,100) IPATH1
+ C
+       IF (mfile.EQ. 'AVG-SURFER') THEN
+-        WRITE (*,106)
+-        READ (*,100) IPATH2
++C        WRITE (*,106)
++C        READ (*,100) IPATH2
+       ELSE IF (mfile.EQ. 'AVG-SCIAN ') THEN
+         WRITE (*,107)
+         READ (*,100) IPATH2

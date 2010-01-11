@@ -1,0 +1,29 @@
+BIN2ASC and ASC2BIN conversion programs (9/14/06)
+-------------------------------------------------
+
+The BIN2ASC program provides a simple way to convert
+CAMx Fortran binary gridded output files (UAM format)
+to a formatted ASCII text format.  The ASC2BIN program
+converts the opposite direction.  The program code
+can also serve as a reference to the binary read/write
+formats and orders of all the variables on file.
+
+Usage is simple:
+1) Compile the single fortran file of the program you
+   wish to use using the "f77" script provided (NOTE:
+   you may need to change the "pgf77" compiler command
+   to your specific compiler);
+   Just type "f77 bin2asc.f" at the prompt on a computer
+   that has a fortran compiler in the directory where
+   the source code resides.
+2) Run the program at a shell prompt.
+3) Follow the instructions on the screen to enter
+   input/output file paths/names.
+
+The program automatically determines the type of
+file according to the file keyword that is written
+as the first variable on file.  The program is
+F77, so you may need to increase the dimension parameters
+if the program warns you of a problem.  Simply edit
+the values of dimension parameters and re-compile.
+

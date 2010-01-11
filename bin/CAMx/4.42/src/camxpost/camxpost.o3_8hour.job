@@ -1,0 +1,48 @@
+#!/bin/csh
+# This job generates daily 8-hour PRED/OBS (for stats) and AVERAGE files 
+# (for viewing with PAVE) for the KC sub-domain
+#
+# First run AVGCAT to get a single AVERAGE file containing 1-hour ozone for
+# the entire episode (this simplifies the 8-hour averaging process)
+# The input AVERAGE files have been produced by CAMxTRCT to get 1-hour ozone
+# in Layer 1 from fine grid #3.
+# 
+#
+set RUN = "base.a5"
+#
+rm CAMx3.MOKAN.alldays.$RUN.o3
+#
+./avgcat << ieof
+Output file        |CAMx3.MOKAN.alldays.$RUN.kc
+Number of inputs   |8
+Input files        |CAMx3.MOKAN.980815.$RUN.kc
+                   |CAMx3.MOKAN.980816.$RUN.kc
+                   |CAMx3.MOKAN.980817.$RUN.kc
+                   |CAMx3.MOKAN.980818.$RUN.kc
+                   |CAMx3.MOKAN.980819.$RUN.kc
+                   |CAMx3.MOKAN.980820.$RUN.kc
+                   |CAMx3.MOKAN.980821.$RUN.kc
+                   |CAMx3.MOKAN.980822.$RUN.kc
+ieof
+#
+# Next run CAMxPOST for each day of the simulation to get daily 8-hour output
+#   - Processes data on the KC 4-km grid
+#
+foreach date (17 18 19 20 21 22)
+set jdate1 = `echo $date |awk '{printf("%5.5d00",$1+98212)}'`
+set jdate2 = `echo $date |awk '{printf("%5.5d23",$1+98212)}'`
+./camxpost << EOF
+Input avrg file    |CAMx3.MOKAN.alldays.$RUN.kc
+Observation data   |../obs_data2/aug98/o3.kc.aug_all
+Output avrg file   |CAMx3.MOKAN.9808$date.$RUN.kc.o3_8hr
+Outpt max avrg file|
+Outpt PRED/OBS data|predobs.o3_8hr.9808$date.$RUN.kc
+Outpt max OBS data |obsmax.8hour.$date
+n-hour average span|8
+Date/time range    |$jdate1 $jdate2
+Species to proc    |O3
+Peak search radius |50.
+Sub-domain         |    0    0    0    0
+Message            |KC August 1998 Base Case (a5); 8-hour O3
+EOF
+end

@@ -1,0 +1,65 @@
+Compile AHOMAP using the makefile included under the src/ directory.
+Compiler and associated flag variables are supplied for PGF and Intel.
+
+The example job script runs AHOMP in two modes: for daily input TOMS files,
+and for a monthly input TOMS file.  Both test problems are for a non-nested 
+application.  For a nested application you may list a landuse file for each 
+grid in the job script. The resulting AHO file will include albedo panels for
+each landuse file you provide.  
+
+*NOTE: The AHOMAP program will only generate the mandatory AHO inputs to CAMx,
+       which include UV albedo, haze turbidity, and ozone column.  It will not 
+       generate optional input fields now supported by CAMx, which include snow
+       cover, surface roughness, land-ocean mask, and drought stress (See CAMx
+       User's Guide for more information). It is left to the user to generate
+       the optional input fields and appropriately include them into the AHO
+       file.
+
+Revsion History
+---------------
+Feb 2008:
+1. AHOMAP.F and TOMSPREP.F have been generalized to automatically handle older
+   TOMS files (on 1.25 x 1.00 degree grid) and the latest OMI TOMS files (on
+   1.00 x 1.00 degree grid).
+
+May 2006:
+1. Updated to fix a minor bug and to improve the makefile.
+
+Oct 2005:
+1. Updated the routine UTMGEO.F in order to properly handle UTM grids in
+   southern hemisphere latitudes.  This routine is now consistent with the 
+   version available with CAMx.  The UTM zone number in the southern hemisphere
+   should be set to a negative value.
+
+Sep 2005:
+1. Fixed a bug in the coordinate definition section. It now recongnizes
+   'LAMBERT' as the keyword for the LAMBERT coordinate system, and will stop
+   if the keyword does not match UTM, LATLON, LAMBERT, or POLAR.  Previously,
+   a misspelled keyword was not trapped, leading to incorrect calculation
+   of location for the determinination of ozone column.
+
+May 2005: 
+1. Added a user option to account for snow cover in the definition of the 5
+   albedo ranges. If this is invoked, the fifth albedo bin will be reserved for
+   snow and be set to the default value of 0.5; the remaining 4 bins will be
+   used to represent the albedo ranges from the landuse file.  If this is not
+   invoked, all 5 albedo bins will be used to represent albedo ranges from the
+   landuse file.
+2. TOMSprep has been removed as an option from the job script; TOMSprep is
+   now run automatically to fill holes in daily TOMS fields.
+3. Fixed a divide-by-zero bug in the case when a single ozone or albedo
+   value is used for an entire domain.
+4. Removed old leftover code that filled missing ozone data prior to TOMSprep.
+
+January 2005:
+1. The TOMSprep option was added, which helps to fill holes in the daily
+   TOMS fields that can occur at low latitudes.
+2. The capability to use monthly TOMS files was added.
+
+December 2001:
+1. A bug related to fine grid index was fixed.
+
+January 2001:
+1. The ahomap.f program was revised to output dates in Julian format (YYDDD) 
+   rather than calendar (YYMMDD).
+

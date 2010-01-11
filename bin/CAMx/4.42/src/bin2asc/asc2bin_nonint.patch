@@ -1,0 +1,62 @@
+--- bin2asc/asc2bin.f	2006-09-15 00:29:58.132800587 +0200
++++ bin2asc.new/asc2bin.f	2008-05-07 13:28:31.363229970 +0200
+@@ -1,6 +1,10 @@
+       program asc2bin
+ c
+ c---  Convert UAM-IV format CAMx files from ascii to binary
++c     Slightly changed by Daniel Oderbolz to allow non-interactive call
++c
++c     Call it like this bin2asc sourcefile destfile
++c     the filetype is determined automatcally
+ c
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c Copyright (C) 2006  ENVIRON
+@@ -22,6 +26,10 @@
+ c
+       parameter(MXY=380, MXZ=16, MXSPEC=200, MXPT=25000)
+ c
++
++      character*255 source
++      character*255 dest
++      
+       character*80 record
+       character*10 ftype
+       character*4 fname(10), spname(10,MXSPEC)
+@@ -36,6 +44,12 @@
+       logical lhdrspec, l3d, lbndry, lptsrc
+ c
+ c---  ENTRY POINT
++
++c---  Read arguments   
++c---  This is pgf77 specific code!     
++      call getarg(1,source)
++      call getarg(2,dest)
++
+ c
+ c---  read filenames and open files ---
+ c
+@@ -52,15 +66,15 @@
+       write(*,*) 'The file type will be determined automatically'
+       write(*,*)
+ c      
+-      write(*,*) 'Input file name: '
+-      read (*,'(a)') record
+-      open (10,file=record,status='old')
+-      write(*,*) 'Opened file: ',record
+-c
+-      write(*,*) 'Output file name: '
+-      read (*,'(a)') record
+-      open (11,file=record,form='unformatted',status='new')
+-      write(*,*) 'Opened file: ',record
++c      write(*,*) 'Input file name: '
++c      read (*,'(a)') record
++      open (10,file=source,status='old')
++      write(*,*) 'Opened file: ',source
++c
++c      write(*,*) 'Output file name: '
++c      read (*,'(a)') record
++      open (11,file=dest,form='unformatted',status='new')
++      write(*,*) 'Opened file: ',dest
+ c
+ c---  read/write headers ---
+ c

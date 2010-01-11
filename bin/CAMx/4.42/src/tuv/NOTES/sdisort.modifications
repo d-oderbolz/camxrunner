@@ -1,0 +1,71 @@
+Some modifications were necessary to the sdisort.f code to run correctly on 
+a CRAY using cf77.
+
+*----------------------------------------------------------------------------
+
+SDISORT:
+
+     epsil = 10.*r1mach(4)
+
+ changed to
+
+     epsil = 10.*r1mach(3)
+
+Function R1MACH has been changed compared to earlier versions of the code, and
+the argument 4 is no longer valid (will lead to an array bound checking error
+at run time).  Assumed that r1mach(4) in the old version translates to r1mach(3)
+in the new code.
+
+*----------------------------------------------------------------------------
+
+FOUCOM:
+
+U0UTMP is computed as a function of UUM.  For the case usrang = .FALSE., UUM
+is not defined (gets defined only by subroutine SUSRINT, which is not called
+for this case).  Included a zero-initialization (ZEROIT) for UUM.
+
+*----------------------------------------------------------------------------
+
+ASYMTX:
+
+Cray only (tested for cf77, not sure for f90).
+
+This problem still exists, and I don't know why.  When loop 460 exits at the
+statement
+
+    IF (I.EQ.LB) GO TO  470
+
+the values of I at label 470 is messed up and will lead to an array bound
+checking at run time.
+
+The loop 460 reads something like this:
+
+     DO 460, J = LB, N2
+       I = N2 + LB - J
+       [...]
+       IF (I.EQ.LB) GO TO 470
+       UU = ...
+       VV = ...
+       IF (UU .LE. TOL*VV) GO TO 470
+  460 CONTINUE
+
+  470 CONTINUE
+
+Changing it to read
+
+     DO 460, J = LB, N2
+       I = N2 + LB - J
+       [...]
+       IF (J.LT.N2) THEN
+         UU = ...
+         VV = ...
+         IF (UU .LE. TOL*VV) GO TO 470
+       ENDIF
+  460 CONTINUE
+
+  470 CONTINUE
+
+is equivalent code (I = LB <=> J = N2, and J = N2 is only true for the very
+last loop iteration, so for every but the last iteration, the final 3 statements
+within the loop should be executed), and seems to eliminate the problem.
+

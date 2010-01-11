@@ -1,0 +1,26 @@
+NO3 + HV = NO + O2    Based on the evaluation of Carter et al (1986).
+!
+!	The NO3 absorption coefficients and quantum yields are based on
+!	the evalution of Carter et al (1986).
+!
+!	[NASA(1988) recommendation could not be used because it gives no
+!	absorption coefficients below 600 nm, and and makes no
+!	recommendation for the quantum yields.]
+!
+!	Absorption cross sections discussed by Atkinson and Lloyd (1984).
+!	Quantum yields of Magnotta and Johnson (1980), divided by a factor
+!	of 1.5 to yield unit quantum yields at 580-590 nm, used.
+!
+ 0.585  2.770E-18 0.000 
+ 0.590  5.140E-18 0.25 
+ 0.595  4.080E-18 0.40 
+ 0.600  2.830E-18 0.25 
+ 0.605  3.450E-18 0.20 
+ 0.610  1.480E-18 0.20 
+ 0.615  1.960E-18 0.10 
+ 0.620  3.580E-18 0.10 
+ 0.625  9.250E-18 0.05 
+ 0.630  5.660E-18 0.05 
+ 0.635  1.450E-18 0.03 
+ 0.640  1.110E-18 0.000
+

@@ -1,0 +1,1 @@
+../../4.42/daily/20_run_emifad.sh

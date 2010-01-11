@@ -1,0 +1,38 @@
+--- Makefile	Fri Nov 13 13:27:42 2009
++++ Makefile	Fri Nov 13 13:01:20 2009
+@@ -220,7 +220,7 @@
+ 	make model \
+            FC=pgf90 \
+            TARGT=CAMx.$(DOMAIN).pg_linux \
+-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O2 -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
+ 
+ pg_linuxomp:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -235,7 +235,7 @@
+ 	make model \
+            FC=pgf90 \
+            TARGT=CAMx.$(DOMAIN).pg_linuxomp \
+-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
+ 
+ i_linux:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -250,7 +250,7 @@
+ 	make model \
+            FC=ifort \
+            TARGT=CAMx.$(DOMAIN).i_linux \
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo"
++           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
+ 
+ i_linuxomp:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -265,7 +265,7 @@
+ 	make model \
+            FC=ifort \
+            TARGT=CAMx.$(DOMAIN).i_linuxomp \
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+ 
+ ab_linux:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod

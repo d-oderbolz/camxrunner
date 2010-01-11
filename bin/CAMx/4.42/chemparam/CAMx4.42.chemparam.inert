@@ -1,0 +1,25 @@
+CAMx Version       |VERSION4.4
+Mechanism ID       |0
+Aerosol Option     |
+Description        |Inert tracer
+No of gas species  |12
+No of aero species |0
+No of reactions    |0
+Prim photo rxns    |0
+No of sec photo rxn|0
+Species Records
+     Gas Spec   lower bnd     H-law   T-fact    Diffrat  Reactvty
+  1  LA04AM      1.00E-10  0.00e-00        0.      1.00       0.0
+  2  LA05AM      1.00E-10  0.00e-00        0.      1.00       0.0
+  3  LA06AM      1.00E-10  0.00e-00        0.      1.00       0.0
+  4  LA04PM      1.00E-10  0.00e-00        0.      1.00       0.0
+  5  LA05PM      1.00E-10  0.00e-00        0.      1.00       0.0
+  6  LA06PM      1.00E-10  0.00e-00        0.      1.00       0.0
+  7  MB04SR      1.00E-10  0.00e-00        0.      1.00       0.0
+  8  MB05SR      1.00E-10  0.00e-00        0.      1.00       0.0
+  9  MB06SR      1.00E-10  0.00e-00        0.      1.00       0.0
+ 10  MB04AR      1.00E-10  0.00e-00        0.      1.00       0.0
+ 11  MB05AR      1.00E-10  0.00e-00        0.      1.00       0.0
+ 12  MB06AR      1.00E-10  0.00e-00        0.      1.00       0.0
+Reaction Records
+     rate const     act energy                              

@@ -1,0 +1,68 @@
+--- bin2asc/bin2asc.f	2006-09-15 00:29:19.136799539 +0200
++++ bin2asc.new/bin2asc.f	2008-05-07 13:28:41.461694608 +0200
+@@ -1,7 +1,11 @@
+       program bin2asc
+ c
+ c---  Convert UAM-IV format CAMx files from binary to ascii
++c     Slightly changed by Daniel Oderbolz to allow non-interactive call
+ c
++c
++c     Call it like this bin2asc sourcefile destfile
++c     the filetype is determined automatcally
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c Copyright (C) 2006  ENVIRON
+ c 
+@@ -21,6 +25,9 @@
+ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+ c
+       parameter(MXY=300, MXZ=16, MXSPEC=200, MXPT=25000)
++      
++      character*255 source
++      character*255 dest
+ c
+       character*80 record
+       character*10 ftype
+@@ -36,9 +43,17 @@
+       logical lhdrspec, l3d, lbndry, lptsrc
+ c
+ c---  ENTRY POINT
++
++c---  Read arguments   
++c---  This is pgf77 specific code!     
++      call getarg(1,source)
++      call getarg(2,dest)
++     
+ c
+ c---  read filenames and open files ---
+-c
++c      
++
++
+       write(*,*) 'Convert UAM-IV format CAMx files from binary to ascii'
+       write(*,*) 'The following file types are recognized:'
+       write(*,*) ' AVERAGE'
+@@ -52,15 +67,15 @@
+       write(*,*) 'The file type will be determined automatically'
+       write(*,*)
+ c
+-      write(*,*) 'Input file name: '
+-      read (*,'(a)') record
+-      open (10,file=record,form='unformatted',status='old')
+-      write(*,*) 'Opened file: ',record
+-c
+-      write(*,*) 'Output file name: '
+-      read (*,'(a)') record
+-      open (11,file=record,status='new')
+-      write(*,*) 'Opened file: ',record
++c     write(*,*) 'Input file name: '
++c     read (*,'(a)') record
++      open (10,file=source,form='unformatted',status='old')
++      write(*,*) 'Opened file: ',source
++c
++c      write(*,*) 'Output file name: '
++c      read (*,'(a)') record
++      open (11,file=dest,status='new')
++      write(*,*) 'Opened file: ',dest
+ c
+ c---  read/write headers ---
+ c

@@ -1,0 +1,280 @@
+RELEASE NOTES for CAMx v5.10, 09/18/09
+
+The Comprehensive Air Quality Model with extensions (CAMx) is
+available at http://www.camx.com.  
+
+Join the CAMx User's Group by sending an e-mail message to
+Majordomo@environ.org with the words "subscribe CAMxusers" 
+in the body of the message. When you subscribe, Majordomo 
+will send you a reply that provides details on how to use 
+this list server.
+
+The "camxusers" group is meant for broadcasting useful
+information about CAMx and its pre- and post-processors to
+all users that subscribe to this group, or to ask about
+available datasets or issues that other users may have come
+across.  It is not meant for asking how to run CAMx, how
+to prepare inputs, or why CAMx arrived at a particular
+prediction.
+   
+Please direct specific comments or questions about problems
+or bugs with CAMx or its support software to ask-camx@environ.org,
+which comes directly to the developers.
+
+
+Overview of Version 5.10
+------------------------
+
+V5.10 provides several updates and modification from the
+previous release (v5.01).  New capabilities include the 
+Euler-Backward Iterative (EBI) gas-phase chemistry solver
+(replacing the CMC solver), the High-order Decoupled Direct
+Method (HDDM) of source sensitivity, the Reactive Tracer
+Chemical Mechanism Compiler (RTCMC), and the Asymmetric
+Convective Mixing Algorithm (ACM2).  This version also provides
+several bug fixes.
+
+Use the chemistry parameters files specifically labeled for
+v5.10.  There are no changes to other input file formats from
+versions 5.0x, 4.5x, v4.4x, or v4.3x.  There are no changes to
+core model output file formats from versions 5.0x, 4.5x or v4.4x;
+new OSAT/PSAT output deposition files can now be generated.
+
+CAMx versions later than v5.0 are capable of distributed
+multi-processing using MPI.  To use MPI you must have the MPICH
+or MPICH2 utility installed on your system.  Guidance for running
+MPI is provided in the README file located in the source code
+directory, and in the CAMx v5 User's Guide.
+
+
+v5.10 Updates
+-------------
+
+1. The Euler-Backward Iterative (EBI) chemistry solver replaces
+   the CMC fast chemistry solver.
+
+   Implications: EBI provides improved accuracy with similar
+                 speed compared to the CMC solver.  See the
+                 chemistry section of the User's Guide for more
+                 information.
+
+   Affected routines: New chemistry solver routines in /CMC/ and
+                      new EBISOLV.F driver subroutine.
+
+2. The High-order Decoupled Direct Method (HDDM) for source
+   sensitivity has been added as a new Probing Tool. The DDM 
+   probing tool is retained as a separate option. 
+
+   Implications: HDDM provides both first and second order
+                 sensitivity coefficients for initial/boundary
+                 conditions, emissions, and reaction rate
+                 constants, leading to more accurate estimates
+                 of model response to large changes in input
+                 parameters.  See the DDM section of the User's
+                 Guide for more information.
+
+   Affected routines: Several new routines in /DDM/ and modified
+                      routines throughout the model.
+
+3. The Asymmetric Convective Mixing Algorithm, Version 2 (ACM2)
+   has been added as a new vertical diffusion option.
+
+   Implications: ACM2 has been implemented in CAMx as an
+                 alternative to the K-theory vertical diffusion
+                 approach.  Meteorological interface programs
+                 (e.g., MM5CAMx, WRFCAMx, and RAMSCAMx) have been
+                 updated to include an option to generate vertical
+                 diffusivities for ACM2.  ACM2 changes predicted
+                 concentrations and lengthens CAMx run times.
+                 ACM2 works with all probing tools except
+                 Process Analysis IPR.
+                 
+   Affected routines: READNML.F, INITNML.F, NAMELIST.COM, 
+                      DIFFUS.F, new DIFFACM2.F
+
+4. The Reactive Tracer Chemical Mechanism Compiler (RTCMC) has
+   been added as a new RTRAC option.
+
+   Implications: The CAMx Reactive Tracer (RTRAC) Probing Tool
+                 can be used to simulate reactive tracers, such
+                 as air toxics.  The RTCMC is a new front-end to
+                 RTRAC that reads (and solves) a user-defined
+                 chemical mechanism for reactive tracers.  The
+                 RTCMC permits much more complex tracer chemistry
+                 than RTRAC.  The original RTRAC Probing Tool is
+                 retained as a separate option.  See the RTRAC
+                 section of the User's Guide for more information.
+
+   Affected routines: Multiple new routines in /RTRAC/ and 
+                      modified routines throughout the model.
+
+
+v5.10 Modifications
+-------------------
+
+1. Radical concentrations can now be output to the CAMx average
+   file for subsequent analysis or use.
+
+   Implications: Previously, only "state" species names in
+                 the CAMx chemistry parameters file could be
+                 selected for output.  CAMx now allows
+                 mechanism-specific (CB4, CB05, or SAPRC99)
+                 radical concentrations to be output to the
+                 same files.  Simply list the radical names
+                 along with any state species you wish to
+                 output.  The radicals associated with each
+                 mechanism are listed in the User's Guide.
+
+   Affected routines: CNCPREP.F, STARTUP.F, WRFGCON.F, WRTCON.F,
+                      AVERAGE.F
+                
+2. Deposited amounts of OSAT/PSAT source apportionment tracers
+   can now be written to a new OSAT/PSAT deposition output file.
+
+   Implications: OSAT/PSAT tracer deposition may be output to
+                 a separate deposition file similar to the core
+                 model deposition file.  A new flag is
+                 available in the SA section of the CAMx
+                 namelist control file to turn on deposition
+                 output of tracers.
+
+   Affected routines: WRTDEPSA.F, NAMELIST.COM, READNML.COM,
+                      several OSAT/PSAT routines.
+
+3. Added new routine (SRFRUF) to determine global z0 fields
+   each timestep to support dry deposition, PiG and ACM2.
+   Removed redundant code from DRYDEP and PiGDRIVE.
+
+   Implications: The addition of ACM2 required surface
+                 roughness fields previously needed only in
+                 the dry deposition and PiG growth modules.
+                 The new routine determines surface roughness
+                 globally to be used by any routine needing it,
+                 and reduces redundant code in multiple locations.
+                 This change is transparent to the user, with
+                 no impacts to concentrations.
+
+   Affected routines: SRFRUF.F, DRYDEP.F, PIGDRIVE.F,
+                      CAMXFLD.COM, MPI-related routines
+   
+4. The minimum allowed value of horizontal diffusivity was
+   reduced.
+
+   Implications: Until now, the minimum floor of horizontal
+                 diffusivity (Kh) was set to 100 m2/s.  This value
+                 was reduced to 1 m2/s as applications on very
+                 fine grids (<= 1 km) were overly diffusive.
+                 No impacts should be seen for applications
+                 using grids larger than ~1 km.  There will be
+                 potentially large impacts on finer grids.
+
+   Affected routines: KHORZ.F
+
+5. Improved density extrapolation at the top of the model
+   used in the calculation of vertical velocity.
+
+   Implications: This improves the diagnosis of vertical velocity
+                 through the top of the model, especially for
+                 very thick layers extending into the
+                 stratosphere (>8 km).  The previous approach
+                 could lead to negative density at the top of
+                 the model.
+
+   Affected routines: ZRATES.F, ZADVEC.F
+
+6. Restructured PiG puffs to improve impacts of vertical
+   directional shear on puff growth.  Added parameter to
+   control frequency of puff releases.
+
+   Implications: This is a fairly major change to the PiG
+                 growth and shape algorithms.  More realistic
+                 puff growth rates, puff shapes, and plume
+                 patterns are acheived in highly sheared
+                 environments.  Potentially significant 
+                 concentration differences and patterns will
+                 be seen, especially on high-resolution PiG
+                 sampling grids.  Code changes are internal
+                 to the PiG algorithm and otherwise transparent
+                 to the user. 
+
+   Affected routines: SIGGROW.F, PIGDRIVE.F, PIGINIT.F,
+                      PIGSTY.COM
+
+7. Added an integer exit/return value to the shell when CAMx
+   stops.
+
+   Implications: When CAMx stops at the successful completion
+                 of a run, the value returned to the shell is
+                 "0".  If CAMx stops with a trapped error
+                 (usually associated with a CAMx error message)
+                 then the returned value is "1".  This does
+                 not work if CAMx stops with a fortran crash
+                 such as segmentation fault or some I/O errors.
+                 You can trap and check the return value and
+                 set the script to exit if CAMx fails during
+                 a multi-run job.
+
+   Affected rougines: CAMXERR.F, CAMx.F
+
+8. Oxidant concentrations used to estimate mean oxidation rates
+   for the SOA precursors are now calculated by a better averaging
+   scheme.
+
+   Implications: This update will result in slight differences in the
+                 concentrations of PM species and their precursors.
+
+   Affected routines: CHEMDRIV.F 
+
+
+v5.10 Bug Fixes
+---------------
+
+1. Fixed a bug that occurred when restarting CAMx with multiple
+   flexi-nested grids and with OMP on.
+
+   Implications: Flexi-nested grids introduced during a simulation
+                 were not receiving correct initial conditions
+                 from parent grids when OMP was turned on. This
+                 bug led to crashes in chemistry in the first time
+                 step.
+
+   Affected routines: RDFGCON.F
+
+2. Fixed a minor bug reading and comparing dates on initial conditions
+   file.
+
+   Implications: This bug could result in a model stop even with
+                 a properly developed initial conditions file.
+                 The bug impacted model-file date comparisons only.
+
+   Affected routines: READCNC.F
+
+3. Fixed a bug that skipped RTRAC chemistry in PiG if either thermal
+   or photolysis rates were specified.
+
+   Implications: RTRAC chemistry in PiG was called only if both
+                 thermal and photolytic reactions were specified
+                 in the RTRAC chemistry file.  Now, RTRAC PiG
+                 chemistry will be properly called if either are
+                 defined.
+
+   Affected routines: PIGDRIVE.F
+
+4. Fixed a bug that allowed PM dry deposition rates to be calculated
+   when chemistry is turned off and PM sizes are undefined.
+
+   Implications: PM sizes are undefined when chemistry is turned
+                 off, and thus dry deposition rates should not be 
+                 determined for PM species. This fix bypasses
+                 PM dry deposition calculations for inert runs.
+
+   Affected routines: DRYDEP.F, DRYDEPRT.F
+
+5. Fixed a bug in the IEH chemistry solver.
+
+   Implications: The computed Jacobian was not available to the solver
+                 routines.  This bug was introduced with CAMx v5.00.
+                 This does not effect runs using CMC or LSODE.
+
+   Affected routines: IEJAC*.F, READCHM.F
+

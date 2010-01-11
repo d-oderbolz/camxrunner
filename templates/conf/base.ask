@@ -1,0 +1,74 @@
+# $Id$
+#
+# Maintenance note: MUST BE KEPT UP TO DATE WITH conf/base.conf and templates/base.tpl
+#
+# This simple file contains the questions
+# the installer asks to create base.conf by
+# replacing @@-entries in base.tpl
+#
+# The format is 
+# Variable:Datatype:Question:Default:Value1:Value2:...:ValueN
+#
+# Actually, a line could just consist of a Variablename,
+# the installer would then choose these vales:
+# * Datatype S
+# * Question: What is the value of Variablename?
+# * Default: Value of the variable from environment if set
+#
+# You can use variables or combinations thereof as Default (all that is allowed in file rules is allowed here)
+#
+# At the end, a variable amount of possible values is allowed - but you can also specify a variable name
+# that contains a list of values (makes maintenance easier, you can maintain these lists in base.conf or something)
+#
+# Datatype can be 
+#	S (String - Default)
+# I (Integer)
+#	F (Float)
+#	B (Boolean - either true or false)
+# D (Directory - a high level string that is checked)
+# Of course, the ":"  is reserved, # is a comment (as first char in the line ONLY)
+# Lines of the Form COMMENT:String are echoed as is
+#
+#
+COMMENT:The Defaults proposed here are suitable for the Swiss domains used at the LAC (PSI)
+CXR_MAILADDR:S:Enter the email address I should use for notifications:me@nowhere.com
+CXR_SMSNR:S:Enter the cellphone number I should use for notifications:12345678
+CXR_SMSPROVIDER:S:Enter the host name of your SMS provider, if available:$CXR_SMSPROVIDER
+CXR_YEAR:I:What is the default simulation year?:$CXR_YEAR
+CXR_START_MONTH:I:What is the default simulation start month (in MM form)?:$CXR_START_MONTH
+CXR_END_MONTH:I:What is the default simulation end month (in MM form)?:$CXR_END_MONTH
+CXR_BASE_DIR:D::$CXR_BASE_DIR
+CXR_METEO_DIR:D: :$CXR_METEO_DIR
+CXR_LANDUSE_DIR:D: :$CXR_LANDUSE_DIR
+CXR_EMISSION_SOURCE_DIR:D: :$CXR_EMISSION_SOURCE_DIR
+CXR_MAP_PROJECTION:S: :$CXR_MAP_PROJECTION
+CXR_UTM_ZONE:I: :$CXR_UTM_ZONE
+CXR_POLAR_LONGITUDE_POLE:F::$CXR_POLAR_LONGITUDE_POLE
+CXR_POLAR_LATITUDE_POLE:F: :$CXR_POLAR_LATITUDE_POLE
+CXR_LAMBERT_CENTER_LONGITUDE:F: :$CXR_LAMBERT_CENTER_LONGITUDE
+CXR_LAMBERT_CENTER_LATITUDE:F: :$CXR_LAMBERT_CENTER_LATITUDE
+CXR_LAMBERT_TRUE_LATITUDE1:F: :$CXR_LAMBERT_TRUE_LATITUDE1 
+CXR_LAMBERT_TRUE_LATITUDE2:F: :$CXR_LAMBERT_TRUE_LATITUDE2
+CXR_NUMBER_OF_GRIDS:I: :$CXR_NUMBER_OF_GRIDS
+CXR_MASTER_ORIGIN_XCOORD:F: :$CXR_MASTER_ORIGIN_XCOORD
+CXR_MASTER_ORIGIN_YCOORD:F: :$CXR_MASTER_ORIGIN_YCOORD
+CXR_MASTER_CELL_XSIZE:F: :$CXR_MASTER_CELL_XSIZE
+CXR_MASTER_CELL_YSIZE:F: :$CXR_MASTER_CELL_YSIZE
+CXR_MASTER_GRID_COLUMNS:I: :$CXR_MASTER_GRID_COLUMNS
+CXR_MASTER_GRID_ROWS:I: :$CXR_MASTER_GRID_ROWS
+CXR_ERROR_THRESHOLD:I: :$CXR_ERROR_THRESHOLD
+CXR_DIAGNOSTIC_ERROR_CHECK:B: :$CXR_DIAGNOSTIC_ERROR_CHECK
+CXR_ADVECTION_SOLVER:S: :$CXR_ADVECTION_SOLVER
+CXR_CHEMISTRY_SOLVER:S: :$CXR_CHEMISTRY_SOLVER
+CXR_PROBING_TOOL:S: :$CXR_PROBING_TOOL
+CXR_CHEMISTRY:B: :$CXR_CHEMISTRY
+CXR_DRY_DEPOSITION:B: :$CXR_DRY_DEPOSITION
+CXR_WET_DEPOSITION:B: :$CXR_WET_DEPOSITION
+CXR_STAGGERED_WINDS:B: :$CXR_STAGGERED_WINDS
+CXR_GRIDDED_EMISSIONS:B: :$CXR_GRIDDED_EMISSIONS
+CXR_POINT_EMISSIONS:B: :$CXR_POINT_EMISSIONS
+CXR_IGNORE_EMISSION_DATES:B: :$CXR_IGNORE_EMISSION_DATES
+CXR_PLUME_IN_GRID:B: :$CXR_PLUME_IN_GRID
+CXR_PIG_SUBMODEL:B::$CXR_PIG_SUBMODEL
+CXR_AVERAGE_OUTPUT_3D:B::$CXR_AVERAGE_OUTPUT_3D
+CXR_HDF_FORMAT_OUTPUT:B::$CXR_HDF_FORMAT_OUTPUT

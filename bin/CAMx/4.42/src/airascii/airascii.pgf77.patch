@@ -1,0 +1,26 @@
+--- Makefile	2002-07-03 20:24:00.642484113 +0200
++++ ../Makefile	2008-05-21 15:50:35.124997275 +0200
+@@ -1,4 +1,4 @@
+-FCFLGS = -O -convert big_endian -switch fe_ioworst
++FCFLGS = -O -Mbyteswapio
+ OBJCTS = \
+ airascii.o \
+ aircon.o \
+@@ -27,13 +27,13 @@
+ averge.o
+ 
+ airascii: $(OBJCTS) 
+-	f77 -o airascii $(FCFLGS) $(OBJCTS)
++	pgf77  -o airascii $(FCFLGS) $(OBJCTS)
+ 
+ .f.o: 
+-	f77 -c $(FCFLGS) $< 
++	pgf77  -c $(FCFLGS) $< 
+ 
+ wndcnd.o: wndcnd.f winds.cmd
+-	f77 -c $(FCFLGS) wndcnd.f
++	pgf77  -c $(FCFLGS) wndcnd.f
+ 
+ averge.o: averge.f winds.cmd
+-	f77 -c $(FCFLGS) averge.f
++	pgf77  -c $(FCFLGS) averge.f

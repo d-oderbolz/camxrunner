@@ -1,0 +1,7 @@
+The CAMxRunner software is developed as a tool for scientific research and distributed "as is", 
+in the current state of its development.
+
+Hence, PSI issues no warranty of this software to be error free, accurate, complete
+or useful for any specific application. Neither PSI nor the authors shall be liable for any claims, 
+demands, liabilities, costs, losses, damages or expenses of any kind caused to or suffered by 
+any person or entity that directly or indirectly arise out or result from the use of the software or in connection thereof.
