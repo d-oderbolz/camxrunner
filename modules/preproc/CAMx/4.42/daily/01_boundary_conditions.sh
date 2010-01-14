@@ -189,67 +189,150 @@ function boundary_conditions()
 			cxr_main_increase_log_indent
 	
 			cxr_main_logger "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data..."
+			
+			# What method is wanted?
+			case "${CXR_IC_BC_TC_METHOD}" in
+			
+				MOZART | MOZART_CONSTANT | MOZART_INCREMENT )
 				
-			# We will write the IDL call into a temporary file
-			EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
-			
-			# Go there
-			cd $(dirname ${CXR_BC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
-			
-			
-			# First of all, we need to create the 2 arrays or mozart and CAMx species
-			# that we pass to the procedure
-			
-			# Open brackets
-			MOZART_ARRAY="["
-			CAMX_ARRAY="["
-			
-			for i in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
-			do
-				
-				MOZART_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
-				CAMX_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
-				
-				MOZART_ARRAY="${MOZART_ARRAY}'${MOZART_SPEC}',"
-				CAMX_ARRAY="${CAMX_ARRAY}'${CAMX_SPEC}',"
+					# By default, we pass no extra
+					local extra=
+					
+					# MOZART_CONSTANT or INCREMENT?
+					if [ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT ]
+					then
+					
+						# Open the bracket
+						extra="{"
+						
+						for spec_line in ${CXR_IC_BC_TC_SPEC[@]}
+						do
+							# Each line looks something like
+							# O3:0.074740447 
+							
+							if [ "$spec_line" ]
+							then
+								# Make sure its uppercase
+								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
+								conc=$(echo $spec_line | cut -d: -f2)
+								
+								#Add to extra
+								extra="${extra} c${species}:${conc},"
+							fi
+						done
+						
+						# Remove last comma
+						extra=${extra%\,}
+						
+						# Close the bracket
+						extra="${extra}\}"
+						
+						# Add the rest of the syntax
+						extra=",extra\=${extra}"
+						
+					elif [ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT ]
+					then
+					
+						# Open the bracket
+						extra="{"
+						
+						for spec_line in ${CXR_IC_BC_TC_SPEC[@]}
+						do
+							# Each line looks something like
+							# O3:0.074740447 
+							
+							if [ "$spec_line" ]
+							then
+								# Make sure its uppercase
+								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
+								conc=$(echo $spec_line | cut -d: -f2)
+								
+								#Add to extra
+								extra="${extra} i${species}:${conc},"
+							fi
+						done
+						
+						# Remove last comma
+						extra=${extra%\,}
+						
+						# Close the bracket
+						extra="${extra}\}"
+						
+						# Add the rest of the syntax
+						extra=",extra\=${extra}"
 
-			
-			done
-			
-			# Close brackets and remove last ","
-			MOZART_ARRAY="${MOZART_ARRAY%,}]"
-			CAMX_ARRAY="${CAMX_ARRAY%,}]"
-
-			# Create the file to run IDL
-			echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
-			# Interface:
-			# pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate
-			# we need to multiply the resolution by 1000 (metre)
-			
-			echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'" >> ${EXEC_TMP_FILE}
-			echo "exit" >> ${EXEC_TMP_FILE}
-			
-			# Get a copy of the call
-			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+					fi
 				
-			if [ "$CXR_DRY" == false ]
-			then
+					# We will write the IDL call into a temporary file
+					EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+					
+					# Go there
+					cd $(dirname ${CXR_BC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
+					
+					
+					# First of all, we need to create the 2 arrays or mozart and CAMx species
+					# that we pass to the procedure
+					
+					# Open brackets
+					MOZART_ARRAY="["
+					CAMX_ARRAY="["
+					
+					for i in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
+					do
+						
+						MOZART_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
+						CAMX_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
+						
+						MOZART_ARRAY="${MOZART_ARRAY}'${MOZART_SPEC}',"
+						CAMX_ARRAY="${CAMX_ARRAY}'${CAMX_SPEC}',"
+		
+					
+					done
+					
+					# Close brackets and remove last ","
+					MOZART_ARRAY="${MOZART_ARRAY%,}]"
+					CAMX_ARRAY="${CAMX_ARRAY%,}]"
+		
+					# Create the file to run IDL
+					echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
+					# Interface:
+					# pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate
+					# we need to multiply the resolution by 1000 (metre)
+					
+					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'" >> ${EXEC_TMP_FILE}
+					echo "exit" >> ${EXEC_TMP_FILE}
+					
+					# Get a copy of the call
+					cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+						
+					if [ "$CXR_DRY" == false ]
+					then
+						
+						# Then we run it, while preserving the output
+						${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+						
+						# Now we need to convert the file to binary format
+						"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG
+						
+					else
+						cxr_main_logger "${FUNCNAME}"  "This is a dry-run, will not run program"
+					fi
+			
+					# Get back
+					cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
+			
+					# Decrease global indent level
+					cxr_main_decrease_log_indent
+			
+				;;
 				
-				# Then we run it, while preserving the output
-				${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+				ICBCPREP )
 				
-				# Now we need to convert the file to binary format
-				"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG
+					cxr_main_logger -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
 				
-			else
-				cxr_main_logger "${FUNCNAME}"  "This is a dry-run, will not run program"
-			fi
-	
-			# Get back
-			cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
-	
-			# Decrease global indent level
-			cxr_main_decrease_log_indent
+				;;
+				
+			esac
 	
 			# Check if all went well
 			if [ $(cxr_common_check_result) == false ]
