@@ -163,13 +163,13 @@ function check_input()
 		do
 			cxr_main_logger ${FUNCNAME} "Checking Landuse files..."
 			
-			# Run SRFLND (no indentation here!)
+			# Run SRFLND
 			# The 3rd argument is just the filename without extension
-			${CXR_SRFLND_EXEC} << IEOF
-$(cxr_common_get_x_dim $i),$(cxr_common_get_y_dim $i),$(cxr_common_get_z_dim $i),${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD}
-${CXR_LANDUSE_FILES[$i]}
-${CXR_LANDUSE_FILES[$i]%\.*}
-IEOF
+			${CXR_SRFLND_EXEC} <<-IEOF
+			$(cxr_common_get_x_dim $i),$(cxr_common_get_y_dim $i),$(cxr_common_get_z_dim $i),${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD}
+			${CXR_LANDUSE_FILES[$i]}
+			${CXR_LANDUSE_FILES[$i]%\.*}
+			IEOF
 		
 			# Check the return value (0 means OK)
 			if [ $? -ne 0 ]

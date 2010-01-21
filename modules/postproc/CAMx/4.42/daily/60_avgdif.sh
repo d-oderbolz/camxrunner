@@ -180,12 +180,12 @@ function avgdif
 			then
 			
 				# Call AVGDIF (never mind the strange calling convention...)
-				CXR_AVGDIF_EXEC<<EOF
-$CXR_AVGDIF_OUTPUT_FILE
-${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}
-${CXR_TEST_INPUT_ARR_FILES[${i}]}
-${CXR_AVGDIF_MIN_LAYER} ${CXR_AVGDIF_MAX_LAYER}
-EOF
+				CXR_AVGDIF_EXEC<<-EOF
+				$CXR_AVGDIF_OUTPUT_FILE
+				${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}
+				${CXR_TEST_INPUT_ARR_FILES[${i}]}
+				${CXR_AVGDIF_MIN_LAYER} ${CXR_AVGDIF_MAX_LAYER}
+				EOF
 
 			else
 				cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    
