@@ -163,7 +163,7 @@ function set_initial_conditions_variables()
 ################################################################################
 # Function: create_topconc_file
 #
-# If we are using constant values, we need to create a topcnc fle first.
+# If we are using constant values, we need to create a topcnc file first.
 # This function does this by reading the array CXR_IC_BC_TC_SPEC
 #
 ################################################################################
@@ -183,11 +183,11 @@ function create_topconc_file()
 			
 			# Format should be (a10,f10.7), e. g. 
 			# NO        .000000049
-			prinf '%-10s' $species >> $CXR_TOPCONC_OUTPUT_FILE
-			prinf '%10.7f' $conc >> $CXR_TOPCONC_OUTPUT_FILE
+			prinf '%-10s' $species >> "$CXR_TOPCONC_OUTPUT_FILE"
+			prinf '%10.7f' $conc >> "$CXR_TOPCONC_OUTPUT_FILE"
 			
 			# Next line
-			prinf "\n" >> $CXR_TOPCONC_OUTPUT_FILE
+			prinf "\n" >> "$CXR_TOPCONC_OUTPUT_FILE"
 		fi
 	done
 }
@@ -319,7 +319,6 @@ function initial_conditions()
 						MOZART_ARRAY="${MOZART_ARRAY}'${MOZART_SPEC}',"
 						CAMX_ARRAY="${CAMX_ARRAY}'${CAMX_SPEC}',"
 		
-					
 					done
 					
 					# Close brackets and remove last ","
@@ -360,7 +359,29 @@ function initial_conditions()
 				ICBCPREP )
 				
 					cxr_main_logger -w "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
-				
+					
+					# We need a topconc file First
+					create_topconc_file
+					
+					# Is topconc non-empty?
+					if [ -s "${CXR_TOPCONC_OUTPUT_FILE}" ]
+					then
+						# OK, we can now call ICBCPREP
+						"$CXR_ICBCPREP_EXEC" <<-EOF
+						topcon   |${CXR_TOPCONC_OUTPUT_FILE}
+						ic file  |${CXR_IC_OUTPUT_FILE}
+						ic messag|${CXR_RUN}-CONSTANT
+						bc file  |/dev/null
+						bc messag|${CXR_RUN}-CONSTANT
+						nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
+						x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
+						iutm     |${CXR_UTM_ZONE}
+						st date  |${CXR_YEAR_S}${CXR_DOY},0
+						end date |${CXR_YEAR_S}${CXR_DOY},24
+						EOF
+					else
+						cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
+					fi
 					
 				
 				;;
