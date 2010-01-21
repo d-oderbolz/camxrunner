@@ -298,11 +298,14 @@ function cxr_common_initialize_state_db()
 	for FILE in ${CXR_DELETABLE_STATE_FILE_LIST:-}
 	do 
 		# Empty file
-		:> $FILE
+		:> "$FILE"
 		
 		# Secure file
-		chmod 600 $FILE
+		chmod 600 "$FILE"
 	done
+	
+	# This file should not be deleted
+	chmod 600 "$CXR_OUTPUT_FILE_LIST"
 }
 
 ################################################################################

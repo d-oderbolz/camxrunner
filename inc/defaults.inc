@@ -640,6 +640,13 @@ readonly CXR_DECOMPRESSED_FILE
 # 2. Use chmod to deny access (done by cxr_common_initialize_state_db)
 ###
 
+# In this file, we store all output files that have been generated
+# This is used to compress output if needed or to delete output.
+# We will not use a random number in the name (We might need this file 
+# after a run completed), but we protect it using chmod
+CXR_OUTPUT_FILE_LIST=${CXR_STATE_DIR}/output_files
+readonly CXR_OUTPUT_FILE_LIST
+
 # In this file, we store dummy files of a dry run.
 # These will be deleted after the dry run
 CXR_DUMMY_FILE_LIST=${CXR_STATE_DIR}/dry_dummy_files.${RANDOM}

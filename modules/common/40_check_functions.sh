@@ -779,6 +779,8 @@ function cxr_common_check_module_version()
 # old approach where we looped over an array of arrays of files).
 # This list is called CXR_CHECK_THESE_OUTPUT_FILES and must be set befor calling this function
 #
+# Additionally, each created file is added to the file CXR_OUTPUT_FILE_LIST
+#
 # This function does not terminate the runner if errors are found,
 # but it returns false
 ################################################################################
@@ -793,7 +795,7 @@ function cxr_common_check_result()
 		
 		cxr_main_logger -w "${FUNCNAME}" "Output check is not carried out for dryruns - no output was generated.\nStill we generate dummy files now..."
 		
-		# It would make sense to generate dummy files here
+		# generate dummy files if needed
 		for OUTPUT_FILE in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
 			# does it not exist?
@@ -821,8 +823,19 @@ function cxr_common_check_result()
 		if [ -s "${OUTPUT_FILE}" ]
 		then
 			cxr_main_logger -v "${FUNCNAME}" "Output File ${OUTPUT_FILE} has non-zero size, OK."
+			
+			# Add the file to CXR_OUTPUT_FILE_LIST if the file is not yet listed
+			grep "${OUTPUT_FILE}|${CXR_META_MODULE_NAME}" "${CXR_OUTPUT_FILE_LIST}"
+			
+			if [ "$?" -ne 0 ]
+			then
+				# File structure is 
+				# filename|module_that_created it
+				echo "${OUTPUT_FILE}|${CXR_META_MODULE_NAME}" >> "${CXR_OUTPUT_FILE_LIST}"
+			fi
+			
 		else
-		cxr_main_logger -e "${FUNCNAME}:${LINENO} - File $(basename ${OUTPUT_FILE}) was not created properly"
+			cxr_main_logger -e "${FUNCNAME}:${LINENO} - File $(basename ${OUTPUT_FILE}) was not created properly"
 			ERRORS_FOUND=true
 		fi
 	done
