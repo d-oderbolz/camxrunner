@@ -305,6 +305,7 @@ function cxr_common_initialize_state_db()
 	done
 	
 	# This file should not be deleted
+	touch "$CXR_OUTPUT_FILE_LIST"
 	chmod 600 "$CXR_OUTPUT_FILE_LIST"
 }
 
