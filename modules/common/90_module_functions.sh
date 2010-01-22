@@ -133,7 +133,8 @@ function cxr_common_get_module_type()
 ################################################################################
 # Function: cxr_common_run_modules
 #	
-# Calls all or just one single module (adressed by their module name)
+# Calls all or just one single module (adressed by their module name) at a specific 
+# point in time (or One-Time)
 # Here, a sequential approach is implied.
 # 
 #
@@ -156,6 +157,9 @@ function cxr_common_run_modules()
 	# Normally, we check continue, except installers
 	local CHECK_CONTINUE=true
 	
+	# Contains the date for which we currently run if needed 
+	local OUR_DATE
+	
 	# What kind of module?
 	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
 	# - DISABLED_MODULES is a list of disabled modules of the current type
@@ -167,33 +171,39 @@ function cxr_common_run_modules()
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
 			ENABLED_MODULES="$CXR_ENABLED_ONCE_PREPROC"
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_PREPROC";;
+			DISABLED_MODULES="$CXR_DISABLED_ONCE_PREPROC"
+			OUR_DATE=;;
 			
 		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
 			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_DAILY_INPUT_DIR"
 			ENABLED_MODULES="$CXR_ENABLED_DAILY_PREPROC"
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_PREPROC";;
+			DISABLED_MODULES="$CXR_DISABLED_DAILY_PREPROC"
+			OUR_DATE=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
 			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR"
 			ENABLED_MODULES="$CXR_ENABLED_DAILY_POSTPROC"
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_POSTPROC";;
+			DISABLED_MODULES="$CXR_DISABLED_DAILY_POSTPROC"
+			OUR_DATE=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
 			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR"
 			ENABLED_MODULES="$CXR_ENABLED_ONCE_POSTPROC"
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_POSTPROC";;
+			DISABLED_MODULES="$CXR_DISABLED_ONCE_POSTPROC"
+			OUR_DATE=;;
 			
 		"${CXR_TYPE_MODEL}" ) 
 			MODULE_DIRECTORIES="$CXR_MODEL_INPUT_DIR"
 			ENABLED_MODULES="$CXR_ENABLED_MODEL"
-			DISABLED_MODULES="$CXR_DISABLED_MODEL";;
+			DISABLED_MODULES="$CXR_DISABLED_MODEL"
+			OUR_DATE=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_INSTALLER}" ) 
 			MODULE_DIRECTORIES="$CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR" 
 			ENABLED_MODULES="$CXR_ENABLED_INSTALLER"
 			DISABLED_MODULES="$CXR_DISABLED_INSTALLER"
-			CHECK_CONTINUE=false;;
+			CHECK_CONTINUE=false
+			OUR_DATE=;;
 			
 		* ) 
 			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $MODULE_TYPE" ;;
@@ -246,7 +256,7 @@ function cxr_common_run_modules()
 						
 						if [ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER" ]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${CXR_DATE:-}"
+							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
 						fi
 						
 						# Show dependencies, if any
@@ -298,7 +308,7 @@ function cxr_common_run_modules()
 					
 						if [ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER" ]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${CXR_DATE:-}"
+							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
 						fi
 						
 						# Increase global indent level
