@@ -189,8 +189,8 @@ function create_topconc_file()
 			
 			# Format should be (a10,f10.7), e. g. 
 			# NO        .000000049
-			prinf '%-10s' $species >> "$CXR_TOPCONC_OUTPUT_FILE"
-			prinf '%10.7f' $conc >> "$CXR_TOPCONC_OUTPUT_FILE"
+			printf '%-10s' $species >> "$CXR_TOPCONC_OUTPUT_FILE"
+			printf '%10.7f' $conc >> "$CXR_TOPCONC_OUTPUT_FILE"
 			
 			# Next line
 			prinf "\n" >> "$CXR_TOPCONC_OUTPUT_FILE"
