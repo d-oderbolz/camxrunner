@@ -162,6 +162,13 @@ function set_initial_conditions_variables()
 	
 		# space separated list of input files to check
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE $CXR_MOZART_INPUT_FILE"
+	
+	else
+		#ICBCPREP needs a filename for the BC file
+		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+		
+		# BC creates links to the first file. Issue: This does not work if only BC runs!!
+		CXR_FIRST_BC_FILE="${CXR_BC_OUTPUT_FILE}"
 	fi
 	
 }
@@ -377,7 +384,7 @@ function initial_conditions()
 						topcon   |${CXR_TOPCONC_OUTPUT_FILE}
 						ic file  |${CXR_IC_OUTPUT_FILE}
 						ic messag|${CXR_RUN}-CONSTANT
-						bc file  |/dev/null
+						bc file  |${CXR_BC_OUTPUT_FILE}
 						bc messag|${CXR_RUN}-CONSTANT
 						nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
 						x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}

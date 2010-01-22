@@ -337,33 +337,11 @@ function boundary_conditions()
 				
 					cxr_main_logger -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
 					# We use the topconc file that was created by initial_conditions
+					# And we link to the BC file that was created there.
 				
 					# We only create a file the first day, all others we link
-					if [ "$(is_first_day)" == true ]
+					if [ "$(is_first_day)" == false ]
 					then
-						# OK, we can now call ICBCPREP
-						"$CXR_ICBCPREP_EXEC" <<-EOF
-						topcon   |${CXR_TOPCONC_OUTPUT_FILE}
-						ic file  |/dev/null
-						ic messag|${CXR_RUN}-CONSTANT
-						bc file  |${CXR_BC_OUTPUT_FILE}
-						bc messag|${CXR_RUN}-CONSTANT
-						nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
-						x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
-						iutm     |${CXR_UTM_ZONE}
-						st date  |${CXR_YEAR_S}${CXR_DOY},0
-						end date |${CXR_YEAR_S}${CXR_DOY},24
-						EOF
-						
-						if [ -s "${CXR_BC_OUTPUT_FILE}" ]
-						then
-							# File is there, store its name for future reference (for the links)
-							CXR_FIRST_BC_FILE="${CXR_BC_OUTPUT_FILE}"
-						else
-							cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create the const BC file ${CXR_BC_OUTPUT_FILE}"
-						fi
-						
-					else
 						# Not the first day, just link
 						ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
 					fi
