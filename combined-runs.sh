@@ -1,6 +1,7 @@
 #!/bin/bash
 # Executes multiple runs in a row, does compression as we go along
-
+# $Id$
+#
 # Define base directories
 RUNDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner
 OUTDIR=/mnt/other/lacfs02/oderbolz/CAMxRuns/Runs
