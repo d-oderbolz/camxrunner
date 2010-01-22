@@ -23,7 +23,7 @@ c     Domain definition is specified from user input.
 c
       parameter(mxx=140, mxy=140, mxz=25, mxspec=50)
 c
-      character*80 ifile,line
+      character*240 ifile,line
       character*60 ictitle, bctitle
       character*10 tpspec
       real conc(mxx,mxy,mxspec), caloft(mxspec)
