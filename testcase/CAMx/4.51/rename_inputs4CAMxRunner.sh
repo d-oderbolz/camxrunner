@@ -12,7 +12,7 @@ function usage()
 ################################################################################
 {
 cat <<EOF
-	Usage: $0 [undo] [-h] [-u]
+	Usage: $0 [-h] [-u]
 	
 	$0 - Renames some input files of the ENVIRON Testcase to suit the CAMxRunner
 	
