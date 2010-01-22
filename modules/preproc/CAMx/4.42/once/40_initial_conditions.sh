@@ -166,6 +166,7 @@ function set_initial_conditions_variables()
 	else
 		#ICBCPREP needs a filename for the BC file
 		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+		export CHECK_THESE_OUTPUT_FILES="$CHECK_THESE_OUTPUT_FILES $CXR_BC_OUTPUT_FILE"
 	fi
 	
 }
@@ -383,6 +384,8 @@ function initial_conditions()
 						if [ -s "${CXR_TOPCONC_OUTPUT_FILE}" ]
 						then
 							# OK, we can now call ICBCPREP
+							# We create one file that is good until the end of the simulation
+							# Therefore, we fix the enddate
 							"$CXR_ICBCPREP_EXEC" <<-EOF
 							topcon   |${CXR_TOPCONC_OUTPUT_FILE}
 							ic file  |${CXR_IC_OUTPUT_FILE}
@@ -393,7 +396,7 @@ function initial_conditions()
 							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
 							iutm     |${CXR_UTM_ZONE}
 							st date  |${CXR_YEAR_S}${CXR_DOY},0
-							end date |${CXR_YEAR_S}${CXR_DOY},24
+							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24
 							EOF
 						else
 							cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
