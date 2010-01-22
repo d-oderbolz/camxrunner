@@ -440,14 +440,14 @@ function cxr_main_cleanup()
 				# Write to logfile
 				cat "$CXR_ERROR_STACK_FILE" | tee -a ${CXR_LOG}
 				
-				cxr_main_logger "$FUNCNAME" "In these days, errors where detected:"
+				cxr_main_logger -a "$FUNCNAME" "In these days, errors where detected:"
 				# This file might contain dupes
 				cat "$CXR_FAILED_DAYS_FILE" | sort | uniq | tee -a ${CXR_LOG}
 			else
 				# There is no log
 				cat "$CXR_ERROR_STACK_FILE"
 				
-				cxr_main_logger "$FUNCNAME" "In these days, errors where detected:"
+				cxr_main_logger -a "$FUNCNAME" "In these days, errors where detected:"
 				cat "$CXR_FAILED_DAYS_FILE" | sort | uniq 
 			fi
 			
