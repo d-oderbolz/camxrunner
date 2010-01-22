@@ -144,18 +144,26 @@ function set_boundary_conditions_variables()
 	# CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	export CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
 	
-	# We need a MOZART file as input
-	CXR_MOZART_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
-
-	# Also, we need a domain 1 meteo file
-	export i=1
-	CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
+	# ICBCPREP needs no input files
+	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
+	then 
+		# All MOZART-flavors need Input
+		
+		# We need a MOZART file as input
+		CXR_MOZART_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
 	
-	# And finally the ZP file
-	CXR_ZP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+		# Also, we need a domain 1 meteo file
+		export i=1
+		CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
+		
+		# And finally the ZP file
+		CXR_ZP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+	
+		# a space separated list of input files to check
+		export CHECK_THESE_INPUT_FILES="$CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
+	fi
 
-	# a space separated list of input files to check
-	export CHECK_THESE_INPUT_FILES="$CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
+	
 
 }
 
