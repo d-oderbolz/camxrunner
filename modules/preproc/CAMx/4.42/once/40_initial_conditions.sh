@@ -193,7 +193,7 @@ function create_topconc_file()
 			printf '%10.7f' $conc >> "$CXR_TOPCONC_OUTPUT_FILE"
 			
 			# Next line
-			prinf "\n" >> "$CXR_TOPCONC_OUTPUT_FILE"
+			printf "\n" >> "$CXR_TOPCONC_OUTPUT_FILE"
 		fi
 	done
 }
