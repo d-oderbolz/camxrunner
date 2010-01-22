@@ -374,27 +374,32 @@ function initial_conditions()
 				
 					cxr_main_logger -w "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
 					
-					# We need a topconc file First
-					create_topconc_file
-					
-					# Is topconc non-empty?
-					if [ -s "${CXR_TOPCONC_OUTPUT_FILE}" ]
+					if [ "$CXR_DRY" == false ]
 					then
-						# OK, we can now call ICBCPREP
-						"$CXR_ICBCPREP_EXEC" <<-EOF
-						topcon   |${CXR_TOPCONC_OUTPUT_FILE}
-						ic file  |${CXR_IC_OUTPUT_FILE}
-						ic messag|${CXR_RUN}-CONSTANT
-						bc file  |${CXR_BC_OUTPUT_FILE}
-						bc messag|${CXR_RUN}-CONSTANT
-						nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
-						x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
-						iutm     |${CXR_UTM_ZONE}
-						st date  |${CXR_YEAR_S}${CXR_DOY},0
-						end date |${CXR_YEAR_S}${CXR_DOY},24
-						EOF
+						# We need a topconc file First
+						create_topconc_file
+						
+						# Is topconc non-empty?
+						if [ -s "${CXR_TOPCONC_OUTPUT_FILE}" ]
+						then
+							# OK, we can now call ICBCPREP
+							"$CXR_ICBCPREP_EXEC" <<-EOF
+							topcon   |${CXR_TOPCONC_OUTPUT_FILE}
+							ic file  |${CXR_IC_OUTPUT_FILE}
+							ic messag|${CXR_RUN}-CONSTANT
+							bc file  |${CXR_BC_OUTPUT_FILE}
+							bc messag|${CXR_RUN}-CONSTANT
+							nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
+							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
+							iutm     |${CXR_UTM_ZONE}
+							st date  |${CXR_YEAR_S}${CXR_DOY},0
+							end date |${CXR_YEAR_S}${CXR_DOY},24
+							EOF
+						else
+							cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
+						fi
 					else
-						cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
+						cxr_main_logger "${FUNCNAME}"  "This is a dry-run, will not run the program"
 					fi
 					
 				

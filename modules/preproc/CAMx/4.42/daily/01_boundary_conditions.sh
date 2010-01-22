@@ -167,9 +167,6 @@ function set_boundary_conditions_variables()
 		CXR_FIRST_BC_FILE="$(cxr_common_evaluate_rule_at_offset "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" 0 false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
 	
 	fi
-
-	
-
 }
 
 ################################################################################
@@ -344,11 +341,16 @@ function boundary_conditions()
 					# We use the topconc file that was created by initial_conditions
 					# And we link to the BC file that was created there.
 				
-					# We only create a file the first day, all others we link
-					if [ "$(cxr_common_is_first_day)" == false ]
+					if [ "$CXR_DRY" == false ]
 					then
-						# Not the first day, just link
-						ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
+						# We only create a file the first day, all others we link
+						if [ "$(cxr_common_is_first_day)" == false ]
+						then
+							# Not the first day, just link
+							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
+						fi
+					else
+						cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"
 					fi
 				;;
 				
