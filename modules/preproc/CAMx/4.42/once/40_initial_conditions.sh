@@ -166,9 +166,6 @@ function set_initial_conditions_variables()
 	else
 		#ICBCPREP needs a filename for the BC file
 		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
-		
-		# BC creates links to the first file. Issue: This does not work if only BC runs!!
-		CXR_FIRST_BC_FILE="${CXR_BC_OUTPUT_FILE}"
 	fi
 	
 }

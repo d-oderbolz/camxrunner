@@ -161,6 +161,11 @@ function set_boundary_conditions_variables()
 	
 		# a space separated list of input files to check
 		export CHECK_THESE_INPUT_FILES="$CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
+	else
+	
+		# ICBCPREP needs to know the filename of the first BC file
+		CXR_FIRST_BC_FILE="$(cxr_common_evaluate_rule_at_offset "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" 0 false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+	
 	fi
 
 	
