@@ -144,23 +144,25 @@ function cxr_common_try_decompressing_file()
 ################################################################################
 {
 	INPUT_FILE=$1
+	
+	local DELIMITER="|"
 
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then
 	
 		# Check first if we already have done this file
 		# Look for an entry like
-		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc:/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
+		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
 		# In $CXR_DECOMPRESSED_FILE
 		touch "$CXR_DECOMPRESSED_FILE"
 		
-		LINE=$(grep ${INPUT_FILE}: $CXR_DECOMPRESSED_FILE)
+		LINE=$(grep ${INPUT_FILE}${DELIMITER} $CXR_DECOMPRESSED_FILE)
 		
 		if [ "$LINE" ]
 		then
 			# Already done this file
 			# The tempfile is in the second field
-			TEMPFILE=$(echo $LINE | cut -d: -f2)
+			TEMPFILE=$(echo $LINE | cut -d${DELIMITER} -f2)
 			
 			cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE"
 		
@@ -232,7 +234,7 @@ function cxr_common_try_decompressing_file()
 		
 			# Store the fact
 			# In CXR_DECOMPRESSED_FILE
-			echo "${INPUT_FILE}:${NEW_FILE}" >> $CXR_DECOMPRESSED_FILE
+			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_FILE
 		
 			echo "$NEW_FILE"
 		else
