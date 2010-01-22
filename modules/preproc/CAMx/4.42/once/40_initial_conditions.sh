@@ -180,6 +180,10 @@ function set_initial_conditions_variables()
 function create_topconc_file() 
 ################################################################################
 {
+
+	# Clean file First
+	: > "$CXR_TOPCONC_OUTPUT_FILE"
+
 	for spec_line in ${CXR_IC_BC_TC_SPEC[@]}
 	do
 		# Each line looks something like
