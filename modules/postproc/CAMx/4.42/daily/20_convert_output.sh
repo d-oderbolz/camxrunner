@@ -6,7 +6,7 @@
 # Version: $Id$ 
 #
 # Converts the Model output to ASCII. Is tolerant with existing files (this is needed
-# because the IC/BC preprecessors already need some ASCII files and we do not knwo if they ran or not)
+# because the IC/BC preprecessors already need some ASCII files and we do not know if they ran or not)
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
