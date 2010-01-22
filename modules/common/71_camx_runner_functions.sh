@@ -403,6 +403,56 @@ function cxr_common_evaluate_rule()
 }
 
 ################################################################################
+# Function: cxr_common_evaluate_rule
+# 
+# Evaluates a filerule for a given simulation day offset (0..NUMBER_OF_SIM_DAYS-1).
+# This is especially useful to determine how certain things where at the first day of 
+# a simulation (e. g. a filename).
+# The function needs to re-evaluate the date variables, but takes care to reset them properly.
+#
+# Parameters:
+# $1 - The rule to be evaluated (a string, not a variable)
+# $2 - The offset of the simulation day (0..NUMBER_OF_SIM_DAYS-1)
+# [$3] - ALLOW_EMPTY if false, a rule must expand to a non-empty string
+# [$4] - optional name of the rule
+#
+################################################################################
+function cxr_common_evaluate_rule_at_offset()
+################################################################################
+{
+	if [ $# -lt 2 -a $# -gt 4 ]
+	then
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
+	fi
+	
+	# Local variables
+	local CURRENT_OFFSET
+	local RULE
+	local DAY_OFFSET
+	local EXPANSION
+	
+	RULE="$1"
+	DAY_OFFSET="$2"
+
+	# First store current offset
+	CURRENT_OFFSET=${CXR_DAY_OFFSET}
+	
+	# Re-evaluate the date variables
+	cxr_common_export_date_variables "${CXR_START_DATE}" "${DAY_OFFSET}"
+	
+	# Evaluate the Rule
+	EXPANSION=$(cxr_common_evaluate_rule "${RULE}" "${3:-}" "${4:-}")
+	
+	# Reset Current offset
+	CXR_DAY_OFFSET=${CURRENT_OFFSET}
+	
+	# Reset the date vars
+	cxr_common_export_date_variables "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
+	
+	echo "$EXPANSION"
+}
+
+################################################################################
 # Function: cxr_common_evaluate_these_scalar_rules
 # 
 # Evaluates all CXR_*_RULE environment variables in the given list.
