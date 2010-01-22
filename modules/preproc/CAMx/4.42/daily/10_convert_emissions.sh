@@ -170,7 +170,6 @@ function convert_emissions()
 
 		cxr_main_logger "${FUNCNAME}"  "Preparing Emission data..."    
 		
-		# TODO: Currently only the Conversion and not the creation is implemented
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
