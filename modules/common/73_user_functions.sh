@@ -348,7 +348,7 @@ function cxr_common_get_menu_choice()
 ################################################################################
 # Function: cxr_common_get_answers
 #	
-# Poses questions given in a so calles ask-file to the user.
+# Poses questions given in a so called ask-file to the user.
 # Creates a so-called play-file that contains the answer of the user 
 # as key-value pairs.
 #
@@ -356,9 +356,9 @@ function cxr_common_get_menu_choice()
 # Split - ask question - store result
 #
 # Format of .ask files:
-# Variable:Datatype:Question:Default:Value1:Value2:...:ValueN
+# Variable|Datatype|Question|Default|Value1|Value2|...|ValueN
 # A minimal line looks like this (An integer value without question and default):
-# MXCOLA:I::
+# MXCOLA|I||
 #
 # A support program (bin/extract_ask.sh) can automatically extract variables from
 # a template and create a raw .ask file. IF THE FORMAT OF .ASK SHOULD CHANGE,
@@ -383,8 +383,8 @@ function cxr_common_get_menu_choice()
 # B (Boolean - either true or false)
 # D (Directory - a high level string that is checked)
 #
-# Of course, the ":"  is reserved, # is a comment (as first char in the line ONLY)
-# Lines of the Form COMMENT:String are echoed as is
+# Of course, the "|"  is reserved, # is a comment (as first char in the line ONLY)
+# Lines of the Form COMMENT|String are echoed as is
 #
 #
 # Format of resulting .play files:
@@ -443,7 +443,7 @@ function cxr_common_get_answers()
 			continue
 		fi
 
-		# Parse it - structure Variable:Datatype:Question:Default:Value1:Value2:...:ValueN
+		# Parse it - structure Variable|Datatype|Question|Default|Value1|Value2|...|ValueN
 		# All but the first are optional, the number of Values at the end is not fixed.
 		# 
 
@@ -452,7 +452,7 @@ function cxr_common_get_answers()
 		# Save old IFS
 		oIFS="$IFS"
 
-		IFS=$CXR_DELIMITER
+		IFS="$CXR_DELIMITER"
 
 		# Suck line into LINE_ARRAY
 		LINE_ARRAY=($LINE)
@@ -611,7 +611,8 @@ function cxr_common_get_answers()
 # replaces them by the repective value.
 #
 # Format of input .play files:
-# Variable:Value
+# Variable|Value
+# Some older playfiles use : as delimiter, we can detect this
 #
 # Returns:
 # void - aborts program on failure.
@@ -626,6 +627,9 @@ function cxr_common_get_answers()
 function cxr_common_apply_playfile()
 ################################################################################
 {
+	# The delimiter in use here (might change below if file has a different format)
+	local DELIMITER="${CXR_DELIMITER}"
+
 
 	if [ $# -ne 2 ]
 	then
@@ -638,6 +642,17 @@ function cxr_common_apply_playfile()
 	########################################
 	cxr_main_logger "${FUNCNAME}" "Playback of $PLAYFILE..."
 	########################################
+	
+	# Quickly check if is old-style
+	# We count the number of lines containing colons
+	# The first line is ok (comment contains a time like 15:10:55)
+	if [ "$(grep -c : "$PLAYFILE")" -gt 1 ]
+	then	
+		# More than 1 line contains :
+		cxr_main_logger -w $FUNCNAME "More than one line of the file $PLAYFILE contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
+		# Use old DELIMITER
+		DELIMITER=":"
+	fi
 	
 	# This one will be re-used
 	TMPFILE=$(cxr_common_create_tempfile sed)
@@ -672,7 +687,7 @@ function cxr_common_apply_playfile()
 			# Split
 			oIFS="$IFS"
 
-			IFS=$CXR_DELIMITER
+			IFS="$DELIMITER"
 		
 			# Suck line into LINE_ARRAY
 			LINE_ARRAY=($LINE)

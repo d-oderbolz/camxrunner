@@ -262,7 +262,7 @@ function cxr_common_get_pin_server()
 		
 	# Save old IFS
 	oIFS="$IFS"
-	IFS=$CXR_DELIMITER
+	IFS="$CXR_DELIMITER"
 	
 	# Did the user want to pin anything?
 	if [ "${CXR_PIN_SERVER}" ]
@@ -883,7 +883,7 @@ function cxr_common_get_next_task_descriptor()
 		
 		# Save old IFS
 		oIFS="$IFS"
-		IFS=$CXR_DELIMITER
+		IFS="$CXR_DELIMITER"
 		
 		# Suck one line into DESCRIPTOR
 		DESCRIPTOR=($(cat "${POTENTIAL_TASK}" | head -n1 ))
@@ -1185,7 +1185,7 @@ function cxr_common_worker()
 			
 			# Save old IFS
 			oIFS="$IFS"
-			IFS=$CXR_DELIMITER
+			IFS="$CXR_DELIMITER"
 			
 			# Suck one line into DESCRIPTOR
 			DESCRIPTOR=($(cat "$NEW_TASK_DESCRIPTOR" | head -n1 ))
