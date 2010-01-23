@@ -594,23 +594,20 @@ function cxr_common_check_preconditions()
 				# File Present!
 				#############################
 				
-				# is it empty or do we force?
+				# is it empty?
 				if [ ! -s "${OUTPUT_FILE}" ]
 				then
 					# Empty
 					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists, but is empty. I will delete it now..."
 					rm -f "${OUTPUT_FILE}"
-				elif [ "$CXR_FORCE" == true ]
+				fi
+				
+				#Do we force?
+				if [ -f "${OUTPUT_FILE}"  -a "$CXR_FORCE" == true ]
 				then
 					# Force overwrite
-					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose the -f option, so we delete it now..."
-					
-					if [ "$CXR_DRY" == false ]
-					then
-						rm -f "${OUTPUT_FILE}"
-					else
-						cxr_main_logger -w "${FUNCNAME}" "Dryrun, file ${OUTPUT_FILE} not removed"
-					fi
+					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose the -F option, so we delete it now..."
+					rm -f "${OUTPUT_FILE}"
 				else
 					#############################
 					# No overwrite, no empty file
@@ -628,7 +625,7 @@ function cxr_common_check_preconditions()
 				fi
 			else
 				# Not there, OK
-				cxr_main_logger -v "${FUNCNAME}"  "File $OUTPUT_FILE does not yet exist"
+				cxr_main_logger -v "${FUNCNAME}"  "File $OUTPUT_FILE does not yet exist - Good."
 			fi
 		done
 		
