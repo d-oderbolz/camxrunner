@@ -462,13 +462,6 @@ cxr_main_decrease_log_indent
 
 cxr_main_logger -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can tell." 
 
-
-################################################################################
-# Importing the arrays from the config script
-################################################################################
-
-cxr_common_import_arrays
-
 ################################################################################
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
 ################################################################################

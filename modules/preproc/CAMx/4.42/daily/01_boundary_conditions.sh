@@ -124,9 +124,6 @@ function set_boundary_conditions_variables()
 	# Set variables
 	########################################################################
 	
-	# Import arrays needed to find number of layers
-	cxr_common_import_arrays
-	
 	export NLEV=${CXR_NUMBER_OF_LAYERS[1]}
 	
 	# The date needed by this function is a bit strange

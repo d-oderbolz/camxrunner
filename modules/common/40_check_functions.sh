@@ -390,9 +390,6 @@ function cxr_common_check_preconditions()
 	# because we want to fail in a controlled manner if anything is wrong
 	set +u
 
-	#Import arrays if needed
-	cxr_common_import_arrays
-	
 	#Mark if there were errors
 	ERRORS_FOUND=false
 	
@@ -872,9 +869,6 @@ function cxr_common_is_version_supported()
 		# Forget it - must be larger than ""
 		return 1
 	fi
-	
-	# Import arrays quickly because of CXR_SUPPORTED_MODELS
-	cxr_common_import_arrays
 	
 	MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
 	SUPPORTED="${CXR_SUPPORTED_MODEL_VERSIONS[${MODEL_ID}]}"

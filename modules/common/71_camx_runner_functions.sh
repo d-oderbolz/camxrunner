@@ -941,9 +941,7 @@ function cxr_common_get_model_id()
 function cxr_common_create_new_run() 
 ################################################################################
 {
-	# Import array quickly because of CXR_SUPPORTED_MODELS
-	cxr_common_import_arrays
-	
+
 	MODEL=$(cxr_common_get_menu_choice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
 	
 	MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
@@ -1010,8 +1008,6 @@ function cxr_common_create_new_run()
 function cxr_common_check_runner_consistency() 
 ################################################################################
 {
-	cxr_common_import_arrays
-	
 	# Each directory in $CXR_RUN_SUBDIRS must exist
 	
 	# Increase global indent level

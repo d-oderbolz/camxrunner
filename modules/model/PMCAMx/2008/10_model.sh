@@ -348,8 +348,6 @@ function write_model_control_file()
 {
 	# This only supports PMCAMx 2008  (CAMx 4.0)
 	
-	cxr_common_import_arrays
-	
 	echo "CAMx Version       |VERSION4.0" > ${CXR_CAMXIN}
 	echo "Run Message        |${CXR_RUN}" >> ${CXR_CAMXIN} 
 	echo "Root output name   |$CXR_ROOT_OUTPUT" >> ${CXR_CAMXIN} 
