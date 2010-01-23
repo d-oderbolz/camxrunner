@@ -232,10 +232,10 @@ function boundary_conditions()
 						extra=${extra%\,}
 						
 						# Close the bracket
-						extra="${extra}\}"
+						extra="${extra}}"
 						
 						# Add the rest of the syntax
-						extra=",extra\=${extra}"
+						extra=",extra=${extra}"
 						
 					elif [ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT ]
 					then

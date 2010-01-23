@@ -54,13 +54,13 @@ if ( N_tags(extra) GT 0 ) then begin
 	for i=0,n_elements(tags)-1 do begin
 	
 		; The first character is the type of modification
-		type=strmid(tags[i],0,1)
+		type=strupcase(strmid(tags[i],0,1))
 		
 		case type of
-			'i' : begin
+			'I' : begin
 					if (data_modification EQ 'none') then begin
 						data_modification='increment'
-						data_modification_prefix='i'
+						data_modification_prefix='I'
 					endif else begin
 						if (data_modification EQ 'constant') then begin
 							message,'You cannot use constant and increment together!"
@@ -68,10 +68,10 @@ if ( N_tags(extra) GT 0 ) then begin
 					endelse
 				  end
 				
-			'c' : begin
+			'C' : begin
 					if (data_modification EQ 'none') then begin
 						data_modification='constant'
-						data_modification_prefix='c'
+						data_modification_prefix='C'
 					endif else begin
 						if (data_modification EQ 'increment') then begin
 							message,'You cannot use constant and increment together!"
