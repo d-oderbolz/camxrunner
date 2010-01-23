@@ -265,7 +265,7 @@ function cxr_main_logger()
 	if [ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}" ]
 	then
 		echo "${CXR_DATE:-date_not_defined}" >> "${CXR_FAILED_DAYS_FILE:-/dev/null}"
-		cxr_main_increase_error_count "${FUNCTION_NAME}" "${BLANK_MESSAGE}"
+		cxr_main_increase_error_count "${FUNCTION_NAME} - ${BLANK_MESSAGE}"
 	fi
 	
 	# We have to look at several things separately: 
