@@ -89,7 +89,7 @@ exit 1
 #
 # Parameters:
 # $1 - String to parse
-# [$2] - Optional Delimiter (Default :)
+# [$2] - Optional Delimiter (Default $CXR_DELIMITER)
 ################################################################################
 function cxr_common_count_delimited_elements ()
 ################################################################################
@@ -228,7 +228,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_count_delimited_elements "one:two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
+	is $(cxr_common_count_delimited_elements "one${CXR_DELIMITER}two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
 	is $(cxr_common_count_delimited_elements "one two" " ") 2 "cxr_common_count_delimited_elements with 2 elements, space"
 	is $(cxr_common_count_delimited_elements "") 0 "cxr_common_count_delimited_elements with 0 elements"
 

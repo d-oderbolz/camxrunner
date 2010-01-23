@@ -187,8 +187,8 @@ CXR_SEND_SMS=false
 # that sets the variables ACCOUNT and PASS
 CXR_SEND_TWITTER=true
 
-# Delimiter for ask and playfiles
-CXR_DELIMITER=:
+# Delimiter for ask and playfiles and other "DB-like" files
+CXR_DELIMITER="|"
 readonly CXR_DELIMITER
 
 # A space used to delimit list elements

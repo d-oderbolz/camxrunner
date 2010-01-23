@@ -145,7 +145,7 @@ function cxr_common_try_decompressing_file()
 {
 	INPUT_FILE=$1
 	
-	local DELIMITER="|"
+	local DELIMITER="${CXR_DELIMITER}"
 
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then

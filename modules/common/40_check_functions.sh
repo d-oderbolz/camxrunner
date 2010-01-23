@@ -577,7 +577,6 @@ function cxr_common_check_preconditions()
 	
 		for OUTPUT_FILE in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
-			
 			# Test length
 			if [ "${CXR_CHECK_MAX_PATH}" == true ]
 			then
@@ -822,13 +821,13 @@ function cxr_common_check_result()
 			cxr_main_logger -v "${FUNCNAME}" "Output File ${OUTPUT_FILE} has non-zero size, OK."
 			
 			# Add the file to CXR_OUTPUT_FILE_LIST if the file is not yet listed
-			grep "${OUTPUT_FILE}|${CXR_META_MODULE_NAME}" "${CXR_OUTPUT_FILE_LIST}"
+			grep "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" "${CXR_OUTPUT_FILE_LIST}"
 			
 			if [ "$?" -ne 0 ]
 			then
 				# File structure is 
 				# filename|module_that_created it
-				echo "${OUTPUT_FILE}|${CXR_META_MODULE_NAME}" >> "${CXR_OUTPUT_FILE_LIST}"
+				echo "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" >> "${CXR_OUTPUT_FILE_LIST}"
 			fi
 			
 		else
