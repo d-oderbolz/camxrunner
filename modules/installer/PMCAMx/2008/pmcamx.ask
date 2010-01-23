@@ -7,7 +7,7 @@
 # for CAMx 4.51 by replacing @@-entries in base.tpl
 #
 # The format is (same as base.ask)
-# Variable:Datatype:Question:Default:Value1:Value2:...:ValueN
+# Variable|Datatype|Question|Default|Value1|Value2|...|ValueN
 #
 # Actually, a line could just consist of a Variablename,
 # the installer would then choose these vales:
@@ -26,44 +26,44 @@
 #	F (Float)
 #	B (Boolean - either true or false)
 # D (Directory - a high level string that is checked)
-# Of course, the ":"  is reserved, # is a comment (as first char in the line ONLY)
-# Lines of the Form COMMENT:String are echoed as is
+# Of course, the "|"  is reserved, # is a comment (as first char in the line ONLY)
+# Lines of the Form COMMENT|String are echoed as is
 #
 #
-COMMENT:The Defaults proposed here are suitable for the Swiss domains used at the LAC (PSI)
+COMMENT|The Defaults proposed here are suitable for the Swiss domains used at the LAC (PSI)
 
-COMMENT:These are geometry parameters which change camx.prm
-MXCOLA:I::128
-MXROWA:I::113
-MXLAYA:I::16
-MXCOL1:I::97
-MXCOL2:I::128
-MXCOL3:I::128
-MXROW1:I::90
-MXROW2:I::113
-MXROW3:I::134
-MXLAY1:I::16
-MXLAY2:I::16
-MXLAY3:I::16
-MX1D:I::134
+COMMENT|These are geometry parameters which change camx.prm
+MXCOLA|I||128
+MXROWA|I||113
+MXLAYA|I||16
+MXCOL1|I||97
+MXCOL2|I||128
+MXCOL3|I||128
+MXROW1|I||90
+MXROW2|I||113
+MXROW3|I||134
+MXLAY1|I||16
+MXLAY2|I||16
+MXLAY3|I||16
+MX1D|I||134
 
-COMMENT:These are lookup parameters (TUV) which change camx.prm
-NOZN:I::CXR_NOZN
-NALB:I::CXR_NALB
-NHAZE:I::CXR_NHAZ
-NHGHT:I::CXR_NHGHT
-NZEN:I::CXR_NZEN
-NLU:I::CXR_NLU
+COMMENT|These are lookup parameters (TUV) which change camx.prm
+NOZN|I||CXR_NOZN
+NALB|I||CXR_NALB
+NHAZE|I||CXR_NHAZ
+NHGHT|I||CXR_NHGHT
+NZEN|I||CXR_NZEN
+NLU|I||CXR_NLU
 
-MXSPEC:I:What is the number of simulated species?:100
-TEMPLO:I:What is the nminimum temperature for chemical reactions?:200.
-TEMPHI:I:What is the maximum temperature for chemical reactions?:320.
-PRESLO:I:What is the nminimum pressure for chemical reactions?:100.0
-PRESHI:I:What is the maximum pressure for chemical reactions?:1100.
+MXSPEC|I|What is the number of simulated species?|100
+TEMPLO|I|What is the nminimum temperature for chemical reactions?|200.
+TEMPHI|I|What is the maximum temperature for chemical reactions?|320.
+PRESLO|I|What is the nminimum pressure for chemical reactions?|100.0
+PRESHI|I|What is the maximum pressure for chemical reactions?|1100.
 
-COMMENT:These are parameters relevant for Probing, they change tracer.com - read CAMx documentation!
+COMMENT|These are parameters relevant for Probing, they change tracer.com - read CAMx documentation!
 
-MXTRSP:I::1
-MXFDDM:I::1
+MXTRSP|I||1
+MXFDDM|I||1
 
 
