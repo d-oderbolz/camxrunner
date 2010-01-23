@@ -337,9 +337,9 @@ function cxr_common_check_environment_executables ()
 ################################################################################
 # Function: cxr_common_check_preconditions
 #	
-# Checks if all files for the current day are available.
-# Also sees that output files are not present - if -f is given,
-# files are deleted here. 
+# Checks if all input files listed in CXR_CHECK_THESE_INPUT_FILES are available.
+# Also sees that output files listed in CHECK_THESE_OUTPUT_FILES are not present 
+# - if -F is given, existing output files are deleted here. 
 # If we detect empty output files, they are always removed.
 #
 # Files are checked for length if CXR_CHECK_MAX_PATH=true
@@ -356,14 +356,14 @@ function cxr_common_check_environment_executables ()
 function cxr_common_check_preconditions() 
 ################################################################################
 {
-	# Does the user want to limit?
+	# Does the user want to limit the checks?
 	local LIMITED=false
 	
 	# First, all is switched off
 	local DO_INPUT=false
 	local DO_OUTPUT=false
 
-	while getopts ":ioe" opt
+	while getopts ":io" opt
 	do
 		case $opt in
 		i) LIMITED=true ; DO_INPUT=true  ;;
@@ -387,7 +387,7 @@ function cxr_common_check_preconditions()
 	unset OPTIND
 
 	# In here, we disable strict checking of variables
-	# because we want to fail controlled if anything is wrong
+	# because we want to fail in a controlled manner if anything is wrong
 	set +u
 
 	#Import arrays if needed
