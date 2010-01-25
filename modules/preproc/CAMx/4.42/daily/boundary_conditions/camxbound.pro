@@ -56,13 +56,13 @@ if ( N_tags(extra) GT 0 ) then begin
 	for i=0,n_elements(tags)-1 do begin
 	
 		; The first character is the type of modification
-		type=strmid(tags[i],0,1)
+		type=strupcase(strmid(tags[i],0,1))
 		
 		case type of
-			'i' : begin
+			'I' : begin
 					if (data_modification EQ 'none') then begin
 						data_modification='increment'
-						data_modification_prefix='i'
+						data_modification_prefix='I'
 					endif else begin
 						if (data_modification EQ 'constant') then begin
 							message,'You cannot use constant and increment together!"
@@ -70,10 +70,10 @@ if ( N_tags(extra) GT 0 ) then begin
 					endelse
 				  end
 				
-			'c' : begin
+			'C' : begin
 					if (data_modification EQ 'none') then begin
 						data_modification='constant'
-						data_modification_prefix='c'
+						data_modification_prefix='C'
 					endif else begin
 						if (data_modification EQ 'increment') then begin
 							message,'You cannot use constant and increment together!"
@@ -395,20 +395,20 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	FOR k = 0, nlevs - 1 DO BEGIN
 		; Get the maximum
 		max_ppm = MAX(allspecinterpv[*,*,k,*,ispec])
+		
 		; Where is it?
-		ind_max_ppm = WHERE(allspecinterpv[*,*,k,*,ispec] EQ max_ppm)
+		;ind_max_ppm = WHERE(allspecinterpv[*,*,k,*,ispec] EQ max_ppm)
 		; Turn into array indices
-		arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
+		;arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
 		; And this back into a string
-		str_arr_ind_max_ppm = STRTRIM(arr_ind_max_ppm,2)
+		;str_arr_ind_max_ppm = STRTRIM(arr_ind_max_ppm,2)
 		; Join to beatiful string
-		join_str_arr_ind_max_ppm = STRJOIN(str_arr_ind_max_ppm,',')
-	
+		;join_str_arr_ind_max_ppm = STRJOIN(str_arr_ind_max_ppm,',')
+
 		print,strtrim(k,2)+': ',$
 			MIN(allspecinterpv[*,*,k,*,ispec])*1000,$
 			MEAN(REFORM(allspecinterpv[*,*,k,*,ispec],ncols*nrows*ntime))*1000,$
-			max_ppm*1000,$
-			'[' , join_str_arr_ind_max_ppm ,']'
+			max_ppm*1000
 	ENDFOR ; Levels
 ENDFOR ; Species
 
