@@ -245,7 +245,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parametres that come later
-while getopts ":dlvVFmct:sDP:ITxi:o:CNp:f:h" opt
+while getopts ":dlvVFmct:sD:P:ITxi:o:CNp:f:h" opt
 do
 	case "${opt}" in
 		d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
