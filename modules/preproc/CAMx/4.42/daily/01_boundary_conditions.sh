@@ -305,10 +305,10 @@ function boundary_conditions()
 					# Create the file to run IDL
 					echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
 					# Interface:
-					# pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate
+					# pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate,extra
 					# we need to multiply the resolution by 1000 (metre)
 					
-					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'" >> ${EXEC_TMP_FILE}
+					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${EXEC_TMP_FILE}
 					echo "exit" >> ${EXEC_TMP_FILE}
 					
 					# Get a copy of the call
