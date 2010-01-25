@@ -319,6 +319,8 @@ function cxr_common_initialize_state_db()
 # The name of the stage is determined via <cxr_common_get_stage_name> if it is not passed in.
 # The ability to pass a stage name is used by installers and tests alike, they use a slightly different approach.
 #
+# If the user wants to run a specific module (CXR_RUN_LIMITED_PROCESSING=true), we will disregard the fact that
+# the step already ran, but we advise -F
 #
 # Returns:
 # 	$CXR_RET_OK if OK (true)
@@ -357,12 +359,20 @@ function cxr_common_store_state()
 			# Check if this was already started
 			if [ $(cxr_common_has_finished "$STAGE") == true ]
 			then
-				# Oops, this Stage was already started	
-				cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 				
-				# false means already run
-				echo false
-				return $CXR_RET_ALREADY_RUN
+				if [ "$CXR_RUN_LIMITED_PROCESSING" == true ]
+				then
+					# Ran already, but user wants to run specifically this
+					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, but since you requested this specifir module, we run it. If it fails try to run n \t ${CXR_CALL} -F \n to remove existing output files."
+					echo true
+				else
+					# Oops, this Stage was already started	
+					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+					
+					# false means already run
+					echo false
+					return $CXR_RET_ALREADY_RUN
+				fi 
 			else
 				echo true
 			fi
