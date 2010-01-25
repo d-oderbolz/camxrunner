@@ -338,7 +338,7 @@ function test_module()
 	is "$(cxr_common_extract_characters 1234 2)" 12 "cxr_common_extract_characters"
 	is "$(cxr_common_two_digits 1)" 01 "cxr_common_two_digits 1"
 	is "$(cxr_common_two_digits 01)" 01 "cxr_common_two_digits 01"
-	is "$(cxr_common_two_digits 001)" 001 "cxr_common_two_digits too long"
+	is "$(cxr_common_two_digits 001)" 01 "cxr_common_two_digits too long"
 	is "$(cxr_common_extract_number xx00xx )" '' "cxr_common_extract_number not at beginning"
 	
 	########################################
