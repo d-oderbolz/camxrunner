@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=4
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -1168,12 +1168,15 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	i=1
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
 	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
 	is $(cxr_common_evaluate_rule "$(cxr_common_abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
+	is $(cxr_common_evaluate_rule "domain$(cxr_common_n_digits $i 3)") domain003 "cxr_common_evaluate_rule with formatting"
 	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
 	
 	########################################
