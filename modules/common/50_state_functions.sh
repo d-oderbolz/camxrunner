@@ -363,7 +363,7 @@ function cxr_common_store_state()
 				if [ "$CXR_RUN_LIMITED_PROCESSING" == true ]
 				then
 					# Ran already, but user wants to run specifically this
-					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, but since you requested this specifir module, we run it. If it fails try to run n \t ${CXR_CALL} -F \n to remove existing output files."
+					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, but since you requested this specifir module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
 					echo true
 				else
 					# Oops, this Stage was already started	
@@ -481,7 +481,7 @@ function cxr_common_has_finished()
 	
 		if [ -f "$START_FILE" ]
 		then
-			cxr_main_logger -w "${FUNCNAME}" "The stage ${STAGE} did already run earlier, we will skip it"
+			cxr_main_logger -v "${FUNCNAME}" "Found a START file for ${STAGE}"
 		fi
 		
 		echo true
