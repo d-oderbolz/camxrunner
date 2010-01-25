@@ -97,7 +97,9 @@ function set_split_emissions_variables()
 ################################################################################
 {	
 	# First of all, reset checks.
-	# We will later continuously add entries to these 2 lists
+	# We will later continuously add entries to these 2 lists.
+	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
+	# these are deleted if he user runs the -F option. Do note mik up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
@@ -108,16 +110,13 @@ function set_split_emissions_variables()
 	# Evaluate some rules
 	CXR_SPLIT_EMISSIONS_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE)"
 
-	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
+	# CXR_CHECK_THESE_INPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_SPLIT_EMISSIONS_INPUT_FILE"
-
 
 	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE)"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"
-
-
 }
 
 ################################################################################

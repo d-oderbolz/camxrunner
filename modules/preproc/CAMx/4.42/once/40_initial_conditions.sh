@@ -112,8 +112,11 @@ exit 1
 function set_initial_conditions_variables() 
 ################################################################################
 {	
+
 	# First of all, reset checks.
-	# We will later continuously add entries to these 2 lists
+	# We will later continuously add entries to these 2 lists.
+	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
+	# these are deleted if he user runs the -F option. Do note mik up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
@@ -161,7 +164,7 @@ function set_initial_conditions_variables()
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE $CXR_MOZART_INPUT_FILE"
 	
 	else
-		#ICBCPREP needs a filename for the BC file
+		#ICBCPREP needs a filename for the BC file it will create (the one for the first day)
 		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_BC_OUTPUT_FILE"
 	fi

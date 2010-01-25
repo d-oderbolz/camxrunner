@@ -13,7 +13,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Properly implement cloud files
+# TODO: Properly implement cloud files, Add output checks
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -118,7 +118,9 @@ function set_convert_output_variables()
 	ZP_ONE_OK=false
 	
 	# First of all, reset checks.
-	# This module checks only input files (See comment in header)
+	# We will later continuously add entries to these 2 lists.
+	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
+	# these are deleted if he user runs the -F option. Do note mik up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
@@ -201,8 +203,6 @@ function set_convert_output_variables()
 		# Checks for the input
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_AVG_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} "
 		
-
-
 	done
 }
 

@@ -115,7 +115,9 @@ function set_prepare_output_dir_variables()
 ################################################################################
 {
 	# First of all, reset checks.
-	# We will later continuously add entries to these 2 lists
+	# We will later continuously add entries to these 2 lists.
+	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
+	# these are deleted if he user runs the -F option. Do note mik up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
@@ -157,6 +159,7 @@ function set_prepare_output_dir_variables()
 		# Emissions done in preprocessor 
 		
 		# These are used for the creation of the aqmfad directory
+		# Despit the name an input here
 		CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 	
 		#Checks

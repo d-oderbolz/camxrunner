@@ -113,7 +113,9 @@ function set_boundary_conditions_variables()
 ################################################################################
 {	
 	# First of all, reset checks.
-	# We will later continuously add entries to these 2 lists
+	# We will later continuously add entries to these 2 lists.
+	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
+	# these are deleted if he user runs the -F option. Do note mik up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
@@ -141,7 +143,7 @@ function set_boundary_conditions_variables()
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
 	
-	# ICBCPREP needs no input files
+	# ICBCPREP needs no input files, except the frst BC file
 	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
 	then 
 		# All MOZART-flavors need Input
@@ -157,12 +159,13 @@ function set_boundary_conditions_variables()
 		CXR_ZP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
 	
 		# a space separated list of input files to check
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
 	else
 	
 		# ICBCPREP needs to know the filename of the first BC file
 		CXR_FIRST_BC_FILE="$(cxr_common_evaluate_rule_at_offset "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" 0 false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
-	
+		
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_FIRST_BC_FILE"
 	fi
 }
 
