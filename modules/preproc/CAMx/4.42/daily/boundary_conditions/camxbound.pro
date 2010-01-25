@@ -47,7 +47,7 @@ data_modification='none'
 
 if ( N_tags(extra) GT 0 ) then begin
 	; we got an extra structure
-	; they look like this (for ozone): cO3 or iO3
+	; the tags look like this (for ozone): cO3 or iO3
 	
 	; fetch list 
 	tags = Tag_names(extra)
@@ -157,57 +157,57 @@ for ispec=0,nspec-1 do begin
 	case data_modification of
 	
 		'none' : begin
-		 			; We also need to reverse all concentrations (3rd dimension, here 1 based)
-					; Also we convert to PPM
-					allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-				end
+		 					; We also need to reverse all concentrations (3rd dimension, here 1 based)
+							; Also we convert to PPM
+							allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+						end
 	
 		'constant' : begin
 						
-						; Find the correspondig entry in the extra structure
-						; it is called cO3 for Ozone (CAMx convention)
-						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-						Tag_Num = Tag_Num[0]
-						if (Tag_Num LT 0) then begin
+									; Find the correspondig entry in the extra structure
+									; it is called cO3 for Ozone (CAMx convention)
+									Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+									Tag_Num = Tag_Num[0]
+									if (Tag_Num LT 0) then begin
+									
+										; Tag not found, no modification
+										print,"You specified constant values for some species but not for " + camx_specs[ispec]
+									
+										; We also need to reverse all concentrations (3rd dimension, here 1 based)
+										; Also we convert to PPM
+										allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+										
+									endif else begin
+									
+										; Found a tag, set the values correspondingly
+									
+										constant_dummy = extra.(Tag_Num)
+										print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
+									
+										allspecs[*,*,*,*,ispec] = constant_dummy
+									endelse
 						
-							; Tag not found, no modification
-							print,"You specified constant values for some species but not for " + camx_specs[ispec]
-						
-							; We also need to reverse all concentrations (3rd dimension, here 1 based)
-							; Also we convert to PPM
-							allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-							
-						endif else begin
-						
-							; Found a tag, set the values correspondingly
-						
-							constant_dummy = extra.(Tag_Num)
-							print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
-						
-							allspecs[*,*,*,*,ispec] = constant_dummy
-						endelse
-						
-					 end
+					 			end
 					 
 		'increment' : begin
 		
-						; Find the correspondig entry in the extra structure
-						; it is called iO3 for Ozone (CAMx convention)
-						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-						Tag_Num = Tag_Num[0]
-						if (Tag_Num LT 0) then begin
-							; Tag not found
-							increment_dummy = 0
-						endif else begin
-							; Tag found, get the data 
-							increment_dummy = extra.(Tag_Num)
-							print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
-						endelse
-		
-						; We also need to reverse all concentrations (3rd dimension, here 1 based)
-						; Also we convert to PPM
-						allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
-					  end
+										; Find the correspondig entry in the extra structure
+										; it is called iO3 for Ozone (CAMx convention)
+										Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+										Tag_Num = Tag_Num[0]
+										if (Tag_Num LT 0) then begin
+											; Tag not found
+											increment_dummy = 0
+										endif else begin
+											; Tag found, get the data 
+											increment_dummy = extra.(Tag_Num)
+											print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
+										endelse
+		        				
+										; We also need to reverse all concentrations (3rd dimension, here 1 based)
+										; Also we convert to PPM
+										allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
+					  			end
 	endcase
 	
 	
