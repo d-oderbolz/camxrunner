@@ -543,6 +543,10 @@ readonly CXR_LOG_OUTPUT_DIR
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
+# Hashes are stored here
+CXR_HASH_DIR=${CXR_STATE_DIR}/hashes
+readonly CXR_HASH_DIR
+
 ########################################
 # Parallel Task execution
 ########################################
