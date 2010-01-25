@@ -266,10 +266,10 @@ function boundary_conditions()
 						extra=${extra%\,}
 						
 						# Close the bracket
-						extra="${extra}\}"
+						extra="${extra}}"
 						
 						# Add the rest of the syntax
-						extra=",extra\=${extra}"
+						extra=",extra=${extra}"
 
 					fi
 				
