@@ -273,6 +273,21 @@ function test_module()
 	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
 	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
 	
+	# Performance testing
+	time (
+		for a in $(seq 1 1000)
+		do 
+			cxr_common_hash_put test $a $a
+		done 
+	)
+	
+	time (
+		for a in $(seq 1 1000)
+		do 
+			b[$a]=$a
+		done 
+	)
+	
 	########################################
 	# teardown tests if needed
 	########################################
