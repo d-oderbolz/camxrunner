@@ -228,7 +228,7 @@ function HDF_installer()
 		cxr_main_logger -a -b "${FUNCNAME}" "IOAPI"
 		
 		# Set needed variable
-		export BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
+		BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
 		
 		# Go to location
 		cd $MYLIBDIR/ioapi || cxr_main_die_gracefully "could not change to $MYLIBDIR/ioapi"

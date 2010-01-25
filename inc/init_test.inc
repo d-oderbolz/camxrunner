@@ -40,8 +40,8 @@ do
 	NEW_NAME="${NAME//CXR_USER_TEMP/CXR}"
 	VALUE="$(echo "${VAR}" | cut -d= -f2)"
 
-	# Export rewritten variable
-	export ${NEW_NAME}="$VALUE"
+	# Set rewritten variable
+	${NEW_NAME}="$VALUE"
 done
 
 # Load common modules 

@@ -209,7 +209,7 @@ function set_model_variables()
 			# Source group specific
  			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 			do
- 				export  CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]=$(cxr_common_evaluate_rule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
+ 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]=$(cxr_common_evaluate_rule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
  				
  				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}"

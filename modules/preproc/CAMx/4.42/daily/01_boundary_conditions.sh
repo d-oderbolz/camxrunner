@@ -124,11 +124,11 @@ function set_boundary_conditions_variables()
 	# Set variables
 	########################################################################
 	
-	export NLEV=${CXR_NUMBER_OF_LAYERS[1]}
+	NLEV=${CXR_NUMBER_OF_LAYERS[1]}
 	
 	# The date needed by this function is a bit strange
 	# It needs a 2-digit yoer and a 3-digit DOY
-	export IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_DATE} 3 )"
+	IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_DATE} 3 )"
 	
 	# Evaluate some rules
 	
@@ -150,7 +150,7 @@ function set_boundary_conditions_variables()
 		CXR_MOZART_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
 	
 		# Also, we need a domain 1 meteo file
-		export i=1
+		i=1
 		CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 		
 		# And finally the ZP file

@@ -607,7 +607,7 @@ readonly CXR_ACTIVE_ALL_LIST
 
 # This is where the locks go
 # must be exported because lock manager reads from environment
-export CXR_LOCK_DIR=$CXR_STATE_DIR/locks
+CXR_LOCK_DIR=$CXR_STATE_DIR/locks
 readonly CXR_LOCK_DIR
 
 ################################################################################

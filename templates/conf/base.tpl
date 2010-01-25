@@ -115,7 +115,7 @@ CXR_DISABLED_DAILY_POSTPROC="avgdif"
 # unwanted one-time postprocessors.
 # If "skip_all" is given, all one-time postprocessors are skipped
 
-export  CXR_DISABLED_ONCE_POSTPROC=""
+CXR_DISABLED_ONCE_POSTPROC=""
 
 ################################################################################
 # Chemical Mechanism

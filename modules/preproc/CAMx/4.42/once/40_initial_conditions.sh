@@ -151,7 +151,7 @@ function set_initial_conditions_variables()
 		CXR_MOZART_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
 	
 		# Also, we need a domain 1 meteo file
-		export i=1
+		i=1
 		CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 		
 		# And finally the ZP file
