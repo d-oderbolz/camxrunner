@@ -138,8 +138,8 @@ function set_boundary_conditions_variables()
 	# The processor creates this intermediate file (must not be checked)
 	CXR_BC_ASC_OUTPUT_FILE="${CXR_BC_OUTPUT_FILE}.${CXR_ASC_EXT}"
 	
-	# CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
-	export CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
+	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
 	
 	# ICBCPREP needs no input files
 	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
@@ -157,7 +157,7 @@ function set_boundary_conditions_variables()
 		CXR_ZP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
 	
 		# a space separated list of input files to check
-		export CHECK_THESE_INPUT_FILES="$CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
 	else
 	
 		# ICBCPREP needs to know the filename of the first BC file

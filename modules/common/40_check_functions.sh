@@ -338,7 +338,7 @@ function cxr_common_check_environment_executables ()
 # Function: cxr_common_check_preconditions
 #	
 # Checks if all input files listed in CXR_CHECK_THESE_INPUT_FILES are available.
-# Also sees that output files listed in CHECK_THESE_OUTPUT_FILES are not present 
+# Also sees that output files listed in CXR_CHECK_THESE_OUTPUT_FILES are not present 
 # - if -F is given, existing output files are deleted here. 
 # If we detect empty output files, they are always removed.
 #
@@ -521,9 +521,6 @@ function cxr_common_check_preconditions()
 	########################################
 	if [ "${DO_INPUT}" == true ]
 	then
-		# Increase global indent level
-		cxr_main_increase_log_indent
-
 		# INPUT FILES - are they there?
 		cxr_main_logger -v "${FUNCNAME}"  "Checking Input Files ..."
 	
@@ -555,6 +552,7 @@ function cxr_common_check_preconditions()
 				# is it larger than 0 bytes?
 				if [ ! -s "${INPUT_FILE}" ]
 				then
+					# Empty File!
 					cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${INPUT_FILE} is empty!"
 					ERRORS_FOUND=true
 				fi
@@ -603,13 +601,13 @@ function cxr_common_check_preconditions()
 				elif [ "$CXR_FORCE" == true ]
 				then
 					# Force overwrite
-					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose the -f option, so we delete it now..."
+					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose the -F option, so we delete it now..."
 					
 					if [ "$CXR_DRY" == false ]
 					then
 						rm -f "${OUTPUT_FILE}"
 					else
-						cxr_main_logger -w "${FUNCNAME}" "Dryrun, file ${OUTPUT_FILE} not removed"
+						cxr_main_logger -w "${FUNCNAME}" "Dryrun, file ${OUTPUT_FILE} not removed. A real run removes the file if -F is given!"
 					fi
 				else
 					#############################

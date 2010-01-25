@@ -124,11 +124,11 @@ function set_initial_conditions_variables()
 	# Set variables
 	########################################################################
 	
-	export NLEV=${CXR_NUMBER_OF_LAYERS[1]}
+	NLEV=${CXR_NUMBER_OF_LAYERS[1]}
 	
 	# The date needed by this function is a bit strange
 	# It needs a 2-digit yoer and a 3-digit DOY
-	export IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_START_DATE} 3 )"
+	IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_START_DATE} 3 )"
 	
 	# Evaluate some rules
 	
@@ -139,8 +139,8 @@ function set_initial_conditions_variables()
 	# The processor creates this intermediate file (must not be checked)
 	CXR_IC_ASC_OUTPUT_FILE="${CXR_IC_OUTPUT_FILE}.${CXR_ASC_EXT}"
 	
-	# CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
-	export CHECK_THESE_OUTPUT_FILES="$CXR_IC_OUTPUT_FILE $CXR_TOPCONC_OUTPUT_FILE"
+	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_IC_OUTPUT_FILE $CXR_TOPCONC_OUTPUT_FILE"
 
 	# ICBCPREP needs no input files
 	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
@@ -163,7 +163,7 @@ function set_initial_conditions_variables()
 	else
 		#ICBCPREP needs a filename for the BC file
 		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
-		export CHECK_THESE_OUTPUT_FILES="$CHECK_THESE_OUTPUT_FILES $CXR_BC_OUTPUT_FILE"
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_BC_OUTPUT_FILE"
 	fi
 	
 }
