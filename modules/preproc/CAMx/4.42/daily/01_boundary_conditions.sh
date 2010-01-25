@@ -357,7 +357,7 @@ function boundary_conditions()
 			esac
 	
 			# Check if all went well
-			if [ $(cxr_common_check_result) == false ]
+			if [ "$(cxr_common_check_result)" == false ]
 			then
 				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem

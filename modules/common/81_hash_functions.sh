@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -270,13 +270,13 @@ function test_module()
 	########################################
 	
 	is $(cxr_common_hash_get test "/hallo/velo") SomeOtherValue "cxr_common_hash_get test with path as key"
-	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
-	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
+	#is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
+	#is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
 	
 	########################################
 	# teardown tests if needed
 	########################################
-	cxr_common_hash_destroy test
+	#cxr_common_hash_destroy test
 
 }
 

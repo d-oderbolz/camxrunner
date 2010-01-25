@@ -195,10 +195,35 @@ function cxr_common_extract_characters()
 	fi
 }
 
+
+################################################################################
+# Function: cxr_common_n_digits
+#
+# Makes sure a number has n digits (left padded with 0). Can be used in File rules to make sure
+# you get something like my_file0001.dat or something.
+#
+# Parameters:
+# $1 - a number to be padded
+# $2 - number of digits to be used
+################################################################################
+function cxr_common_n_digits
+################################################################################
+{
+	if [ $# -ne 2 ]
+	then
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
+	fi
+	
+	NUMBER="$1"
+	DIGITS="$2"
+	
+	printf "%0${DIGITS}d" "$NUMBER"
+}
+
 ################################################################################
 # Function: cxr_common_two_digits
 #
-# Makes sure a number has 2 digits. TODO: consider using printf
+# Convenience function (could be replaced by the one above...)
 #
 # Parameters:
 # $1 - a number, either single or double-digit
@@ -206,28 +231,11 @@ function cxr_common_extract_characters()
 function cxr_common_two_digits
 ################################################################################
 {
-	
 	if [ $# -ne 1 ]
 	then
 		echo ""
 	else
-		NUMBER=$1
-		
-		#Don't be afraid, the bash does not seem to recognize the quantor +
-		num_digits=$(expr match ${NUMBER} '[0-9]*')
-		
-		# This is not very robust...
-		if [ "$num_digits" -lt 1 -o "$num_digits" -gt 2 ]
-		then
-			# We have either more than 2 or less than 1 number
-			# return what you have
-			echo ${NUMBER}
-		elif [ "$num_digits" -eq 1 ]
-		then
-			echo 0${NUMBER}
-		else
-			echo ${NUMBER}
-		fi
+		cxr_common_n_digits $1 2
 	fi
 }
 
