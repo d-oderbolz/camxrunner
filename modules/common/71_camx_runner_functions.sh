@@ -1176,7 +1176,7 @@ function test_module()
 	
 	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
 	is $(cxr_common_evaluate_rule "$(cxr_common_abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
-	is $(cxr_common_evaluate_rule "domain$(cxr_common_n_digits $i 3)") domain003 "cxr_common_evaluate_rule with formatting"
+	is $(cxr_common_evaluate_rule "domain$(cxr_common_n_digits $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
 	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
 	
 	########################################
