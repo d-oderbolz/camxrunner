@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=3
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -34,7 +34,7 @@ CXR_META_MODULE_REQ_RUNNER_VERSION=100
 CXR_META_MODULE_REQ_CONF_VERSION=100
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the Array functions for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains the Hash functions for the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -201,7 +201,7 @@ function cxr_common_hash_has? ()
 function cxr_common_hash_keys ()
 ################################################################################
 {
-	for FN in ls ${CXR_HASH_DIR}/${HASH}
+	for FN in $(ls ${CXR_HASH_DIR}/${HASH})
 	do
 		KEY="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$FN")"
 		echo -n "$KEY "
@@ -270,13 +270,13 @@ function test_module()
 	########################################
 	
 	is $(cxr_common_hash_get test "/hallo/velo") SomeOtherValue "cxr_common_hash_get test with path as key"
-	#is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
-	#is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
+	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
+	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
 	
 	########################################
 	# teardown tests if needed
 	########################################
-	#cxr_common_hash_destroy test
+	cxr_common_hash_destroy test
 
 }
 
