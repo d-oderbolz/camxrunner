@@ -273,7 +273,7 @@ function test_module()
 	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
 	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
 	
-	NUMEL=10000
+	NUMEL=1000
 	
 	echo "Hash Performance: Adding $NUMEL elements..."
 	time (
