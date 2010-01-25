@@ -110,6 +110,8 @@ function main_usage()
         a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
 
 	  -s    stop this run gracefully (stop all runners executing this run)
+	  
+	  -DYYYY-MM-DD execute a specific simulation day given in the form YYYY-MM-DD
 
 	  -Pn   activates parallel execution of pre/postprocessing with 
         max. n concurrent procs. n must be given!
@@ -243,7 +245,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parametres that come later
-while getopts ":dlvVFmct:sP:ITxi:o:CNp:f:h" opt
+while getopts ":dlvVFmct:sDP:ITxi:o:CNp:f:h" opt
 do
 	case "${opt}" in
 		d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -255,6 +257,7 @@ do
 		c) CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;
 		s) CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		D) CXR_USER_TEMP_ONE_DAY=${OPTARG} ;;
 		P) CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG} ;;
 	
 		# Installer: We need to manipulate the CXR_RUN variable for now
@@ -544,6 +547,18 @@ then
 fi
 
 cxr_main_logger -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
+
+if [ "${CXR_ONE_DAY}" ]
+then
+
+	if [ "$(cxr_common_is_yyyymmdd_format ${CXR_ONE_DAY})" == true ]
+	then
+		cxr_main_logger -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
+	else
+		cxr_main_die_gracefully "the -D option needs a date in YYYY-MM-DD format as input!"
+	fi
+
+fi
 
 ################################################################################
 # Check space requirements if we run a full simulation

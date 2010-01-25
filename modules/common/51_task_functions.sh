@@ -396,6 +396,14 @@ function cxr_common_add_modules()
 	## Now we need to loop through the days
 	for DAY_OFFSET in $(seq 0 $SIMDAYS )
 	do
+	
+		# if we run only 1 day, do it
+		if [ "${CXR_ONE_DAY}" ]
+		then
+			DAY_OFFSET="$(cxr_common_date2offset ${CXR_ONE_DAY})"
+			cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${DAY_OFFSET}."
+		fi
+	
 		cxr_main_logger -v "${FUNCNAME}"  "Scheduling $MODULE_TYPE tasks for day offset $DAY_OFFSET"
 	
 		# Check if we need any of them at all
@@ -463,6 +471,12 @@ function cxr_common_add_modules()
 		
 		# Decrease global indent level
 		cxr_main_decrease_log_indent
+		
+		# If we do only 1 day, that's it
+		if [ "${CXR_ONE_DAY}" ]
+		then
+			break
+		fi
 		
 	done # Loop through days
 	

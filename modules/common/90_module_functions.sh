@@ -374,6 +374,14 @@ function cxr_common_process_sequentially
 	then
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
+		
+			# if we run only 1 day, do it
+			if [ "${CXR_ONE_DAY}" ]
+			then
+				DAY_OFFSET="$(cxr_common_date2offset ${CXR_ONE_DAY})"
+				cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${DAY_OFFSET}."
+			fi
+		
 			# Setup environment
 			cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 			
@@ -404,6 +412,12 @@ function cxr_common_process_sequentially
 			
 			# After each day, we remove the daily tempfiles
 			cxr_common_remove_tempfiles
+			
+			# If we do only 1 day, that's it
+			if [ "${CXR_ONE_DAY}" ]
+			then
+				break
+			fi
 			
 		done # Loop through days
 	else
