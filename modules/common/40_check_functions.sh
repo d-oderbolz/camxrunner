@@ -272,7 +272,9 @@ function cxr_common_check_datataype()
 # Function: cxr_common_check_model_limits
 #
 # Checks if the current model supports our current settings by inspecting the 
-# relevant .play file
+# relevant .play file.
+# If these checks change with the model version, put the definition of this function
+# in a module under modules/common/model/version directory
 #
 ################################################################################
 function cxr_common_check_model_limits() 
@@ -307,7 +309,7 @@ function cxr_common_check_model_limits()
 				cxr_main_logger -v "$FUNCNAME" "Checking ${CURR_VAR}..."
 				
 				# Read value
-				local F_VAL="$(grep "${CURR_VAR}:" "${PLAYFILE}" | cut -d: -f2)"
+				local F_VAL="$(grep "${CURR_VAR}${CXR_DELIMITER}" "${PLAYFILE}" | cut -d: -f2)"
 				
 				if [ "${F_VAL}" ]
 				then
@@ -325,7 +327,7 @@ function cxr_common_check_model_limits()
 		done
 
 		# Check #of species
-		local F_NSPEC="$(grep MXSPEC: "${PLAYFILE}" | cut -d: -f2)"
+		local F_NSPEC="$(grep "MXSPEC${CXR_DELIMITER}" "${PLAYFILE}" | cut -d: -f2)"
 		
 		if [ "${F_NSPEC}" ]
 		then
