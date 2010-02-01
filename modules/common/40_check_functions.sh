@@ -270,7 +270,7 @@ function cxr_common_check_datataype()
 
 ################################################################################
 # Function: cxr_common_check_model_limits
-#	
+#
 # Checks if the current model supports our current settings by inspecting the 
 # relevant .play file
 #
@@ -296,15 +296,15 @@ function cxr_common_check_model_limits()
 			for var in COL ROW LAY
 			do
 				case "${var}" in
-				
 					COL) local CXR_VALUE=$(cxr_common_get_x_dim ${i}) ;;
 					ROW) local CXR_VALUE=$(cxr_common_get_y_dim ${i}) ;;
 					LAY) local CXR_VALUE=$(cxr_common_get_z_dim ${i}) ;;
-				
 				esac
 				
 				# e. g. MXCOL1
 				local CURR_VAR="MX${var}${i}"
+				
+				cxr_main_logger -v "$FUNCNAME" "Checking ${CURR_VAR}..."
 				
 				# Read value
 				local F_VAL="$(grep "${CURR_VAR}:" "${PLAYFILE}" | cut -d: -f2)"
@@ -321,7 +321,6 @@ function cxr_common_check_model_limits()
 				else
 					cxr_main_logger -v "$FUNCNAME" "There is no entry ${CURR_VAR} in the Playfile ${PLAYFILE}"
 				fi
-				
 			done
 		done
 
@@ -335,14 +334,13 @@ function cxr_common_check_model_limits()
 			then
 				cxr_main_logger -e "$FUNCNAME" "The limit for the number of species (MXSPEC=${F_NSPEC}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease recompile CAMx using the installer."
 			else
-				cxr_main_logger -v "$FUNCNAME" "Number of species is OK"
+				cxr_main_logger -v "$FUNCNAME" "Number of species is OK."
 			fi
 		else
-			cxr_main_logger -v "$FUNCNAME" "There is no entry MXSPEC in the Playfile ${PLAYFILE}"
+			cxr_main_logger -v "$FUNCNAME" "There is no entry MXSPEC in the Playfile ${PLAYFILE}."
 		fi
-		
 	else
-		cxr_main_logger "$FUNCNAME" "Found no playfile in ${PLAYFILE}"
+		cxr_main_logger "$FUNCNAME" "Found no playfile in ${PLAYFILE}."
 	fi
 }
 
