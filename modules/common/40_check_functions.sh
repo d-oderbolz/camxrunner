@@ -280,7 +280,7 @@ function cxr_common_check_datataype()
 function cxr_common_check_model_limits() 
 ################################################################################
 {
-	cxr_main_logger -B "$FUNCNAME" "Checking model limits for ${CXR_MODEL_EXEC}..."
+	cxr_main_logger -a -B "$FUNCNAME" "Checking model limits for ${CXR_MODEL_EXEC}..."
 	
 	# We must find the play file
 	local PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/$(basename ${CXR_MODEL_EXEC}).play
@@ -342,8 +342,10 @@ function cxr_common_check_model_limits()
 			cxr_main_logger -v "$FUNCNAME" "There is no entry MXSPEC in the Playfile ${PLAYFILE}."
 		fi
 	else
-		cxr_main_logger "$FUNCNAME" "Found no playfile in ${PLAYFILE}."
+		cxr_main_logger -a "$FUNCNAME" "Found no playfile called ${PLAYFILE}.\nSo probably CAMx was not compiled using CAMxRunner, cannot check the capabilities of your executable."
 	fi
+	
+	cxr_main_logger -a "$FUNCNAME" "Model limits checked."
 }
 
 
