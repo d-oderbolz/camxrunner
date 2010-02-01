@@ -269,6 +269,85 @@ function cxr_common_check_datataype()
 }
 
 ################################################################################
+# Function: cxr_common_check_model_limits
+#	
+# Checks if the current model supports our current settings by inspecting the 
+# relevant .play file
+#
+################################################################################
+function cxr_common_check_model_limits() 
+################################################################################
+{
+	cxr_main_logger -B "$FUNCNAME" "Checking model limits for ${CXR_MODEL_EXEC}..."
+	
+	# We must find the play file
+	local PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/$(basename ${CXR_MODEL_EXEC}).play
+	
+	if [ -f "${PLAYFILE}" ]
+	then
+		# Playfile is present
+		
+		# Check geometry
+		
+		#Test each grid
+		for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+		do
+			# For column, row, layer
+			for var in COL ROW LAY
+			do
+				case "${var}" in
+				
+					COL) local CXR_VALUE=$(cxr_common_get_x_dim ${i}) ;;
+					ROW) local CXR_VALUE=$(cxr_common_get_y_dim ${i}) ;;
+					LAY) local CXR_VALUE=$(cxr_common_get_z_dim ${i}) ;;
+				
+				esac
+				
+				# e. g. MXCOL1
+				local CURR_VAR="MX${var}${i}"
+				
+				# Read value
+				local F_VAL="$(grep "${CURR_VAR}:" "${PLAYFILE}" | cut -d: -f2)"
+				
+				if [ "${F_VAL}" ]
+				then
+					# Check if we are above the limit
+					if [ "${CXR_VALUE}" -gt "${F_VAL}" ]
+					then
+						cxr_main_logger -e "$FUNCNAME" "The limit for the setting ${CURR_VAR} (${F_VAL}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_VALUE})\nPlease recompile CAMx using the installer."
+					else
+						cxr_main_logger -v "$FUNCNAME" "${CURR_VAR} setting OK"
+					fi
+				else
+					cxr_main_logger -v "$FUNCNAME" "There is no entry ${CURR_VAR} in the Playfile ${PLAYFILE}"
+				fi
+				
+			done
+		done
+
+		# Check #of species
+		local F_NSPEC="$(grep MXSPEC: "${PLAYFILE}" | cut -d: -f2)"
+		
+		if [ "${F_NSPEC}" ]
+		then
+			# Check if we are above the limit
+			if [ "${CXR_NUMBER_OF_OUTPUT_SPECIES}" -gt "${F_NSPEC}" ]
+			then
+				cxr_main_logger -e "$FUNCNAME" "The limit for the number of species (MXSPEC=${F_NSPEC}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease recompile CAMx using the installer."
+			else
+				cxr_main_logger -v "$FUNCNAME" "Number of species is OK"
+			fi
+		else
+			cxr_main_logger -v "$FUNCNAME" "There is no entry MXSPEC in the Playfile ${PLAYFILE}"
+		fi
+		
+	else
+		cxr_main_logger "$FUNCNAME" "Found no playfile in ${PLAYFILE}"
+	fi
+}
+
+
+################################################################################
 # Function: cxr_common_check_runner_executables
 #	
 # Loop through all *.sh scripts in the ${CXR_RUN_DIR} and check if they are executable
