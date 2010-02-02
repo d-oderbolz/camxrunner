@@ -41,7 +41,7 @@ do
 	VALUE="$(echo "${VAR}" | cut -d= -f2)"
 
 	# Set rewritten variable
-	${NEW_NAME}="$VALUE"
+	export ${NEW_NAME}="$VALUE"
 done
 
 # Load common modules 

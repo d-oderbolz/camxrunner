@@ -318,7 +318,7 @@ do
 	NEW_NAME="${NAME//CXR_USER_TEMP/CXR}"
 	VALUE="$(echo "${VAR}" | cut -d= -f2)"
 
-	# Export rewritten variable
+	# Export rewritten variable (here we need export so that its a command)
 	export ${NEW_NAME}="$VALUE"
 done
 
