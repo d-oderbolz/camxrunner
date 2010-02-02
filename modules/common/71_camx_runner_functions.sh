@@ -562,6 +562,9 @@ function cxr_common_create_tempfile()
 	local FILENAME=$(mktemp $TEMPLATE)
 	cxr_main_logger -v "$FUNCNAME"  "Creating temporary file $FILENAME"
 	
+	# Touch list
+	touch "$temp_list"
+	
 	# Add to dummy list
 	echo $FILENAME >> "$temp_list"
 	
