@@ -185,8 +185,7 @@ function cxr_common_compress_output()
 						################
 						# Check filename
 						################
-						local FOUND=$(expr match " ${FILENAME}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
-						# For safety, here        ^ is a space, so that things never start at 0
+						local FOUND=$(expr match "${FILENAME}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 						
 						if [ $FOUND -gt 0 ]
 						then
@@ -198,8 +197,7 @@ function cxr_common_compress_output()
 							################
 							# filename did not match - try module name
 							################
-							local FOUND=$(expr match " ${MODULE}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
-							# For safety, here        ^ is a space, so that things never start at 0
+							local FOUND=$(expr match "${MODULE}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 					
 							if [ $FOUND -gt 0 ]
 							then
@@ -577,7 +575,7 @@ function test_module()
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
 	
 	# Set pattern correct
-	CXR_COMPRESS_OUTPUT_PATTERN=path_functions
+	CXR_COMPRESS_OUTPUT_PATTERN="^path_functions$"
 	
 	# compress
 	cxr_common_compress_output

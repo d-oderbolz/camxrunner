@@ -335,7 +335,7 @@ CXR_COMPRESS_OUTPUT=false
 
 # This is a pattern that can be used to limit compression either to 
 # specific files or specific modules that created the files
-# is tested using "eval match"
+# is tested using "expr match"
 # If it is empty, it has no effect
 CXR_COMPRESS_OUTPUT_PATTERN=
 
