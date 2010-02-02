@@ -38,8 +38,6 @@ Timestamp: Updated month day, year
 # --------------------------------------------------------------------------
 
 
-File: inc/main_functions.inc  (inc/main_functions.inc)
-File: inc/tap-functions.inc  (inc/tap-functions.inc)
 File: main_usage  (CAMxRunner.sh)
 File: main_usage  (PMCAMx-v2008-blank)
 File: main_usage  (PMCAMx-v2008-test)
@@ -262,10 +260,18 @@ Group: Modules  {
 
 File: modules/.../5.10/10_model.sh  (modules/model/CAMx/5.10/10_model.sh)
 
+Group: Inc  {
+
+   File: main_functions.inc  (inc/main_functions.inc)
+   File: Parallel Task control  (inc/defaults.inc)
+   File: tap-functions.inc  (inc/tap-functions.inc)
+   }  # Group: Inc
+
 Group: Index  {
 
    Index: Everything
    File Index: Files
    Function Index: Functions
+   Variable Index: Variables
    }  # Group: Index
 
