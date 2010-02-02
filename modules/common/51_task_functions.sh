@@ -865,8 +865,8 @@ function cxr_common_get_next_task_descriptor()
 	if [ "$TASK_COUNT" -eq 0 ]
 	then
 		cxr_main_logger "${FUNCNAME}" "All tasks have been processed, I terminate all workers"
-		# there are no more tasks, remove the continue file
-		cxr_common_delete_continue_file
+		# there are no more tasks, remove all continue file
+		cxr_common_delete_continue_files
 		echo /dev/null
 		
 		# Release lock

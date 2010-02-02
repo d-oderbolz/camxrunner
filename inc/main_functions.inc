@@ -118,7 +118,7 @@ function cxr_main_decrease_log_indent()
 ################################################################################
 # Function: cxr_main_increase_error_count
 #
-# Adds an error to the ${CXR_ERROR_STACK_FILE}. Each Message must only be one 
+# Adds an error to the ${CXR_INSTANCE_FILE_ERROR_STACK}. Each Message must only be one 
 # line long (number of lines = number of errors)
 #
 # Parameters:
@@ -136,12 +136,12 @@ function cxr_main_increase_error_count()
 	fi
 	
 	# Make sure we have such a variable
-	if [ ! -z "${CXR_ERROR_STACK_FILE:-}" ]
+	if [ ! -z "${CXR_INSTANCE_FILE_ERROR_STACK:-}" ]
 	then
 
 		# Add text to the stack (if empty a newline is written)
 		# No -e (one line per error) - the lines are counted later
-		echo "${1:-"No message"}" >> "$CXR_ERROR_STACK_FILE"
+		echo "${1:-"No message"}" >> "$CXR_INSTANCE_FILE_ERROR_STACK"
 	
 	fi
 	
@@ -153,14 +153,14 @@ function cxr_main_increase_error_count()
 # Function: cxr_main_get_error_count
 #	
 # Returns the current error count 
-# by counting lines in  the ${CXR_ERROR_STACK_FILE}).
+# by counting lines in  the ${CXR_INSTANCE_FILE_ERROR_STACK}).
 ################################################################################
 function cxr_main_get_error_count()
 ################################################################################
 {
 	# Read from file - if not set, use /dev/null
 	# Also redirect errors of cat to /dev/null
-	NUMBER=$(cat ${CXR_ERROR_STACK_FILE:-/dev/null} 2>/dev/null | wc -l )
+	NUMBER=$(cat ${CXR_INSTANCE_FILE_ERROR_STACK:-/dev/null} 2>/dev/null | wc -l )
 	
 	echo $NUMBER
 }
@@ -264,7 +264,7 @@ function cxr_main_logger()
 	### and increase error count
 	if [ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}" ]
 	then
-		echo "${CXR_DATE:-date_not_defined}" >> "${CXR_FAILED_DAYS_FILE:-/dev/null}"
+		echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		cxr_main_increase_error_count "${FUNCTION_NAME} - ${BLANK_MESSAGE}"
 	fi
 	
@@ -438,17 +438,17 @@ function cxr_main_cleanup()
 			if [ ! -z ${CXR_LOG:-} ]
 			then
 				# Write to logfile
-				cat "$CXR_ERROR_STACK_FILE" | tee -a ${CXR_LOG}
+				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
 				
 				cxr_main_logger -a "$FUNCNAME" "In these days, errors where detected:"
 				# This file might contain dupes
-				cat "$CXR_FAILED_DAYS_FILE" | sort | uniq | tee -a ${CXR_LOG}
+				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq | tee -a ${CXR_LOG}
 			else
 				# There is no log
-				cat "$CXR_ERROR_STACK_FILE"
+				cat "$CXR_INSTANCE_FILE_ERROR_STACK"
 				
 				cxr_main_logger -a "$FUNCNAME" "In these days, errors where detected:"
-				cat "$CXR_FAILED_DAYS_FILE" | sort | uniq 
+				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq 
 			fi
 			
 		else	
@@ -465,10 +465,10 @@ function cxr_main_cleanup()
 			cxr_main_logger "$FUNCNAME" "Dryrun: removing the dummy files..."
 			
 			# At least touch it
-			touch "$CXR_DUMMY_FILE_LIST" 2>/dev/null
+			touch "$CXR_INSTANCE_FILE_DUMMY_LIST" 2>/dev/null
 			
 			# Clean dummy files away
-			for DUMMY_FILE in $(cat "$CXR_DUMMY_FILE_LIST")
+			for DUMMY_FILE in $(cat "$CXR_INSTANCE_FILE_DUMMY_LIST")
 			do
 				cxr_main_logger -v "$FUNCNAME"  "Deleting $DUMMY_FILE"
 				
@@ -482,18 +482,9 @@ function cxr_main_cleanup()
 		# Release Locks
 		cxr_common_release_all_locks
 		
-		# Delete the lists
-		for FILE in ${CXR_DELETABLE_STATE_FILE_LIST:-}
-		do 
-			cxr_main_logger -v "$FUNCNAME"  "Deleting $FILE"
-			rm -f $FILE
-		done
-		
-		if [ "${CXR_KEEP_CONTINUE_FILE}" == false ]
-		then
-			# Delete the Continue file
-			cxr_common_delete_continue_file
-		fi
+		# Delete the instance files
+		cxr_common_delete_instance_data
+
 	fi
 	
 	if [ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]

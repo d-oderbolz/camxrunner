@@ -514,10 +514,10 @@ then
 	exit
 elif [ "${CXR_STOP_RUN}" == true ]
 then
-	#Delete .COTINUE file
+	#Delete .CONTINUE files of all instances
 	if [ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true ]
 	then
-		cxr_common_delete_continue_file
+		cxr_common_delete_continue_files
 	fi
 	
 	# We are happy

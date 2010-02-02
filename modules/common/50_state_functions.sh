@@ -242,21 +242,28 @@ function cxr_common_get_stage_name()
 }
 
 ################################################################################
-# Function: cxr_common_delete_continue_file
+# Function: cxr_common_delete_continue_files
 #
-# Deletes the continue file if we do not allow multiple runners
+# Deletes the continue files of all instances
 ################################################################################
-function cxr_common_delete_continue_file()
+function cxr_common_delete_continue_files()
 ################################################################################
 {
-	if [ "${CXR_ALLOW_MULTIPLE:-false}" == false ]
-	then
-		cxr_main_logger -w "${FUNCNAME}" "The continue file ${CXR_CONTINUE_FILE:-/dev/null} will be deleted now!"
-		
-		rm -f ${CXR_CONTINUE_FILE:-/dev/null} >/dev/null 2>&1
-	else
-		main_logger -a "${FUNCNAME}" "There seem to be other CAMxRunners on this run, we leave the Continue file there"
-	fi
+	cxr_main_logger -w "${FUNCNAME}" "The continue files of all instances of this run will be deleted now!"
+	
+	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \;
+}
+
+################################################################################
+# Function: cxr_common_delete_instance_data
+#
+# Deletes this instances runtime-data including CONTINUE File. Used at the end of a run.
+################################################################################
+function cxr_common_delete_instance_data()
+################################################################################
+{
+	cxr_main_logger -w "${FUNCNAME}" "The instance data in  ${CXR_INSTANCE_DIR} will be deleted now!"
+	rm -rf ${CXR_INSTANCE_DIR} >/dev/null 2>&1
 }
 
 ################################################################################
@@ -277,7 +284,12 @@ function cxr_common_initialize_state_db()
 	if [ ! -d ${CXR_STATE_DIR} ]
 	then
 		mkdir -p ${CXR_STATE_DIR}
+		
 	fi
+	
+	# Create any instance dirs
+	mkdir -p ${CXR_INSTANCE_DIR}
+	mkdir -p ${CXR_HASH_DIR}
 	
 	# Create all the task directories
 	mkdir -p $CXR_TASK_POOL_DIR
@@ -294,9 +306,13 @@ function cxr_common_initialize_state_db()
 	cxr_main_logger -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
-	# Secure important state files and empty them
-	for FILE in ${CXR_DELETABLE_STATE_FILE_LIST:-}
-	do 
+	# Create the instance files and secure them
+	for VAR in $(set | sort | grep ^CXR_INSTANCE_FILE_.*= )
+	do
+		# Now Var contains a VAR=Value string
+		# Extract the value
+		FILE="$(echo "${VAR}" | cut -d= -f2)"
+	
 		# Empty file
 		:> "$FILE"
 		
@@ -305,8 +321,8 @@ function cxr_common_initialize_state_db()
 	done
 	
 	# This file should not be deleted
-	touch "$CXR_OUTPUT_FILE_LIST"
-	chmod 600 "$CXR_OUTPUT_FILE_LIST"
+	touch "$CXR_INSTANCE_FILE_OUTPUT_LIST"
+	chmod 600 "$CXR_INSTANCE_FILE_OUTPUT_LIST"
 }
 
 ################################################################################
@@ -422,35 +438,30 @@ function cxr_common_get_state_file_name()
 	STATE=$1
 	STAGE=$2
 	
-	echo ${CXR_STATE_DIR}/${STAGE}.${STATE}
-	
+	echo ${CXR_STATE_DIR}/${STAGE}.${STATE}	
 }
 
 ################################################################################
 # Function: cxr_common_detect_running_instances
 #
-# Check if there are still living processes
+# Check if there are still living processes by checking the continue files
 #
 ################################################################################
 function cxr_common_detect_running_instances()
 ################################################################################
 {
-	PROCESS_COUNT=$(ls ${CXR_STATE_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
-	
+	PROCESS_COUNT=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
 	
 	if [ ${PROCESS_COUNT} -ne 0 -a ${CXR_ALLOW_MULTIPLE} == false ]
 	then
 		# There are other processes running and this is not allowed
-		cxr_main_logger -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n"
+		cxr_main_logger -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
 		
-		ls ${CXR_STATE_DIR}/*${CXR_STATE_CONTINUE} | tee -a ${CXR_LOG}
+		ls -la ${CXR_STATE_DIR}/*${CXR_STATE_CONTINUE} | tee -a ${CXR_LOG}
 		
 		cxr_main_logger -e "${FUNCNAME}"  "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Process stopped"
-	
-		# Do not remove any continue file!
-		CXR_KEEP_CONTINUE_FILE=true
 	fi
 }
 
@@ -544,7 +555,7 @@ function cxr_common_cleanup_state()
 	while [ "$(cxr_common_get_consent "Do you want to (further) change the state database?" )" == true ]
 	do
 		# What do you want?
-		WHAT=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all specific tasks none" "none")
+		WHAT=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
 		
 		case "$WHAT" in 
 		
@@ -566,6 +577,26 @@ function cxr_common_cleanup_state()
 						# When all is cleared, we do not need to go further
 						break
 					fi
+			;;
+			
+			existing-instances)
+			
+					cxr_main_logger -w "${FUNCNAME}" "The following directories and files therein will be deleted:"
+						
+					find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
+			
+					# Do we do this?
+					if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+					then
+						# No 
+						cxr_main_logger -i "${FUNCNAME}"  "Will not delete any state information"
+						return 0
+					else
+						# Yes
+						rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
+						cxr_main_logger -i "${FUNCNAME}"  "Done."
+					fi
+			
 			;;
 					
 			specific) 
@@ -764,7 +795,7 @@ function cxr_common_cleanup_state()
 #	
 # Checks if the .continue file still exists,
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
-# ends run if we are too high
+# ends run if we are too high and toches the alive file
 ################################################################################
 function cxr_common_do_we_continue()
 ################################################################################
@@ -780,7 +811,7 @@ function cxr_common_do_we_continue()
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${ERROR_COUNT}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
-
+	
 	# Do we care at all?
 	# Set this in tests etc.
 	if [ "$CXR_ENABLE_STATE_DB" == false ]
@@ -796,6 +827,9 @@ function cxr_common_do_we_continue()
 		then
 			cxr_main_logger -w "${FUNCNAME}" "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING
+		else
+			# We touch the continue file
+			touch ${CXR_CONTINUE_FILE}
 		fi
 	fi
 }

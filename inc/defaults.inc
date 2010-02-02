@@ -93,8 +93,6 @@ CXR_BOX_HUGE="******************************************************************
 # These are needed for the user functions
 CXR_SINGLE_LINE="-----------------------------------------------------------------------------"
 CXR_DOUBLE_LINE="============================================================================="
-# If this is true, continue file will be kept
-CXR_KEEP_CONTINUE_FILE=false
 
 # Max Parallel Procs
 CXR_MAX_PARALLEL_PROCS=1
@@ -546,12 +544,9 @@ readonly CXR_LOG_OUTPUT_DIR
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
-# Hashes are stored here
-CXR_HASH_DIR=${CXR_STATE_DIR}/hashes
-readonly CXR_HASH_DIR
-
 ########################################
-# Parallel Task execution
+# Parallel Task execution. 
+# This is global to all instances
 ########################################
 
 # Task directories
@@ -622,64 +617,99 @@ readonly CXR_LOCK_DIR
 CXR_LOG=${CXR_LOG_OUTPUT_DIR}/${CXR_RUN}_$(date +"%Y_%m_%d_%H_%M")${CXR_LOG_EXT}.log
 
 # These functions will report verbosely, no matter what
-# Space separated list
+# Space separated list - for debugging only
 CXR_LOG_FUNCTION_VERBOSE_LIST=""
 
+################################################################################
+# Per-Instance Information
+################################################################################
+
+########################################
+# Machine name
+########################################
+
+CXR_MACHINE="$(uname -n)"
+
+########################################
+#  Instance name PID@HOST
+########################################
+CXR_INSTANCE=${$}@${CXR_MACHINE}
+readonly CXR_INSTANCE
+
+########################################
+# This directory holds the instance-information
+# The whole directory is removed after a run
+# All files named CXR_INSTANCE_FILE_* are
+# Created automatically in <cxr_common_initialize_state_db>
+# The directories must be created explicitly there
+########################################
+
+CXR_ALL_INSTANCES_DIR=${CXR_STATE_DIR}/instances
+
+CXR_INSTANCE_DIR=${CXR_ALL_INSTANCES_DIR}/${CXR_INSTANCE}
+readonly CXR_INSTANCE_DIR
+
+# Hashes are stored here
+CXR_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
+readonly CXR_HASH_DIR
+
 # Determine the name of the Continue file (must be this early because of lock manager)
-CXR_CONTINUE_FILE=${CXR_STATE_DIR}/_${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
+# This is used to search for any continue files
+CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
+
+# The whole file name -if it is deleted, this instance stops
+# This file is created explictly in cxr_common_initialize_state_db
+CXR_CONTINUE_FILE=${CXR_INSTANCE_DIR}/${CXR_CONTINUE}
 readonly CXR_CONTINUE_FILE
 
 # In this file, we store the error stack
-CXR_ERROR_STACK_FILE=${CXR_STATE_DIR}/_error.stack
-readonly CXR_ERROR_STACK_FILE
+CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
+readonly CXR_INSTANCE_FILE_ERROR_STACK
 
 # In this file, we store the days where issues where detected
-CXR_FAILED_DAYS_FILE=${CXR_STATE_DIR}/_failed.days
-readonly CXR_FAILED_DAYS_FILE
+CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
+readonly CXR_INSTANCE_FILE_FAILED_DAYS
 
 # In this file, we store files that where decompressed
-CXR_DECOMPRESSED_FILE=${CXR_STATE_DIR}/_decompressed.files
-readonly CXR_DECOMPRESSED_FILE
+CXR_INSTANCE_FILE_DECOMPRESSED=${CXR_INSTANCE_DIR}/decompressed.files
+readonly CXR_INSTANCE_FILE_DECOMPRESSED
 
-###
+########################################
 # The next few files are SECURITY RELEVANT.
 # 1. Use a random number in the name
 # 2. Use chmod to deny access (done by cxr_common_initialize_state_db)
-###
+########################################
 
 # In this file, we store all output files that have been generated
 # This is used to compress output if needed or to delete output.
 # We will not use a random number in the name (We might need this file 
 # after a run completed), but we protect it using chmod
-CXR_OUTPUT_FILE_LIST=${CXR_STATE_DIR}/output_files
-readonly CXR_OUTPUT_FILE_LIST
+CXR_INSTANCE_FILE_OUTPUT_LIST=${CXR_INSTANCE_DIR}/output_files
+readonly CXR_INSTANCE_FILE_OUTPUT_LIST
 
 # In this file, we store dummy files of a dry run.
 # These will be deleted after the dry run
-CXR_DUMMY_FILE_LIST=${CXR_STATE_DIR}/dry_dummy_files.${RANDOM}
-readonly CXR_DUMMY_FILE_LIST
+CXR_INSTANCE_FILE_DUMMY_LIST=${CXR_INSTANCE_DIR}/dry_dummy_files.${RANDOM}
+readonly CXR_INSTANCE_FILE_DUMMY_LIST
 
 # In this file, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
 # These will be deleted after each model day
-CXR_TEMP_FILE_LIST=${CXR_STATE_DIR}/temp_files.${RANDOM}
-readonly CXR_TEMP_FILE_LIST
+CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp_files.${RANDOM}
+readonly CXR_INSTANCE_FILE_TEMP_LIST
 
 # In this file, we store long-lived temporay files of a run. 
 # These will be deleted after each model run
-CXR_TEMP_LONGTERM_FILE_LIST=${CXR_STATE_DIR}/temp_files_longterm.${RANDOM}
-readonly CXR_TEMP_LONGTERM_FILE_LIST
+CXR_INSTANCE_FILE_TEMP_LIST_LONG=${CXR_INSTANCE_DIR}/temp_files_longterm.${RANDOM}
+readonly CXR_INSTANCE_FILE_TEMP_LIST_LONG
 
-# In this file, we store the locks
-CXR_LOCK_LIST=${CXR_STATE_DIR}/lock_list.${RANDOM}
-readonly CXR_LOCK_LIST
+# In this file, we store the locks we have aqcired
+CXR_INSTANCE_FILE_LOCK_LIST=${CXR_INSTANCE_DIR}/lock_list.${RANDOM}
+readonly CXR_INSTANCE_FILE_LOCK_LIST
 
-# This is a space-separated list to easily delete all these special files.
-# if you add a new variable above, also add it here:
-CXR_DELETABLE_STATE_FILE_LIST="$CXR_ERROR_STACK_FILE $CXR_FAILED_DAYS_FILE $CXR_DECOMPRESSED_FILE $CXR_DUMMY_FILE_LIST $CXR_TEMP_FILE_LIST $CXR_TEMP_LONGTERM_FILE_LIST $CXR_LOCK_LIST $CXR_ACTIVE_ONCE_PRE_LIST $CXR_ACTIVE_DAILY_PRE_LIST $CXR_ACTIVE_DAILY_POST_LIST $CXR_ACTIVE_ONCE_POST_LIST $CXR_ACTIVE_MODEL_LIST $CXR_ACTIVE_ALL_LIST"
-readonly CXR_DELETABLE_STATE_FILE_LIST
-
+################################################################################
 # Supported model names.
+################################################################################
 CXR_SUPPORTED_MODELS="CAMx PMCAMx"
 #                            |    | 
 #                      Model 0    |
@@ -696,12 +726,6 @@ readonly CXR_RUN_SUBDIRS
 # Comma separated list of subdirectories containig version-specific driectories
 CXR_RUN_VERSION_SUBDIRS="bin modules/common modules/installer modules/model modules/preproc modules/postproc"
 readonly CXR_RUN_VERSION_SUBDIRS
-
-################################################################################
-# Machine name
-################################################################################
-
-CXR_MACHINE=$(uname -n)
 
 ################################################################################
 # Information relevant for compilation

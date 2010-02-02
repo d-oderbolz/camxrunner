@@ -131,7 +131,7 @@ function cxr_common_get_file_type()
 #
 # Due to potential permission issues, we decompress into temp files unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
-# This is stored in the file CXR_DECOMPRESSED_FILE.
+# This is stored in the file CXR_INSTANCE_FILE_DECOMPRESSED.
 #
 # If the decompression fails, we return the input string.
 #
@@ -153,10 +153,10 @@ function cxr_common_try_decompressing_file()
 		# Check first if we already have done this file
 		# Look for an entry like
 		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
-		# In $CXR_DECOMPRESSED_FILE
-		touch "$CXR_DECOMPRESSED_FILE"
+		# In $CXR_INSTANCE_FILE_DECOMPRESSED
+		touch "$CXR_INSTANCE_FILE_DECOMPRESSED"
 		
-		LINE=$(grep ${INPUT_FILE}${DELIMITER} $CXR_DECOMPRESSED_FILE)
+		LINE=$(grep ${INPUT_FILE}${DELIMITER} $CXR_INSTANCE_FILE_DECOMPRESSED)
 		
 		if [ "$LINE" ]
 		then
@@ -233,8 +233,8 @@ function cxr_common_try_decompressing_file()
 		then
 		
 			# Store the fact
-			# In CXR_DECOMPRESSED_FILE
-			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_FILE
+			# In CXR_INSTANCE_FILE_DECOMPRESSED
+			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_INSTANCE_FILE_DECOMPRESSED
 		
 			echo "$NEW_FILE"
 		else

@@ -854,7 +854,7 @@ function cxr_common_check_module_version()
 # old approach where we looped over an array of arrays of files).
 # This list is called CXR_CHECK_THESE_OUTPUT_FILES and must be set befor calling this function
 #
-# Additionally, each created file is added to the file CXR_OUTPUT_FILE_LIST
+# Additionally, each created file is added to the file CXR_INSTANCE_FILE_OUTPUT_LIST
 #
 # This function does not terminate the runner if errors are found,
 # but it returns false
@@ -899,14 +899,14 @@ function cxr_common_check_result()
 		then
 			cxr_main_logger -v "${FUNCNAME}" "Output File ${OUTPUT_FILE} has non-zero size, OK."
 			
-			# Add the file to CXR_OUTPUT_FILE_LIST if the file is not yet listed
-			grep "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" "${CXR_OUTPUT_FILE_LIST}"
+			# Add the file to CXR_INSTANCE_FILE_OUTPUT_LIST if the file is not yet listed
+			grep "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 			
 			if [ "$?" -ne 0 ]
 			then
 				# File structure is 
 				# filename|module_that_created it
-				echo "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" >> "${CXR_OUTPUT_FILE_LIST}"
+				echo "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" >> "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 			fi
 			
 		else
