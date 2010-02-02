@@ -62,6 +62,7 @@ Group: Modules  {
       File: 73_user_functions.sh  (modules/common/73_user_functions.sh)
       File: 74_test_functions.sh  (modules/common/74_test_functions.sh)
       File: 80_array_functions.sh  (modules/common/80_array_functions.sh)
+      File: 81_hash_functions.sh  (modules/common/81_hash_functions.sh)
       File: 90_module_functions.sh  (modules/common/90_module_functions.sh)
       File: CAMx/01_model_functions.sh  (modules/common/CAMx/01_model_functions.sh)
       File: PMCAMx/01_model_functions.sh  (modules/common/PMCAMx/01_model_functions.sh)
