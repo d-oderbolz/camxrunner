@@ -175,7 +175,7 @@ function cxr_common_compress_output()
 				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
 				MODULE=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				if [! -z "${FILENAME}" ]
+				if [ ! -z "${FILENAME}" ]
 				then
 					# OK file is not empty
 				
