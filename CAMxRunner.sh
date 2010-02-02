@@ -500,7 +500,6 @@ cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARA
 
 if [ "${CXR_HOLLOW}" == true ] 
 then
-
 	if [ "${CXR_CLEANUP}" == true ]
 	then
 		# Delete info in the state DB
@@ -534,9 +533,7 @@ then
 	exit
 fi
 
-
-
-### No hollow function gets further
+### No hollow function gets further here
 
 cxr_main_logger -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
