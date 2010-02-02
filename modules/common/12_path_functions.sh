@@ -597,8 +597,7 @@ function test_module()
 	#Test
 	is $(cxr_common_file_exists? ${a}.bz2 ) false "cxr_common_compress_output with simple file, not matching pattern"
 	
-	# Decompress again
-	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	# No decompression needed (its not compressed)
 	
 	########################################
 	# teardown tests if needed
