@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=2
+CXR_META_MODULE_NUM_TESTS=5
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -76,6 +76,26 @@ function usage()
 	$CXR_META_MODULE_DOC_URL
 EOF
 exit 1
+}
+
+################################################################################
+# Function: cxr_common_file_exists?
+# 
+# Returns true if argument is an existing file, false otherwise.
+# Used mostly as a wrapper for testing
+#
+# Parameters:
+# $1 - path of file to test
+################################################################################
+function cxr_common_file_exists?()
+################################################################################
+{
+	if [ -f "${1}" ]
+	then
+		echo true
+	else
+		echo false
+	fi
 }
 
 ################################################################################
@@ -530,7 +550,15 @@ function test_module()
 	# We need a tempfile
 	a=$(cxr_common_create_tempfile)
 	
-	echo "Hallo" > $a 
+	echo "Hallo" > $a
+	
+	# Set settings
+	CXR_COMPRESS_OUTPUT=true
+	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
+	CXR_COMPRESS_OUTPUT_PATTERN=
+	
+	# Add this file to the output file list
+	echo "${a}${CXR_DELIMITER}path_functions" > "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -538,7 +566,40 @@ function test_module()
 	
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
-
+	
+	# compress
+	cxr_common_compress_output
+	
+	#Test
+	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, no pattern"
+	
+	# Decompress again
+	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	
+	# Set pattern correct
+	CXR_COMPRESS_OUTPUT_PATTERN=path_functions
+	
+	# compress
+	cxr_common_compress_output
+	
+	#Test
+	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	
+	# Decompress again
+	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	
+	# Set pattern incorrect
+	CXR_COMPRESS_OUTPUT_PATTERN=guagg
+	
+	# compress
+	cxr_common_compress_output
+	
+	#Test
+	is $(cxr_common_file_exists? ${a}.bz2 ) false "cxr_common_compress_output with simple file, not matching pattern"
+	
+	# Decompress again
+	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	
 	########################################
 	# teardown tests if needed
 	########################################
