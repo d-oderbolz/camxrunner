@@ -585,6 +585,12 @@ then
 	if [ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true ]
 	then
 		cxr_common_check_mb_needed "${CXR_OUTPUT_DIR}" "${MB_NEEDED}"
+		
+		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
+		if [ "${CXR_DECOMPRESS_IN_PLACE}" == false ]
+		then
+			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(cxr_common_fp_calculate "${CXR_TMP_SPACE_FACTOR:-0.05} * ${MB_NEEDED}" 0 false)
+		fi
 	else
 		cxr_main_logger -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
 	fi

@@ -413,6 +413,9 @@ CXR_ENABLED_INSTALLER=""
 # might be significant (e. g. when decompressing files, we need a few GB per file)
 CXR_TMP_DIR=~/tmp
 
+# Fraction of space (of total run) we need in the temp dir
+CXR_TMP_SPACE_FACTOR=0.05
+
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
 readonly CXR_BIN_DIR
@@ -824,7 +827,7 @@ CXR_DETECT_COMPRESSED_INPUT_FILES=true
 CXR_DECOMPRESS_IN_PLACE=false
 
 # These extensions are searched with the automatic feature
-# CAMxRuner does not determine the compression type from the suffix,
+# CAMxRunner does not determine the compression type from the suffix,
 # this is done using "file"
 CXR_COMPRESSED_EXT=".gz .bz2"
 
