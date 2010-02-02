@@ -103,7 +103,6 @@ CXR_HOLLOW=false
 # This ariable allows to use the state DB for the installer
 CXR_INSTALLER=installer
 
-
 # Internal type constants for module handlers
 CXR_TYPE_COMMON=common
 readonly CXR_TYPE_COMMON
@@ -228,10 +227,10 @@ readonly CXR_RUN_ALL
 
 
 ################################################################################
-# Set inital values ############################################################
+# Set inital values of features ################################################
 ################################################################################
 
-## Variables for Task control
+## Variables for parallel Task control
 
 # Here, we can pin certain modules to certain servers. Attention: if the server does not show up,
 # the stuff wil not be done!
@@ -330,6 +329,16 @@ CXR_ALLOW_MULTIPLE=false
 # If true, run CAMx , otherwise don't
 CXR_RUN_MODEL=true
 
+#If true, compress the output files upon completion
+# The compressor CXR_COMPRESSOR_EXEC used is selected later
+CXR_COMPRESS_OUTPUT=false
+
+# This is a pattern that can be used to limit compression either to 
+# specific files or specific modules that created the files
+# is tested using "eval match"
+# If it is empty, it has no effect
+CXR_COMPRESS_OUTPUT_PATTERN=
+
 # If true, only specfied parts if pre- ar postprocessing are run
 CXR_RUN_LIMITED_PROCESSING=false
 
@@ -412,9 +421,6 @@ CXR_ENABLED_INSTALLER=""
 # We do not recommed to use /tmp because the space requirements
 # might be significant (e. g. when decompressing files, we need a few GB per file)
 CXR_TMP_DIR=~/tmp
-
-# Fraction of space (of total run) we need in the temp dir
-CXR_TMP_SPACE_FACTOR=0.05
 
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
@@ -511,6 +517,9 @@ CXR_C_SPACE=${CXR_C_SPACE_NONE}
 
 # Safety factor
 CXR_F_MARGIN=1.1
+
+# Fraction of space (of total run) we need in the tmp dir
+CXR_TMP_SPACE_FACTOR=0.05
 
 ################################################################################
 # Installer - specific settings (find more in the CAMx version specific .conf files)
@@ -755,6 +764,16 @@ CXR_LOCK_MAN_EXEC=${CXR_BIN_DIR}/lock.sh
 # Decompression
 CXR_GUNZIP_EXEC=$(which gunzip)
 CXR_BUNZIP2_EXEC=$(which bunzip2)
+
+# Compression
+CXR_GZIP_EXEC=$(which gzip)
+CXR_BZIP2_EXEC=$(which bzip2)
+
+# The compressor we use to compress output (if any)
+if [ "${CXR_COMPRESS_OUTPUT}" == true ]
+then
+	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
+fi
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC=$(which pgf77)

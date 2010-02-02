@@ -5,7 +5,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Path functions
+# Contains the Path/File functions of CAMxRunner.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -120,6 +120,91 @@ function cxr_common_get_file_type()
 		echo ""
 	else
 		echo "$FILETYPE"
+	fi
+}
+
+################################################################################
+# Function: cxr_common_compress_output
+# 
+# Compresses either all output files or such that match the pattern in
+# CXR_COMPRESS_OUTPUT_PATTERN.
+# We loop thorugh the file 
+#
+# Parameters:
+# None.
+#
+# Variables:
+# $CXR_COMPRESS_OUTPUT - if true, we do it, otherwise not
+# $CXR_COMPRESSOR_EXEC - executable that we use
+# $CXR_COMPRESS_OUTPUT_PATTERN - Pattern we apply to both filenames and module names. If match - we compress
+#
+# Files:
+# $CXR_INSTANCE_FILE_OUTPUT_LIST - List of files to compress
+################################################################################
+function cxr_common_compress_output()
+################################################################################
+{
+	if [ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false  ]
+	then
+		# Loop through file
+		if [ ! -z "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
+		then
+			while read line < "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
+			do
+				# Structure filename|module
+				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
+				MODULE=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
+				
+				if [! -z "${FILENAME}" ]
+				then
+					# OK file is not empty
+				
+					# Do we need to do pattern matching?
+					if [ "${CXR_COMPRESS_OUTPUT_PATTERN:-}" ]
+					then
+						################
+						# Check filename
+						################
+						local FOUND=$(expr match " ${FILENAME}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
+						# For safety, here        ^ is a space, so that things never start at 0
+						
+						if [ $FOUND -gt 0 ]
+						then
+							# Do it
+							cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
+							"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+							
+						else
+							################
+							# filename did not match - try module name
+							################
+							local FOUND=$(expr match " ${MODULE}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
+							# For safety, here        ^ is a space, so that things never start at 0
+					
+							if [ $FOUND -gt 0 ]
+							then
+								# Do it
+								cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
+								"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+							else
+								cxr_main_logger -v "$FUNCNAME" "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match $line, will not compress this file"
+							fi
+						fi
+					else
+						# No Pattern matching
+						cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
+						"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+					fi
+				else
+					#File empty
+					cxr_main_logger -w "$FUNCNAME" "The output file ${FILENAME} is empty, no compression attempted!"
+				fi
+			done
+		else
+			cxr_main_logger -w "$FUNCNAME" "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
+		fi
+	else
+		cxr_main_logger "$FUNCNAME" "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
 	fi
 }
 

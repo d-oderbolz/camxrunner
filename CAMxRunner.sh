@@ -744,6 +744,9 @@ then
 	fi
 fi
 
+# Do compression if needed
+cxr_common_compress_output
+
 # Echo the "Finish message"
 cxr_main_logger -i "CAMxRunner.sh" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 

@@ -4,7 +4,7 @@
 #
 # See http://testanything.org
 #
-# These functions now write their output to a .tap file that can be parsed later
+# These functions now write their output to the logger.
 #
 #EXAMPLE:
 #   #!/bin/bash
