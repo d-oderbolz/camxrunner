@@ -65,3 +65,6 @@ CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "$CXR_START_DATE" "$CXR_STOP_DA
 # Let's just initialise the date variables for day 0
 cxr_common_export_date_variables "$CXR_START_DATE" "0"
 
+# Init state DB
+cxr_common_initialize_state_db
+

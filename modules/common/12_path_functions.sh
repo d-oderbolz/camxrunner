@@ -557,9 +557,6 @@ function test_module()
 	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
 	CXR_COMPRESS_OUTPUT_PATTERN=
 	
-	# To avoid strange errors
-	touch "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
-	
 	# Add this file to the output file list
 	echo "${a}${CXR_DELIMITER}path_functions" > "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 	
