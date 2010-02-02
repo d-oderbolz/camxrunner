@@ -230,10 +230,11 @@ readonly CXR_RUN_ALL
 # Set inital values of features ################################################
 ################################################################################
 
-## Variables for parallel Task control
+# Variables:  Parallel Task control
+#
+# CXR_PIN_SERVER - Allows to strictly assign (pin) certain modules to certain hosts. Attention: if the server does not show up, these modules will never be done!
 
-# Here, we can pin certain modules to certain servers. Attention: if the server does not show up,
-# the stuff wil not be done!
+
 # The syntax is: module_name1=server1:module_name2=server2
 CXR_PIN_SERVER=
 
