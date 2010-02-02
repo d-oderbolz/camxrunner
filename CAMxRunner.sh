@@ -498,8 +498,11 @@ cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARA
 # Start hollow functions if needed
 ################################################################################
 
-if [ "${CXR_HOLLOW}" == true ] 
+if [ "${CXR_HOLLOW}" == true ]
 then
+	#Hollow functions neeed init too
+	cxr_common_initialize_state_db
+
 	if [ "${CXR_CLEANUP}" == true ]
 	then
 		# Delete info in the state DB
@@ -661,7 +664,7 @@ then
 
 
 	################################################################################
-	# Create a Continue File. If it is gone, the cxr_common_worker thread(s) will stop
+	# Create a Continue File. If it is gone, the worker thread(s) will stop
 	################################################################################
 
 	cxr_common_initialize_state_db || cxr_main_die_gracefully "Could not initialize state DB"
