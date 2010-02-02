@@ -441,7 +441,7 @@ function cxr_common_file_size_megabytes()
 # returns the number of megabytes free in given path (floored?)
 # This might actually fail on non Linux-systems...
 #
-# Internally determines the FS type - supports quota on afs only
+# Internally determines the FS type; supports quota on afs only
 #
 # Parameters:
 # $1 - path to test
