@@ -115,7 +115,7 @@ Format: 1.4
 
 Language: Bash
 
-   Extension: sh
+   Extensions: sh inc
    Shebang String: bash
    Line Comment: #
 
