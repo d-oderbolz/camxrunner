@@ -169,7 +169,7 @@ function cxr_common_compress_output()
 		# Loop through file
 		if [ ! -z "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
 		then
-			while read line < "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
+			while read line 
 			do
 				# Structure filename|module
 				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
@@ -219,7 +219,7 @@ function cxr_common_compress_output()
 					#File empty
 					cxr_main_logger -w "$FUNCNAME" "The output file ${FILENAME} is empty, no compression attempted!"
 				fi
-			done
+			done < "${CXR_INSTANCE_FILE_OUTPUT_LIST}" # Loop over lines
 		else
 			cxr_main_logger -w "$FUNCNAME" "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
 		fi
