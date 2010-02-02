@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=5
+CXR_META_MODULE_NUM_TESTS=6
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -575,7 +575,19 @@ function test_module()
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
 	
 	# Set pattern correct
-	CXR_COMPRESS_OUTPUT_PATTERN="^path_functions$"
+	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
+	
+	# compress
+	cxr_common_compress_output
+	
+	#Test
+	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	
+	# Decompress again
+	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	
+	# Set pattern correct
+	CXR_COMPRESS_OUTPUT_PATTERN="path_.*"
 	
 	# compress
 	cxr_common_compress_output
