@@ -498,50 +498,45 @@ cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARA
 # Start hollow functions if needed
 ################################################################################
 
-if [ "${CXR_CLEANUP}" == true ]
+if [ "${CXR_HOLLOW}" == true ] 
 then
-	# Delete info in the state DB
-	cxr_common_cleanup_state
-	# We are happy
-	CXR_STATUS=$CXR_STATUS_SUCCESS
-	exit
-elif [ "${CXR_CREATE_NEW_RUN}" == true ]
-then
-	# Create a new run
-	cxr_common_create_new_run
-	# We are happy
-	CXR_STATUS=${CXR_STATUS_SUCCESS}
-	exit
-elif [ "${CXR_STOP_RUN}" == true ]
-then
-	#Delete .CONTINUE files of all instances
-	if [ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true ]
+
+	if [ "${CXR_CLEANUP}" == true ]
 	then
-		cxr_common_delete_continue_files
+		# Delete info in the state DB
+		cxr_common_cleanup_state
+	elif [ "${CXR_CREATE_NEW_RUN}" == true ]
+	then
+		# Create a new run
+		cxr_common_create_new_run
+	elif [ "${CXR_STOP_RUN}" == true ]
+	then
+		#Delete .CONTINUE files of all instances
+		if [ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true ]
+		then
+			cxr_common_delete_continue_files
+		fi
+	elif [ "${CXR_INSTALL}" == true ]
+	then
+		# Run the installation
+		cxr_common_install
+	elif [ "${CXR_RUN_TESTS}" == true ]
+	then
+		# Run the tests
+		cxr_common_test_all_modules
 	fi
+	
+	# Delete instance data if any
+	cxr_common_delete_instance_data
 	
 	# We are happy
 	CXR_STATUS=${CXR_STATUS_SUCCESS}
 	exit
-elif [ "${CXR_INSTALL}" == true ]
-then
-	# Run the installation
-
-	cxr_common_install
-
-	# We are happy
-	CXR_STATUS=${CXR_STATUS_SUCCESS}
-	exit
-elif [ "${CXR_RUN_TESTS}" == true ]
-then
-	# Run the tests
-
-	cxr_common_test_all_modules
-
-	# We are happy
-	CXR_STATUS=${CXR_STATUS_SUCCESS}
-	exit	
 fi
+
+
+
+### No hollow function gets further
 
 cxr_main_logger -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
