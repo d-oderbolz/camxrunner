@@ -248,12 +248,14 @@ function cxr_common_try_decompressing_file()
 {
 	INPUT_FILE=$1
 	
+	cxr_main_logger -a -b "$FUNCNAME" "Testing if ${INPUT_FILE} was compressed..."
+	
 	local DELIMITER="${CXR_DELIMITER}"
 
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then
 	
-		# Check first if we already have done this file
+		# Check first if we already have decompressed this file
 		# Look for an entry like
 		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
 		# In $CXR_INSTANCE_FILE_DECOMPRESSED
@@ -271,14 +273,14 @@ function cxr_common_try_decompressing_file()
 		
 			echo "$TEMPFILE"
 			return $CXR_RET_OK
+		else
+			was_compressed=false
 		fi
 	
-		was_compressed=false
-		
 		# Create proper array of extensions
 		A_CXR_COMPRESSED_EXT=($CXR_COMPRESSED_EXT)
 
-		# Checking if a comrpessed version of this file exists
+		# Checking if a compressed version of this file exists
 		for k in $(seq 0 $(( ${#A_CXR_COMPRESSED_EXT[@]} - 1 )) )
 		do
 			# The current extension (e. g. .gz)
@@ -291,7 +293,7 @@ function cxr_common_try_decompressing_file()
 			if [ -r "$COMP_FILE" ]
 			then
 			
-				# We decompress into a tempfile
+				# We decompress into a tempfile if we dont decompress in place
 				if [ "$CXR_DECOMPRESS_IN_PLACE" == false ]
 				then
 					# Use a tempfile
@@ -302,16 +304,24 @@ function cxr_common_try_decompressing_file()
 				fi
 				
 				# What decompressor to use?
+				# This is NOT derived from the filename
 				FILETYPE=$(cxr_common_get_file_type "$COMP_FILE")
 				
 				case $FILETYPE in
 		
 					bzip2)
+						cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using bzip2. I will use $CXR_BUNZIP2_EXEC to decompress."
 						$CXR_BUNZIP2_EXEC -c "$COMP_FILE" > $TEMPFILE
 						;;
 						
 					gzip)
-						$CXR_GUNZIP_EXEC -c "$COMP_FILE" > $TEMPFILE
+						cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using gzip. I will use $CXR_GUNZIP_EXEC to decompress."
+						"$CXR_GUNZIP_EXEC" -c "$COMP_FILE" > $TEMPFILE
+						;;
+				
+					zip)
+						cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using zip. I will use $CXR_GUNZIP_EXEC to decompress."
+						"$CXR_GUNZIP_EXEC" -S .zip -c "$COMP_FILE" > $TEMPFILE
 						;;
 				
 					*)
@@ -334,20 +344,19 @@ function cxr_common_try_decompressing_file()
 		
 		if [ "$was_compressed" == true ]
 		then
-		
-			# Store the fact
 			# In CXR_INSTANCE_FILE_DECOMPRESSED
 			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_INSTANCE_FILE_DECOMPRESSED
 		
 			echo "$NEW_FILE"
 		else
-			# Could not decompress
+			# Was not compressed
+			cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} is not compressed."
 			echo "$INPUT_FILE"
 		fi
 		
 	else
 		# We do not consider compressed files
-		mais_logger -v "$FUNCNAME" "We do not try to decompress files"
+		cxr_main_logger -v "$FUNCNAME" "We do not try to decompress files, CXR_DETECT_COMPRESSED_INPUT_FILES is false"
 		echo "$INPUT_FILE"
 	fi
 }

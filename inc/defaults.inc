@@ -849,7 +849,7 @@ CXR_DECOMPRESS_IN_PLACE=false
 # These extensions are searched with the automatic feature
 # CAMxRunner does not determine the compression type from the suffix,
 # this is done using "file"
-CXR_COMPRESSED_EXT=".gz .bz2"
+CXR_COMPRESSED_EXT=".gz .bz2 .zip"
 
 
 ################################################################################
