@@ -181,8 +181,9 @@ function set_prepare_output_dir_variables()
 	
 	done
 	
-	# We will later loop over this list
-	CXR_INPUT_ARRAYS="CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES CXR_ZP_GRID_INPUT_ARR_FILES CXR_WIND_GRID_INPUT_ARR_FILES CXR_TEMP_GRID_INPUT_ARR_FILES CXR_VAPOR_INPUT_ARR_FILES CXR_KV_GRID_INPUT_ARR_FILES CXR_AVG_OUTPUT_ARR_FILES"
+	# We will later loop over these arrays
+	CXR_INPUT_ARRAYS=(CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES CXR_ZP_GRID_INPUT_ARR_FILES CXR_WIND_GRID_INPUT_ARR_FILES CXR_TEMP_GRID_INPUT_ARR_FILES CXR_VAPOR_INPUT_ARR_FILES CXR_KV_GRID_INPUT_ARR_FILES CXR_AVG_OUTPUT_ARR_FILES)
+	CXR_NAME_ARRAYS=(CXR_TERRAIN_GRID_NAME CXR_ZP_GRID_NAME CXR_WIND_GRID_NAME CXR_TEMP_GRID_NAME CXR_VAPOR_GRID_NAME CXR_KV_GRID_NAME CXR_AVG_OUTPUT_NAME)
 	
 }
 
@@ -223,18 +224,21 @@ function prepare_output_dir()
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Loo through the name of all the input arrays
-			for VAR in ${CXR_INPUT_ARRAYS}
+			for iArr in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )))
 			do
+				VAR=${CXR_INPUT_ARRAYS[$iArr]}
+				VAR_NAME=${CXR_NAME_ARRAYS[$iArr]}
+			
 				# Only if the link is not there, create a new one
 				CURRENT_FILE=$(eval "echo \${${VAR}[${i}]}")
-				CURRENT_BASE=$(basename ${CURRENT_FILE})
+				CURRENT_BASE=$(eval "echo \${${VAR_NAME}[${i}]}")
 				
 				# If the Link or file does not yet exist
 				if [ ! \( -L ${CURRENT_BASE} -o -f ${CURRENT_BASE} \) ]
 				then
 					if [ "$CXR_DRY" == "false" ]
 					then
-						ln -s ${CURRENT_FILE}
+						ln -s ${CURRENT_FILE} ${CURRENT_BASE}
 					else
 						cxr_main_logger "${FUNCNAME}"  "This is a dry run, do not create a link for output processing"
 					fi
