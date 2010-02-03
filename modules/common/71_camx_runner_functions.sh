@@ -530,19 +530,16 @@ function cxr_common_create_dummyfile()
 # Function: cxr_common_create_tempfile
 #
 # Returns the name of a temporary file with random name, shows a message and adds the file
-# to the temp file list. Replaces calls to mktemp and removes the need to remove the temp files.
-# There are 2 lists for tempfiles: one that is kept for the whole run (emptied at the end of the run)
-# and one that is emptied after each simulation day.
-#
-# By default, we add files to the short-lived list, if you want to add data to the 
-# long-lived list, use the parameter $2
+# to the temp file list if this is needed. 
+# Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
+# <cxr_common_remove_tempfiles>
 #
 # Recommended call:
 # >TMPFILE=$(cxr_common_create_tempfile $FUNCNAME)
 #
 # Parameters:
 # [$1] - identifier of tempfile, recommended to use $FUNCNAME
-# [$2] - long_lifetime, if true, we add the file to the long lifetime list
+# [$2] - store, if false, we do not add the file to list. This is useful if we keep track of the files ourselves (e. g. when decompressing files)
 ################################################################################
 function cxr_common_create_tempfile()
 ################################################################################
@@ -553,15 +550,7 @@ function cxr_common_create_tempfile()
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
-	local long_lifetime=${2:-false}
-	
-	# Choose apropriate list
-	if [ "$long_lifetime" == true ]
-	then
-		local temp_list="$CXR_INSTANCE_FILE_TEMP_LIST_LONG"
-	else
-		local temp_list="$CXR_INSTANCE_FILE_TEMP_LIST"
-	fi
+	local store=${2:-true}
 	
 	# Create a template by using $1 
 	# and adding 8 random alphanums
@@ -574,8 +563,11 @@ function cxr_common_create_tempfile()
 	local FILENAME=$(mktemp $TEMPLATE)
 	cxr_main_logger -v "$FUNCNAME"  "Creating temporary file $FILENAME"
 	
-	# Add to dummy list
-	echo $FILENAME >> "$temp_list"
+	if [ "${store}" == true ]
+	then
+		# Add to dummy list
+		echo $FILENAME >> "$CXR_INSTANCE_FILE_TEMP_LIST"
+	fi
 	
 	echo $FILENAME
 	return 0
@@ -585,56 +577,63 @@ function cxr_common_create_tempfile()
 # Function: cxr_common_remove_tempfiles
 #
 # Removes all files from the temp file list if CXR_REMOVE_TEMP_FILES is true.
+# Also removes decompressed files if requested.
 #
-# By default, we remove the files of the short-lived list, if you want to remove 
-# all files (also from long-lived list) use $1.
-#
-# Currently, we cannot delete short-lived files when running in parallel, because 
-# we do not know when a model day is completed. If we can determine that, it would be easy.
-# 
-# Parameters:
-# [$1] - if true, we remove all files from the short AND long lifetime list
 ################################################################################
 function cxr_common_remove_tempfiles()
 ################################################################################
 {
-	local long_lifetime=${1:-false}
-	
-	# Choose apropriate list
-	if [ "$long_lifetime" == true ]
+	# remove decompressed files, if wanted
+	# each removed file is also removed from the global list
+	if [ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]
 	then
-		local temp_lists="$CXR_INSTANCE_FILE_TEMP_LIST_LONG $CXR_INSTANCE_FILE_TEMP_LIST"
-		cxr_main_logger $FUNCNAME "Removing all tempfiles (if any)"
+		if [ -s "$CXR_DECOMPRESSED_LIST" ]
+		then
+			cxr_main_logger "$FUNCNAME" "Removing temporarily decompressed files..."
+		
+			# Loop trough all entries
+			while read line 
+			do
+				# The line has the format compressed_file|decompressed_file
+				FILENAME=$(echo "$line" | cut -d${DELIMITER} -f2)
+				
+				cxr_main_logger -v "$FUNCNAME"  "Deleting $FILENAME"
+				rm -f "${FILENAME}"
+				
+				# remove that line via sed
+				sed_tmp=$(cxr_common_create_tempfile sed false) # Tempfile is not added to list (we move it away)
+				sed '/$line/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
+				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
+			done < "$CXR_DECOMPRESSED_LIST"
+		fi
 	else
-		local temp_lists="$CXR_INSTANCE_FILE_TEMP_LIST"
-		cxr_main_logger $FUNCNAME "Removing short-lived tempfiles (if any)"
+		cxr_main_logger "$FUNCNAME" "The temporarily decompressed files $(cat ${CXR_DECOMPRESSED_LIST} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
+	fi
+
+	# remove temporary files, if wanted
+	if [ "$CXR_REMOVE_TEMP_FILES" == true ]
+	then
+		# Does the list even exist?
+		if [ -s "$CXR_INSTANCE_FILE_TEMP_LIST" ]
+		then
+			cxr_main_logger "$FUNCNAME" "Removing temporary files..."
+			
+			# Clean temp files away
+			for TEMP_FILE in $(cat "${CXR_INSTANCE_FILE_TEMP_LIST}")
+			do
+				cxr_main_logger -v "$FUNCNAME"  "Deleting $TEMP_FILE"
+				
+				rm -f "$TEMP_FILE" >/dev/null 2>&1
+			done
+			
+			# Empty the list of temp files just cleaned
+			: > ${CXR_INSTANCE_FILE_TEMP_LIST}
+		fi
+	else
+		cxr_main_logger "$FUNCNAME" "The temporary files $(cat ${CXR_INSTANCE_FILE_TEMP_LIST} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 	fi
 	
-	for temp_list in $temp_lists
-	do
-		# remove temporary files, if wanted
-		if [ "$CXR_REMOVE_TEMP_FILES" == true ]
-		then
-			# Does the list even exist?
-			if [ -s "$temp_list" ]
-			then
-				cxr_main_logger "$FUNCNAME" "Removing temporary files..."
-				
-				# Clean temp files away
-				for TEMP_FILE in $(cat "${temp_list:-/dev/null}")
-				do
-					cxr_main_logger -v "$FUNCNAME"  "Deleting $TEMP_FILE"
-					
-					rm -f "$TEMP_FILE" >/dev/null 2>&1
-				done
-				
-				# Empty the list of temp files just cleaned
-				: > ${temp_list}
-			fi
-		else
-			cxr_main_logger "$FUNCNAME" "The temporary files $(cat ${temp_list:-/dev/null} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
-		fi
-	done
+
 }
 
 ################################################################################

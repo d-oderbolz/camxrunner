@@ -167,7 +167,7 @@ function cxr_common_compress_output()
 	if [ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false  ]
 	then
 		# Loop through file
-		if [ ! -z "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
+		if [ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
 		then
 			while read line 
 			do
@@ -175,7 +175,7 @@ function cxr_common_compress_output()
 				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
 				MODULE=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				if [ ! -z "${FILENAME}" ]
+				if [ -s "${FILENAME}" ]
 				then
 					# OK file is not empty
 				
@@ -234,7 +234,7 @@ function cxr_common_compress_output()
 #
 # Due to potential permission issues, we decompress into temp files unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
-# This is stored in the file CXR_INSTANCE_FILE_DECOMPRESSED.
+# This is stored in the file CXR_DECOMPRESSED_LIST.
 #
 # If the decompression fails, we return the input string.
 #
@@ -260,10 +260,10 @@ function cxr_common_try_decompressing_file()
 		# Check first if we already have decompressed this file
 		# Look for an entry like
 		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
-		# In $CXR_INSTANCE_FILE_DECOMPRESSED
-		touch "$CXR_INSTANCE_FILE_DECOMPRESSED"
+		# In $CXR_DECOMPRESSED_LIST
+		touch "$CXR_DECOMPRESSED_LIST"
 		
-		LINE="$(grep ${INPUT_FILE}${DELIMITER} $CXR_INSTANCE_FILE_DECOMPRESSED)"
+		LINE="$(grep ${INPUT_FILE}${DELIMITER} $CXR_DECOMPRESSED_LIST)"
 		
 		if [ "$LINE" ]
 		then
@@ -271,7 +271,7 @@ function cxr_common_try_decompressing_file()
 			# The tempfile is in the second field
 			TEMPFILE="$(echo $LINE | cut -d${DELIMITER} -f2)"
 			
-			if [ ! -z "$TEMPFILE" ]
+			if [ -s "$TEMPFILE" ]
 			then
 				cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE"
 			
@@ -284,30 +284,11 @@ function cxr_common_try_decompressing_file()
 				
 				# First remove that line via sed
 				sed_tmp=$(cxr_common_create_tempfile sed)
-				sed '/$LINE/d' "${CXR_INSTANCE_FILE_DECOMPRESSED}" > "${sed_tmp}"
-				mv "${sed_tmp}" "${CXR_INSTANCE_FILE_DECOMPRESSED}"
+				sed '/$LINE/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
+				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			fi	
 		fi # Entry found in compressed list?
 		
-		# Its possible that the ${CXR_INSTANCE_FILE_DECOMPRESSED} is gone (new run)
-		# but still the compressed files exist.
-		
-		# This heuristic searches for a matching tempfile
-		# tempfiles have names like ${CXR_TMP_PREFIX}decomp_$(basename ${INPUT_FILE}).*
-		# To be on the safe side, we test if we get a unique solution
-		
-		EXISTING_TEMPFILES="$(find ${CXR_TMP_DIR} -noleaf -name "${CXR_TMP_PREFIX}decomp_$(basename ${INPUT_FILE}).*")"
-		
-		# How many where there?
-		if [ $(cxr_common_count_delimited_elements "$EXISTING_TEMPFILES" " ") -eq 1 ]
-		then
-			# We have exactly one element
-			cxr_main_logger -w "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into the existing $EXISTING_TEMPFILES we will use that"
-			echo "$EXISTING_TEMPFILES"
-			return $CXR_RET_OK
-		fi #Exactly 1?
-		 
-	
 		# Create proper array of extensions
 		A_CXR_COMPRESSED_EXT=($CXR_COMPRESSED_EXT)
 
@@ -328,8 +309,8 @@ function cxr_common_try_decompressing_file()
 				# We decompress into a tempfile if we dont decompress in place
 				if [ "$CXR_DECOMPRESS_IN_PLACE" == false ]
 				then
-					# Use a tempfile and give it a recogisable name
-					TEMPFILE=$(cxr_common_create_tempfile decomp_$(basename ${INPUT_FILE}))
+					# Use a tempfile and give it a recogisable name. It will not be added to the templist (managed here)
+					TEMPFILE=$(cxr_common_create_tempfile decomp_$(basename ${INPUT_FILE}) false)
 				else
 					# The target is the "original" file name
 					TEMPFILE=${INPUT_FILE}
@@ -389,8 +370,8 @@ function cxr_common_try_decompressing_file()
 		
 		if [ "$was_compressed" == true ]
 		then
-			# In CXR_INSTANCE_FILE_DECOMPRESSED
-			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_INSTANCE_FILE_DECOMPRESSED
+			# In CXR_DECOMPRESSED_LIST
+			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_LIST
 		
 			echo "$NEW_FILE"
 		else

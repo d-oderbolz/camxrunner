@@ -260,7 +260,7 @@ do
 		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;
 		s) CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		D) CXR_USER_TEMP_ONE_DAY=${OPTARG} ;;
-		L) CXR_USER_TEMP_REMOVE_TEMP_FILES=false ;;
+		L) CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
 		P) CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG} ;;
 	
 		# Installer: We need to manipulate the CXR_RUN variable for now
@@ -473,7 +473,7 @@ cxr_main_logger -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can 
 ################################################################################
 
 # Is the chemparm file already set (in the config?)
-if [ ! -z ${CXR_CHEMPARAM_INPUT_FILE:-} ]
+if [ -s ${CXR_CHEMPARAM_INPUT_FILE:-} ]
 then
 	#String is non-empty, check if it is sensible
 	if [ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-} ]

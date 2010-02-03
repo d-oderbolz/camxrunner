@@ -410,9 +410,6 @@ function cxr_common_process_sequentially
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
 			
-			# After each day, we remove the daily tempfiles
-			cxr_common_remove_tempfiles
-			
 			# If we do only 1 day, that's it
 			if [ "${CXR_ONE_DAY}" ]
 			then

@@ -149,7 +149,7 @@ function cxr_common_get_consent()
 
 	# Code repeated for clarity
 	# Default only accepted if either Y or N
-	if [ \( ! -z "${2:-}" \) -a \( "${2:-}" == Y -o "${2:-}" == N \) ]
+	if [ \( -s "${2:-}" \) -a \( "${2:-}" == Y -o "${2:-}" == N \) ]
 	then
 			
 		########################################
@@ -313,7 +313,7 @@ function cxr_common_get_menu_choice()
 	MESSAGE="$1\nEnter the *number* of your choice:"
 	OPTIONS=$2
 	
-	if [ ! -z "${3:-}" ]
+	if [ -s "${3:-}" ]
 	then
 		# We have a default, set advanced prompt and add default as last
 		DEFAULT="${3:-}"
@@ -337,7 +337,7 @@ function cxr_common_get_menu_choice()
 	
 	# Default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [ ! -z "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")" ]
+	if [ -s "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")" ]
 	then
 		CHOSEN="$DEFAULT"
 	fi

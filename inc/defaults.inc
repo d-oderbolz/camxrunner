@@ -283,6 +283,10 @@ CXR_ANNOUNCED_MODULES=" "
 # Debug only!
 CXR_REMOVE_TEMP_FILES=true
 
+# If this is false, the temporarily decompressed files will not be deleted
+# For the -L feature
+CXR_REMOVE_DECOMPRESSED_FILES=true
+
 # When set to true, the script logs even in a dry run
 CXR_FORCE_LOG=false
 
@@ -562,12 +566,20 @@ CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
 ########################################
+# Data that is global to all instances
+########################################
+
+# Directory where the global stuff goes
+# Global data is normally not deleted
+CXR_GLOBAL_DIR=$CXR_STATE_DIR/global
+
+########################################
 # Parallel Task execution. 
 # This is global to all instances
 ########################################
 
 # Task directories
-CXR_TASK_POOL_DIR=$CXR_STATE_DIR/tasks
+CXR_TASK_POOL_DIR=$CXR_GLOBAL_DIR/tasks
 readonly CXR_TASK_POOL_DIR
 
 # Contains links to the tasks that need to be done still
@@ -592,7 +604,7 @@ CXR_TASK_FAILED_DIR=$CXR_TASK_POOL_DIR/failed
 readonly CXR_TASK_FAILED_DIR
 
 # Workers
-CXR_WORKER_DIR=$CXR_STATE_DIR/workers
+CXR_WORKER_DIR=$CXR_GLOBAL_DIR/workers
 readonly CXR_WORKER_DIR
 
 CXR_RUNNING_WORKER_DIR=$CXR_WORKER_DIR/running
@@ -602,34 +614,37 @@ CXR_WAITING_WORKER_DIR=$CXR_WORKER_DIR/waiting
 readonly CXR_WAITING_WORKER_DIR
 
 # Files to store currently active modules (for simpler dependecies)
-CXR_ACTIVE_ONCE_PRE_LIST=$CXR_STATE_DIR/active_once_pre_list
+CXR_ACTIVE_ONCE_PRE_LIST=$CXR_GLOBAL_DIR/active_once_pre_list
 readonly CXR_ACTIVE_ONCE_PRE_LIST
 
-CXR_ACTIVE_DAILY_PRE_LIST=$CXR_STATE_DIR/active_daily_pre_list
+CXR_ACTIVE_DAILY_PRE_LIST=$CXR_GLOBAL_DIR/active_daily_pre_list
 readonly CXR_ACTIVE_DAILY_PRE_LIST
 
-CXR_ACTIVE_DAILY_POST_LIST=$CXR_STATE_DIR/active_daily_post_list
+CXR_ACTIVE_DAILY_POST_LIST=$CXR_GLOBAL_DIR/active_daily_post_list
 readonly CXR_ACTIVE_DAILY_POST_LIST
 
-CXR_ACTIVE_ONCE_POST_LIST=$CXR_STATE_DIR/active_once_post_list
+CXR_ACTIVE_ONCE_POST_LIST=$CXR_GLOBAL_DIR/active_once_post_list
 readonly CXR_ACTIVE_ONCE_POST_LIST
 
-CXR_ACTIVE_MODEL_LIST=$CXR_STATE_DIR/active_model_list
+CXR_ACTIVE_MODEL_LIST=$CXR_GLOBAL_DIR/active_model_list
 readonly CXR_ACTIVE_MODEL_LIST
 
-CXR_ACTIVE_ALL_LIST=$CXR_STATE_DIR/active_all_list
+CXR_ACTIVE_ALL_LIST=$CXR_GLOBAL_DIR/active_all_list
 readonly CXR_ACTIVE_ALL_LIST
 
 # This is where the locks go
 # must be exported because lock manager reads from environment
-CXR_LOCK_DIR=$CXR_STATE_DIR/locks
+CXR_LOCK_DIR=$CXR_GLOBAL_DIR/locks
 readonly CXR_LOCK_DIR
 
-################################################################################
-# CAMxRunner Internal stuff
-################################################################################
+# In this file, we store files that where decompressed
+CXR_DECOMPRESSED_LIST=${CXR_GLOBAL_DIR}/decompressed.files
+readonly CXR_DECOMPRESSED_LIST
 
-# Important files
+########################################
+# Logging
+########################################
+
 # Name of the Log file 
 CXR_LOG=${CXR_LOG_OUTPUT_DIR}/${CXR_RUN}_$(date +"%Y_%m_%d_%H_%M")${CXR_LOG_EXT}.log
 
@@ -687,10 +702,6 @@ readonly CXR_INSTANCE_FILE_ERROR_STACK
 CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 readonly CXR_INSTANCE_FILE_FAILED_DAYS
 
-# In this file, we store files that where decompressed
-CXR_INSTANCE_FILE_DECOMPRESSED=${CXR_INSTANCE_DIR}/decompressed.files
-readonly CXR_INSTANCE_FILE_DECOMPRESSED
-
 ########################################
 # The next few files are SECURITY RELEVANT.
 # 1. Use a random number in the name
@@ -699,8 +710,6 @@ readonly CXR_INSTANCE_FILE_DECOMPRESSED
 
 # In this file, we store all output files that have been generated
 # This is used to compress output if needed or to delete output.
-# We will not use a random number in the name (We might need this file 
-# after a run completed), but we protect it using chmod
 CXR_INSTANCE_FILE_OUTPUT_LIST=${CXR_INSTANCE_DIR}/output_files
 readonly CXR_INSTANCE_FILE_OUTPUT_LIST
 
@@ -711,16 +720,11 @@ readonly CXR_INSTANCE_FILE_DUMMY_LIST
 
 # In this file, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
-# These will be deleted after each model day
+# These will be deleted after the run
 CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp_files.${RANDOM}
 readonly CXR_INSTANCE_FILE_TEMP_LIST
 
-# In this file, we store long-lived temporay files of a run. 
-# These will be deleted after each model run
-CXR_INSTANCE_FILE_TEMP_LIST_LONG=${CXR_INSTANCE_DIR}/temp_files_longterm.${RANDOM}
-readonly CXR_INSTANCE_FILE_TEMP_LIST_LONG
-
-# In this file, we store the locks we have aqcired
+# In this file, we store the locks this instance holds
 CXR_INSTANCE_FILE_LOCK_LIST=${CXR_INSTANCE_DIR}/lock_list.${RANDOM}
 readonly CXR_INSTANCE_FILE_LOCK_LIST
 

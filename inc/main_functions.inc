@@ -136,7 +136,7 @@ function cxr_main_increase_error_count()
 	fi
 	
 	# Make sure we have such a variable
-	if [ ! -z "${CXR_INSTANCE_FILE_ERROR_STACK:-}" ]
+	if [ -s "${CXR_INSTANCE_FILE_ERROR_STACK:-}" ]
 	then
 
 		# Add text to the stack (if empty a newline is written)
@@ -435,7 +435,7 @@ function cxr_main_cleanup()
 		then
 			cxr_main_logger "$FUNCNAME"  "The system detected at least $ERROR_COUNT errors, fix them!\n\nHere is the error stack:\n"
 			
-			if [ ! -z ${CXR_LOG:-} ]
+			if [ -s ${CXR_LOG:-} ]
 			then
 				# Write to logfile
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
@@ -477,7 +477,7 @@ function cxr_main_cleanup()
 		fi
 		
 		# Remove all tempfiles
-		cxr_common_remove_tempfiles true
+		cxr_common_remove_tempfiles
 		
 		# Release Locks
 		cxr_common_release_all_locks
@@ -938,7 +938,7 @@ function cxr_main_enumerate_modules
 			cxr_main_decrease_log_indent
 		fi
 	
-		if [ ! -z "$DISABLED_MODULES" ]
+		if [ -s "$DISABLED_MODULES" ]
 		then
 			cxr_main_logger -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
