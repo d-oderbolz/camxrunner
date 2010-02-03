@@ -988,22 +988,22 @@ function cxr_main_enumerate_all_modules
 		# Increase global indent level
 		cxr_main_increase_log_indent
 
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for pre process input steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for One-Time pre processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_PREPROCESS_ONCE}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for single input steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for daily pre processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_PREPROCESS_DAILY}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for single output steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for daily post processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_POSTPROCESS_DAILY}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for one-time output steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for One-Time post processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_POSTPROCESS_ONCE}
