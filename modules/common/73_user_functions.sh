@@ -313,7 +313,7 @@ function cxr_common_get_menu_choice()
 	MESSAGE="$1\nEnter the *number* of your choice:"
 	OPTIONS=$2
 	
-	if [ -s "${3:-}" ]
+	if [ "${3:-}" ]
 	then
 		# We have a default, set advanced prompt and add default as last
 		DEFAULT="${3:-}"
@@ -337,7 +337,7 @@ function cxr_common_get_menu_choice()
 	
 	# Default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [ -s "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")" ]
+	if [ "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")" ]
 	then
 		CHOSEN="$DEFAULT"
 	fi

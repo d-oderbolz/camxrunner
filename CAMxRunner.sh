@@ -473,7 +473,7 @@ cxr_main_logger -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can 
 ################################################################################
 
 # Is the chemparm file already set (in the config?)
-if [ -s ${CXR_CHEMPARAM_INPUT_FILE:-} ]
+if [ "${CXR_CHEMPARAM_INPUT_FILE:-}" ]
 then
 	#String is non-empty, check if it is sensible
 	if [ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-} ]
