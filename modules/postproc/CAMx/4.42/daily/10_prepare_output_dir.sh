@@ -141,26 +141,40 @@ function set_prepare_output_dir_variables()
 	########################################################################
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
-		# TERRAIN is already ASCII
+		# Because the input might be compressed, we use two sets af arrays,
+		# the second one contains just the real basenames (these are the link-names)
+		# Note the last argument (false) in every even call to <cxr_common_evaluate_rule>
+	
+		# Terrain
 		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
+		CXR_TERRAIN_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE false))
 		
 		# Pressure
 		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+		CXR_ZP_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+		
 		# Wind
 		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+		CXR_WIND_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+		
 		# Temperature
 		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+		CXR_TEMP_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+		
 		# Vapor
 		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
-		# No Cloud
+		CXR_VAPOR_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+		
 		# Vertical K
 		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+		CXR_KV_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 		
-		# Emissions done in preprocessor 
+		# Emissions done in run_emifad 
 		
 		# These are used for the creation of the aqmfad directory
-		# Despit the name an input here
+		# Despite the name an input here
 		CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+		CXR_AVG_OUTPUT_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 	
 		#Checks
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_AVG_OUTPUT_ARR_FILES[${i}]}"
@@ -190,7 +204,6 @@ function prepare_output_dir()
 	#Was this stage already completed?
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
-		
 		#  --- Setup the Environment of the current day
 		set_prepare_output_dir_variables 
 		

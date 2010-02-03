@@ -319,8 +319,11 @@ function cxr_common_report_dimensions()
 # 
 # Evaluates a filerule and returns its expansion. Removes syntactical fluff unknown
 # to non-bashers.
-# If a file might be compressed, calls <cxr_common_try_decompressing_file>
+# If it is a file rule, the file might be compressed, <cxr_common_try_decompressing_file> is called.
 #
+# Side effect: if the file is compressed and we cannot decompress in place,
+# the returned file name will change. If you want the "expected" file name,
+# use the fourth parameter.
 #
 # To be on the safe side, quote the call (double quotes!)
 #
@@ -349,14 +352,14 @@ function cxr_common_report_dimensions()
 # $1 - The rule to be evaluated (a string, not a variable)
 # [$2] - ALLOW_EMPTY if false, a rule must expand to a non-empty string
 # [$3] - optional name of the rule
-#
+# [$4] - TRY_DECOMPRESSION if false, will not attempt compression (and consequenital renaming)
 ################################################################################
 function cxr_common_evaluate_rule()
 ################################################################################
 {
-	if [ $# -lt 1 -a $# -gt 3 ]
+	if [ $# -lt 1 -a $# -gt 4 ]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false and the rule name!"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
 	RULE="$1"
@@ -364,7 +367,9 @@ function cxr_common_evaluate_rule()
 	# Per default we allow rules to expand to the empty string
 	ALLOW_EMPTY="${2:-true}"
 	RULE_NAME="${3:-}"
-
+	# By default try decompression
+	TRY_DECOMPRESSION"${4:-true}"
+	
 	if [ -z "$RULE" ]
 	then
 		# If the rule is empty, we return empty
@@ -383,11 +388,18 @@ function cxr_common_evaluate_rule()
 	# *_FILE_RULE might be compressed
 	# Does the name of the rule end in _FILE_RULE ?
 	if [ "${RULE_NAME: -10}" == "_FILE_RULE" ]
-	#                ¦
-	# This space here¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/cxr_common_abs/html/string-manipulation.html)
+	#                 ¦
+	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/cxr_common_abs/html/string-manipulation.html)
 	then
-		# Try to decompress
-		EXPANSION=$(cxr_common_try_decompressing_file $EXPANSION)
+		if [ "${TRY_DECOMPRESSION}" == true ]
+		then
+	
+			# Try to decompress
+			EXPANSION=$(cxr_common_try_decompressing_file $EXPANSION)
+			
+		else
+			cxr_main_logger -v "$FUNCNAME" "No decompression attempted."
+		fi # TRY_DECOMPRESSION
 	fi
 	
 	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $EXPANSION"
