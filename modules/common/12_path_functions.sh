@@ -248,7 +248,7 @@ function cxr_common_try_decompressing_file()
 {
 	INPUT_FILE=$1
 	
-	cxr_main_logger -a -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
+	cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
 	
 	local DELIMITER="${CXR_DELIMITER}"
 
