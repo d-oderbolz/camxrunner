@@ -250,32 +250,63 @@ function cxr_common_try_decompressing_file()
 	
 	cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
 	
+	# We assume that in was not compressed
+	was_compressed=false
+	
 	local DELIMITER="${CXR_DELIMITER}"
 
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then
-	
 		# Check first if we already have decompressed this file
 		# Look for an entry like
 		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
 		# In $CXR_INSTANCE_FILE_DECOMPRESSED
 		touch "$CXR_INSTANCE_FILE_DECOMPRESSED"
 		
-		LINE=$(grep ${INPUT_FILE}${DELIMITER} $CXR_INSTANCE_FILE_DECOMPRESSED)
+		LINE="$(grep ${INPUT_FILE}${DELIMITER} $CXR_INSTANCE_FILE_DECOMPRESSED)"
 		
 		if [ "$LINE" ]
 		then
-			# Already done this file
+			# Seems like we already did this file
 			# The tempfile is in the second field
-			TEMPFILE=$(echo $LINE | cut -d${DELIMITER} -f2)
+			TEMPFILE="$(echo $LINE | cut -d${DELIMITER} -f2)"
 			
-			cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE"
+			if [ ! -z "$TEMPFILE" ]
+			then
+				cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE"
+			
+				# Tempfile not empty
+				echo "$TEMPFILE"
+				return $CXR_RET_OK
+			else
+				# Tempfile empty, need to repeat
+				cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE but for some reason that file is empty!"
+				
+				# First remove that line via sed
+				sed_tmp=$(cxr_common_create_tempfile sed)
+				sed '/$LINE/d' "${CXR_INSTANCE_FILE_DECOMPRESSED}" > "${sed_tmp}"
+				mv "${sed_tmp}" "${CXR_INSTANCE_FILE_DECOMPRESSED}"
+			fi	
+		fi # Entry found in compressed list?
 		
-			echo "$TEMPFILE"
+		# Its possible that the ${CXR_INSTANCE_FILE_DECOMPRESSED} is gone (new run)
+		# but still the compressed files exist.
+		
+		# This heuristic searches for a matching tempfile
+		# tempfiles have names like ${CXR_TMP_PREFIX}decomp_$(basename ${INPUT_FILE}).*
+		# To be on the safe side, we test if we get a unique solution
+		
+		EXISTING_TEMPFILES="$(find ${CXR_TMP_DIR} -noleaf -name "${CXR_TMP_PREFIX}decomp_$(basename ${INPUT_FILE}).*")"
+		
+		# How many where there?
+		if [ $(cxr_common_count_delimited_elements "$EXISTING_TEMPFILES" " ") -eq 1 ]
+		then
+			# We have exactly one element
+			cxr_main_logger -w "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into the existing $EXISTING_TEMPFILES we will use that"
+			echo "$EXISTING_TEMPFILES"
 			return $CXR_RET_OK
-		else
-			was_compressed=false
-		fi
+		fi #Exactly 1?
+		 
 	
 		# Create proper array of extensions
 		A_CXR_COMPRESSED_EXT=($CXR_COMPRESSED_EXT)
@@ -292,7 +323,8 @@ function cxr_common_try_decompressing_file()
 			
 			if [ -r "$COMP_FILE" ]
 			then
-			
+				# File is readable
+				
 				# We decompress into a tempfile if we dont decompress in place
 				if [ "$CXR_DECOMPRESS_IN_PLACE" == false ]
 				then
@@ -348,10 +380,12 @@ function cxr_common_try_decompressing_file()
 					was_compressed=true
 					NEW_FILE=$TEMPFILE
 					break
-				fi
-			fi
+				fi # Dryrun?
+			fi # File readable?
 			
-		done
+		done # Loop over extensions
+			
+		
 		
 		if [ "$was_compressed" == true ]
 		then

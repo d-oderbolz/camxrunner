@@ -554,7 +554,7 @@ function cxr_common_create_tempfile()
 	# Create a template by using $1 
 	# and adding 8 random alphanums
 	# This way, the filename has a meaning
-	local TEMPLATE="${CXR_TMP_DIR}/cxr_${1:-temp}.XXXXXXXX"
+	local TEMPLATE="${CXR_TMP_DIR}/${CXR_TMP_PREFIX}${1:-temp}.XXXXXXXX"
 
 	# replace eventual spaces by _
 	TEMPLATE=${TEMPLATE// /_}

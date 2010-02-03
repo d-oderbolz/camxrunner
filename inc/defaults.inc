@@ -192,6 +192,10 @@ readonly CXR_DELIMITER
 CXR_SPACE=" "
 readonly CXR_SPACE
 
+# This refix is added te all tempfiles
+CXR_TMP_PREFIX=cxr_
+readonly CXR_TMP_PREFIX
+
 #Normally, the state DB is in use
 CXR_ENABLE_STATE_DB=true
 
