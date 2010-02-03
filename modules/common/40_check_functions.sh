@@ -289,6 +289,9 @@ function cxr_common_check_model_limits()
 	then
 		# Playfile is present
 		
+		cxr_main_logger -a "$FUNCNAME" "This was the configuration used to compile ${CXR_MODEL_EXEC}:"
+		cat "${PLAYFILE}" | tee -a "${CXR_LOG}"
+		
 		# Check geometry
 		
 		#Test each grid
