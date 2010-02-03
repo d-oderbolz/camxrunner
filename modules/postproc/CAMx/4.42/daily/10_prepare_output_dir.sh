@@ -197,7 +197,7 @@ function prepare_output_dir()
 ################################################################################
 {
 
-	if [ "${CXR_LIMITED_PROCESSING}" == true -a "${CXR_USER_TEMP_REMOVE_TEMP_FILES}" == true ]
+	if [ "${CXR_RUN_LIMITED_PROCESSING}" == true -a "${CXR_USER_TEMP_REMOVE_TEMP_FILES}" == true ]
 	then
 		cxr_main_logger -w "${FUNCNAME}"  "This module is susceptible to limited processing, because it creates links rather than files.\nIf you use compressed input files, the temporary files into which we decompress wil be deleted.\nUse \n \t ${CXR_CALL} -L \nto avoid this."
 	fi

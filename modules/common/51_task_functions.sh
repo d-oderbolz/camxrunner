@@ -290,7 +290,7 @@ function cxr_common_get_pin_server()
 			if [ "$CURRENT_MODULE" == $MODULE ]
 			then
 				# Found the model we are looking for
-				if [ -s "$CURRENT_SERVER" ]
+				if [ "$CURRENT_SERVER" ]
 				then
 					cxr_main_logger -v "${FUNCNAME}"  "Module $MODULE is pinned to server $CURRENT_SERVER (Setting $CURRENT_ASSIGNMENT in CXR_PIN_SERVER"
 					echo "$CURRENT_SERVER"

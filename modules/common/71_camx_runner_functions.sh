@@ -589,6 +589,7 @@ function cxr_common_remove_tempfiles()
 	then
 		if [ -s "$CXR_DECOMPRESSED_LIST" ]
 		then
+			# List file is non-empty
 			cxr_main_logger "$FUNCNAME" "Removing temporarily decompressed files..."
 		
 			# Loop trough all entries
