@@ -313,17 +313,17 @@ function cxr_common_try_decompressing_file()
 					case $FILETYPE in
 			
 						bzip2)
-							cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using bzip2. I will use $CXR_BUNZIP2_EXEC to decompress."
+							cxr_main_logger -a "$FUNCNAME" "${INPUT_FILE} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
 							$CXR_BUNZIP2_EXEC -c "$COMP_FILE" > $TEMPFILE
 							;;
 							
 						gzip)
-							cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using gzip. I will use $CXR_GUNZIP_EXEC to decompress."
+							cxr_main_logger -a "$FUNCNAME" "${INPUT_FILE} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
 							"$CXR_GUNZIP_EXEC" -c "$COMP_FILE" > $TEMPFILE
 							;;
 					
 						zip)
-							cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} was compressed using zip. I will use $CXR_GUNZIP_EXEC to decompress."
+							cxr_main_logger -a "$FUNCNAME" "${INPUT_FILE} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
 							"$CXR_GUNZIP_EXEC" -S .zip -c "$COMP_FILE" > $TEMPFILE
 							;;
 					
