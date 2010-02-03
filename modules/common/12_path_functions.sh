@@ -248,7 +248,7 @@ function cxr_common_try_decompressing_file()
 {
 	INPUT_FILE=$1
 	
-	cxr_main_logger -a -b "$FUNCNAME" "Testing if ${INPUT_FILE} was compressed..."
+	cxr_main_logger -a -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
 	
 	local DELIMITER="${CXR_DELIMITER}"
 
@@ -342,7 +342,9 @@ function cxr_common_try_decompressing_file()
 						cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${COMP_FILE} could not be decompressed by $DECOMP"
 					fi
 				else
-					cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} is compressed using $FILETYPE but in a dryrun, we do not decompress."
+					cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} is compressed using $FILETYPE but in a dryrun, we do not decompress. Instead, we create a dummy file."
+					cxr_common_create_dummyfile $TEMPFILE
+					
 					was_compressed=true
 					NEW_FILE=$TEMPFILE
 					break
@@ -359,7 +361,7 @@ function cxr_common_try_decompressing_file()
 			echo "$NEW_FILE"
 		else
 			# Was not compressed
-			cxr_main_logger -a "$FUNCNAME" "File ${INPUT_FILE} is not compressed."
+			cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} is not compressed."
 			echo "$INPUT_FILE"
 		fi
 		
