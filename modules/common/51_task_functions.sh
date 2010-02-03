@@ -1222,7 +1222,7 @@ function cxr_common_worker()
 			fi
 		
 			# Setup environment
-			cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 			
 			cxr_main_logger -B "${FUNCNAME}"  "cxr_common_worker $TASK_PID assigned to $TASK for $CXR_DATE"
 			

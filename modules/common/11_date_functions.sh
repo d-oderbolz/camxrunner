@@ -778,20 +778,20 @@ function cxr_common_subtract_days()
 
 
 ################################################################################
-# Function: cxr_common_export_date_variables
+# Function: cxr_common_set_date_variables
 #
 # Exports a number of date variables from a simulation day offset
 # Maybe this can be done more efficiently by using date directly
 # (see http://ss64.com/bash/date.html)
 #
 # Example:
-# > cxr_common_export_date_variables "$CXR_START_DATE" "0"
+# > cxr_common_set_date_variables "$CXR_START_DATE" "0"
 # 
 # Parameters:
 # $1 - Start day in YYYY-MM-DD notation
 # $2 - Simulation day offset
 ################################################################################	
-function cxr_common_export_date_variables()
+function cxr_common_set_date_variables()
 ################################################################################
 {
 	if [ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false ]

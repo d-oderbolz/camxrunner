@@ -438,7 +438,7 @@ function cxr_common_evaluate_rule_at_offset()
 	CURRENT_OFFSET=${CXR_DAY_OFFSET}
 	
 	# Re-evaluate the date variables
-	cxr_common_export_date_variables "${CXR_START_DATE}" "${DAY_OFFSET}"
+	cxr_common_set_date_variables "${CXR_START_DATE}" "${DAY_OFFSET}"
 	
 	# Evaluate the Rule
 	EXPANSION=$(cxr_common_evaluate_rule "${RULE}" "${3:-}" "${4:-}")
@@ -447,7 +447,7 @@ function cxr_common_evaluate_rule_at_offset()
 	CXR_DAY_OFFSET=${CURRENT_OFFSET}
 	
 	# Reset the date vars
-	cxr_common_export_date_variables "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
+	cxr_common_set_date_variables "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
 	
 	echo "$EXPANSION"
 }

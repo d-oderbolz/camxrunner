@@ -166,7 +166,7 @@ function set_convert_input_variables()
 	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Setup environment
-		cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
 		# Set i to one, we only want the outermost domain
 		i=1
@@ -190,6 +190,9 @@ function set_convert_input_variables()
 		k=$(( $k + 1 ))
 		
 	done
+	
+	# Reset date variables for first day
+	cxr_common_set_date_variables "$CXR_START_DATE" "0"
 	
 }
 

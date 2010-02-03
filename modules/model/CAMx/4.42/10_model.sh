@@ -918,12 +918,15 @@ function test_module()
 	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Initialise the date variables 
-		cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
 		set_model_variables
 		
 		write_model_control_file
 	done
+	
+	# Reset date variables for first day
+	cxr_common_set_date_variables "$CXR_START_DATE" "0"
 	
 	exit 0
 }

@@ -292,7 +292,7 @@ function create_ahomap_control_file()
 
 		# Exports all relevant date variables
 		# like CXR_YEAR, CXR_MONTH...
-		cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET_CF"
+		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET_CF"
 
 		# expand rule
 		CXR_AHOMAP_OZONE_COLUMN_FILE="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
@@ -317,6 +317,9 @@ function create_ahomap_control_file()
 		echo "Bday,Eday,TOMS file|${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},$CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}" >> ${AHOMAP_FILE}
 		
 	done
+	
+	# Reset date variables for first day
+	cxr_common_set_date_variables "$CXR_START_DATE" "0"
 	
 	cxr_main_logger "${FUNCNAME}" "I just wrote a control file for AHOMAP to ${AHOMAP_FILE}."
 
@@ -346,7 +349,7 @@ function albedo_haze_ozone()
 	
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
-			cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 			
 			# Check if we need another file
 			# We need to know how long a week or month still lasts

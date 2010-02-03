@@ -200,7 +200,7 @@ function photolysis_rates()
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
 		
-			cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
 			# Check if we need another file
 			case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
@@ -362,6 +362,9 @@ function photolysis_rates()
 			LAST_MONTH=$CXR_MONTH
 			
 		done
+		
+		# Reset date variables for first day
+		cxr_common_set_date_variables "$CXR_START_DATE" "0"
 
 		# Return to where we were
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR

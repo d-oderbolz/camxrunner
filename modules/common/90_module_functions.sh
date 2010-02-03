@@ -358,7 +358,7 @@ function cxr_common_process_sequentially
 	RET_VAL=$CXR_RET_OK
 
 	# Setup environment
-	cxr_common_export_date_variables "$CXR_START_DATE" 0
+	cxr_common_set_date_variables "$CXR_START_DATE" 0
 	
 	if [ ${CXR_RUN_PRE_ONCE} == true ]
 	then
@@ -383,7 +383,7 @@ function cxr_common_process_sequentially
 			fi
 		
 			# Setup environment
-			cxr_common_export_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 			
 			cxr_main_logger -B $FUNCNAME "Processing ${CXR_DATE:-now}"
 			
