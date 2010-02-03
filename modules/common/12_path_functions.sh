@@ -296,8 +296,8 @@ function cxr_common_try_decompressing_file()
 				# We decompress into a tempfile if we dont decompress in place
 				if [ "$CXR_DECOMPRESS_IN_PLACE" == false ]
 				then
-					# Use a tempfile
-					TEMPFILE=$(cxr_common_create_tempfile compression)
+					# Use a tempfile and give it a recogisable name
+					TEMPFILE=$(cxr_common_create_tempfile decomp_$(basename ${INPUT_FILE}))
 				else
 					# The target is the "original" file name
 					TEMPFILE=${INPUT_FILE}
