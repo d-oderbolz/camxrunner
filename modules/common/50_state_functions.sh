@@ -287,6 +287,9 @@ function cxr_common_initialize_state_db()
 		
 	fi
 	
+	# Create the global dir
+	mkdir -p ${CXR_GLOBAL_DIR}
+	
 	# Create any instance dirs
 	mkdir -p ${CXR_INSTANCE_DIR}
 	mkdir -p ${CXR_HASH_DIR}
