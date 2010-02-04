@@ -263,8 +263,6 @@ function cxr_common_try_decompressing_file()
 		
 		LINE="$(grep "${INPUT_FILE}${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
 		
-		echo "$LINE"
-		
 		if [ "$LINE" ]
 		then
 			# Seems like we already did this file
