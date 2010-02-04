@@ -259,11 +259,12 @@ function cxr_common_try_decompressing_file()
 	then
 		# Check first if we already have decompressed this file
 		# Look for an entry like
-		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|/afs/psi.ch/user/o/oderbolz/tmp/cxr_compression.DWvu7649
+		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|Some_Temp_File
 		# In $CXR_DECOMPRESSED_LIST
 		touch "$CXR_DECOMPRESSED_LIST"
 		
-		LINE="$(grep ${INPUT_FILE}${DELIMITER} $CXR_DECOMPRESSED_LIST)"
+		LINE="$(grep "${INPUT_FILE}\\${DELIMITER}" $CXR_DECOMPRESSED_LIST)"
+		# This is a literal \ -----|
 		
 		if [ "$LINE" ]
 		then
