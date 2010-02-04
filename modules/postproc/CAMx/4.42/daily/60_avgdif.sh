@@ -127,7 +127,8 @@ function set_avgdif_variables()
 	# Set variables
 	########################################################################
 	
-	CXR_AVGDIF_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_AVGDIF_OUTPUT_FILE_RULE" false CXR_AVGDIF_OUTPUT_FILE_RULE)
+	# Output files must not be decompressed!
+	CXR_AVGDIF_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_AVGDIF_OUTPUT_FILE_RULE" false CXR_AVGDIF_OUTPUT_FILE_RULE false)
 	
 	#Checks
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_AVGDIF_OUTPUT_FILE"

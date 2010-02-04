@@ -324,6 +324,8 @@ function cxr_common_report_dimensions()
 # Side effect: if the file is compressed and we cannot decompress in place,
 # the returned file name will change. If you want the "expected" file name,
 # use the fourth parameter.
+# ABSOLUTELY use this parameter for any OUTPUT_FILE because if the output would have been 
+# compressed, CAMxRunner would decompress it, wich makes no sense.
 #
 # To be on the safe side, quote the call (double quotes!)
 #

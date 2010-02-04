@@ -113,7 +113,8 @@ function set_split_emissions_variables()
 	# CXR_CHECK_THESE_INPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_SPLIT_EMISSIONS_INPUT_FILE"
 
-	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE)"
+	# Output files must not be decompressed!
+	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE false)"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"

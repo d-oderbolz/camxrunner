@@ -150,9 +150,15 @@ function set_convert_output_variables()
 	########################################################################
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
+		# Here, we ASSUME that we work on a directory prepared by <prepare_output_dir>
+		# in particular, we assume that the linknames are proper, that is, they have
+		# no temporary names
+		# Note the last argument (false) in every call to <cxr_common_evaluate_rule>
 		
-		# The ASC Filenames are the output	
-		CXR_AVG_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
+		
+		# The ASC Filenames are the output
+		# Output files must not be decompressed!
+		CXR_AVG_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE false)
 		
 		# TERRAIN must not be converted
 		

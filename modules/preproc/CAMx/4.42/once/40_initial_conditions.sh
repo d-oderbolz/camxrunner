@@ -136,8 +136,9 @@ function set_initial_conditions_variables()
 	# Evaluate some rules
 	
 	# Final output files
-	CXR_TOPCONC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)"
-	CXR_IC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)"
+	# Output files must not be decompressed!
+	CXR_TOPCONC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE false)"
+	CXR_IC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE false)"
 	
 	# The processor creates this intermediate file (must not be checked)
 	CXR_IC_ASC_OUTPUT_FILE="${CXR_IC_OUTPUT_FILE}.${CXR_ASC_EXT}"
@@ -165,7 +166,8 @@ function set_initial_conditions_variables()
 	
 	else
 		#ICBCPREP needs a filename for the BC file it will create (the one for the first day)
-		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+		# Output files must not be decompressed!
+		CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE false)"
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_BC_OUTPUT_FILE"
 	fi
 	

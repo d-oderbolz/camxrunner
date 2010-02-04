@@ -149,7 +149,8 @@ function set_convert_input_variables()
 		CXR_INPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_ASC_FILE_RULE" false CXR_LANDUSE_ASC_FILE_RULE)"
 		
 		# The output (binary)
-		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
+		# Output files must not be decompressed!
+		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE false)"
 		
 		#Add checks
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$k]}"
@@ -181,7 +182,7 @@ function set_convert_input_variables()
 		CXR_INPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
 		
 		# The output (ascii)
-		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)"
 		
 		#Add checks
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$k]}"

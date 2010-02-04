@@ -132,7 +132,8 @@ function set_photolysis_rates_variables()
 	
 	# Evaluate some rules
 	CXR_AHOMAP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)"
-	CXR_TUV_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)"
+	# Output files must not be decompressed!
+	CXR_TUV_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE false)"
 	
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_AHOMAP_INPUT_FILE"

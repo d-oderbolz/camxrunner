@@ -128,7 +128,8 @@ function set_create_emissions_variables()
 	########################################################################
 	
 	# Evaluate some rules
-	CXR_EMISSION_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)"
+	# Output files must not be decompressed!
+	CXR_EMISSION_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE false)"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_EMISSION_OUTPUT_FILE"

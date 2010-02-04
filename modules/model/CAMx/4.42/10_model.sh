@@ -317,11 +317,12 @@ function set_model_variables()
 		fi
 		
 		# These are used to prevent overwriting of existing files
-		CXR_DIAG_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE)
-		CXR_FINST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE)
-		CXR_INST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE)
-		CXR_MASS_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE)
-		CXR_OUT_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE)
+		# Output files must not be decompressed!
+		CXR_DIAG_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
+		CXR_FINST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		CXR_INST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
+		CXR_MASS_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
+		CXR_OUT_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
 
 		#Checks (this time output)
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_FINST_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
@@ -354,9 +355,10 @@ function set_model_variables()
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_EMISS_INPUT_ARR_FILES[${i}]}"
 
-			# These are used to prevent overwriting of existing files 
-			CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
-			CXR_DEPN_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE)
+			# These are used to prevent overwriting of existing files
+			# Output files must not be decompressed! 
+			CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
+			CXR_DEPN_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
 
 			#Checks (this time output)
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${i}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${i}]}"

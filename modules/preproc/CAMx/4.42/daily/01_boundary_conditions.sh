@@ -135,7 +135,8 @@ function set_boundary_conditions_variables()
 	# Evaluate some rules
 	
 	# Final output files
-	CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+	# Output files must not be decompressed!
+	CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE false)"
 	
 	# The processor creates this intermediate file (must not be checked)
 	CXR_BC_ASC_OUTPUT_FILE="${CXR_BC_OUTPUT_FILE}.${CXR_ASC_EXT}"
