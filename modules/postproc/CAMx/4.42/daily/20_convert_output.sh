@@ -185,9 +185,9 @@ function set_convert_output_variables()
 		# NO Emissions
 	
 	
-		# These files are INPUT Files
-		
-		CXR_AVG_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
+		# These files are INPUT Files - we need to modify it, becaus we read a link in the 
+		# ascii dir instead of the real file
+		CXR_AVG_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 
 		# TERRAIN must not be converted, it is already there.
 		
