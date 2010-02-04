@@ -185,23 +185,24 @@ function set_convert_output_variables()
 		# NO Emissions
 	
 	
-		# These files are INPUT Files - we need to modify it, becaus we read a link in the 
+		# These files are INPUT Files - we need to modify them, becaus we read links in the 
 		# ascii dir instead of the real file
+		# TODO Make this solution more general (specific rules!)
 		CXR_AVG_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 
 		# TERRAIN must not be converted, it is already there.
 		
 		# Pressure. 
-		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false)
+		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
 		# Wind
-		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false)
+		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
 		# Temperature
-		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false)
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
 		# Vapor
-		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false)
+		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
 		# No Cloud
 		# Vertical K
-		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false)
+		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 		# NO Emissions
 		
 		# Checks for the input
