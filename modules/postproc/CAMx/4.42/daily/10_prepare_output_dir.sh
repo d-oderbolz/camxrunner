@@ -224,7 +224,7 @@ function prepare_output_dir()
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Loop through the name of all the input arrays
-			for iArr in $(seq 1 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
+			for iArr in $(seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
 			do
 				VAR=${CXR_INPUT_ARRAYS[$iArr]}
 				VAR_NAME=${CXR_NAME_ARRAYS[$iArr]}
