@@ -368,7 +368,7 @@ function cxr_common_evaluate_rule()
 	ALLOW_EMPTY="${2:-true}"
 	RULE_NAME="${3:-}"
 	# By default try decompression
-	TRY_DECOMPRESSION"${4:-true}"
+	TRY_DECOMPRESSION="${4:-true}"
 	
 	if [ -z "$RULE" ]
 	then
