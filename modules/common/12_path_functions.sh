@@ -253,8 +253,6 @@ function cxr_common_try_decompressing_file()
 	# We assume that in was not compressed
 	was_compressed=false
 	
-	local DELIMITER="${CXR_DELIMITER}"
-
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then
 		# Check first if we already have decompressed this file
@@ -266,11 +264,13 @@ function cxr_common_try_decompressing_file()
 		LINE="$(grep "${INPUT_FILE}\\${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
 		# This is a literal \ -----|
 		
+		echo "$LINE"
+		
 		if [ "$LINE" ]
 		then
 			# Seems like we already did this file
 			# The tempfile is in the second field
-			TEMPFILE="$(echo $LINE | cut -d${DELIMITER} -f2)"
+			TEMPFILE="$(echo $LINE | cut -d${CXR_DELIMITER} -f2)"
 			
 			if [ -s "$TEMPFILE" ]
 			then
@@ -372,7 +372,7 @@ function cxr_common_try_decompressing_file()
 		if [ "$was_compressed" == true ]
 		then
 			# In CXR_DECOMPRESSED_LIST
-			echo "${INPUT_FILE}${DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_LIST
+			echo "${INPUT_FILE}${CXR_DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_LIST
 		
 			echo "$NEW_FILE"
 		else
