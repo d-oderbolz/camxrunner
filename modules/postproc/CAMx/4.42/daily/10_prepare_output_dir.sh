@@ -223,8 +223,8 @@ function prepare_output_dir()
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
-			# Loo through the name of all the input arrays
-			for iArr in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )))
+			# Loop through the name of all the input arrays
+			for iArr in $(seq 1 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
 			do
 				VAR=${CXR_INPUT_ARRAYS[$iArr]}
 				VAR_NAME=${CXR_NAME_ARRAYS[$iArr]}
