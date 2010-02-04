@@ -248,13 +248,13 @@ function cxr_common_try_decompressing_file()
 {
 	INPUT_FILE=$1
 	
-	cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
-	
 	# We assume that in was not compressed
 	was_compressed=false
 	
 	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
 	then
+		cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
+	
 		# Check first if we already have decompressed this file
 		# Look for an entry like
 		# /mnt/other/lacfs02/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|Some_Temp_File
@@ -365,9 +365,8 @@ function cxr_common_try_decompressing_file()
 			fi # File readable?
 			
 		done # Loop over extensions
-			
-		
-		
+
+
 		if [ "$was_compressed" == true ]
 		then
 			# In CXR_DECOMPRESSED_LIST
@@ -384,7 +383,7 @@ function cxr_common_try_decompressing_file()
 		# We do not consider compressed files
 		cxr_main_logger -v "$FUNCNAME" "We do not try to decompress files, CXR_DETECT_COMPRESSED_INPUT_FILES is false"
 		echo "$INPUT_FILE"
-	fi
+	fi # Detect compression?
 }
 
 
