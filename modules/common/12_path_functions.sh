@@ -261,8 +261,7 @@ function cxr_common_try_decompressing_file()
 		# In $CXR_DECOMPRESSED_LIST
 		touch "$CXR_DECOMPRESSED_LIST"
 		
-		LINE="$(grep "${INPUT_FILE}\\${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
-		# This is a literal \ -----|
+		LINE="$(grep "${INPUT_FILE}${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
 		
 		echo "$LINE"
 		
