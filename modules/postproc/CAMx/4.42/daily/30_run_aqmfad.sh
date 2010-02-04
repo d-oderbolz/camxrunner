@@ -31,7 +31,7 @@
 
 # the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
 
-CXR_META_MODULE_DEPENDS_ON="prepare_output_dir"
+CXR_META_MODULE_DEPENDS_ON="prepare_output_dir convert_output"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs

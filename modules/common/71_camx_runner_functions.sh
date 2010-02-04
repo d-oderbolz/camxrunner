@@ -596,7 +596,7 @@ function cxr_common_remove_tempfiles()
 			while read line 
 			do
 				# The line has the format compressed_file|decompressed_file
-				FILENAME=$(echo "$line" | cut -d${DELIMITER} -f2)
+				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
 				cxr_main_logger -v "$FUNCNAME"  "Deleting $FILENAME"
 				rm -f "${FILENAME}"
