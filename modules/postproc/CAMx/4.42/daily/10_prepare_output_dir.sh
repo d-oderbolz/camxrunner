@@ -238,6 +238,7 @@ function prepare_output_dir()
 				then
 					if [ "$CXR_DRY" == "false" ]
 					then
+						cxr_main_logger "${FUNCNAME}"  "Linking ${CURRENT_BASE} to ${CURRENT_FILE}..."
 						ln -s ${CURRENT_FILE} ${CURRENT_BASE}
 					else
 						cxr_main_logger "${FUNCNAME}"  "This is a dry run, do not create a link for output processing"
