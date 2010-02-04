@@ -163,7 +163,7 @@ function set_convert_output_variables()
 		# TERRAIN must not be converted
 		
 		# Pressure - convert_input should have done the first grid
-		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)
+		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)
 		
 		if [ $i -eq 1 ]
 		then
@@ -174,36 +174,34 @@ function set_convert_output_variables()
 		fi
 		
 		# Wind
-		CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE)
+		CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE false)
 		# Temperature
-		CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)
+		CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE false)
 		# Vapor
-		CXR_VAPOR_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE)
+		CXR_VAPOR_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE false)
 		# No Cloud
-		# CXR_CLOUD_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_CLOUD_ASC_FILE_RULE" false CXR_CLOUD_ASC_FILE_RULE)
 		# Vertical K
-		CXR_KV_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE)
+		CXR_KV_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE false)
 		# NO Emissions
 	
 	
 		# These files are INPUT Files
 		
-		CXR_AVG_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+		CXR_AVG_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
 
 		# TERRAIN must not be converted, it is already there.
 		
 		# Pressure. 
-		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false)
 		# Wind
-		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false)
 		# Temperature
-		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false)
 		# Vapor
-		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false)
 		# No Cloud
-		# CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
 		# Vertical K
-		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false)
 		# NO Emissions
 		
 		# Checks for the input
