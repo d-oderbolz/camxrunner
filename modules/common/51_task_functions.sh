@@ -334,9 +334,10 @@ function cxr_common_add_modules()
 	
 	cxr_main_logger "${FUNCNAME}" "Loading $MODULE_TYPE modules..."
 	
-	# What kind of module?
-	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
-	# - DISABLED_MODULES is a list of disabled modules of the current type
+	# Variables:
+	# MODULE_DIRECOTRIES - is a list of directories that will be used to search for modules
+	# ENABLED_MODULES - is a list of explicitly enables modules of the current type
+	# DISABLED_MODULES - is a list of disabled modules of the current type
 	case "$MODULE_TYPE" in
 	
 		"${CXR_TYPE_COMMON}" ) 
@@ -434,8 +435,9 @@ function cxr_common_add_modules()
 					if [ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true ]
 					then
 						RUN_IT=true
-					elif [ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false ]
+					elif [ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}" ]
 					then
+						# Module was not explicitly disabled and we did not disable all
 						RUN_IT=true
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)

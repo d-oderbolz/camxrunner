@@ -136,6 +136,8 @@ function cxr_common_get_module_type()
 # Calls all or just one single module (adressed by their module name) at a specific 
 # point in time (or One-Time)
 # Here, a sequential approach is implied.
+# If a module is enabled explicitly it is always used (wins over disabled), 
+# If its not enabled but disabled, the module is not run.
 # 
 #
 # Parameters:
@@ -157,12 +159,14 @@ function cxr_common_run_modules()
 	# Normally, we check continue, except installers
 	local CHECK_CONTINUE=true
 	
-	# Contains the date for which we currently run if needed 
+	# Contains the date for which we currently run if needed
+	# We set it to the empty string if date is not relevant (One-Time modules)
 	local OUR_DATE
 	
-	# What kind of module?
-	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
-	# - DISABLED_MODULES is a list of disabled modules of the current type
+	# Variables:
+	# MODULE_DIRECOTRIES - is a list of directories that will be used to search for modules
+	# ENABLED_MODULES - is a list of explicitly enables modules of the current type
+	# DISABLED_MODULES - is a list of disabled modules of the current type
 	case "$MODULE_TYPE" in
 	
 		"${CXR_TYPE_COMMON}" ) 
@@ -292,9 +296,11 @@ function cxr_common_run_modules()
 					# if the module name is in the enabled list, run it,no matter what
 					if [ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true ]
 					then
+						# Module was explicitly enabled
 						RUN_IT=true
-					elif [ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false ]
+					elif [ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}" ]
 					then
+						# Module was not explicitly disabled and we did not disable all
 						RUN_IT=true
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
