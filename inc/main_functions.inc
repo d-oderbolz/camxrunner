@@ -686,7 +686,7 @@ function cxr_main_determine_model_and_version()
 function cxr_main_read_config()
 ################################################################################
 {
-	CXR_RUN=${1}
+	export CXR_RUN=${1}
 	
 	CXR_MODEL=${3}
 	

@@ -129,18 +129,18 @@ function set_convert_output_variables()
 	########################################################################
 	
 	# The converter scripts
-	CXR_CONVERTERS="${CXR_AIRASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC}"
+	CXR_CONVERTERS=(${CXR_AIRASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC} ${CXR_UAMVASCII_EXEC})
 	
 	# The options to the converter scripts
-	CXR_CONVERTER_OPTIONS="AVERAGE HEIGHT WIND TEMPERATUR H2O VDIFFUSION"
+	CXR_CONVERTER_OPTIONS=(AVERAGE HEIGHT WIND TEMPERATUR H2O VDIFFUSION)
 	
 	# Input Arrays to convert
-	CXR_INPUT_ARRAYS="CXR_AVG_INPUT_ARR_FILES CXR_ZP_GRID_INPUT_ARR_FILES CXR_WIND_GRID_INPUT_ARR_FILES CXR_TEMP_GRID_INPUT_ARR_FILES CXR_VAPOR_INPUT_ARR_FILES CXR_KV_GRID_INPUT_ARR_FILES"
+	CXR_INPUT_ARRAYS=(CXR_AVG_INPUT_ARR_FILES CXR_ZP_GRID_INPUT_ARR_FILES CXR_WIND_GRID_INPUT_ARR_FILES CXR_TEMP_GRID_INPUT_ARR_FILES CXR_VAPOR_INPUT_ARR_FILES CXR_KV_GRID_INPUT_ARR_FILES)
 	
 	# Output Arrays to convert to
 	# Here, the name of each corresponding output array MUST be ..._ASC_OUTPUT_ARR_FILES
 	# because the name of the output array is generated from the name of the input array
-	CXR_OUTPUT_ARRAYS="CXR_AVG_ASC_OUTPUT_ARR_FILES CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES CXR_VAPOR_ASC_OUTPUT_ARR_FILES CXR_KV_GRID_ASC_OUTPUT_ARR_FILES"
+	CXR_OUTPUT_ARRAYS=(CXR_AVG_ASC_OUTPUT_ARR_FILES CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES CXR_VAPOR_ASC_OUTPUT_ARR_FILES CXR_KV_GRID_ASC_OUTPUT_ARR_FILES)
 	
 	########################################################################
 	# per day-per grid settings
@@ -251,8 +251,8 @@ function convert_output()
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
 		
-		# Because there is yet no single converter for CAMx autput and 
-		# MM5 output, this code looks hairy. One day it might look so:
+		# Because there is yet no single converter for CAMx output and 
+		# MM5 output, this code looks hairy.
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# We have 4 Arrays, containing
@@ -273,23 +273,16 @@ function convert_output()
 			
 			cxr_main_logger -v "${FUNCNAME}" "Grid $i\nXDIM: $XDIM\nYDIM: $YDIM\nZDIM: $ZDIM"
 
-			# Use the deserialisation code again
-			eval "CXR_INPUT_ARRAYS_ARR=( ${CXR_INPUT_ARRAYS[*]} )"
-			eval "CXR_OUTPUT_ARRAYS_ARR=( ${CXR_OUTPUT_ARRAYS[*]} )"
-			eval "CXR_CONVERTERS_ARR=( ${CXR_CONVERTERS[*]} )"
-			eval "CXR_CONVERTER_OPTIONS_ARR=( ${CXR_CONVERTER_OPTIONS[*]} )"
-			
-			# Maximum of iterator
-			MAX=$(( ${#CXR_INPUT_ARRAYS_ARR[*]} - 1))
-			
 			### Go trough all input arrays
-			for j in $(seq 0 ${MAX})
+			for j in $( seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1)) )
 			do
-				INPUT_FILE=$(basename $(eval "echo \${${CXR_INPUT_ARRAYS_ARR[${j}]}[${i}]}"))
-				OUTPUT_FILE=$(basename $(eval "echo \${${CXR_OUTPUT_ARRAYS_ARR[${j}]}[${i}]}"))
+				# This looks like a 2D array...
+				# Firs we index a list of arrays (j), then we get a specific 
+				INPUT_FILE=$(basename $(eval "echo \${${CXR_INPUT_ARRAYS[${j}]}[${i}]}"))
+				OUTPUT_FILE=$(basename $(eval "echo \${${CXR_OUTPUT_ARRAYS[${j}]}[${i}]}"))
 				
-				CONVERTER=${CXR_CONVERTERS_ARR[${j}]}
-				OPTIONS=${CXR_CONVERTER_OPTIONS_ARR[${j}]}
+				CONVERTER=${CXR_CONVERTERS[${j}]}
+				OPTIONS=${CXR_CONVERTER_OPTIONS[${j}]}
 				
 				cxr_main_logger "${FUNCNAME}" "Converting ${INPUT_FILE} to ${OUTPUT_FILE} using ${CONVERTER}..."
 				

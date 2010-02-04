@@ -206,7 +206,8 @@ exit 1
 
 # CXR_RUN contains the name of the current script
 # CXR_RUN_DIR the directory where CAMxRunner resides
-CXR_RUN="$(basename $0)"
+# This variable is so important that we export it
+export CXR_RUN="$(basename $0)"
 CXR_RUN_DIR="$(dirname $0)"
 
 # Correct CXR_RUN_DIR to absolute
