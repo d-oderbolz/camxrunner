@@ -608,7 +608,7 @@ function cxr_common_remove_tempfiles()
 			done < "$CXR_DECOMPRESSED_LIST"
 		fi
 	else
-		cxr_main_logger "$FUNCNAME" "The temporarily decompressed files $(cat ${CXR_DECOMPRESSED_LIST} | cut -d${CXR_DELIMITER} -f 2 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
+		cxr_main_logger "$FUNCNAME" "The temporarily decompressed files \n$(cat ${CXR_DECOMPRESSED_LIST} | cut -d${CXR_DELIMITER} -f 2 2>/dev/null )\n will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 
 	# remove temporary files, if wanted
