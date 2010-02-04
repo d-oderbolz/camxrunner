@@ -88,6 +88,17 @@ if ( N_tags(extra) GT 0 ) then begin
 endif
 
 
+; Create a hashtable to map species to a plotting max value
+spec2max = obj_new('hashtable')
+
+
+spec2max->add,'O3_VMR_inst',0.3
+spec2max->add,'CO_VMR_inst',0.3
+spec2max->add,'FORM_VMR_inst',0.005
+spec2max->add,'NO_VMR_inst',0.0003
+spec2max->add,'NO2_VMR_inst',0.003
+
+
 ; Time Interval between MOZART records in hours
 time_interval_h = 3
 
@@ -282,8 +293,8 @@ FOR i = 0, ncols - 1 DO BEGIN
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_mm5lon[i,j,0,1] / 1.87500  ; 1.875 is the lon step in MOZART
-		indexlat[i,j] = ((mm5latr[i,j,0,1] - 0.9375) / 1.875) + 48 ; 1.89474 is the lat step in MOZART
+		indexlon[i,j] = t_mm5lon[i,j,0,1] / 1.875  ; 1.875 is the lon step in MOZART
+		indexlat[i,j] = (mm5latr[i,j,0,1] / 1.875 - 0.9375) + 48 ; 1.875 is the lat step in MOZART
 	ENDFOR
 ENDFOR
 
@@ -499,8 +510,11 @@ run_name = GETENV('CXR_RUN')
 IF (run_name EQ '') THEN run_name='test'
 doplots = 1
 MOZtime = 5
-IF (doplots = 1) THEN BEGIN	
-	; First the world plots using raw MOZART data are created
+time24 = MOZtime * 3
+time24 = STRCOMPRESS(time24, /REMOVE_ALL)
+IF (doplots = 1) THEN BEGIN
+
+	;;;;;; First the world plots using raw MOZART data are created
 	; Array allspecs is rearranged so that a more intuitive version of
 	; the world is displayed.
 	lefthalf = FLTARR(96, 96, 60, 8, 5)
@@ -539,126 +553,87 @@ IF (doplots = 1) THEN BEGIN
 	plotdir = '~/@plot/' + 'ICBC' + run_name + '/'
 	PRINT, 'Writing plots at ~/@plot directory.'
 
-	; Plot of ozone at 15:00 
-	DEVICE, FILENAME=plotdir+'O3world.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic
-	CONTOUR, cuteallspecs[*,*,0,MOZtime,0], xlon, ylat, c_charsize=0.5, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of CO at 15:00
-	DEVICE, FILENAME=plotdir+'COworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic
-	CONTOUR, cuteallspecs[*,*,0,MOZtime,1], xlon, ylat, c_charsize=0.5, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of FORM at 15:00
-	DEVICE, FILENAME=plotdir+'FORMworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic
-	CONTOUR, cuteallspecs[*,*,0,MOZtime,2], xlon, ylat, c_charsize=0.5, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO at 15:00
-	DEVICE, FILENAME=plotdir+'NOworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic
-	CONTOUR, cuteallspecs[*,*,0,MOZtime,3], xlon, ylat, c_charsize=0.5, max_value=0.0002, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO2 at 15:00	
-	DEVICE, FILENAME=plotdir+'NO2world.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic
-	CONTOUR, cuteallspecs[*,*,0,MOZtime,4], xlon, ylat, c_charsize=0.5, max_value=0.0005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
 
-	; Now the raw MOZART data for Europe are plotted
+	for ispec=0,nspec-1 do begin
+
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'world'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic
+
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, cuteallspecs[*,*,0,MOZtime,ispec], xlon, ylat, c_charsize=0.5, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, cuteallspecs[*,*,0,MOZtime,ispec], xlon, ylat, c_charsize=0.5, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+
+	endfor
+
+
+	;;;;;; Now the raw MOZART data for Europe are plotted
 	europe = cuteallspecs[88:115, 65:80, *, *, *]
 	eurlon = xlon[88:115]
 	eurlat = ylat[65:80]
-	; Plot of ozone at 15:00
-	DEVICE, FILENAME=plotdir+'O3eur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, europe[*,*,0,MOZtime,0], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of CO at 15:00
-	DEVICE, FILENAME=plotdir+'COeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, europe[*,*,0,MOZtime,1], eurlon, eurlat,  c_charsize=1,  max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of FORM at 15:00
-	DEVICE, FILENAME=plotdir+'FORMeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, europe[*,*,0,MOZtime,2], eurlon, eurlat,  c_charsize=1,  max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO at 15:00
-	DEVICE, FILENAME=plotdir+'NOeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, europe[*,*,0,MOZtime,3], eurlon, eurlat,  c_charsize=1,  max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO2 at 15:00
-	DEVICE, FILENAME=plotdir+'NO2eur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, europe[*,*,0,MOZtime,4], eurlon, eurlat,  c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
+
+	for ispec=0,nspec-1 do begin
+	
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+
+	endfor	
+		
+
+	;;;;;; Plots of the MOZART data after horizontal interpolation
+
+	for ispec=0,nspec-1 do begin
+
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+
+	endfor	
 
 
-	; Plots of the MOZART data after horizontal interpolation
-	; Plot of ozone at 15:00
-	DEVICE, FILENAME=plotdir+'O3eur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterp[*,*,0,MOZtime,0], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of CO at 15:00
-	DEVICE, FILENAME=plotdir+'COeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterp[*,*,0,MOZtime,1], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of FORM at 15:00
-	DEVICE, FILENAME=plotdir+'FORMeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterp[*,*,0,MOZtime,2], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO at 15:00
-	DEVICE, FILENAME=plotdir+'NOeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterp[*,*,0,MOZtime,3], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.00008, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO2 at 15:00
-	DEVICE, FILENAME=plotdir+'NO2eur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterp[*,*,0,MOZtime,4], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
+	;;;;;; Plots of the MOZART data after horizontal and vertical interpolation
 
+	for ispec=0,nspec-1 do begin
 
-	; Plots of the MOZART data after horizontal and vertical interpolation
-	; Plot of ozone at 15:00
-	DEVICE, FILENAME=plotdir+'O3eur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterpv[*,*,0,MOZtime,0], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of CO at 15:00
-	DEVICE, FILENAME=plotdir+'COeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterpv[*,*,0,MOZtime,1], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of FORM at 15:00
-	DEVICE, FILENAME=plotdir+'FORMeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterpv[*,*,0,MOZtime,2], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO at 15:00
-	DEVICE, FILENAME=plotdir+'NOeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterpv[*,*,0,MOZtime,3], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.00008, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
-	; Plot of NO2 at 15:00
-	DEVICE, FILENAME=plotdir+'NO2eur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
-	CONTOUR, allspecinterpv[*,*,0,MOZtime,4], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
-	DEVICE, /CLOSE
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
 
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+
+	endfor
 
 	SET_PLOT,'X'	
 
 ENDIF
 
-
-
-STOP
 
 END
 
