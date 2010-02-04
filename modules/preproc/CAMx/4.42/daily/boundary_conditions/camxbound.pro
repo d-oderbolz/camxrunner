@@ -489,5 +489,176 @@ ENDFOR
   
 FREE_LUN, lun
 
+; Certain diagnostic plots are created. These are the plots of O3, CO, FORM, NO and NO2,
+; at the lowest level, at 15:00 and at the first simulation day.
+; Four different versions of the IC/BC data are plotted. The first one is the raw global MOZART data.
+; The second one is the raw MOZART data over Europe. The third one is the European data after horizontal
+; intepolation and the fourth one is the European data after vertical interpolation.
+; Some parameters of the CONTOUR command (esp. max_value) may need to be adjusted
+run_name = GETENV('CXR_RUN')
+IF (run_name EQ '') THEN run_name='test'
+doplots = 1
+MOZtime = 5
+IF (doplots = 1) THEN BEGIN	
+	; First the world plots using raw MOZART data are created
+	; Array allspecs is rearranged so that a more intuitive version of
+	; the world is displayed.
+	lefthalf = FLTARR(96, 96, 60, 8, 5)
+	righthalf = FLTARR(96, 96, 60, 8, 5)
+	cuteallspecs = FLTARR(192, 96, 60, 8, 5)
+	
+	lefthalf = allspecs[0:95,*,*,*,*]
+	righthalf = allspecs[96:191,*,*,*,*]
+	cuteallspecs[0:95,*,*,*,*] = righthalf
+	cuteallspecs[96:191,*,*,*,*] = lefthalf
+	
+	;ylatsouth = FINDGEN(49)
+	;ylatsouth = REVERSE(-ylatsouth[1:*] * 1.875)
+	;ylatnorth = FINDGEN(48) * 1.875
+	;ylat = [ylatsouth, ylatnorth]
+	xlonwest = FINDGEN(97)
+	xlonwest = REVERSE(-xlonwest[1:*] * 1.875)
+	xloneast = FINDGEN(96) * 1.875
+	xlon = [xlonwest, xloneast]
+	ylatsouth = FINDGEN(48)
+	ylatsouth = REVERSE(-ylatsouth * 1.875)
+	ylatnorth = FINDGEN(49) * 1.875
+	ylatnorth = ylatnorth[1:*]
+	ylat = [ylatsouth, ylatnorth]
+
+	; Plot settings
+	; Sizes of an A4 sheet (Portrait, cm)
+	a4_xsize_p = 18
+	a4_ysize_p = 26
+	; Sizes of an A4 sheet (Landscape, cm)
+	a4_xsize_l = a4_ysize_p
+	a4_ysize_l = a4_xsize_p
+	SET_PLOT, 'PS'
+	
+	SPAWN, 'mkdir -p ~/@plot/' + 'ICBC' + run_name + '/'
+	plotdir = '~/@plot/' + 'ICBC' + run_name + '/'
+	PRINT, 'Writing plots at ~/@plot directory.'
+
+	; Plot of ozone at 15:00 
+	DEVICE, FILENAME=plotdir+'O3world.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic
+	CONTOUR, cuteallspecs[*,*,0,MOZtime,0], xlon, ylat, c_charsize=0.5, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of CO at 15:00
+	DEVICE, FILENAME=plotdir+'COworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic
+	CONTOUR, cuteallspecs[*,*,0,MOZtime,1], xlon, ylat, c_charsize=0.5, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of FORM at 15:00
+	DEVICE, FILENAME=plotdir+'FORMworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic
+	CONTOUR, cuteallspecs[*,*,0,MOZtime,2], xlon, ylat, c_charsize=0.5, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO at 15:00
+	DEVICE, FILENAME=plotdir+'NOworld.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic
+	CONTOUR, cuteallspecs[*,*,0,MOZtime,3], xlon, ylat, c_charsize=0.5, max_value=0.0002, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO2 at 15:00	
+	DEVICE, FILENAME=plotdir+'NO2world.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic
+	CONTOUR, cuteallspecs[*,*,0,MOZtime,4], xlon, ylat, c_charsize=0.5, max_value=0.0005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+
+	; Now the raw MOZART data for Europe are plotted
+	europe = cuteallspecs[88:115, 65:80, *, *, *]
+	eurlon = xlon[88:115]
+	eurlat = ylat[65:80]
+	; Plot of ozone at 15:00
+	DEVICE, FILENAME=plotdir+'O3eur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, europe[*,*,0,MOZtime,0], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of CO at 15:00
+	DEVICE, FILENAME=plotdir+'COeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, europe[*,*,0,MOZtime,1], eurlon, eurlat,  c_charsize=1,  max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of FORM at 15:00
+	DEVICE, FILENAME=plotdir+'FORMeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, europe[*,*,0,MOZtime,2], eurlon, eurlat,  c_charsize=1,  max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO at 15:00
+	DEVICE, FILENAME=plotdir+'NOeur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, europe[*,*,0,MOZtime,3], eurlon, eurlat,  c_charsize=1,  max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO2 at 15:00
+	DEVICE, FILENAME=plotdir+'NO2eur.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, europe[*,*,0,MOZtime,4], eurlon, eurlat,  c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+
+
+	; Plots of the MOZART data after horizontal interpolation
+	; Plot of ozone at 15:00
+	DEVICE, FILENAME=plotdir+'O3eur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterp[*,*,0,MOZtime,0], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of CO at 15:00
+	DEVICE, FILENAME=plotdir+'COeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterp[*,*,0,MOZtime,1], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of FORM at 15:00
+	DEVICE, FILENAME=plotdir+'FORMeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterp[*,*,0,MOZtime,2], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO at 15:00
+	DEVICE, FILENAME=plotdir+'NOeur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterp[*,*,0,MOZtime,3], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.00008, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO2 at 15:00
+	DEVICE, FILENAME=plotdir+'NO2eur_horint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterp[*,*,0,MOZtime,4], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+
+
+	; Plots of the MOZART data after horizontal and vertical interpolation
+	; Plot of ozone at 15:00
+	DEVICE, FILENAME=plotdir+'O3eur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterpv[*,*,0,MOZtime,0], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.3, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of CO at 15:00
+	DEVICE, FILENAME=plotdir+'COeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterpv[*,*,0,MOZtime,1], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of FORM at 15:00
+	DEVICE, FILENAME=plotdir+'FORMeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterpv[*,*,0,MOZtime,2], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.005, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO at 15:00
+	DEVICE, FILENAME=plotdir+'NOeur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterpv[*,*,0,MOZtime,3], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.00008, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+	; Plot of NO2 at 15:00
+	DEVICE, FILENAME=plotdir+'NO2eur_verint.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+	MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+	CONTOUR, allspecinterpv[*,*,0,MOZtime,4], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=0.003, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+	DEVICE, /CLOSE
+
+
+	SET_PLOT,'X'	
+
+ENDIF
+
+
+
+STOP
+
 END
 
