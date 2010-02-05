@@ -284,6 +284,10 @@ mspec[0,*] = camx_specs
 
 print,'Horizontal Interpolation...'
 
+; Calculation of the longitude and latitude steps of the MOZART grid
+lonstep = 360.0 / ncolsmoz
+latstep = 180.0 / nrowsmoz
+
 ; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
 FOR i = 0, ncols - 1 DO BEGIN
 	FOR j = 0, nrows - 1 DO BEGIN
@@ -293,8 +297,8 @@ FOR i = 0, ncols - 1 DO BEGIN
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_mm5lon[i,j,0,1] / 1.875  ; 1.875 is the lon step in MOZART
-		indexlat[i,j] = (mm5latr[i,j,0,1] / 1.875 - 0.9375) + 48 ; 1.875 is the lat step in MOZART
+		indexlon[i,j] = t_mm5lon[i,j,0,1] / lonstep
+		indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + 48
 	ENDFOR
 ENDFOR
 
@@ -508,9 +512,11 @@ FREE_LUN, lun
 ; Some parameters of the CONTOUR command (esp. max_value) may need to be adjusted
 run_name = GETENV('CXR_RUN')
 IF (run_name EQ '') THEN run_name='test'
-doplots = 1
+doplots = 1 ; Create plots?
+dopng = 1 ; Convert the ps output files to png?
+deleteps = 1 ; Delete the ps files after the png files are created?
 MOZtime = 5
-time24 = MOZtime * 3
+time24 = MOZtime * time_interval_h
 time24 = STRCOMPRESS(time24, /REMOVE_ALL)
 IF (doplots = 1) THEN BEGIN
 
@@ -527,16 +533,16 @@ IF (doplots = 1) THEN BEGIN
 	cuteallspecs[96:191,*,*,*,*] = lefthalf
 	
 	;ylatsouth = FINDGEN(49)
-	;ylatsouth = REVERSE(-ylatsouth[1:*] * 1.875)
-	;ylatnorth = FINDGEN(48) * 1.875
+	;ylatsouth = REVERSE(-ylatsouth[1:*] * latstep)
+	;ylatnorth = FINDGEN(48) * latstep
 	;ylat = [ylatsouth, ylatnorth]
 	xlonwest = FINDGEN(97)
-	xlonwest = REVERSE(-xlonwest[1:*] * 1.875)
-	xloneast = FINDGEN(96) * 1.875
+	xlonwest = REVERSE(-xlonwest[1:*] * lonstep)
+	xloneast = FINDGEN(96) * latstep
 	xlon = [xlonwest, xloneast]
 	ylatsouth = FINDGEN(48)
-	ylatsouth = REVERSE(-ylatsouth * 1.875)
-	ylatnorth = FINDGEN(49) * 1.875
+	ylatsouth = REVERSE(-ylatsouth * latstep)
+	ylatnorth = FINDGEN(49) * latstep
 	ylatnorth = ylatnorth[1:*]
 	ylat = [ylatsouth, ylatnorth]
 
@@ -567,6 +573,7 @@ IF (doplots = 1) THEN BEGIN
 		endelse
 
 		DEVICE, /CLOSE
+	
 
 	endfor
 
@@ -589,6 +596,7 @@ IF (doplots = 1) THEN BEGIN
 		endelse
 
 		DEVICE, /CLOSE
+	
 
 	endfor	
 		
@@ -608,6 +616,7 @@ IF (doplots = 1) THEN BEGIN
 		endelse
 
 		DEVICE, /CLOSE
+	
 
 	endfor	
 
@@ -627,8 +636,28 @@ IF (doplots = 1) THEN BEGIN
 		endelse
 
 		DEVICE, /CLOSE
+	
 
 	endfor
+
+	IF (dopng EQ 1) THEN BEGIN
+		for ispec=0,nspec-1 do begin
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world'+time24+'.ps ' +plotdir+mozart_specs[ispec]+'world'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur'+time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.png' 
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.png'
+		endfor
+	ENDIF
+	
+	IF (dopng EQ 1 AND deleteps EQ 1) THEN BEGIN
+		for ispec=0,nspec-1 do begin
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'world'+time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur'+time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps'
+		endfor
+	ENDIF
+
 
 	SET_PLOT,'X'	
 
