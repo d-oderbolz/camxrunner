@@ -765,11 +765,17 @@ function cxr_common_create_config_file()
 		# Show a list of existing files to choose from
 		if [ $(cxr_common_get_consent "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false ]
 		then
-			#No, use base.configuration
+			#No, use base.conf
 			BASEFILE=${CXR_BASECONFIG}
 		else
 			#Yes, gimme options
-			BASEFILE=$(cxr_common_get_menu_choice "Choose a file I should use:" "${CXR_CONF_DIR}/*" )
+			
+			# To keep the list compact, we go into the conf dir and back out again
+			cd "${CXR_CONF_DIR}" || cxr_main_die_gracefully "$FUNCNAME:$LINENO - Could not change to ${CXR_CONF_DIR}!"
+			
+			BASEFILE=${CXR_CONF_DIR}/$(cxr_common_get_menu_choice "Choose a file I should use:" "*.conf" )
+			
+			cd "$CXR_RUN_DIR" || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 		fi
 	
 		if [ ! -f "$BASEFILE" ]
@@ -803,36 +809,8 @@ However, this can also be a disadvantage!" N ) == false ]
 			chmod +x ${CXR_CONFIG}
 		else
 			# Yes, expand.
+			cxr_common_expand_config ${CXR_BASECONFIG} ${CXR_EXPANDED_CONFIG}
 		
-			# Is the file already there?
-			if [ -f ${CXR_EXPANDED_CONFIG} ]
-			then
-				# Continue even if file is there?
-				if [ $(cxr_common_get_consent "${CXR_EXPANDED_CONFIG} already exists. Do you want to overwrite this file?" N ) == false ]
-				then
-					exit
-				fi
-			fi
-		
-			# First save some variables name of the baseconfig to a dummy name.
-			# They are again exported before expanding.
-			# Needed because these variables are not defined in a normal conf file,
-			# but their values are still referenced. 
-			# We first unset all variables, then load the config!
-
-			BASECONFIG=${CXR_BASECONFIG}
-			MODEL_VERSION=${CXR_MODEL_VERSION}
-			RUN_DIR=${CXR_RUN_DIR}
-			RUN=${CXR_RUN}
-
-			# This nice construction expands any variables which are not
-			# written in single quotes. Gotten out of a Usenet conversation on comp.unix.shell,
-			# idea by Michael Schindler - expanded by Daniel Oderbolz to add export to the front using sed.
-			# (the original line was
-			# echo "$( unset ${!CXR_*}; source ${BASECONFIG} ;  set | grep ^CXR_ )" > ${CXR_EXPANDED_CONFIG}
-			echo "$( unset ${!CXR_*}; CXR_RUN_DIR=${RUN_DIR} ; CXR_RUN=${RUN}; CXR_MODEL_VERSION=${MODEL_VERSION}; source ${BASEFILE} ;  set | grep ^CXR_ | sed 's/^.*$/export &/')" > ${CXR_EXPANDED_CONFIG}
-		
-			CXR_CONFIG=$CXR_EXPANDED_CONFIG
 		fi # Decision to expand 
 
 	else
@@ -909,6 +887,53 @@ However, this can also be a disadvantage!" N ) == false ]
 	cp ${TMPFILE} ${CXR_CONFIG} || cxr_main_die_gracefully "Could not copy temporay file back to ${CXR_CONFIG}"
 
 	cxr_main_logger "$FUNCNAME" "$FUNCNAME:$LINENO - Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${RUN} -d";
+}
+
+################################################################################
+# Function: cxr_common_expand_config
+#
+# Replaces and non-single quoted variable in a config file by its value.
+# This allows to preserve a config file (it is then independent of base.conf).
+# Interactive funtion.
+#
+# Parameters:
+# $1 - File to expand
+# $2 - resulting output file
+################################################################################
+function cxr_common_expand_config() 
+################################################################################
+{
+	BASEFILE=$1
+	EXPANDED_CONFIG=$2
+	
+	# Is the file already there?
+	if [ -f ${EXPANDED_CONFIG} ]
+	then
+		# Continue even if file is there?
+		if [ $(cxr_common_get_consent "${EXPANDED_CONFIG} already exists. Do you want to overwrite this file?" N ) == false ]
+		then
+			exit
+		fi
+	fi
+
+	# First save some variables name of the baseconfig to a dummy name.
+	# They are again exported before expanding.
+	# Needed because these variables are not defined in a normal conf file,
+	# but their values are still referenced. 
+	# We first unset all variables, then load the config!
+
+	MODEL_VERSION=${CXR_MODEL_VERSION}
+	RUN_DIR=${CXR_RUN_DIR}
+	RUN=${CXR_RUN}
+
+	# This nice construction expands any variables which are not
+	# written in single quotes. Gotten out of a Usenet conversation on comp.unix.shell,
+	# idea by Michael Schindler 
+	# (the original line was
+	# echo "$( unset ${!CXR_*}; source ${BASEFILE} ;  set | grep ^CXR_ )" > ${CXR_EXPANDED_CONFIG}
+	echo "$( unset ${!CXR_*}; CXR_RUN_DIR=${RUN_DIR} ; CXR_RUN=${RUN}; CXR_MODEL_VERSION=${MODEL_VERSION}; source ${BASEFILE} ;  set | grep ^CXR_ )" > ${EXPANDED_CONFIG}
+
+	CXR_CONFIG=$EXPANDED_CONFIG
 }
 
 ################################################################################
