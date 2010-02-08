@@ -306,10 +306,52 @@ function boundary_conditions()
 					# Create the file to run IDL
 					echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
 					# Interface:
-					# pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate,extra
+					# pro camxbound $
+					# ,fmoz $
+					# ,fln $
+					# ,mm5camxinfile $
+					# ,outfile_bc $
+					# ,nlevs $
+					# ,mozart_specs $
+					# ,camx_specs $
+					# ,note $
+					# ,xorg $
+					# ,yorg $
+					# ,delx $
+					# ,dely $
+					# ,ibdate $ 
+					# ,doplots $
+					# ,plot_base_dir $
+					# ,MOZtime $
+					# ,run_name $
+					# ,dopng $
+					# ,deleteps $
+					# ,extra=extra
 					# we need to multiply the resolution by 1000 (metre)
 					
-					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${EXEC_TMP_FILE}
+					# We need to convert our logicals to idl logicals
+					if [ "${CXR_IC_BC_TC_DO_PLOT}" == true ]
+					then
+						doplots=1
+					else
+						doplots=0
+					fi
+					
+					if [ "${CXR_IC_BC_TC_DO_PNG}" == true ]
+					then
+						dopng=1
+					else
+						dopng=0
+					fi
+					
+					if [ "${CXR_IC_BC_TC_RM_PS}" == true ]
+					then
+						deleteps=1
+					else
+						deleteps=0
+					fi
+					
+					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}" >> ${EXEC_TMP_FILE}
 					echo "exit" >> ${EXEC_TMP_FILE}
 					
 					# Get a copy of the call

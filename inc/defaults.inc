@@ -972,8 +972,31 @@ CXR_CAMX_MOZART_MAPPING[13]=TOL:TOLUENE_VMR_inst
 # Automatically count # species (no dummy)
 CXR_NUM_MOZART_SPECIES=$(( ${#CXR_CAMX_MOZART_MAPPING[@]} ))
 
+####################
+# Plotting BC data
+####################
+
+# If true, diagnostic plots are done
+CXR_IC_BC_TC_DO_PLOT=true
+# Where to put the plots
+CXR_IC_BC_TC_PLOT_BASE_DIR=~/@plot
+# Which time to plot (times 3 gives real time, so 3 is 15UTC)
+CXR_IC_BC_TC_PLOT_TIME=5
+# Create PNGs 
+CXR_IC_BC_TC_DO_PNG=true
+# Delete intermediate PS
+CXR_IC_BC_TC_RM_PS=true
+
+
+
+
+################################################################################
+# END OF FILE
+################################################################################
 
 # This flag indicates that we already loaded the defaults
 # this is needed bc. of the readonly stuff
 
 CXR_DEFAULTS_LOADED=true
+
+################################################################################
