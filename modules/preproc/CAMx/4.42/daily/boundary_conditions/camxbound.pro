@@ -1,4 +1,24 @@
-pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate,extra=extra
+pro camxbound,$
+	fmoz,$
+	fln,$
+	mm5camxinfile,$
+	outfile_bc,$
+	nlevs,$
+	mozart_specs,$
+	camx_specs,$
+	note,$
+	xorg,$
+	yorg,$
+	delx,$
+	dely,$
+	ibdate,$ ; Now follow the plot settings
+	doplots=1,$
+	plot_base_dir='~/@plot',$
+	MOZtime=5,$
+	run_name='test',$
+	dopng=1,$
+	deleteps=1,$
+	extra=extra
 ;
 ; Procedure camxbound.pro. Prepares the boundary conditions file for CAMx simulations
 ; using MOZART output data. See CAMx User's Guide for and overview of the format of the
@@ -29,6 +49,12 @@ pro camxbound,fmoz,fln,mm5camxinfile,outfile_bc,nlevs,mozart_specs,camx_specs,no
 ; delx - x resolution in meters or degrees longitute (float)
 ; dely - y resolution in meters or degrees longitute (float)
 ; ibdate - date in YYDOY form so 02001 is the 1. Jan 2002
+; doplots - if one, diagnostic plots will be written to plot_dir
+; plot_base_dir - directory where to put the plots
+; MOZtime - Mozart time step to plot
+; run_name - run name, just used for plotting
+; dopng - if 1, convert plots to png
+; deleteps - if 1, ps files are deleted
 ; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -510,12 +536,8 @@ FREE_LUN, lun
 ; The second one is the raw MOZART data over Europe. The third one is the European data after horizontal
 ; intepolation and the fourth one is the European data after vertical interpolation.
 ; Some parameters of the CONTOUR command (esp. max_value) may need to be adjusted
-run_name = GETENV('CXR_RUN')
-IF (run_name EQ '') THEN run_name='test'
-doplots = 1 ; Create plots?
-dopng = 1 ; Convert the ps output files to png?
-deleteps = 1 ; Delete the ps files after the png files are created?
-MOZtime = 5
+
+
 time24 = MOZtime * time_interval_h
 time24 = STRCOMPRESS(time24, /REMOVE_ALL)
 IF (doplots = 1) THEN BEGIN
@@ -555,9 +577,10 @@ IF (doplots = 1) THEN BEGIN
 	a4_ysize_l = a4_xsize_p
 	SET_PLOT, 'PS'
 	
-	SPAWN, 'mkdir -p ~/@plot/' + 'ICBC' + run_name + '/'
-	plotdir = '~/@plot/' + 'ICBC' + run_name + '/'
-	PRINT, 'Writing plots at ~/@plot directory.'
+	plotdir = plot_base_dir + '/' + 'ICBC-' + run_name + '/'
+	SPAWN, 'mkdir -p ' + plotdir
+	
+	PRINT, 'Writing plots at ' + plotdir + ' directory.'
 
 
 	for ispec=0,nspec-1 do begin
