@@ -141,7 +141,11 @@ function cxr_main_increase_error_count()
 
 		# Add text to the stack (if empty a newline is written)
 		# No -e (one line per error) - the lines are counted later
-		echo "${1:-"No message"}" >> "$CXR_INSTANCE_FILE_ERROR_STACK"
+		# Could be that the state db is not yet initialized
+		if [ -f "${CXR_INSTANCE_FILE_ERROR_STACK}" ]
+		then
+			echo "${1:-"No message"}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
+		fi	
 	
 	fi
 	
@@ -264,7 +268,12 @@ function cxr_main_logger()
 	### and increase error count
 	if [ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}" ]
 	then
-		echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
+		# Could be that the state db is not yet initialized
+		if [ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}" ]
+		then
+			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
+		fi
+		
 		cxr_main_increase_error_count "${FUNCTION_NAME} - ${BLANK_MESSAGE}"
 	fi
 	
