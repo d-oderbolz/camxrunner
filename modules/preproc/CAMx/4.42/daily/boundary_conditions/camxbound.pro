@@ -11,7 +11,7 @@ pro camxbound $
 	,yorg $
 	,delx $
 	,dely $
-	,ibdate $ ; Now follow the plot settings
+	,ibdate $ 
 	,doplots=1 $
 	,plot_base_dir='~/@plot' $
 	,MOZtime=5 $
