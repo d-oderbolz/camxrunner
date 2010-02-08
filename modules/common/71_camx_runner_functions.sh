@@ -552,6 +552,12 @@ function cxr_common_create_tempfile()
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
+	# Check if that worked!
+	if [ ! -d "${CXR_TMP_DIR}" ]
+	then
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
+	fi
+	
 	local store=${2:-true}
 	
 	# Create a template by using $1 
