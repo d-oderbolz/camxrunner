@@ -1,24 +1,24 @@
-pro camxbound,$
-	fmoz,$
-	fln,$
-	mm5camxinfile,$
-	outfile_bc,$
-	nlevs,$
-	mozart_specs,$
-	camx_specs,$
-	note,$
-	xorg,$
-	yorg,$
-	delx,$
-	dely,$
-	ibdate,$ ; Now follow the plot settings
-	doplots=1,$
-	plot_base_dir='~/@plot',$
-	MOZtime=5,$
-	run_name='test',$
-	dopng=1,$
-	deleteps=1,$
-	extra=extra
+pro camxbound $
+	,fmoz $
+	,fln $
+	,mm5camxinfile $
+	,outfile_bc $
+	,nlevs $
+	,mozart_specs $
+	,camx_specs $
+	,note $
+	,xorg $
+	,yorg $
+	,delx $
+	,dely $
+	,ibdate $ ; Now follow the plot settings
+	,doplots=1 $
+	,plot_base_dir='~/@plot' $
+	,MOZtime=5 $
+	,run_name='test' $
+	,dopng=1 $
+	,deleteps=1 $
+	,extra=extra
 ;
 ; Procedure camxbound.pro. Prepares the boundary conditions file for CAMx simulations
 ; using MOZART output data. See CAMx User's Guide for and overview of the format of the
