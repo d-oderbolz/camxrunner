@@ -12,12 +12,12 @@ pro camxbound $
 	,delx $
 	,dely $
 	,ibdate $ 
-	,doplots=1 $
-	,plot_base_dir='~/@plot' $
-	,MOZtime=5 $
-	,run_name='test' $
-	,dopng=1 $
-	,deleteps=1 $
+	,doplots $
+	,plot_base_dir $
+	,MOZtime $
+	,run_name $
+	,dopng $
+	,deleteps $
 	,extra=extra
 ;
 ; Procedure camxbound.pro. Prepares the boundary conditions file for CAMx simulations
@@ -57,6 +57,17 @@ pro camxbound $
 ; deleteps - if 1, ps files are deleted
 ; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; Set default parameters if needed
+; 13 parameters are mandatory
+if ( N_PARAMS() LT 14) then begin
+	doplots=1 
+	plot_base_dir='~/@plot' 
+	MOZtime=5 
+	run_name='test' 
+	dopng=1 
+	deleteps=1 
+endif
 
 nspec=n_elements(mozart_specs)
 nspec_c=n_elements(camx_specs)
