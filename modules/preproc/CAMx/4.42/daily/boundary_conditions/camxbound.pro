@@ -596,7 +596,7 @@ IF (doplots = 1) THEN BEGIN
 
 	for ispec=0,nspec-1 do begin
 
-		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'world'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
 		MAP_SET, /continents, /isotropic
 
 		; Do we have a max-value?
@@ -619,7 +619,7 @@ IF (doplots = 1) THEN BEGIN
 
 	for ispec=0,nspec-1 do begin
 	
-		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
 		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
 	
 		; Do we have a max-value?
@@ -639,7 +639,7 @@ IF (doplots = 1) THEN BEGIN
 
 	for ispec=0,nspec-1 do begin
 
-		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
 		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
 
 		; Do we have a max-value?
@@ -659,7 +659,7 @@ IF (doplots = 1) THEN BEGIN
 
 	for ispec=0,nspec-1 do begin
 
-		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
 		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
 
 		; Do we have a max-value?
@@ -676,19 +676,19 @@ IF (doplots = 1) THEN BEGIN
 
 	IF (dopng EQ 1) THEN BEGIN
 		for ispec=0,nspec-1 do begin
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world'+time24+'.ps ' +plotdir+mozart_specs[ispec]+'world'+time24+'.png'
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur'+time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur'+time24+'.png'
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.png' 
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'world'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.png' 
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.png'
 		endfor
 	ENDIF
 	
 	IF (dopng EQ 1 AND deleteps EQ 1) THEN BEGIN
 		for ispec=0,nspec-1 do begin
-			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'world'+time24+'.ps'
-			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur'+time24+'.ps'
-			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.ps'
-			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps'
 		endfor
 	ENDIF
 
