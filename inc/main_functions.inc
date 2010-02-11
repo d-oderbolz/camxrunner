@@ -927,7 +927,7 @@ function cxr_main_enumerate_modules
 		
 		if [ "$NUM_MODULES" -gt 0 ]
 		then
-			cxr_main_logger -v "${FUNCNAME}" "$(printf %-30s%-75s Name Call)"
+			cxr_main_logger -v "${FUNCNAME}" "\t$(printf %-30s%-75s Name Call)"
 			
 			# Active Processors
 			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
@@ -935,7 +935,7 @@ function cxr_main_enumerate_modules
 				FILE_NAME=$(basename $FUNCTION_FILE)
 				TOTAL_CALL="${CXR_CALL} ${CALL}$(cxr_main_extract_module_name $FUNCTION_FILE)"
 				
-				cxr_main_logger -v "${FUNCNAME}" "$(printf %-30s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"    
+				cxr_main_logger -v "${FUNCNAME}" "\t$(printf %-30s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"    
 				FOUND=true
 			done
 		else
