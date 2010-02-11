@@ -220,11 +220,7 @@ pg_linux:
 	make model \
            FC=pgf90 \
            TARGT=CAMx.$(DOMAIN).pg_linux \
-<<<<<<< .mine
-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
-=======
            FLGS="-I$(CAMx_INC) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
->>>>>>> .r2234
 
 pg_linuxomp:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -239,11 +235,7 @@ pg_linuxomp:
 	make model \
            FC=pgf90 \
            TARGT=CAMx.$(DOMAIN).pg_linuxomp \
-<<<<<<< .mine
-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
-=======
            FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
->>>>>>> .r2234
 
 i_linux:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -258,11 +250,7 @@ i_linux:
 	make model \
            FC=ifort \
            TARGT=CAMx.$(DOMAIN).i_linux \
-<<<<<<< .mine
-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
-=======
            FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo"
->>>>>>> .r2234
 
 i_linuxomp:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod

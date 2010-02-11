@@ -208,9 +208,15 @@ function set_model_variables()
 		################################################################
 		if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
 		then
-			
 		
-			#Grid specific
+			# Output files must not be decompressed
+			# We only want to check them, otherwise we dont need these values
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(cxr_common_evaluate_rule "$CXR_CXR_SA_FINST_FILE_RULE" false CXR_CXR_SA_FINST_FILE_RULE false)"	
+		
+			# Add these to be checked
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_INST_OUTPUT_FILE $CXR_SA_FINST_OUTPUT_FILE"
+	
+			#Source area specific
 			for k in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
 			do
 				##Source Area
@@ -219,8 +225,13 @@ function set_model_variables()
 				##Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${k}]}"
 			done
+			
 			for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);	
 			do
+				# expected output files (grid specific)
+				# We only want to check them, otherwise we dont need these values
+				CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_AVG_FILE_RULE" false CXR_SA_AVG_FILE_RULE false)"
+				
 				##Source Group
 				for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 				do

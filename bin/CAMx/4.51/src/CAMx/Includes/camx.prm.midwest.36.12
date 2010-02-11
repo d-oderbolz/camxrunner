@@ -124,7 +124,7 @@ c
       integer   MXBIN
       integer   MXSECT
 c
-      parameter ( MXSPEC  =    100 )
+      parameter ( MXSPEC  =    150 )
       parameter ( MXRADCL =    18 )
       parameter ( MXPHT1  =    19 )
       parameter ( MXPHT2  =    24 )
