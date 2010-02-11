@@ -211,7 +211,7 @@ function set_model_variables()
 		
 			# Output files must not be decompressed
 			# We only want to check them, otherwise we dont need these values
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(cxr_common_evaluate_rule "$CXR_CXR_SA_FINST_FILE_RULE" false CXR_CXR_SA_FINST_FILE_RULE false)"	
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(cxr_common_evaluate_rule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
 		
 			# Add these to be checked
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_INST_OUTPUT_FILE $CXR_SA_FINST_OUTPUT_FILE"
