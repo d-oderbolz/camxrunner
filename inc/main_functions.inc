@@ -995,9 +995,6 @@ function cxr_main_enumerate_modules
 function cxr_main_enumerate_all_modules
 ################################################################################
 {
-		# Increase global indent level
-		cxr_main_increase_log_indent
-
 		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
 		
 		# XX_module_functions.sh
@@ -1019,7 +1016,4 @@ function cxr_main_enumerate_all_modules
 		cxr_main_enumerate_modules ${CXR_TYPE_POSTPROCESS_ONCE}
 		
 		cxr_main_logger -i "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
-	
-		# Decrease global indent level
-		cxr_main_decrease_log_indent
 }
