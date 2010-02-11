@@ -214,7 +214,7 @@ function set_model_variables()
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(cxr_common_evaluate_rule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
 		
 			# Add these to be checked
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_INST_OUTPUT_FILE $CXR_SA_FINST_OUTPUT_FILE"
+			#CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_INST_OUTPUT_FILE $CXR_SA_FINST_OUTPUT_FILE"
 	
 			#Source area specific
 			for k in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
