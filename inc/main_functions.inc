@@ -935,7 +935,7 @@ function cxr_main_enumerate_modules
 				FILE_NAME=$(basename $FUNCTION_FILE)
 				TOTAL_CALL="${CXR_CALL} ${CALL}$(cxr_main_extract_module_name $FUNCTION_FILE)"
 				
-				cxr_main_logger -v "${FUNCNAME}" "  $(printf %-30s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"    
+				cxr_main_logger -v "${FUNCNAME}" "  $(printf %-30s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"
 				FOUND=true
 			done
 		else
@@ -953,7 +953,7 @@ function cxr_main_enumerate_modules
 			cxr_main_logger -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
 	
-		cxr_main_logger -i "${FUNCNAME}"  "\nThese $MODULE_TYPE modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"    
+		cxr_main_logger -i "${FUNCNAME}"  "\n  These $MODULE_TYPE modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"    
 		
 		# How do disabled modules look like?
 		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
@@ -973,7 +973,7 @@ function cxr_main_enumerate_modules
 			# Increase global indent level
 			cxr_main_increase_log_indent
 	
-			cxr_main_logger -v "${FUNCNAME}"  "No disabled modules of type $MODULE_TYPE where found.\n"
+			cxr_main_logger -v "${FUNCNAME}"  "  No disabled modules of type $MODULE_TYPE where found.\n"
 			
 			# Decrease global indent level
 			cxr_main_decrease_log_indent
@@ -998,22 +998,22 @@ function cxr_main_enumerate_all_modules
 		# Increase global indent level
 		cxr_main_increase_log_indent
 
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for One-Time pre processing steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_PREPROCESS_ONCE}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for daily pre processing steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for daily pre processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_PREPROCESS_DAILY}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for daily post processing steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_POSTPROCESS_DAILY}
 		
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for One-Time post processing steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for One-Time post processing steps:\n"
 		
 		# XX_module_functions.sh
 		cxr_main_enumerate_modules ${CXR_TYPE_POSTPROCESS_ONCE}

@@ -690,7 +690,7 @@ then
 		cxr_main_logger -v "CAMxRunner.sh" "${CXR_CALL} -iXX for a daily input step,\n"
 		cxr_main_logger -v "CAMxRunner.sh" "${CXR_CALL} -oXX for a daily output step or\n"
 		cxr_main_logger -v "CAMxRunner.sh" "${CXR_CALL} -fXX for a one-time output step.\n"
-		cxr_main_logger -v "CAMxRunner.sh" "These are the possible values for one-time input steps:\n"
+		cxr_main_logger -v "CAMxRunner.sh" "  These are the possible values for one-time input steps:\n"
 		
 		# Decrease global indent level
 		cxr_main_decrease_log_indent
