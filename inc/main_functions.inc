@@ -919,7 +919,6 @@ function cxr_main_enumerate_modules
 	# Loop through available input dirs
 	for MODULE_DIRECTORY in $MODULE_DIRECTORIES
 	do
-	
 		# How do processors look like?
 		PATTERN="${MODULE_DIRECTORY}/??_*.sh"
 		
@@ -936,7 +935,7 @@ function cxr_main_enumerate_modules
 				FILE_NAME=$(basename $FUNCTION_FILE)
 				TOTAL_CALL="${CXR_CALL} ${CALL}$(cxr_main_extract_module_name $FUNCTION_FILE)"
 				
-				cxr_main_logger -v "${FUNCNAME}" "$(printf %-30s%-75s ${FILE_NAME} ${TOTAL_CALL})"    
+				cxr_main_logger -v "${FUNCNAME}" "$(printf %-30s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"    
 				FOUND=true
 			done
 		else
