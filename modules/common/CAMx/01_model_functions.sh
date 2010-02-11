@@ -112,8 +112,13 @@ function get_chemparm_file()
 	# First check if there is a run-specific file
 	if [ -f "${RUN_SPECIFIC}" ]
 	then
-		cxr_main_logger $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
 	
+		if [ ${CXR_RUN_MODEL} == true ]
+		then
+			# Report only if we run the model
+			cxr_main_logger $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
+		fi
+		
 		echo "${RUN_SPECIFIC}"
 		
 		return $CXR_RET_OK
@@ -156,7 +161,7 @@ function get_chemparm_file()
 #
 # Normally fails if no suitable binary was found - if the optional parameter is false
 # ignores this fact. In this case, the name of a general binary without machine
-# name is returned.
+# name is returned. Also we ignore a missing binary if we do not run the model.
 #
 # It looks like this:
 #
@@ -190,9 +195,9 @@ function get_model_exec()
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
-		if [ "${1:-true}" == false ]
+		if [ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false ]
 		then
-			# optional paratemeter is false,
+			# optional paratemeter is false, or we do not run the model
 			# We do not care and return CXR_GENERAL_EXEC
 			echo "${GENERAL_EXEC}" 
 		else
