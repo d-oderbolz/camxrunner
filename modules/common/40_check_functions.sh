@@ -1121,7 +1121,7 @@ function test_module()
 	########################################
 	
 	is $(cxr_common_check_datataype 1 I) true "cxr_common_check_datataype 1 I"
-	is $(cxr_common_md5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "cxr_common_md5 stirng test"
+	is $(cxr_common_md5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "cxr_common_md5 strings test"
 
 	########################################
 	# teardown tests if needed

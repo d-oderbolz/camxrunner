@@ -5,7 +5,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Hash Functions, allows to map stirngs (keys) to other strings (values).
+# Contains the Hash Functions, allows to map strings (keys) to other strings (values).
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
