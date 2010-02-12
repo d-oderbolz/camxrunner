@@ -85,7 +85,7 @@ exit 1
 }
 
 ################################################################################
-# Function: get_chemparm_file
+# Function: get_chemparam_file
 #
 # Totally static for now (we have only one file to deliver.)
 #
@@ -93,7 +93,7 @@ exit 1
 # $1 - the chemical mechanism
 # $2 - the aerosol mechanism
 ################################################################################
-function get_chemparm_file ()
+function get_chemparam_file ()
 ################################################################################
 {
 	if [ $# -ne 2 ]

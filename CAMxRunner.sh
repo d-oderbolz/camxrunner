@@ -469,7 +469,7 @@ cxr_main_logger -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can 
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
 ################################################################################
 
-# Is the chemparm file already set (in the config?)
+# Is the chemparam file already set (in the config?)
 if [ "${CXR_CHEMPARAM_INPUT_FILE:-}" ]
 then
 	#String is non-empty, check if it is sensible
@@ -477,10 +477,10 @@ then
 	then
 		cxr_main_logger -w "CAMxRunner.sh" "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found. I try to find the correct setting."
 		# String is not properly set - try to get it
-		CXR_CHEMPARAM_INPUT_FILE=$(get_chemparm_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
+		CXR_CHEMPARAM_INPUT_FILE=$(get_chemparam_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
 	fi
 else
-	CXR_CHEMPARAM_INPUT_FILE=$(get_chemparm_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
+	CXR_CHEMPARAM_INPUT_FILE=$(get_chemparam_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
 fi
 
 cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARAM_INPUT_FILE"
@@ -618,7 +618,7 @@ cxr_main_logger -i "CAMxRunner.sh" "$INFO"
 
 if [ "${CXR_HOLLOW}" == false -o "${CXR_DRY}" == true ]
 then
-	cxr_main_logger -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparm File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
+	cxr_main_logger -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
 
 if [ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ]

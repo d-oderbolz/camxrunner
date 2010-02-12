@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -87,10 +87,11 @@ exit 1
 }
 
 ################################################################################
-# Function: get_chemparm_file
+# Function: get_chemparam_file
 #
-# Tries to determine the name of the chemparm file - complains if a problom exists
+# Tries to determine the name of the chemparam file - complains if a problem exists
 # (e. g. requiring aerosols for unsupported mechanism).
+# Also reports MD5 hash of the file, if needed.
 # Check in this order:
 # - Run scecific (${CXR_RUN}_chemparam)
 # - General (CAMx${CXR_MODEL_VERSION}.chemparam.${CHEMICAL_MECHANISM}_${AEROSOL_MECHANISM}
@@ -99,7 +100,7 @@ exit 1
 # $1 - the chemical mechanism
 # $2 - the aerosol mechanism
 ################################################################################
-function get_chemparm_file()
+function get_chemparam_file()
 ################################################################################
 {
 	if [ $# -ne 2 ]
@@ -107,43 +108,55 @@ function get_chemparm_file()
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
+	local our_chemparam
 	RUN_SPECIFIC=${CXR_CAMX_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
-	if [ -f "${RUN_SPECIFIC}" ]
+	if [ -r "${RUN_SPECIFIC}" ]
 	then
-	
-		if [ ${CXR_RUN_MODEL} == true ]
-		then
-			# Report only if we run the model
-			cxr_main_logger $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
-		fi
+		our_chemparam="${RUN_SPECIFIC}"
+	else
+		# No specific one found, check further
 		
-		echo "${RUN_SPECIFIC}"
-		
-		return $CXR_RET_OK
-	fi
+		CHEMICAL_MECHANISM=$1
+		AEROSOL_MECHANISM=$2
 	
-	CHEMICAL_MECHANISM=$1
-	AEROSOL_MECHANISM=$2
-
-	MY_MECHANISM=${1}_${2}
-
-	MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
-
-	if [ ! -f "${MY_CHEMPARAM_INPUT_FILE}" ]
-	then
-		# Maybe we have to cut off the last digit of the Version number
-		MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
-
-		if [ ! -f "${MY_CHEMPARAM_INPUT_FILE}" ]
+		MY_MECHANISM=${1}_${2}
+	
+		MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
+	
+		if [ -r "${MY_CHEMPARAM_INPUT_FILE}" ]
 		then
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+			our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 		else
-			cxr_main_logger $FUNCNAME "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
+			# File does not exist, maybe the file is not for 4.51 but for 4.5 (as an examlple)
+			# Maybe we have to cut off the last digit of the Version number
+			MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
+	
+			if [ -f "${MY_CHEMPARAM_INPUT_FILE}" ]
+			then
+				our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
+			else
+				# File still does not exist
+				cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+			fi
 		fi
 	fi
-	echo "${MY_CHEMPARAM_INPUT_FILE}"
+	
+	# found one
+	if [ ${CXR_RUN_MODEL} == true ]
+	then
+		# Report only if we run the model
+		cxr_main_logger -a $FUNCNAME "Using chemparam file (${our_chemparam})."
+		
+		# Also report MD5
+		if [ "${CXR_REPORT_MD5}" == true ]
+		then
+			cxr_main_logger -a "MD5 Hash of ${our_chemparam} is $(cxr_common_md5 ${our_chemparam})"
+		fi
+	fi
+	
+	echo "${our_chemparam}"
 }
 
 ################################################################################
@@ -207,6 +220,69 @@ function get_model_exec()
 	fi
 }
 
+################################################################################
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
+################################################################################
+{
+	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	then
+		# We need to do initialisation
+	
+		# This is the run we use to test this
+		CXR_RUN=$CXR_META_MODULE_TEST_RUN
+	
+		# Safety measure if script is not called from .
+		MY_DIR=$(dirname $0) && cd $MY_DIR
+	
+		# We step down the directory tree until we either find CAMxRunner.sh
+		# or hit the root directory /
+		while [ $(pwd) != / ]
+		do
+			cd ..
+			# If we find CAMxRunner, we are there
+			ls CAMxRunner.sh >/dev/null 2>&1 && break
+			
+			# If we are in root, we have gone too far
+			if [ $(pwd) == / ]
+			then
+				echo "Could not find CAMxRunner.sh!"
+				exit 1
+			fi
+		done
+		
+		# Save the number of tests, as other modules
+		# will overwrite this (major design issue...)
+		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
+		
+		# Include the init code
+		source inc/init_test.inc
+		
+		# Plan the number of tests
+		plan_tests $MY_META_MODULE_NUM_TESTS
+		
+	fi
+	
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	is $(basename $(get_chemparam_file 6 CF)) CAMx4.5.chemparam.6_CF "get_chemparam_file 6 CF"
+
+	########################################
+	# teardown tests if needed
+	########################################
+
+}
 
 ################################################################################
 # Are we running stand-alone? 
