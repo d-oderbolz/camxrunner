@@ -672,17 +672,17 @@ function cxr_main_determine_model_and_version()
 ################################################################################
 # Function: cxr_main_read_config
 #
-# Determine relevant config files and load them.
+# Determine relevant config files and load them, also report their names and versions.
 # There are currently these:
 # - site.conf
 # - base.conf
-# - CAMx version specific
+# - Model version specific
 # - run-specific (potentially expanded)
 #
 # The run name 'installer' is treated separately, there we load
 # - site.conf
 # - base.conf
-# - CAMx version specific
+# - Model version specific
 # - installer.conf
 # - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf (if available)
 #
@@ -695,12 +695,12 @@ function cxr_main_determine_model_and_version()
 function cxr_main_read_config()
 ################################################################################
 {
-	export CXR_RUN=${1}
+	export CXR_RUN="${1}"
 	
-	CXR_MODEL=${3}
+	CXR_MODEL="${3}"
 	
 	# Model Version
-	CXR_MODEL_VERSION=${2}
+	CXR_MODEL_VERSION="${2}"
 		
 	CXR_RUN_DIR="$4"
 	
@@ -743,15 +743,25 @@ function cxr_main_read_config()
 	CXR_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.conf
 	
 	########################################
+	# Revisions
+	########################################
+	
+	CXR_SITECONFIG_REV="$(cxr_common_get_svn_revision $CXR_SITECONFIG)"
+	CXR_BASECONFIG_REV="$(cxr_common_get_svn_revision $CXR_BASECONFIG)"
+	CXR_VERSIONCONFIG_REV="$(cxr_common_get_svn_revision $CXR_VERSIONCONFIG)"
+	CXR_CONFIG_REV="$(cxr_common_get_svn_revision $CXR_CONFIG)"
+	CXR_EXPANDED_CONFIG_REV="$(cxr_common_get_svn_revision $CXR_EXPANDED_CONFIG)"
+	
+	########################################
 	# Try to load the site config
 	########################################
 	
 	# No drama if it does not exist
-	if [ -f ${CXR_SITECONFIG} ]
+	if [ -f "${CXR_SITECONFIG}" ]
 	then
-		cxr_main_logger -v "$FUNCNAME"  "Loading ${CXR_SITECONFIG}..."
+		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
 	
-		source ${CXR_SITECONFIG}
+		source "${CXR_SITECONFIG}"
 	else
 		cxr_main_logger "$FUNCNAME" "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
 	fi
@@ -760,40 +770,36 @@ function cxr_main_read_config()
 	# Try to load the base config
 	########################################
 	
-	cxr_main_logger -v "$FUNCNAME"  "Loading ${CXR_BASECONFIG}..."
-	
-	if [ ! -f ${CXR_BASECONFIG} ]
+	if [ -f "${CXR_BASECONFIG}" ]
 	then
+		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
+		source "${CXR_BASECONFIG}"
+	else
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - The base configuration ${CXR_BASECONFIG} is not available - exiting"
-	else	
-		source ${CXR_BASECONFIG}
 	fi
 	
 	########################################
 	# Try to load CAMx version specific config
 	########################################
 	
-	cxr_main_logger -v "$FUNCNAME"  "Loading ${CXR_VERSIONCONFIG}..."
-	
-	if [ ! -f "$CXR_VERSIONCONFIG" ]
+	if [ -f "$CXR_VERSIONCONFIG" ]
 	then
-		cxr_main_logger "$FUNCNAME" "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
+		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
+		source "${CXR_VERSIONCONFIG}"
 	else
-		source ${CXR_VERSIONCONFIG}
+		cxr_main_logger "$FUNCNAME" "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want load special settings based no model version."
 	fi
 	
 	########################################
 	# Loading config that is run-specific
 	########################################
 	
-	cxr_main_logger -v "$FUNCNAME"  "Loading ${CXR_EXPANDED_CONFIG} or ${CXR_CONFIG}..."
-	
 	# Try to load an run-specific config that was expanded
-	if [ -f ${CXR_EXPANDED_CONFIG} ]
+	if [ -f "${CXR_EXPANDED_CONFIG}" ]
 	then
 		# Found an expanded configuration (priority)
-		cxr_main_logger -n "$FUNCNAME" "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG}"
-		source ${CXR_EXPANDED_CONFIG}
+		cxr_main_logger -a "$FUNCNAME" "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
+		source "${CXR_EXPANDED_CONFIG}"
 		
 		# This makes sure all following code looks at the right file
 		CXR_CONFIG=${CXR_EXPANDED_CONFIG}
@@ -801,16 +807,17 @@ function cxr_main_read_config()
 		#No expanded version found - see if we find a normal one
 		# Try to load the run-specific config
 		# Does it exist?
-		if [ ! -f ${CXR_CONFIG} ]
+		if [ -f "${CXR_CONFIG}" ]
 		then
+			cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
+			# Source it
+			source "${CXR_CONFIG}"
+		else
 			# If the user types CAMxRunner.sh -h we land here
-			if [ ${CXR_RUN} != ${CXR_RUNNER_NAME} ]
+			if [ "${CXR_RUN}" != "${CXR_RUNNER_NAME}" ]
 			then
 				cxr_main_die_gracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
 			fi
-		else	
-			# Source if
-			source ${CXR_CONFIG}
 		fi
 	fi
 	
@@ -821,9 +828,11 @@ function cxr_main_read_config()
 	if [ "${CXR_RUN}" == "${CXR_INSTALLER}" ]
 	then
 		local INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
+		local INSTALLER_CONF_REV=$(cxr_common_get_svn_revision $INSTALLER_CONF)
 		
 		if [ -f "${INSTALLER_CONF}" ]
 		then
+			cxr_main_logger -a "$FUNCNAME"  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
 			source "${INSTALLER_CONF}"
 		else
 			cxr_main_logger -w "$FUNCNAME" "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"

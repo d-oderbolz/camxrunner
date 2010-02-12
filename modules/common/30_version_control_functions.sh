@@ -84,7 +84,7 @@ exit 1
 # Extracts the svn version of a file. 
 # 
 # Returns:
-# If the revision is not set, returns 0
+# If the revision is not set or the file does not exist, returns 0
 #
 # otherwise, return revision found
 #
@@ -104,15 +104,18 @@ function cxr_common_get_svn_revision()
 	
 	if [ ! -f "$FILENAME" ]
 	then
-		touch "$FILENAME"
-	fi
-	
-	# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
-	REVISION=$(grep '$Id' ${FILENAME} | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
-	
-	if [ $(cxr_main_is_numeric "$REVISION") == false  ]
-	then
+		# File inexistent
 		REVISION=0
+	else
+		# File exists
+		# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
+		REVISION=$(grep '$Id' ${FILENAME} | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
+		
+		# Correct any garbage
+		if [ $(cxr_main_is_numeric "$REVISION") == false  ]
+		then
+			REVISION=0
+		fi
 	fi
 	
 	echo $REVISION

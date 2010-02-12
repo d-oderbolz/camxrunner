@@ -372,9 +372,6 @@ then
 	cxr_main_die_gracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
 
-
-
-
 ################################################################################
 
 cxr_main_logger -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
@@ -436,11 +433,10 @@ then
 	################################################################################
 	
 	# Get revisions of configuration and the CAMxRunner.sh
-	CXR_BASECONFIG_REV=$(cxr_common_get_svn_revision $CXR_BASECONFIG)
-	CXR_CONFIG_REV=$(cxr_common_get_svn_revision $CXR_CONFIG)
+	# The other variables are set in cxr_main_read_config
 	CXR_RUNNER_REV=$(cxr_common_get_svn_revision $0)
 	
-	cxr_main_logger -v -B "CAMxRunner.sh" "Baseconfig file (${CXR_BASECONFIG}) revision: ${CXR_BASECONFIG_REV}\nConfig file (${CXR_CONFIG}) revision: ${CXR_CONFIG_REV}\nRunner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
+	cxr_main_logger -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	
 	if [ "$CXR_BASECONFIG_REV" -ne "$CXR_CONFIG_REV" ]
 	then
