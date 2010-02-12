@@ -338,9 +338,14 @@ CXR_ALLOW_MULTIPLE=false
 # If true, run CAMx , otherwise don't
 CXR_RUN_MODEL=true
 
-#If true, compress the output files upon completion
+# If true, compress the output files upon completion
 # The compressor CXR_COMPRESSOR_EXEC used is selected later
 CXR_COMPRESS_OUTPUT=false
+
+# If true, CAMxRunner will report the MD5 Hash of each input file
+# We use MD5 instead of SHA1 because of speed reasons
+# While it takes more time, this can save a lot of headache when comparing files
+CXR_REPORT_MD5=true
 
 # This is a pattern that can be used to limit compression either to 
 # specific files or specific modules that created the files
@@ -765,6 +770,8 @@ readonly CXR_ASC_EXT
 
 ################################################################################
 # Executables
+# TODO: we should offer compilation for all of these, use something like
+# cxr_get_exec...
 ################################################################################
 
 # Lock manager
@@ -777,6 +784,9 @@ CXR_BUNZIP2_EXEC=$(which bunzip2)
 # Compression
 CXR_GZIP_EXEC=$(which gzip)
 CXR_BZIP2_EXEC=$(which bzip2)
+
+# Hash generation
+CXR_MD5_EXEC=$(which md5sum)
 
 # The compressor we use to compress output (if any)
 if [ "${CXR_COMPRESS_OUTPUT}" == true ]

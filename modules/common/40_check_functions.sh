@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=2
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -419,6 +419,34 @@ function cxr_common_check_environment_executables ()
 }
 
 ################################################################################
+# Function: cxr_common_md5
+#	
+# Returns an MD5 Hash of a file. Returns the empty string if file does not exist.
+#
+# Parameters:
+# $1 - file to Hash
+################################################################################
+function cxr_common_md5() 
+################################################################################
+{
+	if [ $# -ne 1 ]
+	then
+		echo -e "$FUNCNAME" "You must pass a file to be hashed."
+	fi
+	
+	FILE="$1"
+	
+	if [ -r "${FILE}" ]
+	then
+		"${CXR_MD5_EXEC}" "${FILE}" | cut -d" " -f1
+	else
+		# Return the empty string
+		echo -w "$FUNCNAME" "File $FILE not readable."
+		echo ""
+	fi
+}
+
+################################################################################
 # Function: cxr_common_check_preconditions
 #	
 # Checks if all input files listed in CXR_CHECK_THESE_INPUT_FILES are available.
@@ -639,6 +667,12 @@ function cxr_common_check_preconditions()
 					# Empty File!
 					cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${INPUT_FILE} is empty!"
 					ERRORS_FOUND=true
+				else
+					# Nono-empty, report hash if wanted
+					if [ "${CXR_REPORT_MD5}" == true ]
+					then
+						cxr_main_logger -a "MD5 Hash of ${INPUT_FILE} is $(cxr_common_md5 ${INPUT_FILE})"
+					fi
 				fi
 			fi
 		done
@@ -1078,11 +1112,16 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Create dummy file to hash
+	x=$(cxr_common_create_tempfile test)
+	echo  "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern" > $x
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
 	is $(cxr_common_check_datataype 1 I) true "cxr_common_check_datataype 1 I"
+	is $(cxr_common_md5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "cxr_common_md5 stirng test"
 
 	########################################
 	# teardown tests if needed
