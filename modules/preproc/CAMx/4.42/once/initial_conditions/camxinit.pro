@@ -258,6 +258,10 @@ FREE_LUN, lun
 
 print,'Horizontal Interpolation...'
 
+; Calculation of the longitude and latitude steps of the MOZART grid
+lonstep = 360.0 / ncolsmoz
+latstep = 180.0 / nrowsmoz
+
 ; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
 FOR i = 0, ncols - 1 DO BEGIN
   FOR j = 0, nrows - 1 DO BEGIN
@@ -267,8 +271,8 @@ FOR i = 0, ncols - 1 DO BEGIN
 
     ; The decimal grid indices in the MOZART grid, which coincide with
     ; the MM5 cross grid points are calculated
-    indexlon[i,j] = t_mm5lon[i,j,0,1] / 1.87500  ; 1.875 is the lon step in MOZART
-    indexlat[i,j] = mm5latr[i,j,0,1] / 1.875 + 48 ; 1.875 is the lat step in MOZART
+    indexlon[i,j] = t_mm5lon[i,j,0,1] / lonstep
+    indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
   ENDFOR
 ENDFOR
 

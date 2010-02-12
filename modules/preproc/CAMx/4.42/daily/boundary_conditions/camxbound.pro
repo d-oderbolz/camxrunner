@@ -335,7 +335,7 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
 		indexlon[i,j] = t_mm5lon[i,j,0,1] / lonstep
-		indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + 48
+		indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
 	ENDFOR
 ENDFOR
 
