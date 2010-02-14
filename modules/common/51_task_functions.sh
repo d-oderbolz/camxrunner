@@ -17,6 +17,7 @@
 # TODO: Periodically check CXR_MAX_PARALLEL_PROCS
 # TODO: Add modifiers to dependencies, "create_emissions-" would point to a module 
 # 			of the last day.
+# TODO: Use tsort to create a topologically sorted list of tasks
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################

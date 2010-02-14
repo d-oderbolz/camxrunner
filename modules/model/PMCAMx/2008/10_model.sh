@@ -45,7 +45,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_MODEL}"
 CXR_META_MODULE_NUM_TESTS=0
 
 # This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=base
+CXR_META_MODULE_TEST_RUN=PMCAMx-v2008-test
 
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=400
@@ -978,7 +978,7 @@ function test_module()
 	TEST_COUNT=1
 	
 	# This is our test run for this module
-	CXR_RUN=PMCAMx-v2008-test
+	CXR_RUN=$CXR_META_MODULE_TEST_RUN
 	
 	# Safety measure if script is not called from .
 	MY_DIR=$(dirname $0) && cd $MY_DIR

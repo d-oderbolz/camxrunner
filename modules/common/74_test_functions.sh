@@ -316,7 +316,7 @@ function cxr_common_test_all_modules()
 			if [ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0 ]
 			then
 				
-				# We must ste the run name properly
+				# We must state the run name properly
 				CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
 				
 				# If we did not just load this config, do it now

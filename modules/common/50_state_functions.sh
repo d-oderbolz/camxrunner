@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -81,7 +81,7 @@ exit 1
 ################################################################################
 # Function: cxr_common_is_repeated_run
 #
-# Returns true, if this run was already started earlier (balically a check if the 
+# Returns true, if this run was already started earlier (basically a check if the 
 # state directory is empty)
 # 
 ################################################################################
@@ -90,7 +90,7 @@ function cxr_common_is_repeated_run()
 {
 	COUNT=$(find ${CXR_STATE_DIR} -maxdepth 1 -noleaf -type f 2>/dev/null | wc -l)
 	
-	cxr_main_logger -v "$FUNCNAME" "Count: $COUNT"
+	cxr_main_logger -v "$FUNCNAME" "File count in state directory: $COUNT"
 	
 	if [ "$COUNT" -gt 0 ]
 	then
@@ -889,11 +889,14 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	cxr_main_logger -a "$FUNCNAME" "Initialising state DB in ${CXR_STATE_DIR}"
+	cxr_common_initialize_state_db
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# None yet
+	is $(cxr_common_is_repeated_run) false "cxr_common_is_repeated_run"
 
 	########################################
 	# teardown tests if needed
