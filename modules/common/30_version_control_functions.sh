@@ -173,25 +173,31 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# We need to make sure that svn does not update Id here :-)
+	# Therefore, we write the first $ separately
+	
 	# Create a file with one revision
 	test_file1=$(cxr_common_create_tempfile $FUNCNAME)
-	echo '$Id$' > "$test_file1"
+	echo -n '$' > "$test_file1"
+	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file1"
 	
 	# Create a file with 2 revisions (must find the first)
 	test_file2=$(cxr_common_create_tempfile $FUNCNAME)
-	echo '$Id$' > "$test_file2"
-	echo '$Id$' >> "$test_file2"
+	echo -n '$' > "$test_file2"
+	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
+	echo 'Id: 30_version_control_functions.sh 2600 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
 	
 	# Create a file with no revisions
 	test_file3=$(cxr_common_create_tempfile $FUNCNAME)
-	echo '$Id$' > "$test_file3"
+	echo -n '$' > "$test_file3"
+	echo 'Id: 30_version_control_functions.sh 2010-02-14 13:14:29Z oderbolz $' >> "$test_file3"
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_get_svn_revision "$test_file1") 2594 "cxr_common_get_svn_revision normal"
-	is $(cxr_common_get_svn_revision "$test_file2") 2525 "cxr_common_get_svn_revision double-contradiction"
+	is $(cxr_common_get_svn_revision "$test_file1") 2605 "cxr_common_get_svn_revision normal"
+	is $(cxr_common_get_svn_revision "$test_file2") 2605 "cxr_common_get_svn_revision double-contradiction"
 	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
 	is $(cxr_common_get_svn_revision /some/nonexisting/file) 0 "cxr_common_get_svn_revision missing file"
 
