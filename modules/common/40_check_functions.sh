@@ -665,13 +665,13 @@ function cxr_common_check_preconditions()
 				if [ ! -s "${INPUT_FILE}" ]
 				then
 					# Empty File!
-					cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${INPUT_FILE} is empty!"
+					cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} is empty!"
 					ERRORS_FOUND=true
 				else
 					# Nono-empty, report hash if wanted
 					if [ "${CXR_REPORT_MD5}" == true ]
 					then
-						cxr_main_logger -a "MD5 Hash of ${INPUT_FILE} is $(cxr_common_md5 ${INPUT_FILE})"
+						cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${INPUT_FILE} is $(cxr_common_md5 ${INPUT_FILE})"
 					fi
 				fi
 			fi

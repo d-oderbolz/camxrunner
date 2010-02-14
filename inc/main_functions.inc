@@ -214,7 +214,7 @@ function cxr_main_get_error_count()
 # [-b] - surround with small box of stars
 # [-B] - surround with large box of stars
 # [-H] - surround with huge box of stars
-# $1 - Function from which the message comes (can be used to filter)
+# [$1] - Function from which the message comes (can be used to filter).
 # $2 - Message
 ################################################################################	
 function cxr_main_logger()
@@ -258,9 +258,19 @@ function cxr_main_logger()
 	unset OPTSTRING
 	unset OPTIND
 	
-	# Just not to crash if $1 or $2 are not passed
-	FUNCTION_NAME="${1:-}"
-	BLANK_MESSAGE="${PREFIX}${2:-}"
+	# Its actually ofen the case that the first parameter is forgotten,
+	# which leads to a lost message
+	
+	if [ $# -eq 2 ]
+	then
+		# Standard case
+		FUNCTION_NAME="${1:-}"
+		BLANK_MESSAGE="${PREFIX}${2:-}"
+	else
+		# Non-Standard case, accept anyway
+		FUNCTION_NAME=""
+		BLANK_MESSAGE="${PREFIX}${1:-}"
+	fi
 	
 	STDERR_MESSAGE="$BLANK_MESSAGE"
 	
