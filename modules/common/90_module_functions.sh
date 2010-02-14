@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -494,7 +494,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# None yet.
+	is $(cxr_common_get_module_type boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "cxr_common_get_module_type boundary_conditions"
 
 	########################################
 	# teardown tests if needed

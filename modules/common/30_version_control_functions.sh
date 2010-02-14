@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=4
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -173,11 +173,27 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Create a file with one revision
+	test_file1=$(cxr_common_create_tempfile $FUNCNAME)
+	echo '$Id$' > "$test_file1"
+	
+	# Create a file with 2 revisions (must find the first)
+	test_file2=$(cxr_common_create_tempfile $FUNCNAME)
+	echo '$Id$' > "$test_file2"
+	echo '$Id$' >> "$test_file2"
+	
+	# Create a file with no revisions
+	test_file3=$(cxr_common_create_tempfile $FUNCNAME)
+	echo '$Id$' > "$test_file3"
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# None yet.
+	is $(cxr_common_get_svn_revision "$test_file1") 2594 "cxr_common_get_svn_revision normal"
+	is $(cxr_common_get_svn_revision "$test_file2") 2525 "cxr_common_get_svn_revision double-contradiction"
+	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
+	is $(cxr_common_get_svn_revision /some/nonexisting/file) 0 "cxr_common_get_svn_revision missing file"
 
 	########################################
 	# teardown tests if needed
