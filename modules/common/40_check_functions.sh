@@ -656,7 +656,7 @@ function cxr_common_check_preconditions()
 			if [ ! -r "${INPUT_FILE}" ]
 			then
 				# Not readable!
-				cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${INPUT_FILE} not readable!"
+				cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} not readable!"
 				ERRORS_FOUND=true
 			else
 				# Readable
