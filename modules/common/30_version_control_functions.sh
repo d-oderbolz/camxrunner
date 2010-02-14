@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=4
+CXR_META_MODULE_NUM_TESTS=5
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -107,9 +107,22 @@ function cxr_common_get_svn_revision()
 		# File inexistent
 		REVISION=0
 	else
-		# File exists
-		# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
-		REVISION=$(grep '$Id' ${FILENAME} | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
+		# File exists, get first version string
+		# We want only the version string, nothing afterwards
+		VERSION_STRING="$(grep -o '\$Id.*\$' ${FILENAME})"
+		
+		# We expect 7 fields:
+		# "$Id$"
+		
+		if [ $(cxr_common_count_delimited_elements "${VERSION_STRING}" " ") -eq 7 ]
+		then
+			# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
+			REVISION=$( echo "${VERSION_STRING}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
+		else
+			# We do not have 6 fields, cannot garantee anything!
+			cxr_main_logger -e "${FUNCNAME}" "Version string of file $FILENAME is broken. Fix using svn!"
+			REVISION=0
+		fi
 		
 		# Correct any garbage
 		if [ $(cxr_main_is_numeric "$REVISION") == false  ]
@@ -192,6 +205,11 @@ function test_module()
 	echo -n '$' > "$test_file3"
 	echo 'Id: 30_version_control_functions.sh 2010-02-14 13:14:29Z oderbolz $' >> "$test_file3"
 	
+	# Create a file with garbage afterwards
+	test_file4=$(cxr_common_create_tempfile $FUNCNAME)
+	echo -n '$' > "$test_file4"
+	echo 'Id: 30_version_control_functions.sh 12345 2010-02-14 13:14:29Z oderbolz $andhereisgarbage' >> "$test_file4"
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
@@ -199,6 +217,7 @@ function test_module()
 	is $(cxr_common_get_svn_revision "$test_file1") 2605 "cxr_common_get_svn_revision normal"
 	is $(cxr_common_get_svn_revision "$test_file2") 2605 "cxr_common_get_svn_revision double-contradiction"
 	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
+	is $(cxr_common_get_svn_revision "$test_file4") 12345 "cxr_common_get_svn_revision with garbage at end"
 	is $(cxr_common_get_svn_revision /some/nonexisting/file) 0 "cxr_common_get_svn_revision missing file"
 
 	########################################

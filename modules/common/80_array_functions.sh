@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=4
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -230,6 +230,7 @@ function test_module()
 	
 	is $(cxr_common_count_delimited_elements "one${CXR_DELIMITER}two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
 	is $(cxr_common_count_delimited_elements "one two" " ") 2 "cxr_common_count_delimited_elements with 2 elements, space"
+	is $(cxr_common_count_delimited_elements "one two " " ") 2 "cxr_common_count_delimited_elements with 2 elements, space at end"
 	is $(cxr_common_count_delimited_elements "") 0 "cxr_common_count_delimited_elements with 0 elements"
 
 	########################################
