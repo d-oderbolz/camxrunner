@@ -496,7 +496,7 @@ then
 		case "${opt}" in
 		
 			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. All lines starting with % would not be present otherwise" ;;
+			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
 			F) CXR_USER_TEMP_FORCE=true ;;
 			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
 			
