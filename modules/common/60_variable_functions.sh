@@ -86,21 +86,20 @@ exit 1
 function cxr_common_list_cxr_variables()
 ################################################################################
 {
-	 cxr_main_logger -B "${FUNCNAME}"  "The current Environment looks like this:"    
-	 
-	 # Increase global indent level
-	 cxr_main_increase_log_indent
-	 
-	 for VAR in $(set | sort | grep ^CXR_.*= | cut -d= -f1)
-	 do
-	 	cxr_main_logger "${FUNCNAME}"  "${VAR}:"
-	 	# The ! allows for _indirection_
-	 	cxr_main_logger "${FUNCNAME}"  "${!VAR}"
-	 done
+	cxr_main_logger -B "${FUNCNAME}"  "The current Environment looks like this:"    
+	
+	# Increase global indent level
+	cxr_main_increase_log_indent
+	
+	for VAR in $(set | sort | grep ^CXR_.*= | cut -d= -f1)
+	do
+		# The ! allows for _indirection_
+		cxr_main_logger "${FUNCNAME}"  "${VAR}=${!VAR}"
+	done
 
-	 # Decrease global indent level
-	 cxr_main_decrease_log_indent
-	 
+	# Decrease global indent level
+	cxr_main_decrease_log_indent
+	
 }
  
 ################################################################################

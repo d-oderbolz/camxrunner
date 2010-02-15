@@ -116,7 +116,7 @@ function set_create_emissions_variables()
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
-	# these are deleted if he user runs the -F option. Do note mik up with input files!
+	# these are deleted if he user runs the -F option. Do not mix up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	

@@ -5,8 +5,7 @@
 #
 # Version: $Id$ 
 #
-# Concatenates NABEL or other station data to one file per station
-# This is done once at the end of the simulation
+# Sets the permissions on all output directories correctly
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -118,36 +117,17 @@ function set_set_permissions_variables()
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
-	# these are deleted if he user runs the -F option. Do note mik up with input files!
+	# these are deleted if he user runs the -F option. Do not mix up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
-
-	########################################################################
-	# Set variables
-	########################################################################
 	
-	# Station dependent data
-	for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
-	do
-		# Needed to expand the file rule
-		station=${CXR_STATION[${i}]}
-		
-		CXR_STATION_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE)
-		
-		# Output files must not be decompressed!
-		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
-	
-		#Checks
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_STATION_INPUT_ARR_FILES[${i}]}"
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"
-	done
+	# Actually, we need no other settings here.
 }
 
 ################################################################################
 # Function: set_permissions
 #	
-# Concatenates the data that was extracted by <extract_station_data>
-# By Looping over the generated files
+# Sets the permissions in CXR_OUTPUT_DIR_PERMISSIONS (octal!) on all OUTPUT DIRS
 ################################################################################	
 function set_permissions
 ################################################################################
@@ -156,47 +136,40 @@ function set_permissions
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 	
-		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-		do
-			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
-	
-			#  --- Setup the Environment of the current day
-			set_set_permissions_variables 
-			
-			#  --- Check Settings
-			if [ $(cxr_common_check_preconditions) == false ]
-			then
-				cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				# We notify the caller of the problem
-				return $CXR_RET_ERR_PRECONDITIONS
-			fi
-			
-			cxr_main_logger -a -b "${FUNCNAME}"  "Concatenating files for $CXR_DATE..."
-			
-			# Station dependent data
-			for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
-			do
-				cxr_main_logger -v "${FUNCNAME}" "${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"    
-				
-				#Dry?
-				if [ "$CXR_DRY" == false ]
-				then
-					cat ${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}
-				else
-					cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    
-				fi
-			done
-		done
+		#  --- Setup the Environment 
+		set_set_permissions_variables 
 		
-		# Check if all went well
-		# Postprocessor: we only terminate the module
-		if [ "$(cxr_common_check_result)" == false ]
+		#  --- Check Settings
+		if [ $(cxr_common_check_preconditions) == false ]
 		then
-			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
-			return $CXR_RET_ERR_POSTCONDITIONS
+			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
+		if [ $(cxr_common_is_numeric "${CXR_OUTPUT_DIR_PERMISSIONS}" ]
+		then
+			# OK, go ahead
+			cxr_main_logger -a -b "${FUNCNAME}"  "Setting Permissions on output directories to ${CXR_OUTPUT_DIR_PERMISSIONS}"
+		
+		
+			for VAR in $(set | sort | grep ^CXR_.*OUTPUT_DIR= | cut -d= -f1)
+			do
+				cxr_main_logger -v "${FUNCNAME}"  "Changing permissions on ${VAR}..."
+				
+				# The ! allows for _indirection_
+				chmod -R ${CXR_OUTPUT_DIR_PERMISSIONS} "${!VAR}"
+				
+			done
+			
+		else
+			# Nope, we need an octal permision string
+			cxr_main_logger "${FUNCNAME}" "We need an octal permission string in CXR_OUTPUT_DIR_PERMISSIONS, got ${CXR_OUTPUT_DIR_PERMISSIONS}"
+			# We notify the caller of the problem
+			return $CXR_RET_ERR_PRECONDITIONS
+		fi
+		
+		# OK, done
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
 		cxr_main_logger "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
