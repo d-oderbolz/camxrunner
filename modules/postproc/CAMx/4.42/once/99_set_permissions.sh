@@ -157,8 +157,13 @@ function set_permissions
 			do
 				cxr_main_logger -v "${FUNCNAME}"  "Changing permissions on ${VAR}..."
 				
-				# The ! allows for _indirection_
-				chmod -R ${CXR_OUTPUT_DIR_PERMISSIONS} "${!VAR}"
+				if [ "${CXR_DRY}" == false ]
+				then
+					# The ! allows for _indirection_
+					chmod -R ${CXR_OUTPUT_DIR_PERMISSIONS} "${!VAR}"
+				else
+					cxr_main_logger -a "$FUNCNAME" "This is a dry-run, will not change any permissions,"
+				fi
 				
 			done
 			
