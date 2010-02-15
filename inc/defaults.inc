@@ -997,7 +997,12 @@ CXR_IC_BC_TC_DO_PNG=true
 # Delete intermediate PS
 CXR_IC_BC_TC_RM_PS=true
 
+################################################################################
+# Module set_permissions
+################################################################################
 
+# These permissions are used on the output
+CXR_OUTPUT_DIR_PERMISSIONS=0755
 
 
 ################################################################################
