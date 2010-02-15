@@ -340,7 +340,7 @@ CXR_RUN_MODEL=true
 
 # If true, compress the output files upon completion
 # The compressor CXR_COMPRESSOR_EXEC used is selected later
-CXR_COMPRESS_OUTPUT=false
+CXR_COMPRESS_OUTPUT=true
 
 # If true, CAMxRunner will report the MD5 Hash of each input file
 # We use MD5 instead of SHA1 because of speed reasons
@@ -788,11 +788,8 @@ CXR_BZIP2_EXEC=$(which bzip2)
 # Hash generation
 CXR_MD5_EXEC=$(which md5sum)
 
-# The compressor we use to compress output (if any)
-if [ "${CXR_COMPRESS_OUTPUT}" == true ]
-then
-	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
-fi
+# The compressor we use to compress output
+CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC=$(which pgf77)
