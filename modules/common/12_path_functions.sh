@@ -144,10 +144,35 @@ function cxr_common_get_file_type()
 }
 
 ################################################################################
+# Function: cxr_common_file_size_megabytes
+#
+# Returns the number of megabytes used by a file, rounded to the nearest MB
+#
+# Parameters:
+# $1 - path to file to test
+################################################################################
+function cxr_common_file_size_megabytes()
+################################################################################
+{
+	if [ ! -f "$1" ]
+	then
+		cxr_main_logger -w "$FUNCNAME" "The file $1 does not exist!"
+		echo 0
+		return $CXR_RET_PARAM_ERROR
+	fi
+	
+	SIZE=$(du -m "$1" | cut -f1)
+	
+	echo $SIZE
+	
+	return $CXR_RET_OK
+}
+
+################################################################################
 # Function: cxr_common_compress_output
 # 
 # Compresses either all output files or such that match the pattern in
-# CXR_COMPRESS_OUTPUT_PATTERN.
+# CXR_COMPRESS_OUTPUT_PATTERN and are bigger than CXR_COMPRESS_THRESHOLD_MB
 # We loop thorugh the file 
 #
 # Parameters:
@@ -166,7 +191,7 @@ function cxr_common_compress_output()
 {
 	if [ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false  ]
 	then
-		# Loop through file
+		# Loop through CXR_INSTANCE_FILE_OUTPUT_LIST
 		if [ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
 		then
 			while read line 
@@ -178,6 +203,9 @@ function cxr_common_compress_output()
 				if [ -s "${FILENAME}" ]
 				then
 					# OK file is not empty
+					
+					# We do not yet know if we need to do it
+					do_this=false
 				
 					# Do we need to do pattern matching?
 					if [ "${CXR_COMPRESS_OUTPUT_PATTERN:-}" ]
@@ -190,9 +218,7 @@ function cxr_common_compress_output()
 						if [ $FOUND -gt 0 ]
 						then
 							# Do it
-							cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
-							"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
-							
+							do_this=true
 						else
 							################
 							# filename did not match - try module name
@@ -202,16 +228,26 @@ function cxr_common_compress_output()
 							if [ $FOUND -gt 0 ]
 							then
 								# Do it
-								cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
-								"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+								do_this=true
 							else
 								cxr_main_logger -v "$FUNCNAME" "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match $line, will not compress this file"
 							fi
 						fi
 					else
-						# No Pattern matching
-						cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
-						"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+						# No Pattern matching needed
+						do_this=true
+					fi
+					
+					# Do it if it is large enough
+					if [ "$do_this" == true ]
+					then
+						if [ $(cxr_common_file_size_megabytes ${FILENAME}) -ge "${CXR_COMPRESS_THRESHOLD_MB}" ]
+						then
+							cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
+							"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
+						else
+							cxr_main_logger -v "$FUNCNAME" "${FILENAME} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB})."
+						fi
 					fi
 				else
 					#File empty
@@ -440,31 +476,6 @@ function cxr_common_get_fs_type()
 		cxr_main_logger -e "${FUNCNAME}" "Could not determine FS type of $1. Check your df -T output!"
 		echo ""
 	fi
-}
-
-################################################################################
-# Function: cxr_common_file_size_megabytes
-#
-# Returns the number of megabytes used by a file, rounded to the nearest MB
-#
-# Parameters:
-# $1 - path to file to test
-################################################################################
-function cxr_common_file_size_megabytes()
-################################################################################
-{
-	if [ ! -f "$1" ]
-	then
-		cxr_main_logger -w "$FUNCNAME" "The file $1 does not exist!"
-		echo 0
-		return $CXR_RET_PARAM_ERROR
-	fi
-	
-	SIZE=$(du -m "$1" | cut -f1)
-	
-	echo $SIZE
-	
-	return $CXR_RET_OK
 }
 
 ################################################################################

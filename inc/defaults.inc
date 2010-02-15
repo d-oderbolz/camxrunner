@@ -342,16 +342,21 @@ CXR_RUN_MODEL=true
 # The compressor CXR_COMPRESSOR_EXEC used is selected later
 CXR_COMPRESS_OUTPUT=true
 
-# If true, CAMxRunner will report the MD5 Hash of each input file
-# We use MD5 instead of SHA1 because of speed reasons
-# While it takes more time, this can save a lot of headache when comparing files
-CXR_REPORT_MD5=true
-
 # This is a pattern that can be used to limit compression either to 
 # specific files or specific modules that created the files
 # is tested using "expr match"
 # If it is empty, it has no effect
 CXR_COMPRESS_OUTPUT_PATTERN=
+
+# Sets the minimal size threshold for compression in MB
+# Files smaller than this will note be compressed,
+# even if the pattern matches
+CXR_COMPRESS_THRESHOLD_MB=500
+
+# If true, CAMxRunner will report the MD5 Hash of each input file
+# We use MD5 instead of SHA1 because of speed reasons
+# While it takes more time, this can save a lot of headache when comparing files
+CXR_REPORT_MD5=true
 
 # If true, only specfied parts if pre- ar postprocessing are run
 CXR_RUN_LIMITED_PROCESSING=false
