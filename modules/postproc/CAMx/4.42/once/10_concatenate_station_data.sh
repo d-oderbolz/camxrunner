@@ -41,7 +41,7 @@ CXR_META_MODULE_DEPENDS_ON="extract_station_data"
 CXR_META_MODULE_RUN_EXCLUSIVELY=false
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Concatenates station data. \n Would be more efficient as final postprocessor..."
+CXR_META_MODULE_DESCRIPTION="Concatenates station data."
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_POSTPROCESS_ONCE}"

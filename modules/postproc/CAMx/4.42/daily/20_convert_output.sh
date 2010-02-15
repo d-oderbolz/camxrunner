@@ -286,6 +286,8 @@ function convert_output()
 				
 				cxr_main_logger "${FUNCNAME}" "Converting ${INPUT_FILE} to ${OUTPUT_FILE} using ${CONVERTER}..."
 				
+				skip_it=false
+				
 				# Any existing file will be skipped (see comment in header)
 				if [ -s "$OUTPUT_FILE" ]
 				then
@@ -298,21 +300,28 @@ function convert_output()
 					else
 						# Skip it
 						cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - file will skipped."
-					continue
+						# continue does not work properly in for loops...
+						skip_it=true
 					fi
 				fi
 				
-				cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE} ..."
-				
-				cxr_main_logger -v "${FUNCNAME}" "${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 "
-
-				if [ "$CXR_DRY" == false ]
+				if [ "$skip_it" == false ]
 				then
-					#Call the converter, collect sterr and stout
-					${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 2>&1 | tee -a $CXR_LOG
-				else
-						cxr_main_logger "${FUNCNAME}"  "Dryrun, no conversion performed"
+				
+					cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE} ..."
+				
+					cxr_main_logger -v "${FUNCNAME}" "${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 "
+	
+					if [ "$CXR_DRY" == false ]
+					then
+						#Call the converter, collect sterr and stout
+						${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 2>&1 | tee -a $CXR_LOG
+					else
+							cxr_main_logger "${FUNCNAME}"  "Dryrun, no conversion performed"
+					fi
+				
 				fi
+				
 			done
 		done 
 

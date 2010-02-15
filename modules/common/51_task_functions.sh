@@ -764,7 +764,7 @@ function cxr_common_is_dependency_ok()
 	
 	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${DEPENDENCY} using ${MY_PREFIX}..."
 	
-	for MODULE in $(cat $LIST_FILE)
+	while read MODULE
 	do
 	
 		cxr_main_logger -v "${FUNCNAME}" "MY_PREFIX: ${MY_PREFIX}"
@@ -810,7 +810,7 @@ function cxr_common_is_dependency_ok()
 			fi
 		fi
 		
-	done # Loop over listed modules
+	done < "$LIST_FILE" # Loop over listed modules
 	
 	if [ $SKIP_IT == true ]
 	then
@@ -891,71 +891,71 @@ function cxr_common_get_next_task_descriptor()
 			# There is no file behind the link!
 			# Unset task to prevent issues if this was the last check!
 			POTENTIAL_TASK=""
-			continue
-		fi
-		
-		######################
-		# Parse the descriptor
-		######################
-		
-		# Save old IFS
-		oIFS="$IFS"
-		IFS="$CXR_DELIMITER"
-		
-		# Suck one line into DESCRIPTOR
-		DESCRIPTOR=($(cat "${POTENTIAL_TASK}" | head -n1 ))
-		
-		# Reset IFS
-		IFS="$oIFS"
-		
-		# extract the data from the array
-		TASK="${DESCRIPTOR[$CXR_TASK_DESCR_I_PATH]}"
-		TYPE="${DESCRIPTOR[$CXR_TASK_DESCR_I_TYPE]}"
-		DAY_OFFSET="${DESCRIPTOR[$CXR_TASK_DESCR_I_OFFSET]}"
-		EXCLUSIVE="${DESCRIPTOR[$CXR_TASK_DESCR_I_EXCLUSIVE]}"
-		DEPENDENCIES="${DESCRIPTOR[$CXR_TASK_DESCR_I_DEPENDENCIES]:-}"
-
-		if [ -z "$DEPENDENCIES" ]
-		then
-		
-			# If the string is empty, there are no dependencies,
-			# we are happy to leave the loop
-			cxr_main_logger -v "${FUNCNAME}" "No dependencies found - $TASK is the next task!"
-			break
-			
 		else
-		
-			cxr_main_logger -v "${FUNCNAME}" "We must check the dependencies of $TASK $DAY_OFFSET"
-		
-			# Go trough each dependency
-			for DEPENDENCY in $DEPENDENCIES
-			do
-			
-				# cxr_common_is_dependency_ok terminates run, if the dependency has failed
-				if [ "$(cxr_common_is_dependency_ok "$DEPENDENCY" "$DAY_OFFSET")" == true ]
-				then
-					# OK - check next dependency
-					cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok."
-				else
-					# We must wait
-					# We continue because we want to check if further dependencies have failed
-					SKIP_IT=true
-				fi
-			done # DEPENDENCY
 
-			if [ $SKIP_IT == true ]
-			then
-				# Go to next potential task
-				cxr_main_logger -v "${FUNCNAME}" "The task $TASK $DAY_OFFSET cannot be run yet - check next one"
-				# Unset task to prevent issues if this was the last check!
-				POTENTIAL_TASK=""
-			else
-				# Found a good task
-				cxr_main_logger -v "${FUNCNAME}" "Ready to execute $TASK $DAY_OFFSET"
-				break
-			fi
+			######################
+			# Parse the descriptor
+			######################
 			
-		fi # Dependencies found
+			# Save old IFS
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
+			
+			# Suck one line into DESCRIPTOR
+			DESCRIPTOR=($(cat "${POTENTIAL_TASK}" | head -n1 ))
+			
+			# Reset IFS
+			IFS="$oIFS"
+			
+			# extract the data from the array
+			TASK="${DESCRIPTOR[$CXR_TASK_DESCR_I_PATH]}"
+			TYPE="${DESCRIPTOR[$CXR_TASK_DESCR_I_TYPE]}"
+			DAY_OFFSET="${DESCRIPTOR[$CXR_TASK_DESCR_I_OFFSET]}"
+			EXCLUSIVE="${DESCRIPTOR[$CXR_TASK_DESCR_I_EXCLUSIVE]}"
+			DEPENDENCIES="${DESCRIPTOR[$CXR_TASK_DESCR_I_DEPENDENCIES]:-}"
+	
+			if [ -z "$DEPENDENCIES" ]
+			then
+			
+				# If the string is empty, there are no dependencies,
+				# we are happy to leave the loop
+				cxr_main_logger -v "${FUNCNAME}" "No dependencies found - $TASK is the next task!"
+				break
+				
+			else
+			
+				cxr_main_logger -v "${FUNCNAME}" "We must check the dependencies of $TASK $DAY_OFFSET"
+			
+				# Go trough each dependency
+				for DEPENDENCY in $DEPENDENCIES
+				do
+				
+					# cxr_common_is_dependency_ok terminates run, if the dependency has failed
+					if [ "$(cxr_common_is_dependency_ok "$DEPENDENCY" "$DAY_OFFSET")" == true ]
+					then
+						# OK - check next dependency
+						cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok."
+					else
+						# We must wait
+						# We continue because we want to check if further dependencies have failed
+						SKIP_IT=true
+					fi
+				done # DEPENDENCY
+	
+				if [ $SKIP_IT == true ]
+				then
+					# Go to next potential task
+					cxr_main_logger -v "${FUNCNAME}" "The task $TASK $DAY_OFFSET cannot be run yet - check next one"
+					# Unset task to prevent issues if this was the last check!
+					POTENTIAL_TASK=""
+				else
+					# Found a good task
+					cxr_main_logger -v "${FUNCNAME}" "Ready to execute $TASK $DAY_OFFSET"
+					break
+				fi
+				
+			fi # Dependencies found
+		fi # Task available
 		
 	done # POTENTIAL_TASK
 	

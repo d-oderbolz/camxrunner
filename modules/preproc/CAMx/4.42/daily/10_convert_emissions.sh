@@ -176,29 +176,37 @@ function convert_emissions()
 		do
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
 			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
+			
+			skip_it=false
 
 			if [ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true ]
 			then
 				# Skip it
 				cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
-				continue
+				# continue does not work in for loops...
+				skip_it=true
 			fi
-
-			# Increase global indent level
-			cxr_main_increase_log_indent
-
-			cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
-
-			if [ "$CXR_DRY" == false ]
+			
+			if [ "$skip_it" == false ]
 			then
-				# Call Converter
-				${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
-			else
-				cxr_main_logger "${FUNCNAME}"  "Dryrun - no conversion performed"
-			fi
 
-			# Decrease global indent level
-			cxr_main_decrease_log_indent
+				# Increase global indent level
+				cxr_main_increase_log_indent
+	
+				cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+	
+				if [ "$CXR_DRY" == false ]
+				then
+					# Call Converter
+					${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
+				else
+					cxr_main_logger "${FUNCNAME}"  "Dryrun - no conversion performed"
+				fi
+	
+				# Decrease global indent level
+				cxr_main_decrease_log_indent
+			
+			fi
 		done
 
 		# Decrease global indent level

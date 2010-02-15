@@ -242,7 +242,6 @@ function convert_input()
 					cxr_main_logger $FUNCNAME "Calling ${CXR_CONVERTERS[$k]} ${CXR_INPUT_FILES[$k]} ${CXR_OUTPUT_FILES[$k]} ${CXR_OPTIONS[$k]} 0 2>&1 | tee -a $CXR_LOG"
 					${CXR_CONVERTERS[$k]} ${CXR_INPUT_FILES[$k]} ${CXR_OUTPUT_FILES[$k]} ${CXR_OPTIONS[$k]} 0 2>&1 | tee -a $CXR_LOG
 				fi
-			
 			done
 		else
 			cxr_main_logger "${FUNCNAME}" "This is a dry-run, no action required"

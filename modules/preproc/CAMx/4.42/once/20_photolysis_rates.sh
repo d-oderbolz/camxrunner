@@ -245,7 +245,7 @@ function photolysis_rates()
 					;;
 			
 				*)
-					cxr_main_die_gracefully "Unknown interval for TUV! Exiting." ;;
+					cxr_main_die_gracefully "Unknown interval for TUV in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 			
 			# Call to the state db to set a substage
@@ -294,6 +294,9 @@ function photolysis_rates()
 							# First remove it
 							rm -f tuv.inp
 							ln -s "$TUV_CONTROL_FILE" tuv.inp
+							
+							cxr_main_logger "${FUNCNAME}" "Calling TUV - using this jobfile (be patient)...\n"
+							cat tuv.inp | tee -a ${CXR_LOG}
 			
 							# Call TUV
 							${CXR_TUV_EXEC}  2>&1 | tee -a $CXR_LOG

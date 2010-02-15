@@ -368,7 +368,7 @@ function albedo_haze_ozone()
 				
 					start_offset=$DAY_OFFSET
 					num_days=1
-					cxr_main_logger -b ${FUNCNAME} "Running TUV for $CXR_DATE..."
+					cxr_main_logger -b ${FUNCNAME} "Running AHOMAP for $CXR_DATE..."
 					SUBSTAGE=$CXR_DATE
 					;;
 					
@@ -376,13 +376,16 @@ function albedo_haze_ozone()
 					# Are we in a new week?
 					if [ "$LAST_WEEK" != "$CXR_WOY" ]
 					then
+						# Yep, new week.
+						# Today is the first day (either of the week or the simulation)
 						start_offset=$DAY_OFFSET
 						
 						days_left=$(cxr_common_days_left_in_week $CXR_DATE)
 						
-						# The number of days depends on the number of days left
+						# The number of days depends on the number of days left in the simulation
 						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 )) -lt ${days_left} ]
 						then
+							# less days left in simulation than in week
 							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 ))
 						else
 							#Plenty of days left
@@ -393,7 +396,7 @@ function albedo_haze_ozone()
 						SUBSTAGE=$CXR_WOY
 						
 					else
-						# No new week
+						# No new week, next iteration
 						LAST_WEEK=$CXR_WOY
 						LAST_MONTH=$CXR_MONTH
 						continue
@@ -431,7 +434,7 @@ function albedo_haze_ozone()
 					;;
 			
 				*)
-					cxr_main_die_gracefully "Unknown interval for AHOMAP! Exiting." ;;
+					cxr_main_die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 			
 			# Call to the state db to set a substage
@@ -478,10 +481,10 @@ function albedo_haze_ozone()
 						if [ -s "${AHOMAP_CONTROL_FILE}" ]
 						then
 						
-							cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - be patient...\n"
+							cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
 					
 							# Call AHOMAP 
-							cxr_main_logger "${FUNCNAME}" "${CXR_AHOMAP_EXEC} < ${AHOMAP_CONTROL_FILE}"
+							cat ${AHOMAP_CONTROL_FILE} | tee -a ${CXR_LOG}
 							
 							${CXR_AHOMAP_EXEC} < ${AHOMAP_CONTROL_FILE} 2>&1 | tee -a $CXR_LOG
 						else
