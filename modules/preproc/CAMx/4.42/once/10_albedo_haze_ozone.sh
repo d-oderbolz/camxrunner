@@ -352,6 +352,9 @@ function albedo_haze_ozone()
 		do
 			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 			
+			# this construct is needed because continue does not work the way it should
+			skip_iteration=false
+			
 			# Check if we need another file
 			# We need to know how long a week or month still lasts
 			# as we do not always begin at boundaries
@@ -397,9 +400,7 @@ function albedo_haze_ozone()
 						
 					else
 						# No new week, next iteration
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
+						skip_iteration=true
 					fi
 					;;
 				
@@ -426,10 +427,8 @@ function albedo_haze_ozone()
 						SUBSTAGE=$CXR_MONTH
 						
 					else
-						# No new month
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
+						# No new month, skip
+						skip_iteration=true
 					fi
 					;;
 			
@@ -437,110 +436,111 @@ function albedo_haze_ozone()
 					cxr_main_die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 			
-			# Call to the state db to set a substage
-			# So we can tell each single TUV run from each other
-			cxr_common_set_substage $SUBSTAGE
-			
-			if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+			if [ "${skip_iteration}" == false ]
 			then
-				# Substage not yet run
-	
-				#  --- Setup the Environment
-				set_albedo_haze_ozone_variables 
+				# Call to the state db to set a substage
+				# So we can tell each single TUV run from each other
+				cxr_common_set_substage $SUBSTAGE
 				
-				#  --- Check Settings
-				if [ "$(cxr_common_check_preconditions)" == false ]
+				if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 				then
-					cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-					# We notify the caller of the problem
-					return $CXR_RET_ERR_PRECONDITIONS
-				fi
-				
-				# Increase global indent level
-				cxr_main_increase_log_indent
+					# Substage not yet run
 		
-				cxr_main_logger "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
-				
-				# Is the output there?
-				if [ ! -f "$CXR_AHOMAP_OUTPUT_FILE" ]
-				then
-					# File not yet there
-				
-					# The options of AHOMAP are a bit 
-					# weird, better produce a file
-					# This function (I know, one should avoid side effects!) 
-					# also downloads/caches satellite data
-					AHOMAP_CONTROL_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+					#  --- Setup the Environment
+					set_albedo_haze_ozone_variables 
 					
-					if [ "$CXR_DRY" == false ]
+					#  --- Check Settings
+					if [ "$(cxr_common_check_preconditions)" == false ]
 					then
+						cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+						# We notify the caller of the problem
+						return $CXR_RET_ERR_PRECONDITIONS
+					fi
 					
-						create_ahomap_control_file "$AHOMAP_CONTROL_FILE" $start_offset $num_days
-							
-						# Is the file there and not empty?)
-						if [ -s "${AHOMAP_CONTROL_FILE}" ]
+					# Increase global indent level
+					cxr_main_increase_log_indent
+			
+					cxr_main_logger "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
+					
+					# Is the output there?
+					if [ ! -f "$CXR_AHOMAP_OUTPUT_FILE" ]
+					then
+						# File not yet there
+					
+						# The options of AHOMAP are a bit 
+						# weird, better produce a file
+						# This function (I know, one should avoid side effects!) 
+						# also downloads/caches satellite data
+						AHOMAP_CONTROL_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+						
+						if [ "$CXR_DRY" == false ]
 						then
 						
-							cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
-					
-							# Call AHOMAP 
-							cat ${AHOMAP_CONTROL_FILE} | tee -a ${CXR_LOG}
+							create_ahomap_control_file "$AHOMAP_CONTROL_FILE" $start_offset $num_days
+								
+							# Is the file there and not empty?)
+							if [ -s "${AHOMAP_CONTROL_FILE}" ]
+							then
 							
-							${CXR_AHOMAP_EXEC} < ${AHOMAP_CONTROL_FILE} 2>&1 | tee -a $CXR_LOG
+								cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
+						
+								# Call AHOMAP 
+								cat ${AHOMAP_CONTROL_FILE} | tee -a ${CXR_LOG}
+								
+								${CXR_AHOMAP_EXEC} < ${AHOMAP_CONTROL_FILE} 2>&1 | tee -a $CXR_LOG
+							else
+								cxr_main_logger "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
+								return $CXR_RET_ERROR
+							fi
+				
 						else
-							cxr_main_logger "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
+							cxr_main_logger "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
+						fi
+				
+						# Decrease global indent level
+						cxr_main_decrease_log_indent
+				
+						# Check if all went well
+						if [ $(cxr_common_check_result) == false ]
+						then
+							cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+							# We notify the caller of the problem
+							return $CXR_RET_ERR_POSTCONDITIONS
+						fi
+					else
+						# File exists. That is generally bad,
+						# unless user wants to skip
+						if [ "$CXR_SKIP_EXISTING" == true ]
+						then
+							# Skip it
+							cxr_main_logger -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+							
+							# next iteration
+						else
+							# Fail!
+							cxr_main_logger -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 							return $CXR_RET_ERROR
 						fi
-			
-					else
-						cxr_main_logger "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
 					fi
-			
-					# Decrease global indent level
-					cxr_main_decrease_log_indent
-			
-					# Check if all went well
-					if [ $(cxr_common_check_result) == false ]
-					then
-						cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-						# We notify the caller of the problem
-						return $CXR_RET_ERR_POSTCONDITIONS
-					fi
+					
+					# Store the state (substage)
+					cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+					
+					# Unset substage
+					cxr_common_unset_substage
+					
+					
 				else
-					# File exists. That is generally bad,
-					# unless user wants to skip
-					if [ "$CXR_SKIP_EXISTING" == true ]
-					then
-						# Skip it
-						cxr_main_logger -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
-						
-						# next iteration
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
-					else
-						# Fail!
-						cxr_main_logger -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-						return $CXR_RET_ERROR
-					fi
+					cxr_main_logger -w "$FUNCNAME" "Substage $SUBSTAGE already run."
 				fi
-				
-				# Store the state (substage)
-				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
-				
-				# Unset substage
-				cxr_common_unset_substage
-				
-				
-			else
-				cxr_main_logger -w "$FUNCNAME" "Substage $SUBSTAGE already run."
-			fi
+
+				# Do not repeat loop if we run it only once
+				if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
+				then
+					break
+				fi
 			
-			# Do not repeat loop if we run it only once
-			if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
-			then
-				break
-			fi
+			fi # skip?
 			
 			LAST_WEEK=$CXR_WOY
 			LAST_MONTH=$CXR_MONTH

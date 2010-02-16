@@ -201,6 +201,9 @@ function photolysis_rates()
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
 		
+			# this construct is needed because continue does not work the way it should
+			skip_iteration=false
+		
 			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
 			# Check if we need another file
@@ -223,10 +226,8 @@ function photolysis_rates()
 						cxr_main_logger -b ${FUNCNAME} "Running TUV for week $CXR_WOY..."
 						SUBSTAGE=$CXR_WOY
 					else
-						# No new week
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
+						# No new week, next iteration
+						skip_iteration=true
 					fi
 					;;
 				
@@ -237,10 +238,8 @@ function photolysis_rates()
 						cxr_main_logger -b ${FUNCNAME} "Running TUV for month $CXR_MONTH..."
 						SUBSTAGE=$CXR_MONTH
 					else
-						# No new week
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
+						# No new month
+						skip_iteration=true
 					fi
 					;;
 			
@@ -248,119 +247,120 @@ function photolysis_rates()
 					cxr_main_die_gracefully "Unknown interval for TUV in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 			
-			# Call to the state db to set a substage
-			# So we can tell each single TUV run from each other
-			cxr_common_set_substage $SUBSTAGE
-			
-			if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+			if [ "${skip_iteration}" == false ]
 			then
-				# Substage not yet run
 			
-				#  --- Setup the Environment
-				set_photolysis_rates_variables 
+				# Call to the state db to set a substage
+				# So we can tell each single TUV run from each other
+				cxr_common_set_substage $SUBSTAGE
 				
-				#  --- Check Settings
-				if [ $(cxr_common_check_preconditions) == false ]
+				if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 				then
-					cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-					# We notify the caller of the problem
-					return $CXR_RET_ERR_PRECONDITIONS
-				fi
+					# Substage not yet run
 				
-				if [ ! -f "$CXR_TUV_OUTPUT_FILE" ]
-				then
-					# TUV File does not exist
-				
-					# Increase global indent level
-					cxr_main_increase_log_indent
-			
-					cxr_main_logger "${FUNCNAME}" "Preparing photolysis lookup table for run ${CXR_RUN}..."
+					#  --- Setup the Environment
+					set_photolysis_rates_variables 
 					
-					if [ "$CXR_DRY" == false ]
+					#  --- Check Settings
+					if [ $(cxr_common_check_preconditions) == false ]
 					then
-						# TUV needs an input file
-						TUV_CONTROL_FILE=$(create_tuv_control_file)
-						
-						# Is the file there and not empty?)
-						if [ -s "${TUV_CONTROL_FILE}" ]
-						then
+						cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+						# We notify the caller of the problem
+						return $CXR_RET_ERR_PRECONDITIONS
+					fi
 					
-							# TUV is picky - it expects a file called
-							# tuv.inp and also it looks for some files
-							# That's why we chage to CXR_CAMX_DIR and create a link in the current place
+					if [ ! -f "$CXR_TUV_OUTPUT_FILE" ]
+					then
+						# TUV File does not exist
+					
+						# Increase global indent level
+						cxr_main_increase_log_indent
+				
+						cxr_main_logger "${FUNCNAME}" "Preparing photolysis lookup table for run ${CXR_RUN}..."
+						
+						if [ "$CXR_DRY" == false ]
+						then
+							# TUV needs an input file
+							TUV_CONTROL_FILE=$(create_tuv_control_file)
 							
-							cd ${CXR_CAMX_DIR} || return $CXR_RET_ERROR
-							
-							# First remove it
-							rm -f tuv.inp
-							ln -s "$TUV_CONTROL_FILE" tuv.inp
-							
-							cxr_main_logger "${FUNCNAME}" "Calling TUV - using this jobfile (be patient)...\n"
-							cat tuv.inp | tee -a ${CXR_LOG}
-			
-							# Call TUV
-							${CXR_TUV_EXEC}  2>&1 | tee -a $CXR_LOG
-			
+							# Is the file there and not empty?)
+							if [ -s "${TUV_CONTROL_FILE}" ]
+							then
+						
+								# TUV is picky - it expects a file called
+								# tuv.inp and also it looks for some files
+								# That's why we chage to CXR_CAMX_DIR and create a link in the current place
+								
+								cd ${CXR_CAMX_DIR} || return $CXR_RET_ERROR
+								
+								# First remove it
+								rm -f tuv.inp
+								ln -s "$TUV_CONTROL_FILE" tuv.inp
+								
+								cxr_main_logger "${FUNCNAME}" "Calling TUV - using this jobfile (be patient)...\n"
+								cat tuv.inp | tee -a ${CXR_LOG}
+				
+								# Call TUV
+								${CXR_TUV_EXEC}  2>&1 | tee -a $CXR_LOG
+				
+							else
+								cxr_main_logger "${FUNCNAME}" "Could not create TUV control file - module failed."
+								return $CXR_RET_ERROR
+							fi
+				
 						else
-							cxr_main_logger "${FUNCNAME}" "Could not create TUV control file - module failed."
+							# Dryrun, create dummy
+							TUV_CONTROL_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+							
+							cxr_main_logger "${FUNCNAME}" "Dryrun - TUV not performed"
+						fi
+				
+						# Decrease global indent level
+						cxr_main_decrease_log_indent
+				
+						# Check if all went well
+						if [ $(cxr_common_check_result) == false ]
+						then
+							cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+							# We notify the caller of the problem
+							return $CXR_RET_ERR_POSTCONDITIONS
+						fi
+						
+						# Removing unneeded files
+						rm -f tuv.inp
+						rm -f tuv.out
+					else
+						# File exists. That is generally bad,
+						# unless user wants to skip
+						if [ "$CXR_SKIP_EXISTING" == true ]
+						then
+							# Skip it
+							cxr_main_logger -w "${FUNCNAME}"  "File $CXR_TUV_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
+							
+							# next iteration
+						else
+							# Fail!
+							cxr_main_logger -e "${FUNCNAME}" "File $CXR_TUV_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 							return $CXR_RET_ERROR
 						fi
-			
-					else
-						# Dryrun, create dummy
-						TUV_CONTROL_FILE=$(cxr_common_create_tempfile $FUNCNAME)
-						
-						cxr_main_logger "${FUNCNAME}" "Dryrun - TUV not performed"
-					fi
-			
-					# Decrease global indent level
-					cxr_main_decrease_log_indent
-			
-					# Check if all went well
-					if [ $(cxr_common_check_result) == false ]
-					then
-						cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-						# We notify the caller of the problem
-						return $CXR_RET_ERR_POSTCONDITIONS
 					fi
 					
-					# Removing unneeded files
-					rm -f tuv.inp
-					rm -f tuv.out
+					# Store the state (substage)
+					cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+					
+					# Unset substage
+					cxr_common_unset_substage
+					
 				else
-					# File exists. That is generally bad,
-					# unless user wants to skip
-					if [ "$CXR_SKIP_EXISTING" == true ]
-					then
-						# Skip it
-						cxr_main_logger -w "${FUNCNAME}"  "File $CXR_TUV_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
-						
-						# next iteration
-						LAST_WEEK=$CXR_WOY
-						LAST_MONTH=$CXR_MONTH
-						continue
-					else
-						# Fail!
-						cxr_main_logger -e "${FUNCNAME}" "File $CXR_TUV_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-						return $CXR_RET_ERROR
-					fi
+					cxr_main_logger -w "$FUNCNAME" "Substage $SUBSTAGE already run."
 				fi
 				
-				# Store the state (substage)
-				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
-				
-				# Unset substage
-				cxr_common_unset_substage
-				
-			else
-				cxr_main_logger -w "$FUNCNAME" "Substage $SUBSTAGE already run."
-			fi
-			
-			# Do not repeat loop if we run it only once
-			if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
-			then
-				break
-			fi
+				# Do not repeat loop if we run it only once
+				if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
+				then
+					break
+				fi
+			fi # skip?
 			
 			LAST_WEEK=$CXR_WOY
 			LAST_MONTH=$CXR_MONTH
