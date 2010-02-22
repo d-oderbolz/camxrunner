@@ -211,7 +211,6 @@ function cxr_common_create_task_descriptor()
 	echo "${MODULE_PATH}${CXR_DELIMITER}${MODULE_TYPE}${CXR_DELIMITER}${DAY_OFFSET}${CXR_DELIMITER}${RUN_EXCLUSIVELY:-}${CXR_DELIMITER}${DEPENDENCIES:-}" > $NAME
 
 	## Create the todo links
-
 	if [ ! -d "$CXR_TASK_TODO_DIR" ]
 	then
 		mkdir -p "$CXR_TASK_TODO_DIR"
