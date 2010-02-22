@@ -239,11 +239,7 @@ readonly CXR_RUN_ALL
 
 # Variables:  Parallel Task control
 #
-# CXR_PIN_SERVER - Allows to strictly assign (pin) certain modules to certain hosts. Attention: if the server does not show up, these modules will never be done!
 
-
-# The syntax is: module_name1=server1:module_name2=server2
-CXR_PIN_SERVER=
 
 # If this is true, no new assignments will be made
 # Normally set programatically - dangerous because

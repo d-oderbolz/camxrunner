@@ -6,18 +6,25 @@
 # Version: $Id$ 
 #
 # Contains the Functions for the built-in task management - a very central part of the CAMxRunner.
-# Prepares a pool of tasks, which are then harvestes by cxr_common_worker threads. These threads can run parallel
-# and even on different machines.
+# Prepares a pool of tasks, which are then harvested by cxr_common_worker threads. These threads can run parallel
+# - even on different machines.
+#
+# First, a list of tasks is generated (this may pre-exist, then we leave this step out).
+# This list is sorted according to the dependencies (topological sorting), so that tasks with no or few
+# dependencies appear first.
+# Then, we create a number of workers, which each get an exclusive entry of this list. They check first if the dependencies
+# are already fulfilled, if not they wait.
+# If they are fulfilled, the task starts.
+# After successful execution, the worker gets the next task from the list.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Periodically check CXR_MAX_PARALLEL_PROCS
-# TODO: Add modifiers to dependencies, "create_emissions-" would point to a module 
-# 			of the last day.
+# TODO: Simplify!
 # TODO: Use tsort to create a topologically sorted list of tasks
+# TODO: Periodically check CXR_MAX_PARALLEL_PROCS
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -39,7 +46,7 @@ CXR_META_MODULE_REQ_RUNNER_VERSION=750
 CXR_META_MODULE_REQ_CONF_VERSION=100
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the functions to manage the task control system"
+CXR_META_MODULE_DESCRIPTION="Contains the functions to manage parallel task execution"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -130,8 +137,7 @@ function cxr_common_release_exclusive_access()
 # $3 - the module type
 # $4 - the day offset to run the module with. 0 if the date is irrelevant (we need to initialize date vars anyway!)
 # [$5] - the optional dependency string (a space separated list of module names that this module depends on)
-# [$6] - optional servername ($(uname -n)) to pin this module to
-# [$7] - optional flag, if true, this module is run exclusively (after starting it, no new tasks will be issued on the executing machine)
+# [$6] - optional flag, if true, this module is run exclusively (after starting it, no new tasks will be issued on the executing machine)
 ################################################################################
 function cxr_common_create_task_descriptor()
 ################################################################################
@@ -150,8 +156,7 @@ function cxr_common_create_task_descriptor()
 	MODULE_TYPE="$3"
 	DAY_OFFSET="$4"
 	DEPENDENCIES="$5"
-	PIN_SERVER="$6"
-	RUN_EXCLUSIVELY="$7"
+	RUN_EXCLUSIVELY="$6"
 	
 	# List management
 	case $MODULE_TYPE in
@@ -206,115 +211,29 @@ function cxr_common_create_task_descriptor()
 	echo "${MODULE_PATH}${CXR_DELIMITER}${MODULE_TYPE}${CXR_DELIMITER}${DAY_OFFSET}${CXR_DELIMITER}${RUN_EXCLUSIVELY:-}${CXR_DELIMITER}${DEPENDENCIES:-}" > $NAME
 
 	## Create the todo links
-	if [ "$PIN_SERVER" ]
+
+	if [ ! -d "$CXR_TASK_TODO_DIR" ]
 	then
-		# Should be pinned to a server
-		cxr_main_logger -v $FUNCNAME "We will pin task $1 to $PIN_SERVER"
-		
-		if [ ! -d "$CXR_TASK_TODO_DIR/$PIN_SERVER" ]
-		then
-			# Directory for the server did not yet exist
-			mkdir -p "$CXR_TASK_TODO_DIR/$PIN_SERVER"
-		fi
-		
-		cd $CXR_TASK_TODO_DIR/$PIN_SERVER || die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR/$PIN_SERVER"
-		
-		# Pin to server
-		ln -s $NAME
-		
-		cd $CXR_RUN_DIR ||  die_gracefully "Could not change back to rundir."
-		
-	else
-	
-		# No pinning
-		cxr_main_logger -v $FUNCNAME "Task $1 is an ordinary task (no pinning)"
-	
-		if [ ! -d "$CXR_TASK_TODO_DIR" ]
-		then
-			mkdir -p "$CXR_TASK_TODO_DIR"
-		fi
-		
-		cd $CXR_TASK_TODO_DIR || die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
-		
-		# General
-		ln -s $NAME
-		
-		cd $CXR_RUN_DIR ||  die_gracefully "Could not change back to rundir."
-		
+		mkdir -p "$CXR_TASK_TODO_DIR"
 	fi
 	
+	cd $CXR_TASK_TODO_DIR || die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
+	
+	# General
+	ln -s $NAME
+	
+	cd $CXR_RUN_DIR ||  die_gracefully "Could not change back to rundir."
+		
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
-}
-
-################################################################################
-# Function: cxr_common_get_pin_server
-#
-# Find out, which server a module was pinned to by looking at CXR_PIN_SERVER
-#
-# Parameters:
-# $1 - the module name
-################################################################################
-function cxr_common_get_pin_server()
-################################################################################
-{
-	MODULE=$1
-	
-	# Put all pin assignments into an array
-		
-	# Save old IFS
-	oIFS="$IFS"
-	IFS="$CXR_DELIMITER"
-	
-	# Did the user want to pin anything?
-	if [ "${CXR_PIN_SERVER}" ]
-	then
-		# Create the array
-		ASSIGNMENTS=(${CXR_PIN_SERVER})
-		
-		# Reset IFS
-		IFS="$oIFS"
-		
-		cxr_main_logger -v "${FUNCNAME}"  "Parsing CXR_PIN_SERVER - ${CXR_PIN_SERVER}"
-		
-		# Loop through all module=server assignments
-		for CURRENT_ASSIGNMENT in "${ASSIGNMENTS[@]}"
-		do
-			#Format:
-			#module=server
-	
-			# Get strings left and right of the = sign
-			# %% removes logest trailing substring
-			# ## removes longest leading substring
-			CURRENT_MODULE="${CURRENT_ASSIGNMENT%%=*}"
-			CURRENT_SERVER="${CURRENT_ASSIGNMENT##*=}"
-			
-			if [ "$CURRENT_MODULE" == $MODULE ]
-			then
-				# Found the model we are looking for
-				if [ "$CURRENT_SERVER" ]
-				then
-					cxr_main_logger -v "${FUNCNAME}"  "Module $MODULE is pinned to server $CURRENT_SERVER (Setting $CURRENT_ASSIGNMENT in CXR_PIN_SERVER"
-					echo "$CURRENT_SERVER"
-					return $CXR_RET_OK
-				fi
-			fi
-			
-		done
-	fi
-
-	# Nothing suitable found
-	echo ""
-	return $CXR_RET_OK
-
 }
 
 ################################################################################
 # Function: cxr_common_add_modules
 #	
-# Derived from call_modules 
+# This is the workhorse of <cxr_common_create_task_list>
 # Adds all single module pre/postproc/model but not installers
 # to the task directory.
-# Cannot be used to run single steps (this is always don sequentially)
+# Cannot be used to run single steps (this is always done sequentially)
 #
 # The function also checks if any module has dependencies to a disabled module
 # that was not yet run. If it had, we need to fail (the run could not finish otherwise)
@@ -453,7 +372,7 @@ function cxr_common_add_modules()
 							if [ "$(cxr_common_check_module_version)" == true ]
 							then
 								# Add this module
-								cxr_common_create_task_descriptor "$CXR_CURRENT_ID" "$FUNCTION_FILE" "$MODULE_TYPE" "${DAY_OFFSET}" "${CXR_META_MODULE_DEPENDS_ON:-}" "$(cxr_common_get_pin_server $CXR_META_MODULE_NAME)" "${CXR_META_MODULE_RUN_EXCLUSIVELY:-false}"
+								cxr_common_create_task_descriptor "$CXR_CURRENT_ID" "$FUNCTION_FILE" "$MODULE_TYPE" "${DAY_OFFSET}" "${CXR_META_MODULE_DEPENDS_ON:-}" "${CXR_META_MODULE_RUN_EXCLUSIVELY:-false}"
 							
 								# Increase ID
 								CXR_CURRENT_ID=$(( $CXR_CURRENT_ID + 1 ))

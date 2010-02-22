@@ -14,7 +14,7 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
-# TODO: 
+# TODO: Make Hashes independent of HASH_DIR (For MD5 Cache)
 ################################################################################
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
