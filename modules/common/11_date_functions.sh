@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=25
+CXR_META_MODULE_NUM_TESTS=28
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -305,7 +305,6 @@ function cxr_common_date2julian()
 }
 
 
-
 ################################################################################
 # Function: cxr_common_julian2date
 # 
@@ -348,6 +347,45 @@ function cxr_common_julian2date()
 	case $j2d_month in ?) j2d_month=0$j2d_month;; esac
 	
 	echo $j2d_year-$j2d_month-$j2d_day
+}
+
+################################################################################
+# Function: cxr_common_epoch2date
+# 
+# Calculates the date in YYYY-MM-DD format from a Unix Epoch time,
+# using <cxr_common_julian2date>.
+# Unix Epoch is defined as (http://en.wikipedia.org/wiki/Unix_time)
+# the number of seconds elapsed since midnight proleptic Coordinated Universal Time (UTC) of January 1, 1970.
+#
+# Parameters:
+# $1 - integer epoch date (numeric)
+################################################################################
+function cxr_common_epoch2date()
+################################################################################
+{
+	# Check for numeric input
+	if [ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false ]
+	then
+		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	local EPOCH_SECONDS=$1
+	
+	# Get the julian date of January 1, 1970
+	local BASE_JUL=$(cxr_common_date2julian 1970-01-01)
+	
+	# We want to know how many days the epoch seconds correspond to
+	local EPOCH_DAYS=$(( $EPOCH_SECONDS / 86400 ))
+	
+	# Now the Julian date we are interested in is Base plus the epoch days
+	local OUR_JUL=$(( $BASE_JUL + $EPOCH_DAYS ))
+	
+	# Convert back to date
+	local OUR_DATE=$(cxr_common_julian2date $OUR_JUL)
+	
+	echo $OUR_DATE
 }
 
 ################################################################################
@@ -985,6 +1023,9 @@ function test_module()
 	is $(cxr_common_to_iso_date 20090112) 2009-01-12 "cxr_common_to_iso_date"
 	is $(cxr_common_date2julian 2009-01-27) 2454859 "cxr_common_date2julian"
 	is $(cxr_common_julian2date 2454859) 2009-01-27 "cxr_common_julian2date"
+	is $(cxr_common_epoch2date 1266874169) 2010-02-22 "cxr_common_epoch2date normal"
+	is $(cxr_common_epoch2date 0) 1970-01-01 "cxr_common_epoch2date base"
+	is $(cxr_common_epoch2date -500) 1969-12-31 "cxr_common_epoch2date negative"
 	is $(cxr_common_day_of_year 2009-01-01) 1 "DOY"
 	is $(cxr_common_day_of_year 2009-01-01 4) 0001 "DOY trailing 0"
 	is $(cxr_common_day_of_year 2003-04-12) 102 "DOY"

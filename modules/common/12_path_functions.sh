@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+ash#!/usr/bin/env bash
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=6
+CXR_META_MODULE_NUM_TESTS=7
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -130,12 +130,15 @@ function cxr_common_get_file_mtime()
 {
 	FILE=$1
 	
-	if [ -f  ]
+	if [ -f "${FILE}" ]
 	then
 		MTIME="$(stat "${FILE}" -c"%Y")"
 	else
+		cxr_main_logger -e "$FUNCNAME" "No valid filename passed!"
 		MTIME=0
 	fi
+	
+	echo "${MTIME}"
 }
 
 ################################################################################
@@ -624,10 +627,14 @@ function test_module()
 	# Add this file to the output file list
 	echo "${a}${CXR_DELIMITER}path_functions" > "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 	
+	# Mtime
+	touch $a
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
+	is $(cxr_common_get_file_mtime $a) $(date "+%s") "cxr_common_get_file_mtime immediate"
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
 	
