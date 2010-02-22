@@ -164,7 +164,7 @@ function CAMx_installer()
 		# and deterimes the name of the .play file
 		DOMAIN=${PARALLEL_PARADIGM}-${PROBING_TOOL}-${HOSTTYPE}
 		
-		BINARY_NAME=${CXR_CAMX_DIR}/${CXR_MODEL}-${DOMAIN}
+		BINARY_NAME=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-${DOMAIN}
 		
 		# The name of the .prm file to use
 		TARGET_PRM_FILE=$CXR_CAMX_SRC_DIR/Includes/camx.prm.$DOMAIN
@@ -189,10 +189,10 @@ function CAMx_installer()
 			# Now we need to choose a run name. Look for links in the CAMx dir
 			RUN="$(basename $(cxr_common_get_menu_choice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
-			BINARY_NAME=${CXR_CAMX_DIR}/${RUN}-${HOSTTYPE}
+			BINARY_NAME=${CXR_MODEL_BIN_DIR}/${RUN}-${HOSTTYPE}
 		elif [ "$(cxr_common_get_consent "Do you want to provide your own name for the binary?" N )" == true ]
 		then
-			BINARY_NAME=${CXR_CAMX_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
+			BINARY_NAME=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
 		fi
 		
 		cxr_main_logger "${FUNCNAME}" "The new binary will be called $BINARY_NAME"

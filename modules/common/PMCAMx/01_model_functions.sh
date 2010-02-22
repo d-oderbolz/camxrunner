@@ -101,7 +101,7 @@ function get_chemparam_file ()
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
-	RUN_SPECIFIC=${CXR_CAMX_DIR}/chemparam/${CXR_RUN}_chemparam
+	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
 	if [ -f "${RUN_SPECIFIC}" ]
@@ -121,7 +121,7 @@ function get_chemparam_file ()
 	# Static - we need more choice later$
 	# The Rxns contains non-0 rate constants for the oxidation of Condensable gasses
 	# While the other file does set these to 0.
-	MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx4.chemparam.5.FINAL_SEMIvol_Rxns
+	MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx4.chemparam.5.FINAL_SEMIvol_Rxns
 
 	if [ ! -f "${MY_CHEMPARAM_INPUT_FILE}" ]
 	then
@@ -152,7 +152,7 @@ function get_chemparam_file ()
 #
 # It looks like this:
 #
-# > ${CXR_CAMX_DIR}/PMCAMx-${HOSTTYPE}[-$(uname -n)] (e. g. PMCAMx-x86_64 or PMCAMx-x86_64-lcsl5a)
+# > ${CXR_MODEL_BIN_DIR}/PMCAMx-${HOSTTYPE}[-$(uname -n)] (e. g. PMCAMx-x86_64 or PMCAMx-x86_64-lcsl5a)
 # Parameters:
 # [$1] - if false - ignore that file does not exist (necessary during installation)
 ################################################################################
@@ -160,9 +160,9 @@ function get_model_exec()
 ################################################################################
 {
 	#Determine possible names
-	GENERAL_EXEC=${CXR_CAMX_DIR}/PMCAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
+	GENERAL_EXEC=${CXR_MODEL_BIN_DIR}/PMCAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
 	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
-	RUN_EXEC=${CXR_CAMX_DIR}/${CXR_RUN}-${HOSTTYPE}
+	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
 	if [ -x ${RUN_EXEC} ]

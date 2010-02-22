@@ -289,9 +289,9 @@ function photolysis_rates()
 						
 								# TUV is picky - it expects a file called
 								# tuv.inp and also it looks for some files
-								# That's why we chage to CXR_CAMX_DIR and create a link in the current place
+								# That's why we chage to CXR_MODEL_BIN_DIR and create a link in the current place
 								
-								cd ${CXR_CAMX_DIR} || return $CXR_RET_ERROR
+								cd ${CXR_MODEL_BIN_DIR} || return $CXR_RET_ERROR
 								
 								# First remove it
 								rm -f tuv.inp

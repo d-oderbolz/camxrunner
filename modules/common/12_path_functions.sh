@@ -116,6 +116,29 @@ function cxr_common_is_absolute_path()
 }
 
 ################################################################################
+# Function: cxr_common_get_file_mtime
+# 
+# Returns the files mtime (modification time, last update of the data, or touch)
+# As seconds since epoch (January 1, 1970).
+# Returns 0 on error.
+#
+# Parameters:
+# $1 - filename to analyse
+################################################################################
+function cxr_common_get_file_mtime()
+################################################################################
+{
+	FILE=$1
+	
+	if [ -f  ]
+	then
+		MTIME="$(stat "${FILE}" -c"%Y")"
+	else
+		MTIME=0
+	fi
+}
+
+################################################################################
 # Function: cxr_common_get_file_type
 # 
 # Returns a parsed version of the output of "file". Curruntly used to detect compressed files by

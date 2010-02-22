@@ -320,6 +320,10 @@ CXR_FORCE=false
 # When set to false, existing Output files are not skipped (we stop if they exist, unless -F is given)
 CXR_SKIP_EXISTING=true
 
+# When set to false, we no longer do change detection of input files.
+# This is done by keeping MD5 Hashes of all input files encountered in a global place
+CXR_INPUT_CHANGE_DETECTION=true
+
 # When set to false, disables check for disk space for model runs
 CXR_CHECK_MODEL_SPACE_REQUIRED=true
 
@@ -450,8 +454,8 @@ CXR_LIB_DIR=${CXR_RUN_DIR}/lib
 readonly CXR_LIB_DIR
 
 #Base path to find the CAMx executable
-CXR_CAMX_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
-readonly CXR_CAMX_DIR
+CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
+readonly CXR_MODEL_BIN_DIR
 
 # Here is the config
 CXR_CONF_DIR=${CXR_RUN_DIR}/conf
@@ -575,8 +579,12 @@ readonly CXR_LOG_OUTPUT_DIR
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
+# Some state data is global to all runs (e. g. the hash used for change detection)
+CXR_STATE_GLOBAL_DIR=${CXR_RUN_DIR}/state/global
+readonly CXR_STATE_GLOBAL_DIR
+
 ########################################
-# Data that is global to all instances
+# Data that is global to all instances of a given run
 ########################################
 
 # Directory where the global stuff goes

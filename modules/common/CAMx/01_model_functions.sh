@@ -109,7 +109,7 @@ function get_chemparam_file()
 	fi
 	
 	local our_chemparam
-	RUN_SPECIFIC=${CXR_CAMX_DIR}/chemparam/${CXR_RUN}_chemparam
+	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
 	if [ -r "${RUN_SPECIFIC}" ]
@@ -123,7 +123,7 @@ function get_chemparam_file()
 	
 		MY_MECHANISM=${1}_${2}
 	
-		MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
+		MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
 	
 		if [ -r "${MY_CHEMPARAM_INPUT_FILE}" ]
 		then
@@ -131,7 +131,7 @@ function get_chemparam_file()
 		else
 			# File does not exist, maybe the file is not for 4.51 but for 4.5 (as an examlple)
 			# Maybe we have to cut off the last digit of the Version number
-			MY_CHEMPARAM_INPUT_FILE=${CXR_CAMX_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
+			MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
 	
 			if [ -f "${MY_CHEMPARAM_INPUT_FILE}" ]
 			then
@@ -178,7 +178,7 @@ function get_chemparam_file()
 #
 # It looks like this:
 #
-# > ${CXR_CAMX_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}[-$(uname -n)] (e. g. CAMx-OMP-None-x86_64 or CAMx-OMP-None-x86_64-lcsl5a)
+# > ${CXR_MODEL_BIN_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}[-$(uname -n)] (e. g. CAMx-OMP-None-x86_64 or CAMx-OMP-None-x86_64-lcsl5a)
 # Parameters:
 # [$1] - if false - ignore that file does not exist (necessary during installation)
 ################################################################################
@@ -186,9 +186,9 @@ function get_model_exec()
 ################################################################################
 {
 	#Determine possible names
-	GENERAL_EXEC=${CXR_CAMX_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
+	GENERAL_EXEC=${CXR_MODEL_BIN_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
 	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
-	RUN_EXEC=${CXR_CAMX_DIR}/${CXR_RUN}-${HOSTTYPE}
+	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
 	if [ -x ${RUN_EXEC} ]

@@ -148,7 +148,7 @@ function PMCAMx_installer()
 		PARALLEL_PARADIGM=$(cxr_common_get_menu_choice "What kind of parallel paradigm do you want to use?" "$CXR_SUPPORTED_PARALLEL_PARADIGMS" "$CXR_PARALLEL_PARADIGM")
 		PROBING_TOOL=$(cxr_common_get_menu_choice "What kind of probing tool do you want to enable?\n(A CAMx/PMCAMx binary is optimized for one tool, we will also use this in the name of the binary)" "$CXR_SUPPORTED_CAMX_PROBING_TOOLS" "$CXR_PROBING_TOOL")
 		
-		BINARY_NAME=${CXR_CAMX_DIR}/${CXR_MODEL}-${PARALLEL_PARADIGM}-${PROBING_TOOL}-${HOSTTYPE}
+		BINARY_NAME=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-${PARALLEL_PARADIGM}-${PROBING_TOOL}-${HOSTTYPE}
 		
 		# This is an argument to the make process
 		# and deterimes the name of the .play file
