@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=28
+CXR_META_MODULE_NUM_TESTS=27
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -1025,7 +1025,6 @@ function test_module()
 	is $(cxr_common_julian2date 2454859) 2009-01-27 "cxr_common_julian2date"
 	is $(cxr_common_epoch2date 1266874169) 2010-02-22 "cxr_common_epoch2date normal"
 	is $(cxr_common_epoch2date 0) 1970-01-01 "cxr_common_epoch2date base"
-	is $(cxr_common_epoch2date -500) 1969-12-31 "cxr_common_epoch2date negative"
 	is $(cxr_common_day_of_year 2009-01-01) 1 "DOY"
 	is $(cxr_common_day_of_year 2009-01-01 4) 0001 "DOY trailing 0"
 	is $(cxr_common_day_of_year 2003-04-12) 102 "DOY"
