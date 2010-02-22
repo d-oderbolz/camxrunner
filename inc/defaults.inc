@@ -31,6 +31,9 @@ set -o nounset
 # we want something like x86_64-linux
 HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 
+# This is our internal reference time (in Unix Epoch), used for Chacing etc.
+CXR_EPOCH="$(date "+%s")"
+
 ################################################################################
 # Default Behaviour     ########################################################
 ################################################################################

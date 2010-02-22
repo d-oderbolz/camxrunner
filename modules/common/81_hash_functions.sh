@@ -117,6 +117,27 @@ function cxr_common_hash_destroy ()
 }
 
 ################################################################################
+# Function: _hash_fn
+#
+# Generates a filename for a given hash and key. Internal function for use in hash functions.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - key
+################################################################################
+function _hash_fn ()
+################################################################################
+{
+	HASH="$1"
+	KEY="$2"
+	
+	# Generate the filename
+	local FN="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$KEY")"
+	
+	echo "${CXR_HASH_DIR}/${HASH}/${FN}"
+}
+
+################################################################################
 # Function: cxr_common_hash_put
 #
 # Puts a value into a key of a given hash. First the key is urlencoded using perl
@@ -135,10 +156,10 @@ function cxr_common_hash_put ()
 	VALUE="$3"
 	
 	# Generate the filename
-	FN="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$KEY")"
+	FN="$(_hash_fn $HASH $KEY)"
 	
 	# Write the value
-	echo "${VALUE}" > "${CXR_HASH_DIR}/${HASH}/${FN}"
+	echo "${VALUE}" > "${FN}"
 	
 }
 
@@ -158,10 +179,32 @@ function cxr_common_hash_get ()
 	KEY="$2"
 	
 	# Generate the filename
-	FN="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$KEY")"
+	FN="$(_hash_fn $HASH $KEY)"
 	
 	# Get the value
-	cat "${CXR_HASH_DIR}/${HASH}/${FN}"
+	cat "${FN}"
+}
+
+################################################################################
+# Function: cxr_common_hash_mtime
+#
+# Gets the modification time (Unix Epoch) for a given value
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - key
+################################################################################
+function cxr_common_hash_mtime ()
+################################################################################
+{
+	HASH="$1"
+	KEY="$2"
+	
+	# Generate the filename
+	FN="$(_hash_fn $HASH $KEY)"
+	
+	# Get the mtime
+	$(cxr_common_get_file_mtime "$FN")
 }
 
 ################################################################################
@@ -180,14 +223,52 @@ function cxr_common_hash_has? ()
 	KEY="$2"
 	
 	# Generate the filename
-	FN="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$KEY")"
+	FN="$(_hash_fn $HASH $KEY)"
 	
-	if [ -f "${CXR_HASH_DIR}/${HASH}/${FN}" ]
+	if [ -f "${FN}" ]
 	then
 		echo true
 	else
 		echo false
 	fi
+}
+
+################################################################################
+# Function: cxr_common_hash_new?
+#
+# Returns true if the given key is contained in the hash and its update time is 
+# newer than this runs start time (meaning that we do not need to update such a hash
+# if it is used as a cache)
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - key
+################################################################################
+function cxr_common_hash_new? ()
+################################################################################
+{
+	HASH="$1"
+	KEY="$2"
+	
+	local res
+	
+	# Is it in the hash?
+	if [ $(cxr_common_hash_has? $HASH $KEY) == true ]
+	then
+		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
+		# if the hash es epoch is smaller, it is older
+		if [ "$(cxr_common_hash_mtime $HASH $KEY)" -lt $CXR_EPOCH ]
+		then
+			res=false
+		else
+			res=true
+		fi
+	else
+		# Does not exist
+		res=false
+	fi
+	
+	echo $res
 }
 
 ################################################################################
