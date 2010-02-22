@@ -1,4 +1,4 @@
-ash#!/usr/bin/env bash
+#!/usr/bin/env bash
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
