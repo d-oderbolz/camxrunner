@@ -153,6 +153,8 @@ function set_variables()
 function convert_emissions() 
 ################################################################################
 {
+	local i
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then	
@@ -199,8 +201,6 @@ function convert_emissions()
 
 			# Decrease global indent level
 			cxr_main_decrease_log_indent
-			
-			
 		done
 
 		# Decrease global indent level

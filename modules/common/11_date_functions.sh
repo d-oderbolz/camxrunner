@@ -134,7 +134,8 @@ function cxr_common_date_vars()
 function cxr_common_is_yyyymmdd_format()
 ################################################################################
 {
-	DATE="$1"
+	# Define & Initialize local vars
+	local date="$1"
 	
 	# We neet the retval,
 	# turn off strict checks
@@ -143,7 +144,7 @@ function cxr_common_is_yyyymmdd_format()
 	#Check for Date
 	# If this returns 0, we look at a correct date
 	# Might be expressed more elegant using quantors, but does your grep have them?
-	echo "$DATE" | grep "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" >/dev/null
+	echo "$date" | grep "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" >/dev/null
 	
 	if [[ $? -eq 0  ]]
 	then
@@ -169,6 +170,9 @@ function cxr_common_is_yyyymmdd_format()
 function cxr_common_raw_date()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local new_date
+	
 	if [[  $# -ne 1 || $(cxr_common_is_yyyymmdd_format "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
@@ -177,9 +181,9 @@ function cxr_common_raw_date()
 	fi
 	
 	# Replace - by nothing
-	NEW_DATE="${1//-/}"
+	new_date="${1//-/}"
 	
-	echo "$NEW_DATE"
+	echo "$new_date"
 	
 }
 
@@ -290,6 +294,10 @@ function cxr_common_split_date()
 function cxr_common_date2julian() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local d2j_tmpmonth
+	local d2j_tmpyear
+	
 	case $1 in "")
 		cxr_common_date_vars
 		set -- $TODAY ;; 
@@ -371,21 +379,21 @@ function cxr_common_epoch2date()
 		return $CXR_RET_ERROR
 	fi
 	
-	local EPOCH_SECONDS=$1
+	local epoch_seconds=$1
 	
 	# Get the julian date of January 1, 1970
-	local BASE_JUL=$(cxr_common_date2julian 1970-01-01)
+	local base_jul=$(cxr_common_date2julian 1970-01-01)
 	
 	# We want to know how many days the epoch seconds correspond to
-	local EPOCH_DAYS=$(( $EPOCH_SECONDS / 86400 ))
+	local epoch_days=$(( $epoch_seconds / 86400 ))
 	
 	# Now the Julian date we are interested in is Base plus the epoch days
-	local OUR_JUL=$(( $BASE_JUL + $EPOCH_DAYS ))
+	local our_jul=$(( $base_jul + $epoch_days ))
 	
 	# Convert back to date
-	local OUR_DATE=$(cxr_common_julian2date $OUR_JUL)
+	local our_date=$(cxr_common_julian2date $our_jul)
 	
-	echo $OUR_DATE
+	echo $our_date
 }
 
 ################################################################################
@@ -424,29 +432,33 @@ function cxr_common_day_of_year()
 ################################################################################
 {
 
-	if [[  $# -lt 1 && $# -gt 2   ]]
+	# Define & Initialize local vars
+	local year
+	local len 
+	local julend
+	local julstart
+	
+	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
 
-	YEAR=${1:0:4}
-	cxr_common_len=${2:-0}
+	year=${1:0:4}
+	len=${2:-0}
 	
-	JULEND=$(cxr_common_date2julian $1)
-	JULSTART=$(cxr_common_date2julian $YEAR-01-01)
+	julend=$(cxr_common_date2julian $1)
+	julstart=$(cxr_common_date2julian ${year}-01-01)
 	
-	if [[ "${cxr_common_len}" -gt 0  ]]
+	if [[ "${len}" -gt 0 ]]
 	then
 		# Corrected length
-		printf "%0${cxr_common_len}d" $(( $JULEND - $JULSTART + 1 ))
+		printf "%0${len}d" $(( $julend - $julstart + 1 ))
 	else
 		# Length "as is"
-		echo $(( $JULEND - $JULSTART + 1 ))
+		echo $(( $julend - $julstart + 1 ))
 	fi
-	
-	
 }
 
 ################################################################################
@@ -461,6 +473,10 @@ function cxr_common_day_of_year()
 function cxr_common_days_in_month
 ################################################################################
 {
+	# Define & Initialize local vars
+	local dim_m
+	local dim_y
+	
 	if [[ $# -lt 2  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a month and a year as input"
@@ -487,6 +503,10 @@ function cxr_common_days_in_month
 function cxr_common_days_left_in_week
 ################################################################################
 {
+	# Define & Initialize local vars
+	local dim_d
+	local dow
+	
 	if [[ $# -lt 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
@@ -496,9 +516,9 @@ function cxr_common_days_left_in_week
 	
 	dim_d=${1}
 
-	DOW=$(date -d "$dim_d" +%u)
+	dow=$(date -d "$dim_d" +%u)
 	
-	echo $(( 7 - $DOW + 1))
+	echo $(( 7 - $dow + 1))
 }
 
 
@@ -513,6 +533,12 @@ function cxr_common_days_left_in_week
 function cxr_common_days_left_in_month
 ################################################################################
 {
+	# Define & Initialize local vars
+	local month
+	local dom
+	local ndom
+	local year
+	
 	if [[ $# -lt 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
@@ -522,12 +548,12 @@ function cxr_common_days_left_in_month
 	
 	dim_d=${1}
 
-	DOM=$(date -d "$dim_d" +%e)
-	MONTH=$(date -d "$dim_d" +%m)
-	YEAR=$(date -d "$dim_d" +%Y)
-	NDOM=$(cxr_common_days_in_month $MONTH $YEAR)
+	dom=$(date -d "$dim_d" +%e)
+	month=$(date -d "$dim_d" +%m)
+	year=$(date -d "$dim_d" +%Y)
+	ndom=$(cxr_common_days_in_month $month $year)
 	
-	echo $(( $NDOM - $DOM + 1))
+	echo $(( $ndom - $dom + 1))
 }
 
 
@@ -542,6 +568,9 @@ function cxr_common_days_left_in_month
 function cxr_common_is_leap_year
 ################################################################################
 {
+	# Define & Initialize local vars
+	local year
+	
 	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a year as input"
@@ -549,14 +578,14 @@ function cxr_common_is_leap_year
 		return $CXR_RET_ERROR
 	fi
 	
-	YEAR=$1
+	year=$1
 	
-	if [[ $(expr $YEAR % 400 ) -eq "0"  ]]
+	if [[ $(expr $year % 400 ) -eq "0"  ]]
 	then
 		echo true
-	elif [[ $(expr $YEAR % 4 ) -eq 0  ]]
+	elif [[ $(expr $year % 4 ) -eq 0  ]]
 	then
-			if [[ $(expr $YEAR % 100 ) -ne 0  ]]
+			if [[ $(expr $year % 100 ) -ne 0  ]]
 				then
 					# Those just dividable by 4 are leap years
 					echo true
@@ -592,6 +621,12 @@ function cxr_common_is_leap_year
 function cxr_common_date2offset()
 ################################################################################
 {
+	
+	# Define & Initialize local vars
+	local start
+	local wanted
+	local offset
+	
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
@@ -600,18 +635,23 @@ function cxr_common_date2offset()
 		return $CXR_RET_ERROR
 	fi
 	
-	START=$(cxr_common_date2julian ${CXR_START_DATE})
-	WANTED=$(cxr_common_date2julian ${1})
+	start=$(cxr_common_date2julian ${CXR_START_DATE})
+	wanted=$(cxr_common_date2julian ${1})
 	
-	OFFSET=$(( ${WANTED} - ${START} ))
+	offset=$(( ${wanted} - ${start} ))
 	
-	if [[ ${OFFSET} -lt 0  ]]
+	if [[ ${offset} -lt 0  ]]
 	then
-		cxr_main_logger -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
+		cxr_main_logger -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		echo false
+		return $CXR_RET_ERROR
+	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+	then
+		cxr_main_logger -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	else
-		echo ${OFFSET}
+		echo ${offset}
 		return $CXR_RET_OK
 	fi
 	
@@ -634,6 +674,11 @@ function cxr_common_date2offset()
 function cxr_common_offset2date()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local start
+	local end
+	local offset
+	
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
@@ -642,11 +687,11 @@ function cxr_common_offset2date()
 		return $CXR_RET_ERROR
 	fi
 	
-	OFFSET="$1"
-	START=$(cxr_common_date2julian ${CXR_START_DATE})
-	END=$(( $START + $OFFSET ))
+	offset="$1"
+	start=$(cxr_common_date2julian ${CXR_START_DATE})
+	end=$(( $start + $offset ))
 	
-	echo $(cxr_common_julian2date "$END")
+	echo $(cxr_common_julian2date "$end")
 	
 }
 
@@ -666,6 +711,9 @@ function cxr_common_offset2date()
 function cxr_common_offset2_raw_date()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local date
+	
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
@@ -674,9 +722,9 @@ function cxr_common_offset2_raw_date()
 		return $CXR_RET_ERROR
 	fi
 	
-	DATE=$(cxr_common_offset2date "$1")
+	date=$(cxr_common_offset2date "$1")
 	
-	echo $(cxr_common_raw_date "$DATE")
+	echo $(cxr_common_raw_date "$date")
 }
 
 ################################################################################
@@ -696,6 +744,9 @@ function cxr_common_offset2_raw_date()
 function cxr_common_modelling_hour()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local offset
+	
 	# Check for numeric input
 	if [[ $# -ne 1  ]]
 	then
@@ -704,15 +755,20 @@ function cxr_common_modelling_hour()
 		return $CXR_RET_ERROR
 	fi
 
-	OFFSET=$(cxr_common_date2offset $1)
+	offset=$(cxr_common_date2offset $1)
 	
-	if [[ ${OFFSET} -lt 0  ]]
+	if [[ ${offset} -lt 0  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
+	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+	then
+		cxr_main_logger -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		echo false
+		return $CXR_RET_ERROR
 	else
-		echo $(( ( ${OFFSET} * 24 ) - ${CXR_START_HOUR} ))
+		echo $(( ( ${offset} * 24 ) - ${CXR_START_HOUR} ))
 		return $CXR_RET_OK
 	fi
 	
@@ -730,6 +786,11 @@ function cxr_common_modelling_hour()
 function cxr_common_days_between()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local diff
+	local julend
+	local julstart
+	
 	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_common_is_yyyymmdd_format "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "needs 2 dates as input"
@@ -738,12 +799,12 @@ function cxr_common_days_between()
 	fi
 
 	# we convert the dates to julian dates and then subtract.
-	JULSTART=$(cxr_common_date2julian $1)
-	JULEND=$(cxr_common_date2julian $2)
+	julstart=$(cxr_common_date2julian $1)
+	julend=$(cxr_common_date2julian $2)
 	
-	DIFF="$(( $JULEND - $JULSTART ))"
+	diff="$(( $julend - $julstart ))"
 	
-	if [[ $DIFF -lt 0  ]]
+	if [[ $diff -lt 0  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "Date2 is smaller than Date1"
 		echo 0
@@ -751,9 +812,9 @@ function cxr_common_days_between()
 	fi
 	
 	# Now add one because of off-by-one
-	DIFF=$(( $DIFF + 1))
+	diff=$(( $diff + 1))
 	
-	echo $DIFF
+	echo $diff
 }
 
 ################################################################################
@@ -768,6 +829,11 @@ function cxr_common_days_between()
 function cxr_common_add_days()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local dateresult
+	local julresult
+	local julstart
+	
 	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
@@ -776,13 +842,13 @@ function cxr_common_add_days()
 	fi
 
 	# Convert to julian and add, convert back
-	JULSTART=$(cxr_common_date2julian $1)
+	julstart=$(cxr_common_date2julian $1)
 
-	JULRESULT=$(( $JULSTART + $2 ))
+	julresult=$(( $julstart + $2 ))
 	
-	DATERESULT=$(cxr_common_julian2date $JULRESULT)
+	dateresult=$(cxr_common_julian2date $julresult)
 	
-	echo "$DATERESULT"
+	echo "$dateresult"
 }
 
 ################################################################################
@@ -797,6 +863,11 @@ function cxr_common_add_days()
 function cxr_common_subtract_days()
 ################################################################################
 {
+	# Define & Initialize local vars
+	local dateresult
+	local julresult
+	local julstart
+	
 	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
@@ -805,13 +876,13 @@ function cxr_common_subtract_days()
 	fi
 
 	# Convert to julian and add, convert back
-	JULSTART=$(cxr_common_date2julian $1)
+	julstart=$(cxr_common_date2julian $1)
 
-	JULRESULT=$(( $JULSTART - $2 ))
+	julresult=$(( $julstart - $2 ))
 	
-	DATERESULT=$(cxr_common_julian2date $JULRESULT)
+	dateresult=$(cxr_common_julian2date $julresult)
 	
-	echo "$DATERESULT"
+	echo "$dateresult"
 }
 
 
@@ -832,6 +903,7 @@ function cxr_common_subtract_days()
 function cxr_common_set_date_variables()
 ################################################################################
 {
+
 	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"

@@ -144,6 +144,10 @@ function set_variables()
 function create_emissions() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local i
+	local exec_tmp_file
+	
 	# Store the state
 	STAGE=${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@all_days
 	
@@ -171,9 +175,9 @@ function create_emissions()
 			cxr_main_logger "${FUNCNAME}"  "Preparing current emission file..."
 			
 			# We will write the IDL call into a temporary file
-			EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+			exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 			
-			cxr_main_logger "${FUNCNAME}" "Creating a temporary IDL command file in $EXEC_TMP_FILE"
+			cxr_main_logger "${FUNCNAME}" "Creating a temporary IDL command file in $exec_tmp_file"
 			
 			# Go there
 			cd $(dirname ${CXR_IDL_EMISSION_GENERATOR}) || return $CXR_RET_ERROR
@@ -181,27 +185,24 @@ function create_emissions()
 			# We create the emissions for each grid
 			for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 			do
-				
 				cxr_main_logger "${FUNCNAME}" "Creating Emissions for grid $i..."
 				
-				# Clean Tempfile!
-				: > ${EXEC_TMP_FILE}
-				
 				# Create the file to run IDL
-				echo ".run $(basename ${CXR_IDL_EMISSION_GENERATOR})" >> ${EXEC_TMP_FILE}
-				
 				# We assume (danger, Will Robinson) that Emissions start at hour 0 and end at hour 23
-				echo "$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},0,${CXR_YEAR},${CXR_MONTH},${CXR_DAY},23,${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'" >> ${EXEC_TMP_FILE}
-				echo "exit" >> ${EXEC_TMP_FILE}
+				cat <<-EOF > $EXEC_TMP_FILE
+				.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
+				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},0,${CXR_YEAR},${CXR_MONTH},${CXR_DAY},23,${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
+				echo "exit" >> ${exec_tmp_file}
+				EOF
 				
 				# Get a copy of the call
-				cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+				cat ${exec_tmp_file} | tee -a $CXR_LOG
 				
 				# Only run if we are not in a dry run
 				if [[ "$CXR_DRY" == false  ]]
 				then
 					# Then we run it, while preserving the output
-					${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 				else
 					cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"
 				fi

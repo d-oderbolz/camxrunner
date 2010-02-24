@@ -178,6 +178,23 @@ function set_variables()
 function boundary_conditions() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local extra=
+	local species=
+	local conc=
+	local spec_line=
+	local exec_tmp_file=
+	local i=0
+	local mozart_array=
+	local camx_array=
+	local mozart_spec=
+	local camx_spec=
+	
+	# These we set with the ternary (or conditional) operator
+	local doplots=$(( "${CXR_IC_BC_TC_DO_PLOT:-false}" == true  ? 1 : 0 ))
+	local dopng=$(( "${CXR_IC_BC_TC_DO_PNG:-false}" == true  ? 1 : 0 ))
+	local deleteps=$(( "${CXR_IC_BC_TC_RM_PS:-false}" == true  ? 1 : 0 ))
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -206,9 +223,6 @@ function boundary_conditions()
 			
 				MOZART | MOZART_CONSTANT | MOZART_INCREMENT )
 				
-					# By default, we pass no extra
-					local extra=
-					
 					# MOZART_CONSTANT or INCREMENT?
 					if [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT  ]]
 					then
@@ -275,7 +289,7 @@ function boundary_conditions()
 					fi
 				
 					# We will write the IDL call into a temporary file
-					EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+					exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 					
 					# Go there
 					cd $(dirname ${CXR_BC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
@@ -285,26 +299,26 @@ function boundary_conditions()
 					# that we pass to the procedure
 					
 					# Open brackets
-					MOZART_ARRAY="["
-					CAMX_ARRAY="["
+					mozart_array="["
+					camx_array="["
 					
 					for i in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
 					do
 						
-						MOZART_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
-						CAMX_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
+						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
+						camx_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
 						
-						MOZART_ARRAY="${MOZART_ARRAY}'${MOZART_SPEC}',"
-						CAMX_ARRAY="${CAMX_ARRAY}'${CAMX_SPEC}',"
+						mozart_array="${mozart_array}'${mozart_spec}',"
+						camx_array="${camx_array}'${camx_spec}',"
 		
 					done
 					
 					# Close brackets and remove last ","
-					MOZART_ARRAY="${MOZART_ARRAY%,}]"
-					CAMX_ARRAY="${CAMX_ARRAY%,}]"
+					mozart_array="${mozart_array%,}]"
+					camx_array="${camx_array%,}]"
 		
 					# Create the file to run IDL
-					echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
+					echo ".run $(basename ${CXR_BC_PROC_INPUT_FILE})" >> ${exec_tmp_file}
 					# Interface:
 					# pro camxbound $
 					# ,fmoz $
@@ -329,39 +343,17 @@ function boundary_conditions()
 					# ,extra=extra
 					# we need to multiply the resolution by 1000 (metre)
 					
-					# We need to convert our logicals to idl logicals
-					if [[ "${CXR_IC_BC_TC_DO_PLOT}" == true  ]]
-					then
-						doplots=1
-					else
-						doplots=0
-					fi
-					
-					if [[ "${CXR_IC_BC_TC_DO_PNG}" == true  ]]
-					then
-						dopng=1
-					else
-						dopng=0
-					fi
-					
-					if [[ "${CXR_IC_BC_TC_RM_PS}" == true  ]]
-					then
-						deleteps=1
-					else
-						deleteps=0
-					fi
-					
-					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}" >> ${EXEC_TMP_FILE}
-					echo "exit" >> ${EXEC_TMP_FILE}
+					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}" >> ${exec_tmp_file}
+					echo "exit" >> ${exec_tmp_file}
 					
 					# Get a copy of the call
-					cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+					cat ${exec_tmp_file} | tee -a $CXR_LOG
 						
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						
 						# Then we run it, while preserving the output
-						${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+						${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 						
 						# Now we need to convert the file to binary format
 						"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG

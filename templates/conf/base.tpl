@@ -705,7 +705,7 @@ CXR_HDF_FORMAT_OUTPUT=@CXR_HDF_FORMAT_OUTPUT@
 
 # Do not check this file for existence, hence name does not end in _FILE
 # The basename must be "CAMx.in"
-CXR_CAMXIN=CAMx.in
+CXR_MODEL_CTRL_FILE=CAMx.in
 
 ################################################################################
 # Machine name

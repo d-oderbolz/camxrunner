@@ -890,7 +890,7 @@ CXR_COMPRESSED_EXT=".gz .bz2 .zip"
 ################################################################################
 
 # A rule that must be expanded
-CXR_CAMXIN_RULE='${CXR_STATE_DIR}/CAMx.${CXR_DATE_RAW}.in'
+CXR_MODEL_CTRL_FILE_RULE='${CXR_STATE_DIR}/CAMx.${CXR_DATE_RAW}.in'
 
 
 ########################################

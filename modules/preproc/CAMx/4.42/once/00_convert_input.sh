@@ -119,6 +119,9 @@ exit 1
 function set_variables() 
 ################################################################################
 {	
+	# Define & Initialize local vars
+	# i is non-local
+	local k
 
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
@@ -207,6 +210,11 @@ function set_variables()
 function convert_input() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local max
+	local k
+	
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -224,10 +232,10 @@ function convert_input()
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			# How many iterations are needed?
-			MAX=$(( ${#CXR_CONVERTERS[*]} - 1))
+			max=$(( ${#CXR_CONVERTERS[*]} - 1))
 		
 			### Go trough all input arrays
-			for k in $(seq 0 ${MAX})
+			for k in $(seq 0 ${max})
 			do
 				# Loop through files
 				

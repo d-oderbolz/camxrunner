@@ -128,7 +128,7 @@ function set_variables()
 	# Empty expansion is not allowed
 	
 	# Name of the CAMx.in file
-	CXR_CAMXIN=$(cxr_common_evaluate_rule "$CXR_CAMXIN_RULE" false CXR_CAMXIN_RULE)
+	CXR_MODEL_CTRL_FILE=$(cxr_common_evaluate_rule "$CXR_MODEL_CTRL_FILE_RULE" false CXR_MODEL_CTRL_FILE_RULE)
 	
 	# Not directly checkable, Start of all output file names without extension
 	CXR_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
@@ -352,110 +352,43 @@ function write_model_control_file()
 {
 	# This only supports PMCAMx 2008  (CAMx 4.0)
 	
-	echo "CAMx Version       |VERSION4.0" > ${CXR_CAMXIN}
-	echo "Run Message        |${CXR_RUN}" >> ${CXR_CAMXIN} 
-	echo "Root output name   |$CXR_ROOT_OUTPUT" >> ${CXR_CAMXIN} 
-	echo "Start yr/mo/dy/hr  |${CXR_YEAR_S} ${CXR_MONTH} ${CXR_DAY} ${CXR_START_HOUR}." >> ${CXR_CAMXIN} 
-	echo "End   yr/mo/dy/hr  |${CXR_YEAR_S} ${CXR_MONTH} ${CXR_DAY} ${CXR_STOP_HOUR}." >> ${CXR_CAMXIN} 
-	echo "DT:max,met,ems,out |${CXR_MAXIMUM_TIMESTEP} ${CXR_MET_INPUT_FREQUENCY} ${CXR_EMS_INPUT_FREQUENCY} ${CXR_OUTPUT_FREQUENCY}" >> ${CXR_CAMXIN} 
-	echo "nx,ny,nz           |${CXR_MASTER_GRID_COLUMNS}   ${CXR_MASTER_GRID_ROWS}   ${CXR_NUMBER_OF_LAYERS[1]}" >> ${CXR_CAMXIN} 
-	echo "sCoordinate ID     |${CXR_MAP_PROJECTION}" >> ${CXR_CAMXIN}
+	# Define & Initialize local vars
+	local i
+	local str
+	local len
+	local num_spaces
+	local y
+	
+	# Clean the file away first
+	: > ${CXR_MODEL_CTRL_FILE} 
+	
+	echo "CAMx Version       |VERSION4.0" > ${CXR_MODEL_CTRL_FILE}
+	echo "Run Message        |${CXR_RUN}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Root output name   |$CXR_ROOT_OUTPUT" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Start yr/mo/dy/hr  |${CXR_YEAR_S} ${CXR_MONTH} ${CXR_DAY} ${CXR_START_HOUR}." >> ${CXR_MODEL_CTRL_FILE} 
+	echo "End   yr/mo/dy/hr  |${CXR_YEAR_S} ${CXR_MONTH} ${CXR_DAY} ${CXR_STOP_HOUR}." >> ${CXR_MODEL_CTRL_FILE} 
+	echo "DT:max,met,ems,out |${CXR_MAXIMUM_TIMESTEP} ${CXR_MET_INPUT_FREQUENCY} ${CXR_EMS_INPUT_FREQUENCY} ${CXR_OUTPUT_FREQUENCY}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "nx,ny,nz           |${CXR_MASTER_GRID_COLUMNS}   ${CXR_MASTER_GRID_ROWS}   ${CXR_NUMBER_OF_LAYERS[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "sCoordinate ID     |${CXR_MAP_PROJECTION}" >> ${CXR_MODEL_CTRL_FILE}
 	
 	case ${CXR_MAP_PROJECTION} in
 	
-		LAMBERT) echo "xorg,yorg,dx,dy... |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_LAMBERT_CENTER_LONGITUDE} ${CXR_LAMBERT_CENTER_LATITUDE} ${CXR_LAMBERT_TRUE_LATITUDE1} ${CXR_LAMBERT_TRUE_LATITUDE2}" >> ${CXR_CAMXIN} ;;
-	  LATLON)  echo "long,lat,dx,dy     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} " >> ${CXR_CAMXIN} ;;
-	  UTM)     echo "x,y,dx,dy,zone     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_UTM_ZONE} " >> ${CXR_CAMXIN} ;;
-	  POLAR)   echo "x,y,dx,dy,lo_p,la_p|${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_POLAR_LONGITUDE_POLE} ${CXR_POLAR_LATITUDE_POLE}" >> ${CXR_CAMXIN} ;;
-	  *) cxr_main_die_gracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
+		LAMBERT) echo "xorg,yorg,dx,dy... |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_LAMBERT_CENTER_LONGITUDE} ${CXR_LAMBERT_CENTER_LATITUDE} ${CXR_LAMBERT_TRUE_LATITUDE1} ${CXR_LAMBERT_TRUE_LATITUDE2}" >> ${CXR_MODEL_CTRL_FILE} ;;
+		LATLON)  echo "long,lat,dx,dy     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} " >> ${CXR_MODEL_CTRL_FILE} ;;
+		UTM)     echo "x,y,dx,dy,zone     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_UTM_ZONE} " >> ${CXR_MODEL_CTRL_FILE} ;;
+		POLAR)   echo "x,y,dx,dy,lo_p,la_p|${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_POLAR_LONGITUDE_POLE} ${CXR_POLAR_LATITUDE_POLE}" >> ${CXR_MODEL_CTRL_FILE} ;;
+		*) cxr_main_die_gracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
 	
 	esac
 	
-	echo "time zone          |${CXR_TIME_ZONE}" >> ${CXR_CAMXIN} 
+	echo "time zone          |${CXR_TIME_ZONE}" >> ${CXR_MODEL_CTRL_FILE} 
 	
-	echo "PiG parameters     |${CXR_PIG_MAX_PUFF_LENGTH} ${CXR_PIG_MAX_PUFF_AGE}" >> ${CXR_CAMXIN} # Maxiumum puff length [m], maximum puff age [h]
-	echo "Avg output species |${CXR_NUMBER_OF_OUTPUT_SPECIES}" >> ${CXR_CAMXIN} 
-	
-#	echo "                   |NO        NO2       O3        PAN       PAN2      MPAN" >> ${CXR_CAMXIN}
-#	echo "                   |PBZN      NPHE      RNO3      CRES      DCB2      DCB3" >> ${CXR_CAMXIN}
-#	echo "                   |HNO4      BALD      HONO      XN        HCHO      CCHO" >> ${CXR_CAMXIN}
-#	echo "                   |RCHO      BACL      PROD      DCB1      PHEN      ISOP" >> ${CXR_CAMXIN}
-#	echo "                   |ISPD      MVK       METH      MGLY      GLY       TERP" >> ${CXR_CAMXIN}
-#	echo "                   |BPIN      LIMO      MONO      SESQ      HNO3      HO2H" >> ${CXR_CAMXIN}
-#	echo "                   |HC2H      CO2H      CO3H      RC2H      RC3H      ACET" >> ${CXR_CAMXIN}
-#	echo "                   |MEK       MEOH      COOH      ROOH      CO        ETHE" >> ${CXR_CAMXIN}
-#	echo "                   |ALK1      ALK2      ALK3      ALK4      ALK5      ARO1" >> ${CXR_CAMXIN}
-#	echo "                   |ARO2      OLE1      OLE2      NXOY      SO2       SULF" >> ${CXR_CAMXIN}
-#	echo "                   |NH3       CPO1      CPO2      CPO3      CPO4      CPO5" >> ${CXR_CAMXIN}
-#	echo "                   |CPO6      CPO7      CPO8      CPO9      CPO10     COO1" >> ${CXR_CAMXIN}
-#	echo "                   |COO2      COO3      COO4      COO5      COO6      COO7" >> ${CXR_CAMXIN}
-#	echo "                   |COO8      COO9      COO10     CBS1      CBS2      CBS3" >> ${CXR_CAMXIN}
-#	echo "                   |CBS4      CAS1      CAS2      CAS3      CAS4      APO1_1" >> ${CXR_CAMXIN}
-#	echo "                   |APO1_2    APO1_3    APO1_4    APO1_5    APO1_6    APO1_7" >> ${CXR_CAMXIN}
-#	echo "                   |APO1_8    APO1_9    APO1_10   APO2_1    APO2_2    APO2_3" >> ${CXR_CAMXIN}
-#	echo "                   |APO2_4    APO2_5    APO2_6    APO2_7    APO2_8    APO2_9" >> ${CXR_CAMXIN}
-#	echo "                   |APO2_10   APO3_1    APO3_2    APO3_3    APO3_4    APO3_5" >> ${CXR_CAMXIN}
-#	echo "                   |APO3_6    APO3_7    APO3_8    APO3_9    APO3_10   APO4_1" >> ${CXR_CAMXIN}
-#	echo "                   |APO4_2    APO4_3    APO4_4    APO4_5    APO4_6    APO4_7" >> ${CXR_CAMXIN}
-#	echo "                   |APO4_8    APO4_9    APO4_10   APO5_1    APO5_2    APO5_3" >> ${CXR_CAMXIN}
-#	echo "                   |APO5_4    APO5_5    APO5_6    APO5_7    APO5_8    APO5_9" >> ${CXR_CAMXIN}
-#	echo "                   |APO5_10   APO6_1    APO6_2    APO6_3    APO6_4    APO6_5" >> ${CXR_CAMXIN}
-#	echo "                   |APO6_6    APO6_7    APO6_8    APO6_9    APO6_10   APO7_1" >> ${CXR_CAMXIN}
-#	echo "                   |APO7_2    APO7_3    APO7_4    APO7_5    APO7_6    APO7_7" >> ${CXR_CAMXIN}
-#	echo "                   |APO7_8    APO7_9    APO7_10   APO8_1    APO8_2    APO8_3" >> ${CXR_CAMXIN}
-#	echo "                   |APO8_4    APO8_5    APO8_6    APO8_7    APO8_8    APO8_9" >> ${CXR_CAMXIN}
-#	echo "                   |APO8_10   APO9_1    APO9_2    APO9_3    APO9_4    APO9_5" >> ${CXR_CAMXIN}
-#	echo "                   |APO9_6    APO9_7    APO9_8    APO9_9    APO9_10   APO10_1" >> ${CXR_CAMXIN}
-#	echo "                   |APO10_2   APO10_3   APO10_4   APO10_5   APO10_6   APO10_7" >> ${CXR_CAMXIN}
-#	echo "                   |APO10_8   APO10_9   APO10_10  AOO1_1    AOO1_2    AOO1_3" >> ${CXR_CAMXIN}
-#	echo "                   |AOO1_4    AOO1_5    AOO1_6    AOO1_7    AOO1_8    AOO1_9" >> ${CXR_CAMXIN}
-#	echo "                   |AOO1_10   AOO2_1    AOO2_2    AOO2_3    AOO2_4    AOO2_5" >> ${CXR_CAMXIN}
-#	echo "                   |AOO2_6    AOO2_7    AOO2_8    AOO2_9    AOO2_10   AOO3_1" >> ${CXR_CAMXIN}
-#	echo "                   |AOO3_2    AOO3_3    AOO3_4    AOO3_5    AOO3_6    AOO3_7" >> ${CXR_CAMXIN}
-#	echo "                   |AOO3_8    AOO3_9    AOO3_10   AOO4_1    AOO4_2    AOO4_3" >> ${CXR_CAMXIN}
-#	echo "                   |AOO4_4    AOO4_5    AOO4_6    AOO4_7    AOO4_8    AOO4_9" >> ${CXR_CAMXIN}
-#	echo "                   |AOO4_10   AOO5_1    AOO5_2    AOO5_3    AOO5_4    AOO5_5" >> ${CXR_CAMXIN}
-#	echo "                   |AOO5_6    AOO5_7    AOO5_8    AOO5_9    AOO5_10   AOO6_1" >> ${CXR_CAMXIN}
-#	echo "                   |AOO6_2    AOO6_3    AOO6_4    AOO6_5    AOO6_6    AOO6_7" >> ${CXR_CAMXIN}
-#	echo "                   |AOO6_8    AOO6_9    AOO6_10   AOO7_1    AOO7_2    AOO7_3" >> ${CXR_CAMXIN}
-#	echo "                   |AOO7_4    AOO7_5    AOO7_6    AOO7_7    AOO7_8    AOO7_9" >> ${CXR_CAMXIN}
-#	echo "                   |AOO7_10   AOO8_1    AOO8_2    AOO8_3    AOO8_4    AOO8_5" >> ${CXR_CAMXIN}
-#	echo "                   |AOO8_6    AOO8_7    AOO8_8    AOO8_9    AOO8_10   AOO9_1" >> ${CXR_CAMXIN}
-#	echo "                   |AOO9_2    AOO9_3    AOO9_4    AOO9_5    AOO9_6    AOO9_7" >> ${CXR_CAMXIN}
-#	echo "                   |AOO9_8    AOO9_9    AOO9_10   AOO10_1   AOO10_2   AOO10_3" >> ${CXR_CAMXIN}
-#	echo "                   |AOO10_4   AOO10_5   AOO10_6   AOO10_7   AOO10_8   AOO10_9" >> ${CXR_CAMXIN}
-#	echo "                   |AOO10_10  ABS1_1    ABS1_2    ABS1_3    ABS1_4    ABS1_5" >> ${CXR_CAMXIN}
-#	echo "                   |ABS1_6    ABS1_7    ABS1_8    ABS1_9    ABS1_10   ABS2_1" >> ${CXR_CAMXIN}
-#	echo "                   |ABS2_2    ABS2_3    ABS2_4    ABS2_5    ABS2_6    ABS2_7" >> ${CXR_CAMXIN}
-#	echo "                   |ABS2_8    ABS2_9    ABS2_10   ABS3_1    ABS3_2    ABS3_3" >> ${CXR_CAMXIN}
-#	echo "                   |ABS3_4    ABS3_5    ABS3_6    ABS3_7    ABS3_8    ABS3_9" >> ${CXR_CAMXIN}
-#	echo "                   |ABS3_10   ABS4_1    ABS4_2    ABS4_3    ABS4_4    ABS4_5" >> ${CXR_CAMXIN}
-#	echo "                   |ABS4_6    ABS4_7    ABS4_8    ABS4_9    ABS4_10   AAS1_1" >> ${CXR_CAMXIN}
-#	echo "                   |AAS1_2    AAS1_3    AAS1_4    AAS1_5    AAS1_6    AAS1_7" >> ${CXR_CAMXIN}
-#	echo "                   |AAS1_8    AAS1_9    AAS1_10   AAS2_1    AAS2_2    AAS2_3" >> ${CXR_CAMXIN}
-#	echo "                   |AAS2_4    AAS2_5    AAS2_6    AAS2_7    AAS2_8    AAS2_9" >> ${CXR_CAMXIN}
-#	echo "                   |AAS2_10   AAS3_1    AAS3_2    AAS3_3    AAS3_4    AAS3_5" >> ${CXR_CAMXIN}
-#	echo "                   |AAS3_6    AAS3_7    AAS3_8    AAS3_9    AAS3_10   AAS4_1" >> ${CXR_CAMXIN}
-#	echo "                   |AAS4_2    AAS4_3    AAS4_4    AAS4_5    AAS4_6    AAS4_7" >> ${CXR_CAMXIN}
-#	echo "                   |AAS4_8    AAS4_9    AAS4_10   POC_1     POC_2     POC_3" >> ${CXR_CAMXIN}
-#	echo "                   |POC_4     POC_5     POC_6     POC_7     POC_8     POC_9" >> ${CXR_CAMXIN}
-#	echo "                   |POC_10    PEC_1     PEC_2     PEC_3     PEC_4     PEC_5" >> ${CXR_CAMXIN}
-#	echo "                   |PEC_6     PEC_7     PEC_8     PEC_9     PEC_10    CRST_1" >> ${CXR_CAMXIN}
-#	echo "                   |CRST_2    CRST_3    CRST_4    CRST_5    CRST_6    CRST_7" >> ${CXR_CAMXIN}
-#	echo "                   |CRST_8    CRST_9    CRST_10   PH2O_1    PH2O_2    PH2O_3" >> ${CXR_CAMXIN}
-#	echo "                   |PH2O_4    PH2O_5    PH2O_6    PH2O_7    PH2O_8    PH2O_9" >> ${CXR_CAMXIN}
-#	echo "                   |PH2O_10   PCL_1     PCL_2     PCL_3     PCL_4     PCL_5" >> ${CXR_CAMXIN}
-#	echo "                   |PCL_6     PCL_7     PCL_8     PCL_9     PCL_10    NA_1" >> ${CXR_CAMXIN}
-#	echo "                   |NA_2      NA_3      NA_4      NA_5      NA_6      NA_7" >> ${CXR_CAMXIN}
-#	echo "                   |NA_8      NA_9      NA_10     PNH4_1    PNH4_2    PNH4_3" >> ${CXR_CAMXIN}
-#	echo "                   |PNH4_4    PNH4_5    PNH4_6    PNH4_7    PNH4_8    PNH4_9" >> ${CXR_CAMXIN}
-#	echo "                   |PNH4_10   PNO3_1    PNO3_2    PNO3_3    PNO3_4    PNO3_5" >> ${CXR_CAMXIN}
-#	echo "                   |PNO3_6    PNO3_7    PNO3_8    PNO3_9    PNO3_10   PSO4_1" >> ${CXR_CAMXIN}
-#	echo "                   |PSO4_2    PSO4_3    PSO4_4    PSO4_5    PSO4_6    PSO4_7" >> ${CXR_CAMXIN}
-#	echo "                   |PSO4_8    PSO4_9    PSO4_10" >> ${CXR_CAMXIN}
-	
+	echo "PiG parameters     |${CXR_PIG_MAX_PUFF_LENGTH} ${CXR_PIG_MAX_PUFF_AGE}" >> ${CXR_MODEL_CTRL_FILE} # Maxiumum puff length [m], maximum puff age [h]
+	echo "Avg output species |${CXR_NUMBER_OF_OUTPUT_SPECIES}" >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# PMCAMx wants the species to be listed in grops of 6 each, where the distance between each column is 10 bytes
+	# Looks like this:
+	# "                   |NO        NO2       O3        PAN       PAN2      MPAN"
 	for i in $(seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES);
 	do
 	
@@ -463,27 +396,27 @@ function write_model_control_file()
 		
 		if [[ $i -eq 1  ]]
 		then
-			echo -n "                   |"  >> ${CXR_CAMXIN}
+			echo -n "                   |"  >> ${CXR_MODEL_CTRL_FILE}
 		fi
 	
 		# string lenght, sorry for the weird detour
-		STR=${CXR_OUTPUT_SPECIES_NAMES[${i}]}
-		cxr_common_len=${#STR}
+		str=${CXR_OUTPUT_SPECIES_NAMES[${i}]}
+		len=${#str}
 		
 		# What's left of the 10 Bytes?
-		NUM_SPACES=$(( ${CXR_SPECIES_COLUMN_WIDTH:-10} - $cxr_common_len ))
+		num_spaces=$(( ${CXR_SPECIES_COLUMN_WIDTH:-10} - $len ))
 		
 		# Correct if we chopped all away
-		if [[ $NUM_SPACES -lt 0  ]]
+		if [[ $num_spaces -lt 0  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Attention: Either your species names are to long or the column spacing is to small!"
-			NUM_SPACES=0
+			num_spaces=0
 		fi
 		
 		# Generate that many spaces (the printf approach in cxr_main_logger does not work with spaces!!)
 		y=0 
 		SPACES=
-		while [ "$y" -lt $NUM_SPACES ]; do
+		while [ "$y" -lt $num_spaces ]; do
 			SPACES=" $SPACES"
 			y=$(($y + 1))
 		done 
@@ -492,22 +425,22 @@ function write_model_control_file()
 		if [[ $(expr ${i} % ${CXR_SPECIES_COLUMNS:-6}) -eq 0  ]]
 		then
 			# Start new Line, no spaces at the end
-			echo ${CXR_OUTPUT_SPECIES_NAMES[${i}]} >> ${CXR_CAMXIN}
+			echo ${CXR_OUTPUT_SPECIES_NAMES[${i}]} >> ${CXR_MODEL_CTRL_FILE}
 			
 			# Already add new column if there are species left
 			if [[ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES  ]]
 			then
-				echo -n "                   |"  >> ${CXR_CAMXIN}
+				echo -n "                   |"  >> ${CXR_MODEL_CTRL_FILE}
 			fi
 			
 		else
 			# No new Line, spaces if it is not last Element
 			if [[ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES  ]]
 			then
-				echo -n ${CXR_OUTPUT_SPECIES_NAMES[${i}]}"${SPACES}" >> ${CXR_CAMXIN}
+				echo -n ${CXR_OUTPUT_SPECIES_NAMES[${i}]}"${SPACES}" >> ${CXR_MODEL_CTRL_FILE}
 			else
 				# But: if this was the last element, we need a newline and no spaces
-				echo ${CXR_OUTPUT_SPECIES_NAMES[${i}]} >> ${CXR_CAMXIN}
+				echo ${CXR_OUTPUT_SPECIES_NAMES[${i}]} >> ${CXR_MODEL_CTRL_FILE}
 			fi
 		fi
 	done
@@ -515,346 +448,125 @@ function write_model_control_file()
 	if [[ ${CXR_NUMBER_OF_GRIDS} -lt 2  ]]
 	then
 		#PMCAMx expects a 0 insted of 1 if there is no nesting (that might be true for CAMx as well?)
-		echo "# nested grids     |0" >> ${CXR_CAMXIN}
+		echo "# nested grids     |0" >> ${CXR_MODEL_CTRL_FILE}
 	else
-		echo "# nested grids     |${CXR_NUMBER_OF_GRIDS}" >> ${CXR_CAMXIN}
+		echo "# nested grids     |${CXR_NUMBER_OF_GRIDS}" >> ${CXR_MODEL_CTRL_FILE}
 	fi	
 	
 	# Set up Nested grid data
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "i1,i2,j1,j2,nz,mesh|${CXR_NEST_BEG_I_INDEX[${i}]} ${CXR_NEST_END_I_INDEX[${i}]} ${CXR_NEST_BEG_J_INDEX[${i}]} ${CXR_NEST_END_J_INDEX[${i}]} ${CXR_NUMBER_OF_LAYERS[${i}]} ${CXR_NEST_MESHING_FACTOR[${i}]}" >> ${CXR_CAMXIN} 
+		echo "i1,i2,j1,j2,nz,mesh|${CXR_NEST_BEG_I_INDEX[${i}]} ${CXR_NEST_END_I_INDEX[${i}]} ${CXR_NEST_BEG_J_INDEX[${i}]} ${CXR_NEST_END_J_INDEX[${i}]} ${CXR_NUMBER_OF_LAYERS[${i}]} ${CXR_NEST_MESHING_FACTOR[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
-	echo "SMOLAR,BOTT, PPM?  |${CXR_ADVECTION_SOLVER}" >> ${CXR_CAMXIN} 
-	echo "Chemistry solver   |${CXR_CHEMISTRY_SOLVER}" >> ${CXR_CAMXIN} 
-	echo "Restart            |${CXR_RESTART}" >> ${CXR_CAMXIN} 
-	echo "Chemistry          |${CXR_CHEMISTRY}" >> ${CXR_CAMXIN} 
-	echo "Dry dep            |${CXR_DRY_DEPOSITION}" >> ${CXR_CAMXIN} 
-	echo "Wet dep            |${CXR_WET_DEPOSITION}" >> ${CXR_CAMXIN} 
+	echo "SMOLAR,BOTT, PPM?  |${CXR_ADVECTION_SOLVER}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Chemistry solver   |${CXR_CHEMISTRY_SOLVER}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Restart            |${CXR_RESTART}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Chemistry          |${CXR_CHEMISTRY}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Dry dep            |${CXR_DRY_DEPOSITION}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Wet dep            |${CXR_WET_DEPOSITION}" >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# In this version, this is a flag
 	if [[ "${CXR_PIG_SUBMODEL:-None}" == None  ]]
 	then
-		echo "PiG submodel       |false" >> ${CXR_CAMXIN} 
+		echo "PiG submodel       |false" >> ${CXR_MODEL_CTRL_FILE} 
 	else
-		echo "PiG submodel       |true" >> ${CXR_CAMXIN} 
+		echo "PiG submodel       |true" >> ${CXR_MODEL_CTRL_FILE} 
 	fi
 	
-	echo "Staggered winds    |${CXR_STAGGERED_WINDS}" >> ${CXR_CAMXIN} 
-	echo "Treat area emiss   |${CXR_GRIDDED_EMISSIONS}" >> ${CXR_CAMXIN} 
-	echo "Treat point emiss  |${CXR_POINT_EMISSIONS}" >> ${CXR_CAMXIN}
+	echo "Staggered winds    |${CXR_STAGGERED_WINDS}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Treat area emiss   |${CXR_GRIDDED_EMISSIONS}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Treat point emiss  |${CXR_POINT_EMISSIONS}" >> ${CXR_MODEL_CTRL_FILE}
 	
 	# Is this the same idea?
-	echo "1-day emiss inputs |${CXR_IGNORE_EMISSION_DATES}" >> ${CXR_CAMXIN} 
-	echo "3-D average file   |${CXR_AVERAGE_OUTPUT_3D}" >> ${CXR_CAMXIN}
+	echo "1-day emiss inputs |${CXR_IGNORE_EMISSION_DATES}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "3-D average file   |${CXR_AVERAGE_OUTPUT_3D}" >> ${CXR_MODEL_CTRL_FILE}
 	
-	# In this version, this is a flag
 	# In this version, this is a flag
 	if [[ "${CXR_PROBING_TOOL:-None}" == None  ]]
 	then
-		echo "Probing tools      |false" >> ${CXR_CAMXIN} 
+		echo "Probing tools      |false" >> ${CXR_MODEL_CTRL_FILE} 
 	else
-		echo "Probing tools      |true" >> ${CXR_CAMXIN} 
+		echo "Probing tools      |true" >> ${CXR_MODEL_CTRL_FILE} 
 	fi
 	
 	# Put specific info here (see sections 5-7 in manual)
 	
-	echo "Chemparam          |${CXR_CHEMPARAM_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Photolysis rates   |${CXR_PHOTOLYIS_RATES_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Landuse            |${CXR_LANDUSE_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Height/pressure    |${CXR_ZP_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Wind               |${CXR_WIND_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Temperature        |${CXR_TEMP_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Water vapor        |${CXR_VAPOR_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Cloud/rain         |${CXR_CLOUD_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Vertical diffsvty  |${CXR_KV_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN} 
-	echo "Initial conditions |${CXR_INITIAL_CONDITIONS_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Boundary conditions|${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Top concentration  |${CXR_TOP_CONCENTRATIONS_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Albedo/haze/ozone  |${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Point emiss        |${CXR_POINT_SOURCES_INPUT_FILE}" >> ${CXR_CAMXIN} 
-	echo "Area emiss         |${CXR_EMISS_INPUT_ARR_FILES[1]}" >> ${CXR_CAMXIN}
+	echo "Chemparam          |${CXR_CHEMPARAM_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Photolysis rates   |${CXR_PHOTOLYIS_RATES_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Landuse            |${CXR_LANDUSE_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Height/pressure    |${CXR_ZP_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Wind               |${CXR_WIND_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Temperature        |${CXR_TEMP_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Water vapor        |${CXR_VAPOR_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Cloud/rain         |${CXR_CLOUD_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Vertical diffsvty  |${CXR_KV_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Initial conditions |${CXR_INITIAL_CONDITIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Boundary conditions|${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Top concentration  |${CXR_TOP_CONCENTRATIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Albedo/haze/ozone  |${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Point emiss        |${CXR_POINT_SOURCES_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	echo "Area emiss         |${CXR_EMISS_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE}
 	
 	# Now we provide the data for the nested grids. The structure of the file
 	# requires to repeat the loop over the grids (this was improved in CAMx 4.x!)
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Landuse            |${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Landuse            |${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Height/pressure    |${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]]}" >> ${CXR_CAMXIN}
+		echo "Height/pressure    |${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]]}" >> ${CXR_MODEL_CTRL_FILE}
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Wind               |${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Wind               |${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Temperature        |${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Temperature        |${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Water vapor        |${CXR_VAPOR_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Water vapor        |${CXR_VAPOR_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Cloud/rain         |${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Cloud/rain         |${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Vertical diffsvty  |${CXR_KV_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN} 
+		echo "Vertical diffsvty  |${CXR_KV_GRID_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE} 
 	done
 	
 	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
-		echo "Area emiss         |${CXR_EMISS_INPUT_ARR_FILES[${i}]}" >> ${CXR_CAMXIN}
+		echo "Area emiss         |${CXR_EMISS_INPUT_ARR_FILES[${i}]}" >> ${CXR_MODEL_CTRL_FILE}
 	done
 
-	echo "Master restart file|${CXR_MASTER_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
+	echo "Master restart file|${CXR_MASTER_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_MODEL_CTRL_FILE}
 	
 	if [[ ${CXR_NUMBER_OF_GRIDS} -gt 1  ]]
 	then
-		echo "Nested restart file|${CXR_NESTED_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
+		echo "Nested restart file|${CXR_NESTED_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_MODEL_CTRL_FILE}
 	fi
 	
 	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 	then
-		echo "PiG restart file   |${CXR_PIG_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
+		echo "PiG restart file   |${CXR_PIG_RESTART_INPUT_FILE:-}" >> ${CXR_MODEL_CTRL_FILE}
 	fi
 	
+	################################################################
+	# OSAT, PSAT,  GOAT or APCA ia yet to be implemented here...
+	################################################################
 
-#	################################################################
-#	# OSAT, PSAT,  GOAT or APCA ia yet to be implemented here...
-#	################################################################
-#	if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
-#	then
-#	
-#		echo " !---${CXR_PROBING_TOOL}--------------------------------------------------------------------" >> ${CXR_CAMXIN} 
-#		echo " &SA_Control" >> ${CXR_CAMXIN} 
-#		
-#		echo " SA_File_Root              = '${CXR_SA_ROOT_OUTPUT}'," >> ${CXR_CAMXIN} 
-#		echo " SA_Summary_Output         = .${CXR_SA_SUMMARY_OUTPUT}.," >> ${CXR_CAMXIN} 
-#		
-#		echo " SA_Master_Sfc_Output         = .${CXR_SA_MASTER_SFC_OUTPUT}.," >> ${CXR_CAMXIN} 
-#		echo " SA_Nested_Sfc_Output         = .${CXR_SA_NESTED_SFC_OUTPUT}.," >> ${CXR_CAMXIN} 
-#		echo " SA_Stratify_Boundary         = .${CXR_SA_STRATIFY_BOUNDARY}.," >> ${CXR_CAMXIN} 
-#		echo " SA_Number_of_Source_Regions  = ${CXR_SA_NUMBER_OF_SOURCE_REGIONS}," >> ${CXR_CAMXIN} 
-#		echo " SA_Number_of_Source_Groups   = ${CXR_SA_NUMBER_OF_SOURCE_GROUPS}," >> ${CXR_CAMXIN} 
-#		echo " Use_Leftover_Group           = .${CXR_USE_LEFTOVER_GROUP}.," >> ${CXR_CAMXIN} 
-#		echo " Number_of_Timing_Releases    = ${CXR_NUMBER_OF_TIMING_RELEASES}, " >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_SULFATE_Class     = .${CXR_PSAT_TREAT_SULFATE_CLASS}.," >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_NITRATE_Class     = .${CXR_PSAT_TREAT_NITRATE_CLASS}.," >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_SOA_Class         = .${CXR_PSAT_TREAT_SOA_CLASS}.," >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_PRIMARY_Class     = .${CXR_PSAT_TREAT_PRIMARY_CLASS}.," >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_MERCURY_Class     = .${CXR_PSAT_TREAT_MERCURY_CLASS}.," >> ${CXR_CAMXIN} 
-#		echo " PSAT_Treat_OZONE_Class       = .${CXR_PSAT_TREAT_OZONE_CLASS}.," >> ${CXR_CAMXIN} 
-#		
-#		echo " SA_Receptor_Definitions  = '${CXR_SA_RECEPTOR_DEFINITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " SA_Master_Restart        = '${CXR_SA_MASTER_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " SA_Nested_Restart        = '${CXR_SA_NESTED_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		# By grid
-#		for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-#		do
-#			echo " SA_Source_Area_Map(${i})    = '${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}'," >> ${CXR_CAMXIN} 
-#		done
-#		
-#		
-#		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
-#		then
-#			# By source group
-#			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
-#			do
-#				echo " SA_Points_Group(${j})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}'," >> ${CXR_CAMXIN} 
-#			done
-#		fi
-#		
-#		
-#		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
-#		then
-#			# By source group
-#			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
-#			do
-#				# and grid
-#				for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-#				do
-#					# This is not elegant, but it simulates a 2D Array
-#					ELEMENT_NAME=CXR_SA_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE
-#					echo " SA_Emiss_Group_Grid(${j},${i}) = '${!ELEMENT_NAME}'," >> ${CXR_CAMXIN} 
-#			
-#				done
-#			done
-#		fi
-#		
-#		echo " &END" >> ${CXR_CAMXIN} 
-#	
-#		
-#	################################################################
-#	# Must we run direct decoupled sensitivity analysis?
-#	# DDM
-#	################################################################
-#	elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
-#	then
-#
-#		echo " !----Sensitivity Analysis (Direct Decoupled Method)-----------------------------" >> ${CXR_CAMXIN} 
-#		echo " &DDM_Control" >> ${CXR_CAMXIN} 
-#		
-#		echo " DDM_File_Root                = '${CXR_DDM_ROOT_OUTPUT}'," >> ${CXR_CAMXIN} 
-#		echo " DDM_Master_Sfc_Output        = .${CXR_DDM_MASTER_SFC_OUTPUT}.," >> ${CXR_CAMXIN} 
-#		echo " DDM_Nested_Sfc_Output        = .${CXR_DDM_NESTED_SFC_OUTPUT}.," >> ${CXR_CAMXIN} 
-#		echo " DDM_Stratify_Boundary        = .${CXR_DDM_STRATIFY_BOUNDARY}.," >> ${CXR_CAMXIN} 
-#		echo " DDM_Number_of_Source_Regions = ${CXR_DDM_NUMBER_OF_SOURCE_REGIONS}," >> ${CXR_CAMXIN} 
-#		echo " DDM_Number_of_Source_Groups  = ${CXR_DDM_NUMBER_OF_SOURCE_GROUPS}," >> ${CXR_CAMXIN} 
-#		
-#		echo " DDM_Initial_Conditions    = '${CXR_DDM_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " DDM_Boundary_Conditions   = '${CXR_DDM_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " DDM_Top_Concentrations    = '${CXR_DDM_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " DDM_Master_Restart        = '${CXR_DDM_MASTER_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " DDM_Nested_Restart        = '${CXR_DDM_NESTED_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " DDM_Receptor_Definitions  = '${CXR_DDM_RECEPTOR_DEFINITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " Number_of_IC_Species_Groups = ${CXR_NUMBER_OF_IC_SPECIES_GROUPS}," >> ${CXR_CAMXIN} 
-#		
-#		# By initial conc group
-#		for a in $(seq 1 "$CXR_NUMBER_OF_IC_SPECIES_GROUPS");
-#		do
-#			echo " IC_Species_Groups(${a})        = '${CXR_IC_SPECIES_GROUPS_INPUT_ARR_FILES[${a}]}'," >> ${CXR_CAMXIN} 
-#		done
-#		
-#		echo " Number_of_BC_Species_Groups = ${CXR_NUMBER_OF_BC_SPECIES_GROUPS}," >> ${CXR_CAMXIN} 
-#		
-#		# By boundary condition group
-#		for b in $(seq 1 "$CXR_NUMBER_OF_BC_SPECIES_GROUPS");
-#		do
-#			echo " BC_species_Groups(${b})        = '${CXR_BC_SPECIES_GROUPS_INPUT_ARR_FILES[${b}]}'," >> ${CXR_CAMXIN} 
-#		done
-#		
-#		
-#		echo " Number_of_EM_Species_Groups = ${CXR_NUMBER_OF_EM_SPECIES_GROUPS}," >> ${CXR_CAMXIN} 
-#		
-#		# By Emission group
-#		for c in $(seq 1 "$CXR_NUMBER_OF_EM_SPECIES_GROUPS");
-#		do
-#			echo " Emis_Species_Groups(${c})      = '${CXR_EMIS_SPECIES_GROUPS[${c}]}'," >> ${CXR_CAMXIN} 
-#		done
-#		
-#		# By grid
-#		for i in $(seq 1 "$CXR_NUMBER_OF_GRIDS");
-#		do
-#			echo " DDM_Source_Area_Map(${i})    = '${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}'," >> ${CXR_CAMXIN}
-#		done 
-#		
-#		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
-#		then
-#			# By source group
-#			for j in $(seq 1 "$CXR_DDM_NUMBER_OF_SOURCE_GROUPS");
-#			do
-#				echo " DDM_Points_Group(${j})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}'," >> ${CXR_CAMXIN} 
-#			done
-#		fi
-#		 
-#		# By source group, by grid
-#		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
-#		then
-#			# By source group
-#			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
-#			do
-#				
-#				# and grid
-#				for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-#				do
-#					# This is not elegant, but it simulates a 2D Array
-#					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE
-#					echo " DDM_Emiss_Group_Grid(${j},${i}) = '${!ELEMENT_NAME}'," >> ${CXR_CAMXIN} 
-#				done
-#			done
-#		fi 
-#		
-#		echo " &END" >> ${CXR_CAMXIN}  
-#
-#	################################################################
-#	# Must we run Reactive Tracer Source Apportionment?
-#	# RTRAC (RT)
-#	################################################################
-#	elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
-#	then
-#	
-#		echo " !---RTRAC (Reactive Tracer Source Apportionment)-----------------------------------------------------------------" >> ${CXR_CAMXIN} 
-#		echo " &RT_Control" >> ${CXR_CAMXIN} 
-#		
-#		echo " RT_File_Root            = '${CXR_RT_ROOT_OUTPUT}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " RT_Initial_Conditions   = '${CXR_RT_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " RT_Boundary_Conditions  = '${CXR_RT_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " RT_Top_Concentrations   = '${CXR_RT_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " RT_Master_Restart       = '${CXR_RT_MASTER_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " RT_Nested_Restart       = '${CXR_RT_NESTED_RESTART_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		echo " RT_Chemistry_Parameters = '${CXR_RT_CHEMISTRY_PARAMETERS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " RT_Receptor_Definitions = '${CXR_RT_RECEPTOR_DEFINITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		echo " RT_Point_Sources        = '${CXR_RT_POINT_SOURCES_INPUT_FILE}'," >> ${CXR_CAMXIN} 
-#		
-#		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
-#		then
-#			echo " RT_PiG_Sample           = .${CXR_RT_PIG_SAMPLE}.,               ! Ignore if PiG = false" >> ${CXR_CAMXIN} 
-#		fi
-#		
-#		# By grid
-#		for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-#		do
-#			echo " RT_Emiss_Grid(${i})    = '${CXR_RT_EMISS_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_CAMXIN}
-#		done
-#
-#		
-#		echo " &END" >> ${CXR_CAMXIN} 
-#	
-#	fi
-#	
-#	################################################################
-#	# General Probing support
-#	################################################################
-#	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
-#	then
-#	
-#		echo "!---------------Probing Tool General------------------------------------------" >> ${CXR_CAMXIN} 
-#		echo " &PA_Control" >> ${CXR_CAMXIN} 
-#		echo "" >> ${CXR_CAMXIN} 
-#		echo " PA_File_Root         = '$CXR_PA_ROOT_OUTPUT'," >> ${CXR_CAMXIN} 
-#		echo "" >> ${CXR_CAMXIN} 
-#		echo " Number_of_PA_Domains = ${CXR_NUMBER_OF_PA_DOMAINS}," >> ${CXR_CAMXIN} 
-#		
-#		# Here we loop through the PA domains
-#		for i in $(seq 1 $CXR_NUMBER_OF_PA_DOMAINS);
-#		do
-#			echo " Within_CAMx_Grid(${i})  = ${CXR_WITHIN_CAMX_GRID[${i}]},  ! Specify which CAMx grid that this PA domain is in" >> ${CXR_CAMXIN} 
-#			echo " PA_Beg_I_Index(${i})    = ${CXR_PA_BEG_I_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo " PA_End_I_Index(${i})    = ${CXR_PA_END_I_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo " PA_Beg_J_Index(${i})    = ${CXR_PA_BEG_J_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo " PA_End_J_Index(${i})    = ${CXR_PA_END_J_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo " PA_Beg_K_Index(${i})    = ${CXR_PA_BEG_K_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo " PA_End_K_Index(${i})    = ${CXR_PA_END_K_INDEX[${i}]}," >> ${CXR_CAMXIN} 
-#			echo "" >> ${CXR_CAMXIN} 
-#		done
-#		
-#		echo "" >> ${CXR_CAMXIN} 
-#		echo " &END" >> ${CXR_CAMXIN} 
-#	fi
-#	
-#	echo "" >> ${CXR_CAMXIN} 
-#	echo "!-------------------------------------------------------------------------------" >> ${CXR_CAMXIN} 
-	
 	##########################################################################
 	# Now we need to link this file to the name "CAMx.in" in the state directory
 	##########################################################################
@@ -865,7 +577,7 @@ function write_model_control_file()
 		rm -f CAMx.in
 		
 		# New one
-		ln -s ${CXR_CAMXIN} CAMx.in || return $CXR_RET_ERROR
+		ln -s ${CXR_MODEL_CTRL_FILE} CAMx.in || return $CXR_RET_ERROR
 	)
 
 }
@@ -878,19 +590,27 @@ function write_model_control_file()
 function execute_model()
 ################################################################################
 {
+	local retval
+	local outfile
+	
 	# The CAMx.in file is in the state dir
 	cd ${CXR_STATE_DIR}
 	
 	# Call the executable while collecting stderr and stdout
 	$CXR_MODEL_EXEC 2>&1 | tee -a $CXR_LOG
 	
-	OUTFILE=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE")
+	retval=$?
+
+	outfile=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE")
 	
 	cxr_main_logger "${FUNCNAME}" "This is the content of the outfile:"
 	
-	cat $OUTFILE 2>&1 | tee -a $CXR_LOG
+	cat $outfile 2>&1 | tee -a $CXR_LOG
 	
-	# Here, we need to implement a sensible retval check!
+	if [[ $retval -ne 0 ]]
+	then
+		cxr_main_die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
+	fi
 	
 	# go back
 	cd ${CXR_RUN_DIR}

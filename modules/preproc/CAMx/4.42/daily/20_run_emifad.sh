@@ -157,6 +157,9 @@ function set_variables()
 function run_emifad() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local i
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then

@@ -183,6 +183,10 @@ function set_variables()
 function create_topconc_file() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local spec_line
+	local species
+	local conc
 
 	# Clean file First
 	: > "$CXR_TOPCONC_OUTPUT_FILE"
@@ -217,6 +221,17 @@ function create_topconc_file()
 function initial_conditions() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local extra
+	local spec_line
+	local species
+	local conc
+	local exec_tmp_file
+	local mozart_array
+	local camx_array
+	local mozart_spec
+	local camx_spec
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -314,7 +329,7 @@ function initial_conditions()
 					fi
 					
 					# We will write the IDL call into a temporary file
-					EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+					exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 					
 					# Go there
 					cd $(dirname ${CXR_IC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
@@ -324,40 +339,40 @@ function initial_conditions()
 					# that we pass to the procedure
 					
 					# Open brackets
-					MOZART_ARRAY="["
-					CAMX_ARRAY="["
+					mozart_array="["
+					camx_array="["
 					
 					for i in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
 					do
 						
-						MOZART_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
-						CAMX_SPEC=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
+						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
+						camx_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
 						
-						MOZART_ARRAY="${MOZART_ARRAY}'${MOZART_SPEC}',"
-						CAMX_ARRAY="${CAMX_ARRAY}'${CAMX_SPEC}',"
+						mozart_array="${mozart_array}'${mozart_spec}',"
+						camx_array="${camx_array}'${camx_spec}',"
 		
 					done
 					
 					# Close brackets and remove last ","
-					MOZART_ARRAY="${MOZART_ARRAY%,}]"
-					CAMX_ARRAY="${CAMX_ARRAY%,}]"
+					mozart_array="${mozart_array%,}]"
+					camx_array="${camx_array%,}]"
 					
 					# Create the file to run IDL
-					echo ".run $(basename ${CXR_IC_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
+					echo ".run $(basename ${CXR_IC_PROC_INPUT_FILE})" >> ${exec_tmp_file}
 					# interface:
 					# fmoz,fln,mm5camxinfile,outfile_bc,nlevs,nspec,note,xorg,yorg,delx,dely,ibdate,extra
 					# we need to multiply the resolution by 1000 (metre) 
-					echo "$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$MOZART_ARRAY,$CAMX_ARRAY,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${EXEC_TMP_FILE}
-					echo "exit" >> ${EXEC_TMP_FILE}
+					echo "$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(cxr_common_fp_calculate "$CXR_MASTER_CELL_XSIZE * 1000"),$(cxr_common_fp_calculate "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${exec_tmp_file}
+					echo "exit" >> ${exec_tmp_file}
 					
 					# Get a copy of the call
-					cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+					cat ${exec_tmp_file} | tee -a $CXR_LOG
 		
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						
 						# Then we run it, while preserving the output
-						${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+						${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 						
 						# Now we need to convert the file to binary format
 						"${CXR_AIRCONV_EXEC}" ${CXR_IC_ASC_OUTPUT_FILE} ${CXR_IC_OUTPUT_FILE} AIRQUALITY 0 2>&1 | tee -a $CXR_LOG

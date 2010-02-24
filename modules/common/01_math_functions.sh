@@ -139,25 +139,27 @@ function cxr_common_fp_calculate()
 		cxr_main_die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
 	fi
 	
-	RESOLUTION=${2:-$CXR_NUM_DIGITS}
-	ADD_TRAILING_DP=${3:-true}
+	# Define & Initialize local vars
+	local resolution=${2:-$CXR_NUM_DIGITS}
+	local add_trailing_dp=${3:-true}
+	local result
 	
 	# Set resolution & pass expression
-	RESULT=$( echo "scale=$RESOLUTION; $1" | bc )
+	result=$( echo "scale=$resolution; $1" | bc )
 	
-	if [[ "$RESOLUTION" -eq 0  ]]
+	if [[ "$resolution" -eq 0  ]]
 	then
 		# Chop off the decimals
-		RESULT=${RESULT%%\.*}
+		result=${result%%\.*}
 	fi
 	
 	# The scale function counts digits after the decimal point
-	if [[  "${ADD_TRAILING_DP}" == true && "$( echo "scale(${RESULT})" | bc )" -eq 0   ]]
+	if [[  "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0   ]]
 	then
 		# Integer,  and we need to add a trailing .
-		echo ${RESULT}.
+		echo ${result}.
 	else
-		echo ${RESULT}
+		echo ${result}
 	fi
 
 }

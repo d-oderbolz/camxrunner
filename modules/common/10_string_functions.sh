@@ -82,10 +82,10 @@ function cxr_common_is_substring_present()
 ################################################################################
 {
 	
-	local FOUND=$(expr match " $1" ".*$2.*")
+	local found=$(expr match " $1" ".*$2.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
-	if [[ $FOUND -gt 0  ]]
+	if [[ $found -gt 0  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
 		echo true
@@ -214,10 +214,10 @@ function cxr_common_n_digits
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
-	NUMBER="$1"
-	DIGITS="$2"
+	local number="$1"
+	local digits="$2"
 	
-	printf "%0${DIGITS}d" "$NUMBER"
+	printf "%0${digits}d" "$number"
 }
 
 ################################################################################
@@ -250,19 +250,23 @@ function cxr_common_two_digits
 function cxr_common_extract_number
 ################################################################################
 {
+	# Define & Initialize local vars
+	local string
+	local numbers
+	
 	if [[ $# -ne 1  ]]
 	then
 		echo 0
 	else
-		STRING=$1
+		string=$1
 		
 		#Dont be afraid, the bash does not seem to recognize the quantor +
-		NUMBERS=$(expr match $STRING '\([0-9]*\)')
+		numbers=$(expr match $string '\([0-9]*\)')
 		
 		# Extract 2 Digits
-		NUMBERS=$(cxr_common_extract_characters $NUMBERS 2)
+		numbers=$(cxr_common_extract_characters $numbers 2)
 		
-		echo $(cxr_common_two_digits ${NUMBERS})
+		echo $(cxr_common_two_digits ${numbers})
 	fi
 }
 

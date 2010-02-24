@@ -145,6 +145,10 @@ function set_variables()
 function check_input() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local i
+	
+
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -164,15 +168,28 @@ function check_input()
 		### Go trough all grids
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
-			cxr_main_logger ${FUNCNAME} "Checking Landuse files..."
 			
-			# Run SRFLND
+			# Put call into this file
+			EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+			
+			# Build tempfile
 			# The 3rd argument is just the filename without extension
-			${CXR_SRFLND_EXEC} <<-IEOF
+			cat <<-EOF > $EXEC_TMP_FILE
 			$(cxr_common_get_x_dim $i),$(cxr_common_get_y_dim $i),$(cxr_common_get_z_dim $i),${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD}
 			${CXR_LANDUSE_FILES[$i]}
 			${CXR_LANDUSE_FILES[$i]%\.*}
-			IEOF
+			EOF
+			
+			cxr_main_logger ${FUNCNAME} "Checking Landuse files using this script..."
+			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+			
+			# Run SRFLND
+			if [[ "$CXR_DRY" == false  ]]
+			then
+				${CXR_SRFLND_EXEC} < $EXEC_TMP_FILE
+			else
+				cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    
+			fi
 		
 			# Check the return value (0 means OK)
 			if [[ $? -ne 0  ]]
@@ -184,7 +201,6 @@ function check_input()
 
 		done
 
-	
 		# Decrease global indent level
 		cxr_main_decrease_log_indent
 	

@@ -196,6 +196,13 @@ function set_variables()
 function prepare_output_dir() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local i
+	local i_input_arr
+	local var
+	local var_name
+	local current_file
+	local current_base
 
 	if [[  "${CXR_RUN_LIMITED_PROCESSING}" == true && "${CXR_REMOVE_DECOMPRESSED_FILES}" == true   ]]
 	then
@@ -224,22 +231,22 @@ function prepare_output_dir()
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Loop through the name of all the input arrays
-			for iArr in $(seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
+			for i_input_arr in $(seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
 			do
-				VAR=${CXR_INPUT_ARRAYS[$iArr]}
-				VAR_NAME=${CXR_NAME_ARRAYS[$iArr]}
+				var=${CXR_INPUT_ARRAYS[$i_input_arr]}
+				var_name=${CXR_NAME_ARRAYS[$i_input_arr]}
 			
 				# Only if the link is not there, create a new one
-				CURRENT_FILE=$(eval "echo \${${VAR}[${i}]}")
-				CURRENT_BASE=$(eval "echo \${${VAR_NAME}[${i}]}")
+				current_file=$(eval "echo \${${var}[${i}]}")
+				current_base=$(eval "echo \${${var_name}[${i}]}")
 				
 				# If the Link or file does not yet exist
-				if [[  ! ( -L ${CURRENT_BASE} || -f ${CURRENT_BASE} )   ]]
+				if [[  ! ( -L ${current_base} || -f ${current_base} )   ]]
 				then
 					if [[ "$CXR_DRY" == "false"  ]]
 					then
-						cxr_main_logger "${FUNCNAME}"  "Linking ${CURRENT_BASE} to ${CURRENT_FILE}..."
-						ln -s ${CURRENT_FILE} ${CURRENT_BASE}
+						cxr_main_logger "${FUNCNAME}"  "Linking ${current_base} to ${current_file}..."
+						ln -s ${current_file} ${current_base}
 					else
 						cxr_main_logger "${FUNCNAME}"  "This is a dry run, do not create a link for output processing"
 					fi
