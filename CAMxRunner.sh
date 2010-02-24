@@ -329,12 +329,12 @@ done
 #  correct LOG if needed
 
 # Force wins
-if [ "${CXR_FORCE_LOG}" == true ]
+if [[ "${CXR_FORCE_LOG}" == true  ]]
 then
 	CXR_DO_FILE_LOGGING=true
 fi
 
-if [ "${CXR_DO_FILE_LOGGING}" == false ]
+if [[ "${CXR_DO_FILE_LOGGING}" == false  ]]
 then
 	# No logging!
 	# Log to the null device
@@ -342,7 +342,7 @@ then
 fi
 
 # Adjust options to control pre- and postprocessors
-if [ "${CXR_RUN_LIMITED_PROCESSING}" == false ]
+if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
 then
 	#Run everything. This is needed because if no option is given, we want all.
 	CXR_RUN_PRE_ONCE=true
@@ -360,14 +360,14 @@ fi
 #### Check for contradictions and take action (incomplete!)
 
 # either -F or CXR_SKIP_EXISTING
-if [ "${CXR_FORCE}" == true -a "${CXR_SKIP_EXISTING}" == true ]
+if [[ "${CXR_FORCE}" == true -a "${CXR_SKIP_EXISTING}" == true  ]]
 then
 	# Force wins (CXR_SKIP_EXISTING is default)
 	CXR_SKIP_EXISTING=false
 fi
 
 # Hollow and non-hollow options should not be mixed
-if [ "${CXR_HOLLOW}" == true -a "${CXR_RUN_LIMITED_PROCESSING}" == true ]
+if [[ "${CXR_HOLLOW}" == true -a "${CXR_RUN_LIMITED_PROCESSING}" == true  ]]
 then
 	cxr_main_die_gracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
@@ -376,18 +376,18 @@ fi
 
 cxr_main_logger -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
 
-if [ $(cxr_main_is_numeric "${CXR_MAX_PARALLEL_PROCS}") == false ]
+if [[ $(cxr_main_is_numeric "${CXR_MAX_PARALLEL_PROCS}") == false  ]]
 then
 	cxr_main_die_gracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
 fi
 
-if [ $(cxr_main_is_numeric "${CXR_ERROR_THRESHOLD}") == false ]
+if [[ $(cxr_main_is_numeric "${CXR_ERROR_THRESHOLD}") == false  ]]
 then
 	cxr_main_die_gracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
 fi
 
 # Ok, now less than 2 processes is not parallel
-if [ "${CXR_MAX_PARALLEL_PROCS}" -lt 1  ]
+if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1   ]]
 then
 	cxr_main_logger -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
@@ -402,9 +402,9 @@ cxr_main_logger -v -B "CAMxRunner.sh" "Selected options are valid."
 ################################################################################
 
 # Fewer checks if we are hollow
-if [ "${CXR_HOLLOW}" == false ] 
+if [[ "${CXR_HOLLOW}" == false  ]] 
 then
-	if [ ${CXR_RUN} == ${CXR_RUNNER_NAME} ]
+	if [[ ${CXR_RUN} == ${CXR_RUNNER_NAME}  ]]
 	then
 		cxr_main_die_gracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
 	else
@@ -412,7 +412,7 @@ then
 		# Check if the name of the script has changed
 		# We look for the target of the link ->
 		#                                     ^
-		if [ ! $(ls ${CXR_RUN_DIR}/${CXR_RUN} -l |  cut -d">" -f2) == ${CXR_RUNNER_NAME} ]
+		if [[ ! $(ls ${CXR_RUN_DIR}/${CXR_RUN} -l |  cut -d">" -f2) == ${CXR_RUNNER_NAME}  ]]
 		then
 			cxr_main_die_gracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
@@ -438,7 +438,7 @@ then
 	
 	cxr_main_logger -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	
-	if [ "$CXR_BASECONFIG_REV" -ne "$CXR_CONFIG_REV" ]
+	if [[ "$CXR_BASECONFIG_REV" -ne "$CXR_CONFIG_REV"  ]]
 	then
 		cxr_main_logger -w "CAMxRunner.sh" "The Configuration file ${CXR_CONFIG} \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
 	fi
@@ -470,10 +470,10 @@ cxr_main_logger -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can 
 ################################################################################
 
 # Is the chemparam file already set (in the config?)
-if [ "${CXR_CHEMPARAM_INPUT_FILE:-}" ]
+if [[ "${CXR_CHEMPARAM_INPUT_FILE:-}"  ]]
 then
 	#String is non-empty, check if it is sensible
-	if [ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-} ]
+	if [[ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-}  ]]
 	then
 		cxr_main_logger -w "CAMxRunner.sh" "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found. I try to find the correct setting."
 		# String is not properly set - try to get it
@@ -498,31 +498,31 @@ cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARA
 # Start hollow functions if needed
 ################################################################################
 
-if [ "${CXR_HOLLOW}" == true ]
+if [[ "${CXR_HOLLOW}" == true  ]]
 then
 	#Hollow functions neeed init too
 	cxr_common_initialize_state_db
 
-	if [ "${CXR_CLEANUP}" == true ]
+	if [[ "${CXR_CLEANUP}" == true  ]]
 	then
 		# Delete info in the state DB
 		cxr_common_cleanup_state
-	elif [ "${CXR_CREATE_NEW_RUN}" == true ]
+	elif [[ "${CXR_CREATE_NEW_RUN}" == true  ]]
 	then
 		# Create a new run
 		cxr_common_create_new_run
-	elif [ "${CXR_STOP_RUN}" == true ]
+	elif [[ "${CXR_STOP_RUN}" == true  ]]
 	then
 		#Delete .CONTINUE files of all instances
-		if [ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true ]
+		if [[ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
 		then
 			cxr_common_delete_continue_files
 		fi
-	elif [ "${CXR_INSTALL}" == true ]
+	elif [[ "${CXR_INSTALL}" == true  ]]
 	then
 		# Run the installation
 		cxr_common_install
-	elif [ "${CXR_RUN_TESTS}" == true ]
+	elif [[ "${CXR_RUN_TESTS}" == true  ]]
 	then
 		# Run the tests
 		cxr_common_test_all_modules
@@ -540,10 +540,10 @@ fi
 
 cxr_main_logger -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
-if [ "${CXR_ONE_DAY}" ]
+if [[ "${CXR_ONE_DAY}"  ]]
 then
 
-	if [ "$(cxr_common_is_yyyymmdd_format ${CXR_ONE_DAY})" == true ]
+	if [[ "$(cxr_common_is_yyyymmdd_format ${CXR_ONE_DAY})" == true  ]]
 	then
 		cxr_main_logger -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
 	else
@@ -560,16 +560,16 @@ fi
 CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
 # Is this a repetition of an earlier run?
-if [ $(cxr_common_is_repeated_run) == true ]
+if [[ $(cxr_common_is_repeated_run) == true  ]]
 then
 	cxr_main_logger -i "CAMxRunner.sh" "This run has already been started earlier."
 	
 	last=$(cxr_common_get_last_day_modelled)
 	
 	# Last could be empty
-	if [ "$last" ]
+	if [[ "$last"  ]]
 	then
-		if [ "$(cxr_common_get_last_day_modelled)" != ${CXR_STOP_DATE} ]
+		if [[ "$(cxr_common_get_last_day_modelled)" != ${CXR_STOP_DATE}  ]]
 		then
 			cxr_main_logger -i "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 		fi
@@ -582,15 +582,15 @@ MB_NEEDED=$(cxr_common_predict_model_output_megabytes)
 
 cxr_main_logger -i "CAMxRunner.sh" "I estimate that this simulation will take ${MB_NEEDED} MB of space in ${CXR_OUTPUT_DIR}."
 
-if [ "${CXR_RUN_LIMITED_PROCESSING}" == false ]
+if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
 then
 	# Full simulation, do the space check if user has not disabled it
-	if [ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true ]
+	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
 	then
 		cxr_common_check_mb_needed "${CXR_OUTPUT_DIR}" "${MB_NEEDED}"
 		
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
-		if [ "${CXR_DECOMPRESS_IN_PLACE}" == false ]
+		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
 			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(cxr_common_fp_calculate "${CXR_TMP_SPACE_FACTOR:-0.05} * ${MB_NEEDED}" 0 false)
 		fi
@@ -616,29 +616,29 @@ INFO="\nThis CAMxRunner has process id $$ and is running on host $(uname -n)\nRu
 cxr_main_notify "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
 cxr_main_logger -i "CAMxRunner.sh" "$INFO"
 
-if [ "${CXR_HOLLOW}" == false -o "${CXR_DRY}" == true ]
+if [[ "${CXR_HOLLOW}" == false -o "${CXR_DRY}" == true  ]]
 then
 	cxr_main_logger -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
 
-if [ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ]
+if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD}  ]]
 then
 	cxr_main_logger -i "CAMxRunner.sh" "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
 else
 	cxr_main_logger -i "CAMxRunner.sh" "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
 fi
 
-if [ ${CXR_SKIP_EXISTING} == true ]
+if [[ ${CXR_SKIP_EXISTING} == true  ]]
 then
 	cxr_main_logger -w "CAMxRunner.sh" "Existing output files will be skipped."
 fi
 
-if [ ${CXR_FORCE} == true ]
+if [[ ${CXR_FORCE} == true  ]]
 then
 	cxr_main_logger -w "CAMxRunner.sh" "Existing output files will be deleted."
 fi
 
-if [ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}" ]
+if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
 then
 	cxr_common_list_cxr_variables
 	
@@ -653,7 +653,7 @@ fi
 ################################################################################
 
 # TODO: Rethink this strategy (this check should never be false!)
-if [ "$CXR_HOLLOW" == false ]
+if [[ "$CXR_HOLLOW" == false  ]]
 then
 
 	cxr_main_logger -v -B "CAMxRunner.sh" "Checking if another instance is running on this run..." 
@@ -670,7 +670,7 @@ then
 	cxr_common_initialize_state_db || cxr_main_die_gracefully "Could not initialize state DB"
 	
 	# If we do a dry run, we want to show the detected pre- and postprocessors
-	if [ "$CXR_DRY" == true ]
+	if [[ "$CXR_DRY" == true  ]]
 	then
 		cxr_main_logger -v -b "CAMxRunner.sh" "Listing all detected pre- and postprocessors...\n"    
 		
@@ -701,7 +701,7 @@ then
 	# if not needed (Dryruns are always sequential, though)
 	# 
 	
-	if [ "$CXR_PARALLEL_PROCESSING" == true -a "$CXR_DRY" == false ]
+	if [[ "$CXR_PARALLEL_PROCESSING" == true -a "$CXR_DRY" == false  ]]
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh
@@ -728,7 +728,7 @@ then
 		# We need a way to find out if all workers returned happily to
 		# manipulate CXR_STATUS if needed
 		
-		if [ "$(cxr_common_count_open_tasks)" -ne 0 ]
+		if [[ "$(cxr_common_count_open_tasks)" -ne 0  ]]
 		then
 			cxr_main_logger "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_count_open_tasks) open tasks!"
 			# We are not happy

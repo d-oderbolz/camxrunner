@@ -88,11 +88,11 @@ function Converter_installer()
 {
 	#There is not much to do, other than regenerating the API documentation
 	
-	if [ "$(cxr_common_get_consent "Do you want to compile the converters?" Y )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to compile the converters?" Y )" == true  ]]
 	then
 	
 		# Is the compiler there?
-		if [ ! -x ${CXR_FORTRAN_COMPILER_EXEC} ]
+		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC}  ]]
 		then
 			cxr_main_die_gracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
 		fi
@@ -119,7 +119,7 @@ function Converter_installer()
 		# Loop through the source-directories
 		for SRC_DIR in $CXR_CONVERTER_SCR_ARR
 		do
-			if [ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true ]
+			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
 			
 				cxr_main_logger -b "${FUNCNAME}" "Compiling source in $SRC_DIR..."
@@ -148,7 +148,7 @@ function Converter_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

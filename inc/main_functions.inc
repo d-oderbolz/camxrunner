@@ -33,7 +33,7 @@ function cxr_main_is_numeric()
 	
 	echo "${1:-}" | grep "[-]?[^0-9]" >/dev/null
 	
-	if [ $? -eq 0 -o -z "$1" ] 
+	if [[ $? -eq 0 -o -z "$1"  ]] 
 	then
 			echo false
 	else
@@ -53,7 +53,7 @@ function cxr_main_is_numeric()
 function cxr_main_count_cores()
 ################################################################################
 {
-	if [ ! -r /proc/cpuinfo ]
+	if [[ ! -r /proc/cpuinfo  ]]
 	then
 		#Probably no linux box.
 		# TODO: We need to find a POSIX approach!
@@ -82,7 +82,7 @@ function cxr_main_increase_log_indent()
 	
 	NEXT=$(( $CXR_LOG_INDENT + 1 ))
 	
-	if [ "$NEXT" -gt "$CXR_MAX_LOG_INDENT" ]
+	if [[ "$NEXT" -gt "$CXR_MAX_LOG_INDENT"  ]]
 	then
 		# Maximum reached
 		NEXT=$CXR_MAX_LOG_INDENT
@@ -107,7 +107,7 @@ function cxr_main_decrease_log_indent()
 	
 	NEXT=$(( $CXR_LOG_INDENT - 1 ))
 	
-	if [ $NEXT -lt 0 ]
+	if [[ $NEXT -lt 0  ]]
 	then
 		NEXT=0
 	fi
@@ -130,19 +130,19 @@ function cxr_main_increase_error_count()
 
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
-	if [ ! -d ${CXR_STATE_DIR:-} ]
+	if [[ ! -d ${CXR_STATE_DIR:-}  ]]
 	then
 		mkdir -p ${CXR_STATE_DIR}
 	fi
 	
 	# Make sure we have such a variable
-	if [ "${CXR_INSTANCE_FILE_ERROR_STACK:-}" ]
+	if [[ "${CXR_INSTANCE_FILE_ERROR_STACK:-}"  ]]
 	then
 
 		# Add text to the stack (if empty a newline is written)
 		# No -e (one line per error) - the lines are counted later
 		# Could be that the state db is not yet initialized
-		if [ -f "${CXR_INSTANCE_FILE_ERROR_STACK}" ]
+		if [[ -f "${CXR_INSTANCE_FILE_ERROR_STACK}"  ]]
 		then
 			echo "${1:-"No message"}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
 		fi	
@@ -261,7 +261,7 @@ function cxr_main_logger()
 	# Its actually ofen the case that the first parameter is forgotten,
 	# which leads to a lost message
 	
-	if [ $# -eq 2 ]
+	if [[ $# -eq 2  ]]
 	then
 		# Standard case
 		FUNCTION_NAME="${1:-}"
@@ -276,10 +276,10 @@ function cxr_main_logger()
 	
 	### In case of error, write current day to failed days file
 	### and increase error count
-	if [ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}" ]
+	if [[ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}"  ]]
 	then
 		# Could be that the state db is not yet initialized
-		if [ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}" ]
+		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}"  ]]
 		then
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
@@ -294,11 +294,11 @@ function cxr_main_logger()
 	
 	# STDERR
 	# Here we add no indentation
-	if [ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" ]
+	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}"  ]]
 	then
 	
 		# If stars are set, we add a line of stars at the beginning and end
-		if [ "${STARS}" ]
+		if [[ "${STARS}"  ]]
 		then
 			STDERR_MESSAGE="${STARS}\n${STDERR_MESSAGE}\n${STARS}\n"
 		fi
@@ -312,12 +312,12 @@ function cxr_main_logger()
 		# CXR_LOG_FUNCTION_VERBOSE_LIST
 		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${FUNCTION_NAME}.*")
 		
-		if [ "${FOUND}" -ne 0 ]
+		if [[ "${FOUND}" -ne 0  ]]
 		then
 			# Function was added by user
 			
 			# If stars are set, we add a line of stars at the beginning and end
-			if [ "${STARS}" ]
+			if [[ "${STARS}"  ]]
 			then
 				STDERR_MESSAGE"${STARS}\n${STDERR_MESSAGE}\n${STARS}\n"
 			fi
@@ -331,7 +331,7 @@ function cxr_main_logger()
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [ "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" -a -n "${CXR_LOG:-}" -a "$CXR_DO_FILE_LOGGING" == true ]
+	if [[ "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" -a -n "${CXR_LOG:-}" -a "$CXR_DO_FILE_LOGGING" == true  ]]
 	then
 		# Logfile is defined
 
@@ -347,7 +347,7 @@ function cxr_main_logger()
 		MESSAGE="${MESSAGE//\\n/\n${PREFIX}}"
 		
 		# If stars are set, we add a line of stars at the beginning and end
-		if [ "${STARS}" ]
+		if [[ "${STARS}"  ]]
 		then
 			MESSAGE="${PREFIX}${STARS}\n${MESSAGE}\n${PREFIX}${STARS}\n"
 		fi
@@ -358,7 +358,7 @@ function cxr_main_logger()
 	
 	# The external channels (motify decides who needs to get the message)
 	# -a does not go there
-	if [ "${LOG_LEVEL}" -gt "${CXR_LOG_LEVEL_ALW}" -a "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${LOG_LEVEL}" ]
+	if [[ "${LOG_LEVEL}" -gt "${CXR_LOG_LEVEL_ALW}" -a "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${LOG_LEVEL}"  ]]
 	then
 		cxr_main_notify "Log" "$BLANK_MESSAGE"
 	fi
@@ -383,29 +383,29 @@ function cxr_main_notify()
 	ADRESSES=
 	
 	#Add SMS Adress if needed
-	if [ ${CXR_SEND_SMS} == true ]
+	if [[ ${CXR_SEND_SMS} == true  ]]
 	then
 		ADRESSES="$ADRESSES $CXR_SMSADDR"
 	fi
 	
 	# Add Email if needed
-	if [ ${CXR_SEND_EMAIL} == true ]
+	if [[ ${CXR_SEND_EMAIL} == true  ]]
 	then
 		ADRESSES="$ADRESSES $CXR_MAILADDR"
 	fi
 	
-	if [ "${ADRESSES}" ]
+	if [[ "${ADRESSES}"  ]]
 	then
 		# send it if we have any adresses
 		echo -e $2 | mail -s "$1" $ADRESSES
 	fi
 	
 	# Twitter
-	if [ ${CXR_SEND_TWITTER} == true ]
+	if [[ ${CXR_SEND_TWITTER} == true  ]]
 	then
 		
 		# Get the data from .twitterrc
-		if [ ! -r ~/.twitterrc ]
+		if [[ ! -r ~/.twitterrc  ]]
 		then
 			# no .twitterrc
 			cxr_main_logger -e "$FUNCNAME" "To use Twitter, you need to create a ~/.twitterrc file, in there set ACCOUNT= and PASS=."
@@ -442,7 +442,7 @@ function cxr_main_cleanup()
 	# Error report - do in any Non-hollow case
 	################################################################################	
 	
-	if [ "$CXR_HOLLOW" == false  ]
+	if [[ "$CXR_HOLLOW" == false   ]]
 	then
 		
 		# All the non-hollow stuff goes here
@@ -450,11 +450,11 @@ function cxr_main_cleanup()
 		
 		cxr_main_logger -B "$FUNCNAME"  "Error Report (may be repeated)"
 		
-		if [ "${ERROR_COUNT:-0}" -ne 0 ]
+		if [[ "${ERROR_COUNT:-0}" -ne 0  ]]
 		then
 			cxr_main_logger "$FUNCNAME"  "The system detected at least $ERROR_COUNT errors, fix them!\n\nHere is the error stack:\n"
 			
-			if [ "${CXR_LOG:-}" ]
+			if [[ "${CXR_LOG:-}"  ]]
 			then
 				# Write to logfile
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
@@ -479,7 +479,7 @@ function cxr_main_cleanup()
 		# Do cleanup stuff - Run always when not hollow
 		########################################
 		
-		if [ "$CXR_DRY" == true ]
+		if [[ "$CXR_DRY" == true  ]]
 		then
 			cxr_main_logger "$FUNCNAME" "Dryrun: removing the dummy files..."
 			
@@ -506,12 +506,12 @@ function cxr_main_cleanup()
 
 	fi
 	
-	if [ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]
+	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS"  ]]
 	then
 		# All went well
 		
 		# In a dryrun, alwyas print this if finished OK
-		if [ "$CXR_DRY" == true ]
+		if [[ "$CXR_DRY" == true  ]]
 		then
 		
 			cxr_main_logger -H "$FUNCNAME" "Before you can run the simulation, you must clean the state database\nbecause a dryrun makes the same entries as a normal run.\nDo this using this command:\n \t ${CXR_CALL} -c \nIf you have adjusted the configuration in ${CXR_CONFIG}\nand are happy with the log, run the simulation like this (assuming an AFS/Kerberos environment):\n"     
@@ -525,7 +525,7 @@ function cxr_main_cleanup()
 			cxr_main_decrease_log_indent
 		
 		else
-			if [ "$CXR_HOLLOW" == false  ]
+			if [[ "$CXR_HOLLOW" == false   ]]
 			then
 				# print some infos if we are not hollow 
 				cxr_main_logger "$FUNCNAME" "Ending ${CXR_RUN}, its now $(date)"
@@ -560,7 +560,7 @@ function cxr_main_die_gracefully()
 	# Stop this run
 	# Delete any .CONTINUE FILES
 	
-	if [ -d "${CXR_STATE_DIR:-}" ]
+	if [[ -d "${CXR_STATE_DIR:-}"  ]]
 	then
 		rm -f ${CXR_STATE_DIR}/*.${CXR_STATE_CONTINUE} 2>/dev/null
 	fi
@@ -606,7 +606,7 @@ function cxr_main_die_gracefully()
 function cxr_main_get_binary_name()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a binary as input"
 	fi
@@ -616,19 +616,19 @@ function cxr_main_get_binary_name()
 	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
 	
 	# Check name - machine first
-	if [ -x ${MACHINE_EXEC} ]
+	if [[ -x ${MACHINE_EXEC}  ]]
 	then
 		# Machine dependent exists
 		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${MACHINE_EXEC}"
 		echo "${MACHINE_EXEC}"
-	elif [ -x ${GENERAL_EXEC} ]
+	elif [[ -x ${GENERAL_EXEC}  ]]
 	then
 		# general exists
 		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${GENERAL_EXEC}"
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
-		if [ "$1" == false ]
+		if [[ "$1" == false  ]]
 		then
 			# optional paratemeter is false,
 			# We do not care and return CXR_GENERAL_EXEC
@@ -658,7 +658,7 @@ function cxr_main_determine_model_and_version()
 	# We expect a name like CAMx-v4.42-bafu3_winter07.run3_lcsl5a
 	# So we split using "-"
 	
-	if [ $1 == CAMxRunner.sh -o $1 == base -o $1 == installer ]
+	if [[ $1 == CAMxRunner.sh -o $1 == base -o $1 == installer  ]]
 	then
 		# If the user does CAMxRunner.sh -h this must work too!
 		VERSION=4.51
@@ -714,12 +714,12 @@ function cxr_main_read_config()
 		
 	CXR_RUN_DIR="$4"
 	
-	if [ -z "$CXR_MODEL_VERSION" ]
+	if [[ -z "$CXR_MODEL_VERSION"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Could not determine Model Version when loading config!"
 	fi
 	
-	if [ -z "$CXR_RUN_DIR" ]
+	if [[ -z "$CXR_RUN_DIR"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Could not determine run dir when loading config!"
 	fi
@@ -767,7 +767,7 @@ function cxr_main_read_config()
 	########################################
 	
 	# No drama if it does not exist
-	if [ -f "${CXR_SITECONFIG}" ]
+	if [[ -f "${CXR_SITECONFIG}"  ]]
 	then
 		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
 	
@@ -780,7 +780,7 @@ function cxr_main_read_config()
 	# Try to load the base config
 	########################################
 	
-	if [ -f "${CXR_BASECONFIG}" ]
+	if [[ -f "${CXR_BASECONFIG}"  ]]
 	then
 		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
 		source "${CXR_BASECONFIG}"
@@ -792,7 +792,7 @@ function cxr_main_read_config()
 	# Try to load CAMx version specific config
 	########################################
 	
-	if [ -f "$CXR_VERSIONCONFIG" ]
+	if [[ -f "$CXR_VERSIONCONFIG"  ]]
 	then
 		cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
 		source "${CXR_VERSIONCONFIG}"
@@ -805,7 +805,7 @@ function cxr_main_read_config()
 	########################################
 	
 	# Try to load an run-specific config that was expanded
-	if [ -f "${CXR_EXPANDED_CONFIG}" ]
+	if [[ -f "${CXR_EXPANDED_CONFIG}"  ]]
 	then
 		# Found an expanded configuration (priority)
 		cxr_main_logger -a "$FUNCNAME" "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
@@ -817,14 +817,14 @@ function cxr_main_read_config()
 		#No expanded version found - see if we find a normal one
 		# Try to load the run-specific config
 		# Does it exist?
-		if [ -f "${CXR_CONFIG}" ]
+		if [[ -f "${CXR_CONFIG}"  ]]
 		then
 			cxr_main_logger -a "$FUNCNAME"  "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
 			# Source it
 			source "${CXR_CONFIG}"
 		else
 			# If the user types CAMxRunner.sh -h we land here
-			if [ "${CXR_RUN}" != "${CXR_RUNNER_NAME}" ]
+			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
 			then
 				cxr_main_die_gracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
 			fi
@@ -835,12 +835,12 @@ function cxr_main_read_config()
 	# Installer only: Loading special version specific config
 	########################################
 	
-	if [ "${CXR_RUN}" == "${CXR_INSTALLER}" ]
+	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}"  ]]
 	then
 		local INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
 		local INSTALLER_CONF_REV=$(cxr_common_get_svn_revision $INSTALLER_CONF)
 		
-		if [ -f "${INSTALLER_CONF}" ]
+		if [[ -f "${INSTALLER_CONF}"  ]]
 		then
 			cxr_main_logger -a "$FUNCNAME"  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
 			source "${INSTALLER_CONF}"
@@ -862,7 +862,7 @@ function cxr_main_read_config()
 function cxr_main_extract_module_name() 
 ################################################################################
 {
-	if [ $# -ne 1  ]
+	if [[ $# -ne 1   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
 	fi	
@@ -944,7 +944,7 @@ function cxr_main_enumerate_modules
 		#Count modules
 		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
 		
-		if [ "$NUM_MODULES" -gt 0 ]
+		if [[ "$NUM_MODULES" -gt 0  ]]
 		then
 			cxr_main_logger -v "${FUNCNAME}" "  $(printf %-32s%-75s Name Call)"
 			
@@ -967,7 +967,7 @@ function cxr_main_enumerate_modules
 			cxr_main_decrease_log_indent
 		fi
 	
-		if [ "$DISABLED_MODULES" ]
+		if [[ "$DISABLED_MODULES"  ]]
 		then
 			cxr_main_logger -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
@@ -980,7 +980,7 @@ function cxr_main_enumerate_modules
 		#Count processors
 		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
 		
-		if [ "$NUM_MODULES" -gt 0 ]
+		if [[ "$NUM_MODULES" -gt 0  ]]
 		then
 			# Disabled Processors
 			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)

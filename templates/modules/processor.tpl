@@ -166,7 +166,7 @@ function name()
 ################################################################################
 {
 	# We check if this stage was already excuted before
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 	
 		#  --- Setup the Environment of the current day
@@ -177,7 +177,7 @@ function name()
 		# We do not stop the run here if the module failed, this is decided by the 
 		# task management. We only stop the run, if a task depends on
 		# this failed one - otherwise we can go on!
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -196,7 +196,7 @@ function name()
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
 			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
 			
-			if [ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true ]
+			if [[ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger "$FUNCNAME"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
@@ -208,7 +208,7 @@ function name()
 	
 			cxr_main_logger "$FUNCNAME" "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
 	
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Do what needs to be done
 				# Normally, there is a call of this form
@@ -226,7 +226,7 @@ function name()
 			# We do not stop the run here if the module failed, this is decided by the 
 			# task management. We only stop the run, if a task depends on
 			# this failed one - otherwise we can go on!
-			if [ $(cxr_common_check_result) == false ]
+			if [[ $(cxr_common_check_result) == false  ]]
 			then
 				cxr_main_logger "$FUNCNAME" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 				# We notify the caller of the problem
@@ -256,7 +256,7 @@ function name()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -275,7 +275,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -319,7 +319,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -347,7 +347,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

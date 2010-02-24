@@ -87,7 +87,7 @@ exit 1
 function CAMx_installer() 
 ################################################################################
 {
-	if [ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true  ]]
 	then
 	
 		########################################
@@ -113,10 +113,10 @@ function CAMx_installer()
 		cd "$CXR_CAMX_SRC_DIR" || cxr_main_die_gracefully "could not change to $CXR_CAMX_SRC_DIR"
 		
 		# Is the tar file already present?
-		if [ -s ${CXR_CAMX_TAR} ]
+		if [[ -s ${CXR_CAMX_TAR}  ]]
 		then
 			# Does the user still want to download?
-			if [ "$(cxr_common_get_consent "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true ]
+			if [[ "$(cxr_common_get_consent "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true  ]]
 			then
 				########################################
 				cxr_main_logger -a "${FUNCNAME}" "Downloading ..."
@@ -146,7 +146,7 @@ function CAMx_installer()
 		
 		INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
-		if [ ! -d "$INPUT_DIR" ]
+		if [[ ! -d "$INPUT_DIR"  ]]
 		then
 			cxr_main_die_gracefully "Could not find the input directory $INPUT_DIR"
 		fi
@@ -173,7 +173,7 @@ function CAMx_installer()
 		EXPECTED_NAME="$(get_model_exec false)"
 
 		# Check if CAMxRunner expects this name
-		if [ "$(basename "$EXPECTED_NAME")" != "$(basename "$BINARY_NAME")" ]
+		if [[ "$(basename "$EXPECTED_NAME")" != "$(basename "$BINARY_NAME")"  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Note that your configuration expects the binary to be called $EXPECTED_NAME.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
 		fi
@@ -181,16 +181,16 @@ function CAMx_installer()
 		# Now we can add a machine name,
 		# specify a run name for the binary
 		# or give a completely different name
-		if [ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true  ]]
 		then
 			BINARY_NAME=${BINARY_NAME}-$(uname -n)
-		elif [ "$(cxr_common_get_consent "Do you want to create a binary that is specific for a given run?" N )" == true ]
+		elif [[ "$(cxr_common_get_consent "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
 		then
 			# Now we need to choose a run name. Look for links in the CAMx dir
 			RUN="$(basename $(cxr_common_get_menu_choice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
 			BINARY_NAME=${CXR_MODEL_BIN_DIR}/${RUN}-${HOSTTYPE}
-		elif [ "$(cxr_common_get_consent "Do you want to provide your own name for the binary?" N )" == true ]
+		elif [[ "$(cxr_common_get_consent "Do you want to provide your own name for the binary?" N )" == true  ]]
 		then
 			BINARY_NAME=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
 		fi
@@ -264,16 +264,16 @@ function CAMx_installer()
 		PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-${DOMAIN}.play
 		
 		# Might be simplified later
-		if [ -s "$PLAYFILE" ]
+		if [[ -s "$PLAYFILE"  ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [ "$(cxr_common_get_consent "${CXR_MODEL} was already installed using ${PARALLEL_PARADIGM}, ${PROBING_TOOL} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true ]
+			if [[ "$(cxr_common_get_consent "${CXR_MODEL} was already installed using ${PARALLEL_PARADIGM}, ${PROBING_TOOL} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
 				
-				if [ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true ]
+				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
@@ -315,14 +315,14 @@ function CAMx_installer()
 		cxr_main_logger -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
-		if [ -d "$PATCH_ALL_DIR" ]
+		if [[ -d "$PATCH_ALL_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_ALL_DIR" "$CXR_CAMX_SRC_DIR"
 		else
 			cxr_main_logger -w "${FUNCNAME}" "Did not find general patch dir $PATCH_ALL_DIR"
 		fi
 		
-		if [ -d "$PATCH_PLATFORM_DIR" ]
+		if [[ -d "$PATCH_PLATFORM_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_PLATFORM_DIR" "$CXR_CAMX_SRC_DIR"
 		else
@@ -364,7 +364,7 @@ function CAMx_installer()
 		rm -rf $DRAFT_DIR
 		
 		
-		if [ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true  ]]
 		then
 			# Remove tar file
 			rm $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR}
@@ -384,7 +384,7 @@ function CAMx_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

@@ -165,9 +165,9 @@ function set_variables()
 		# Pressure - convert_input should have done the first grid
 		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)
 		
-		if [ $i -eq 1 ]
+		if [[ $i -eq 1  ]]
 		then
-			if [ -s ${CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]} ]
+			if [[ -s ${CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]}  ]]
 			then
 				ZP_ONE_OK=true
 			fi
@@ -220,14 +220,14 @@ function convert_output()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -287,9 +287,9 @@ function convert_output()
 				cxr_main_logger "${FUNCNAME}" "Converting ${INPUT_FILE} to ${OUTPUT_FILE} using ${CONVERTER}..."
 				
 				# Any existing file will be skipped (see comment in header)
-				if [ -s "$OUTPUT_FILE" ]
+				if [[ -s "$OUTPUT_FILE"  ]]
 				then
-					if [ "${CXR_FORCE}" == true ] 
+					if [[ "${CXR_FORCE}" == true  ]] 
 					then
 						# Delete it
 						cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - since you run with the -f option, if will be deleted now"
@@ -305,7 +305,7 @@ function convert_output()
 			
 				cxr_main_logger -v "${FUNCNAME}" "${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 "
 
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 					#Call the converter, collect sterr and stout
 					${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 2>&1 | tee -a $CXR_LOG
@@ -317,7 +317,7 @@ function convert_output()
 
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -337,7 +337,7 @@ function convert_output()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

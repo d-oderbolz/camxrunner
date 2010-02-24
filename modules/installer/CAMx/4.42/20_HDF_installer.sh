@@ -89,7 +89,7 @@ exit 1
 function HDF_installer() 
 ################################################################################
 {
-	if [ "$(cxr_common_get_consent "Do you want to complile the zlib, HDF, netCDF and IOAPI libraries (needed for HDF and IOAPI support)?\nRequires about $CXR_LIB_MEGABYTES_REQUIRED MB of space." Y )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to complile the zlib, HDF, netCDF and IOAPI libraries (needed for HDF and IOAPI support)?\nRequires about $CXR_LIB_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
 	
 		########################################
@@ -261,12 +261,12 @@ function HDF_installer()
 		cxr_main_logger -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
-		if [ -d "$PATCH_ALL_DIR" ]
+		if [[ -d "$PATCH_ALL_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_ALL_DIR" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
-		if [ -d "$PATCH_PLATFORM_DIR" ]
+		if [[ -d "$PATCH_PLATFORM_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_PLATFORM_DIR" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
@@ -280,7 +280,7 @@ function HDF_installer()
 		rm ${CXR_IOAPI_TAR}
 		
 		# Those directories are no longer needed
-		if [ "$(cxr_common_get_consent "Do you want to remove the directories ${CXR_HDF_TAR_DIR}, ${CXR_ZLIB_TAR_DIR}, ${CXR_NETCDF_TAR_DIR} and ${CXR_IOAPI_TAR_DIR} (they are not needed anymore)?" )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to remove the directories ${CXR_HDF_TAR_DIR}, ${CXR_ZLIB_TAR_DIR}, ${CXR_NETCDF_TAR_DIR} and ${CXR_IOAPI_TAR_DIR} (they are not needed anymore)?" )" == true  ]]
 		then
 			rm -r ${MYLIBDIR}/hdf/${CXR_HDF_TAR_DIR}
 			rm -r ${MYLIBDIR}/zlib/${CXR_ZLIB_TAR_DIR}
@@ -304,7 +304,7 @@ function HDF_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

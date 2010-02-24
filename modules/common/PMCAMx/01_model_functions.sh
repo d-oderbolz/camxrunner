@@ -96,7 +96,7 @@ exit 1
 function get_chemparam_file ()
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
@@ -104,7 +104,7 @@ function get_chemparam_file ()
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
-	if [ -f "${RUN_SPECIFIC}" ]
+	if [[ -f "${RUN_SPECIFIC}"  ]]
 	then
 		cxr_main_logger $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
 	
@@ -123,7 +123,7 @@ function get_chemparam_file ()
 	# While the other file does set these to 0.
 	MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx4.chemparam.5.FINAL_SEMIvol_Rxns
 
-	if [ ! -f "${MY_CHEMPARAM_INPUT_FILE}" ]
+	if [[ ! -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 	else
@@ -165,24 +165,24 @@ function get_model_exec()
 	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
-	if [ -x ${RUN_EXEC} ]
+	if [[ -x ${RUN_EXEC}  ]]
 	then
 		# Run dependent exists
 		cxr_main_logger -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
 		echo "${RUN_EXEC}"
-	elif [ -x ${MACHINE_EXEC} ]
+	elif [[ -x ${MACHINE_EXEC}  ]]
 	then
 		# Machine dependent exists
 		cxr_main_logger -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${MACHINE_EXEC}"
 		echo "${MACHINE_EXEC}"
-	elif [ -x ${GENERAL_EXEC} ]
+	elif [[ -x ${GENERAL_EXEC}  ]]
 	then
 		# general exists
 		cxr_main_logger -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${GENERAL_EXEC}"
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
-		if [ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false ]
+		if [[ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false  ]]
 		then
 			# optional paratemeter is false, or we do not run the model
 			# We do not care and return CXR_GENERAL_EXEC
@@ -203,7 +203,7 @@ function get_model_exec()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "${progname}" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "${progname}" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	while getopts ":t" opt

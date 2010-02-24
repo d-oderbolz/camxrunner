@@ -85,7 +85,7 @@ function cxr_common_is_substring_present()
 	local FOUND=$(expr match " $1" ".*$2.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
-	if [ $FOUND -gt 0 ]
+	if [[ $FOUND -gt 0  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
 		echo true
@@ -105,7 +105,7 @@ function cxr_common_is_substring_present()
 function cxr_common_to_lower() 
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo ""
 	else
@@ -126,7 +126,7 @@ function cxr_common_to_lower()
 function cxr_common_to_upper() 
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo ""
 	else
@@ -147,7 +147,7 @@ function cxr_common_to_upper()
 function cxr_common_trim() 
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo ""
 	else
@@ -166,7 +166,7 @@ function cxr_common_trim()
 function cxr_common_len() 
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo 0
 	else
@@ -186,7 +186,7 @@ function cxr_common_len()
 function cxr_common_extract_characters() 
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		echo ""
 	else
@@ -209,7 +209,7 @@ function cxr_common_extract_characters()
 function cxr_common_n_digits
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
@@ -231,7 +231,7 @@ function cxr_common_n_digits
 function cxr_common_two_digits
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo ""
 	else
@@ -250,7 +250,7 @@ function cxr_common_two_digits
 function cxr_common_extract_number
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo 0
 	else
@@ -276,7 +276,7 @@ function cxr_common_extract_number
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -295,7 +295,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -355,7 +355,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -383,7 +383,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

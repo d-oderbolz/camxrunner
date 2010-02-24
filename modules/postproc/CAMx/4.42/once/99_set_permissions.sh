@@ -133,21 +133,21 @@ function set_permissions
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 	
 		#  --- Setup the Environment 
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [ $(cxr_main_is_numeric "${CXR_OUTPUT_DIR_PERMISSIONS}") == true ]
+		if [[ $(cxr_main_is_numeric "${CXR_OUTPUT_DIR_PERMISSIONS}") == true  ]]
 		then
 			# OK, go ahead
 			cxr_main_logger -a -b "${FUNCNAME}"  "Setting Permissions on output directories to ${CXR_OUTPUT_DIR_PERMISSIONS}"
@@ -157,7 +157,7 @@ function set_permissions
 			do
 				cxr_main_logger -v "${FUNCNAME}"  "Changing permissions on ${VAR}..."
 				
-				if [ "${CXR_DRY}" == false ]
+				if [[ "${CXR_DRY}" == false  ]]
 				then
 					# The ! allows for _indirection_
 					chmod -R ${CXR_OUTPUT_DIR_PERMISSIONS} "${!VAR}"
@@ -191,7 +191,7 @@ function set_permissions
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -210,7 +210,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -253,7 +253,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -281,7 +281,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

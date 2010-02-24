@@ -29,7 +29,7 @@
 			INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
 			RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
 			
-			if [ "$RAW_FUNCTION_NAME" != "${CXR_NOLOAD:-}" ]
+			if [[ "$RAW_FUNCTION_NAME" != "${CXR_NOLOAD:-}"  ]]
 			then
 				# Load it
 				

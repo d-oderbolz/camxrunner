@@ -197,20 +197,20 @@ function prepare_output_dir()
 ################################################################################
 {
 
-	if [ "${CXR_RUN_LIMITED_PROCESSING}" == true -a "${CXR_REMOVE_DECOMPRESSED_FILES}" == true ]
+	if [[ "${CXR_RUN_LIMITED_PROCESSING}" == true -a "${CXR_REMOVE_DECOMPRESSED_FILES}" == true  ]]
 	then
 		cxr_main_logger -w "${FUNCNAME}"  "This module is susceptible to limited processing, because it creates links rather than files.\nIf you use compressed input files, the temporary files into which we decompress wil be deleted.\nUse \n \t ${CXR_CALL} -L \nto avoid this."
 	fi
 
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -234,9 +234,9 @@ function prepare_output_dir()
 				CURRENT_BASE=$(eval "echo \${${VAR_NAME}[${i}]}")
 				
 				# If the Link or file does not yet exist
-				if [ ! \( -L ${CURRENT_BASE} -o -f ${CURRENT_BASE} \) ]
+				if [[ ! \( -L ${CURRENT_BASE} -o -f ${CURRENT_BASE} \)  ]]
 				then
-					if [ "$CXR_DRY" == "false" ]
+					if [[ "$CXR_DRY" == "false"  ]]
 					then
 						cxr_main_logger "${FUNCNAME}"  "Linking ${CURRENT_BASE} to ${CURRENT_FILE}..."
 						ln -s ${CURRENT_FILE} ${CURRENT_BASE}
@@ -261,7 +261,7 @@ function prepare_output_dir()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

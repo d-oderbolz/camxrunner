@@ -87,7 +87,7 @@ exit 1
 function cxr_common_check_bash_version() 
 ################################################################################
 {
-	if [ ${BASH_VERSINFO[0]} -lt 3 ]
+	if [[ ${BASH_VERSINFO[0]} -lt 3  ]]
 	then
 		cxr_main_die_gracefully "We need at least Bash Version 3.x - please upgrade."
 	fi
@@ -128,7 +128,7 @@ function cxr_common_predict_model_output_megabytes ()
 ################################################################################
 {
 	# Determine size of output field
-	if [ ${CXR_AVERAGE_OUTPUT_3D} == true ]; then
+	if [[ ${CXR_AVERAGE_OUTPUT_3D} == true  ]]; then
 		CELLS=$(cxr_common_get_num_cells_3d)
 	else
 		CELLS=$(cxr_common_get_num_cells_2d)
@@ -158,7 +158,7 @@ function cxr_common_predict_model_output_megabytes ()
 function cxr_common_check_mb_needed() 
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs 2 parameters: a path and a number (megabytes needed)"
 	fi
@@ -169,14 +169,14 @@ function cxr_common_check_mb_needed()
 	cxr_main_logger -v "${FUNCNAME}" "Checking if space in $DIR is sufficient..."
 		
 	# Nonexistent Directory?
-	if [ ! -d $DIR ]
+	if [[ ! -d $DIR  ]]
 	then
 		# Create it!
 		cxr_main_logger -w "${FUNCNAME}" "Directory $DIR is missing, I create it now."
 		mkdir -p $DIR
 	fi
 	
-	if [ "$(cxr_common_free_megabytes "$DIR")" -ge "$MB" ]
+	if [[ "$(cxr_common_free_megabytes "$DIR")" -ge "$MB"  ]]
 	then
 		cxr_main_logger -i "${FUNCNAME}" "Space in $DIR is sufficient."
 	else
@@ -206,7 +206,7 @@ function cxr_common_check_mb_needed()
 function cxr_common_check_datataype()
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs 2 strings as input"
 	fi
@@ -237,7 +237,7 @@ function cxr_common_check_datataype()
 		
 		echo "$VALUE" | grep "[0-9]*\.[0-9]*" >/dev/null
 		
-		if [ $? -eq 0 ]
+		if [[ $? -eq 0  ]]
 		then
 			echo true
 		else
@@ -249,7 +249,7 @@ function cxr_common_check_datataype()
 		
 		;;
 	B) # Boolean - either true or false
-		if [ "$VALUE" == true -o "$VALUE" == false ]
+		if [[ "$VALUE" == true -o "$VALUE" == false  ]]
 		then
 			echo true
 		else
@@ -257,7 +257,7 @@ function cxr_common_check_datataype()
 		fi
 		;;
 	D) # Directory - in principle we accept anything
-		if [ ! -d "$VALUE" ]
+		if [[ ! -d "$VALUE"  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" -s "The directory $VALUE was net found"
 			echo true
@@ -285,7 +285,7 @@ function cxr_common_check_model_limits()
 	# We must find the play file
 	local PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/$(basename ${CXR_MODEL_EXEC}).play
 	
-	if [ -f "${PLAYFILE}" ]
+	if [[ -f "${PLAYFILE}"  ]]
 	then
 		# Playfile is present
 		
@@ -314,10 +314,10 @@ function cxr_common_check_model_limits()
 				# Read value
 				local F_VAL="$(grep "${CURR_VAR}${CXR_DELIMITER}" "${PLAYFILE}" | cut -d${CXR_DELIMITER} -f2)"
 				
-				if [ "${F_VAL}" ]
+				if [[ "${F_VAL}"  ]]
 				then
 					# Check if we are above the limit
-					if [ "${CXR_VALUE}" -gt "${F_VAL}" ]
+					if [[ "${CXR_VALUE}" -gt "${F_VAL}"  ]]
 					then
 						cxr_main_logger -e "$FUNCNAME" "The limit for the setting ${CURR_VAR} (${F_VAL}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_VALUE})\nPlease recompile CAMx using the installer."
 					else
@@ -332,10 +332,10 @@ function cxr_common_check_model_limits()
 		# Check #of species
 		local F_NSPEC="$(grep "MXSPEC${CXR_DELIMITER}" "${PLAYFILE}" | cut -d${CXR_DELIMITER} -f2)"
 		
-		if [ "${F_NSPEC}" ]
+		if [[ "${F_NSPEC}"  ]]
 		then
 			# Check if we are above the limit
-			if [ "${CXR_NUMBER_OF_OUTPUT_SPECIES}" -gt "${F_NSPEC}" ]
+			if [[ "${CXR_NUMBER_OF_OUTPUT_SPECIES}" -gt "${F_NSPEC}"  ]]
 			then
 				cxr_main_logger -e "$FUNCNAME" "The limit for the number of species (MXSPEC=${F_NSPEC}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease recompile CAMx using the installer."
 			else
@@ -364,7 +364,7 @@ function cxr_common_check_runner_executables ()
 	# We use a bash 3.x structure, the so-called "here-variable"
 	while read FILE
 	do
-		if [ ! -x $FILE ]
+		if [[ ! -x $FILE  ]]
 		then
 			cxr_main_logger -w "${FUNCNAME}" "File $FILE is not executable,I try to correct this"
 			# File is not executable, try to correct
@@ -393,13 +393,13 @@ function cxr_common_check_environment_executables ()
 		cxr_main_logger -v "${FUNCNAME}"  "Variable $EXEC has value: ${!EXEC}\n"
 			
 		# is it set?
-		if [ "${!EXEC}" ]
+		if [[ "${!EXEC}"  ]]
 		then
 			# Does it exist?
-			if [ -f "${!EXEC}" ]
+			if [[ -f "${!EXEC}"  ]]
 			then
 				# is it executable 
-				if [ ! -x ${!EXEC} ]
+				if [[ ! -x ${!EXEC}  ]]
 				then
 					cxr_main_logger -w "${FUNCNAME}"  "Executable ${!EXEC}, Parameter $EXEC not executable - I try to correct this ..."     
 					
@@ -429,14 +429,14 @@ function cxr_common_check_environment_executables ()
 function cxr_common_md5() 
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo -e "$FUNCNAME" "You must pass a file to be hashed."
 	fi
 	
 	FILE="$1"
 	
-	if [ -r "${FILE}" ]
+	if [[ -r "${FILE}"  ]]
 	then
 		"${CXR_MD5_EXEC}" "${FILE}" | cut -d" " -f1
 	else
@@ -484,7 +484,7 @@ function cxr_common_check_preconditions()
 	done
 	
 	# Fix switches if user did not restrict
-	if [ "${LIMITED}" == false ]
+	if [[ "${LIMITED}" == false  ]]
 	then
 		DO_INPUT=true
 		DO_OUTPUT=true
@@ -508,7 +508,7 @@ function cxr_common_check_preconditions()
 	##########################################
 	#### this is only checked once
 	##########################################
-	if [ "$CXR_CHECKED_ONCE" == false ]
+	if [[ "$CXR_CHECKED_ONCE" == false  ]]
 	then
 	
 		cxr_main_logger -v "${FUNCNAME}"  "Performing one-time checks..."
@@ -526,28 +526,28 @@ function cxr_common_check_preconditions()
 		for OUTPUT_DIR in $(set | grep -e ^CXR_*.*_OUTPUT_DIR= | cut -d= -f1)
 		do
 			# is it set?
-			if [ "${!OUTPUT_DIR}" ]
+			if [[ "${!OUTPUT_DIR}"  ]]
 			then
 				cxr_main_logger -v "${FUNCNAME}"  "Variable $OUTPUT_DIR has value: ${!OUTPUT_DIR}\n"
 				
 				# Test length
-				if [ "${CXR_CHECK_MAX_PATH}" == true ]
+				if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 				then
-					if [ $(cxr_common_len "${!OUTPUT_DIR}") -gt "${CXR_MAX_PATH}" ]
+					if [[ $(cxr_common_len "${!OUTPUT_DIR}") -gt "${CXR_MAX_PATH}"  ]]
 					then
 						cxr_main_logger -e "${FUNCNAME}" "Path to $OUTPUT_DIR longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					fi
 				fi
 				
 				# Does it exist
-				if [ ! -d ${!OUTPUT_DIR} ]
+				if [[ ! -d ${!OUTPUT_DIR}  ]]
 				then
 					cxr_main_logger -w "${FUNCNAME}" "Directory ${!OUTPUT_DIR} Parameter $OUTPUT_DIR does not exist - will create it"
 					
 					mkdir -p ${!OUTPUT_DIR} || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - could not create output dir ${!OUTPUT_DIR}"
 					
 				# is it writeable?
-				elif [ ! -w ${!OUTPUT_DIR} ]
+				elif [[ ! -w ${!OUTPUT_DIR}  ]]
 				then
 					cxr_main_logger -e "${FUNCNAME}:${LINENO} - Output Directory ${!OUTPUT_DIR}, \nParameter $OUTPUT_DIR not writeable!"
 				fi
@@ -582,20 +582,20 @@ function cxr_common_check_preconditions()
 			cxr_main_logger -v "${FUNCNAME}"  "Variable $DIR has value: ${!DIR}\n"
 
 			# is it set?
-			if [ "${!DIR}" ]
+			if [[ "${!DIR}"  ]]
 			then
 			
 				# does it exist?
-				if [ -d "${!DIR}" ]
+				if [[ -d "${!DIR}"  ]]
 				then
 					# is it executable (dir: means accessible)?
-					if [ ! -x ${!DIR} ]
+					if [[ ! -x ${!DIR}  ]]
 					then
 						cxr_main_logger -e "${FUNCNAME}:${LINENO} - Directory ${!DIR}, \nParameter $DIR not accessible!"
 					fi
 				else
 					# Does not exist, create it.
-					if [ $(cxr_common_is_absolute_path ${!DIR}) == true ]
+					if [[ $(cxr_common_is_absolute_path ${!DIR}) == true  ]]
 					then
 						cxr_main_logger -w "${FUNCNAME}"  "Directory ${!DIR}, \nParameter $DIR does not exist - creating it"
 						mkdir -p ${!DIR}
@@ -631,7 +631,7 @@ function cxr_common_check_preconditions()
 	########################################
 	# Input Check
 	########################################
-	if [ "${DO_INPUT}" == true ]
+	if [[ "${DO_INPUT}" == true  ]]
 	then
 		# INPUT FILES - are they there?
 		cxr_main_logger -v "${FUNCNAME}"  "Checking Input Files ..."
@@ -643,9 +643,9 @@ function cxr_common_check_preconditions()
 		do
 			
 			# Test length
-			if [ "${CXR_CHECK_MAX_PATH}" == true ]
+			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
-				if [ $(cxr_common_len "${INPUT_FILE}") -gt "${CXR_MAX_PATH}" ]
+				if [[ $(cxr_common_len "${INPUT_FILE}") -gt "${CXR_MAX_PATH}"  ]]
 				then
 					cxr_main_logger -e "${FUNCNAME}" "Path to $INPUT_FILE longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					ERRORS_FOUND=true
@@ -653,7 +653,7 @@ function cxr_common_check_preconditions()
 			fi
 			
 			# is it readable?
-			if [ ! -r "${INPUT_FILE}" ]
+			if [[ ! -r "${INPUT_FILE}"  ]]
 			then
 				# Not readable!
 				cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} not readable!"
@@ -662,14 +662,14 @@ function cxr_common_check_preconditions()
 				# Readable
 			
 				# is it larger than 0 bytes?
-				if [ ! -s "${INPUT_FILE}" ]
+				if [[ ! -s "${INPUT_FILE}"  ]]
 				then
 					# Empty File!
 					cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} is empty!"
 					ERRORS_FOUND=true
 				else
 					# Nono-empty, report hash if wanted
-					if [ "${CXR_REPORT_MD5}" == true ]
+					if [[ "${CXR_REPORT_MD5}" == true  ]]
 					then
 						cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${INPUT_FILE} is $(cxr_common_md5 ${INPUT_FILE})"
 					fi
@@ -683,7 +683,7 @@ function cxr_common_check_preconditions()
 	########################################
 	# Output Check
 	########################################
-	if [ "${DO_OUTPUT}" == true ]
+	if [[ "${DO_OUTPUT}" == true  ]]
 	then
 		# OUTPUT FILES - are they absent?
 		cxr_main_logger -v "${FUNCNAME}"  "Checking if Output Files are absent..."
@@ -694,9 +694,9 @@ function cxr_common_check_preconditions()
 		for OUTPUT_FILE in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
 			# Test length
-			if [ "${CXR_CHECK_MAX_PATH}" == true ]
+			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
-				if [ $(cxr_common_len "${OUTPUT_FILE}") -gt "${CXR_MAX_PATH}" ]
+				if [[ $(cxr_common_len "${OUTPUT_FILE}") -gt "${CXR_MAX_PATH}"  ]]
 				then
 					cxr_main_logger -e "${FUNCNAME}" "Path to $OUTPUT_FILE longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					ERRORS_FOUND=true
@@ -704,24 +704,24 @@ function cxr_common_check_preconditions()
 			fi
 			
 			# is it present?
-			if [ -f "${OUTPUT_FILE}" ]
+			if [[ -f "${OUTPUT_FILE}"  ]]
 			then
 				#############################
 				# File Present!
 				#############################
 				
 				# is it empty or do we force?
-				if [ ! -s "${OUTPUT_FILE}" ]
+				if [[ ! -s "${OUTPUT_FILE}"  ]]
 				then
 					# Empty
 					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists, but is empty. I will delete it now..."
 					rm -f "${OUTPUT_FILE}"
-				elif [ "$CXR_FORCE" == true ]
+				elif [[ "$CXR_FORCE" == true  ]]
 				then
 					# Force overwrite
 					cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose the -F option, so we delete it now..."
 					
-					if [ "$CXR_DRY" == false ]
+					if [[ "$CXR_DRY" == false  ]]
 					then
 						rm -f "${OUTPUT_FILE}"
 					else
@@ -733,7 +733,7 @@ function cxr_common_check_preconditions()
 					#############################
 					
 					# Do we skip?
-					if [ "${CXR_SKIP_EXISTING}" == true ]
+					if [[ "${CXR_SKIP_EXISTING}" == true  ]]
 					then
 						# Ok, skipping
 						cxr_main_logger -w "${FUNCNAME}" "File ${OUTPUT_FILE} already exists. You chose to skip over this file..."
@@ -758,7 +758,7 @@ function cxr_common_check_preconditions()
 	set -u
 	
 	# Inverting
-	if [ "${ERRORS_FOUND:-false}" == false ]
+	if [[ "${ERRORS_FOUND:-false}" == false  ]]
 	then
 		# No errors
 		echo true
@@ -788,7 +788,7 @@ function cxr_common_check_module_version()
 	FOUND=$(cxr_common_is_substring_present "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
 	
 	# We announce only if it was not found
-	if [ "$FOUND" == false ]
+	if [[ "$FOUND" == false  ]]
 	then
 	
 		cxr_main_logger -v "${FUNCNAME}"  "\nLoading ${CXR_META_MODULE_NAME} - Version ${CXR_META_MODULE_VERSION}\n"    
@@ -801,7 +801,7 @@ function cxr_common_check_module_version()
 		cxr_main_logger -v "${FUNCNAME}"  "More Information can be found here:\n$CXR_META_MODULE_DOC_URL\n"     
 		cxr_main_logger -v "${FUNCNAME}"  "The Module was written by: $CXR_META_MODULE_AUTHOR\nAnd is released under these terms:\n$CXR_META_MODULE_LICENSE\n"
 
-		if [ "${CXR_META_MODULE_NUM_TESTS:-0}" -gt 0 ]
+		if [[ "${CXR_META_MODULE_NUM_TESTS:-0}" -gt 0  ]]
 		then
 			cxr_main_logger -v "${FUNCNAME}"  "This module contains a test suite."
 		fi
@@ -819,7 +819,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check CAMxRunner revision
-	if [ "$CXR_META_MODULE_REQ_RUNNER_VERSION" -a \(  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" \) ]
+	if [[ "$CXR_META_MODULE_REQ_RUNNER_VERSION" -a \(  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" \)  ]]
 	then
 		
 		# Increase global indent level
@@ -828,7 +828,7 @@ function cxr_common_check_module_version()
 		# CAMxRunner Version
 		RUNNER_REVISION=$(cxr_common_get_svn_revision $CXR_RUN_DIR/CAMxRunner.sh)
 		
-		if [ "$RUNNER_REVISION" -ge "$CXR_META_MODULE_REQ_RUNNER_VERSION" ] 
+		if [[ "$RUNNER_REVISION" -ge "$CXR_META_MODULE_REQ_RUNNER_VERSION"  ]] 
 		then
 			cxr_main_logger -v "${FUNCNAME}"  "CAMxRunner Version OK"
 		else
@@ -846,7 +846,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check config revision
-	if [ "$CXR_META_MODULE_REQ_CONF_VERSION" -a \(  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" \) ]
+	if [[ "$CXR_META_MODULE_REQ_CONF_VERSION" -a \(  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" \)  ]]
 	then
 		
 		# Increase global indent level
@@ -855,7 +855,7 @@ function cxr_common_check_module_version()
 		# Config Revision
 		CONFIG_REVISION=$(cxr_common_get_svn_revision $CXR_CONFIG)
 
-		if [ "$CONFIG_REVISION" -ge "$CXR_META_MODULE_REQ_CONF_VERSION" ] 
+		if [[ "$CONFIG_REVISION" -ge "$CXR_META_MODULE_REQ_CONF_VERSION"  ]] 
 		then
 			cxr_main_logger -v "${FUNCNAME}"  "Config Version OK"
 		else
@@ -902,7 +902,7 @@ function cxr_common_check_result()
 	ERRORS_FOUND=false
 	
 	# No output check for dryruns
-	if [ $CXR_DRY == true ]
+	if [[ $CXR_DRY == true  ]]
 	then
 		
 		cxr_main_logger -w "${FUNCNAME}" "Output check is not carried out for dryruns - no output was generated.\nStill we generate dummy files now..."
@@ -911,7 +911,7 @@ function cxr_common_check_result()
 		for OUTPUT_FILE in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
 			# does it not exist?
-			if [ ! -f "${OUTPUT_FILE}" ]
+			if [[ ! -f "${OUTPUT_FILE}"  ]]
 			then
 				cxr_common_create_dummyfile ${OUTPUT_FILE}
 			else
@@ -932,14 +932,14 @@ function cxr_common_check_result()
 	for OUTPUT_FILE in ${CXR_CHECK_THESE_OUTPUT_FILES}
 	do
 		# does it exist and is it larger than 0 bytes?
-		if [ -s "${OUTPUT_FILE}" ]
+		if [[ -s "${OUTPUT_FILE}"  ]]
 		then
 			cxr_main_logger -v "${FUNCNAME}" "Output File ${OUTPUT_FILE} has non-zero size, OK."
 			
 			# Add the file to CXR_INSTANCE_FILE_OUTPUT_LIST if the file is not yet listed
 			grep "${OUTPUT_FILE}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
 			
-			if [ "$?" -ne 0 ]
+			if [[ "$?" -ne 0  ]]
 			then
 				# File structure is 
 				# filename|module_that_created it
@@ -954,7 +954,7 @@ function cxr_common_check_result()
 	# Decrease global indent level
 	cxr_main_decrease_log_indent
 	
-	if [ "$ERRORS_FOUND" == false ]
+	if [[ "$ERRORS_FOUND" == false  ]]
 	then
 		# No errors
 		echo true
@@ -979,7 +979,7 @@ function cxr_common_check_result()
 function cxr_common_is_version_supported()
 ################################################################################
 {
-	if [ -z "${1:-}" ]
+	if [[ -z "${1:-}"  ]]
 	then
 		# Forget it - must be larger than ""
 		return 1
@@ -991,7 +991,7 @@ function cxr_common_is_version_supported()
 	# Check the Version
 	FOUND=$(cxr_common_is_substring_present "$SUPPORTED" "$1")
 	
-	if [ $FOUND == true ]
+	if [[ $FOUND == true  ]]
 	then
 		# Found, ok
 		return 0
@@ -1022,7 +1022,7 @@ function cxr_common_is_version_supported()
 function cxr_common_check_run_name()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo 0
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a string as input"
@@ -1030,7 +1030,7 @@ function cxr_common_check_run_name()
 	
 	# Length must not exceed 60 because we use it as
 	# "note" field in all files
-	if [ $(cxr_common_len $1) -gt 60 ]
+	if [[ $(cxr_common_len $1) -gt 60  ]]
 	then
 		echo 0
 		cxr_main_logger -e "${FUNCNAME}"  "A run name must not be longer than 60 characters!"
@@ -1070,7 +1070,7 @@ function cxr_common_check_run_name()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -1089,7 +1089,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -1137,7 +1137,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -1165,7 +1165,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

@@ -933,7 +933,7 @@ CXR_STATION_DOMAIN=3
 
 CXR_IC_BC_TC_METHOD=MOZART
 
-if [ "$CXR_IC_BC_TC_METHOD" != MOZART ]
+if [[ "$CXR_IC_BC_TC_METHOD" != MOZART  ]]
 then
 	# If we are not using MOZART, we need to define the constant values
 	# or the increments.

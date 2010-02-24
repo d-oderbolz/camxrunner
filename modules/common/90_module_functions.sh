@@ -96,7 +96,7 @@ exit 1
 function cxr_common_get_module_type()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "Need a module name as input"
 	fi
@@ -114,14 +114,14 @@ function cxr_common_get_module_type()
 		DIR=${DIRS[$i]}
 		
 		# Find the thingy
-		if [ $(find $DIR -noleaf -name $NAME | wc -l) -ne 0 ] 
+		if [[ $(find $DIR -noleaf -name $NAME | wc -l) -ne 0  ]] 
 		then
 			MODULE_TYPE=${TYPES[$i]}
 			break
 		fi
 	done
 	
-	if [ "$MODULE_TYPE" ]
+	if [[ "$MODULE_TYPE"  ]]
 	then
 		echo "$MODULE_TYPE"
 	else
@@ -219,7 +219,7 @@ function cxr_common_run_modules()
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
-	if [ ! \( "${ENABLED_MODULES}" == "" -a "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" -a "$RUN_ONLY" == "${CXR_RUN_ALL}" \) ]
+	if [[ ! \( "${ENABLED_MODULES}" == "" -a "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" -a "$RUN_ONLY" == "${CXR_RUN_ALL}" \)  ]]
 	then
 	
 		# We did not turn off everything or we need only a specific module to be run
@@ -233,7 +233,7 @@ function cxr_common_run_modules()
 			do
 				
 				# Check if we are still happy if needed
-				if [ "${CHECK_CONTINUE}" == true ]
+				if [[ "${CHECK_CONTINUE}" == true  ]]
 				then
 					cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
 				fi
@@ -246,25 +246,25 @@ function cxr_common_run_modules()
 				# Export the module name
 				CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $FUNCTION_FILE)
 				
-				if [ "$RUN_ONLY" != "${CXR_RUN_ALL}" ]
+				if [[ "$RUN_ONLY" != "${CXR_RUN_ALL}"  ]]
 				then
 				
 					# is this the module we should run?
 					# here we do no further checks on disabled/enabled
-					if [ "$RUN_ONLY" == "${CXR_META_MODULE_NAME}" ]
+					if [[ "$RUN_ONLY" == "${CXR_META_MODULE_NAME}"  ]]
 					then
 						# First source the file to get the CXR_META_MODULE_NAME
 						source $FUNCTION_FILE
 						
 						# This is not needed for installers
 						
-						if [ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER" ]
+						if [[ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER"  ]]
 						then
 							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
 						fi
 						
 						# Show dependencies, if any
-						if [ "${CXR_META_MODULE_DEPENDS_ON:-}" ]
+						if [[ "${CXR_META_MODULE_DEPENDS_ON:-}"  ]]
 						then
 							cxr_main_logger -a -B "${FUNCNAME}" "This module depends on these modules:\n${CXR_META_MODULE_DEPENDS_ON}\nif it fails, run these dependencies first"
 						fi
@@ -272,7 +272,7 @@ function cxr_common_run_modules()
 						# Increase global indent level
 						cxr_main_increase_log_indent
 						
-						if [ "$(cxr_common_check_module_version)" == true ]
+						if [[ "$(cxr_common_check_module_version)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || RET_VAL=$CXR_RET_ERROR
@@ -294,11 +294,11 @@ function cxr_common_run_modules()
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
-					if [ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true ]
+					if [[ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
 						# Module was explicitly enabled
 						RUN_IT=true
-					elif [ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}" ]
+					elif [[ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"  ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
 						RUN_IT=true
@@ -309,10 +309,10 @@ function cxr_common_run_modules()
 					fi
 					
 					# Execute if needed
-					if [ "$RUN_IT" == true ]
+					if [[ "$RUN_IT" == true  ]]
 					then
 					
-						if [ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER" ]
+						if [[ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER"  ]]
 						then
 							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
 						fi
@@ -320,7 +320,7 @@ function cxr_common_run_modules()
 						# Increase global indent level
 						cxr_main_increase_log_indent
 						
-						if [ "$(cxr_common_check_module_version)" == true ]
+						if [[ "$(cxr_common_check_module_version)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || RET_VAL=$CXR_RET_ERROR
@@ -366,7 +366,7 @@ function cxr_common_process_sequentially
 	# Setup environment
 	cxr_common_set_date_variables "$CXR_START_DATE" 0
 	
-	if [ ${CXR_RUN_PRE_ONCE} == true ]
+	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
 		cxr_common_run_modules ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
 	else
@@ -376,13 +376,13 @@ function cxr_common_process_sequentially
 	## Now we need to loop through the days
 	# but only if the user wants any of this
 	
-	if [ ${CXR_RUN_PRE_DAILY} == true -o ${CXR_RUN_MODEL} == true -o ${CXR_RUN_POST_DAILY} == true ]
+	if [[ ${CXR_RUN_PRE_DAILY} == true -o ${CXR_RUN_MODEL} == true -o ${CXR_RUN_POST_DAILY} == true  ]]
 	then
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
 		
 			# if we run only 1 day, do it
-			if [ "${CXR_ONE_DAY}" ]
+			if [[ "${CXR_ONE_DAY}"  ]]
 			then
 				DAY_OFFSET="$(cxr_common_date2offset ${CXR_ONE_DAY})"
 				cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${DAY_OFFSET}."
@@ -395,21 +395,21 @@ function cxr_common_process_sequentially
 			
 			# Run the three daily module types in order
 			
-			if [ ${CXR_RUN_PRE_DAILY} == true ]
+			if [[ ${CXR_RUN_PRE_DAILY} == true  ]]
 			then
 				cxr_common_run_modules ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
-			if [ ${CXR_RUN_MODEL} == true ]
+			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
 				cxr_common_run_modules ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
-			if [ ${CXR_RUN_POST_DAILY} == true ]
+			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
 				cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
 			else
@@ -417,7 +417,7 @@ function cxr_common_process_sequentially
 			fi
 			
 			# If we do only 1 day, that's it
-			if [ "${CXR_ONE_DAY}" ]
+			if [[ "${CXR_ONE_DAY}"  ]]
 			then
 				break
 			fi
@@ -427,7 +427,7 @@ function cxr_common_process_sequentially
 		cxr_main_logger -w $FUNCNAME "We do not run any daily modules"
 	fi
 	
-	if [ ${CXR_RUN_POST_ONCE} == true ]
+	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
 		cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
 	else
@@ -448,7 +448,7 @@ function cxr_common_process_sequentially
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -467,7 +467,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -510,7 +510,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -538,7 +538,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

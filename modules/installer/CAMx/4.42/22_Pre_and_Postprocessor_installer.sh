@@ -87,11 +87,11 @@ exit 1
 function Pre_and_Postprocessor_installer() 
 ################################################################################
 {
-	if [ "$(cxr_common_get_consent "Do you want to compile the pre- and postprocessors?" Y )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to compile the pre- and postprocessors?" Y )" == true  ]]
 	then
 	
 		# Is the compiler there?
-		if [ ! -x ${CXR_FORTRAN_COMPILER_EXEC} ]
+		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC}  ]]
 		then
 			cxr_main_die_gracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
 		fi
@@ -118,7 +118,7 @@ function Pre_and_Postprocessor_installer()
 		# Loop through the source-directories
 		for SRC_DIR in $CXR_PRE_AND_POST_PROG_SCR_ARR
 		do
-			if [ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true ]
+			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
 				cxr_main_logger -a "${FUNCNAME}" "****Compiling source in $SRC_DIR...\n"
 				
@@ -146,7 +146,7 @@ function Pre_and_Postprocessor_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

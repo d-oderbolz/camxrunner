@@ -154,13 +154,13 @@ function convert_emissions()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then	
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -177,7 +177,7 @@ function convert_emissions()
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
 			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
 		
-			if [ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true ]
+			if [[ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
@@ -189,7 +189,7 @@ function convert_emissions()
 
 			cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
 
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Call Converter
 				${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
@@ -207,7 +207,7 @@ function convert_emissions()
 		cxr_main_decrease_log_indent
 
 		# Check if all went well
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -227,7 +227,7 @@ function convert_emissions()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

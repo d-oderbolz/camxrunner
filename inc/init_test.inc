@@ -21,7 +21,7 @@ source $CXR_RUN_DIR/inc/main_functions.inc
 cxr_main_determine_model_and_version ${CXR_RUN}
 
 # Source Defaults if needed
-if [ "${CXR_DEFAULTS_LOADED:-false}" != true ]
+if [[ "${CXR_DEFAULTS_LOADED:-false}" != true  ]]
 then
 	source $CXR_RUN_DIR/inc/defaults.inc
 fi

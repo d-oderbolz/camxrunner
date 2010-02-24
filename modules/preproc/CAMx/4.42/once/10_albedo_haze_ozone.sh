@@ -269,7 +269,7 @@ function create_ahomap_control_file()
 		echo "Landuse filename   |${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}" >> ${ahomap_file}
 		
 		#The corresponding cell dimensions
-		if [ $i -eq 1 ]
+		if [[ $i -eq 1  ]]
 		then
 			# Master Grid (Strange order!)
 			echo "nx,ny              |$CXR_MASTER_GRID_COLUMNS,$CXR_MASTER_GRID_ROWS" >> ${ahomap_file}
@@ -302,11 +302,11 @@ function create_ahomap_control_file()
 		CXR_AHOMAP_OZONE_COLUMN_FILE="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
 		CURRENT_URL="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_URL_RULE" false CXR_AHOMAP_OZONE_COLUMN_URL_RULE)"
 		
-		if [ ! -s $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE} ]
+		if [[ ! -s $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}  ]]
 		then
 			# File does not exist or is empty
 		
-			if [ $CXR_DRY == false ]
+			if [[ $CXR_DRY == false  ]]
 			then
 				# Download
 				${CXR_WGET_EXEC} ${CURRENT_URL} -O $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE} || return $CXR_RET_ERROR
@@ -358,7 +358,7 @@ function albedo_haze_ozone()
 	local ahomap_control_file=
 	
 	#Was this stage already completed?
-	if [ "$(cxr_common_store_state ${CXR_STATE_START})" == true ]
+	if [[ "$(cxr_common_store_state ${CXR_STATE_START})" == true  ]]
 	then
 	
 		for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
@@ -388,7 +388,7 @@ function albedo_haze_ozone()
 					
 				weekly )
 					# Are we in a new week?
-					if [ "$last_week" != "$CXR_WOY" ]
+					if [[ "$last_week" != "$CXR_WOY"  ]]
 					then
 						# Yep, new week.
 						# Today is the first day (either of the week or the simulation)
@@ -397,7 +397,7 @@ function albedo_haze_ozone()
 						days_left=$(cxr_common_days_left_in_week $CXR_DATE)
 						
 						# The number of days depends on the number of days left in the simulation
-						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]
+						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]
 						then
 							# less days left in simulation than in week
 							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
@@ -417,7 +417,7 @@ function albedo_haze_ozone()
 				
 				monthly )
 					# Are we in a new month?
-					if [ "$last_month" != "$CXR_MONTH" ]
+					if [[ "$last_month" != "$CXR_MONTH"  ]]
 					then
 						month_length=$(cxr_common_days_in_month $CXR_MONTH $CXR_YEAR)
 					
@@ -426,7 +426,7 @@ function albedo_haze_ozone()
 						days_left=$(cxr_common_days_left_in_month $CXR_DATE)
 						
 						# The number of days depends on the number of days left
-						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]
+						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]
 						then
 							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
 						else
@@ -450,7 +450,7 @@ function albedo_haze_ozone()
 			set_variables 
 			
 			#  --- Check Settings
-			if [ "$(cxr_common_check_preconditions)" == false ]
+			if [[ "$(cxr_common_check_preconditions)" == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -463,7 +463,7 @@ function albedo_haze_ozone()
 			cxr_main_logger "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
 			
 			# Is the output there?
-			if [ ! -f "$CXR_AHOMAP_OUTPUT_FILE" ]
+			if [[ ! -f "$CXR_AHOMAP_OUTPUT_FILE"  ]]
 			then
 				# File not yet there
 			
@@ -473,13 +473,13 @@ function albedo_haze_ozone()
 				# also downloads/caches satellite data
 				ahomap_control_file=$(cxr_common_create_tempfile $FUNCNAME)
 				
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 				
 					create_ahomap_control_file "$ahomap_control_file" $start_offset $num_days
 						
 					# Is the file there and not empty?)
-					if [ -s "${ahomap_control_file}" ]
+					if [[ -s "${ahomap_control_file}"  ]]
 					then
 					
 						cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
@@ -501,7 +501,7 @@ function albedo_haze_ozone()
 				cxr_main_decrease_log_indent
 		
 				# Check if all went well
-				if [ $(cxr_common_check_result) == false ]
+				if [[ $(cxr_common_check_result) == false  ]]
 				then
 					cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
@@ -510,7 +510,7 @@ function albedo_haze_ozone()
 			else
 				# File exists. That is generally bad,
 				# unless user wants to skip
-				if [ "$CXR_SKIP_EXISTING" == true ]
+				if [[ "$CXR_SKIP_EXISTING" == true  ]]
 				then
 					# Skip it
 					cxr_main_logger -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
@@ -524,7 +524,7 @@ function albedo_haze_ozone()
 			fi
 				
 			# Do not repeat loop if we run it only once
-			if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
+			if [[ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once  ]]
 			then
 				break
 			fi
@@ -569,7 +569,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -602,7 +602,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -630,7 +630,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

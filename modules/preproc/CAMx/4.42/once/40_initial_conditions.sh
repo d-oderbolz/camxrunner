@@ -147,7 +147,7 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_IC_OUTPUT_FILE $CXR_TOPCONC_OUTPUT_FILE"
 
 	# ICBCPREP needs no input files
-	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
+	if [[ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP  ]]
 	then 
 		# All MOZART-flavors need Input
 		
@@ -192,7 +192,7 @@ function create_topconc_file()
 		# Each line looks something like
 		# O3:0.074740447 
 		
-		if [ "$spec_line" ]
+		if [[ "$spec_line"  ]]
 		then
 			# Make sure its uppercase
 			species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
@@ -218,20 +218,20 @@ function initial_conditions()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [ ! -f "${CXR_IC_OUTPUT_FILE}" ]
+		if [[ ! -f "${CXR_IC_OUTPUT_FILE}"  ]]
 		then
 			# Output File does not exist - good.
 			
@@ -249,7 +249,7 @@ function initial_conditions()
 					local extra=
 					
 					# MOZART_CONSTANT or INCREMENT?
-					if [ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT ]
+					if [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT  ]]
 					then
 					
 						# Open the bracket
@@ -260,7 +260,7 @@ function initial_conditions()
 							# Each line looks something like
 							# O3:0.074740447 
 							
-							if [ "$spec_line" ]
+							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
 								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
@@ -280,7 +280,7 @@ function initial_conditions()
 						# Add the rest of the syntax
 						extra=",extra=${extra}"
 						
-					elif [ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT ]
+					elif [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT  ]]
 					then
 					
 						# Open the bracket
@@ -291,7 +291,7 @@ function initial_conditions()
 							# Each line looks something like
 							# O3:0.074740447 
 							
-							if [ "$spec_line" ]
+							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
 								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
@@ -353,7 +353,7 @@ function initial_conditions()
 					# Get a copy of the call
 					cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 		
-					if [ "$CXR_DRY" == false ]
+					if [[ "$CXR_DRY" == false  ]]
 					then
 						
 						# Then we run it, while preserving the output
@@ -377,13 +377,13 @@ function initial_conditions()
 				
 					cxr_main_logger -w "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
 					
-					if [ "$CXR_DRY" == false ]
+					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We need a topconc file First
 						create_topconc_file
 						
 						# Is topconc non-empty?
-						if [ -s "${CXR_TOPCONC_OUTPUT_FILE}" ]
+						if [[ -s "${CXR_TOPCONC_OUTPUT_FILE}"  ]]
 						then
 							# OK, we can now call ICBCPREP
 							# We create one file that is good until the end of the simulation
@@ -413,7 +413,7 @@ function initial_conditions()
 			esac
 	
 			# Check if all went well
-			if [ $(cxr_common_check_result) == false ]
+			if [[ $(cxr_common_check_result) == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -423,7 +423,7 @@ function initial_conditions()
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
-			if [ "$CXR_SKIP_EXISTING" == true ]
+			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger -w "${FUNCNAME}"  "File $CXR_IC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
@@ -470,7 +470,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -502,7 +502,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -530,7 +530,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

@@ -94,12 +94,12 @@ function cxr_common_get_x_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \) ]
+	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	if [ "${DOMAIN}" == 1 ]
+	if [[ "${DOMAIN}" == 1  ]]
 	then
 		# Master Grid
 		XDIM=${CXR_MASTER_GRID_COLUMNS}
@@ -130,12 +130,12 @@ function cxr_common_get_y_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \) ]
+	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	if [ "${DOMAIN}" == 1 ]
+	if [[ "${DOMAIN}" == 1  ]]
 	then
 		# Master Grid
 		YDIM=${CXR_MASTER_GRID_ROWS}
@@ -166,7 +166,7 @@ function cxr_common_get_z_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \) ]
+	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -191,7 +191,7 @@ function cxr_common_get_max_x_dim()
 	do
 		NEW="$(cxr_common_get_x_dim $i)"
 		
-		if [ "$NEW" -gt "$MAX_XDIM" ]
+		if [[ "$NEW" -gt "$MAX_XDIM"  ]]
 		then
 			MAX_XDIM=$NEW
 		fi
@@ -216,7 +216,7 @@ function cxr_common_get_max_y_dim()
 	do
 		NEW="$(cxr_common_get_y_dim $i)"
 		
-		if [ "$NEW" -gt "$MAX_YDIM" ]
+		if [[ "$NEW" -gt "$MAX_YDIM"  ]]
 		then
 			MAX_YDIM=$NEW
 		fi
@@ -241,7 +241,7 @@ function cxr_common_get_max_z_dim()
 	do
 		NEW="$(cxr_common_get_z_dim $i)"
 		
-		if [ "$NEW" -gt "$MAX_ZDIM" ]
+		if [[ "$NEW" -gt "$MAX_ZDIM"  ]]
 		then
 			MAX_ZDIM=$NEW
 		fi
@@ -359,7 +359,7 @@ function cxr_common_report_dimensions()
 function cxr_common_evaluate_rule()
 ################################################################################
 {
-	if [ $# -lt 1 -a $# -gt 4 ]
+	if [[ $# -lt 1 -a $# -gt 4  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
@@ -372,7 +372,7 @@ function cxr_common_evaluate_rule()
 	# By default try decompression
 	TRY_DECOMPRESSION="${4:-true}"
 	
-	if [ -z "$RULE" ]
+	if [[ -z "$RULE"  ]]
 	then
 		# If the rule is empty, we return empty
 		cxr_main_logger -v "$FUNCNAME"  "Rule $RULE_NAME was empty..."
@@ -389,11 +389,11 @@ function cxr_common_evaluate_rule()
 	
 	# *_FILE_RULE might be compressed
 	# Does the name of the rule end in _FILE_RULE ?
-	if [ "${RULE_NAME: -10}" == "_FILE_RULE" ]
+	if [[ "${RULE_NAME: -10}" == "_FILE_RULE"  ]]
 	#                 ¦
 	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/cxr_common_abs/html/string-manipulation.html)
 	then
-		if [ "${TRY_DECOMPRESSION}" == true ]
+		if [[ "${TRY_DECOMPRESSION}" == true  ]]
 		then
 	
 			# Try to decompress
@@ -406,7 +406,7 @@ function cxr_common_evaluate_rule()
 	
 	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $EXPANSION"
 	
-	if [ -z "$EXPANSION" -a "$ALLOW_EMPTY" == false ]
+	if [[ -z "$EXPANSION" -a "$ALLOW_EMPTY" == false  ]]
 	then
 		# Empty not allowed
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Rule $RULE_NAME ($RULE) was expanded to the empty string which is not allowed in this context!"
@@ -434,7 +434,7 @@ function cxr_common_evaluate_rule()
 function cxr_common_evaluate_rule_at_offset()
 ################################################################################
 {
-	if [ $# -lt 2 -a $# -gt 4 ]
+	if [[ $# -lt 2 -a $# -gt 4  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
@@ -479,7 +479,7 @@ function cxr_common_evaluate_rule_at_offset()
 function cxr_common_evaluate_these_scalar_rules()
 ################################################################################
 {
-	if [ $# -lt 1 -a $# -gt 2 ]
+	if [[ $# -lt 1 -a $# -gt 2  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean ALLOW_EMPTY value!"
 	fi
@@ -547,13 +547,13 @@ function cxr_common_create_tempfile()
 ################################################################################
 {
 	
-	if [ ! -d "${CXR_TMP_DIR}" ]
+	if [[ ! -d "${CXR_TMP_DIR}"  ]]
 	then
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
 	# Check if that worked!
-	if [ ! -d "${CXR_TMP_DIR}" ]
+	if [[ ! -d "${CXR_TMP_DIR}"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
@@ -571,7 +571,7 @@ function cxr_common_create_tempfile()
 	local FILENAME=$(mktemp $TEMPLATE)
 	cxr_main_logger -v "$FUNCNAME"  "Creating temporary file $FILENAME"
 	
-	if [ "${store}" == true ]
+	if [[ "${store}" == true  ]]
 	then
 		# Add to dummy list
 		echo $FILENAME >> "$CXR_INSTANCE_FILE_TEMP_LIST"
@@ -593,9 +593,9 @@ function cxr_common_remove_tempfiles()
 {
 	# remove decompressed files, if wanted
 	# each removed file is also removed from the global list
-	if [ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]
+	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true  ]]
 	then
-		if [ -s "$CXR_DECOMPRESSED_LIST" ]
+		if [[ -s "$CXR_DECOMPRESSED_LIST"  ]]
 		then
 			# List file is non-empty
 			cxr_main_logger "$FUNCNAME" "Removing temporarily decompressed files..."
@@ -620,10 +620,10 @@ function cxr_common_remove_tempfiles()
 	fi
 
 	# remove temporary files, if wanted
-	if [ "$CXR_REMOVE_TEMP_FILES" == true ]
+	if [[ "$CXR_REMOVE_TEMP_FILES" == true  ]]
 	then
 		# Does the list even exist?
-		if [ -s "$CXR_INSTANCE_FILE_TEMP_LIST" ]
+		if [[ -s "$CXR_INSTANCE_FILE_TEMP_LIST"  ]]
 		then
 			cxr_main_logger "$FUNCNAME" "Removing temporary files..."
 			
@@ -661,7 +661,7 @@ function cxr_common_remove_tempfiles()
 function cxr_common_get_lock()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
@@ -669,7 +669,7 @@ function cxr_common_get_lock()
 	LOCK="$1"
 
 	# For debug reasons, locking can be turned off
-	if [ $CXR_NO_LOCKING == false ]
+	if [[ $CXR_NO_LOCKING == false  ]]
 	then
 		cxr_main_logger -v "$FUNCNAME"  "Waiting to set lock $LOCK..."
 	
@@ -677,7 +677,7 @@ function cxr_common_get_lock()
 		
 		cxr_main_logger -v "$FUNCNAME"  "Got lock $LOCK."
 		
-		if [ $(grep -c -e "^$LOCK\$") -ne 0 ]
+		if [[ $(grep -c -e "^$LOCK\$") -ne 0  ]]
 		then
 			# Lock already in list (should not happen!)
 			cxr_main_logger "$FUNCNAME" "Weird: it seems as if the lock $LOCK was given out more than once!"
@@ -702,7 +702,7 @@ function cxr_common_get_lock()
 function cxr_common_release_lock()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
@@ -738,7 +738,7 @@ function cxr_common_release_lock()
 function cxr_common_release_all_locks()
 ################################################################################
 {
-	if [ -s "$CXR_INSTANCE_FILE_LOCK_LIST" ]
+	if [[ -s "$CXR_INSTANCE_FILE_LOCK_LIST"  ]]
 	then
 		cxr_main_logger "$FUNCNAME" "Releasing all locks..."
 	
@@ -765,11 +765,11 @@ function cxr_common_create_config_file()
 {
 	RUN="$1"
 	
-	if [ $(cxr_common_get_consent "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true ]
+	if [[ $(cxr_common_get_consent "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
 	then
 
 		# Show a list of existing files to choose from
-		if [ $(cxr_common_get_consent "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false ]
+		if [[ $(cxr_common_get_consent "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false  ]]
 		then
 			#No, use base.conf
 			BASEFILE=${CXR_BASECONFIG}
@@ -784,7 +784,7 @@ function cxr_common_create_config_file()
 			cd "$CXR_RUN_DIR" || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 		fi
 	
-		if [ ! -f "$BASEFILE" ]
+		if [[ ! -f "$BASEFILE"  ]]
 		then
 			cxr_main_die_gracefully "File $BASEFILE is not readable!"
 		fi
@@ -799,10 +799,10 @@ However, this can also be a disadvantage!" N ) == false ]
 			#No expansion, just copy.
 		
 			# Is the file already there?
-			if [ -f ${CXR_CONFIG} ]
+			if [[ -f ${CXR_CONFIG}  ]]
 			then
 				# Continue even if file is there?
-				if [ $(cxr_common_get_consent "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false ]
+				if [[ $(cxr_common_get_consent "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false  ]]
 				then
 					exit
 				fi
@@ -830,10 +830,10 @@ However, this can also be a disadvantage!" N ) == false ]
 
 		DESTINATION="${CXR_CONF_DIR}/${RUN}.conf"
 
-		if [ -f "$DESTINATION" ]
+		if [[ -f "$DESTINATION"  ]]
 		then
 			# Continue even if file is there?
-			if [ $(cxr_common_get_consent "$DESTINATION already exists. Do you want to overwrite this file?" N ) == false ]
+			if [[ $(cxr_common_get_consent "$DESTINATION already exists. Do you want to overwrite this file?" N ) == false  ]]
 			then
 				exit
 			fi
@@ -848,16 +848,16 @@ However, this can also be a disadvantage!" N ) == false ]
 		PLAYFILE=${CXR_CONF_DIR}/${RUN}.play
 		
 		# Might be simplified later
-		if [ -s "$PLAYFILE" ]
+		if [[ -s "$PLAYFILE"  ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [ "$(cxr_common_get_consent "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true ]
+			if [[ "$(cxr_common_get_consent "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
 				
-				if [ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true ]
+				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
@@ -913,10 +913,10 @@ function cxr_common_expand_config()
 	EXPANDED_CONFIG=$2
 	
 	# Is the file already there?
-	if [ -f ${EXPANDED_CONFIG} ]
+	if [[ -f ${EXPANDED_CONFIG}  ]]
 	then
 		# Continue even if file is there?
-		if [ $(cxr_common_get_consent "${EXPANDED_CONFIG} already exists. Do you want to overwrite this file?" N ) == false ]
+		if [[ $(cxr_common_get_consent "${EXPANDED_CONFIG} already exists. Do you want to overwrite this file?" N ) == false  ]]
 		then
 			exit
 		fi
@@ -960,7 +960,7 @@ function cxr_common_get_model_id()
 	
 	for CURRENT_MODEL in $CXR_SUPPORTED_MODELS
 	do
-		if [ $CURRENT_MODEL == $NEEDLE ]
+		if [[ $CURRENT_MODEL == $NEEDLE  ]]
 		then
 			echo $CURRENT_ID
 			return 0
@@ -1021,7 +1021,7 @@ function cxr_common_create_new_run()
 	CXR_CONFIG=${CXR_CONF_DIR}/${RUN}.conf
 	
 	#name is OK - create link ##################################################
-	if [ ! -L $RUN ]
+	if [[ ! -L $RUN  ]]
 	then
 		cxr_main_logger "$FUNCNAME"  "Creating link $RUN."
 			
@@ -1029,7 +1029,7 @@ function cxr_common_create_new_run()
 		
 	else
 		# Run already existists, OK? ###############################################
-		if [ $(cxr_common_get_consent "$RUN already exists. Do you want to continue \n (Makes sense if you regenerate the configuration)?" N ) == false ]
+		if [[ $(cxr_common_get_consent "$RUN already exists. Do you want to continue \n (Makes sense if you regenerate the configuration)?" N ) == false  ]]
 		then
 			# No
 			exit
@@ -1065,7 +1065,7 @@ function cxr_common_check_runner_consistency()
 		# Increase global indent level
 		cxr_main_increase_log_indent
 
-		if [ ! -d $CXR_RUN_DIR/$SUBIDR ]
+		if [[ ! -d $CXR_RUN_DIR/$SUBIDR  ]]
 		then
 			# Oh Oh!
 			mkdir -p $CXR_RUN_DIR/$SUBIDR
@@ -1139,7 +1139,7 @@ function cxr_common_check_runner_consistency()
 				
 				DIR=$CXR_RUN_DIR/$SUBIDR/$MODEL/$VERSION
 			
-				if [ ! -d $DIR ]
+				if [[ ! -d $DIR  ]]
 				then
 					# Oh Oh!
 					mkdir -p $DIR
@@ -1171,7 +1171,7 @@ function cxr_common_check_runner_consistency()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -1190,7 +1190,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -1238,7 +1238,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -1266,7 +1266,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

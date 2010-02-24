@@ -92,7 +92,7 @@ function cxr_common_is_repeated_run()
 	
 	cxr_main_logger -v "$FUNCNAME" "File count in state directory: $COUNT"
 	
-	if [ "$COUNT" -gt 0 ]
+	if [[ "$COUNT" -gt 0  ]]
 	then
 		echo true
 	else
@@ -110,12 +110,12 @@ function cxr_common_is_repeated_run()
 function cxr_common_get_last_day_modelled()
 ################################################################################
 {
-	if [ $(cxr_common_is_repeated_run) == true ]
+	if [[ $(cxr_common_is_repeated_run) == true  ]]
 	then
 		# A similar expression is used in cxr_common_cleanup_state
 		MAX_DAY=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
 		
-		if [ "$MAX_DAY" ]
+		if [[ "$MAX_DAY"  ]]
 		then
 			# Convert to ISO
 			DATE=$(cxr_common_to_iso_date "$MAX_DAY")
@@ -151,7 +151,7 @@ function cxr_common_get_last_day_modelled()
 function cxr_common_get_stage_name()
 ################################################################################
 {
-	if [ $# -lt 3 ]
+	if [[ $# -lt 3  ]]
 	then
 		# Use the environment
 		MODULE_TYPE="${CXR_META_MODULE_TYPE}"
@@ -224,14 +224,14 @@ function cxr_common_delete_instance_data()
 function cxr_common_initialize_state_db()
 ################################################################################
 {
-	if [ -z "${CXR_STATE_DIR}" ]
+	if [[ -z "${CXR_STATE_DIR}"  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "CXR_STATE_DIR not set!"
 		return 1
 	fi
 	
 	# Not started yet - create state dir first
-	if [ ! -d ${CXR_STATE_DIR} ]
+	if [[ ! -d ${CXR_STATE_DIR}  ]]
 	then
 		mkdir -p ${CXR_STATE_DIR}
 		
@@ -304,7 +304,7 @@ function cxr_common_store_state()
 ################################################################################
 {
 	
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state like $CXR_STATE_ERROR as Input"   
 	fi
@@ -315,7 +315,7 @@ function cxr_common_store_state()
 	
 	# Do we care at all?
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
-	if [ "$CXR_ENABLE_STATE_DB" == false ]
+	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "You disabled the state DB (CXR_ENABLE_STATE_DB=false), new state will not be stored."
 		echo true
@@ -326,10 +326,10 @@ function cxr_common_store_state()
 	
 		"$CXR_STATE_START") 
 			# Check if this was already started
-			if [ $(cxr_common_has_finished "$STAGE") == true ]
+			if [[ $(cxr_common_has_finished "$STAGE") == true  ]]
 			then
 				
-				if [ "$CXR_RUN_LIMITED_PROCESSING" == true ]
+				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true  ]]
 				then
 					# Ran already, but user wants to run specifically this
 					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
@@ -383,7 +383,7 @@ function cxr_common_store_state()
 function cxr_common_get_state_file_name()
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 	fi
@@ -405,7 +405,7 @@ function cxr_common_detect_running_instances()
 {
 	PROCESS_COUNT=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
 	
-	if [ ${PROCESS_COUNT} -ne 0 -a ${CXR_ALLOW_MULTIPLE} == false ]
+	if [[ ${PROCESS_COUNT} -ne 0 -a ${CXR_ALLOW_MULTIPLE} == false  ]]
 	then
 		# There are other processes running and this is not allowed
 		cxr_main_logger -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
@@ -429,7 +429,7 @@ function cxr_common_detect_running_instances()
 function cxr_common_has_finished()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 		echo false
@@ -440,10 +440,10 @@ function cxr_common_has_finished()
 	START_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_START}" "${STAGE}")
 	STOP_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_STOP}" "${STAGE}")
 	
-	if [ -f "$STOP_FILE" ]
+	if [[ -f "$STOP_FILE"  ]]
 	then
 	
-		if [ -f "$START_FILE" ]
+		if [[ -f "$START_FILE"  ]]
 		then
 			cxr_main_logger -v "${FUNCNAME}" "Found a START file for ${STAGE}"
 		fi
@@ -452,7 +452,7 @@ function cxr_common_has_finished()
 	else
 	
 		# There is no stop file. Still there might be a start file:
-		if [ -f "$START_FILE" ]
+		if [[ -f "$START_FILE"  ]]
 		then
 			cxr_main_logger -w "${FUNCNAME}" "The stage ${STAGE} was started, but did not (yet) finish."
 		fi
@@ -473,7 +473,7 @@ function cxr_common_has_finished()
 function cxr_common_has_failed()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 		echo false
@@ -482,7 +482,7 @@ function cxr_common_has_failed()
 	STAGE="$1"
 	ERROR_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_ERROR}" "${STAGE}")
 	
-	if [ -f "$ERROR_FILE" ]
+	if [[ -f "$ERROR_FILE"  ]]
 	then
 		echo true
 	else
@@ -518,7 +518,7 @@ function cxr_common_cleanup_state()
 					find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						cxr_main_logger -i "${FUNCNAME}"  "Will not delete any state information"
@@ -539,7 +539,7 @@ function cxr_common_cleanup_state()
 					find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						cxr_main_logger -i "${FUNCNAME}"  "Will not delete any state information"
@@ -582,7 +582,7 @@ function cxr_common_cleanup_state()
 						
 								ls ${CXR_STATE_DIR}/${WHICH_DAY}@*@* | xargs -i basename \{\}
 								
-								if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
 									cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information"
@@ -623,7 +623,7 @@ function cxr_common_cleanup_state()
 								
 								ls ${CXR_STATE_DIR}/*${WHICH_STEP}* | xargs -i basename \{\}
 								
-								if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
 									cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information"
@@ -672,7 +672,7 @@ function cxr_common_cleanup_state()
 										cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 										ls ${CXR_STATE_DIR}/${WHICH_DAY}@*@* | xargs -i basename \{\}
 										
-										if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
 											cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information"
@@ -688,7 +688,7 @@ function cxr_common_cleanup_state()
 								
 										ls ${CXR_STATE_DIR}/*${WHICH_STEP}* | xargs -i basename \{\}
 										
-										if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
 											cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information"
@@ -718,7 +718,7 @@ function cxr_common_cleanup_state()
 					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* {CXR_LOCK_DIR}/* | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false ]
+					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information"
@@ -760,23 +760,23 @@ function cxr_common_do_we_continue()
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
-	if [ \( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} \) -a \( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} \) ]
+	if [[ \( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} \) -a \( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} \)  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${ERROR_COUNT}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 	
 	# Do we care at all?
 	# Set this in tests etc.
-	if [ "$CXR_ENABLE_STATE_DB" == false ]
+	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "You disabled the state DB, cannot determine presence of the continue file!"
 		return $CXR_RET_OK
 	fi
 	
 	# If the variable is not defined, nothing will happen
-	if [ "${CXR_CONTINUE_FILE}" ]
+	if [[ "${CXR_CONTINUE_FILE}"  ]]
 	then
-		if [ ! -f ${CXR_CONTINUE_FILE} ]
+		if [[ ! -f ${CXR_CONTINUE_FILE}  ]]
 		then
 			cxr_main_logger -w "${FUNCNAME}" "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING
@@ -797,7 +797,7 @@ function cxr_common_do_we_continue()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -816,7 +816,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -862,7 +862,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -890,7 +890,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

@@ -95,7 +95,7 @@ exit 1
 function cxr_common_countdown()
 ################################################################################
 {
-	if [ $# -lt 1 ]
+	if [[ $# -lt 1  ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "Need at least a message to show"
 	fi
@@ -108,7 +108,7 @@ function cxr_common_countdown()
 	
 	for i in $(seq $START_SEC -1 0)
 	do
-		if [ $(expr $i % $MOD_SEC) -eq 0 ]
+		if [[ $(expr $i % $MOD_SEC) -eq 0  ]]
 		then
 			cxr_main_logger -w -B "$FUNCNAME" "$i seconds left."
 		fi
@@ -128,7 +128,7 @@ function cxr_common_countdown()
 # false - user says N
 #
 # Example (Note the double quotes around the call):
-#> if [ "$(cxr_common_get_consent "Do you want to run the installer for the CAMxRunner, CAMx and the testcase \n (you can select the steps you want later)?" )" == false ]
+#> if [[ "$(cxr_common_get_consent "Do you want to run the installer for the CAMxRunner, CAMx and the testcase \n (you can select the steps you want later)?" )" == false  ]]
 #> then
 #>	exit
 #> fi
@@ -149,7 +149,7 @@ function cxr_common_get_consent()
 
 	# Code repeated for clarity
 	# Default only accepted if either Y or N
-	if [ \( -s "${2:-}" \) -a \( "${2:-}" == Y -o "${2:-}" == N \) ]
+	if [[ \( -s "${2:-}" \) -a \( "${2:-}" == Y -o "${2:-}" == N \)  ]]
 	then
 			
 		########################################
@@ -169,7 +169,7 @@ function cxr_common_get_consent()
 			ANSWER=$(cxr_common_get_user_input "$MESSAGE\nAnswer with either Y, N or D")
 		done
 		
-		if [ "$ANSWER" == d -o "$ANSWER" == D ]
+		if [[ "$ANSWER" == d -o "$ANSWER" == D  ]]
 		then
 			ANSWER=$DEFAULT
 		fi
@@ -192,7 +192,7 @@ function cxr_common_get_consent()
 		
 	fi
 	
-	if [ "$ANSWER" == Y -o "$ANSWER" == y ]
+	if [[ "$ANSWER" == Y -o "$ANSWER" == y  ]]
 	then
 		echo true
 	else
@@ -231,7 +231,7 @@ function cxr_common_get_user_input()
 	echo "${CXR_SINGLE_LINE}" 1>&2
 	echo -e "${MESSAGE}" 1>&2
 	
-	if [ $(cxr_main_is_numeric "${2:-}") == true ]
+	if [[ $(cxr_main_is_numeric "${2:-}") == true  ]]
 	then
 		read -n $2 ANSWER
 	else
@@ -313,7 +313,7 @@ function cxr_common_get_menu_choice()
 	MESSAGE="$1\nEnter the *number* of your choice:"
 	OPTIONS=$2
 	
-	if [ "${3:-}" ]
+	if [[ "${3:-}"  ]]
 	then
 		# We have a default, set advanced prompt and add default as last
 		DEFAULT="${3:-}"
@@ -337,7 +337,7 @@ function cxr_common_get_menu_choice()
 	
 	# Default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [ "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")" ]
+	if [[ "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")"  ]]
 	then
 		CHOSEN="$DEFAULT"
 	fi
@@ -430,14 +430,14 @@ function cxr_common_get_answers()
 		LOV=""
 
 		# Ignore Comments - but only if in first column
-		if [ "${LINE:0:1}" == \# ]
+		if [[ "${LINE:0:1}" == \#  ]]
 		then
 			CURLINE=$(( $CURLINE + 1 ))
 			continue
 		fi
 		
 		# Ignore empty lines
-		if [ -z "$(cxr_common_trim "$LINE")" ]
+		if [[ -z "$(cxr_common_trim "$LINE")"  ]]
 		then
 			CURLINE=$(( $CURLINE + 1 ))
 			continue
@@ -462,7 +462,7 @@ function cxr_common_get_answers()
 
 		NUM_ELEMENTS=${#LINE_ARRAY[@]}
 
-		if [ "$NUM_ELEMENTS" -ge 1 ]
+		if [[ "$NUM_ELEMENTS" -ge 1  ]]
 		then
 			VARIABLE=${LINE_ARRAY[0]}
 		else
@@ -471,7 +471,7 @@ function cxr_common_get_answers()
 			continue
 		fi
 		
-		if [ "${VARIABLE}" == COMMENT ]
+		if [[ "${VARIABLE}" == COMMENT  ]]
 		then
 			########################################
 			# A comment the user should see, then skip
@@ -483,26 +483,26 @@ function cxr_common_get_answers()
 			continue
 		fi
 
-		if [ "$NUM_ELEMENTS" -ge 2 ]
+		if [[ "$NUM_ELEMENTS" -ge 2  ]]
 		then
 			DATATYPE=${LINE_ARRAY[1]}
 		else
 			DATATYPE=S
 		fi
 
-		if [ "$NUM_ELEMENTS" -ge 3 ]
+		if [[ "$NUM_ELEMENTS" -ge 3  ]]
 		then
 			QUESTION=${LINE_ARRAY[2]}
 		else
 			QUESTION="What should be the value of $VARIABLE?"
 		fi
 
-		if [ "$NUM_ELEMENTS" -ge 4 ]
+		if [[ "$NUM_ELEMENTS" -ge 4  ]]
 		then
 			DEFAULT=${LINE_ARRAY[3]}
 			
 			# If it starts with CXR_ we knwo its a variable and try to resolve it
-			if [ ${DEFAULT:0:4} == CXR_ ]
+			if [[ ${DEFAULT:0:4} == CXR_  ]]
 			then
 				# Create an expandable rule
 				DEFAULT="\$$DEFAULT"
@@ -516,12 +516,12 @@ function cxr_common_get_answers()
 		########################################	
 		# Handling of an optinal list of values (LOV)
 		########################################	
-		if [ "$NUM_ELEMENTS" -eq 5 ]
+		if [[ "$NUM_ELEMENTS" -eq 5  ]]
 		then
 			# If we have exactly one value, it is taken as the list of values
 			# this is to simplify the maintenance of base.ask
 			LOV="${LINE_ARRAY[4]}"
-		elif [ "$NUM_ELEMENTS" -gt 5 ]
+		elif [[ "$NUM_ELEMENTS" -gt 5  ]]
 		then
 			# We must go through a list and reconstruct it
 			for CURLOV in $(seq 4 $(( $NUM_ELEMENTS - 1 )) )
@@ -537,7 +537,7 @@ function cxr_common_get_answers()
 		cxr_main_logger -v "${FUNCNAME}"  "LOV: $LOV"
 
 
-		if [ -z "$(cxr_common_trim "${VARIABLE}")" ]
+		if [[ -z "$(cxr_common_trim "${VARIABLE}")"  ]]
 		then
 			# No variable - skip
 			CURLINE=$(( $CURLINE + 1 ))
@@ -550,7 +550,7 @@ function cxr_common_get_answers()
 			# Some optimizations
 
 			# If the question is empty, supply your own
-			if [ -z "$(cxr_common_trim "$QUESTION")" ]
+			if [[ -z "$(cxr_common_trim "$QUESTION")"  ]]
 			then
 				QUESTION="What should be the value of $VARIABLE?"
 			fi
@@ -561,7 +561,7 @@ function cxr_common_get_answers()
 			DEFAULT=$(cxr_common_evaluate_rule "$DEFAULT" true DEFAULT)
 			
 			# Do we have a list of values?
-			if [ -z "$LOV" ]
+			if [[ -z "$LOV"  ]]
 			then
 				# No
 				# Add Default to question
@@ -569,7 +569,7 @@ function cxr_common_get_answers()
 
 				VALUE=$(cxr_common_get_user_input "$QUESTION\n[D] for Default")
 
-				if [ "$VALUE" == D -o "$VALUE" == d ]
+				if [[ "$VALUE" == D -o "$VALUE" == d  ]]
 				then
 					# Use Default
 					VALUE="$DEFAULT"
@@ -580,7 +580,7 @@ function cxr_common_get_answers()
 				VALUE=$(cxr_common_get_menu_choice "$QUESTION" "$LOV")
 			fi
 
-			if [ "$(cxr_common_check_datataype "$VALUE" "$DATATYPE")" == false ]
+			if [[ "$(cxr_common_check_datataype "$VALUE" "$DATATYPE")" == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Datatpe of $VALUE is not $DATATYPE! I use the default instead."
 				# Use Default
@@ -590,7 +590,7 @@ function cxr_common_get_answers()
 			# If the user does not want to write this 
 			# value, we will ask the same question again (by not increasing CURLINE)
 			# Thats actually an advantage of this form of loop.
-			if [ "$(cxr_common_get_consent "Is the value $VALUE for Variable $VARIABLE correct?" Y )" == true ]
+			if [[ "$(cxr_common_get_consent "Is the value $VALUE for Variable $VARIABLE correct?" Y )" == true  ]]
 			then
 			
 				# Write data to play-file
@@ -631,7 +631,7 @@ function cxr_common_apply_playfile()
 	local DELIMITER="${CXR_DELIMITER}"
 
 
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a Playfile and a list of input files as input"
 	fi
@@ -646,7 +646,7 @@ function cxr_common_apply_playfile()
 	# Quickly check if is old-style
 	# We count the number of lines containing colons
 	# The first line is ok (comment contains a time like 15:10:55)
-	if [ "$(grep -c : "$PLAYFILE")" -gt 1 ]
+	if [[ "$(grep -c : "$PLAYFILE")" -gt 1  ]]
 	then	
 		# More than 1 line contains :
 		cxr_main_logger -w $FUNCNAME "More than one line of the file $PLAYFILE contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
@@ -671,14 +671,14 @@ function cxr_common_apply_playfile()
 		LINE=$(head -n $CURLINE $PLAYFILE | tail -n 1)
 			
 			# Ignore Comments - but only if in first column
-			if [ "${LINE:0:1}" == \# ]
+			if [[ "${LINE:0:1}" == \#  ]]
 			then
 				CURLINE=$(( $CURLINE + 1 ))
 				continue
 			fi
 			
 			# Ignore empty lines
-			if [ -z "$(cxr_common_trim "$LINE")" ]
+			if [[ -z "$(cxr_common_trim "$LINE")"  ]]
 			then
 				CURLINE=$(( $CURLINE + 1 ))
 				continue
@@ -698,7 +698,7 @@ function cxr_common_apply_playfile()
 			VARIABLE=${LINE_ARRAY[0]}
 			VALUE=${LINE_ARRAY[1]}
 			
-			if [ -z "$VARIABLE" ]
+			if [[ -z "$VARIABLE"  ]]
 			then
 				# Skip empty variables
 				CURLINE=$(( $CURLINE + 1 ))
@@ -730,7 +730,7 @@ function cxr_common_apply_playfile()
 
 		done # Loop trough Playfile
 
-		if [ "$(cxr_common_get_consent "Do you want to have a look at the new files?" N )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to have a look at the new files?" N )" == true  ]]
 		then
 			for CURRENT_FILE in $2
 			do
@@ -761,7 +761,7 @@ function cxr_common_apply_playfile()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -780,7 +780,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -823,7 +823,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -851,7 +851,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

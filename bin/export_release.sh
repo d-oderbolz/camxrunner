@@ -113,12 +113,12 @@ unset OPTIND
 # Put path together
 BRANCH="${FROM}/${VERSION}"
 
-if [ $DO_LIST_TAGS == true ]
+if [[ $DO_LIST_TAGS == true  ]]
 then
 	list_tags
 fi
 
-if [ -z "${VERSION}" ]
+if [[ -z "${VERSION}"  ]]
 then
 	usage
 fi

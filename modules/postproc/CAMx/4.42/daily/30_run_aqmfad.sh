@@ -170,14 +170,14 @@ function run_aqmfad()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -189,7 +189,7 @@ function run_aqmfad()
 		# We loop through all the grids we need
 		for i in ${CXR_RUN_AQMFAD_ON_GRID};
 		do
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}"  "Running aqmfad on grid ${i}..."
 				cxr_main_logger "${FUNCNAME}"  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]})"    
@@ -205,7 +205,7 @@ function run_aqmfad()
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -224,7 +224,7 @@ function run_aqmfad()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

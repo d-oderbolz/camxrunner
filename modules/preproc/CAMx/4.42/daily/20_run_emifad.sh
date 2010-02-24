@@ -158,14 +158,14 @@ function run_emifad()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -183,9 +183,9 @@ function run_emifad()
 			
 			# Link to emissions
 			CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]})
-			if [ ! -L "${CURRENT_EMISSION_BASE}" ]
+			if [[ ! -L "${CURRENT_EMISSION_BASE}"  ]]
 			then
-				if [ -f "${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}" ]
+				if [[ -f "${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}"  ]]
 				then
 					ln -s ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}
 				else
@@ -195,7 +195,7 @@ function run_emifad()
 			
 			#Link to terrain
 			CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})
-			if [ ! \( -L ${CURRENT_TERRAIN_BASE} -o -f ${CURRENT_TERRAIN_BASE} \) ]
+			if [[ ! \( -L ${CURRENT_TERRAIN_BASE} -o -f ${CURRENT_TERRAIN_BASE} \)  ]]
 			then
 				ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}
 			fi
@@ -203,7 +203,7 @@ function run_emifad()
 			cxr_main_logger "${FUNCNAME}"  "Running emifad on grid ${i}..."
 			cxr_main_logger "${FUNCNAME}"  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})"
 
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Call emifad while collecting only stderr
 				${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
@@ -216,7 +216,7 @@ function run_emifad()
 
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -235,7 +235,7 @@ function run_emifad()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

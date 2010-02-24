@@ -96,7 +96,7 @@ exit 1
 function cxr_common_abs()
 ################################################################################
 {
-	if [ $# -ne 1 -o "$(cxr_main_is_numeric "$1")" == false ]
+	if [[ $# -ne 1 -o "$(cxr_main_is_numeric "$1")" == false  ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
 		echo false
@@ -104,11 +104,11 @@ function cxr_common_abs()
 	fi
 
 	# Is the number 0?
-	if [ $1 -eq 0 ]
+	if [[ $1 -eq 0  ]]
 	then
 		echo 0
 	# Is the number negative?
-	elif [ $1 -lt 0 ]
+	elif [[ $1 -lt 0  ]]
 	then
 		echo `expr 0 - $1`
 	else
@@ -134,7 +134,7 @@ function cxr_common_abs()
 function cxr_common_fp_calculate()
 ################################################################################
 {
-	if [ $# -lt 1 ]
+	if [[ $# -lt 1  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
 	fi
@@ -145,14 +145,14 @@ function cxr_common_fp_calculate()
 	# Set resolution & pass expression
 	RESULT=$( echo "scale=$RESOLUTION; $1" | bc )
 	
-	if [ "$RESOLUTION" -eq 0 ]
+	if [[ "$RESOLUTION" -eq 0  ]]
 	then
 		# Chop off the decimals
 		RESULT=${RESULT%%\.*}
 	fi
 	
 	# The scale function counts digits after the decimal point
-	if [ "${ADD_TRAILING_DP}" == true -a "$( echo "scale(${RESULT})" | bc )" -eq 0 ]
+	if [[ "${ADD_TRAILING_DP}" == true -a "$( echo "scale(${RESULT})" | bc )" -eq 0  ]]
 	then
 		# Integer,  and we need to add a trailing .
 		echo ${RESULT}.
@@ -173,7 +173,7 @@ function cxr_common_fp_calculate()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -192,7 +192,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -244,7 +244,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -272,7 +272,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

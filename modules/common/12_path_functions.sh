@@ -90,7 +90,7 @@ exit 1
 function cxr_common_file_exists?()
 ################################################################################
 {
-	if [ -f "${1}" ]
+	if [[ -f "${1}"  ]]
 	then
 		echo true
 	else
@@ -130,7 +130,7 @@ function cxr_common_get_file_mtime()
 {
 	FILE=$1
 	
-	if [ -f "${FILE}" ]
+	if [[ -f "${FILE}"  ]]
 	then
 		MTIME="$(stat "${FILE}" -c"%Y")"
 	else
@@ -158,7 +158,7 @@ function cxr_common_get_file_type()
 	
 	FILETYPE=$(file "${FILE}" | cut -f2 -d' ')
 	
-	if [ "$FILETYPE" == ERROR: ]
+	if [[ "$FILETYPE" == ERROR:  ]]
 	then
 		# Something went wrong
 		# Could be improved!
@@ -180,7 +180,7 @@ function cxr_common_get_file_type()
 function cxr_common_file_size_megabytes()
 ################################################################################
 {
-	if [ ! -f "$1" ]
+	if [[ ! -f "$1"  ]]
 	then
 		cxr_main_logger -w "$FUNCNAME" "The file $1 does not exist!"
 		echo 0
@@ -215,10 +215,10 @@ function cxr_common_file_size_megabytes()
 function cxr_common_compress_output()
 ################################################################################
 {
-	if [ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false  ]
+	if [[ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false   ]]
 	then
 		# Loop through CXR_INSTANCE_FILE_OUTPUT_LIST
-		if [ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}" ]
+		if [[ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}"  ]]
 		then
 			while read line 
 			do
@@ -226,7 +226,7 @@ function cxr_common_compress_output()
 				FILENAME=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
 				MODULE=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				if [ -s "${FILENAME}" ]
+				if [[ -s "${FILENAME}"  ]]
 				then
 					# OK file is not empty
 					
@@ -234,14 +234,14 @@ function cxr_common_compress_output()
 					do_this=false
 				
 					# Do we need to do pattern matching?
-					if [ "${CXR_COMPRESS_OUTPUT_PATTERN:-}" ]
+					if [[ "${CXR_COMPRESS_OUTPUT_PATTERN:-}"  ]]
 					then
 						################
 						# Check filename
 						################
 						local FOUND=$(expr match "${FILENAME}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 						
-						if [ $FOUND -gt 0 ]
+						if [[ $FOUND -gt 0  ]]
 						then
 							# Do it
 							do_this=true
@@ -251,7 +251,7 @@ function cxr_common_compress_output()
 							################
 							local FOUND=$(expr match "${MODULE}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 					
-							if [ $FOUND -gt 0 ]
+							if [[ $FOUND -gt 0  ]]
 							then
 								# Do it
 								do_this=true
@@ -265,9 +265,9 @@ function cxr_common_compress_output()
 					fi
 					
 					# Do it if it is large enough
-					if [ "$do_this" == true ]
+					if [[ "$do_this" == true  ]]
 					then
-						if [ $(cxr_common_file_size_megabytes ${FILENAME}) -ge "${CXR_COMPRESS_THRESHOLD_MB}" ]
+						if [[ $(cxr_common_file_size_megabytes ${FILENAME}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 						then
 							cxr_main_logger -v "$FUNCNAME" "Compressing ${FILENAME} using ${CXR_COMPRESSOR_EXEC}"
 							"${CXR_COMPRESSOR_EXEC}" "${FILENAME}"
@@ -313,7 +313,7 @@ function cxr_common_try_decompressing_file()
 	# We assume that in was not compressed
 	was_compressed=false
 	
-	if [ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]
+	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true  ]]
 	then
 		cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${INPUT_FILE})..."
 	
@@ -325,13 +325,13 @@ function cxr_common_try_decompressing_file()
 		
 		LINE="$(grep "${INPUT_FILE}${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
 		
-		if [ "$LINE" ]
+		if [[ "$LINE"  ]]
 		then
 			# Seems like we already did this file
 			# The tempfile is in the second field
 			TEMPFILE="$(echo $LINE | cut -d${CXR_DELIMITER} -f2)"
 			
-			if [ -s "$TEMPFILE" ]
+			if [[ -s "$TEMPFILE"  ]]
 			then
 				cxr_main_logger -v "$FUNCNAME" "File ${INPUT_FILE} was already decompressed into $TEMPFILE"
 			
@@ -362,12 +362,12 @@ function cxr_common_try_decompressing_file()
 			COMP_FILE="${INPUT_FILE}${EXT}"
 			cxr_main_logger -v "$FUNCNAME" "Looking for $COMP_FILE"
 			
-			if [ -r "$COMP_FILE" ]
+			if [[ -r "$COMP_FILE"  ]]
 			then
 				# File is readable
 				
 				# We decompress into a tempfile if we dont decompress in place
-				if [ "$CXR_DECOMPRESS_IN_PLACE" == false ]
+				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false  ]]
 				then
 					# Use a tempfile and give it a recogisable name. It will not be added to the templist (managed here)
 					TEMPFILE=$(cxr_common_create_tempfile decomp_$(basename ${INPUT_FILE}) false)
@@ -380,7 +380,7 @@ function cxr_common_try_decompressing_file()
 				# This is NOT derived from the filename
 				FILETYPE=$(cxr_common_get_file_type "$COMP_FILE")
 				
-				if [ "${CXR_DRY}" == false ]
+				if [[ "${CXR_DRY}" == false  ]]
 				then
 				
 					case $FILETYPE in
@@ -406,7 +406,7 @@ function cxr_common_try_decompressing_file()
 					esac
 	
 					# Check retval of decompressor
-					if [ $? -eq 0 ]
+					if [[ $? -eq 0  ]]
 					then
 						was_compressed=true
 						NEW_FILE=$TEMPFILE
@@ -427,7 +427,7 @@ function cxr_common_try_decompressing_file()
 		done # Loop over extensions
 
 
-		if [ "$was_compressed" == true ]
+		if [[ "$was_compressed" == true  ]]
 		then
 			# In CXR_DECOMPRESSED_LIST
 			echo "${INPUT_FILE}${CXR_DELIMITER}${NEW_FILE}" >> $CXR_DECOMPRESSED_LIST
@@ -462,7 +462,7 @@ function cxr_common_try_decompressing_file()
 function cxr_common_get_fs_type()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo ext3
 		return $CXR_RET_OK
@@ -490,11 +490,11 @@ function cxr_common_get_fs_type()
 	# Reset IFS
 	IFS="$oIFS"
 	
-	if [ "$NUM_LINES" -eq 3 ]
+	if [[ "$NUM_LINES" -eq 3  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "FS type of $1 was determined to be ${DF_ARRAY[0]}. If this is strange, check your df -T output!"
 		echo "${DF_ARRAY[0]}" 
-	elif [ "$NUM_LINES" -eq 2 ]
+	elif [[ "$NUM_LINES" -eq 2  ]]
 	then
 		cxr_main_logger -v "${FUNCNAME}"  "FS type of $1 was determined to be ${DF_ARRAY[1]}. If this is strange, check your df -T output!"
 		echo "${DF_ARRAY[1]}" 
@@ -518,7 +518,7 @@ function cxr_common_get_fs_type()
 function cxr_common_free_megabytes()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		echo 0
 		return $CXR_RET_OK
@@ -572,7 +572,7 @@ function cxr_common_free_megabytes()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -591,7 +591,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -704,7 +704,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -732,7 +732,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

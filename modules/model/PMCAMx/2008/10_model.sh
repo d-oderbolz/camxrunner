@@ -141,7 +141,7 @@ function set_variables()
 	
 	########################################################################
 	# Dry and real need the same variables set
-	if [ "$CXR_HOLLOW" == false -o "$CXR_DRY" == true ]
+	if [[ "$CXR_HOLLOW" == false -o "$CXR_DRY" == true  ]]
 	then
 		# Real or dry run
 		########################################################################
@@ -160,7 +160,7 @@ function set_variables()
 		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
 
 		
-		if [ "$(cxr_common_is_first_day)" == true ]
+		if [[ "$(cxr_common_is_first_day)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -178,7 +178,7 @@ function set_variables()
 
 		
 		# PiG
-		if [ "$CXR_PLUME_IN_GRID" == true ]
+		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 		then
 			CXR_POINT_SOURCES_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
 			CXR_PIG_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
@@ -194,7 +194,7 @@ function set_variables()
 		################################################################
 		# OSAT, PSAT, GOAT or APCA
 		################################################################
-		if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+		if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 		then
 			CXR_SA_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
 			CXR_SA_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
@@ -222,7 +222,7 @@ function set_variables()
 		# Must we run direct decoupled sensitivity analysis?
 		# DDM
 		################################################################
-		elif [ "$CXR_PROBING_TOOL" == "DDM" ] 
+		elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 		then
 			# This is not a file (hence no _FILE at the end of the name)
 			CXR_DDM_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
@@ -269,7 +269,7 @@ function set_variables()
 		# Must we run Reactive Tracer Source Apportionment?
 		# RTRAC (RT)
 		################################################################
-		elif [ "$CXR_PROBING_TOOL" == "RTRAC" ] 
+		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 		then
 			CXR_RT_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
 			CXR_RT_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
@@ -278,7 +278,7 @@ function set_variables()
 		################################################################
 		# General Probing support
 		################################################################
-		if [ "$CXR_PROBING_TOOL" != "None" ]
+		if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 		then
 			# This is not a file (hence no _FILE at the end of the name)
 			CXR_PA_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
@@ -461,7 +461,7 @@ function write_model_control_file()
 	
 		# If we are in the first round, add apropriate intro
 		
-		if [ $i -eq 1 ]
+		if [[ $i -eq 1  ]]
 		then
 			echo -n "                   |"  >> ${CXR_CAMXIN}
 		fi
@@ -474,7 +474,7 @@ function write_model_control_file()
 		NUM_SPACES=$(( ${CXR_SPECIES_COLUMN_WIDTH:-10} - $cxr_common_len ))
 		
 		# Correct if we chopped all away
-		if [ $NUM_SPACES -lt 0 ]
+		if [[ $NUM_SPACES -lt 0  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Attention: Either your species names are to long or the column spacing is to small!"
 			NUM_SPACES=0
@@ -489,20 +489,20 @@ function write_model_control_file()
 		done 
 
 		# Do we need to start a new line?
-		if [ $(expr ${i} % ${CXR_SPECIES_COLUMNS:-6}) -eq 0 ]
+		if [[ $(expr ${i} % ${CXR_SPECIES_COLUMNS:-6}) -eq 0  ]]
 		then
 			# Start new Line, no spaces at the end
 			echo ${CXR_OUTPUT_SPECIES_NAMES[${i}]} >> ${CXR_CAMXIN}
 			
 			# Already add new column if there are species left
-			if [ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES ]
+			if [[ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES  ]]
 			then
 				echo -n "                   |"  >> ${CXR_CAMXIN}
 			fi
 			
 		else
 			# No new Line, spaces if it is not last Element
-			if [ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES ]
+			if [[ $i -lt $CXR_NUMBER_OF_OUTPUT_SPECIES  ]]
 			then
 				echo -n ${CXR_OUTPUT_SPECIES_NAMES[${i}]}"${SPACES}" >> ${CXR_CAMXIN}
 			else
@@ -512,7 +512,7 @@ function write_model_control_file()
 		fi
 	done
 	
-	if [ ${CXR_NUMBER_OF_GRIDS} -lt 2 ]
+	if [[ ${CXR_NUMBER_OF_GRIDS} -lt 2  ]]
 	then
 		#PMCAMx expects a 0 insted of 1 if there is no nesting (that might be true for CAMx as well?)
 		echo "# nested grids     |0" >> ${CXR_CAMXIN}
@@ -534,7 +534,7 @@ function write_model_control_file()
 	echo "Wet dep            |${CXR_WET_DEPOSITION}" >> ${CXR_CAMXIN} 
 	
 	# In this version, this is a flag
-	if [ "${CXR_PIG_SUBMODEL:-None}" == None ]
+	if [[ "${CXR_PIG_SUBMODEL:-None}" == None  ]]
 	then
 		echo "PiG submodel       |false" >> ${CXR_CAMXIN} 
 	else
@@ -551,7 +551,7 @@ function write_model_control_file()
 	
 	# In this version, this is a flag
 	# In this version, this is a flag
-	if [ "${CXR_PROBING_TOOL:-None}" == None ]
+	if [[ "${CXR_PROBING_TOOL:-None}" == None  ]]
 	then
 		echo "Probing tools      |false" >> ${CXR_CAMXIN} 
 	else
@@ -621,12 +621,12 @@ function write_model_control_file()
 
 	echo "Master restart file|${CXR_MASTER_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
 	
-	if [ ${CXR_NUMBER_OF_GRIDS} -gt 1 ]
+	if [[ ${CXR_NUMBER_OF_GRIDS} -gt 1  ]]
 	then
 		echo "Nested restart file|${CXR_NESTED_GRID_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
 	fi
 	
-	if [ "$CXR_PLUME_IN_GRID" == true ]
+	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 	then
 		echo "PiG restart file   |${CXR_PIG_RESTART_INPUT_FILE:-}" >> ${CXR_CAMXIN}
 	fi
@@ -635,7 +635,7 @@ function write_model_control_file()
 #	################################################################
 #	# OSAT, PSAT,  GOAT or APCA ia yet to be implemented here...
 #	################################################################
-#	if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+#	if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 #	then
 #	
 #		echo " !---${CXR_PROBING_TOOL}--------------------------------------------------------------------" >> ${CXR_CAMXIN} 
@@ -670,7 +670,7 @@ function write_model_control_file()
 #		done
 #		
 #		
-#		if [ "${CXR_POINT_EMISSIONS}" == true ]
+#		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 #		then
 #			# By source group
 #			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
@@ -680,7 +680,7 @@ function write_model_control_file()
 #		fi
 #		
 #		
-#		if [ "${CXR_GRIDDED_EMISSIONS}" == true ]
+#		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 #		then
 #			# By source group
 #			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
@@ -703,7 +703,7 @@ function write_model_control_file()
 #	# Must we run direct decoupled sensitivity analysis?
 #	# DDM
 #	################################################################
-#	elif [ "$CXR_PROBING_TOOL" == "DDM" ] 
+#	elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 #	then
 #
 #		echo " !----Sensitivity Analysis (Direct Decoupled Method)-----------------------------" >> ${CXR_CAMXIN} 
@@ -755,7 +755,7 @@ function write_model_control_file()
 #			echo " DDM_Source_Area_Map(${i})    = '${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}'," >> ${CXR_CAMXIN}
 #		done 
 #		
-#		if [ "${CXR_POINT_EMISSIONS}" == true ]
+#		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 #		then
 #			# By source group
 #			for j in $(seq 1 "$CXR_DDM_NUMBER_OF_SOURCE_GROUPS");
@@ -765,7 +765,7 @@ function write_model_control_file()
 #		fi
 #		 
 #		# By source group, by grid
-#		if [ "${CXR_GRIDDED_EMISSIONS}" == true ]
+#		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 #		then
 #			# By source group
 #			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
@@ -787,7 +787,7 @@ function write_model_control_file()
 #	# Must we run Reactive Tracer Source Apportionment?
 #	# RTRAC (RT)
 #	################################################################
-#	elif [ "$CXR_PROBING_TOOL" == "RTRAC" ] 
+#	elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 #	then
 #	
 #		echo " !---RTRAC (Reactive Tracer Source Apportionment)-----------------------------------------------------------------" >> ${CXR_CAMXIN} 
@@ -806,7 +806,7 @@ function write_model_control_file()
 #		echo " RT_Receptor_Definitions = '${CXR_RT_RECEPTOR_DEFINITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 #		echo " RT_Point_Sources        = '${CXR_RT_POINT_SOURCES_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 #		
-#		if [ "$CXR_PLUME_IN_GRID" == true ]
+#		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 #		then
 #			echo " RT_PiG_Sample           = .${CXR_RT_PIG_SAMPLE}.,               ! Ignore if PiG = false" >> ${CXR_CAMXIN} 
 #		fi
@@ -825,7 +825,7 @@ function write_model_control_file()
 #	################################################################
 #	# General Probing support
 #	################################################################
-#	if [ "$CXR_PROBING_TOOL" != "None" ]
+#	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 #	then
 #	
 #		echo "!---------------Probing Tool General------------------------------------------" >> ${CXR_CAMXIN} 
@@ -905,15 +905,15 @@ function model()
 ################################################################################
 {
 		# Do we run the model?
-		if [ "$CXR_RUN_MODEL" == true ]
+		if [[ "$CXR_RUN_MODEL" == true  ]]
 		then
 		
 			# cxr_common_store_state checks if we have finished this and if we need to continue
-			if [ ! $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+			if [[ ! $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 			then
 			
 				# If we do not run the first day, its a restart
-				if [ "$(cxr_common_is_first_day)" == false ]
+				if [[ "$(cxr_common_is_first_day)" == false  ]]
 				then
 					# This must be a restart!
 					CXR_RESTART=true
@@ -931,14 +931,14 @@ function model()
 				#      but a link called CAMx.in wil be created where the CAMx binary is located
 				write_model_control_file				
 				
-				if [ $(cxr_common_check_preconditions) == false ]
+				if [[ $(cxr_common_check_preconditions) == false  ]]
 				then
 					cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
 					return $CXR_RET_ERR_PRECONDITIONS
 				fi
 	
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 					execute_model
 				else
@@ -946,7 +946,7 @@ function model()
 				fi
 			
 				# Did we run properly?
-				if [ $(cxr_common_check_result) == false ]
+				if [[ $(cxr_common_check_result) == false  ]]
 				then
 					cxr_main_logger "${FUNCNAME}" "$CXR_MODEL Run was not successful!"
 					# We notify the caller of the problem
@@ -992,7 +992,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -1029,7 +1029,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -1057,7 +1057,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

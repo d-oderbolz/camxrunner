@@ -130,13 +130,13 @@ function split_emissions()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -149,11 +149,11 @@ function split_emissions()
 		cxr_main_logger  "${FUNCNAME}" "Splitting Emission data"
 		
 		# Is the output there?
-		if [ ! -f "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE" ]
+		if [[ ! -f "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"  ]]
 		then
 			# File not yet there
 		
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 			
 					cxr_main_logger "${FUNCNAME}" "Calling split_emissions_area - be patient...\n"
@@ -173,7 +173,7 @@ EOT
 			cxr_main_decrease_log_indent
 	
 			# Check if all went well
-			if [ $(cxr_common_check_result) == false ]
+			if [[ $(cxr_common_check_result) == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -185,7 +185,7 @@ EOT
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
-			if [ "$CXR_SKIP_EXISTING" == true ]
+			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger -w "${FUNCNAME}" "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists, because of CXR_SKIP_EXISTING, file will skipped."
@@ -232,7 +232,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -265,7 +265,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -293,7 +293,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

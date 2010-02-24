@@ -145,7 +145,7 @@ function cxr_common_is_yyyymmdd_format()
 	# Might be expressed more elegant using quantors, but does your grep have them?
 	echo "$DATE" | grep "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" >/dev/null
 	
-	if [ $? -eq 0 ]
+	if [[ $? -eq 0  ]]
 	then
 		echo true
 	else
@@ -169,7 +169,7 @@ function cxr_common_is_yyyymmdd_format()
 function cxr_common_raw_date()
 ################################################################################
 {
-	if [ $# -ne 1 -o $(cxr_common_is_yyyymmdd_format "$1") == false ]
+	if [[ $# -ne 1 -o $(cxr_common_is_yyyymmdd_format "$1") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
@@ -194,7 +194,7 @@ function cxr_common_raw_date()
 function cxr_common_to_iso_date()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs 1 date as input"
 		echo false
@@ -202,7 +202,7 @@ function cxr_common_to_iso_date()
 	fi
 	
 	# If we got the empty string, return the empty string
-	if [ ! "$1" ]
+	if [[ ! "$1"  ]]
 	then
 		cxr_main_logger -w "$FUNCNAME" "Got the empty string and will return it"
 	else
@@ -325,7 +325,7 @@ function cxr_common_julian2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false ]
+	if [[ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -364,7 +364,7 @@ function cxr_common_epoch2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false ]
+	if [[ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -400,7 +400,7 @@ function cxr_common_week_of_year()
 ################################################################################
 {
 
-	if [ $# -lt 1  ]
+	if [[ $# -lt 1   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
@@ -424,7 +424,7 @@ function cxr_common_day_of_year()
 ################################################################################
 {
 
-	if [ $# -lt 1 -a $# -gt 2 ]
+	if [[ $# -lt 1 -a $# -gt 2  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
@@ -437,7 +437,7 @@ function cxr_common_day_of_year()
 	JULEND=$(cxr_common_date2julian $1)
 	JULSTART=$(cxr_common_date2julian $YEAR-01-01)
 	
-	if [ "${cxr_common_len}" -gt 0 ]
+	if [[ "${cxr_common_len}" -gt 0  ]]
 	then
 		# Corrected length
 		printf "%0${cxr_common_len}d" $(( $JULEND - $JULSTART + 1 ))
@@ -461,7 +461,7 @@ function cxr_common_day_of_year()
 function cxr_common_days_in_month
 ################################################################################
 {
-	if [ $# -lt 2 ]
+	if [[ $# -lt 2  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a month and a year as input"
 		echo false
@@ -487,7 +487,7 @@ function cxr_common_days_in_month
 function cxr_common_days_left_in_week
 ################################################################################
 {
-	if [ $# -lt 1 ]
+	if [[ $# -lt 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
@@ -513,7 +513,7 @@ function cxr_common_days_left_in_week
 function cxr_common_days_left_in_month
 ################################################################################
 {
-	if [ $# -lt 1 ]
+	if [[ $# -lt 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
@@ -542,7 +542,7 @@ function cxr_common_days_left_in_month
 function cxr_common_is_leap_year
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a year as input"
 		echo false
@@ -551,12 +551,12 @@ function cxr_common_is_leap_year
 	
 	YEAR=$1
 	
-	if [ $(expr $YEAR % 400 ) -eq "0" ]
+	if [[ $(expr $YEAR % 400 ) -eq "0"  ]]
 	then
 		echo true
-	elif [ $(expr $YEAR % 4 ) -eq 0 ]
+	elif [[ $(expr $YEAR % 4 ) -eq 0  ]]
 	then
-			if [ $(expr $YEAR % 100 ) -ne 0 ]
+			if [[ $(expr $YEAR % 100 ) -ne 0  ]]
 				then
 					# Those just dividable by 4 are leap years
 					echo true
@@ -593,7 +593,7 @@ function cxr_common_date2offset()
 ################################################################################
 {
 	# Check input
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
 		echo false
@@ -605,7 +605,7 @@ function cxr_common_date2offset()
 	
 	OFFSET=$(( ${WANTED} - ${START} ))
 	
-	if [ ${OFFSET} -lt 0 ]
+	if [[ ${OFFSET} -lt 0  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
 		echo false
@@ -635,7 +635,7 @@ function cxr_common_offset2date()
 ################################################################################
 {
 	# Check input
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
 		echo false
@@ -667,7 +667,7 @@ function cxr_common_offset2_raw_date()
 ################################################################################
 {
 	# Check input
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
 		echo false
@@ -697,7 +697,7 @@ function cxr_common_modelling_hour()
 ################################################################################
 {
 	# Check for numeric input
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
 		echo false
@@ -706,7 +706,7 @@ function cxr_common_modelling_hour()
 
 	OFFSET=$(cxr_common_date2offset $1)
 	
-	if [ ${OFFSET} -lt 0 ]
+	if [[ ${OFFSET} -lt 0  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
 		echo false
@@ -730,7 +730,7 @@ function cxr_common_modelling_hour()
 function cxr_common_days_between()
 ################################################################################
 {
-	if [ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_common_is_yyyymmdd_format "$2") == false ]
+	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_common_is_yyyymmdd_format "$2") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "needs 2 dates as input"
 		echo false
@@ -743,7 +743,7 @@ function cxr_common_days_between()
 	
 	DIFF="$(( $JULEND - $JULSTART ))"
 	
-	if [ $DIFF -lt 0 ]
+	if [[ $DIFF -lt 0  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "Date2 is smaller than Date1"
 		echo 0
@@ -768,7 +768,7 @@ function cxr_common_days_between()
 function cxr_common_add_days()
 ################################################################################
 {
-	if [ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false ]
+	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -797,7 +797,7 @@ function cxr_common_add_days()
 function cxr_common_subtract_days()
 ################################################################################
 {
-	if [ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false ]
+	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -832,7 +832,7 @@ function cxr_common_subtract_days()
 function cxr_common_set_date_variables()
 ################################################################################
 {
-	if [ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false ]
+	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -884,7 +884,7 @@ function cxr_common_set_date_variables()
 	CXR_WOY=$(cxr_common_week_of_year $CXR_DATE)
 	
 	# if offset is 0, we are at the initial day
-	if [ "$CXR_DAY_OFFSET" -eq 0 ]
+	if [[ "$CXR_DAY_OFFSET" -eq 0  ]]
 	then
 		# any yesterday vars are undefined
 		CXR_YESTERDAY=""
@@ -936,7 +936,7 @@ function cxr_common_set_date_variables()
 function cxr_common_is_first_day ()
 ################################################################################
 {
-	if [ "$CXR_DAY_OFFSET" -eq 0 ]
+	if [[ "$CXR_DAY_OFFSET" -eq 0  ]]
 	then
 		echo true
 	else
@@ -954,7 +954,7 @@ function cxr_common_is_first_day ()
 function cxr_common_is_last_day ()
 ################################################################################
 {
-	if [ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))" ]
+	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
 	then
 		echo true
 	else
@@ -971,7 +971,7 @@ function cxr_common_is_last_day ()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -990,7 +990,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -1059,7 +1059,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -1087,7 +1087,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

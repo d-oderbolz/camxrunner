@@ -153,7 +153,7 @@ function cxr_common_determine_patch_target()
 {
 	PATCH=${1:-}
 	
-	if [ ! -f "$PATCH" ]
+	if [[ ! -f "$PATCH"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME - no filename passed or file not readable!"
 	fi
@@ -163,7 +163,7 @@ function cxr_common_determine_patch_target()
 	# I know I spawn 2 procs here...
 	FILE=$(basename $(grep -h '+++' "$PATCH" | head -n1 | cut -f2 -d' '))
 	
-	if [ "$FILE" ]
+	if [[ "$FILE"  ]]
 	then
 		echo "$FILE"
 	else
@@ -194,7 +194,7 @@ function cxr_common_apply_patches()
 	PATCH_DIR="$1"
 	SRC_DIR="$2"
 	
-	if [ ! -d "$PATCH_DIR" -o ! -d "$SRC_DIR" ]
+	if [[ ! -d "$PATCH_DIR" -o ! -d "$SRC_DIR"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $PATCH_DIR or $SRC_DIR not found."
 	fi
@@ -244,12 +244,12 @@ function cxr_common_apply_patches()
 		
 		cxr_main_logger -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - $PATCH_FILE\nREAL_FILE: $REAL_FILE"
 
-		if [ -f $REAL_FILE ]
+		if [[ -f $REAL_FILE  ]]
 		then
-			if [ "$ASK_USER" == true ]
+			if [[ "$ASK_USER" == true  ]]
 			then
 				# Ask user
-				if [ "$(cxr_common_get_consent "Do you want to apply the patch $PATCH_FILE to $REAL_FILE?\nCheck if the patch is compatible with the current platform." Y )" == true ]
+				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $PATCH_FILE to $REAL_FILE?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
 					patch $REAL_FILE < $PATCH_FILE
 				fi
@@ -277,7 +277,7 @@ function cxr_common_apply_patches()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -296,7 +296,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -345,7 +345,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -373,7 +373,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

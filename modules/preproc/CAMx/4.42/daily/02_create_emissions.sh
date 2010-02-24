@@ -148,20 +148,20 @@ function create_emissions()
 	STAGE=${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@all_days
 	
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [ ! -f "${CXR_EMISSION_OUTPUT_FILE}" ]
+		if [[ ! -f "${CXR_EMISSION_OUTPUT_FILE}"  ]]
 		then
 			#File does not exist
 		
@@ -198,7 +198,7 @@ function create_emissions()
 				cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 				
 				# Only run if we are not in a dry run
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 					# Then we run it, while preserving the output
 					${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
@@ -214,7 +214,7 @@ function create_emissions()
 			cxr_main_decrease_log_indent
 	
 			# Check if all went well
-			if [ $(cxr_common_check_result) == false ]
+			if [[ $(cxr_common_check_result) == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -224,7 +224,7 @@ function create_emissions()
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
-			if [ "$CXR_SKIP_EXISTING" == true ]
+			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger -w "${FUNCNAME}"  "File $CXR_EMISSION_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
@@ -271,7 +271,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -300,7 +300,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -328,7 +328,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

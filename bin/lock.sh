@@ -14,7 +14,7 @@
 LOCKDIR=${CXR_LOCK_DIR:-/tmp/locks}
 
 # dco this was missing
-if [ ! -d "$LOCKDIR" ]
+if [[ ! -d "$LOCKDIR"  ]]
 then
 	mkdir -p "$LOCKDIR"
 fi

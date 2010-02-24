@@ -95,21 +95,21 @@ exit 0
 	unset OPTSTRING
 	unset OPTIND
 
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		echo -e "\n\tYou must pass 2 parameters: a template file containing @VARIABLES@ and the name of an ask file (non-existent) to be created!\n"
 		usage
 	fi
 
 	# We need a filename
-	if [ ! -f "$1" ]
+	if [[ ! -f "$1"  ]]
 	then
 		echo -e "\n\tYou must pass a readable file (a template containing @VARIABLES@) as input!\n"
 		usage
 	fi
 
 	# We need a filename
-	if [ -f "$2" ]
+	if [[ -f "$2"  ]]
 	then
 		echo -e "\n\tThe output file already exists!\n"
 		usage

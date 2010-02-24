@@ -157,14 +157,14 @@ function avgdif
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then	
 		#  --- Setup the Environment of the current day
 		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -194,7 +194,7 @@ function avgdif
 			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 			
 			#Dry?
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Call AVGDIF (never mind the strange calling convention...)
 				$CXR_AVGDIF_EXEC < $EXEC_TMP_FILE
@@ -206,7 +206,7 @@ function avgdif
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -225,7 +225,7 @@ function avgdif
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

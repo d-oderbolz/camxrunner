@@ -145,7 +145,7 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
 	
 	# ICBCPREP needs no input files, except the frst BC file
-	if [ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]
+	if [[ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP  ]]
 	then 
 		# All MOZART-flavors need Input
 		
@@ -179,20 +179,20 @@ function boundary_conditions()
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
 		
 		#  --- Check Settings
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [ ! -f "${CXR_BC_OUTPUT_FILE}" ]
+		if [[ ! -f "${CXR_BC_OUTPUT_FILE}"  ]]
 		then
 			# File does not exist
 		
@@ -210,7 +210,7 @@ function boundary_conditions()
 					local extra=
 					
 					# MOZART_CONSTANT or INCREMENT?
-					if [ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT ]
+					if [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT  ]]
 					then
 					
 						# Open the bracket
@@ -221,7 +221,7 @@ function boundary_conditions()
 							# Each line looks something like
 							# O3:0.074740447 
 							
-							if [ "$spec_line" ]
+							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
 								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
@@ -241,7 +241,7 @@ function boundary_conditions()
 						# Add the rest of the syntax
 						extra=",extra=${extra}"
 						
-					elif [ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT ]
+					elif [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT  ]]
 					then
 					
 						# Open the bracket
@@ -252,7 +252,7 @@ function boundary_conditions()
 							# Each line looks something like
 							# O3:0.074740447 
 							
-							if [ "$spec_line" ]
+							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
 								species=$(cxr_common_to_upper $(echo $spec_line | cut -d: -f1))
@@ -330,21 +330,21 @@ function boundary_conditions()
 					# we need to multiply the resolution by 1000 (metre)
 					
 					# We need to convert our logicals to idl logicals
-					if [ "${CXR_IC_BC_TC_DO_PLOT}" == true ]
+					if [[ "${CXR_IC_BC_TC_DO_PLOT}" == true  ]]
 					then
 						doplots=1
 					else
 						doplots=0
 					fi
 					
-					if [ "${CXR_IC_BC_TC_DO_PNG}" == true ]
+					if [[ "${CXR_IC_BC_TC_DO_PNG}" == true  ]]
 					then
 						dopng=1
 					else
 						dopng=0
 					fi
 					
-					if [ "${CXR_IC_BC_TC_RM_PS}" == true ]
+					if [[ "${CXR_IC_BC_TC_RM_PS}" == true  ]]
 					then
 						deleteps=1
 					else
@@ -357,7 +357,7 @@ function boundary_conditions()
 					# Get a copy of the call
 					cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 						
-					if [ "$CXR_DRY" == false ]
+					if [[ "$CXR_DRY" == false  ]]
 					then
 						
 						# Then we run it, while preserving the output
@@ -384,10 +384,10 @@ function boundary_conditions()
 					# We use the topconc file that was created by initial_conditions
 					# And we link to the BC file that was created there.
 				
-					if [ "$CXR_DRY" == false ]
+					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We only create a file the first day, all others we link
-						if [ "$(cxr_common_is_first_day)" == false ]
+						if [[ "$(cxr_common_is_first_day)" == false  ]]
 						then
 							# Not the first day, just link
 							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
@@ -400,7 +400,7 @@ function boundary_conditions()
 			esac
 	
 			# Check if all went well
-			if [ "$(cxr_common_check_result)" == false ]
+			if [[ "$(cxr_common_check_result)" == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -410,7 +410,7 @@ function boundary_conditions()
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
-			if [ "$CXR_SKIP_EXISTING" == true ]
+			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
 				cxr_main_logger -w "${FUNCNAME}"  "File $CXR_BC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
@@ -457,7 +457,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -486,7 +486,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -514,7 +514,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

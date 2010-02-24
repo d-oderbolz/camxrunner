@@ -103,7 +103,7 @@ exit 1
 function get_chemparam_file()
 ################################################################################
 {
-	if [ $# -ne 2 ]
+	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
@@ -112,7 +112,7 @@ function get_chemparam_file()
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
-	if [ -r "${RUN_SPECIFIC}" ]
+	if [[ -r "${RUN_SPECIFIC}"  ]]
 	then
 		our_chemparam="${RUN_SPECIFIC}"
 	else
@@ -125,7 +125,7 @@ function get_chemparam_file()
 	
 		MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
 	
-		if [ -r "${MY_CHEMPARAM_INPUT_FILE}" ]
+		if [[ -r "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 		then
 			our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 		else
@@ -133,7 +133,7 @@ function get_chemparam_file()
 			# Maybe we have to cut off the last digit of the Version number
 			MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
 	
-			if [ -f "${MY_CHEMPARAM_INPUT_FILE}" ]
+			if [[ -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 			then
 				our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 			else
@@ -144,13 +144,13 @@ function get_chemparam_file()
 	fi
 	
 	# found one
-	if [ ${CXR_RUN_MODEL} == true ]
+	if [[ ${CXR_RUN_MODEL} == true  ]]
 	then
 		# Report only if we run the model
 		cxr_main_logger -a $FUNCNAME "Using chemparam file (${our_chemparam})."
 		
 		# Also report MD5
-		if [ "${CXR_REPORT_MD5}" == true ]
+		if [[ "${CXR_REPORT_MD5}" == true  ]]
 		then
 			cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${our_chemparam} is $(cxr_common_md5 ${our_chemparam})"
 		fi
@@ -191,24 +191,24 @@ function get_model_exec()
 	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
-	if [ -x ${RUN_EXEC} ]
+	if [[ -x ${RUN_EXEC}  ]]
 	then
 		# Run dependent exists
 		cxr_main_logger -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
 		echo "${RUN_EXEC}"
-	elif [ -x ${MACHINE_EXEC} ]
+	elif [[ -x ${MACHINE_EXEC}  ]]
 	then
 		# Machine dependent exists
 		cxr_main_logger -v "${FUNCNAME}"  "CAMx Binary is actually called ${MACHINE_EXEC}"
 		echo "${MACHINE_EXEC}"
-	elif [ -x ${GENERAL_EXEC} ]
+	elif [[ -x ${GENERAL_EXEC}  ]]
 	then
 		# general exists
 		cxr_main_logger -v "${FUNCNAME}"  "CAMx Binary is actually called ${GENERAL_EXEC}"
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
-		if [ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false ]
+		if [[ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false  ]]
 		then
 			# optional paratemeter is false, or we do not run the model
 			# We do not care and return CXR_GENERAL_EXEC
@@ -230,7 +230,7 @@ function get_model_exec()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -249,7 +249,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -292,7 +292,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "${progname}" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "${progname}" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	while getopts ":t" opt

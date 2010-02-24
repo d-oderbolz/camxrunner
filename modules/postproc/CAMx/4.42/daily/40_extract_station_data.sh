@@ -163,7 +163,7 @@ function extract_station_data
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 
 		#  --- Setup the Environment of the current day
@@ -171,7 +171,7 @@ function extract_station_data
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_preconditions) == false ]
+		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -186,7 +186,7 @@ function extract_station_data
 		YDIM=$(cxr_common_get_y_dim $CXR_STATION_DOMAIN)
 		
 		# The Z dim depends on wether we use 3D output
-		if [ "${CXR_AVERAGE_OUTPUT_3D}" == true ]
+		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true  ]]
 		then
 			# 3D
 			ZDIM=$(cxr_common_get_z_dim $CXR_STATION_DOMAIN)
@@ -212,7 +212,7 @@ function extract_station_data
 			station_file="$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${i}]})"
 			
 			# In case of a dry-run, create a dummy file
-			if [ "$CXR_DRY" == true ]
+			if [[ "$CXR_DRY" == true  ]]
 			then
 				cxr_common_create_dummyfile ${CXR_STATION_OUTPUT_DIR}/${station_file}
 			fi
@@ -236,7 +236,7 @@ function extract_station_data
 		# Open brackets
 		SPECIES_ARRAY="["
 		
-		if [ "${CXR_STATION_SPECIES}" == "${CXR_ALL}" ]
+		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}"  ]]
 		then
 			# Loop through the general list
 			for i in $( seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES )
@@ -261,7 +261,7 @@ function extract_station_data
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
 		
 		# We instruct the extractors to print a header for the first day
-		if [ $(cxr_common_is_first_day) == true ]
+		if [[ $(cxr_common_is_first_day) == true  ]]
 		then
 			WRITE_HEADER=1
 		else
@@ -305,7 +305,7 @@ function extract_station_data
 		# Get a copy of the call
 		cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 			
-		if [ "$CXR_DRY" == false ]
+		if [[ "$CXR_DRY" == false  ]]
 		then
 			
 			# Then we run it, while preserving the output
@@ -317,7 +317,7 @@ function extract_station_data
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ $(cxr_common_check_result) == false ]
+		if [[ $(cxr_common_check_result) == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -339,7 +339,7 @@ function extract_station_data
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

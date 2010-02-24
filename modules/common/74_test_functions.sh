@@ -93,7 +93,7 @@ function cxr_common_load_test_data()
 	# Need to load test data
 	cxr_main_logger -B "${FUNCNAME}" " Loading test data (CXR_LOAD_TEST_DATA is true)... "
 
-	if [ "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -f "${CXR_TEST_DATA_INPUT_FILE:-}" ]
+	if [[ "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -f "${CXR_TEST_DATA_INPUT_FILE:-}"  ]]
 	then
 	
 		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || cxr_main_die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
@@ -146,7 +146,7 @@ function cxr_common_test_all_modules()
 	# To do this, we need to know the model name and version to test for (otherwise we might repeat many tests)
 	
 	# Do we do this?
-	if [ "$(cxr_common_get_consent "Do you want to run the test suite of CAMxRunner?)" Y )" == false ]
+	if [[ "$(cxr_common_get_consent "Do you want to run the test suite of CAMxRunner?)" Y )" == false  ]]
 	then
 		return 0
 	fi
@@ -162,7 +162,7 @@ function cxr_common_test_all_modules()
 	# Determine Model and version
 	################################################################################	
 	
-	if [ ! "${MODEL}" ]
+	if [[ ! "${MODEL}"  ]]
 	then
 		# Model was not passed
 		MODEL=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
@@ -171,7 +171,7 @@ function cxr_common_test_all_modules()
 	MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
 	
 	
-	if [ ! "${VERSION}" ]
+	if [[ ! "${VERSION}"  ]]
 	then
 		# Version was not passed
 	
@@ -313,14 +313,14 @@ function cxr_common_test_all_modules()
 				
 			source $FUNCTION_FILE
 			
-			if [ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0 ]
+			if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
 			then
 				
 				# We must state the run name properly
 				CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
 				
 				# If we did not just load this config, do it now
-				if [ "$CXR_RUN" != "$LAST_LOADED_CONFIG" ]
+				if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG"  ]]
 				then
 					# We prepare the tests
 					source inc/init_test.inc
@@ -356,7 +356,7 @@ function cxr_common_test_all_modules()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

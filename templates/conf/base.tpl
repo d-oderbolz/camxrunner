@@ -487,7 +487,7 @@ CXR_NUMBER_OF_OUTPUT_SPECIES=$(( ${#CXR_OUTPUT_SPECIES_NAMES[@]} - 1 ))
 ################################################################################
 
 # Set probing only if needed
-if [ "$CXR_PROBING_TOOL" != "None" ]
+if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 then
 
 	CXR_NUMBER_OF_PA_DOMAINS=2
@@ -527,7 +527,7 @@ fi
 ################################################################################
 # Probing settings: OSAT/PSAT
 ################################################################################
-if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 then
 
 	CXR_SA_SUMMARY_OUTPUT=true
@@ -574,7 +574,7 @@ then
 ################################################################################
 # Probing settings:DDM
 ################################################################################
-elif [ "$CXR_PROBING_TOOL" == "DDM" ] 
+elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 then
 
 	CXR_DDM_MASTER_SFC_OUTPUT=true
@@ -626,7 +626,7 @@ then
 ################################################################################
 # Probing settings:RTRAC
 ################################################################################
-elif [ "$CXR_PROBING_TOOL" == "RTRAC" ] 
+elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 then
 
 	CXR_RT_PIG_SAMPLE=false
@@ -757,7 +757,7 @@ CXR_ASC_EXT=asc
 CXR_NUM_CORES=$(cxr_main_count_cores)
 
 # Maximal number of parallel processes in the CAMxRunner
-if [ "$CXR_PARALLEL_PROCESSING" == true ]
+if [[ "$CXR_PARALLEL_PROCESSING" == true  ]]
 then
 	# By default, use the number of cores
 	CXR_MAX_PARALLEL_PROCS=$CXR_NUM_CORES

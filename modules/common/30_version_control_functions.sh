@@ -94,7 +94,7 @@ exit 1
 function cxr_common_get_svn_revision()
 ################################################################################
 {
-	if [ $# -ne 1 ]
+	if [[ $# -ne 1  ]]
 	then
 		# No filename supplied
 		FILENAME=/dev/null
@@ -102,7 +102,7 @@ function cxr_common_get_svn_revision()
 		FILENAME=$1
 	fi
 	
-	if [ ! -f "$FILENAME" ]
+	if [[ ! -f "$FILENAME"  ]]
 	then
 		# File inexistent
 		REVISION=0
@@ -114,7 +114,7 @@ function cxr_common_get_svn_revision()
 		# We expect 7 fields:
 		# "$Id$"
 		
-		if [ $(cxr_common_count_delimited_elements "${VERSION_STRING}" " ") -eq 7 ]
+		if [[ $(cxr_common_count_delimited_elements "${VERSION_STRING}" " ") -eq 7  ]]
 		then
 			# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
 			REVISION=$( echo "${VERSION_STRING}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
@@ -125,7 +125,7 @@ function cxr_common_get_svn_revision()
 		fi
 		
 		# Correct any garbage
-		if [ $(cxr_main_is_numeric "$REVISION") == false  ]
+		if [[ $(cxr_main_is_numeric "$REVISION") == false   ]]
 		then
 			REVISION=0
 		fi
@@ -144,7 +144,7 @@ function cxr_common_get_svn_revision()
 function test_module()
 ################################################################################
 {
-	if [ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
 	then
 		# We need to do initialisation
 	
@@ -163,7 +163,7 @@ function test_module()
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [ $(pwd) == / ]
+			if [[ $(pwd) == /  ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
@@ -237,7 +237,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
 # Normlly this is not allowed, except to test using -t
-if [ -z "${CXR_META_MODULE_NAME:-}" ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -265,7 +265,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	else

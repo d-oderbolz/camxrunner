@@ -153,7 +153,7 @@ function concatenate_station_data
 ################################################################################
 {
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 	
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
@@ -164,7 +164,7 @@ function concatenate_station_data
 			set_variables 
 			
 			#  --- Check Settings
-			if [ $(cxr_common_check_preconditions) == false ]
+			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -179,7 +179,7 @@ function concatenate_station_data
 				cxr_main_logger -v "${FUNCNAME}" "${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"    
 				
 				#Dry?
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 					cat ${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}
 				else
@@ -190,7 +190,7 @@ function concatenate_station_data
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [ "$(cxr_common_check_result)" == false ]
+		if [[ "$(cxr_common_check_result)" == false  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -209,7 +209,7 @@ function concatenate_station_data
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

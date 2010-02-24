@@ -209,7 +209,7 @@ function photolysis_rates()
 	local substage=
 	
 	#Was this stage already completed?
-	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
 	
 		# Reset stored variables
@@ -235,7 +235,7 @@ function photolysis_rates()
 					
 				weekly )
 					# Are we in a new week?
-					if [ "$last_week" != "$CXR_WOY" ]
+					if [[ "$last_week" != "$CXR_WOY"  ]]
 					then
 						cxr_main_logger -b ${FUNCNAME} "Running TUV for week $CXR_WOY..."
 						substage=$CXR_WOY
@@ -247,7 +247,7 @@ function photolysis_rates()
 				
 				monthly )
 					# Are we in a new month?
-					if [ "$last_month" != "$CXR_MONTH" ]
+					if [[ "$last_month" != "$CXR_MONTH"  ]]
 					then
 						cxr_main_logger -b ${FUNCNAME} "Running TUV for month $CXR_MONTH..."
 						substage=$CXR_MONTH
@@ -265,27 +265,27 @@ function photolysis_rates()
 			set_variables 
 			
 			#  --- Check Settings
-			if [ $(cxr_common_check_preconditions) == false ]
+			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 			
-			if [ ! -f "$CXR_TUV_OUTPUT_FILE" ]
+			if [[ ! -f "$CXR_TUV_OUTPUT_FILE"  ]]
 			then
 				# TUV File does not exist
 			
 				# Increase global indent level
 				cxr_main_increase_log_indent
 		
-				if [ "$CXR_DRY" == false ]
+				if [[ "$CXR_DRY" == false  ]]
 				then
 					# TUV needs an input file
 					tuv_control_file=$(create_tuv_control_file)
 					
 					# Is the file there and not empty?)
-					if [ -s "${tuv_control_file}" ]
+					if [[ -s "${tuv_control_file}"  ]]
 					then
 				
 						# TUV is picky - it expects a file called
@@ -320,7 +320,7 @@ function photolysis_rates()
 				cxr_main_decrease_log_indent
 		
 				# Check if all went well
-				if [ $(cxr_common_check_result) == false ]
+				if [[ $(cxr_common_check_result) == false  ]]
 				then
 					cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
@@ -333,7 +333,7 @@ function photolysis_rates()
 			else
 				# File exists. That is generally bad,
 				# unless user wants to skip
-				if [ "$CXR_SKIP_EXISTING" == true ]
+				if [[ "$CXR_SKIP_EXISTING" == true  ]]
 				then
 					# Skip it
 					cxr_main_logger -w "${FUNCNAME}"  "File $CXR_TUV_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
@@ -347,7 +347,7 @@ function photolysis_rates()
 			fi
 				
 			# Do not repeat loop if we run it only once
-			if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
+			if [[ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once  ]]
 			then
 				break
 			fi
@@ -403,7 +403,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -432,7 +432,7 @@ function test_module()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -460,7 +460,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

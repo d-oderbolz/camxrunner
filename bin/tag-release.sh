@@ -115,12 +115,12 @@ unset OPTIND
 
 
 
-if [ $DO_LIST_TAGS == true ]
+if [[ $DO_LIST_TAGS == true  ]]
 then
 	list_tags
 fi
 
-if [ -z "${TAG}" ]
+if [[ -z "${TAG}"  ]]
 then
 	usage
 fi

@@ -90,11 +90,11 @@ function CAMxRunner_installer()
 	# This function asks automatically
 	cxr_common_test_all_modules "${CXR_MODEL}" "${CXR_MODEL_VERSION}"
 
-	if [ "$(cxr_common_get_consent "Do you want to generate a new base.conf file?" N )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to generate a new base.conf file?" N )" == true  ]]
 	then
 		# Yes
 		
-		if [ "$(cxr_common_get_consent "Do you want to have a look at the existing base.conf file?" )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to have a look at the existing base.conf file?" )" == true  ]]
 		then
 			echo -e "********************************************************************************"
 			cat ${CXR_BASECONFIG}
@@ -118,16 +118,16 @@ function CAMxRunner_installer()
 		PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/CAMxRunner.play
 		
 		# Might be simplified later
-		if [ -s "$PLAYFILE" ]
+		if [[ -s "$PLAYFILE"  ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [ "$(cxr_common_get_consent "CAMxRunner was already installed. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true ]
+			if [[ "$(cxr_common_get_consent "CAMxRunner was already installed. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
 				
-				if [ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true ]
+				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
@@ -150,7 +150,7 @@ function CAMxRunner_installer()
 		# We have all values, we can copy the file
 		########################################
 		
-		if [ "$(cxr_common_get_consent "Do you want to install the new file ?" Y )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to install the new file ?" Y )" == true  ]]
 		then
 			cp $DRAFTFILE $CXR_BASECONFIG || cxr_main_die_gracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
 		fi
@@ -160,7 +160,7 @@ function CAMxRunner_installer()
 	fi
 	
 	##############################################################################
-	if [ "$(cxr_common_get_consent "Do you want to regenerate the API documentation?" N )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to regenerate the API documentation?" N )" == true  ]]
 	then
 		cxr_main_logger "${FUNCNAME}" "Regenerating API documentation..."
 		$CXR_API_DOC_EXEC
@@ -175,7 +175,7 @@ function CAMxRunner_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi

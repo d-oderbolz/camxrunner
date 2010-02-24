@@ -145,7 +145,7 @@ function set_variables()
 	
 	########################################################################
 	# Dry and real need the same variables set
-	if [ "$CXR_HOLLOW" == false -o "$CXR_DRY" == true ]
+	if [[ "$CXR_HOLLOW" == false -o "$CXR_DRY" == true  ]]
 	then
 		# Real or dry run
 
@@ -165,7 +165,7 @@ function set_variables()
 		########################################################################
 		
 		
-		if [ "$(cxr_common_is_first_day)" == true ]
+		if [[ "$(cxr_common_is_first_day)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -177,7 +177,7 @@ function set_variables()
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
 		
-			if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+			if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 			then
 				CXR_SA_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
 				CXR_SA_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
@@ -190,7 +190,7 @@ function set_variables()
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_PHOTOLYIS_RATES_INPUT_FILE $CXR_BOUNDARY_CONDITIONS_INPUT_FILE $CXR_TOP_CONCENTRATIONS_INPUT_FILE $CXR_ALBEDO_HAZE_OZONE_INPUT_FILE"
 
 		# PiG
-		if [ "$CXR_PLUME_IN_GRID" == true ]
+		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 		then
 			CXR_POINT_SOURCES_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
 			CXR_PIG_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
@@ -206,7 +206,7 @@ function set_variables()
 		################################################################
 		# OSAT, PSAT, GOAT or APCA
 		################################################################
-		if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+		if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 		then
 		
 			# Output files must not be decompressed
@@ -240,7 +240,7 @@ function set_variables()
 			done
 			
 			# Source group specific
-			if [ $CXR_POINT_EMISSIONS == true ]
+			if [[ $CXR_POINT_EMISSIONS == true  ]]
 			then
 				for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 				do
@@ -252,7 +252,7 @@ function set_variables()
 			fi
 			
 			## Receptor file
-			#if [ "$CXR_SA_RECEPTOR" == "true" -a "$CXR_SA_RECEPTOR_FILE_EXISTS" == "false" ]
+			#if [[ "$CXR_SA_RECEPTOR" == "true" -a "$CXR_SA_RECEPTOR_FILE_EXISTS" == "false"  ]]
 			#then
 			#	#Checks (this time output)
 			#	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_RECEPTOR "
@@ -262,7 +262,7 @@ function set_variables()
 		# Must we run direct decoupled sensitivity analysis?
 		# DDM
 		################################################################
-		elif [ "$CXR_PROBING_TOOL" == "DDM" ] 
+		elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 		then
 			# This is not a file (hence no _FILE at the end of the name)
 			CXR_DDM_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
@@ -309,7 +309,7 @@ function set_variables()
 		# Must we run Reactive Tracer Source Apportionment?
 		# RTRAC (RT)
 		################################################################
-		elif [ "$CXR_PROBING_TOOL" == "RTRAC" ] 
+		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 		then
 			CXR_RT_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
 			CXR_RT_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
@@ -318,7 +318,7 @@ function set_variables()
 		################################################################
 		# General Probing support
 		################################################################
-		if [ "$CXR_PROBING_TOOL" != "None" ]
+		if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 		then
 			# This is not a file (hence no _FILE at the end of the name)
 			CXR_PA_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
@@ -390,7 +390,7 @@ function write_sa_receptor_definitions_file()
 	# write file
 	: > ${CXR_SA_RECEPTORIN}
 	
-	if [ "$SA_POINT_RECEPTOR" == "true" ]
+	if [[ "$SA_POINT_RECEPTOR" == "true"  ]]
 	then
 		for i in $(seq 1 $SA_POINT_NUMBER);
 		do
@@ -403,7 +403,7 @@ function write_sa_receptor_definitions_file()
 		done
 	fi
 	
-	if [ "$SA_SINGLE_CELL_RECEPTOR" == "true" ]
+	if [[ "$SA_SINGLE_CELL_RECEPTOR" == "true"  ]]
 	then
 		for i in $(seq 1 $SA_SCELL_NUMBER);
 		do
@@ -417,7 +417,7 @@ function write_sa_receptor_definitions_file()
 		done
 	fi
 	
-	if [ "$SA_CELL_AVERAGE_RECEPTOR" == "true" ]
+	if [[ "$SA_CELL_AVERAGE_RECEPTOR" == "true"  ]]
 	then
 			for i in $(seq 1 $SA_CELLAVG_NUMBER);
 			do
@@ -436,7 +436,7 @@ function write_sa_receptor_definitions_file()
 			done
 	fi
 	
-	if [ "$SA_WALL_OF_CELLS_RECEPTOR" == "true" ]
+	if [[ "$SA_WALL_OF_CELLS_RECEPTOR" == "true"  ]]
 	then
 		for i in $(seq 1 $SA_CELLWALL_NUMBER);
 		do
@@ -578,7 +578,7 @@ function write_model_control_file()
 	echo " Top_Concentrations   = '${CXR_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 	echo " Albedo_Haze_Ozone    = '${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 	
-	if [ "$CXR_PLUME_IN_GRID" == true ]
+	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 	then
 		echo " Point_Sources        = '${CXR_POINT_SOURCES_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 	fi
@@ -586,12 +586,12 @@ function write_model_control_file()
 	# These two might not be set (if we are in the first day)
 	echo " Master_Grid_Restart  = '${CXR_MASTER_GRID_RESTART_INPUT_FILE:-}'," >> ${CXR_CAMXIN} 
 	
-	if [ ${CXR_NUMBER_OF_GRIDS} -gt 1 ]
+	if [[ ${CXR_NUMBER_OF_GRIDS} -gt 1  ]]
 	then
 		echo " Nested_Grid_Restart  = '${CXR_NESTED_GRID_RESTART_INPUT_FILE:-}'," >> ${CXR_CAMXIN} 
 	fi
 	
-	if [ "$CXR_PLUME_IN_GRID" == true ]
+	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 	then
 		echo " PiG_Restart        = '${CXR_PIG_RESTART_INPUT_FILE:-}'," >> ${CXR_CAMXIN} 
 	fi
@@ -623,7 +623,7 @@ function write_model_control_file()
 	################################################################
 	# OSAT, PSAT,  GOAT or APCA
 	################################################################
-	if [ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA" ] 
+	if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
 	then
 	
 		echo " !---${CXR_PROBING_TOOL}--------------------------------------------------------------------" >> ${CXR_CAMXIN} 
@@ -650,7 +650,7 @@ function write_model_control_file()
 		
 		echo " SA_Master_Restart        = '${CXR_SA_MASTER_RESTART_INPUT_FILE:-}'," >> ${CXR_CAMXIN} 
 		
-		if [ ${CXR_NUMBER_OF_GRIDS} -gt 1 ]
+		if [[ ${CXR_NUMBER_OF_GRIDS} -gt 1  ]]
 		then
 			echo " SA_Nested_Restart        = '${CXR_SA_NESTED_RESTART_INPUT_FILE:-}'," >> ${CXR_CAMXIN} 
 		fi
@@ -662,7 +662,7 @@ function write_model_control_file()
 		done
 		
 		
-		if [ "${CXR_POINT_EMISSIONS}" == true ]
+		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 		then
 			# By source group
 			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
@@ -672,7 +672,7 @@ function write_model_control_file()
 		fi
 		
 		
-		if [ "${CXR_GRIDDED_EMISSIONS}" == true ]
+		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 		then
 			# By source group
 			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
@@ -695,7 +695,7 @@ function write_model_control_file()
 	# Must we run direct decoupled sensitivity analysis?
 	# DDM
 	################################################################
-	elif [ "$CXR_PROBING_TOOL" == "DDM" ] 
+	elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 	then
 
 		echo " !----Sensitivity Analysis (Direct Decoupled Method)-----------------------------" >> ${CXR_CAMXIN} 
@@ -747,7 +747,7 @@ function write_model_control_file()
 			echo " DDM_Source_Area_Map(${i})    = '${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}'," >> ${CXR_CAMXIN}
 		done 
 		
-		if [ "${CXR_POINT_EMISSIONS}" == true ]
+		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 		then
 			# By source group
 			for j in $(seq 1 "$CXR_DDM_NUMBER_OF_SOURCE_GROUPS");
@@ -757,7 +757,7 @@ function write_model_control_file()
 		fi
 		 
 		# By source group, by grid
-		if [ "${CXR_GRIDDED_EMISSIONS}" == true ]
+		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 		then
 			# By source group
 			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
@@ -779,7 +779,7 @@ function write_model_control_file()
 	# Must we run Reactive Tracer Source Apportionment?
 	# RTRAC (RT)
 	################################################################
-	elif [ "$CXR_PROBING_TOOL" == "RTRAC" ] 
+	elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 	then
 	
 		echo " !---RTRAC (Reactive Tracer Source Apportionment)-----------------------------------------------------------------" >> ${CXR_CAMXIN} 
@@ -798,7 +798,7 @@ function write_model_control_file()
 		echo " RT_Receptor_Definitions = '${CXR_RT_RECEPTOR_DEFINITIONS_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 		echo " RT_Point_Sources        = '${CXR_RT_POINT_SOURCES_INPUT_FILE}'," >> ${CXR_CAMXIN} 
 		
-		if [ "$CXR_PLUME_IN_GRID" == true ]
+		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 		then
 			echo " RT_PiG_Sample           = .${CXR_RT_PIG_SAMPLE}.,               ! Ignore if PiG = false" >> ${CXR_CAMXIN} 
 		fi
@@ -817,7 +817,7 @@ function write_model_control_file()
 	################################################################
 	# General Probing support
 	################################################################
-	if [ "$CXR_PROBING_TOOL" != "None" ]
+	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 	then
 	
 		echo "!---------------Probing Tool General------------------------------------------" >> ${CXR_CAMXIN} 
@@ -915,7 +915,7 @@ function test_module()
 		ls CAMxRunner.sh >/dev/null 2>&1 && break
 		
 		# If we are in root, we have gone too far
-		if [ $(pwd) == / ]
+		if [[ $(pwd) == /  ]]
 		then
 			echo "Could not find CAMxRunner.sh!"
 			exit 1
@@ -950,16 +950,16 @@ function model()
 ################################################################################
 {
 	# Do we run the model?
-	if [ "$CXR_RUN_MODEL" == true ]
+	if [[ "$CXR_RUN_MODEL" == true  ]]
 	then
 	
 		# cxr_common_store_state checks if we have finished this and if we need to continue
-		if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+		if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 		then
 			cxr_main_logger -B "$FUNCNAME" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			
 			# If we do not run the first day, its a restart
-			if [ "$(cxr_common_is_first_day)" == false ]
+			if [[ "$(cxr_common_is_first_day)" == false  ]]
 			then
 				# This must be a restart!
 				CXR_RESTART=true
@@ -976,19 +976,19 @@ function model()
 			write_model_control_file
 			
 			# If we do SA, write a receptor file
-			if [ "${CXR_SA_RECEPTOR:-}" == true ]
+			if [[ "${CXR_SA_RECEPTOR:-}" == true  ]]
 			then
 				write_sa_receptor_definitions_file
 			fi
 			
-			if [ $(cxr_common_check_preconditions) == false ]
+			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
 				cxr_main_logger "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 
-			if [ "$CXR_DRY" == false ]
+			if [[ "$CXR_DRY" == false  ]]
 			then
 				execute_model
 			else
@@ -996,7 +996,7 @@ function model()
 			fi
 		
 			# Did we run properly?
-			if [ $(cxr_common_check_result) == false ]
+			if [[ $(cxr_common_check_result) == false  ]]
 			then
 				cxr_main_logger "$FUNCNAME" "$CXR_MODEL Run was not successful!"
 				# We notify the caller of the problem
@@ -1024,7 +1024,7 @@ function model()
 # If the CXR_META_MODULE_NAME  is a subset of the progname,
 # somebody started this script alone
 # Normlly this is not allowed, exept to test using -t
-if [ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0 ]
+if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
 then
 
 	# When using getopts, never directly call a function inside the case,
@@ -1052,7 +1052,7 @@ then
 	unset OPTIND
 	
 	# This is needed so that getopts surely processes all parameters
-	if [ "${TEST_IT:-false}" == true ]
+	if [[ "${TEST_IT:-false}" == true  ]]
 	then
 		test_module
 	fi

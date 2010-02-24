@@ -91,7 +91,7 @@ exit 1
 function PMCAMx_installer() 
 ################################################################################
 {
-	if [ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_PMCAMX_MEGABYTES_REQUIRED MB of space." Y )" == true ]
+	if [[ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_PMCAMX_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
 	
 		########################################
@@ -134,7 +134,7 @@ function PMCAMx_installer()
 		
 		INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
-		if [ ! -d "$INPUT_DIR" ]
+		if [[ ! -d "$INPUT_DIR"  ]]
 		then
 			cxr_main_die_gracefully "Could not find the input directory $INPUT_DIR"
 		fi
@@ -163,13 +163,13 @@ function PMCAMx_installer()
 		EXPECTED_NAME="$(get_model_exec false)"
 
 		# Check if CAMxRunner expects this name
-		if [ "$(basename "$EXPECTED_NAME")" != "$(basename "$BINARY_NAME")" ]
+		if [[ "$(basename "$EXPECTED_NAME")" != "$(basename "$BINARY_NAME")"  ]]
 		then
 			cxr_main_logger "${FUNCNAME}" "Note that your configuration expects the binary to be called $EXPECTED_NAME.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
 		fi
 		
 		# Now we can add a machine name
-		if [ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true  ]]
 		then
 			BINARY_NAME=${BINARY_NAME}-$(uname -n)
 		fi
@@ -179,7 +179,7 @@ function PMCAMx_installer()
 		# Get the platform string
 		
 		#Default is linux using intel compiler
-		if [ "$PARALLEL_PARADIGM" == None ]
+		if [[ "$PARALLEL_PARADIGM" == None  ]]
 		then
 			DEFAULT_PLATFORM=linux
 		else
@@ -228,16 +228,16 @@ function PMCAMx_installer()
 		PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/${DOMAIN}.play
 		
 		# Might be simplified later
-		if [ -s "$PLAYFILE" ]
+		if [[ -s "$PLAYFILE"  ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [ "$(cxr_common_get_consent "${CXR_MODEL} was already installed. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true ]
+			if [[ "$(cxr_common_get_consent "${CXR_MODEL} was already installed. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
 				
-				if [ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true ]
+				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
@@ -256,7 +256,7 @@ function PMCAMx_installer()
 		
 		cxr_common_apply_playfile $PLAYFILE $( find $DRAFT_DIR -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
-		if [ "$(cxr_common_get_consent "Do you want to install the new files ?" Y )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to install the new files ?" Y )" == true  ]]
 		then
 			# Just copy all out - the relative paths will be preserved!
 			cd $DRAFT_DIR || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $DRAFT_DIR"
@@ -277,12 +277,12 @@ function PMCAMx_installer()
 		cxr_main_logger "${FUNCNAME}" "Applying patches..."
 		########################################
 		
-		if [ -d "$PATCH_ALL_DIR" ]
+		if [[ -d "$PATCH_ALL_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_ALL_DIR" "$CXR_CAMX_SRC_DIR"
 		fi
 		
-		if [ -d "$PATCH_PLATFORM_DIR" ]
+		if [[ -d "$PATCH_PLATFORM_DIR"  ]]
 		then
 			cxr_common_apply_patches "$PATCH_PLATFORM_DIR" "$CXR_CAMX_SRC_DIR"
 		fi
@@ -314,7 +314,7 @@ function PMCAMx_installer()
 		# We do not need te "old" binary - we copied it away
 		rm $RESULTING_BINARY
 		
-		if [ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" Y )" == true ]
+		if [[ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" Y )" == true  ]]
 		then
 			# Remove tar file
 			rm $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR}
@@ -332,7 +332,7 @@ function PMCAMx_installer()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [ -z "${CXR_META_MODULE_NAME:-}"  ]
+if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
 then
 	usage
 fi
