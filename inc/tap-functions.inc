@@ -510,6 +510,38 @@ function is_greater_or_equal()
 }
 
 ################################################################################
+# Function: differs_less_or_equal
+#
+# Test if two values differ less or equal than a third (in absolute terms)
+#
+# Example:
+# > differs_less_or_equal $actual $expected $epsilon "Difference is OK"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# $3 - allowed difference
+# [$4] - test name
+################################################################################
+function differs_less_or_equal()
+################################################################################
+{
+	local result="${1:-}"
+	local expected="${2:-}"
+	local limit="${3:-}"
+	local name="${4:-''}"
+	
+	local diff=$(cxr_common_abs $(( $result - $expected )) )
+
+	_less_than_or_equal "$diff" "$limit"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+################################################################################
 # Function: isnt
 #
 # Contrary of <is>

@@ -636,15 +636,13 @@ function test_module()
 	# Time of file
 	local ft=$(cxr_common_get_file_mtime $a)
 	
-	# Calculate absolute difference
-	local diff=$(cxr_common_abs $(( $rtc - $ft )) )
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
-	is_less_or_equal $diff 1 "cxr_common_get_file_mtime immediate, time difference ok"
+	differs_less_or_equal $rtc $ft 1 "cxr_common_get_file_mtime immediate, time difference ok"
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
 	
