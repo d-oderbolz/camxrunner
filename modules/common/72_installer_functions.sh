@@ -95,51 +95,48 @@ function cxr_common_install()
 	# - Run them (while checking they are not yet run)
 	# The interactivity is mostly hidden in these modules
 	
-	# Do we do this?
-	if [ "$(cxr_common_get_consent "Do you want to run the installer for the CAMxRunner, some converters, model and the testcase \n (you can select the steps you want later)" Y )" == false ]
-	then
-		exit
-	fi
-	
-	cxr_main_logger -a "$FUNCNAME"  "Checking internal files..."
+	cxr_main_logger -a "$FUNCNAME"  "Checking internal files (may take a while)..."
 	
 	cxr_common_check_runner_executables
 	
-	MODEL=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
+	while [ "$(cxr_common_get_consent "Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase" )" == true ]
+	do
+		MODEL=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
+		
+		MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
+		
+		# Extract the list of supported versions
+		SUPPORTED="${CXR_SUPPORTED_MODEL_VERSIONS[${MODEL_ID}]}"
+		
+		# Set the default to the first entry
+		# Save old IFS
+		oIFS="$IFS"
 	
-	MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
+		IFS="$CXR_SPACE"
+		
+		# Suck line into array
+		ARRAY=($SUPPORTED)
+		
+		# Reset IFS
+		IFS="$oIFS"
+		
+		DEFAULT_VERSION=${ARRAY[0]}
 	
-	# Extract the list of supported versions
-	SUPPORTED="${CXR_SUPPORTED_MODEL_VERSIONS[${MODEL_ID}]}"
+		#Generate a menu automatically
+		VERSION=$(cxr_common_get_menu_choice "Which version of $MODEL should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $SUPPORTED)" "$SUPPORTED" "$DEFAULT_VERSION")
+		
+		cxr_common_is_version_supported $VERSION $MODEL
+		
+		cxr_main_logger "${FUNCNAME}" "Installing system for $MODEL $VERSION..."
+		
+		# reload config for this version (the run is called "installer")
+		cxr_main_read_config "installer" "$VERSION" "$MODEL" "$CXR_RUN_DIR"
+		
+		# Run the required modules (we could even select them!)
+		cxr_common_run_modules ${CXR_TYPE_INSTALLER}
 	
-	# Set the default to the first entry
-	# Save old IFS
-	oIFS="$IFS"
-
-	IFS="$CXR_SPACE"
-	
-	# Suck line into array
-	ARRAY=($SUPPORTED)
-	
-	# Reset IFS
-	IFS="$oIFS"
-	
-	DEFAULT_VERSION=${ARRAY[0]}
-
-	#Generate a menu automatically
-	VERSION=$(cxr_common_get_menu_choice "Which version of $MODEL should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $SUPPORTED)" "$SUPPORTED" "$DEFAULT_VERSION")
-	
-	cxr_common_is_version_supported $VERSION $MODEL
-	
-	cxr_main_logger "${FUNCNAME}" "Installing system for $MODEL $VERSION..."
-	
-	# reload config for this version (the run is called "installer")
-	cxr_main_read_config "installer" "$VERSION" "$MODEL" "$CXR_RUN_DIR"
-	
-	# Run the required modules (we could even select them!)
-	cxr_common_run_modules ${CXR_TYPE_INSTALLER}
-
-	cxr_main_logger -a -b "${FUNCNAME}" "All installation actions finished."
+		cxr_main_logger -a -b "${FUNCNAME}" "All installation actions finished."
+	done
 }
 
 ################################################################################
