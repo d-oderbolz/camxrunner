@@ -754,64 +754,64 @@ function cxr_common_is_dependency_ok()
 	
 	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $DEPENDENCY for day offset $DAY_OFFSET"
 
-
-		
-			# Is the dependency disabled?
-			if [ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false ]
-			then
-				# Do we care?
-				if [ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]
-				then
-					# No, user wants to ignore this
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $DEPENDENCY is disabled. We will not check if this module was run"
-					echo true
-					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
-					return $CXR_RET_OK
-				else
-					# Yes, we return false
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $DEPENDENCY is disabled. The dependency $DEPENDENCY is not fulfilled!"
-					echo false
-					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
-					return $CXR_RET_OK
-				fi
-			
-			# Determine type
-			MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
-			
-			# Convert date
-			cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
-			
-			MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$DEPENDENCY" "$cxr_common_raw_date" )"
-			
-			# Is this known to have worked?
-			if [ "$(cxr_common_has_finished "$MY_STAGE")" == true ]
-			then
-				cxr_main_logger -v "${FUNCNAME}"  "Dependency ${DEPENDENCY} fullfilled"
-				echo true
-			else
-				# Dependency NOK, Find out why
-				
-				# Find out if Dependency failed - if so, we crash
-				if [ "$(cxr_common_has_failed "$MY_STAGE")" == true ]
-				then
-					# It failed
-					# Destroy run if no dryrun
-					if [ $CXR_DRY == false ]
-					then
-						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${DAY_OFFSET}_${DEPENDENCY} failed!"
-					else
-						cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed - but this is a dryrun, so we keep going!"
-						echo true
-					fi
-				else
-					# It did not fail, it seems that it was not yet run - we have to wait
-					cxr_main_logger -v "${FUNCNAME}" "${DEPENDENCY} has not yet finished - we need to wait."
-					echo false
-				fi
-			fi
+	# Is the dependency disabled?
+	if [ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false ]
+	then
+	
+		# Do we care?
+		if [ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]
+		then
+			# No, user wants to ignore this
+			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $DEPENDENCY is disabled. We will not check if this module was run"
+			echo true
 			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 			return $CXR_RET_OK
-
+		else
+			# Yes, we return false
+			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $DEPENDENCY is disabled. The dependency $DEPENDENCY is not fulfilled!"
+			echo false
+			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+			return $CXR_RET_OK
+		fi
+		
+	fi
+			
+	# Determine type
+	MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
+	
+	# Convert date
+	cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+	
+	MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$DEPENDENCY" "$cxr_common_raw_date" )"
+	
+	# Is this known to have worked?
+	if [ "$(cxr_common_has_finished "$MY_STAGE")" == true ]
+	then
+		cxr_main_logger -v "${FUNCNAME}"  "Dependency ${DEPENDENCY} fullfilled"
+		echo true
+	else
+		# Dependency NOK, Find out why
+		
+		# Find out if Dependency failed - if so, we crash
+		if [ "$(cxr_common_has_failed "$MY_STAGE")" == true ]
+		then
+			# It failed
+			# Destroy run if no dryrun
+			if [ $CXR_DRY == false ]
+			then
+				cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${DAY_OFFSET}_${DEPENDENCY} failed!"
+			else
+				cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed - but this is a dryrun, so we keep going!"
+				echo true
+			fi
+		else
+			# It did not fail, it seems that it was not yet run - we have to wait
+			cxr_main_logger -v "${FUNCNAME}" "${DEPENDENCY} has not yet finished - we need to wait."
+			echo false
+		fi
+	fi
+	cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+	return $CXR_RET_OK
 }
 
 ################################################################################
