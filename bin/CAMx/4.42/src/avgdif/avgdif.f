@@ -25,7 +25,7 @@ c
 c
       character*4 filnam(10),fileid(60),mspec1(10,maxsp),
      &            mspec2(10,maxsp)
-      character*80 ipath 
+      character*240 ipath 
       dimension conc1(maxsp,maxz,maxx,maxy),conc2(maxsp,maxz,maxx,maxy) 
       dimension maxhr(maxsp),maxi(maxsp),maxj(maxsp),maxk(maxsp),
      &          spmax(maxsp),ki(maxsp),sumdif(maxsp),ndif(maxsp)
