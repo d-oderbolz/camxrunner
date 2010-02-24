@@ -105,11 +105,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_boundary_conditions_variables
+# Function: set_variables
 #	
-# Sets the appropriate variables needed for <convert_emissions>
+# Sets the appropriate variables needed for <boundary_conditions>
 ################################################################################	
-function set_boundary_conditions_variables() 
+function set_variables() 
 ################################################################################
 {	
 	# First of all, reset checks.
@@ -182,7 +182,7 @@ function boundary_conditions()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 		#  --- Setup the Environment
-		set_boundary_conditions_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		if [ $(cxr_common_check_preconditions) == false ]

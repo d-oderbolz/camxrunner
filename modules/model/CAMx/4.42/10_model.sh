@@ -108,13 +108,13 @@ exit 1
 
 
 ################################################################################
-# Function: set_model_variables
+# Function: set_variables
 #
 # Sets the variables (on a daily basis)
 ################################################################################	
-function set_model_variables() 
+function set_variables() 
 ################################################################################
-{	
+{
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -212,9 +212,6 @@ function set_model_variables()
 			# Output files must not be decompressed
 			# We only want to check them, otherwise we dont need these values
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(cxr_common_evaluate_rule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(cxr_common_evaluate_rule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
-		
-			# Add these to be checked
-			#CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_INST_OUTPUT_FILE $CXR_SA_FINST_OUTPUT_FILE"
 	
 			#Source area specific
 			for k in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
@@ -933,7 +930,7 @@ function test_module()
 		# Initialise the date variables 
 		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
-		set_model_variables
+		set_variables
 		
 		write_model_control_file
 	done
@@ -972,7 +969,7 @@ function model()
 			fi
 			
 			#  --- Execute the model and write stderr and stdout to CXR_LOG ---
-			set_model_variables
+			set_variables
 			
 			#  --- Create the input file - will be stored in the state directory 
 			#      but a link called CAMx.in wil be created where the CAMx binary is located

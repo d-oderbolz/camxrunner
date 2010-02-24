@@ -108,11 +108,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_concatenate_station_data_variables
+# Function: set_variables
 #	
-# Sets the appropriate variables for <concatenate_station_data>
+# Sets the appropriate variables for <avgdif>
 ################################################################################
-function set_avgdif_variables() 
+function set_variables() 
 ################################################################################
 {
 
@@ -160,7 +160,7 @@ function avgdif
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then	
 		#  --- Setup the Environment of the current day
-		set_avgdif_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module

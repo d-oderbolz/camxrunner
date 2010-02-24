@@ -107,11 +107,11 @@ exit 1
 
 
 ################################################################################
-# Function: set_model_variables
+# Function: set_variables
 #
 # Sets the variables (on a daily basis)
 ################################################################################	
-function set_model_variables() 
+function set_variables() 
 ################################################################################
 {	
 	# First of all, reset checks.
@@ -925,7 +925,7 @@ function model()
 				cxr_main_logger -B "${FUNCNAME}" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 				
 				#  --- Execute the model and write stderr and stdout to CXR_LOG ---
-				set_model_variables
+				set_variables
 				
 				#  --- Create the input file - will be stored in the state directory 
 				#      but a link called CAMx.in wil be created where the CAMx binary is located
@@ -1007,7 +1007,7 @@ function test_module()
 		# Initialise the date variables 
 		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 		
-		set_model_variables
+		set_variables
 		
 		write_model_control_file
 	done

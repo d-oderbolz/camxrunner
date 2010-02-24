@@ -105,12 +105,12 @@ exit 1
 }
 
 ################################################################################
-# Function: set_check_input_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables needed for <check_input>.
 #
 ################################################################################	
-function set_check_input_variables() 
+function set_variables() 
 ################################################################################
 {	
 	# First of all, reset checks.
@@ -149,7 +149,7 @@ function check_input()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 		#  --- Setup the Environment
-		set_check_input_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		if [ $(cxr_common_check_preconditions) == false ]

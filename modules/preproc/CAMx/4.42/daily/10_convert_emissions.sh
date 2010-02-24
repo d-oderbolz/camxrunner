@@ -108,13 +108,13 @@ exit 1
 }
 
 ################################################################################
-# Function: set_convert_emissions_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables needed for <convert_emissions>.
 # Its the first module to use the decmopression feature
 #
 ################################################################################	
-function set_convert_emissions_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -157,7 +157,7 @@ function convert_emissions()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then	
 		#  --- Setup the Environment of the current day
-		set_convert_emissions_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		if [ $(cxr_common_check_preconditions) == false ]
@@ -176,37 +176,31 @@ function convert_emissions()
 		do
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
 			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
-			
-			skip_it=false
-
+		
 			if [ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true ]
 			then
 				# Skip it
 				cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
-				# continue does not work in for loops...
-				skip_it=true
+				continue
 			fi
 			
-			if [ "$skip_it" == false ]
-			then
+			# Increase global indent level
+			cxr_main_increase_log_indent
 
-				# Increase global indent level
-				cxr_main_increase_log_indent
-	
-				cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
-	
-				if [ "$CXR_DRY" == false ]
-				then
-					# Call Converter
-					${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
-				else
-					cxr_main_logger "${FUNCNAME}"  "Dryrun - no conversion performed"
-				fi
-	
-				# Decrease global indent level
-				cxr_main_decrease_log_indent
-			
+			cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+
+			if [ "$CXR_DRY" == false ]
+			then
+				# Call Converter
+				${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
+			else
+				cxr_main_logger "${FUNCNAME}"  "Dryrun - no conversion performed"
 			fi
+
+			# Decrease global indent level
+			cxr_main_decrease_log_indent
+			
+			
 		done
 
 		# Decrease global indent level

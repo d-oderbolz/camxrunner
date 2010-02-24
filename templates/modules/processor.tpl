@@ -106,14 +106,14 @@ exit 1
 }
 
 ################################################################################
-# Function: set_NAME_variables
+# Function: set_variables
 #
 # Sets the appropriate variables
 #
 # Parameters:
 # $1 - ...
 ################################################################################
-function set_NAME_variables() 
+function set_variables() 
 ################################################################################
 {	
 	# First of all, reset checks.
@@ -170,7 +170,7 @@ function name()
 	then
 	
 		#  --- Setup the Environment of the current day
-		set_NAME_variables 
+		set_variables 
 		
 		#  --- Check Settings. 
 		# Decide if you crash if errors are found or not.

@@ -105,7 +105,7 @@ exit 1
 }
 
 ################################################################################
-# Function: set_convert_input_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables needed for <convert_input>.
 # The code is similar to <convert_output>.
@@ -116,7 +116,7 @@ exit 1
 #	CXR_CONVERTERS			: the converter scripts
 #	CXR_CONVERTER_OPTIONS	: the optins to the converter scripts
 ################################################################################	
-function set_convert_input_variables() 
+function set_variables() 
 ################################################################################
 {	
 
@@ -211,7 +211,7 @@ function convert_input()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 		#  --- Setup the Environment
-		set_convert_input_variables 
+		set_variables 
 		
 		#  --- Check Settings (only input)
 		if [ $(cxr_common_check_preconditions -i) == false ]

@@ -106,11 +106,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_extract_station_data_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables needed for <extract_station_data>
 ################################################################################
-function set_extract_station_data_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -167,7 +167,7 @@ function extract_station_data
 	then
 
 		#  --- Setup the Environment of the current day
-		set_extract_station_data_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module

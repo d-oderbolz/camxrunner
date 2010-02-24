@@ -107,11 +107,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_prepare_output_dir_variables
+# Function: set_variables
 #	
 # Sets the needed variables needed for <prepare_output_dir>
 ################################################################################
-function set_prepare_output_dir_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -206,7 +206,7 @@ function prepare_output_dir()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 		#  --- Setup the Environment of the current day
-		set_prepare_output_dir_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module

@@ -107,11 +107,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_set_permissions_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables for <set_permissions>
 ################################################################################
-function set_set_permissions_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -137,7 +137,7 @@ function set_permissions
 	then
 	
 		#  --- Setup the Environment 
-		set_set_permissions_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		if [ $(cxr_common_check_preconditions) == false ]

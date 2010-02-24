@@ -111,11 +111,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_convert_emissions_variables
+# Function: set_variables
 #	
-# Sets the appropriate variables needed for <convert_emissions>
+# Sets the appropriate variables needed for <albedo_haze_ozone>
 ################################################################################	
-function set_albedo_haze_ozone_variables() 
+function set_variables() 
 ################################################################################
 {	
 
@@ -225,51 +225,54 @@ function set_albedo_haze_ozone_variables()
 function create_ahomap_control_file()
 ################################################################################
 {
-	AHOMAP_FILE="$1"
-	START_OFFSET="$2"
-	NUM_DAYS="$3"
+	# Define & Initialize local vars
+	local ahomap_file="$1"
+	local start_offset="$2"
+	local num_days="$3"
+	
+	local day_offset
 	
 	# Write data line by line (analogous to write_control_file)
 	
-	echo "Coordinate project |$CXR_MAP_PROJECTION" > ${AHOMAP_FILE}
+	echo "Coordinate project |$CXR_MAP_PROJECTION" > ${ahomap_file}
 	
 	# This is dependent on the projection, currently only LAMBERT is tested.
 	case $CXR_MAP_PROJECTION in
 	
 		LAMBERT)
-			echo "xorg,yorg,clon,clat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_LAMBERT_CENTER_LONGITUDE,$CXR_LAMBERT_CENTER_LATITUDE,$CXR_LAMBERT_TRUE_LATITUDE1,$CXR_LAMBERT_TRUE_LATITUDE2" >> ${AHOMAP_FILE}
+			echo "xorg,yorg,clon,clat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_LAMBERT_CENTER_LONGITUDE,$CXR_LAMBERT_CENTER_LATITUDE,$CXR_LAMBERT_TRUE_LATITUDE1,$CXR_LAMBERT_TRUE_LATITUDE2" >> ${ahomap_file}
 			;;
 		POLAR)
 			cxr_main_logger "${FUNCNAME}" "Note that POLAR support of CAMxRunner is limited, be careful!"
-			echo "xorg,yorg,plon,plat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_POLAR_LONGITUDE_POLE,$CXR_POLAR_LATITUDE_POLE" >> ${AHOMAP_FILE}
+			echo "xorg,yorg,plon,plat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_POLAR_LONGITUDE_POLE,$CXR_POLAR_LATITUDE_POLE" >> ${ahomap_file}
 			;;
 		UTM)
 			cxr_main_logger "${FUNCNAME}" "Note that UTM support of CAMxRunner is limited, be careful!"
-			echo "xorg,yorg,izone    |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_UTM_ZONE" >> ${AHOMAP_FILE}
+			echo "xorg,yorg,izone    |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_UTM_ZONE" >> ${ahomap_file}
 			;;
 		LATLON)
 			cxr_main_logger "${FUNCNAME}" "Note that LATLON support of CAMxRunner is limited, be careful!"
-			echo "xorg,yorg          |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD" >> ${AHOMAP_FILE}
+			echo "xorg,yorg          |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD" >> ${ahomap_file}
 			;;
 	
 	esac
 	
-	echo "dx,dy              |$CXR_MASTER_CELL_XSIZE,$CXR_MASTER_CELL_YSIZE" >> ${AHOMAP_FILE}
-	echo "Output filename    |$CXR_AHOMAP_OUTPUT_FILE" >> ${AHOMAP_FILE}
-	echo "Process for snow?  |.$CXR_AHOMAP_SNOW." >> ${AHOMAP_FILE}
-	echo "Number of grids    |$CXR_NUMBER_OF_GRIDS" >> ${AHOMAP_FILE}
+	echo "dx,dy              |$CXR_MASTER_CELL_XSIZE,$CXR_MASTER_CELL_YSIZE" >> ${ahomap_file}
+	echo "Output filename    |$CXR_AHOMAP_OUTPUT_FILE" >> ${ahomap_file}
+	echo "Process for snow?  |.$CXR_AHOMAP_SNOW." >> ${ahomap_file}
+	echo "Number of grids    |$CXR_NUMBER_OF_GRIDS" >> ${ahomap_file}
 	
 	# Loop through grids for landuse files
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# Landuse Files
-		echo "Landuse filename   |${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}" >> ${AHOMAP_FILE}
+		echo "Landuse filename   |${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}" >> ${ahomap_file}
 		
 		#The corresponding cell dimensions
 		if [ $i -eq 1 ]
 		then
 			# Master Grid (Strange order!)
-			echo "nx,ny              |$CXR_MASTER_GRID_COLUMNS,$CXR_MASTER_GRID_ROWS" >> ${AHOMAP_FILE}
+			echo "nx,ny              |$CXR_MASTER_GRID_COLUMNS,$CXR_MASTER_GRID_ROWS" >> ${ahomap_file}
 		else
 			# Calculate other dimensions using scaling factor
 			# This code is also used in xx_convert_output.sh
@@ -277,7 +280,7 @@ function create_ahomap_control_file()
 			X_CURRENT=$(( (((${CXR_NEST_END_I_INDEX[$i]} - ${CXR_NEST_BEG_I_INDEX[$i]}) + 1) * ${CXR_NEST_MESHING_FACTOR[$i]}) + 2))
 			Y_CURRENT=$(( (((${CXR_NEST_END_J_INDEX[$i]} - ${CXR_NEST_BEG_J_INDEX[$i]}) + 1) * ${CXR_NEST_MESHING_FACTOR[$i]}) + 2))
 
-			echo "nx,ny              |$X_CURRENT,$Y_CURRENT" >> ${AHOMAP_FILE}
+			echo "nx,ny              |$X_CURRENT,$Y_CURRENT" >> ${ahomap_file}
 			
 		fi
 		
@@ -285,15 +288,15 @@ function create_ahomap_control_file()
 	
 	# We assume that we have always satellite data for all simulated days
 	# The spelling is taken literally from ENVIRON.
-	echo "Numbr of TOMS files|$NUM_DAYS" >> ${AHOMAP_FILE}
+	echo "Numbr of TOMS files|$num_days" >> ${ahomap_file}
 	
 	# Loop through the day offsets of the simulation (0=Start day)
-	for DAY_OFFSET_CF in $(seq ${START_OFFSET} $(( ${START_OFFSET} + ${NUM_DAYS} -1 )) )
+	for day_offset in $(seq ${start_offset} $(( ${start_offset} + ${num_days} -1 )) )
 	do
 
 		# Exports all relevant date variables
 		# like CXR_YEAR, CXR_MONTH...
-		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET_CF"
+		cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
 
 		# expand rule
 		CXR_AHOMAP_OZONE_COLUMN_FILE="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
@@ -315,17 +318,17 @@ function create_ahomap_control_file()
 		fi
 		
 		# Write data to file
-		echo "Bday,Eday,TOMS file|${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},$CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}" >> ${AHOMAP_FILE}
+		echo "Bday,Eday,TOMS file|${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},$CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}" >> ${ahomap_file}
 		
 	done
 	
 	# Reset date variables for first day
 	cxr_common_set_date_variables "$CXR_START_DATE" "0"
 	
-	cxr_main_logger "${FUNCNAME}" "I just wrote a control file for AHOMAP to ${AHOMAP_FILE}."
+	cxr_main_logger "${FUNCNAME}" "I just wrote a control file for AHOMAP to ${ahomap_file}."
 
 	# Return the file name
-	echo ${AHOMAP_FILE}
+	echo ${ahomap_file}
 }
 
 ################################################################################
@@ -340,20 +343,27 @@ function create_ahomap_control_file()
 function albedo_haze_ozone() 
 ################################################################################
 {
+	# Define & Initialize local vars
+	local last_week=
+	local last_month=
+	local day_offset=0
+	
+	local substage=
+	
+	local start_offset=0
+	local num_days=0
+	local days_left=0
+	local month_length=0
+	
+	local ahomap_control_file=
+	
 	#Was this stage already completed?
 	if [ "$(cxr_common_store_state ${CXR_STATE_START})" == true ]
 	then
 	
-		# Reset stored variables
-		LAST_WEEK=
-		LAST_MONTH=
-	
-		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+		for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
-			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
-			
-			# this construct is needed because continue does not work the way it should
-			skip_iteration=false
+			cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
 			
 			# Check if we need another file
 			# We need to know how long a week or month still lasts
@@ -363,187 +373,182 @@ function albedo_haze_ozone()
 				once )
 					start_offset=0
 					num_days=${CXR_NUMBER_OF_SIM_DAYS}
+					
 					cxr_main_logger -b ${FUNCNAME} "Running AHOMAP for whole period..."
-					SUBSTAGE=once
+					substage=once
 					;;
 					
 				daily )
 				
-					start_offset=$DAY_OFFSET
+					start_offset=$day_offset
 					num_days=1
 					cxr_main_logger -b ${FUNCNAME} "Running AHOMAP for $CXR_DATE..."
-					SUBSTAGE=$CXR_DATE
+					substage=$CXR_DATE
 					;;
 					
 				weekly )
 					# Are we in a new week?
-					if [ "$LAST_WEEK" != "$CXR_WOY" ]
+					if [ "$last_week" != "$CXR_WOY" ]
 					then
 						# Yep, new week.
 						# Today is the first day (either of the week or the simulation)
-						start_offset=$DAY_OFFSET
+						start_offset=$day_offset
 						
 						days_left=$(cxr_common_days_left_in_week $CXR_DATE)
 						
 						# The number of days depends on the number of days left in the simulation
-						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 )) -lt ${days_left} ]
+						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]
 						then
 							# less days left in simulation than in week
-							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 ))
+							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
 						else
 							#Plenty of days left
 							num_days=${days_left}
 						fi
 						
 						cxr_main_logger -b ${FUNCNAME} "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $start_offset )..."
-						SUBSTAGE=$CXR_WOY
+						substage=$CXR_WOY
 						
 					else
 						# No new week, next iteration
-						skip_iteration=true
+						continue
 					fi
 					;;
 				
 				monthly )
 					# Are we in a new month?
-					if [ "$LAST_MONTH" != "$CXR_MONTH" ]
+					if [ "$last_month" != "$CXR_MONTH" ]
 					then
 						month_length=$(cxr_common_days_in_month $CXR_MONTH $CXR_YEAR)
 					
-						start_offset=$DAY_OFFSET
+						start_offset=$day_offset
 						
 						days_left=$(cxr_common_days_left_in_month $CXR_DATE)
 						
 						# The number of days depends on the number of days left
-						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 )) -lt ${days_left} ]
+						if [ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]
 						then
-							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${DAY_OFFSET} + 1 ))
+							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
 						else
 							#Plenty of days left
 							num_days=${days_left}
 						fi
 						
 						cxr_main_logger -b ${FUNCNAME} "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $start_offset )..."
-						SUBSTAGE=$CXR_MONTH
+						substage=$CXR_MONTH
 						
 					else
-						# No new month, skip
-						skip_iteration=true
+						continue
 					fi
 					;;
 			
 				*)
 					cxr_main_die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
+
+			# Call to the state db to set a substage
+			# So we can tell each single TUV run from each other
+			cxr_common_set_substage $substage
 			
-			if [ "${skip_iteration}" == false ]
+			if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 			then
-				# Call to the state db to set a substage
-				# So we can tell each single TUV run from each other
-				cxr_common_set_substage $SUBSTAGE
+				# Substage not yet run
+	
+				#  --- Setup the Environment
+				set_variables 
 				
-				if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+				#  --- Check Settings
+				if [ "$(cxr_common_check_preconditions)" == false ]
 				then
-					# Substage not yet run
+					cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+					# We notify the caller of the problem
+					return $CXR_RET_ERR_PRECONDITIONS
+				fi
+				
+				# Increase global indent level
+				cxr_main_increase_log_indent
 		
-					#  --- Setup the Environment
-					set_albedo_haze_ozone_variables 
+				cxr_main_logger "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
+				
+				# Is the output there?
+				if [ ! -f "$CXR_AHOMAP_OUTPUT_FILE" ]
+				then
+					# File not yet there
+				
+					# The options of AHOMAP are a bit 
+					# weird, better produce a file
+					# This function (I know, one should avoid side effects!) 
+					# also downloads/caches satellite data
+					ahomap_control_file=$(cxr_common_create_tempfile $FUNCNAME)
 					
-					#  --- Check Settings
-					if [ "$(cxr_common_check_preconditions)" == false ]
+					if [ "$CXR_DRY" == false ]
 					then
-						cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-						# We notify the caller of the problem
-						return $CXR_RET_ERR_PRECONDITIONS
-					fi
 					
-					# Increase global indent level
-					cxr_main_increase_log_indent
-			
-					cxr_main_logger "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
-					
-					# Is the output there?
-					if [ ! -f "$CXR_AHOMAP_OUTPUT_FILE" ]
-					then
-						# File not yet there
-					
-						# The options of AHOMAP are a bit 
-						# weird, better produce a file
-						# This function (I know, one should avoid side effects!) 
-						# also downloads/caches satellite data
-						AHOMAP_CONTROL_FILE=$(cxr_common_create_tempfile $FUNCNAME)
-						
-						if [ "$CXR_DRY" == false ]
-						then
-						
-							create_ahomap_control_file "$AHOMAP_CONTROL_FILE" $start_offset $num_days
-								
-							# Is the file there and not empty?)
-							if [ -s "${AHOMAP_CONTROL_FILE}" ]
-							then
+						create_ahomap_control_file "$ahomap_control_file" $start_offset $num_days
 							
-								cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
+						# Is the file there and not empty?)
+						if [ -s "${ahomap_control_file}" ]
+						then
 						
-								# Call AHOMAP 
-								cat ${AHOMAP_CONTROL_FILE} | tee -a ${CXR_LOG}
-								
-								${CXR_AHOMAP_EXEC} < ${AHOMAP_CONTROL_FILE} 2>&1 | tee -a $CXR_LOG
-							else
-								cxr_main_logger "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
-								return $CXR_RET_ERROR
-							fi
-				
-						else
-							cxr_main_logger "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
-						fi
-				
-						# Decrease global indent level
-						cxr_main_decrease_log_indent
-				
-						# Check if all went well
-						if [ $(cxr_common_check_result) == false ]
-						then
-							cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-							# We notify the caller of the problem
-							return $CXR_RET_ERR_POSTCONDITIONS
-						fi
-					else
-						# File exists. That is generally bad,
-						# unless user wants to skip
-						if [ "$CXR_SKIP_EXISTING" == true ]
-						then
-							# Skip it
-							cxr_main_logger -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+							cxr_main_logger "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
+					
+							# Call AHOMAP 
+							cat ${ahomap_control_file} | tee -a ${CXR_LOG}
 							
-							# next iteration
+							${CXR_AHOMAP_EXEC} < ${ahomap_control_file} 2>&1 | tee -a $CXR_LOG
 						else
-							# Fail!
-							cxr_main_logger -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+							cxr_main_logger "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
 							return $CXR_RET_ERROR
 						fi
+			
+					else
+						cxr_main_logger "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
 					fi
-					
-					# Store the state (substage)
-					cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
-					
-					# Unset substage
-					cxr_common_unset_substage
-					
-					
+			
+					# Decrease global indent level
+					cxr_main_decrease_log_indent
+			
+					# Check if all went well
+					if [ $(cxr_common_check_result) == false ]
+					then
+						cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+						# We notify the caller of the problem
+						return $CXR_RET_ERR_POSTCONDITIONS
+					fi
 				else
-					cxr_main_logger -w "$FUNCNAME" "Substage $SUBSTAGE already run."
+					# File exists. That is generally bad,
+					# unless user wants to skip
+					if [ "$CXR_SKIP_EXISTING" == true ]
+					then
+						# Skip it
+						cxr_main_logger -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+						
+						# next iteration
+					else
+						# Fail!
+						cxr_main_logger -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+						return $CXR_RET_ERROR
+					fi
 				fi
+				
+				# Store the state (substage)
+				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+				
+				# Unset substage
+				cxr_common_unset_substage
+				
+			else
+				cxr_main_logger -w "$FUNCNAME" "Substage $substage already run."
+			fi
 
-				# Do not repeat loop if we run it only once
-				if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
-				then
-					break
-				fi
-			
-			fi # skip?
-			
-			LAST_WEEK=$CXR_WOY
-			LAST_MONTH=$CXR_MONTH
+			# Do not repeat loop if we run it only once
+			if [ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once ]
+			then
+				break
+			fi
+
+			last_week=$CXR_WOY
+			last_month=$CXR_MONTH
 			
 		done
 

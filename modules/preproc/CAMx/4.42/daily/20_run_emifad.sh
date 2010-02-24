@@ -107,11 +107,11 @@ exit 1
 }
 
 ################################################################################
-# Function:set_run_emifad_variables
+# Function:set_variables
 #	
 # Sets the appropriate variables needed for <run_emifad>
 ################################################################################	
-function set_run_emifad_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -161,7 +161,7 @@ function run_emifad()
 	if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
 	then
 		#  --- Setup the Environment of the current day
-		set_run_emifad_variables 
+		set_variables 
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module

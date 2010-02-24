@@ -108,11 +108,11 @@ exit 1
 }
 
 ################################################################################
-# Function: set_concatenate_station_data_variables
+# Function: set_variables
 #	
 # Sets the appropriate variables for <concatenate_station_data>
 ################################################################################
-function set_concatenate_station_data_variables() 
+function set_variables() 
 ################################################################################
 {
 	# First of all, reset checks.
@@ -161,7 +161,7 @@ function concatenate_station_data
 			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
 	
 			#  --- Setup the Environment of the current day
-			set_concatenate_station_data_variables 
+			set_variables 
 			
 			#  --- Check Settings
 			if [ $(cxr_common_check_preconditions) == false ]
