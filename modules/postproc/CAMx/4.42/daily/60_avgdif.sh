@@ -156,6 +156,10 @@ function set_variables()
 function avgdif
 ################################################################################
 {
+	# Define & Initialize local vars
+	local exec_tmp_file
+	
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then	
@@ -179,10 +183,10 @@ function avgdif
 			cxr_main_logger "${FUNCNAME}" "Comparing ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]} and ${CXR_TEST_INPUT_ARR_FILES[${i}]}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
 			
 			# Put call into this file
-			EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+			exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 			
 			# Build tempfile
-			cat <<-EOF > $EXEC_TMP_FILE
+			cat <<-EOF > $exec_tmp_file
 			$CXR_AVGDIF_OUTPUT_FILE
 			${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}
 			${CXR_TEST_INPUT_ARR_FILES[${i}]}
@@ -191,13 +195,13 @@ function avgdif
 			
 			# Get a copy of the call
 			cxr_main_logger "${FUNCNAME}" "Calling AVGDIF - using this jobfile (be patient)...\n"
-			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+			cat ${exec_tmp_file} | tee -a $CXR_LOG
 			
 			#Dry?
 			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Call AVGDIF (never mind the strange calling convention...)
-				$CXR_AVGDIF_EXEC < $EXEC_TMP_FILE
+				$CXR_AVGDIF_EXEC < $exec_tmp_file
 			else
 				cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    
 			fi

@@ -344,18 +344,18 @@ function albedo_haze_ozone()
 ################################################################################
 {
 	# Define & Initialize local vars
-	local last_week=
-	local last_month=
+	local last_week
+	local last_month
 	local day_offset=0
 	
-	local substage=
+	local substage
 	
 	local start_offset=0
 	local num_days=0
 	local days_left=0
 	local month_length=0
 	
-	local ahomap_control_file=
+	local ahomap_control_file
 	
 	#Was this stage already completed?
 	if [[ "$(cxr_common_store_state ${CXR_STATE_START})" == true  ]]
