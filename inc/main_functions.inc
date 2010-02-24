@@ -33,7 +33,7 @@ function cxr_main_is_numeric()
 	
 	echo "${1:-}" | grep "[-]?[^0-9]" >/dev/null
 	
-	if [[ $? -eq 0 -o -z "$1"  ]] 
+	if [[  $? -eq 0 || -z "$1"   ]] 
 	then
 			echo false
 	else
@@ -331,7 +331,7 @@ function cxr_main_logger()
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [[ "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" -a -n "${CXR_LOG:-}" -a "$CXR_DO_FILE_LOGGING" == true  ]]
+	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" && -n "${CXR_LOG:-}" && "$CXR_DO_FILE_LOGGING" == true    ]]
 	then
 		# Logfile is defined
 
@@ -358,7 +358,7 @@ function cxr_main_logger()
 	
 	# The external channels (motify decides who needs to get the message)
 	# -a does not go there
-	if [[ "${LOG_LEVEL}" -gt "${CXR_LOG_LEVEL_ALW}" -a "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${LOG_LEVEL}"  ]]
+	if [[  "${LOG_LEVEL}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${LOG_LEVEL}"   ]]
 	then
 		cxr_main_notify "Log" "$BLANK_MESSAGE"
 	fi
@@ -658,7 +658,7 @@ function cxr_main_determine_model_and_version()
 	# We expect a name like CAMx-v4.42-bafu3_winter07.run3_lcsl5a
 	# So we split using "-"
 	
-	if [[ $1 == CAMxRunner.sh -o $1 == base -o $1 == installer  ]]
+	if [[   $1 == CAMxRunner.sh || $1 == base || $1 == installer    ]]
 	then
 		# If the user does CAMxRunner.sh -h this must work too!
 		VERSION=4.51

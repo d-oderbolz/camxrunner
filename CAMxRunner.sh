@@ -360,14 +360,14 @@ fi
 #### Check for contradictions and take action (incomplete!)
 
 # either -F or CXR_SKIP_EXISTING
-if [[ "${CXR_FORCE}" == true -a "${CXR_SKIP_EXISTING}" == true  ]]
+if [[  "${CXR_FORCE}" == true && "${CXR_SKIP_EXISTING}" == true   ]]
 then
 	# Force wins (CXR_SKIP_EXISTING is default)
 	CXR_SKIP_EXISTING=false
 fi
 
 # Hollow and non-hollow options should not be mixed
-if [[ "${CXR_HOLLOW}" == true -a "${CXR_RUN_LIMITED_PROCESSING}" == true  ]]
+if [[  "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true   ]]
 then
 	cxr_main_die_gracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
@@ -616,7 +616,7 @@ INFO="\nThis CAMxRunner has process id $$ and is running on host $(uname -n)\nRu
 cxr_main_notify "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
 cxr_main_logger -i "CAMxRunner.sh" "$INFO"
 
-if [[ "${CXR_HOLLOW}" == false -o "${CXR_DRY}" == true  ]]
+if [[  "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true   ]]
 then
 	cxr_main_logger -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
@@ -701,7 +701,7 @@ then
 	# if not needed (Dryruns are always sequential, though)
 	# 
 	
-	if [[ "$CXR_PARALLEL_PROCESSING" == true -a "$CXR_DRY" == false  ]]
+	if [[  "$CXR_PARALLEL_PROCESSING" == true && "$CXR_DRY" == false   ]]
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh

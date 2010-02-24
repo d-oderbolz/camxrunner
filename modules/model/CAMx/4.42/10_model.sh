@@ -145,7 +145,7 @@ function set_variables()
 	
 	########################################################################
 	# Dry and real need the same variables set
-	if [[ "$CXR_HOLLOW" == false -o "$CXR_DRY" == true  ]]
+	if [[  "$CXR_HOLLOW" == false || "$CXR_DRY" == true   ]]
 	then
 		# Real or dry run
 
@@ -177,7 +177,7 @@ function set_variables()
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
 		
-			if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
+			if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
 			then
 				CXR_SA_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
 				CXR_SA_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
@@ -206,7 +206,7 @@ function set_variables()
 		################################################################
 		# OSAT, PSAT, GOAT or APCA
 		################################################################
-		if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
+		if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
 		then
 		
 			# Output files must not be decompressed
@@ -252,7 +252,7 @@ function set_variables()
 			fi
 			
 			## Receptor file
-			#if [[ "$CXR_SA_RECEPTOR" == "true" -a "$CXR_SA_RECEPTOR_FILE_EXISTS" == "false"  ]]
+			#if [[  "$CXR_SA_RECEPTOR" == "true" && "$CXR_SA_RECEPTOR_FILE_EXISTS" == "false"   ]]
 			#then
 			#	#Checks (this time output)
 			#	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_RECEPTOR "
@@ -623,7 +623,7 @@ function write_model_control_file()
 	################################################################
 	# OSAT, PSAT,  GOAT or APCA
 	################################################################
-	if [[ "$CXR_PROBING_TOOL" == "OSAT" -o "$CXR_PROBING_TOOL" == "PSAT" -o "$CXR_PROBING_TOOL" == "GOAT" -o "$CXR_PROBING_TOOL" == "APCA"  ]] 
+	if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
 	then
 	
 		echo " !---${CXR_PROBING_TOOL}--------------------------------------------------------------------" >> ${CXR_CAMXIN} 

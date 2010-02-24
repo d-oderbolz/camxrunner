@@ -549,7 +549,7 @@ function cxr_common_add_modules()
 					if [[ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
 						RUN_IT=true
-					elif [[ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"  ]]
+					elif [[  "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false && "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
 						RUN_IT=true
@@ -1179,7 +1179,7 @@ function cxr_common_worker()
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
-	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 -a "$CXR_DO_FILE_LOGGING" == true  ]]
+	if [[  "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "$CXR_DO_FILE_LOGGING" == true   ]]
 	then
 		# Set TASK_PID-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${TASK_PID}.log

@@ -149,7 +149,7 @@ function cxr_common_get_consent()
 
 	# Code repeated for clarity
 	# Default only accepted if either Y or N
-	if [[ \( -s "${2:-}" \) -a \( "${2:-}" == Y -o "${2:-}" == N \)  ]]
+	if [[   \( -s "${2:-}" \) && \( "${2:-}" == Y || "${2:-}" == N \)    ]]
 	then
 			
 		########################################
@@ -169,7 +169,7 @@ function cxr_common_get_consent()
 			ANSWER=$(cxr_common_get_user_input "$MESSAGE\nAnswer with either Y, N or D")
 		done
 		
-		if [[ "$ANSWER" == d -o "$ANSWER" == D  ]]
+		if [[  "$ANSWER" == d || "$ANSWER" == D   ]]
 		then
 			ANSWER=$DEFAULT
 		fi
@@ -192,7 +192,7 @@ function cxr_common_get_consent()
 		
 	fi
 	
-	if [[ "$ANSWER" == Y -o "$ANSWER" == y  ]]
+	if [[  "$ANSWER" == Y || "$ANSWER" == y   ]]
 	then
 		echo true
 	else
@@ -337,7 +337,7 @@ function cxr_common_get_menu_choice()
 	
 	# Default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [[ "${DEFAULT:-}" -a -z "$(cxr_common_trim "$CHOSEN")"  ]]
+	if [[  "${DEFAULT:-}" && -z "$(cxr_common_trim "$CHOSEN")"   ]]
 	then
 		CHOSEN="$DEFAULT"
 	fi
@@ -569,7 +569,7 @@ function cxr_common_get_answers()
 
 				VALUE=$(cxr_common_get_user_input "$QUESTION\n[D] for Default")
 
-				if [[ "$VALUE" == D -o "$VALUE" == d  ]]
+				if [[  "$VALUE" == D || "$VALUE" == d   ]]
 				then
 					# Use Default
 					VALUE="$DEFAULT"

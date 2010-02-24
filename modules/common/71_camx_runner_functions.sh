@@ -94,7 +94,7 @@ function cxr_common_get_x_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
+	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -130,7 +130,7 @@ function cxr_common_get_y_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
+	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -166,7 +166,7 @@ function cxr_common_get_z_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[ ! \( ${DOMAIN} -ge 1 -a ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)  ]]
+	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -359,7 +359,7 @@ function cxr_common_report_dimensions()
 function cxr_common_evaluate_rule()
 ################################################################################
 {
-	if [[ $# -lt 1 -a $# -gt 4  ]]
+	if [[  $# -lt 1 && $# -gt 4   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
@@ -406,7 +406,7 @@ function cxr_common_evaluate_rule()
 	
 	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $EXPANSION"
 	
-	if [[ -z "$EXPANSION" -a "$ALLOW_EMPTY" == false  ]]
+	if [[  -z "$EXPANSION" && "$ALLOW_EMPTY" == false   ]]
 	then
 		# Empty not allowed
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Rule $RULE_NAME ($RULE) was expanded to the empty string which is not allowed in this context!"
@@ -434,7 +434,7 @@ function cxr_common_evaluate_rule()
 function cxr_common_evaluate_rule_at_offset()
 ################################################################################
 {
-	if [[ $# -lt 2 -a $# -gt 4  ]]
+	if [[  $# -lt 2 && $# -gt 4   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
@@ -479,7 +479,7 @@ function cxr_common_evaluate_rule_at_offset()
 function cxr_common_evaluate_these_scalar_rules()
 ################################################################################
 {
-	if [[ $# -lt 1 -a $# -gt 2  ]]
+	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean ALLOW_EMPTY value!"
 	fi

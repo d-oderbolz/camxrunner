@@ -194,7 +194,7 @@ function cxr_common_apply_patches()
 	PATCH_DIR="$1"
 	SRC_DIR="$2"
 	
-	if [[ ! -d "$PATCH_DIR" -o ! -d "$SRC_DIR"  ]]
+	if [[  ! -d "$PATCH_DIR" || ! -d "$SRC_DIR"   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $PATCH_DIR or $SRC_DIR not found."
 	fi

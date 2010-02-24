@@ -208,7 +208,7 @@ function get_model_exec()
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
-		if [[ "${1:-true}" == false -o ${CXR_RUN_MODEL} == false  ]]
+		if [[  "${1:-true}" == false || ${CXR_RUN_MODEL} == false   ]]
 		then
 			# optional paratemeter is false, or we do not run the model
 			# We do not care and return CXR_GENERAL_EXEC

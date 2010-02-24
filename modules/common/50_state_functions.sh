@@ -405,7 +405,7 @@ function cxr_common_detect_running_instances()
 {
 	PROCESS_COUNT=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
 	
-	if [[ ${PROCESS_COUNT} -ne 0 -a ${CXR_ALLOW_MULTIPLE} == false  ]]
+	if [[  ${PROCESS_COUNT} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false   ]]
 	then
 		# There are other processes running and this is not allowed
 		cxr_main_logger -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
@@ -760,7 +760,7 @@ function cxr_common_do_we_continue()
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
-	if [[ \( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} \) -a \( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} \)  ]]
+	if [[  \( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} \) && \( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} \)   ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${ERROR_COUNT}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi

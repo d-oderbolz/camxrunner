@@ -96,7 +96,7 @@ exit 1
 function cxr_common_abs()
 ################################################################################
 {
-	if [[ $# -ne 1 -o "$(cxr_main_is_numeric "$1")" == false  ]]
+	if [[  $# -ne 1 || "$(cxr_main_is_numeric "$1")" == false   ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
 		echo false
@@ -152,7 +152,7 @@ function cxr_common_fp_calculate()
 	fi
 	
 	# The scale function counts digits after the decimal point
-	if [[ "${ADD_TRAILING_DP}" == true -a "$( echo "scale(${RESULT})" | bc )" -eq 0  ]]
+	if [[  "${ADD_TRAILING_DP}" == true && "$( echo "scale(${RESULT})" | bc )" -eq 0   ]]
 	then
 		# Integer,  and we need to add a trailing .
 		echo ${RESULT}.

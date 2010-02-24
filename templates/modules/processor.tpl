@@ -196,7 +196,7 @@ function name()
 			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
 			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
 			
-			if [[ -f "$OUTPUT_FILE" -a "$CXR_SKIP_EXISTING" == true  ]]
+			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
 			then
 				# Skip it
 				cxr_main_logger "$FUNCNAME"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."

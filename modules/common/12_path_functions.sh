@@ -215,7 +215,7 @@ function cxr_common_file_size_megabytes()
 function cxr_common_compress_output()
 ################################################################################
 {
-	if [[ "${CXR_COMPRESS_OUTPUT}" == true -a "${CXR_DRY}" == false   ]]
+	if [[  "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false    ]]
 	then
 		# Loop through CXR_INSTANCE_FILE_OUTPUT_LIST
 		if [[ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}"  ]]

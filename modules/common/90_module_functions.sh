@@ -219,7 +219,7 @@ function cxr_common_run_modules()
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
-	if [[ ! \( "${ENABLED_MODULES}" == "" -a "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" -a "$RUN_ONLY" == "${CXR_RUN_ALL}" \)  ]]
+	if [[   ! \( "${ENABLED_MODULES}" == "" && "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" && "$RUN_ONLY" == "${CXR_RUN_ALL}" \)    ]]
 	then
 	
 		# We did not turn off everything or we need only a specific module to be run
@@ -298,7 +298,7 @@ function cxr_common_run_modules()
 					then
 						# Module was explicitly enabled
 						RUN_IT=true
-					elif [[ "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false -a "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"  ]]
+					elif [[  "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false && "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
 						RUN_IT=true
@@ -376,7 +376,7 @@ function cxr_common_process_sequentially
 	## Now we need to loop through the days
 	# but only if the user wants any of this
 	
-	if [[ ${CXR_RUN_PRE_DAILY} == true -o ${CXR_RUN_MODEL} == true -o ${CXR_RUN_POST_DAILY} == true  ]]
+	if [[   ${CXR_RUN_PRE_DAILY} == true || ${CXR_RUN_MODEL} == true || ${CXR_RUN_POST_DAILY} == true    ]]
 	then
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do

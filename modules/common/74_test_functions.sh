@@ -93,7 +93,7 @@ function cxr_common_load_test_data()
 	# Need to load test data
 	cxr_main_logger -B "${FUNCNAME}" " Loading test data (CXR_LOAD_TEST_DATA is true)... "
 
-	if [[ "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" -a -f "${CXR_TEST_DATA_INPUT_FILE:-}"  ]]
+	if [[   "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -f "${CXR_TEST_DATA_INPUT_FILE:-}"    ]]
 	then
 	
 		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || cxr_main_die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"

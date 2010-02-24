@@ -169,7 +169,7 @@ function cxr_common_is_yyyymmdd_format()
 function cxr_common_raw_date()
 ################################################################################
 {
-	if [[ $# -ne 1 -o $(cxr_common_is_yyyymmdd_format "$1") == false  ]]
+	if [[  $# -ne 1 || $(cxr_common_is_yyyymmdd_format "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
@@ -325,7 +325,7 @@ function cxr_common_julian2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false  ]]
+	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -364,7 +364,7 @@ function cxr_common_epoch2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[ $# -ne 1 -o $(cxr_main_is_numeric "$1") == false  ]]
+	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -424,7 +424,7 @@ function cxr_common_day_of_year()
 ################################################################################
 {
 
-	if [[ $# -lt 1 -a $# -gt 2  ]]
+	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
@@ -730,7 +730,7 @@ function cxr_common_modelling_hour()
 function cxr_common_days_between()
 ################################################################################
 {
-	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_common_is_yyyymmdd_format "$2") == false  ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_common_is_yyyymmdd_format "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "needs 2 dates as input"
 		echo false
@@ -768,7 +768,7 @@ function cxr_common_days_between()
 function cxr_common_add_days()
 ################################################################################
 {
-	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -797,7 +797,7 @@ function cxr_common_add_days()
 function cxr_common_subtract_days()
 ################################################################################
 {
-	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -832,7 +832,7 @@ function cxr_common_subtract_days()
 function cxr_common_set_date_variables()
 ################################################################################
 {
-	if [[ $# -ne 2 -o $(cxr_common_is_yyyymmdd_format "$1") == false -o $(cxr_main_is_numeric "$2") == false  ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
