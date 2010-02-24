@@ -819,7 +819,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check CAMxRunner revision
-	if [[  "$CXR_META_MODULE_REQ_RUNNER_VERSION" && \(  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" \)   ]]
+	if [[  "$CXR_META_MODULE_REQ_RUNNER_VERSION" && (  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" )   ]]
 	then
 		
 		# Increase global indent level
@@ -846,7 +846,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check config revision
-	if [[  "$CXR_META_MODULE_REQ_CONF_VERSION" && \(  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" \)   ]]
+	if [[  "$CXR_META_MODULE_REQ_CONF_VERSION" && (  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" )   ]]
 	then
 		
 		# Increase global indent level

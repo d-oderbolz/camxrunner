@@ -219,7 +219,7 @@ function cxr_common_run_modules()
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
-	if [[   ! \( "${ENABLED_MODULES}" == "" && "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" && "$RUN_ONLY" == "${CXR_RUN_ALL}" \)    ]]
+	if [[ ! ( "${ENABLED_MODULES}" == "" && "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" && "$RUN_ONLY" == "${CXR_RUN_ALL}" ) ]]
 	then
 	
 		# We did not turn off everything or we need only a specific module to be run

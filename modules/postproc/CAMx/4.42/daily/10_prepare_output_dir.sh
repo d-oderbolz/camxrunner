@@ -234,7 +234,7 @@ function prepare_output_dir()
 				CURRENT_BASE=$(eval "echo \${${VAR_NAME}[${i}]}")
 				
 				# If the Link or file does not yet exist
-				if [[  ! \( -L ${CURRENT_BASE} || -f ${CURRENT_BASE} \)   ]]
+				if [[  ! ( -L ${CURRENT_BASE} || -f ${CURRENT_BASE} )   ]]
 				then
 					if [[ "$CXR_DRY" == "false"  ]]
 					then

@@ -149,7 +149,7 @@ function cxr_common_get_consent()
 
 	# Code repeated for clarity
 	# Default only accepted if either Y or N
-	if [[   \( -s "${2:-}" \) && \( "${2:-}" == Y || "${2:-}" == N \)    ]]
+	if [[ ( -s "${2:-}" ) && ( "${2:-}" == Y || "${2:-}" == N ) ]]
 	then
 			
 		########################################

@@ -94,7 +94,7 @@ function cxr_common_get_x_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
+	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -130,7 +130,7 @@ function cxr_common_get_y_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
+	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -166,7 +166,7 @@ function cxr_common_get_z_dim()
 {
 	DOMAIN=${1:-0}
 	
-	if [[  ! \( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} \)   ]]
+	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi

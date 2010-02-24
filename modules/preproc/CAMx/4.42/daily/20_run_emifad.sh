@@ -195,7 +195,7 @@ function run_emifad()
 			
 			#Link to terrain
 			CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})
-			if [[  ! \( -L ${CURRENT_TERRAIN_BASE} || -f ${CURRENT_TERRAIN_BASE} \)   ]]
+			if [[  ! ( -L ${CURRENT_TERRAIN_BASE} || -f ${CURRENT_TERRAIN_BASE} )   ]]
 			then
 				ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}
 			fi

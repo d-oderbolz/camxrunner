@@ -760,7 +760,7 @@ function cxr_common_do_we_continue()
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
-	if [[  \( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} \) && \( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} \)   ]]
+	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} )   ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${ERROR_COUNT}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
