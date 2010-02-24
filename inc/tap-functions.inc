@@ -204,11 +204,111 @@ function okx()
 }
 
 
-_equals(){
+
+################################################################################
+# Function: _equals
+#
+# Internal function to test equality
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result
+################################################################################
+function _equals()
+################################################################################
+{
 	local result=${1:-}
 	local expected=${2:-}
 
 	if [[ "$result" == "$expected" ]] ; then
+		return 0
+	else 
+		return 1
+	fi
+}
+
+################################################################################
+# Function: _less_than
+#
+# Internal function to test if a result is less than a expected value
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result (non-inclusive upper bound)
+################################################################################
+function _less_than()
+################################################################################
+{
+	local result=${1:-}
+	local expected=${2:-}
+
+	if [[ "$result" -lt "$expected" ]] ; then
+		return 0
+	else 
+		return 1
+	fi
+}
+
+################################################################################
+# Function: _greater_than
+#
+# Internal function to test if a result is greater than a expected value
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result (non-inclusive  lower bound)
+################################################################################
+function _greater_than()
+################################################################################
+{
+	local result=${1:-}
+	local expected=${2:-}
+
+	if [[ "$result" -gt "$expected" ]] ; then
+		return 0
+	else 
+		return 1
+	fi
+}
+
+################################################################################
+# Function: _less_than_or_equal
+#
+# Internal function to test if a result is less than a expected value
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result (inclusive upper bound)
+################################################################################
+function _less_than_or_equal()
+################################################################################
+{
+	local result=${1:-}
+	local expected=${2:-}
+
+	if [[ "$result" -le "$expected" ]] ; then
+		return 0
+	else 
+		return 1
+	fi
+}
+
+################################################################################
+# Function: _greater_than_or_equal
+#
+# Internal function to test if a result is greater than a expected value
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result (inclusive  lower bound)
+################################################################################
+function _greater_than_or_equal()
+################################################################################
+{
+	local result=${1:-}
+	local expected=${2:-}
+
+	if [[ "$result" -ge "$expected" ]] ; then
 		return 0
 	else 
 		return 1
@@ -286,6 +386,122 @@ function is()
 	local name="${3:-''}"
 
 	_equals "$result" "$expected"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+################################################################################
+# Function: is_less
+#
+# Tests for inequality, non-inclusive less than.
+#
+# Example:
+# > is_less $difference $epsilon "Difference is OK"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# [$3] - test name
+################################################################################
+function is_less()
+################################################################################
+{
+
+	local result="${1:-}"
+	local expected="${2:-}"
+	local name="${3:-''}"
+
+	_less_than "$result" "$expected"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+################################################################################
+# Function: is_less_or_equal
+#
+# Tests for inequality, inclusive less than.
+#
+# Example:
+# > is_less_or_equal $difference $epsilon "Difference is OK"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# [$3] - test name
+################################################################################
+function is_less_or_equal()
+################################################################################
+{
+
+	local result="${1:-}"
+	local expected="${2:-}"
+	local name="${3:-''}"
+
+	_less_than_or_equal "$result" "$expected"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+################################################################################
+# Function: is_greater
+#
+# Tests for inequality, non-inclusive greater than.
+#
+# Example:
+# > is_greater $difference $epsilon "Difference is OK"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# [$3] - test name
+################################################################################
+function is_greater()
+################################################################################
+{
+
+	local result="${1:-}"
+	local expected="${2:-}"
+	local name="${3:-''}"
+
+	_greater_than "$result" "$expected"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+
+################################################################################
+# Function: is_greater_or_equal
+#
+# Tests for inequality, inclusive greater than.
+#
+# Example:
+# > is_greater_or_equal $difference $epsilon "Difference is OK"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# [$3] - test name
+################################################################################
+function is_greater_or_equal()
+################################################################################
+{
+	local result="${1:-}"
+	local expected="${2:-}"
+	local name="${3:-''}"
+
+	_greater_than_or_equal "$result" "$expected"
 	(( $? == 0 ))
 	ok $? "$name"
 	local r=$?
