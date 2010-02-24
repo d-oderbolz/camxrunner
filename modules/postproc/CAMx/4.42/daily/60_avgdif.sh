@@ -140,7 +140,7 @@ function set_avgdif_variables()
 		CXR_TEST_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 		
 		# The reference files
-		CXR_REFERENCE_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE)
+		CXR_REFERENCE_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_REFERENCE_FILE_RULE" false CXR_REFERENCE_FILE_RULE)
 	
 		#Checks
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TEST_INPUT_ARR_FILES[${i}]} ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}"
@@ -183,7 +183,7 @@ function avgdif
 			then
 			
 				# Call AVGDIF (never mind the strange calling convention...)
-				CXR_AVGDIF_EXEC<<-EOF
+				$CXR_AVGDIF_EXEC<<-EOF
 				$CXR_AVGDIF_OUTPUT_FILE
 				${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}
 				${CXR_TEST_INPUT_ARR_FILES[${i}]}
