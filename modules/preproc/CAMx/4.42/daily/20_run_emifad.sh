@@ -178,54 +178,38 @@ function run_emifad()
 		# We loop through all the grids we need
 		for i in ${CXR_RUN_EMIFAD_ON_GRID};
 		do
-		
-			# Call to the state db to set a substage
-			# So we can tell each single TUV run from each other
-			cxr_common_set_substage $i
+			# First we need to create links (if not existing)
+			cxr_main_logger "${FUNCNAME}"  "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
 			
-			if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+			# Link to emissions
+			CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]})
+			if [ ! -L "${CURRENT_EMISSION_BASE}" ]
 			then
-				# Not yet run
-		
-				# First we need to create links (if not existing)
-				cxr_main_logger "${FUNCNAME}"  "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
-				
-				# Link to emissions
-				CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]})
-				if [ ! -L "${CURRENT_EMISSION_BASE}" ]
+				if [ -f "${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}" ]
 				then
-					if [ -f "${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}" ]
-					then
-						ln -s ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}
-					else
-						cxr_main_logger -e "${FUNCNAME}" "Cannot find the emission file ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}"
-					fi
-				fi
-				
-				#Link to terrain
-				CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})
-				if [ ! \( -L ${CURRENT_TERRAIN_BASE} -o -f ${CURRENT_TERRAIN_BASE} \) ]
-				then
-					ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}
-				fi
-				
-				cxr_main_logger "${FUNCNAME}"  "Running emifad on grid ${i}..."
-				cxr_main_logger "${FUNCNAME}"  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})"
-
-				if [ "$CXR_DRY" == false ]
-				then
-					# Call emifad while collecting only stderr
-					${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
+					ln -s ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}
 				else
-					cxr_main_logger "${FUNCNAME}"  "This is a dryrun, no action required"
+					cxr_main_logger -e "${FUNCNAME}" "Cannot find the emission file ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}"
 				fi
-				
-				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
-				
-			else
-				cxr_main_logger -w "$FUNCNAME" "Substage $i already run."
 			fi
 			
+			#Link to terrain
+			CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})
+			if [ ! \( -L ${CURRENT_TERRAIN_BASE} -o -f ${CURRENT_TERRAIN_BASE} \) ]
+			then
+				ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}
+			fi
+			
+			cxr_main_logger "${FUNCNAME}"  "Running emifad on grid ${i}..."
+			cxr_main_logger "${FUNCNAME}"  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]})"
+
+			if [ "$CXR_DRY" == false ]
+			then
+				# Call emifad while collecting only stderr
+				${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
+			else
+				cxr_main_logger "${FUNCNAME}"  "This is a dryrun, no action required"
+			fi
 		done
 		
 		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR

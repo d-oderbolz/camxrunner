@@ -132,51 +132,13 @@ function cxr_common_get_last_day_modelled()
 }
 
 ################################################################################
-# Function: cxr_common_set_substage
-#
-# Sets the variable CXR_META_MODULE_SUBSTAGE that is used by <cxr_common_get_stage_name>
-#
-# This function is useful for modules that process data in dinstinct junks 
-# (Like TUV that can be called once every week). This allows more fine-grained
-# control of what has been run and what not.
-#
-# Parameters:
-# $1 - the name of the substage.
-# 
-################################################################################
-function cxr_common_set_substage()
-################################################################################
-{
-	if [ $# -ne 1 ]
-	then
-		cxr_main_logger -e "$FUNCNAME" "I need the name of a substage (any string) as input."
-	fi
-	
-	CXR_META_MODULE_SUBSTAGE="${1}"
-	
-}
-
-################################################################################
-# Function: cxr_common_unset_substage
-#
-# Unsets the variable CXR_META_MODULE_SUBSTAGE that is used by <cxr_common_get_stage_name>
-# Must be called at the end of a substage (after <store_stage>)
-# 
-################################################################################
-function cxr_common_unset_substage()
-################################################################################
-{
-	unset CXR_META_MODULE_SUBSTAGE
-}
-
-################################################################################
 # Function: cxr_common_get_stage_name
 #
 # Generates the name of the current stage from the parameters or the environment (if no parameters are given) 
 # Takes the CXR_META_MODULE_  and the date variables into account.
 # Names are dependent on the type of module.
 # Names have the form
-# ${CXR_DATE_RAW}@${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}(@${CXR_META_MODULE_SUBSTAGE})
+# ${CXR_DATE_RAW}@${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}
 # We choose names that sort more or less nicely.
 #
 # Note that the first 3 parameters are semi-optional: if one of them is given, all of them must be present!
@@ -185,7 +147,6 @@ function cxr_common_unset_substage()
 # [$1] - module type
 # [$2] - module name
 # [$3] - raw date
-# [[$4]] - substage (really optional)
 ################################################################################
 function cxr_common_get_stage_name()
 ################################################################################
@@ -196,24 +157,13 @@ function cxr_common_get_stage_name()
 		MODULE_TYPE="${CXR_META_MODULE_TYPE}"
 		MODULE_NAME="${CXR_META_MODULE_NAME}"
 		DATE=${CXR_DATE_RAW:-date_not_set}
-		SUBSTAGE="${CXR_META_MODULE_SUBSTAGE:-}"
 	else
 		# Use parameters
 		MODULE_TYPE="${1}"
 		MODULE_NAME="${2}"
 		DATE="${3}"
-		SUBSTAGE="${3:-}"
 	fi
 
-	# Substage might be present or not - correct
-	if [ "${SUBSTAGE}" ]
-	then
-		# Add the @-sign
-		SUBSTAGE="@${CXR_META_MODULE_SUBSTAGE}"
-	else
-		SUBSTAGE=
-	fi
-	
 	case "${MODULE_TYPE}" in
 		${CXR_TYPE_COMMON}) 
 			# A common module normally does not need this, but who knows?

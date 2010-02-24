@@ -190,6 +190,7 @@ function avgdif
 			EOF
 			
 			# Get a copy of the call
+			cxr_main_logger "${FUNCNAME}" "Calling AVGDIF - using this jobfile (be patient)...\n"
 			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 			
 			#Dry?

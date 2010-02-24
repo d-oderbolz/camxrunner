@@ -189,36 +189,17 @@ function run_aqmfad()
 		# We loop through all the grids we need
 		for i in ${CXR_RUN_AQMFAD_ON_GRID};
 		do
-		
-			# Call to the state db to set a substage
-			# So we can tell each single TUV run from each other
-			cxr_common_set_substage $i
-			
-			if [ $(cxr_common_store_state ${CXR_STATE_START}) == true ]
+			if [ "$CXR_DRY" == false ]
 			then
-				# Substage not yet run
-		
-				if [ "$CXR_DRY" == false ]
-				then
-					cxr_main_logger "${FUNCNAME}"  "Running aqmfad on grid ${i}..."
-					cxr_main_logger "${FUNCNAME}"  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]})"    
-	
-					# Call aqmfad while collecting stderr only
-					${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
-				else
-					cxr_main_logger "${FUNCNAME}"  "This is a dryrun, no action required"
-				fi
-				
-				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
-				
+				cxr_main_logger "${FUNCNAME}"  "Running aqmfad on grid ${i}..."
+				cxr_main_logger "${FUNCNAME}"  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]})"    
+
+				# Call aqmfad while collecting stderr only
+				${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
 			else
-				cxr_main_logger -w "$FUNCNAME" "Substage $i already run."
+				cxr_main_logger "${FUNCNAME}"  "This is a dryrun, no action required"
 			fi
-			
-			# Unset substage!
-			cxr_common_unset_substage
-			
-		done  
+		done
 		
 		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 		
