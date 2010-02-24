@@ -16,6 +16,8 @@
 # are already fulfilled, if not they wait.
 # If they are fulfilled, the task starts.
 # After successful execution, the worker gets the next task from the list.
+# A task is identified by its module name and a day offset, like create_emissions_01. 
+# One-Time Tasks have a day offset of 0, like initial_conditions_0. 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -90,30 +92,223 @@ EOF
 exit 1
 }
 
-
 ################################################################################
-# Function: cxr_common_request_exclusive_access
+# Function: cxr_common_resolve_dependency
+# 
+# For a given dependency string and day offset, returns a resolved dependency string.
+# This means that 
+# - the predicate "-" is resolved to the day before (if available)
+# - the special dependencies like "all_model" are resolved to all active modules of that class.
 #
-# Notifies controller that no new tasks should be given out for the time being
-#
+# Parameters:
+# $1 - name of the dependency (a module name or a special dependency like "all_model"
+# $2 - the day_offset for which this is to resolve
 ################################################################################
-function cxr_common_request_exclusive_access()
+function cxr_common_resolve_dependency()
 ################################################################################
 {
-	CXR_BLOCK_ASSIGNMENTS=true
+	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
+	
+	if [ "$CXR_IGNORE_ANY_DEPENDENCIES" == true ]
+	then
+		cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
+		echo true
+		cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+		return $CXR_RET_OK
+	fi
+	
+	if [ $# -ne 2 ]
+	then
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency and a day_offset as input"
+	fi
+
+	DEPENDENCY=$1
+	DAY_OFFSET=$2
+	
+	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $DEPENDENCY for day offset $DAY_OFFSET"
+	
+	# Is there a predicate?
+	# The last character of a string
+	# We get 1 character at the position $(( ${#DEPENDENCY} -1)) (length of string minus 1)
+	PREDICATE=${DEPENDENCY:$(( ${#DEPENDENCY} -1)):1}
+	
+	case $PREDICATE in
+	
+		-) # Currently, we only support -
+			cxr_main_logger -v "${FUNCNAME}" "Found the - predicate, will check last days results"
+			DAY_OFFSET=$(( $DAY_OFFSET - 1 ))
+			
+			# Cut off final -
+			DEPENDENCY=${DEPENDENCY%-}
+			if [ $DAY_OFFSET -lt 0 ]
+			then
+				# At day 0, all previous day predicates are fulfilled
+				cxr_main_logger -v "${FUNCNAME}" "We are at day 0 - previous day dependency ok"
+				echo true
+				cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+				return $CXR_RET_OK
+			fi
+			;;
+		
+	esac
+	
+	# Check if we look at a special dependency or not
+	case $DEPENDENCY in
+	
+		$CXR_DEP_ALL_ONCE_PRE)
+			LIST_FILE=$CXR_ACTIVE_ONCE_PRE_LIST
+			MY_PREFIX="";; # Day irrelevant
+			
+		$CXR_DEP_ALL_DAILY_PRE) 
+			LIST_FILE=$CXR_ACTIVE_DAILY_PRE_LIST
+			MY_PREFIX=${DAY_OFFSET}_;;
+			
+		$CXR_DEP_ALL_DAILY_POST) 
+			LIST_FILE=$CXR_ACTIVE_DAILY_POST_LIST
+			MY_PREFIX=${DAY_OFFSET}_;;
+			
+		$CXR_DEP_ALL_ONCE_POST) 
+			LIST_FILE=$CXR_ACTIVE_ONCE_POST_LIST
+			MY_PREFIX="";; # Day irrelevant
+			
+		$CXR_DEP_ALL_MODEL) 
+			LIST_FILE=$CXR_ACTIVE_MODEL_LIST
+			MY_PREFIX=${DAY_OFFSET}_;;
+			
+	
+		*) # A boring standard case
+		
+			# Is the dependency disabled?
+			if [ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false ]
+			then
+				# Do we care?
+				if [ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]
+				then
+					# No, user wants to ignore this
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $DEPENDENCY is disabled. We will not check if this module was run"
+					echo true
+					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+					return $CXR_RET_OK
+				else
+					# Yes, we return false
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $DEPENDENCY is disabled. The dependency $DEPENDENCY is not fulfilled!"
+					echo false
+					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+					return $CXR_RET_OK
+				fi
+			fi
+			
+			# Determine type
+			MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
+			
+			# Convert date
+			cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+			
+			MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$DEPENDENCY" "$cxr_common_raw_date" )"
+			
+			# Is this known to have worked?
+			if [ "$(cxr_common_has_finished "$MY_STAGE")" == true ]
+			then
+				cxr_main_logger -v "${FUNCNAME}"  "Dependency ${DEPENDENCY} fullfilled"
+				echo true
+			else
+				# Dependency NOK, Find out why
+				
+				# Find out if Dependency failed - if so, we crash
+				if [ "$(cxr_common_has_failed "$MY_STAGE")" == true ]
+				then
+					# It failed
+					# Destroy run if no dryrun
+					if [ $CXR_DRY == false ]
+					then
+						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${DAY_OFFSET}_${DEPENDENCY} failed!"
+					else
+						cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed - but this is a dryrun, so we keep going!"
+						echo true
+					fi
+				else
+					# It did not fail, it seems that it was not yet run - we have to wait
+					cxr_main_logger -v "${FUNCNAME}" "${DEPENDENCY} has not yet finished - we need to wait."
+					echo false
+				fi
+			fi
+			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+			return $CXR_RET_OK
+			;;
+	
+	esac
+	
+	
+	# Here, we handle the special cases
+	# This dependencies require that all modules listed in
+	# the LIST_FILE must have been run successfully.
+	# Since the LIST_FILE only contains modules that are really run,
+	# there is no need to check for isabled stuff!
+	SKIP_IT=false
+	
+	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${DEPENDENCY} using ${MY_PREFIX}..."
+	
+	while read MODULE
+	do
+	
+		cxr_main_logger -v "${FUNCNAME}" "MY_PREFIX: ${MY_PREFIX}"
+		cxr_main_logger -v "${FUNCNAME}" "MODULE: ${MODULE}"
+		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $MODULE - checking file $CXR_TASK_SUCCESSFUL_DIR/${MY_PREFIX}${MODULE}"
+	
+		# Determine type
+		MODULE_TYPE="$(cxr_common_get_module_type "$MODULE")"
+		
+		# Convert date
+		cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+		
+		MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$MODULE" "$cxr_common_raw_date" )"
+
+	
+		if [ "$(cxr_common_has_finished "$MY_STAGE")" == true ]
+		then
+			# this one is ok, check next
+			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE fullfilled - checking further..."
+			continue
+		else
+			# Dependency NOK, Find out why
+			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${MY_PREFIX}${MODULE}"
+			# Find out if Dependency failed - if so, we crash
+			if [ "$(cxr_common_has_failed "$MY_STAGE")" == true ]
+			then
+				# It failed
+				# Destroy run if no dryrun
+				if [ $CXR_DRY == false ]
+				then
+					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $DEPENDENCY failed because of $MODULE!"
+				else
+					cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed because of $MODULE - but this is a dryrun, so we keep going!"
+					continue
+				fi
+			else
+				# It did not fail, it seems that it was not yet run - we have to wait
+				# Still, we must check the rest 
+				cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} is not yet fulfilled, we must wait!"
+				SKIP_IT=true
+				# We continue, because we might need to fail in another case (failed dependency)
+				continue
+			fi
+		fi
+		
+	done < "$LIST_FILE" # Loop over listed modules
+	
+	if [ $SKIP_IT == true ]
+	then
+		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY not ok!"
+		echo false
+	else
+		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok"
+		echo true
+	fi
+	
+	cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+	return $CXR_RET_OK
 }
 
-################################################################################
-# Function: cxr_common_release_exclusive_access
-#
-# Releases exculsive access
-#
-################################################################################
-function cxr_common_release_exclusive_access()
-################################################################################
-{
-	CXR_BLOCK_ASSIGNMENTS=false
-}
 
 
 ################################################################################
@@ -128,7 +323,7 @@ function cxr_common_release_exclusive_access()
 # ($CXR_ACTIVE_ONCE_PRE_LIST ...)
 # This is later used for module type based dependencies like "all_preprocessors"
 #
-# Think about the parameters being positional parameters, so you need  to give 
+# Think about the parameters being positional parameters, so you need to give 
 # at least the empty string "" for a parameter if you want to skip a parameter in between.
 #
 # Parameters:
@@ -535,8 +730,7 @@ function cxr_common_count_open_tasks()
 # We access the state DB using <cxr_common_has_finished>.
 #
 # Parameters:
-# $1 - name of the dependency (a module name or a special dependency like "all_model"
-# $2 - the day_offset for which this is to check
+# $1 - resolved name of the dependency like create_emissions_01
 ################################################################################
 function cxr_common_is_dependency_ok()
 ################################################################################
@@ -551,66 +745,16 @@ function cxr_common_is_dependency_ok()
 		return $CXR_RET_OK
 	fi
 	
-	if [ $# -ne 2 ]
+	if [ $# -ne 1 ]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency and a day_offset as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency as input"
 	fi
 
 	DEPENDENCY=$1
-	DAY_OFFSET=$2
 	
 	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $DEPENDENCY for day offset $DAY_OFFSET"
-	
-	# Is there a predicate?
-	# The last character of a string
-	# We get 1 character at the position $(( ${#DEPENDENCY} -1)) (length of string minus 1)
-	PREDICATE=${DEPENDENCY:$(( ${#DEPENDENCY} -1)):1}
-	
-	case $PREDICATE in
-	
-		-) # Currently, we only support -
-			cxr_main_logger -v "${FUNCNAME}" "Found the - predicate, will check last days results"
-			DAY_OFFSET=$(( $DAY_OFFSET - 1 ))
-			
-			# Cut off final -
-			DEPENDENCY=${DEPENDENCY%-}
-			if [ $DAY_OFFSET -lt 0 ]
-			then
-				# At day 0, all previous day predicates are fulfilled
-				cxr_main_logger -v "${FUNCNAME}" "We are at day 0 - previous day dependency ok"
-				echo true
-				cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
-				return $CXR_RET_OK
-			fi
-			;;
-		
-	esac
-	
-	# Check if we look at a special dependency or not
-	case $DEPENDENCY in
-	
-		$CXR_DEP_ALL_ONCE_PRE)
-			LIST_FILE=$CXR_ACTIVE_ONCE_PRE_LIST
-			MY_PREFIX="";; # Day irrelevant
-			
-		$CXR_DEP_ALL_DAILY_PRE) 
-			LIST_FILE=$CXR_ACTIVE_DAILY_PRE_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
-			
-		$CXR_DEP_ALL_DAILY_POST) 
-			LIST_FILE=$CXR_ACTIVE_DAILY_POST_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
-			
-		$CXR_DEP_ALL_ONCE_POST) 
-			LIST_FILE=$CXR_ACTIVE_ONCE_POST_LIST
-			MY_PREFIX="";; # Day irrelevant
-			
-		$CXR_DEP_ALL_MODEL) 
-			LIST_FILE=$CXR_ACTIVE_MODEL_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
-			
-	
-		*) # A boring standard case
+
+
 		
 			# Is the dependency disabled?
 			if [ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false ]
@@ -630,7 +774,6 @@ function cxr_common_is_dependency_ok()
 					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 					return $CXR_RET_OK
 				fi
-			fi
 			
 			# Determine type
 			MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
@@ -668,79 +811,7 @@ function cxr_common_is_dependency_ok()
 			fi
 			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 			return $CXR_RET_OK
-			;;
-	
-	esac
-	
-	
-	# Here, we handle the special cases
-	# This dependencies require that all modules listed in
-	# the LIST_FILE must have been run successfully.
-	# Since the LIST_FILE only contains modules that are really run,
-	# there is no need to check for isabled stuff!
-	SKIP_IT=false
-	
-	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${DEPENDENCY} using ${MY_PREFIX}..."
-	
-	while read MODULE
-	do
-	
-		cxr_main_logger -v "${FUNCNAME}" "MY_PREFIX: ${MY_PREFIX}"
-		cxr_main_logger -v "${FUNCNAME}" "MODULE: ${MODULE}"
-		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $MODULE - checking file $CXR_TASK_SUCCESSFUL_DIR/${MY_PREFIX}${MODULE}"
-	
-		# Determine type
-		MODULE_TYPE="$(cxr_common_get_module_type "$MODULE")"
-		
-		# Convert date
-		cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
-		
-		MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$MODULE" "$cxr_common_raw_date" )"
 
-	
-		if [ "$(cxr_common_has_finished "$MY_STAGE")" == true ]
-		then
-			# this one is ok, check next
-			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE fullfilled - checking further..."
-			continue
-		else
-			# Dependency NOK, Find out why
-			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${MY_PREFIX}${MODULE}"
-			# Find out if Dependency failed - if so, we crash
-			if [ "$(cxr_common_has_failed "$MY_STAGE")" == true ]
-			then
-				# It failed
-				# Destroy run if no dryrun
-				if [ $CXR_DRY == false ]
-				then
-					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $DEPENDENCY failed because of $MODULE!"
-				else
-					cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed because of $MODULE - but this is a dryrun, so we keep going!"
-					continue
-				fi
-			else
-				# It did not fail, it seems that it was not yet run - we have to wait
-				# Still, we must check the rest 
-				cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} is not yet fulfilled, we must wait!"
-				SKIP_IT=true
-				# We continue, because we might need to fail in another case (failed dependency)
-				continue
-			fi
-		fi
-		
-	done < "$LIST_FILE" # Loop over listed modules
-	
-	if [ $SKIP_IT == true ]
-	then
-		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY not ok!"
-		echo false
-	else
-		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok"
-		echo true
-	fi
-	
-	cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
-	return $CXR_RET_OK
 }
 
 ################################################################################
@@ -1056,6 +1127,29 @@ function cxr_common_remove_worker()
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 }
 
+################################################################################
+# Function: cxr_common_request_exclusive_access
+#
+# Notifies controller that no new tasks should be given out for the time being
+#
+################################################################################
+function cxr_common_request_exclusive_access()
+################################################################################
+{
+	CXR_BLOCK_ASSIGNMENTS=true
+}
+
+################################################################################
+# Function: cxr_common_release_exclusive_access
+#
+# Releases exculsive access
+#
+################################################################################
+function cxr_common_release_exclusive_access()
+################################################################################
+{
+	CXR_BLOCK_ASSIGNMENTS=false
+}
 
 ################################################################################
 # Function: cxr_common_worker
