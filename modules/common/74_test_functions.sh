@@ -90,6 +90,8 @@ exit 1
 function cxr_common_load_test_data()
 ################################################################################
 {
+	local filetype
+	
 	# Need to load test data
 	cxr_main_logger -B "${FUNCNAME}" " Loading test data (CXR_LOAD_TEST_DATA is true)... "
 
@@ -99,10 +101,10 @@ function cxr_common_load_test_data()
 		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || cxr_main_die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
 		
 		# Query filetype
-		FILETYPE=$(cxr_common_get_file_type "${CXR_TEST_DATA_INPUT_FILE}")
+		filetype=$(cxr_common_get_file_type "${CXR_TEST_DATA_INPUT_FILE}")
 		
 		# We support gzip and bzip compression
-		case $FILETYPE in
+		case $filetype in
 		
 			bzip2)
 				tar --use-compress-program=$CXR_BUNZIP2_EXEC -xf "${CXR_TEST_DATA_INPUT_FILE}" .
@@ -137,8 +139,13 @@ function cxr_common_load_test_data()
 function cxr_common_test_all_modules()
 ################################################################################
 {
-	MODEL="${1:-}"
-	VERSION="${2:-}"
+	local model="${1:-}"
+	local version="${2:-}"
+	local model_id
+	local supported
+	local array
+	local default_version
+	local total_tests
 	
 	
 	# This function runs all tests that are availabe (asking the user before each new test if wanted).
@@ -159,24 +166,24 @@ function cxr_common_test_all_modules()
 	# INTERACTIVE="$(cxr_common_get_consent "Do you want to run the test suite interactively?" )"
 	
 	################################################################################
-	# Determine Model and version
+	# Determine model and version
 	################################################################################	
 	
-	if [[ ! "${MODEL}"  ]]
+	if [[ ! "${model}"  ]]
 	then
 		# Model was not passed
-		MODEL=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
+		model=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
 	fi
 	
-	MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
+	model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "Model $model is not known."
 	
 	
-	if [[ ! "${VERSION}"  ]]
+	if [[ ! "${version}"  ]]
 	then
-		# Version was not passed
+		# version was not passed
 	
 		# Extract the list of supported versions
-		SUPPORTED="${CXR_SUPPORTED_MODEL_VERSIONS[${MODEL_ID}]}"
+		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 		
 		# Set the default to the first entry
 		# Save old IFS
@@ -185,21 +192,21 @@ function cxr_common_test_all_modules()
 		IFS="$CXR_SPACE"
 		
 		# Suck line into array
-		ARRAY=($SUPPORTED)
+		array=($supported)
 		
 		# Reset IFS
 		IFS="$oIFS"
 		
-		DEFAULT_VERSION=${ARRAY[0]}
+		default_version=${array[0]}
 	
 		#Generate a menu automatically
-		VERSION=$(cxr_common_get_menu_choice "Which version of $MODEL should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $SUPPORTED)" "$SUPPORTED" "$DEFAULT_VERSION")
+		version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
 		
 	fi
 	
-	cxr_common_is_version_supported $VERSION $MODEL
+	cxr_common_is_version_supported $version $model
 	
-	cxr_main_logger "${FUNCNAME}" "Testing system using modules for $MODEL $VERSION..."
+	cxr_main_logger "${FUNCNAME}" "Testing system using modules for $model $version..."
 	
 	# This is a marker that tells the modules they do not need init anymore
 	CXR_TESTING_FROM_HARNESS=true
@@ -213,7 +220,7 @@ function cxr_common_test_all_modules()
 	#  Count all tests
 	########################################
 	
-	TOTAL_TESTS=0
+	total_tests=0
 	
 	# save stdin and redirect it from an in-line file
 	exec 9<&0 <<-EOF
@@ -255,7 +262,7 @@ function cxr_common_test_all_modules()
 			
 			cxr_main_logger -v "$FUNCNAME" "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
 			
-			TOTAL_TESTS=$(( $TOTAL_TESTS + $CXR_META_MODULE_NUM_TESTS ))
+			total_tests=$(( $total_tests + $CXR_META_MODULE_NUM_TESTS ))
 			
 		done
 	done
@@ -265,8 +272,8 @@ function cxr_common_test_all_modules()
 	########################################
 	#  Plan these tests
 	########################################
-	cxr_main_logger -v "$FUNCNAME" "Planning to run $TOTAL_TESTS tests..."
-	plan_tests $TOTAL_TESTS
+	cxr_main_logger -v "$FUNCNAME" "Planning to run $total_tests tests..."
+	plan_tests $total_tests
 
 	########################################
 	#  Do these tests

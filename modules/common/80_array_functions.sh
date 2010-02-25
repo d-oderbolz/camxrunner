@@ -132,29 +132,32 @@ function cxr_common_array_zero()
 function cxr_common_count_delimited_elements ()
 ################################################################################
 {
+	local string
+	local delimiter
+	local array
 	
 	if [[ $# -ne 2  ]]
 	then
-		STRING="$1"
-		DELIMITER="$CXR_DELIMITER"
+		string="$1"
+		delimiter="$CXR_DELIMITER"
 	else
-		STRING="$1"
-		DELIMITER="$2"
+		string="$1"
+		delimiter="$2"
 	fi
 	
 	# Save old IFS
 	oIFS="$IFS"
 
-	IFS="$DELIMITER"
+	IFS="$delimiter"
 	
 	# Suck line into array
-	ARRAY=($STRING)
+	array=($string)
 	
 	# Reset IFS
 	IFS="$oIFS"
 
 	# Echo the count
-	echo ${#ARRAY[@]}
+	echo ${#array[@]}
 }
 
 ################################################################################
@@ -197,16 +200,19 @@ function cxr_common_import_arrays()
 	# serialised to a string and then be deserialised, which is done here
 	# These arrays are all 0-indexed, therefore the index 0 positions are pure dummies
 	
-	for VAR in $(set | sort | grep ^CXR_.*_ARR_X= | cut -d= -f1)
+	local var
+	local arr_name
+	
+	for var in $(set | sort | grep ^CXR_.*_ARR_X= | cut -d= -f1)
 	do
 		# With this pattern, we extract the name of the Array
-		ARR_NAME=$(expr match $VAR '\(.*\)_ARR_X$')
+		arr_name=$(expr match $var '\(.*\)_ARR_X$')
 		
 		# Then we import
 		# This code is due to stephane_chazelas_at_yahoo.fr - http://unix.derkeiler.com/Newsgroups/comp.unix.shell/2003-05/0603.html
 		# Idea: eval "CXR_OUTPUT_SPECIES_NAMES=( ${CXR_OUTPUT_SPECIES_NAMES_ARR_X[*]} )"
 		# This is its dynamic form:
-		set $ARR_NAME=$(eval "echo \${${VAR}[*]}")
+		set $arr_name=$(eval "echo \${${var}[*]}")
 	done
 }
 
