@@ -501,7 +501,18 @@ function write_model_control_file()
 	echo "Water vapor        |${CXR_VAPOR_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
 	echo "Cloud/rain         |${CXR_CLOUD_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
 	echo "Vertical diffsvty  |${CXR_KV_GRID_INPUT_ARR_FILES[1]}" >> ${CXR_MODEL_CTRL_FILE} 
-	echo "Initial conditions |${CXR_INITIAL_CONDITIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	
+		# If we do a restart, do not supply IC
+	if [[ "${CXR_RESTART}" == false ]]
+	then
+		# First day
+		echo "Initial conditions |${CXR_INITIAL_CONDITIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
+	else
+		# Another day (restart) - nothing
+		echo "Initial conditions |" >> ${CXR_MODEL_CTRL_FILE} 
+	fi
+	
+	
 	echo "Boundary conditions|${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
 	echo "Top concentration  |${CXR_TOP_CONCENTRATIONS_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 
 	echo "Albedo/haze/ozone  |${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}" >> ${CXR_MODEL_CTRL_FILE} 

@@ -581,7 +581,17 @@ function write_model_control_file()
 	echo "!--- Input files ---" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Chemistry_Parameters = '${CXR_CHEMPARAM_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Photolyis_Rates      = '${CXR_PHOTOLYIS_RATES_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Initial_Conditions   = '${CXR_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+	
+	# If we do a restart, do not supply IC
+	if [[ "${CXR_RESTART}" == false ]]
+	then
+		# First day
+		echo " Initial_Conditions   = '${CXR_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE}
+	else
+		# Another day (restart) - nothing, not even a comma.
+		echo " Initial_Conditions   = " >> ${CXR_MODEL_CTRL_FILE}
+	fi
+	
 	echo " Boundary_Conditions  = '${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Top_Concentrations   = '${CXR_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Albedo_Haze_Ozone    = '${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
