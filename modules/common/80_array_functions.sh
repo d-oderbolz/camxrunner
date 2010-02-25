@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=4
+CXR_META_MODULE_NUM_TESTS=7
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -76,6 +76,44 @@ function usage()
 	$CXR_META_MODULE_DOC_URL
 EOF
 exit 1
+}
+
+################################################################################
+# Function: cxr_common_array_zero
+#	
+# Checks if the values in a given array are all zero and returns true if its ok (all 0),
+# false otherwise.
+#
+# Example:
+# > a=$(ls | wc -k 2>/dev/null )
+# >if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+# >then
+#	>	cxr_main_logger -e "Pipe at $LINENO:$FUNCNAME failed"
+# >fi
+#
+# Parameters:
+# $1 - The array to test, pass it as "${array[@]}" (including quotes!)
+################################################################################
+function cxr_common_array_zero() 
+################################################################################
+{
+	# Here we store our status, default is OK
+	local status=true
+	local i_arr
+	
+	# We must suck the array passed as list into an array again
+	local array=( "$@" )
+	
+	for i_arr in $(seq 0 $(( ${#array[@]} - 1 )) )
+	do
+		if [[ "${array[$i_arr]}" != 0 ]]
+		then
+			status=false
+		fi
+	done
+	
+	echo $status
+
 }
 
 ################################################################################
@@ -224,10 +262,17 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Arrays to xount zeros
+	a=(1 1 1 1)
+	b=(0 0 0 0)
+	c=(-1 1 1 -1)
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
-	
+	is $(cxr_common_array_zero "${a[@]}") false "cxr_common_array_zero all 1"
+	is $(cxr_common_array_zero "${b[@]}") true "cxr_common_array_zero all 0"
+	is $(cxr_common_array_zero "${c[@]}") false "cxr_common_array_zero all cancelling out"
 	is $(cxr_common_count_delimited_elements "one${CXR_DELIMITER}two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
 	is $(cxr_common_count_delimited_elements "one two" " ") 2 "cxr_common_count_delimited_elements with 2 elements, space"
 	is $(cxr_common_count_delimited_elements "one two " " ") 2 "cxr_common_count_delimited_elements with 2 elements, space at end"
