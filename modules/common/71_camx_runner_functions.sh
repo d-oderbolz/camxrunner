@@ -960,7 +960,7 @@ function cxr_common_get_model_id()
 	
 	for CURRENT_MODEL in $CXR_SUPPORTED_MODELS
 	do
-		if [[ $CURRENT_MODEL == $NEEDLE  ]]
+		if [[ $CURRENT_MODEL == $NEEDLE ]]
 		then
 			echo $CURRENT_ID
 			return 0

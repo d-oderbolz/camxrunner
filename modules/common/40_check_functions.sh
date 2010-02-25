@@ -1005,13 +1005,15 @@ function cxr_common_is_version_supported()
 		return 1
 	fi
 	
-	local model_id="$(cxr_common_get_model_id "$MODEL")" || cxr_main_die_gracefully "Model $MODEL is not known."
+	local version=$1
+	local model=$2
+	local model_id="$(cxr_common_get_model_id "$model")" || cxr_main_die_gracefully "Model $model is not known."
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
-	local found=$(cxr_common_is_substring_present "$supported" "$1")
+	local found=$(cxr_common_is_substring_present "$supported" "$version")
 	
-	if [[ $found == true  ]]
+	if [[ $found == true ]]
 	then
 		# found, ok
 		return 0

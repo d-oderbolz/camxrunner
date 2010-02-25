@@ -363,7 +363,7 @@ function cxr_common_test_all_modules()
 
 # If the CXR_META_MODULE_NAME  is not set,
 # somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
+if [[ -z "${CXR_META_MODULE_NAME:-}" ]]
 then
 	usage
 fi
