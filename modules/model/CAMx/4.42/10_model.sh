@@ -944,6 +944,13 @@ function model()
 			#  --- Execute the model and write stderr and stdout to CXR_LOG ---
 			set_variables
 			
+			if [[ "$CXR_DRY" == true ]]
+			then
+				cxr_main_logger "$FUNCNAME" "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode"
+				CXR_DIAGNOSTIC_ERROR_CHECK=true
+			fi
+			
+			
 			#  --- Create the input file - will be stored in the state directory 
 			#      but a link called CAMx.in wil be created where the CAMx binary is located
 			write_model_control_file
@@ -960,13 +967,10 @@ function model()
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
-
-			if [[ "$CXR_DRY" == false  ]]
-			then
-				execute_model
-			else
-				cxr_main_logger "$FUNCNAME" "This is a dry run, $CXR_MODEL is not run"
-			fi
+			
+			# In case of a dry-run, we do run the model, but we turn on diagnostics
+			execute_model
+			
 		
 			# Did we run properly?
 			if [[ $(cxr_common_check_result) == false  ]]
