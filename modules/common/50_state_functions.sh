@@ -167,25 +167,25 @@ function cxr_common_get_stage_name()
 	case "${MODULE_TYPE}" in
 		${CXR_TYPE_COMMON}) 
 			# A common module normally does not need this, but who knows?
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;; 
+			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;; 
 		
 		${CXR_TYPE_PREPROCESS_DAILY}) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
 			
 		${CXR_TYPE_PREPROCESS_ONCE}) 
-			echo _@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo _@${MODULE_TYPE}@${MODULE_NAME} ;;
 			
 		${CXR_TYPE_POSTPROCESS_DAILY}) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
 		
 		${CXR_TYPE_POSTPROCESS_ONCE}) 
-			echo ZZ_@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo ZZ_@${MODULE_TYPE}@${MODULE_NAME} ;;
 			
 		${CXR_TYPE_MODEL} ) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
 			
 		${CXR_TYPE_INSTALLER}) 
-			echo ${MODULE_TYPE}@${MODULE_NAME}${SUBSTAGE} ;;
+			echo ${MODULE_TYPE}@${MODULE_NAME} ;;
 			
 	 *) cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type ${MODULE_TYPE}";;
 	esac
