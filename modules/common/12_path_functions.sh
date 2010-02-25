@@ -677,7 +677,8 @@ function test_module()
 	differs_less_or_equal $rtc $ft 1 "cxr_common_get_file_mtime immediate, time difference ok"
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
-	is $(cxr_common_file_size_megabytes $b) 100 "cxr_common_file_size_megabytes of small file"
+	is $(cxr_common_file_size_megabytes $b) 100 "cxr_common_file_size_megabytes of 100MB file"
+	
 	# compress
 	cxr_common_compress_output
 	
