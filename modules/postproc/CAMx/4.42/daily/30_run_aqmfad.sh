@@ -169,6 +169,8 @@ function set_variables()
 function run_aqmfad() 
 ################################################################################
 {
+	local i
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then

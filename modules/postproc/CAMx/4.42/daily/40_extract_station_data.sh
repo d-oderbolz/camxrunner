@@ -162,6 +162,20 @@ function set_variables()
 function extract_station_data
 ################################################################################
 {
+	local exec_tmp_file
+	local xdim
+	local ydim
+	local zdim
+	local stations_array
+	local i
+	local station_file
+	local x
+	local y
+	local station
+	local species_array
+	local species
+	local write_header
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -179,20 +193,20 @@ function extract_station_data
 		fi
 		
 		# Generate Temp file name
-		EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+		exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 		
 		# Calculate extension of grid to extract
-		XDIM=$(cxr_common_get_x_dim $CXR_STATION_DOMAIN)
-		YDIM=$(cxr_common_get_y_dim $CXR_STATION_DOMAIN)
+		xdim=$(cxr_common_get_x_dim $CXR_STATION_DOMAIN)
+		ydim=$(cxr_common_get_y_dim $CXR_STATION_DOMAIN)
 		
 		# The Z dim depends on wether we use 3D output
 		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true  ]]
 		then
 			# 3D
-			ZDIM=$(cxr_common_get_z_dim $CXR_STATION_DOMAIN)
+			zdim=$(cxr_common_get_z_dim $CXR_STATION_DOMAIN)
 		else
 			# Only 1 layer
-			ZDIM=1
+			zdim=1
 		fi
 		
 		# We have to prepare the stations array [x,y,filename]
@@ -201,7 +215,7 @@ function extract_station_data
 		# Stations
 
 		# Open brackets
-		STATIONS_ARRAY="["
+		stations_array="["
 		
 		for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) )
 		do
@@ -222,19 +236,19 @@ function extract_station_data
 			y=${CXR_STATION_Y[${i}]}
 			
 			# We pass all in a string array, IDL then does the conversion
-			STATION="['${x}','${y}','${station_file}']"
+			station="['${x}','${y}','${station_file}']"
 			
 			# Here we need not single quotes, because we have a 2D array
-			STATIONS_ARRAY="${STATIONS_ARRAY}${STATION},"
+			stations_array="${stations_array}${station},"
 		done
 		
 		# Close brackets and remove last ","
-		STATIONS_ARRAY="${STATIONS_ARRAY%,}]"
+		stations_array="${stations_array%,}]"
 		
 		# We also need information on the species to extract
 		
 		# Open brackets
-		SPECIES_ARRAY="["
+		species_array="["
 		
 		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}"  ]]
 		then
@@ -243,19 +257,19 @@ function extract_station_data
 			do
 				species=${CXR_OUTPUT_SPECIES_NAMES[${i}]}
 			
-				SPECIES_ARRAY="${SPECIES_ARRAY}'${species}',"
+				species_array="${species_array}'${species}',"
 			done
 		else
 		
 			# Read it from the string
 			for species in ${CXR_STATION_SPECIES}
 			do
-				SPECIES_ARRAY="${SPECIES_ARRAY}'${species}',"
+				species_array="${species_array}'${species}',"
 			done
 
 		fi
 		# Close brackets and remove last ","
-		SPECIES_ARRAY="${SPECIES_ARRAY%,}]"
+		species_array="${species_array%,}]"
 
 		# Change to directory of IDL procedures
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
@@ -263,9 +277,9 @@ function extract_station_data
 		# We instruct the extractors to print a header for the first day
 		if [[ $(cxr_common_is_first_day) == true  ]]
 		then
-			WRITE_HEADER=1
+			write_header=1
 		else
-			WRITE_HEADER=0
+			write_header=0
 		fi
 		
 		# Then create the file to run IDL
@@ -278,24 +292,24 @@ function extract_station_data
 				# Here, we also need an MM5 file for the pressure (for ppb conversion and potential coordinate conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
 				# We set this fag to 0 because currently we only run on the innermost domain.
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${SPECIES_ARRAY},${XDIM},${YDIM},${ZDIM},${STATIONS_ARRAY},'${CXR_METEO_INPUT_FILE}',0" >> ${EXEC_TMP_FILE}
-				echo "exit" >> ${EXEC_TMP_FILE}
+				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
+				echo "exit" >> ${exec_tmp_file}
 				;;
 				
 			extract_arpa_stations)
 				# Here, we also need an MM5 file for the pressure (for ppb conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
 				# We set this fag to 0 because currently we only run on the innermost domain.
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${WRITE_HEADER},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${SPECIES_ARRAY},${XDIM},${YDIM},${ZDIM},${STATIONS_ARRAY},'${CXR_METEO_INPUT_FILE}',0" >> ${EXEC_TMP_FILE}
-				echo "exit" >> ${EXEC_TMP_FILE}
+				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
+				echo "exit" >> ${exec_tmp_file}
 				;;
 			extract_nabel_stations)
 
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${EXEC_TMP_FILE}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${SPECIES_ARRAY},${XDIM},${YDIM},${ZDIM},${STATIONS_ARRAY}" >> ${EXEC_TMP_FILE}
-				echo "exit" >> ${EXEC_TMP_FILE}
+				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}" >> ${exec_tmp_file}
+				echo "exit" >> ${exec_tmp_file}
 				;;
 			*) 
 				;;
@@ -303,13 +317,13 @@ function extract_station_data
 		esac
 		
 		# Get a copy of the call
-		cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
+		cat ${exec_tmp_file} | tee -a $CXR_LOG
 			
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			
 			# Then we run it, while preserving the output
-			${CXR_IDL_EXEC} < ${EXEC_TMP_FILE} 2>&1 | tee -a $CXR_LOG
+			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
 		else
 			cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    

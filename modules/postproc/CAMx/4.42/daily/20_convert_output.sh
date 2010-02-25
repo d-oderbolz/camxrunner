@@ -114,9 +114,8 @@ exit 1
 function set_variables()
 ################################################################################
 {
-	# This is true if zp was already converted 
-	ZP_ONE_OK=false
-	
+	local i
+
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -165,14 +164,6 @@ function set_variables()
 		# Pressure - convert_input should have done the first grid
 		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)
 		
-		if [[ $i -eq 1  ]]
-		then
-			if [[ -s ${CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]}  ]]
-			then
-				ZP_ONE_OK=true
-			fi
-		fi
-		
 		# Wind
 		CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE false)
 		# Temperature
@@ -219,6 +210,17 @@ function set_variables()
 function convert_output() 
 ################################################################################
 {
+	local i
+	local j
+	local xdim
+	local ydim
+	local zdim
+	local input_file
+	local output_file
+	local converter
+	local options
+	
+	
 	#Was this stage already completed?
 	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 	then
@@ -233,7 +235,6 @@ function convert_output()
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
-		
 		
 		# The Fortran programs can only handle parameters shorter than 255 Chars
 		# Therefore we change to the directory and work with the basenames
@@ -267,48 +268,48 @@ function convert_output()
 			# 	We provide these no matter what program we are running (the logfile is 0=Stdout)
 			
 			# Determine dimensions
-			XDIM=$(cxr_common_get_x_dim ${i})
-			YDIM=$(cxr_common_get_y_dim ${i})
-			ZDIM=$(cxr_common_get_z_dim ${i})
+			xdim=$(cxr_common_get_x_dim ${i})
+			ydim=$(cxr_common_get_y_dim ${i})
+			zdim=$(cxr_common_get_z_dim ${i})
 			
-			cxr_main_logger -v "${FUNCNAME}" "Grid $i\nXDIM: $XDIM\nYDIM: $YDIM\nZDIM: $ZDIM"
+			cxr_main_logger -v "${FUNCNAME}" "Grid $i\nXDIM: $xdim\nYDIM: $ydim\nZDIM: $zdim"
 
 			### Go trough all input arrays
 			for j in $( seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1)) )
 			do
 				# This looks like a 2D array...
 				# Firs we index a list of arrays (j), then we get a specific 
-				INPUT_FILE=$(basename $(eval "echo \${${CXR_INPUT_ARRAYS[${j}]}[${i}]}"))
-				OUTPUT_FILE=$(basename $(eval "echo \${${CXR_OUTPUT_ARRAYS[${j}]}[${i}]}"))
+				input_file=$(basename $(eval "echo \${${CXR_INPUT_ARRAYS[${j}]}[${i}]}"))
+				output_file=$(basename $(eval "echo \${${CXR_OUTPUT_ARRAYS[${j}]}[${i}]}"))
 				
-				CONVERTER=${CXR_CONVERTERS[${j}]}
-				OPTIONS=${CXR_CONVERTER_OPTIONS[${j}]}
+				converter=${CXR_CONVERTERS[${j}]}
+				options=${CXR_CONVERTER_OPTIONS[${j}]}
 				
-				cxr_main_logger "${FUNCNAME}" "Converting ${INPUT_FILE} to ${OUTPUT_FILE} using ${CONVERTER}..."
+				cxr_main_logger "${FUNCNAME}" "Converting ${input_file} to ${output_file} using ${converter}..."
 				
 				# Any existing file will be skipped (see comment in header)
-				if [[ -s "$OUTPUT_FILE"  ]]
+				if [[ -s "$output_file"  ]]
 				then
 					if [[ "${CXR_FORCE}" == true  ]] 
 					then
 						# Delete it
-						cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - since you run with the -f option, if will be deleted now"
-						rm -f "$OUTPUT_FILE"
+						cxr_main_logger "${FUNCNAME}"  "File ${output_file} exists - since you run with the -f option, if will be deleted now"
+						rm -f "$output_file"
 					else
 						# Skip it
-						cxr_main_logger "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - file will skipped."
+						cxr_main_logger "${FUNCNAME}"  "File ${output_file} exists - file will skipped."
 						continue
 					fi
 				fi
 				
-				cxr_main_logger "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE} ..."
+				cxr_main_logger "${FUNCNAME}"  "Converting ${input_file} to ${output_file} ..."
 			
-				cxr_main_logger -v "${FUNCNAME}" "${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 "
+				cxr_main_logger -v "${FUNCNAME}" "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 "
 
 				if [[ "$CXR_DRY" == false  ]]
 				then
 					#Call the converter, collect sterr and stout
-					${CONVERTER} ${INPUT_FILE} ${OUTPUT_FILE} ${OPTIONS} ${XDIM} ${YDIM} ${ZDIM} 0 2>&1 | tee -a $CXR_LOG
+					${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 2>&1 | tee -a $CXR_LOG
 				else
 						cxr_main_logger "${FUNCNAME}"  "Dryrun, no conversion performed"
 				fi

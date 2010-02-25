@@ -589,6 +589,11 @@ readonly CXR_STATE_GLOBAL_DIR
 # Directory where the global stuff goes
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/global
+readonly CXR_GLOBAL_DIR
+
+# GLobal Hashes (e. g. MD% database) go here
+CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
+readonly CXR_GLOBAL_HASH_DIR
 
 ########################################
 # Parallel Task execution. 
@@ -698,9 +703,9 @@ CXR_ALL_INSTANCES_DIR=${CXR_STATE_DIR}/instances
 CXR_INSTANCE_DIR=${CXR_ALL_INSTANCES_DIR}/${CXR_INSTANCE}
 readonly CXR_INSTANCE_DIR
 
-# Hashes are stored here
-CXR_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
-readonly CXR_HASH_DIR
+# Instance Hashes are stored here
+CXR_INSTANCE_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
+readonly CXR_INSTANCE_HASH_DIR
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files

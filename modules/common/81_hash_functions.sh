@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=6
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -86,17 +86,27 @@ exit 1
 #
 # Parameters:
 # $1 - name of the hash
+# [$2] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_init ()
 ################################################################################
 {
-	HASH="$1"
+	local hash="$1"
+	local type=${2:-instance}
+	local hash_dir
+	
+	# Work out the directory
+	case $type in
+		instance) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
+		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
+		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
+	esac
 	
 	# Create the hash directory
-	mkdir -p "${CXR_HASH_DIR}/${HASH}"
+	mkdir -p "${hash_dir}/${hash}"
 	
 	# Nobody else must modify this directory
-	chmod 700 "${CXR_HASH_DIR}/${HASH}"
+	chmod 700 "${hash_dir}/${hash}"
 }
 
 ################################################################################
@@ -106,14 +116,24 @@ function cxr_common_hash_init ()
 #
 # Parameters:
 # $1 - name of the hash
+# [$2] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_destroy ()
 ################################################################################
 {
-	HASH="$1"
+	local hash="$1"
+	local type=${2:-instance}
+	local hash_dir
 	
-	cxr_main_logger -i "Deleting the Hash ${HASH}"
-	rm -rf "${CXR_HASH_DIR}/${HASH}"
+	# Work out the directory
+	case $type in
+		instance) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
+		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
+		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
+	esac
+	
+	cxr_main_logger -i "Deleting the Hash ${hash}"
+	rm -rf "${hash_dir}/${hash}"
 }
 
 ################################################################################
@@ -124,17 +144,28 @@ function cxr_common_hash_destroy ()
 # Parameters:
 # $1 - name of the hash
 # $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function _hash_fn ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
+	hash="$1"
+	key="$2"
+	local type=${3:-instance}
+	local hash_dir
+	local fn
+	
+	# Work out the directory
+	case $type in
+		instance) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
+		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
+		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
+	esac
 	
 	# Generate the filename
-	local FN="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$KEY")"
+	fn="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
 	
-	echo "${CXR_HASH_DIR}/${HASH}/${FN}"
+	echo "${hash_dir}/${hash}/${fn}"
 }
 
 ################################################################################
@@ -147,20 +178,22 @@ function _hash_fn ()
 # $1 - name of the hash
 # $2 - key
 # $3 - value
+# [$4] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_put ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
-	VALUE="$3"
+	local hash="$1"
+	local key="$2"
+	local value="$3"
+	local type=${4:-instance}
+	local fn
 	
 	# Generate the filename
-	FN="$(_hash_fn $HASH $KEY)"
+	fn="$(_hash_fn $hash $key $type)"
 	
 	# Write the value
-	echo "${VALUE}" > "${FN}"
-	
+	echo "${value}" > "${fn}"
 }
 
 ################################################################################
@@ -171,18 +204,21 @@ function cxr_common_hash_put ()
 # Parameters:
 # $1 - name of the hash
 # $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_get ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
+	local hash="$1"
+	local key="$2"
+	local type=${3:-instance}
+	local fn
 	
 	# Generate the filename
-	FN="$(_hash_fn $HASH $KEY)"
+	fn="$(_hash_fn $hash $key $type)"
 	
 	# Get the value
-	cat "${FN}"
+	cat "${fn}"
 }
 
 ################################################################################
@@ -193,18 +229,21 @@ function cxr_common_hash_get ()
 # Parameters:
 # $1 - name of the hash
 # $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_mtime ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
+	local hash="$1"
+	local key="$2"
+	local type=${3:-instance}
+	local fn
 	
 	# Generate the filename
-	FN="$(_hash_fn $HASH $KEY)"
+	fn="$(_hash_fn $hash $key $type)"
 	
 	# Get the mtime
-	$(cxr_common_get_file_mtime "$FN")
+	$(cxr_common_get_file_mtime "$fn")
 }
 
 ################################################################################
@@ -215,17 +254,20 @@ function cxr_common_hash_mtime ()
 # Parameters:
 # $1 - name of the hash
 # $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_has? ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
+	local hash="$1"
+	local key="$2"
+	local type=${3:-instance}
+	local fn
 	
 	# Generate the filename
-	FN="$(_hash_fn $HASH $KEY)"
+	fn="$(_hash_fn $hash $key $type)"
 	
-	if [[ -f "${FN}"  ]]
+	if [[ -f "${fn}"  ]]
 	then
 		echo true
 	else
@@ -243,21 +285,23 @@ function cxr_common_hash_has? ()
 # Parameters:
 # $1 - name of the hash
 # $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_new? ()
 ################################################################################
 {
-	HASH="$1"
-	KEY="$2"
+	local hash="$1"
+	local key="$2"
+	local type=${3:-instance}
 	
 	local res
 	
 	# Is it in the hash?
-	if [[ $(cxr_common_hash_has? $HASH $KEY) == true  ]]
+	if [[ $(cxr_common_hash_has? $hash $key $type) == true  ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash es epoch is smaller, it is older
-		if [[ "$(cxr_common_hash_mtime $HASH $KEY)" -lt $CXR_EPOCH  ]]
+		if [[ "$(cxr_common_hash_mtime $hash $key $type)" -lt $CXR_EPOCH  ]]
 		then
 			res=false
 		else
@@ -278,14 +322,28 @@ function cxr_common_hash_new? ()
 #
 # Parameters:
 # $1 - name of the hash
+# [$2] - type of hash, either "instance" (default) or "global"
 ################################################################################
 function cxr_common_hash_keys ()
 ################################################################################
 {
-	for FN in $(ls ${CXR_HASH_DIR}/${HASH})
+	local hash=${1}
+	local type=${2:-instance}
+	local hash_dir
+	local fn
+	local key
+	
+	# Work out the directory
+	case $type in
+		instance) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
+		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
+		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
+	esac
+	
+	for fn in $(ls ${hash_dir}/${hash})
 	do
-		KEY="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$FN")"
-		echo -n "$KEY "
+		key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
+		echo -n "$key "
 	done
 }
 
@@ -341,18 +399,26 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	# Instance hash
 	cxr_common_hash_init test
-	
 	cxr_common_hash_put test /hallo/velo SomeOtherValue
+	
+	# Global Hash
+	cxr_common_hash_init test_g global
+	cxr_common_hash_put test_g /hallo/velo SomeOtherValue global
 	
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_hash_get test "/hallo/velo") SomeOtherValue "cxr_common_hash_get test with path as key"
-	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test with path as key"
-	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test with path as key"
+	is $(cxr_common_hash_get test "/hallo/velo") SomeOtherValue "cxr_common_hash_get test (instance) with path as key"
+	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test (instance) with path as key"
+	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test (instance) with path as key"
+	
+	is $(cxr_common_hash_get test_g "/hallo/velo" global) SomeOtherValue "cxr_common_hash_get test ( global) with path as key"
+	is $(cxr_common_hash_has? test_g "/hallo/velo" global) true "cxr_common_hash_has? test ( global) with path as key"
+	is $(cxr_common_hash_keys test_g global) /hallo/velo "cxr_common_hash_keys test ( global) with path as key"
 	
 	NUMEL=100
 	
@@ -376,7 +442,7 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	cxr_common_hash_destroy test
-
+	cxr_common_hash_destroy test_g global
 }
 
 ################################################################################

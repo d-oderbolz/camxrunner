@@ -231,29 +231,30 @@ function cxr_common_initialize_state_db()
 	fi
 	
 	# Not started yet - create state dir first
-	if [[ ! -d ${CXR_STATE_DIR}  ]]
+	if [[ ! -d "${CXR_STATE_DIR}"  ]]
 	then
-		mkdir -p ${CXR_STATE_DIR}
+		mkdir -p "${CXR_STATE_DIR}"
 		
 	fi
 	
-	# Create the global dir
-	mkdir -p ${CXR_GLOBAL_DIR}
+	# Create the global dirs
+	mkdir -p "${CXR_GLOBAL_DIR}"
+	mkdir -p "${CXR_GLOBAL_HASH_DIR}"
 	
 	# Create any instance dirs
-	mkdir -p ${CXR_INSTANCE_DIR}
-	mkdir -p ${CXR_HASH_DIR}
+	mkdir -p "${CXR_INSTANCE_DIR}"
+	mkdir -p "${CXR_INSTANCE_HASH_DIR}"
 	
 	# Create all the task directories
-	mkdir -p $CXR_TASK_POOL_DIR
-	mkdir -p $CXR_TASK_TODO_DIR
-	mkdir -p $CXR_TASK_RUNNING_DIR
-	mkdir -p $CXR_TASK_SUCCESSFUL_DIR
-	mkdir -p $CXR_TASK_FAILED_DIR
+	mkdir -p "${CXR_TASK_POOL_DIR}"
+	mkdir -p "${CXR_TASK_TODO_DIR}"
+	mkdir -p "${CXR_TASK_RUNNING_DIR}"
+	mkdir -p "${CXR_TASK_SUCCESSFUL_DIR}"
+	mkdir -p "${CXR_TASK_FAILED_DIR}"
 
-	mkdir -p $CXR_WORKER_DIR
-	mkdir -p $CXR_RUNNING_WORKER_DIR
-	mkdir -p $CXR_WAITING_WORKER_DIR
+	mkdir -p "${CXR_WORKER_DIR}"
+	mkdir -p "${CXR_RUNNING_WORKER_DIR}"
+	mkdir -p "${CXR_WAITING_WORKER_DIR}"
 	
 	# Creating .continue file
 	cxr_main_logger -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"

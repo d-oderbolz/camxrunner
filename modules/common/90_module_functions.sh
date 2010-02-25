@@ -101,29 +101,33 @@ function cxr_common_get_module_type()
 		cxr_main_logger -e "$FUNCNAME" "Need a module name as input"
 	fi
 	
-	MODULE_TYPE=""
-	NAME="??_${1}.sh"
+	local module_type=""
+	local name="??_${1}.sh"
+	local dirs
+	local types
+	local i
+	local dir
 	
 	# Create an array of directories to work on
 	# And an equivalent one for the types
-	DIRS=($CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR $CXR_MODEL_INPUT_DIR)
-	TYPES=($CXR_TYPE_PREPROCESS_DAILY $CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE $CXR_TYPE_MODEL)
+	dirs=($CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR $CXR_MODEL_INPUT_DIR)
+	types=($CXR_TYPE_PREPROCESS_DAILY $CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE $CXR_TYPE_MODEL)
 	
-	for i in $(seq 0 $(( ${#DIRS[@]} - 1 )) )
+	for i in $(seq 0 $(( ${#dirs[@]} - 1 )) )
 	do
-		DIR=${DIRS[$i]}
+		dir=${dirs[$i]}
 		
 		# Find the thingy
-		if [[ $(find $DIR -noleaf -name $NAME | wc -l) -ne 0  ]] 
+		if [[ $(find $dir -noleaf -name $name | wc -l) -ne 0  ]] 
 		then
-			MODULE_TYPE=${TYPES[$i]}
+			module_type=${types[$i]}
 			break
 		fi
 	done
 	
-	if [[ "$MODULE_TYPE"  ]]
+	if [[ "$module_type"  ]]
 	then
-		echo "$MODULE_TYPE"
+		echo "$module_type"
 	else
 		die_gracefully "$FUNCNAME: Could not find module $1!"
 	fi
@@ -147,70 +151,74 @@ function cxr_common_get_module_type()
 function cxr_common_run_modules()
 ################################################################################
 {
-	MODULE_TYPE="$1"
+	local module_type="$1"
 	
 	# Either contains a number (the only step to run)
 	# or the string "all"
-	RUN_ONLY="${2:-${CXR_RUN_ALL}}"
+	local run_only="${2:-${CXR_RUN_ALL}}"
 	
 	#Return value - set optimisticaly
-	RET_VAL=$CXR_RET_OK
+	local ret_val=$CXR_RET_OK
 	
 	# Normally, we check continue, except installers
-	local CHECK_CONTINUE=true
+	local check_continue=true
 	
 	# Contains the date for which we currently run if needed
 	# We set it to the empty string if date is not relevant (One-Time modules)
-	local OUR_DATE
+	local our_date
+	local module_directories
+	local enabled_modules
+	local disabled_modules
+	local run_it
 	
 	# Variables:
-	# MODULE_DIRECOTRIES - is a list of directories that will be used to search for modules
-	# ENABLED_MODULES - is a list of explicitly enables modules of the current type
-	# DISABLED_MODULES - is a list of disabled modules of the current type
-	case "$MODULE_TYPE" in
+	# module_direcotries - is a list of directories that will be used to search for modules
+	# enabled_modules - is a list of explicitly enables modules of the current type
+	# disabled_modules - is a list of disabled modules of the current type
+	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
 			cxr_main_die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
-			ENABLED_MODULES="$CXR_ENABLED_ONCE_PREPROC"
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_PREPROC"
-			OUR_DATE=;;
+			module_directories="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
+			enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+			disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+			our_date=;;
 			
 		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_DAILY_INPUT_DIR"
-			ENABLED_MODULES="$CXR_ENABLED_DAILY_PREPROC"
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_PREPROC"
-			OUR_DATE=${CXR_DATE:-};;
+			module_directories="$CXR_PREPROCESSOR_DAILY_INPUT_DIR"
+			enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+			disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+			our_date=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR"
-			ENABLED_MODULES="$CXR_ENABLED_DAILY_POSTPROC"
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_POSTPROC"
-			OUR_DATE=${CXR_DATE:-};;
+			module_directories="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR"
+			enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+			disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+			our_date=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR"
-			ENABLED_MODULES="$CXR_ENABLED_ONCE_POSTPROC"
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_POSTPROC"
-			OUR_DATE=;;
+			module_directories="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR"
+			enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+			disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+			our_date=;;
 			
 		"${CXR_TYPE_MODEL}" ) 
-			MODULE_DIRECTORIES="$CXR_MODEL_INPUT_DIR"
-			ENABLED_MODULES="$CXR_ENABLED_MODEL"
-			DISABLED_MODULES="$CXR_DISABLED_MODEL"
-			OUR_DATE=${CXR_DATE:-};;
+			module_directories="$CXR_MODEL_INPUT_DIR"
+			enabled_modules="$CXR_ENABLED_MODEL"
+			disabled_modules="$CXR_DISABLED_MODEL"
+			our_date=${CXR_DATE:-};;
 			
 		"${CXR_TYPE_INSTALLER}" ) 
-			MODULE_DIRECTORIES="$CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR" 
-			ENABLED_MODULES="$CXR_ENABLED_INSTALLER"
-			DISABLED_MODULES="$CXR_DISABLED_INSTALLER"
-			CHECK_CONTINUE=false
-			OUR_DATE=;;
+			module_directories="$CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR" 
+			enabled_modules="$CXR_ENABLED_INSTALLER"
+			disabled_modules="$CXR_DISABLED_INSTALLER"
+			check_continue=false
+			our_date=;;
 			
 		* ) 
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $MODULE_TYPE" ;;
+			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	
@@ -219,21 +227,21 @@ function cxr_common_run_modules()
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
-	if [[ ! ( "${ENABLED_MODULES}" == "" && "${DISABLED_MODULES}" == "${CXR_SKIP_ALL}" && "$RUN_ONLY" == "${CXR_RUN_ALL}" ) ]]
+	if [[ ! ( "${enabled_modules}" == "" && "${disabled_modules}" == "${CXR_SKIP_ALL}" && "$run_only" == "${CXR_RUN_ALL}" ) ]]
 	then
 	
 		# We did not turn off everything or we need only a specific module to be run
 	
 		# Loop through available input dirs
-		for MODULE_DIRECTORY in $MODULE_DIRECTORIES
+		for MODULE_DIRECTORY in $module_directories
 		do
-			cxr_main_logger "${FUNCNAME}" "Loading $MODULE_TYPE modules from $MODULE_DIRECTORY..."
+			cxr_main_logger "${FUNCNAME}" "Loading $module_type modules from $MODULE_DIRECTORY..."
 		
 			for FUNCTION_FILE in $(ls ${MODULE_DIRECTORY}/??_*.sh 2>/dev/null)
 			do
 				
 				# Check if we are still happy if needed
-				if [[ "${CHECK_CONTINUE}" == true  ]]
+				if [[ "${check_continue}" == true  ]]
 				then
 					cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
 				fi
@@ -246,21 +254,21 @@ function cxr_common_run_modules()
 				# Export the module name
 				CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $FUNCTION_FILE)
 				
-				if [[ "$RUN_ONLY" != "${CXR_RUN_ALL}"  ]]
+				if [[ "$run_only" != "${CXR_RUN_ALL}"  ]]
 				then
 				
 					# is this the module we should run?
 					# here we do no further checks on disabled/enabled
-					if [[ "$RUN_ONLY" == "${CXR_META_MODULE_NAME}"  ]]
+					if [[ "$run_only" == "${CXR_META_MODULE_NAME}"  ]]
 					then
 						# First source the file to get the CXR_META_MODULE_NAME
 						source $FUNCTION_FILE
 						
 						# This is not needed for installers
 						
-						if [[ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER"  ]]
+						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
+							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
 						fi
 						
 						# Show dependencies, if any
@@ -275,7 +283,7 @@ function cxr_common_run_modules()
 						if [[ "$(cxr_common_check_module_version)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
-							"$CXR_META_MODULE_NAME" || RET_VAL=$CXR_RET_ERROR
+							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
 						else
 							cxr_main_logger "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
@@ -294,27 +302,27 @@ function cxr_common_run_modules()
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true  ]]
+					if [[ "$(cxr_common_is_substring_present "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
 						# Module was explicitly enabled
-						RUN_IT=true
-					elif [[  "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false && "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"   ]]
+						run_it=true
+					elif [[  "$(cxr_common_is_substring_present "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
-						RUN_IT=true
+						run_it=true
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
-						RUN_IT=false
+						run_it=false
 						cxr_main_logger "${FUNCNAME}" "Step $FILE_NAME is disabled, skipped"
 					fi
 					
 					# Execute if needed
-					if [[ "$RUN_IT" == true  ]]
+					if [[ "$run_it" == true  ]]
 					then
 					
-						if [[ "$MODULE_TYPE" != "$CXR_TYPE_INSTALLER"  ]]
+						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${OUR_DATE:-}"
+							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
 						fi
 						
 						# Increase global indent level
@@ -323,7 +331,7 @@ function cxr_common_run_modules()
 						if [[ "$(cxr_common_check_module_version)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
-							"$CXR_META_MODULE_NAME" || RET_VAL=$CXR_RET_ERROR
+							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
 						else
 							cxr_main_logger "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
@@ -339,13 +347,13 @@ function cxr_common_run_modules()
 			done
 		done # Loop through module dirs
 	else
-		cxr_main_logger "${FUNCNAME}" "You disabled all modules of type $MODULE_TYPE by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none executed."
+		cxr_main_logger "${FUNCNAME}" "You disabled all modules of type $module_type by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none executed."
 	fi 
 	
 	# Decrease global indent level
 	cxr_main_decrease_log_indent
 	
-	return ${RET_VAL}
+	return ${ret_val}
 }
 
 ################################################################################
@@ -361,14 +369,16 @@ function cxr_common_process_sequentially
 ################################################################################
 {
 	# Set up return value
-	RET_VAL=$CXR_RET_OK
+	local ret_val=$CXR_RET_OK
+	local day_offset
+	
 
 	# Setup environment
 	cxr_common_set_date_variables "$CXR_START_DATE" 0
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
-		cxr_common_run_modules ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
+		cxr_common_run_modules ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
@@ -376,20 +386,20 @@ function cxr_common_process_sequentially
 	## Now we need to loop through the days
 	# but only if the user wants any of this
 	
-	if [[   ${CXR_RUN_PRE_DAILY} == true || ${CXR_RUN_MODEL} == true || ${CXR_RUN_POST_DAILY} == true    ]]
+	if [[ ${CXR_RUN_PRE_DAILY} == true || ${CXR_RUN_MODEL} == true || ${CXR_RUN_POST_DAILY} == true ]]
 	then
-		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+		for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
 		
 			# if we run only 1 day, do it
 			if [[ "${CXR_ONE_DAY}"  ]]
 			then
-				DAY_OFFSET="$(cxr_common_date2offset ${CXR_ONE_DAY})"
-				cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${DAY_OFFSET}."
+				day_offset="$(cxr_common_date2offset ${CXR_ONE_DAY})"
+				cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${day_offset}."
 			fi
 		
 			# Setup environment
-			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
 			
 			cxr_main_logger -B $FUNCNAME "Processing ${CXR_DATE:-now}"
 			
@@ -397,21 +407,21 @@ function cxr_common_process_sequentially
 			
 			if [[ ${CXR_RUN_PRE_DAILY} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
+				cxr_common_run_modules ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
+				cxr_common_run_modules ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
+				cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
@@ -429,12 +439,12 @@ function cxr_common_process_sequentially
 	
 	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
-		cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || RET_VAL=$CXR_RET_ERROR
+		cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
 	
-	return $RET_VAL
+	return $ret_val
 }
 
 
