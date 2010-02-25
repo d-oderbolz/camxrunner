@@ -153,7 +153,7 @@ function concatenate_station_data
 ################################################################################
 {
 	#Was this stage already completed?
-	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
+	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true ]]
 	then
 	
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
@@ -171,7 +171,7 @@ function concatenate_station_data
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 			
-			cxr_main_logger -a -b "${FUNCNAME}"  "Concatenating files for $CXR_DATE..."
+			cxr_main_logger -a -b "${FUNCNAME}" "Concatenating files for $CXR_DATE..."
 			
 			# Station dependent data
 			for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );

@@ -479,9 +479,6 @@ else
 	CXR_CHEMPARAM_INPUT_FILE=$(get_chemparam_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
 fi
 
-cxr_main_logger -w "CAMxRunner.sh" "Will use this chemparam file:  $CXR_CHEMPARAM_INPUT_FILE"
-
-
 ################################################################################
 ################################################################################
 #                                                                              #
