@@ -150,7 +150,7 @@ function cxr_main_increase_error_count()
 	fi
 	
 	# Also show error to the user
-	cxr_main_logger "${FUNCNAME}" "${1:-}"
+	cxr_main_logger -a "${FUNCNAME}" "${1:-}"
 }
 
 ################################################################################

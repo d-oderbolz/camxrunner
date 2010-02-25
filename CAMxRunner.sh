@@ -30,17 +30,20 @@
 # Executables with _EXEC
 #
 ################################################################################
-# TODO: Remove inefficient stuff (see http://www.justlinux.com/forum/showthread.php?t=107246 
-# TODO: Define Exitcode(s)
-# TODO: Review Variable quoting, ideally "${VAR}"
-# TODO: Consistently use echo and return: check return values!
-# TODO: Deal with broken links (makes test -d and -f break, obviously)
-# TODO: Review CXR_HOLLOW asf.
-# TODO: Use printf to simplify CAMx.in for PMCAMx (see cxr_common_create_task_descriptor)
-# TODO: Make distinction between list files and comma separated lists 
+# TODO:
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.
+
+# Define & Initialize local vars
+local opt
+local var
+local name
+local new_name
+local value
+local last
+local mb_needed
+
 
 # First unset any CXR variables in the environment.
 unset ${!CXR_*}
@@ -314,16 +317,16 @@ cxr_main_read_config "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "${CXR_R
 ################################################################################
 
 # Turn any CXR_USER_TEMP_ into a CXR_ variable
-for VAR in $(set | sort | grep ^CXR_USER_TEMP.*= )
+for var in $(set | sort | grep ^CXR_USER_TEMP.*= )
 do
-	# Now Var contains a VAR=Value string
-	NAME="$(echo "${VAR}" | cut -d= -f1)"
+	# Now var contains a var=value string
+	name="$(echo "${var}" | cut -d= -f1)"
 	# Rewrite name
-	NEW_NAME="${NAME//CXR_USER_TEMP/CXR}"
-	VALUE="$(echo "${VAR}" | cut -d= -f2)"
+	new_name="${name//CXR_USER_TEMP/CXR}"
+	value="$(echo "${var}" | cut -d= -f2)"
 
 	# Export rewritten variable (here we need export so that its a command)
-	export ${NEW_NAME}="$VALUE"
+	export ${new_name}="$value"
 done
 
 #  correct LOG if needed
@@ -367,7 +370,7 @@ then
 fi
 
 # Hollow and non-hollow options should not be mixed
-if [[  "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true   ]]
+if [[ "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true ]]
 then
 	cxr_main_die_gracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
@@ -376,7 +379,7 @@ fi
 
 cxr_main_logger -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
 
-if [[ $(cxr_main_is_numeric "${CXR_MAX_PARALLEL_PROCS}") == false  ]]
+if [[ $(cxr_main_is_numeric "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
 	cxr_main_die_gracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
 fi
@@ -566,7 +569,7 @@ then
 	
 	last=$(cxr_common_get_last_day_modelled)
 	
-	# Last could be empty
+	# last could be empty
 	if [[ "$last"  ]]
 	then
 		if [[ "$(cxr_common_get_last_day_modelled)" != ${CXR_STOP_DATE}  ]]
@@ -578,21 +581,21 @@ then
 fi
 
 
-MB_NEEDED=$(cxr_common_predict_model_output_megabytes)
+mb_needed=$(cxr_common_predict_model_output_megabytes)
 
-cxr_main_logger -i "CAMxRunner.sh" "I estimate that this simulation will take ${MB_NEEDED} MB of space in ${CXR_OUTPUT_DIR}."
+cxr_main_logger -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
 
 if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
 then
 	# Full simulation, do the space check if user has not disabled it
 	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
 	then
-		cxr_common_check_mb_needed "${CXR_OUTPUT_DIR}" "${MB_NEEDED}"
+		cxr_common_check_mb_needed "${CXR_OUTPUT_DIR}" "${mb_needed}"
 		
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(cxr_common_fp_calculate "${CXR_TMP_SPACE_FACTOR:-0.05} * ${MB_NEEDED}" 0 false)
+			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(cxr_common_fp_calculate "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
 		fi
 	else
 		cxr_main_logger -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
