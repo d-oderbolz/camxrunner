@@ -387,6 +387,11 @@ function write_sa_receptor_definitions_file()
 	: # dummy command
 	# the sa_receptor_definitions_file is created here...
 	
+	# If we start this and no directories are yet created, we are in trouble,
+	# so let us create it (workaround)
+	
+	mkdir -p $(dirname ${CXR_SA_RECEPTORIN})
+	
 	# write file
 	: > ${CXR_SA_RECEPTORIN}
 	
