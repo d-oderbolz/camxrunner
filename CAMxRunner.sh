@@ -404,11 +404,11 @@ then
 		# Check if the name of the script has changed
 		# We look for the target of the link ->
 		#                                     ^
+		# Notice that the result has a space in front...
 		
 		link_target="$(ls ${CXR_RUN_DIR}/${CXR_RUN} -l |  cut -d">" -f2)"
-		echo "$link_target"
 		
-		if [ "$link_target" != "${CXR_RUNNER_NAME}" ]
+		if [[ "$link_target" != " ${CXR_RUNNER_NAME}" ]]
 		then
 			cxr_main_die_gracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
