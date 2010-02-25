@@ -35,22 +35,11 @@
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.
 
-# Define & Initialize local vars
-local opt
-local var
-local name
-local new_name
-local value
-local last
-local mb_needed
-
-
 # First unset any CXR variables in the environment.
 unset ${!CXR_*}
 
 # Keep given arguments in mind
 CXR_ARGUMENTS="${@}"
-
 
 ################################################################################
 # Function: main_usage
@@ -415,7 +404,7 @@ then
 		# Check if the name of the script has changed
 		# We look for the target of the link ->
 		#                                     ^
-		if [[ ! $(ls ${CXR_RUN_DIR}/${CXR_RUN} -l |  cut -d">" -f2) == ${CXR_RUNNER_NAME}  ]]
+		if [[ $(ls ${CXR_RUN_DIR}/${CXR_RUN} -l |  cut -d">" -f2) != ${CXR_RUNNER_NAME}  ]]
 		then
 			cxr_main_die_gracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
