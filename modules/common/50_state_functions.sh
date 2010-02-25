@@ -88,11 +88,13 @@ exit 1
 function cxr_common_is_repeated_run()
 ################################################################################
 {
-	COUNT=$(find ${CXR_STATE_DIR} -maxdepth 1 -noleaf -type f 2>/dev/null | wc -l)
+	local count
 	
-	cxr_main_logger -v "$FUNCNAME" "File count in state directory: $COUNT"
+	count=$(find ${CXR_STATE_DIR} -maxdepth 1 -noleaf -type f 2>/dev/null | wc -l)
 	
-	if [[ "$COUNT" -gt 0  ]]
+	cxr_main_logger -v "$FUNCNAME" "File count in state directory: $count"
+	
+	if [[ "$count" -gt 0  ]]
 	then
 		echo true
 	else
@@ -110,17 +112,20 @@ function cxr_common_is_repeated_run()
 function cxr_common_get_last_day_modelled()
 ################################################################################
 {
+	local max_day
+	local date
+	
 	if [[ $(cxr_common_is_repeated_run) == true  ]]
 	then
 		# A similar expression is used in cxr_common_cleanup_state
-		MAX_DAY=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
+		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
 		
-		if [[ "$MAX_DAY"  ]]
+		if [[ "$max_day"  ]]
 		then
 			# Convert to ISO
-			DATE=$(cxr_common_to_iso_date "$MAX_DAY")
+			date=$(cxr_common_to_iso_date "$max_day")
 		
-			echo "$DATE"
+			echo "$date"
 		else
 			echo ""
 		fi
@@ -154,40 +159,40 @@ function cxr_common_get_stage_name()
 	if [[ $# -lt 3  ]]
 	then
 		# Use the environment
-		MODULE_TYPE="${CXR_META_MODULE_TYPE}"
-		MODULE_NAME="${CXR_META_MODULE_NAME}"
-		DATE=${CXR_DATE_RAW:-date_not_set}
+		local module_type="${CXR_META_MODULE_TYPE}"
+		local module_name="${CXR_META_MODULE_NAME}"
+		local date=${CXR_DATE_RAW:-date_not_set}
 	else
 		# Use parameters
-		MODULE_TYPE="${1}"
-		MODULE_NAME="${2}"
-		DATE="${3}"
+		local module_type="${1}"
+		local module_name="${2}"
+		local date="${3}"
 	fi
 
-	case "${MODULE_TYPE}" in
+	case "${module_type}" in
 		${CXR_TYPE_COMMON}) 
 			# A common module normally does not need this, but who knows?
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;; 
+			echo ${date}@${module_type}@${module_name} ;; 
 		
 		${CXR_TYPE_PREPROCESS_DAILY}) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo ${date}@${module_type}@${module_name} ;;
 			
 		${CXR_TYPE_PREPROCESS_ONCE}) 
-			echo _@${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo _@${module_type}@${module_name} ;;
 			
 		${CXR_TYPE_POSTPROCESS_DAILY}) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo ${date}@${module_type}@${module_name} ;;
 		
 		${CXR_TYPE_POSTPROCESS_ONCE}) 
-			echo ZZ_@${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo ZZ_@${module_type}@${module_name} ;;
 			
 		${CXR_TYPE_MODEL} ) 
-			echo ${DATE}@${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo ${date}@${module_type}@${module_name} ;;
 			
 		${CXR_TYPE_INSTALLER}) 
-			echo ${MODULE_TYPE}@${MODULE_NAME} ;;
+			echo ${module_type}@${module_name} ;;
 			
-	 *) cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type ${MODULE_TYPE}";;
+	 *) cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type ${module_type}";;
 	esac
 }
 
@@ -224,6 +229,9 @@ function cxr_common_delete_instance_data()
 function cxr_common_initialize_state_db()
 ################################################################################
 {
+	local var
+	local file
+	
 	if [[ -z "${CXR_STATE_DIR}"  ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "CXR_STATE_DIR not set!"
@@ -261,17 +269,17 @@ function cxr_common_initialize_state_db()
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	# Create the instance files and secure them
-	for VAR in $(set | sort | grep ^CXR_INSTANCE_FILE_.*= )
+	for var in $(set | sort | grep ^CXR_INSTANCE_FILE_.*= )
 	do
 		# Now Var contains a VAR=Value string
 		# Extract the value
-		FILE="$(echo "${VAR}" | cut -d= -f2)"
+		file="$(echo "${var}" | cut -d= -f2)"
 	
 		# Empty file
-		:> "$FILE"
+		:> "$file"
 		
 		# Secure file
-		chmod 600 "$FILE"
+		chmod 600 "$file"
 	done
 	
 	# This file should not be deleted
@@ -310,9 +318,9 @@ function cxr_common_store_state()
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state like $CXR_STATE_ERROR as Input"   
 	fi
 	
-	STATE=$1
-	# Stage is either passed or set using cxr_common_get_stage_name
-	STAGE="${2:-$(cxr_common_get_stage_name)}"
+	local state=$1
+	# stage is either passed or set using cxr_common_get_stage_name
+	local stage="${2:-$(cxr_common_get_stage_name)}"
 	
 	# Do we care at all?
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
@@ -323,21 +331,21 @@ function cxr_common_store_state()
 		return $CXR_RET_OK
 	fi
 	
-	case "$STATE" in
+	case "$state" in
 	
 		"$CXR_STATE_START") 
 			# Check if this was already started
-			if [[ $(cxr_common_has_finished "$STAGE") == true  ]]
+			if [[ $(cxr_common_has_finished "$stage") == true  ]]
 			then
 				
 				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true  ]]
 				then
 					# Ran already, but user wants to run specifically this
-					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
+					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - stage $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
 					echo true
 				else
-					# Oops, this Stage was already started	
-					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $STAGE was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+					# Oops, this stage was already started	
+					cxr_main_logger -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - stage $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 					
 					# false means already run
 					echo false
@@ -349,25 +357,25 @@ function cxr_common_store_state()
 			;;
 	
 			"$CXR_STATE_STOP")
-				cxr_main_logger -i "${FUNCNAME}" "Stage $STAGE successfully completed."
+				cxr_main_logger -i "${FUNCNAME}" "stage $stage successfully completed."
 				echo true
 				;;
 	
 			"$CXR_STATE_ERROR")
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				cxr_main_logger -e "An error has occured during the execution of $STAGE!"
+				cxr_main_logger -e "An error has occured during the execution of $stage!"
 				echo false
 			;;
 			
 			*)
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				cxr_main_die_gracefully "Unknown state $STATE given"
+				cxr_main_die_gracefully "Unknown state $state given"
 				echo false
 			;;
 	esac
 	
 	# Touch your state file
-	touch "$(cxr_common_get_state_file_name "$STATE" "$STAGE")" 
+	touch "$(cxr_common_get_state_file_name "$state" "$stage")" 
 	return $CXR_RET_OK
 }
 
@@ -378,8 +386,8 @@ function cxr_common_store_state()
 # The start/stop/error filename of a stage
 #
 # Parameters:
-# $1 - State
-# $2 - Stage 
+# $1 - state
+# $2 - stage 
 ################################################################################
 function cxr_common_get_state_file_name()
 ################################################################################
@@ -389,10 +397,10 @@ function cxr_common_get_state_file_name()
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 	fi
 	
-	STATE=$1
-	STAGE=$2
+	local state=$1
+	local stage=$2
 	
-	echo ${CXR_STATE_DIR}/${STAGE}.${STATE}	
+	echo ${CXR_STATE_DIR}/${stage}.${state}	
 }
 
 ################################################################################
@@ -404,9 +412,9 @@ function cxr_common_get_state_file_name()
 function cxr_common_detect_running_instances()
 ################################################################################
 {
-	PROCESS_COUNT=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
+	local process_count=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
 	
-	if [[  ${PROCESS_COUNT} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false   ]]
+	if [[  ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false   ]]
 	then
 		# There are other processes running and this is not allowed
 		cxr_main_logger -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
@@ -425,7 +433,7 @@ function cxr_common_detect_running_instances()
 # Check if a specific stage has finished.
 #
 # Parameters:	
-# $1 - Stage to test
+# $1 - stage to test
 ################################################################################
 function cxr_common_has_finished()
 ################################################################################
@@ -436,26 +444,25 @@ function cxr_common_has_finished()
 		echo false
 	fi
 	
-	STAGE="$1"
+	local stage="$1"
+	local start_file=$(cxr_common_get_state_file_name "${CXR_STATE_START}" "${stage}")
+	local stop_file=$(cxr_common_get_state_file_name "${CXR_STATE_STOP}" "${stage}")
 	
-	START_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_START}" "${STAGE}")
-	STOP_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_STOP}" "${STAGE}")
-	
-	if [[ -f "$STOP_FILE"  ]]
+	if [[ -f "$stop_file"  ]]
 	then
 	
-		if [[ -f "$START_FILE"  ]]
+		if [[ -f "$start_file"  ]]
 		then
-			cxr_main_logger -v "${FUNCNAME}" "Found a START file for ${STAGE}"
+			cxr_main_logger -v "${FUNCNAME}" "Found a START file for ${stage}"
 		fi
 		
 		echo true
 	else
 	
 		# There is no stop file. Still there might be a start file:
-		if [[ -f "$START_FILE"  ]]
+		if [[ -f "$start_file"  ]]
 		then
-			cxr_main_logger -w "${FUNCNAME}" "The stage ${STAGE} was started, but did not (yet) finish."
+			cxr_main_logger -w "${FUNCNAME}" "The stage ${stage} was started, but did not (yet) finish."
 		fi
 	
 		echo false
@@ -469,7 +476,7 @@ function cxr_common_has_finished()
 # we check if we have an error file.
 #
 # Parameters:	
-# $1 - Stage to test
+# $1 - stage to test
 ################################################################################
 function cxr_common_has_failed()
 ################################################################################
@@ -480,10 +487,10 @@ function cxr_common_has_failed()
 		echo false
 	fi
 	
-	STAGE="$1"
-	ERROR_FILE=$(cxr_common_get_state_file_name "${CXR_STATE_ERROR}" "${STAGE}")
+	local stage="$1"
+	local error_file=$(cxr_common_get_state_file_name "${CXR_STATE_ERROR}" "${stage}")
 	
-	if [[ -f "$ERROR_FILE"  ]]
+	if [[ -f "$error_file"  ]]
 	then
 		echo true
 	else
@@ -506,12 +513,21 @@ function cxr_common_has_failed()
 function cxr_common_cleanup_state()
 ################################################################################
 {
+	local what
+	local what_detail
+	local days
+	local which_day
+	local module_types
+	local num_module_types
+	local steps
+	local which_step
+	
 	while [ "$(cxr_common_get_consent "Do you want to (further) change the state database?" )" == true ]
 	do
-		# What do you want?
-		WHAT=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
+		# what do you want?
+		what=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
 		
-		case "$WHAT" in 
+		case "$what" in 
 		
 			all)
 					cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
@@ -560,18 +576,18 @@ function cxr_common_cleanup_state()
 				# one step
 				# Both
 				
-				WHAT_DETAIL="$(cxr_common_get_menu_choice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
+				what_detail="$(cxr_common_get_menu_choice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
 				
-				case "$WHAT_DETAIL" in
+				case "$what_detail" in
 				
 					day)
 						# To enumerate all days, we use a little grep-magic, also we add none at the end
 						# The basename is needed to strip off the path, because the pattern starts with ^
-						DAYS="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
+						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
-						WHICH_DAY="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$DAYS" "none" )"
+						which_day="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
 						
-						case "$WHICH_DAY" in
+						case "$which_day" in
 						
 							none) 
 								cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information" 
@@ -581,7 +597,7 @@ function cxr_common_cleanup_state()
 							*)
 								cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 						
-								ls ${CXR_STATE_DIR}/${WHICH_DAY}@*@* | xargs -i basename \{\}
+								ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 								
 								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
@@ -590,7 +606,7 @@ function cxr_common_cleanup_state()
 									return 0
 								else
 									#Yes
-									rm -f ${CXR_STATE_DIR}/${WHICH_DAY}@*@* 2>/dev/null
+									rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
 									cxr_main_logger -i "${FUNCNAME}"  "Done."
 								fi
 							;;
@@ -602,16 +618,16 @@ function cxr_common_cleanup_state()
 						# To enumerate all steps, we use a little grep-magic
 						# We can tell between module types and steps
 						# This code is not yet substage-safe
-						MODULE_TYPES="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
+						module_types="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
 						
 						# Count the module types
-						NUM_MODULE_TYPES=$(echo "$MODULE_TYPES" | wc -l)
+						num_module_types=$(echo "$module_types" | wc -l)
 						
-						STEPS="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
+						steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
 						
-						WHICH_STEP="$(cxr_common_get_menu_choice "Which module types (the first $NUM_MODULE_TYPES entries in the list) or steps state information should be deleted \n(none exits this function)?" "${MODULE_TYPES}${STEPS}" "none" )"
+						which_step="$(cxr_common_get_menu_choice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
 						
-						case "$WHICH_STEP" in
+						case "$which_step" in
 						
 							none) 
 								cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information" 
@@ -622,7 +638,7 @@ function cxr_common_cleanup_state()
 							
 								cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 								
-								ls ${CXR_STATE_DIR}/*${WHICH_STEP}* | xargs -i basename \{\}
+								ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 								
 								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
@@ -631,7 +647,7 @@ function cxr_common_cleanup_state()
 									return 0
 								else
 									#Yes
-									rm -f ${CXR_STATE_DIR}/*${WHICH_STEP}* 2>/dev/null
+									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
 									cxr_main_logger -i "${FUNCNAME}"  "Done."
 								fi
 							;;
@@ -643,11 +659,11 @@ function cxr_common_cleanup_state()
 						
 						# To enumerate all days, we use a little grep-magic, also we add none at the end
 						# The basename is needed to strip off the path, because the pattern starts with ^
-						DAYS="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
+						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
-						WHICH_DAY="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$DAYS" "none" )"
+						which_day="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
 					
-						case "$WHICH_DAY" in
+						case "$which_day" in
 				
 							none) 
 								cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information" 
@@ -658,11 +674,11 @@ function cxr_common_cleanup_state()
 								# Now get the step
 								# To enumerate all steps, we use a little grep-magic
 								
-								STEPS="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${WHICH_DAY}'@.*@.*\.' - | sort | uniq) all none"
+								steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${which_day}'@.*@.*\.' - | sort | uniq) all none"
 								
-								WHICH_STEP="$(cxr_common_get_menu_choice "Which steps state information should be deleted \n(none exits this function)?" "${STEPS}" "none" )"
+								which_step="$(cxr_common_get_menu_choice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
 								
-								case "$WHICH_STEP" in
+								case "$which_step" in
 								
 									none) 
 										cxr_main_logger -w "${FUNCNAME}"  "Will not delete any state information" 
@@ -671,7 +687,7 @@ function cxr_common_cleanup_state()
 									
 									all) 
 										cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
-										ls ${CXR_STATE_DIR}/${WHICH_DAY}@*@* | xargs -i basename \{\}
+										ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 										
 										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
@@ -680,14 +696,14 @@ function cxr_common_cleanup_state()
 											return 0
 										else
 											#Yes
-											rm -f ${CXR_STATE_DIR}/${WHICH_DAY}@*@* 2>/dev/null
+											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
 											cxr_main_logger -i "${FUNCNAME}"  "Done."
 										fi
 									;;
 									
 									*)	cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 								
-										ls ${CXR_STATE_DIR}/*${WHICH_STEP}* | xargs -i basename \{\}
+										ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 										
 										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
@@ -696,7 +712,7 @@ function cxr_common_cleanup_state()
 											return 0
 										else
 											#Yes
-											rm -f ${CXR_STATE_DIR}/*${WHICH_STEP}* 2>/dev/null
+											rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
 											cxr_main_logger -i "${FUNCNAME}"  "Done."
 										fi
 									;;
@@ -754,16 +770,16 @@ function cxr_common_cleanup_state()
 function cxr_common_do_we_continue()
 ################################################################################
 {
-	ERROR_COUNT=$(cxr_main_get_error_count)
+	local error_count=$(cxr_main_get_error_count)
 	
 	# Report error count
-	cxr_main_logger -v -b "${FUNCNAME}"  "Current Error Count: $ERROR_COUNT"
+	cxr_main_logger -v -b "${FUNCNAME}"  "Current Error Count: $error_count"
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
-	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${ERROR_COUNT} -gt ${CXR_ERROR_THRESHOLD} )   ]]
+	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${ERROR_COUNT}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 	
 	# Do we care at all?
