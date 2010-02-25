@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=7
+CXR_META_MODULE_NUM_TESTS=8
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -643,8 +643,9 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	# We need a tempfile
-	a=$(cxr_common_create_tempfile)
+	# We need a few tempfiles
+	a=$(cxr_common_create_tempfile $FUNCNAME)
+	b=$(cxr_common_create_tempfile $FUNCNAME)
 	
 	echo "Hallo" > $a
 	
@@ -665,6 +666,8 @@ function test_module()
 	# Time of file
 	local ft=$(cxr_common_get_file_mtime $a)
 	
+	# create a 100 MB file
+	dd bs=100M if=/dev/zero of=$b count=1
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -674,7 +677,7 @@ function test_module()
 	differs_less_or_equal $rtc $ft 1 "cxr_common_get_file_mtime immediate, time difference ok"
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
-	
+	is $(cxr_common_file_size_megabytes $b) 100 "cxr_common_file_size_megabytes of small file"
 	# compress
 	cxr_common_compress_output
 	
