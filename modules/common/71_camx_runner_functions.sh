@@ -92,26 +92,27 @@ exit 1
 function cxr_common_get_x_dim()
 ################################################################################
 {
-	DOMAIN=${1:-0}
-	
-	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	local domain=${1}
+	local xdim
+		
+	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	if [[ "${DOMAIN}" == 1  ]]
+	if [[ "${domain}" == 1  ]]
 	then
 		# Master Grid
-		XDIM=${CXR_MASTER_GRID_COLUMNS}
+		xdim=${CXR_MASTER_GRID_COLUMNS}
 	else
 		# Any other grid
-		XDIM=$(( (((${CXR_NEST_END_I_INDEX[${DOMAIN}]} - ${CXR_NEST_BEG_I_INDEX[${DOMAIN}]}) + 1) * ${CXR_NEST_MESHING_FACTOR[${DOMAIN}]}) + 2))
+		xdim=$(( (((${CXR_NEST_END_I_INDEX[${domain}]} - ${CXR_NEST_BEG_I_INDEX[${domain}]}) + 1) * ${CXR_NEST_MESHING_FACTOR[${domain}]}) + 2))
 		#                                                                        |                                      |
 		#                                                                    Fencepost                                  |
 		#                                                                                                            Buffer Cells (left/right)
 	fi
 	
-	echo ${XDIM}
+	echo ${xdim}
 }
 
 ################################################################################
@@ -128,26 +129,27 @@ function cxr_common_get_x_dim()
 function cxr_common_get_y_dim()
 ################################################################################
 {
-	DOMAIN=${1:-0}
+	local domain=${1:-0}
+	local ydim
 	
-	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	if [[ "${DOMAIN}" == 1  ]]
+	if [[ "${domain}" == 1  ]]
 	then
 		# Master Grid
-		YDIM=${CXR_MASTER_GRID_ROWS}
+		ydim=${CXR_MASTER_GRID_ROWS}
 	else
 		# Any other grid
-		YDIM=$(( (((${CXR_NEST_END_J_INDEX[${DOMAIN}]} - ${CXR_NEST_BEG_J_INDEX[${DOMAIN}]}) + 1) * ${CXR_NEST_MESHING_FACTOR[${DOMAIN}]}) + 2 ))
+		ydim=$(( (((${CXR_NEST_END_J_INDEX[${domain}]} - ${CXR_NEST_BEG_J_INDEX[${domain}]}) + 1) * ${CXR_NEST_MESHING_FACTOR[${domain}]}) + 2 ))
 		#                                                                        |                                      |
 		#                                                                    Fencepost                                  |
 		#                                                                                                            Buffer Cells (up/down)
 	fi
 			
-	echo ${YDIM}
+	echo ${ydim}
 	
 }
 
@@ -164,14 +166,14 @@ function cxr_common_get_y_dim()
 function cxr_common_get_z_dim()
 ################################################################################
 {
-	DOMAIN=${1:-0}
+	domain=${1:-0}
 	
-	if [[  ! ( ${DOMAIN} -ge 1 && ${DOMAIN} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	echo ${CXR_NUMBER_OF_LAYERS[${DOMAIN}]}
+	echo ${CXR_NUMBER_OF_LAYERS[${domain}]}
 	
 }
 
@@ -185,19 +187,20 @@ function cxr_common_get_z_dim()
 function cxr_common_get_max_x_dim()
 ################################################################################
 {
-	MAX_XDIM=0
+	local new
+	local max_xdim=0
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		NEW="$(cxr_common_get_x_dim $i)"
+		new="$(cxr_common_get_x_dim $i)"
 		
-		if [[ "$NEW" -gt "$MAX_XDIM"  ]]
+		if [[ "$new" -gt "$max_xdim"  ]]
 		then
-			MAX_XDIM=$NEW
+			max_xdim=$new
 		fi
 	done
 	
-	echo ${MAX_XDIM}
+	echo ${max_xdim}
 }
 
 ################################################################################
@@ -210,19 +213,20 @@ function cxr_common_get_max_x_dim()
 function cxr_common_get_max_y_dim()
 ################################################################################
 {
-	MAX_YDIM=0
+	local new
+	local max_ydim=0
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		NEW="$(cxr_common_get_y_dim $i)"
+		new="$(cxr_common_get_y_dim $i)"
 		
-		if [[ "$NEW" -gt "$MAX_YDIM"  ]]
+		if [[ "$new" -gt "$max_ydim"  ]]
 		then
-			MAX_YDIM=$NEW
+			max_ydim=$new
 		fi
 	done
 	
-	echo ${MAX_YDIM}
+	echo ${max_ydim}
 }
 
 ################################################################################
@@ -235,19 +239,20 @@ function cxr_common_get_max_y_dim()
 function cxr_common_get_max_z_dim()
 ################################################################################
 {
-	MAX_ZDIM=0
+	local new
+	local max_zdim=0
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		NEW="$(cxr_common_get_z_dim $i)"
+		new="$(cxr_common_get_z_dim $i)"
 		
-		if [[ "$NEW" -gt "$MAX_ZDIM"  ]]
+		if [[ "$new" -gt "$max_zdim"  ]]
 		then
-			MAX_ZDIM=$NEW
+			max_zdim=$new
 		fi
 	done
 	
-	echo ${MAX_ZDIM}
+	echo ${max_zdim}
 }
 
 ################################################################################
@@ -260,17 +265,18 @@ function cxr_common_get_max_z_dim()
 function cxr_common_get_num_cells_3d()
 ################################################################################
 {
-	SUM=0
+	local new
+	local sum=0
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		NEW="$(cxr_common_get_z_dim $i)"
+		new="$(cxr_common_get_z_dim $i)"
 		
-		SUM=$(( $SUM + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) * $(cxr_common_get_z_dim $i) ) ))
+		sum=$(( $sum + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) * $(cxr_common_get_z_dim $i) ) ))
 		
 	done
 	
-	echo $SUM
+	echo $sum
 }
 
 ################################################################################
@@ -283,17 +289,18 @@ function cxr_common_get_num_cells_3d()
 function cxr_common_get_num_cells_2d()
 ################################################################################
 {
-	SUM=0
+	local new
+	local sum=0
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		NEW="$(cxr_common_get_z_dim $i)"
+		new="$(cxr_common_get_z_dim $i)"
 		
-		SUM = $(( $SUM + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) ) ))
+		sum = $(( $sum + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) ) ))
 		
 	done
 	
-	echo $SUM
+	echo $sum
 }
 
 ################################################################################
@@ -305,6 +312,8 @@ function cxr_common_get_num_cells_2d()
 function cxr_common_report_dimensions()
 ################################################################################
 {
+	local i
+	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
 		cxr_main_logger -B $FUNCNAME "Grid dimensions domain ${i}:\nX: $(cxr_common_get_x_dim ${i})\nY: $(cxr_common_get_y_dim ${i})\nZ: $(cxr_common_get_z_dim ${i})"
@@ -331,13 +340,13 @@ function cxr_common_report_dimensions()
 #
 # Examples:
 # This code does not if the rule expands to the empty string:
-# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" false "$RULE_NAME")"
+# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" false "$rule_name")"
 # >These  ^                                                ^
 # >Ensure that the code does not fail if the string returned contains
 # >spaces.
 #
 # This code accepts an empty string:
-# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" true "$RULE_NAME")" 
+# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" true "$rule_name")" 
 #
 # This code is also valid and will not fail on empty expansion:
 # >MY_DIR="$(cxr_common_evaluate_rule "$RULE")"
@@ -352,67 +361,68 @@ function cxr_common_report_dimensions()
 #
 # Parameters:
 # $1 - The rule to be evaluated (a string, not a variable)
-# [$2] - ALLOW_EMPTY if false, a rule must expand to a non-empty string
+# [$2] - allow_empty if false, a rule must expand to a non-empty string
 # [$3] - optional name of the rule
-# [$4] - TRY_DECOMPRESSION if false, will not attempt compression (and consequenital renaming)
+# [$4] - try_decompression if false, will not attempt compression (and consequenital renaming)
 ################################################################################
 function cxr_common_evaluate_rule()
 ################################################################################
 {
-	if [[  $# -lt 1 && $# -gt 4   ]]
+	if [[  $# -lt 1 && $# -gt 4 ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
-	RULE="$1"
+	local rule="$1"
 	
 	# Per default we allow rules to expand to the empty string
-	ALLOW_EMPTY="${2:-true}"
-	RULE_NAME="${3:-}"
+	local allow_empty="${2:-true}"
+	local rule_name="${3:-}"
 	# By default try decompression
-	TRY_DECOMPRESSION="${4:-true}"
+	local try_decompression="${4:-true}"
+	local expansion
 	
-	if [[ -z "$RULE"  ]]
+	if [[ -z "$rule"  ]]
 	then
 		# If the rule is empty, we return empty
-		cxr_main_logger -v "$FUNCNAME"  "Rule $RULE_NAME was empty..."
+		cxr_main_logger -v "$FUNCNAME"  "rule $rule_name was empty..."
 		echo ""
 		return
 	fi
 	
-	cxr_main_logger -v "$FUNCNAME"  "Evaluating rule $RULE_NAME $RULE..."
+	cxr_main_logger -v "$FUNCNAME"  "Evaluating rule $rule_name $rule..."
 
 	# Original code: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
-	EXPANSION="$(eval "echo $(echo "$RULE")")"
+	expansion="$(eval "echo $(echo "$rule")")"
 	
-	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $EXPANSION"
+	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $expansion"
 	
 	# *_FILE_RULE might be compressed
 	# Does the name of the rule end in _FILE_RULE ?
-	if [[ "${RULE_NAME: -10}" == "_FILE_RULE"  ]]
+	if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
 	#                 ¦
 	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/cxr_common_abs/html/string-manipulation.html)
 	then
-		if [[ "${TRY_DECOMPRESSION}" == true  ]]
+		if [[ "${try_decompression}" == true  ]]
 		then
 	
 			# Try to decompress
-			EXPANSION=$(cxr_common_try_decompressing_file $EXPANSION)
+			expansion=$(cxr_common_try_decompressing_file $expansion)
 			
 		else
 			cxr_main_logger -v "$FUNCNAME" "No decompression attempted."
-		fi # TRY_DECOMPRESSION
+		fi # try_decompression
 	fi
 	
-	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $EXPANSION"
+	cxr_main_logger -v "$FUNCNAME" "Evaluated rule: $expansion"
 	
-	if [[  -z "$EXPANSION" && "$ALLOW_EMPTY" == false   ]]
+	if [[  -z "$expansion" && "$allow_empty" == false   ]]
 	then
 		# Empty not allowed
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Rule $RULE_NAME ($RULE) was expanded to the empty string which is not allowed in this context!"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
 	fi
 	
-	echo "$EXPANSION"
+	echo "$expansion"
 	
 }
 
@@ -427,7 +437,7 @@ function cxr_common_evaluate_rule()
 # Parameters:
 # $1 - The rule to be evaluated (a string, not a variable)
 # $2 - The offset of the simulation day (0..NUMBER_OF_SIM_DAYS-1)
-# [$3] - ALLOW_EMPTY if false, a rule must expand to a non-empty string
+# [$3] - allow_empty if false, a rule must expand to a non-empty string
 # [$4] - optional name of the rule
 #
 ################################################################################
@@ -474,20 +484,20 @@ function cxr_common_evaluate_rule_at_offset()
 # Arrays can *not* expanded using this technique!
 #
 # $1 - The list of rules to be evaluated (a space-separated string, not a variable)
-# [$2] - ALLOW_EMPTY if false, *all* rules in the must expand to a non-empty string
+# [$2] - allow_empty if false, *all* rules in the must expand to a non-empty string
 ################################################################################
 function cxr_common_evaluate_these_scalar_rules()
 ################################################################################
 {
 	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean ALLOW_EMPTY value!"
+		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
 	
 	RULE_LIST="$1"
 	
 	# Per default we allow rules te expand to the empty string
-	ALLOW_EMPTY=${2:-true}
+	allow_empty=${2:-true}
 		
 	# Read the relevant rules from the environment and
 	
@@ -499,7 +509,7 @@ function cxr_common_evaluate_these_scalar_rules()
 		VARIABLE=${CURRENT_RULE%_RULE}
 		
 		# Set Variable to its evaluated form
-		export $VARIABLE="$(cxr_common_evaluate_rule "${CURRENT_RULE}" "$ALLOW_EMPTY" $CURRENT_RULE)"
+		export $VARIABLE="$(cxr_common_evaluate_rule "${CURRENT_RULE}" "$allow_empty" $CURRENT_RULE)"
 	done
 }
 

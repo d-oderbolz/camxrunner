@@ -110,13 +110,15 @@ function cxr_common_list_cxr_variables()
 function cxr_common_list_system_variables()
 ################################################################################
 {
+	local var
+	
 	# Increase global indent level
 	cxr_main_increase_log_indent
 
 	CXR_OMP_VARS="NCPUS MPSTKZ OMP_NUM_THREADS"
-	for VAR in $CXR_OMP_VARS
+	for var in $CXR_OMP_VARS
 	do
-		cxr_main_logger "${FUNCNAME}"  "$VAR: ${!VAR}"     
+		cxr_main_logger "${FUNCNAME}"  "$VAR: ${!VAR}"
 	done
 	
 	# Decrease global indent level
