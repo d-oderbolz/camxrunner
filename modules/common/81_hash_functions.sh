@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=6
+CXR_META_MODULE_NUM_TESTS=8
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -222,6 +222,36 @@ function cxr_common_hash_get ()
 }
 
 ################################################################################
+# Function: cxr_common_hash_delete
+#
+# Deletes a certain value for a hash
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - key
+# [$3] - type of hash, either "instance" (default) or "global"
+################################################################################
+function cxr_common_hash_delete ()
+################################################################################
+{
+	local hash="$1"
+	local key="$2"
+	local type=${3:-instance}
+	local fn
+	
+	if [[ $(cxr_common_hash_has? $hash $key $type) == true ]]
+	then
+		# Generate the filename
+		fn="$(_hash_fn $hash $key $type)"
+		
+		# remove the value
+		rm -f "${fn}"
+	else
+		cxr_main_logger -w "$FUNCNAME" "Key $key not found in $type hash $hash"
+	fi
+}
+
+################################################################################
 # Function: cxr_common_hash_mtime
 #
 # Gets the modification time (Unix Epoch) for a given value
@@ -402,10 +432,12 @@ function test_module()
 	# Instance hash
 	cxr_common_hash_init test
 	cxr_common_hash_put test /hallo/velo SomeOtherValue
+	cxr_common_hash_put test /hallo/gugs SomeOtherValue
 	
 	# Global Hash
 	cxr_common_hash_init test_g global
 	cxr_common_hash_put test_g /hallo/velo SomeOtherValue global
+	cxr_common_hash_put test_g /hallo/gugs SomeOtherValue global
 	
 	
 	########################################
@@ -414,12 +446,20 @@ function test_module()
 	
 	is $(cxr_common_hash_get test "/hallo/velo") SomeOtherValue "cxr_common_hash_get test (instance) with path as key"
 	is $(cxr_common_hash_has? test "/hallo/velo") true "cxr_common_hash_has? test (instance) with path as key"
-	is $(cxr_common_hash_keys test) /hallo/velo "cxr_common_hash_keys test (instance) with path as key"
+	is $(cxr_common_hash_keys test) "/hallo/velo /hallo/gugs" "cxr_common_hash_keys test (instance) with path as key"
+	
+	cxr_common_hash_delete test "/hallo/velo"
+	is $(cxr_common_hash_has? test "/hallo/velo") false "cxr_common_hash_delete test (instance) with path as key"
+
 	
 	is $(cxr_common_hash_get test_g "/hallo/velo" global) SomeOtherValue "cxr_common_hash_get test (global) with path as key"
 	is $(cxr_common_hash_has? test_g "/hallo/velo" global) true "cxr_common_hash_has? test (global) with path as key"
-	is $(cxr_common_hash_keys test_g global) /hallo/velo "cxr_common_hash_keys test (global) with path as key"
+	is $(cxr_common_hash_keys test_g global) "/hallo/velo /hallo/gugs" "cxr_common_hash_keys test (global) with path as key"
 	
+	cxr_common_hash_delete test_g "/hallo/velo" 
+	is $(cxr_common_hash_has? test_g "/hallo/velo") false "cxr_common_hash_delete test (global) with path as key"
+
+
 	NUMEL=100
 	
 	echo "Hash Performance: Adding $NUMEL elements..."
