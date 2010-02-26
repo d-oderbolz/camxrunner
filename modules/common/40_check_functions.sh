@@ -180,11 +180,11 @@ function cxr_common_check_mb_needed()
 		mkdir -p $dir
 	fi
 	
-	if [[ "$(cxr_common_free_megabytes "$dir")" -ge "$MB"  ]]
+	if [[ "$(cxr_common_free_megabytes "$dir")" -ge "$mb"  ]]
 	then
 		cxr_main_logger -i "${FUNCNAME}" "Space in $dir is sufficient."
 	else
-		cxr_main_die_gracefully "Space in $dir is not sufficient, need at least $MB Megabytes!"
+		cxr_main_die_gracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
 	fi
 	
 }
@@ -464,6 +464,7 @@ function cxr_common_md5()
 # Function: cxr_common_check_preconditions
 #	
 # Checks if all input files listed in CXR_CHECK_THESE_INPUT_FILES are available.
+# If -w is given, we wait until the files arrive.
 # Also sees that output files listed in CXR_CHECK_THESE_OUTPUT_FILES are not present 
 # - if -F is given, existing output files are deleted here. 
 # If we detect empty output files, they are always removed.
@@ -492,6 +493,7 @@ function cxr_common_check_preconditions()
 	local output_dir
 	local dir
 	local output_file
+	local input_file
 
 	while getopts ":io" opt
 	do
@@ -657,41 +659,63 @@ function cxr_common_check_preconditions()
 		# Increase global indent level
 		cxr_main_increase_log_indent
 	
-		for INPUT_FILE in ${CXR_CHECK_THESE_INPUT_FILES}
+		for input_file in ${CXR_CHECK_THESE_INPUT_FILES}
 		do
 			
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
-				if [[ $(cxr_common_len "${INPUT_FILE}") -gt "${CXR_MAX_PATH}"  ]]
+				if [[ $(cxr_common_len "${input_file}") -gt "${CXR_MAX_PATH}"  ]]
 				then
-					cxr_main_logger -e "${FUNCNAME}" "Path to $INPUT_FILE longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
+					cxr_main_logger -e "${FUNCNAME}" "Path to $input_file longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					errors_found=true
 				fi
 			fi
 			
-			# is it readable?
-			if [[ ! -r "${INPUT_FILE}"  ]]
+			# does  it exist?
+			if [[ ! -f "${input_file}"  ]]
 			then
-				# Not readable!
-				cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} not readable!"
-				errors_found=true
-			else
-				# Readable
-			
-				# is it larger than 0 bytes?
-				if [[ ! -s "${INPUT_FILE}"  ]]
+				# does not exist!
+				# do we wait?
+				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
-					# Empty File!
-					cxr_main_logger -e "${FUNCNAME}" "File ${INPUT_FILE} is empty!"
-					errors_found=true
+					# We want to wait
+					cxr_common_wait_for_file ${input_file}
 				else
-					# Nono-empty, report hash if wanted
-					if [[ "${CXR_REPORT_MD5}" == true  ]]
-					then
-						cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${INPUT_FILE} is $(cxr_common_md5 ${INPUT_FILE})"
-					fi
+					cxr_main_logger -e "${FUNCNAME}" "File ${input_file} does not exist!"
+					errors_found=true
 				fi
+			else
+				# File exists.
+				
+				# If a process writes to the file, it might be that 
+				# it still grows
+				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
+				then
+					cxr_common_wait_for_stable_size ${input_file}
+				fi
+				
+				# Readable?
+				if [[ -r "${input_file}"  ]]
+				then
+					# is it larger than 0 bytes?
+					if [[ ! -s "${input_file}"  ]]
+					then
+						# Empty File!
+						cxr_main_logger -e "${FUNCNAME}" "File ${input_file} is empty!"
+						errors_found=true
+					else
+						# Nono-empty, report hash if wanted
+						if [[ "${CXR_REPORT_MD5}" == true  ]]
+						then
+							cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${input_file} is $(cxr_common_md5 ${input_file})"
+						fi
+					fi # larger than 0
+				else
+					# Not readable!
+					cxr_main_logger -e "${FUNCNAME}" "File ${input_file} not readable!"
+					errors_found=true
+				fi # readable
 			fi
 		done
 	else

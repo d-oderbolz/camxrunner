@@ -87,19 +87,21 @@ function main_usage()
 
 	  -F    overwrites existing output files (force)
 
+	  -w    wait for missing input files
+
 	  -l    writes a logfile for dry-runs as well
 
 	  -v    verbose screen: talkative script (if given twice you get even more information)
-	  
+
 	  -V    verbose logfile: talkative script (if given twice you get even more information)
 
 	  -c    cleanup: removes state information
 
 	  -m    allow multiple instances of the runner on the same run 
-        (experts only - not recommended)
+	        (experts only - not recommended)
 
 	  -t<n> set the threshold for allowed errors (Default ${CXR_ERROR_THRESHOLD}).
-        a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
+	        a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
 
 	  -s    stop this run gracefully (stop all runners executing this run)
 	  
@@ -108,7 +110,7 @@ function main_usage()
 	  -L    Leaves tempfiles where they are. Useful for partial runs on compressed input.
 
 	  -Pn   activates parallel execution of pre/postprocessing with 
-        max. n concurrent procs. n must be given!
+	        max. n concurrent procs. n must be given!
 
 	  -C    Create a new run, you are guided through the process.
 
@@ -240,7 +242,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parametres that come later
-while getopts ":dlvVFmct:sD:LP:ITxi:o:CNp:f:h" opt
+while getopts ":dlvVFwmct:sD:LP:ITxi:o:CNp:f:h" opt
 do
 	case "${opt}" in
 		d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -248,6 +250,7 @@ do
 		v) CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
 		V) CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
 		F) CXR_USER_TEMP_FORCE=true ;;
+		w) CXR_USER_TEMP_WAIT_4_INPUT=true ;;
 		m) CXR_USER_TEMP_ALLOW_MULTIPLE=true ;;
 		c) CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;

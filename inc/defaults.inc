@@ -316,6 +316,9 @@ CXR_STOP_RUN=false
 # When set to true, existing Output files are overwritten (see also CXR_SKIP_EXISTING)
 CXR_FORCE=false
 
+# If this is true, we wait for missing input
+CXR_WAIT_4_INPUT=false
+
 # When set to false, existing Output files are not skipped (we stop if they exist, unless -F is given)
 CXR_SKIP_EXISTING=true
 
