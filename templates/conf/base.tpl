@@ -41,11 +41,6 @@
 # There are settings which the installer does not touch, search for 
 # "These are settings the installer did not touch" in this file and fix it!
 
-
-# Introduce the file
-cxr_main_logger -v "base.conf" "This is the base.conf file being lodaded"
-
-
 ################################################################################
 ################################################################################
 # These settings you are likely to change on a per-run basis

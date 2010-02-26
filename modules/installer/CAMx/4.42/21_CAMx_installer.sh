@@ -82,11 +82,34 @@ exit 1
 ################################################################################
 # Function: CAMx_installer
 #
-# Downloads and compiles CAMx 4.51
+# Downloads and compiles CAMx 4.42 and 4.51. Stores a .conf file and a .log file
+# So that we can later reproduce the compilation.
 #
+################################################################################
 function CAMx_installer() 
 ################################################################################
 {
+	local input_dir
+	local parallel_paradigm
+	local probing_tool
+	local domain
+	local binary_name
+	local target_prm_file
+	local expected_name
+	local run
+	local conffile
+	local logfile
+	local hdf
+	local mpi
+	local default_platform
+	local resulting_binary
+	local patch_all_dir
+	local patch_platform_dir
+	local draft_dir
+	local askfile
+	local playfile
+	local prm_file
+	
 	if [[ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true  ]]
 	then
 	
@@ -144,38 +167,38 @@ function CAMx_installer()
 		cxr_main_logger -a "${FUNCNAME}" "Setup Input directory containing templates..."
 		########################################
 		
-		INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
+		input_dir=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
-		if [[ ! -d "$INPUT_DIR"  ]]
+		if [[ ! -d "$input_dir"  ]]
 		then
-			cxr_main_die_gracefully "Could not find the input directory $INPUT_DIR"
+			cxr_main_die_gracefully "Could not find the input directory $input_dir"
 		fi
 		
 		########################################
-		cxr_main_logger -a "${FUNCNAME}" "Determine name of binary..."
+		cxr_main_logger -a "${FUNCNAME}" "Determining name of binary..."
 		########################################
 		
-		#	${CXR_MODEL}-${PARALLEL_PARADIGM}-${PROBING_TOOL}-${HOSTTYPE}
+		#	${CXR_MODEL}-${parallel_paradigm}-${probing_tool}-${HOSTTYPE}
 		
-		PARALLEL_PARADIGM=$(cxr_common_get_menu_choice "What kind of parallel paradigm do you want to use?" "$CXR_SUPPORTED_PARALLEL_PARADIGMS" "$CXR_PARALLEL_PARADIGM")
-		PROBING_TOOL=$(cxr_common_get_menu_choice "What kind of probing tool do you want to enable?\n(A CAMx/PMCAMx binary is optimized for one tool, we will also use this in the name of the binary)" "$CXR_SUPPORTED_CAMX_PROBING_TOOLS" "$CXR_PROBING_TOOL")
+		parallel_paradigm=$(cxr_common_get_menu_choice "What kind of parallel paradigm do you want to use?" "$CXR_SUPPORTED_PARALLEL_PARADIGMS" "$CXR_PARALLEL_PARADIGM")
+		probing_tool=$(cxr_common_get_menu_choice "What kind of probing tool do you want to enable?\n(A CAMx/PMCAMx binary is optimized for one tool, we will also use this in the name of the binary)" "$CXR_SUPPORTED_CAMX_PROBING_TOOLS" "$CXR_PROBING_TOOL")
 		
 		# This is an argument to the make process
 		# and deterimes the name of the .play file
-		DOMAIN=${PARALLEL_PARADIGM}-${PROBING_TOOL}-${HOSTTYPE}
+		domain=${parallel_paradigm}-${probing_tool}-${HOSTTYPE}
 		
-		BINARY_NAME=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-${DOMAIN}
+		binary_name=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-${domain}
 		
 		# The name of the .prm file to use
-		TARGET_PRM_FILE=$CXR_CAMX_SRC_DIR/Includes/camx.prm.$DOMAIN
+		target_prm_file=$CXR_CAMX_SRC_DIR/Includes/camx.prm.$domain
 		
 		# We call get_model_exec with false to disable existance check
-		EXPECTED_NAME="$(get_model_exec false)"
+		expected_name="$(get_model_exec false)"
 
 		# Check if CAMxRunner expects this name
-		if [[ "$(basename "$EXPECTED_NAME")" != "$(basename "$BINARY_NAME")"  ]]
+		if [[ "$(basename "$expected_name")" != "$(basename "$binary_name")"  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Note that your configuration expects the binary to be called $EXPECTED_NAME.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
+			cxr_main_logger "${FUNCNAME}" "Note that your configuration expects the binary to be called $expected_name.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
 		fi
 		
 		# Now we can add a machine name,
@@ -183,45 +206,67 @@ function CAMx_installer()
 		# or give a completely different name
 		if [[ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true  ]]
 		then
-			BINARY_NAME=${BINARY_NAME}-$(uname -n)
+			binary_name=${binary_name}-$(uname -n)
 		elif [[ "$(cxr_common_get_consent "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
 		then
 			# Now we need to choose a run name. Look for links in the CAMx dir
-			RUN="$(basename $(cxr_common_get_menu_choice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
+			run="$(basename $(cxr_common_get_menu_choice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
-			BINARY_NAME=${CXR_MODEL_BIN_DIR}/${RUN}-${HOSTTYPE}
+			binary_name=${CXR_MODEL_BIN_DIR}/${run}-${HOSTTYPE}
 		elif [[ "$(cxr_common_get_consent "Do you want to provide your own name for the binary?" N )" == true  ]]
 		then
-			BINARY_NAME=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
+			binary_name=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
 		fi
 		
-		cxr_main_logger "${FUNCNAME}" "The new binary will be called $BINARY_NAME"
+		cxr_main_logger "${FUNCNAME}" "The new binary will be called $binary_name"
 		
-		# HDF? (Not reflected in name)
-		HDF=$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} with HDF support?\nthis requires the HDF library (see previous step of installation)" Y )
+		# Here we store the current configuration
+		conffile=${binary_name}.conf
+		
+		# Here, we store a log of this cmpilation
+		logfile=${binary_name}.log
+		
+		# Clean the logfile
+		: > "${logfile}"
+		
+		# Logging
+		echo "This file documents a compilation of $CXR_MODEL $CXR_MODEL_VERSION, done on $(date) by $USER" >> "${logfile}"
+		echo "Output Binary name: $binary_name" >> "${logfile}"
+		
+		# hdf? (Not reflected in name)
+		hdf=$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} with hdf support?\nthis requires the hdf library (see previous step of installation)" Y )
+		
+		# Logging
+		echo "HDF: $hdf" >> "${logfile}"
 		
 		# Get the platform string and adjust some settings
-		case "$PARALLEL_PARADIGM" in
+		case "$parallel_paradigm" in
 		
 			None)
-				DEFAULT_PLATFORM=i_linux
-				MPI=false
+				default_platform=i_linux
+				mpi=false
 				;;
 			OMP)
-				DEFAULT_PLATFORM=i_linuxomp
-				MPI=false
+				default_platform=i_linuxomp
+				mpi=false
 				;;
 			MPI)
-				DEFAULT_PLATFORM=pg_linuxomp
-				MPI=true
+				default_platform=pg_linuxomp
+				mpi=true
 				;;
 				
 		esac
 		
-		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform should be used to compile ${CXR_MODEL}?\n(Should be consistent with the parallel paradigm chosen earlier)" "$CXR_SUPPORTED_PLATFORMS" "$DEFAULT_PLATFORM")
+		# Logging
+		echo "PARALELL PARADIGM: $parallel_paradigm" >> "${logfile}"
+		
+		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform should be used to compile ${CXR_MODEL}?\n(Should be consistent with the parallel paradigm chosen earlier)" "$CXR_SUPPORTED_PLATFORMS" "$default_platform")
+		
+		# Logging
+		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
 		
 		#File resulting from compilation due to CAMx defaults
-		RESULTING_BINARY=$CXR_CAMX_SRC_DIR/CAMx.$DOMAIN.$CXR_CURRENT_PLATFORM
+		resulting_binary=$CXR_CAMX_SRC_DIR/CAMx.$domain.$CXR_CURRENT_PLATFORM
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Setup Input directories containing patches..."
@@ -231,47 +276,47 @@ function CAMx_installer()
 		CXR_CURRENT_BINARY=${CXR_MODEL}
 		
 		# These directories might not exist!
-		PATCH_ALL_DIR=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
+		patch_all_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
 		
-		PATCH_PLATFORM_DIR=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
+		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 
 		########################################
 		# Ask user for more settings
 		########################################
 		
-		# We will operate on all files below $INPUT_DIR,
+		# We will operate on all files below $input_dir,
 		# and we need a copy of those files
 		
-		DRAFT_DIR=$(mktemp -d ${CXR_TMP_DIR}/${FUNCNAME}-dir.XXXXXXXX)
+		draft_dir=$(mktemp -d ${CXR_TMP_DIR}/${FUNCNAME}-dir.XXXXXXXX)
 		
-		cxr_main_logger -a $FUNCNAME "We copy our templates to $DRAFT_DIR and work there..."
+		cxr_main_logger -a $FUNCNAME "We copy our templates to $draft_dir and work there..."
 		
-		cd $INPUT_DIR || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $INPUT_DIR"
-		cp -r * $DRAFT_DIR || die_gracefully "Could not create a copy of the templates"
+		cd $input_dir || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $input_dir"
+		cp -r * $draft_dir || die_gracefully "Could not create a copy of the templates"
 		cd ${CXR_RUN_DIR} || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 		
 		## Clean up draft dir
 		# Readmes
-		find $DRAFT_DIR -noleaf -type f -name README.txt -exec rm -f {} \; 2>/dev/null
+		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; 2>/dev/null
 		# subversion drectories
-		find $DRAFT_DIR -noleaf -type d -name .svn -exec rm -rf {} \; 2>/dev/null
+		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; 2>/dev/null
 
 
 		# We will now ask the user a number of questions encoded in
 		# an ask-file
 		# The result will be a play-file
-		ASKFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/camx.ask
-		PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-${DOMAIN}.play
+		askfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/camx.ask
+		playfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-${domain}.play
 		
 		# Might be simplified later
-		if [[ -s "$PLAYFILE"  ]]
+		if [[ -s "$playfile"  ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [[ "$(cxr_common_get_consent "${CXR_MODEL} was already installed using ${PARALLEL_PARADIGM}, ${PROBING_TOOL} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
+			if [[ "$(cxr_common_get_consent "${CXR_MODEL} was already installed using ${parallel_paradigm}, ${probing_tool} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
-				cat "$PLAYFILE"
+				cat "$playfile"
 				
 				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
@@ -279,25 +324,25 @@ function CAMx_installer()
 					:
 				else
 					# Redo
-					cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+					cxr_common_get_answers "$askfile" "$playfile"
 				fi
 			else
 				# Redo
-				cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+				cxr_common_get_answers "$askfile" "$playfile"
 			fi
 		else
 	 		# Start from scratch
-			cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+			cxr_common_get_answers "$askfile" "$playfile"
 		fi
 		
-		cxr_common_apply_playfile "$PLAYFILE" "$( find $DRAFT_DIR -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
+		cxr_common_apply_playfile "$playfile" "$( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Installing the changed files..."
 		########################################
 		
 		# Just copy all out.
-		cd $DRAFT_DIR || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $DRAFT_DIR"
+		cd $draft_dir || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $draft_dir"
 		cp -r * $CXR_CAMX_SRC_DIR || die_gracefully "Could not copy changed files back to $CXR_CAMX_SRC_DIR"
 		cd ${CXR_RUN_DIR}  || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 
@@ -307,61 +352,61 @@ function CAMx_installer()
 		########################################
 		
 		# The PRM file needs a special name!
-		PRM_FILE=$(find $DRAFT_DIR -noleaf -type f -name camx.prm)
+		prm_file=$(find $draft_dir -noleaf -type f -name camx.prm)
 		
-		cp $PRM_FILE $TARGET_PRM_FILE || cxr_main_die_gracefully "Could not prepare prm file $TARGET_PRM_FILE"
+		cp $prm_file $target_prm_file || cxr_main_die_gracefully "Could not prepare prm file $target_prm_file"
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
-		if [[ -d "$PATCH_ALL_DIR"  ]]
+		if [[ -d "$patch_all_dir"  ]]
 		then
-			cxr_common_apply_patches "$PATCH_ALL_DIR" "$CXR_CAMX_SRC_DIR"
+			cxr_common_apply_patches "$patch_all_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
-			cxr_main_logger -w "${FUNCNAME}" "Did not find general patch dir $PATCH_ALL_DIR"
+			cxr_main_logger -w "${FUNCNAME}" "Did not find general patch dir $patch_all_dir"
 		fi
 		
-		if [[ -d "$PATCH_PLATFORM_DIR"  ]]
+		if [[ -d "$patch_platform_dir"  ]]
 		then
-			cxr_common_apply_patches "$PATCH_PLATFORM_DIR" "$CXR_CAMX_SRC_DIR"
+			cxr_common_apply_patches "$patch_platform_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
-			cxr_main_logger -w "${FUNCNAME}" "Did not find specific patch dir $PATCH_PLATFORM_DIR"
+			cxr_main_logger -w "${FUNCNAME}" "Did not find specific patch dir $patch_platform_dir"
 		fi
 		
 		cd $CXR_CAMX_SRC_DIR || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $CXR_CAMX_SRC_DIR"
 		
 		########################################
-		cxr_main_logger -a "${FUNCNAME}" "Compile..."
+		cxr_main_logger -a "${FUNCNAME}" "Compilation starts..."
 		########################################
 		
 		echo "make clean"
 		make clean || cxr_main_die_gracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		
-		echo "make $CXR_CURRENT_PLATFORM  DOMAIN=$DOMAIN HDF=$HDF MPI=$MPI"
-		make $CXR_CURRENT_PLATFORM  DOMAIN=$DOMAIN HDF=$HDF MPI=$MPI || cxr_main_die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+		echo "make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi"
+		make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi || cxr_main_die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Moving binary..."
 		########################################
 		
-		cp $RESULTING_BINARY $BINARY_NAME || cxr_main_die_gracefully "Could not copy $RESULTING_BINARY to $BINARY_NAME"
+		cp $resulting_binary $binary_name || cxr_main_die_gracefully "Could not copy $resulting_binary to $binary_name"
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Saving playfile..."
 		########################################
 		
-		cp "$PLAYFILE" "${BINARY_NAME}.conf"
+		cp "$playfile" "${conffile}.conf"
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Cleanup..."
 		########################################
 		
 		# We do not need te "old" binary - we copied it away
-		rm $RESULTING_BINARY
+		rm $resulting_binary
 		
 		# We no longer need the draft files
-		rm -rf $DRAFT_DIR
+		rm -rf $draft_dir
 		
 		
 		if [[ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true  ]]

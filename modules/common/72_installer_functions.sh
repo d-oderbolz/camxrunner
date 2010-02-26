@@ -192,6 +192,7 @@ function cxr_common_determine_patch_target()
 # $1 - Directory containig the patches
 # $2 - Directory containig the files to be patched
 # $3 - ask_user, if false do not prompt user for consent, default true
+# $4 - an optional filename to report actions (other than the normal log)
 ################################################################################
 function cxr_common_apply_patches()
 ################################################################################
@@ -200,6 +201,7 @@ function cxr_common_apply_patches()
 	local patch_dir="$1"
 	local src_dir="$2"
 	local ask_user="${3:-true}"
+	local logfile="${4:-/dev/null}"
 	
 	local patchlist
 	local curline
@@ -267,10 +269,12 @@ function cxr_common_apply_patches()
 				# Ask user
 				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $patch_file to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
+					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 					patch $real_file < $patch_file
 				fi
 			else
 				# Just do it
+				echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 				patch $real_file < $patch_file
 			fi
 		else

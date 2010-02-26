@@ -910,15 +910,6 @@ function cxr_common_create_config_file()
 		
 	fi # Decision if copy or .ask
 	
-	cxr_main_logger "${FUNCNAME}" "Replacing introduction text..."
-	
-	# Now replace the echo string at the top of the file
-	tmpfile=$(cxr_common_create_tempfile $FUNCNAME)
-	
-	sed "s/$(basename ${basefile})/$(basename ${CXR_CONFIG})/g" ${CXR_CONFIG} > ${tmpfile}
-	
-	cp ${tmpfile} ${CXR_CONFIG} || cxr_main_die_gracefully "Could not copy temporay file back to ${CXR_CONFIG}"
-
 	cxr_main_logger "$FUNCNAME" "$FUNCNAME:$LINENO - Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${run} -d";
 }
 
