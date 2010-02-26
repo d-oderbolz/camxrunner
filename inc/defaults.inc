@@ -237,6 +237,18 @@ readonly CXR_RUN_ALL
 # Set inital values of features ################################################
 ################################################################################
 
+# Parametes that control waiting
+# Minutes we wait on a single event (file)
+CXR_TIMEOUT_MINS=10
+
+# Total timeout is 1 day
+CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
+
+# Number of seconds we wait in each iteration
+# also used in the task functions, number of secods an idle task sleeps
+CXR_WAITING_SLEEP_SECONDS=60
+
+
 # Variables:  Parallel Task control
 #
 
@@ -255,9 +267,6 @@ CXR_IGNORE_ANY_DEPENDENCIES=false
 
 # There probably won't be more than 99'999 tasks per run
 CXR_TASK_ID_DIGITS=5
-
-# The number of seconds a waiting task sleeps before retrying
-CXR_WAITING_SLEEP_SECONDS=60
 
 # These are the indexes of the task descriptor structure
 CXR_TASK_DESCR_I_PATH=0					# Relative Path to module,

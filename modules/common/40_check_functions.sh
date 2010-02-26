@@ -661,7 +661,6 @@ function cxr_common_check_preconditions()
 	
 		for input_file in ${CXR_CHECK_THESE_INPUT_FILES}
 		do
-			
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
@@ -680,7 +679,11 @@ function cxr_common_check_preconditions()
 				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
 					# We want to wait
-					cxr_common_wait_for_file ${input_file}
+					if [[ "$(cxr_common_wait_for_file ${input_file})" == false ]]
+					then
+						# Waiting did not help
+						errors_found=true
+					fi
 				else
 					cxr_main_logger -e "${FUNCNAME}" "File ${input_file} does not exist!"
 					errors_found=true
@@ -692,7 +695,11 @@ function cxr_common_check_preconditions()
 				# it still grows
 				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
-					cxr_common_wait_for_stable_size ${input_file}
+					if [[ "$(cxr_common_wait_for_stable_size ${input_file})" == false ]]
+					then
+						# Waiting did not help
+						errors_found=true
+					fi
 				fi
 				
 				# Readable?

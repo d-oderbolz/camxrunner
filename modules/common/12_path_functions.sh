@@ -198,6 +198,80 @@ function cxr_common_file_size_megabytes()
 }
 
 ################################################################################
+# Function: cxr_common_wait_for_file
+#
+# Waits for a file to appear. Returns true on success, false otherwise
+#
+# Parameters:
+# $1 - path to file to test
+#
+# Variables:
+# $CXR_TIMEOUT_MINS - number of minutes to wait for this file
+# $CXR_TOTAL_WAITING_MINS - total number of minutes to wait
+################################################################################
+function cxr_common_wait_for_file()
+################################################################################
+{
+	local filename="$1"
+	
+	while [[ ! -f $filename && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
+	do
+		sleep ${CXR_WAITING_SLEEP_SECONDS}
+		waited_mins=$(( ($waited_mins + $CXR_WAITING_SLEEP_SECONDS)/60  ))
+		total_waited_mins=$(( $total_waited_mins + $waited_mins  ))
+	done
+	
+	# If we arrive here and the file is not there, we failed
+	if [[ ! -f "$filename" ]]
+	then
+		cxr_main_logger -e "$FUNCNAME" "$filename still does not exist, timeout reached."
+		echo false
+	else
+		cxr_main_logger -v "$FUNCNAME" "$filename exists now."
+		echo true
+	fi
+}
+
+################################################################################
+# Function: cxr_common_wait_for_stable_size
+#
+# Waits until a file has a constant size. Returns true on success, false otherwise
+#
+# Parameters:
+# $1 - path to file to test
+#
+# Variables:
+# $CXR_TIMEOUT_MINS - number of minutes to wait for this file
+# $CXR_TOTAL_WAITING_MINS - total number of minutes to wait
+################################################################################
+function cxr_common_wait_for_stable_size()
+################################################################################
+{
+	local filename="$1"
+	local old_size=0
+	
+	while [[ $(cxr_common_file_size_megabytes $filename) -lt $old_size  && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
+	do
+		# Store the current size as old
+		old_size="$(cxr_common_file_size_megabytes $filename)"
+		
+		sleep ${CXR_WAITING_SLEEP_SECONDS}
+		waited_mins=$(( ($waited_mins + $CXR_WAITING_SLEEP_SECONDS)/60  ))
+		total_waited_mins=$(( $total_waited_mins + $waited_mins  ))
+	done
+	
+	# We fail if the filesize is 0 or it did not grow
+	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -lt $old_size ]]
+	then
+		cxr_main_logger -e "$FUNCNAME" "$filename does not grow (fast enough)."
+		echo false
+	else
+		cxr_main_logger -v "$FUNCNAME" "$filename size is stable now."
+		echo true
+	fi
+}
+
+################################################################################
 # Function: cxr_common_compress_output
 # 
 # Compresses either all output files or such that match the pattern in
