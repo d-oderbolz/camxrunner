@@ -88,7 +88,7 @@ exit 1
 #
 #
 # Parameters:
-# $1 - Message to show
+# $1 - message to show
 # $2 - Time in s from which to cxr_common_countdown (default 30)
 # $3 - Interval in s when to show remaining time (default 5)
 ################################################################################
@@ -100,15 +100,16 @@ function cxr_common_countdown()
 		cxr_main_logger -e "$FUNCNAME" "Need at least a message to show"
 	fi
 	
-	MESSAGE="${1}"
+	local message="${1}"
 	
 	# Start must be positive!
-	START_SEC="$(cxr_common_abs ${2:-30})"
-	MOD_SEC="${3:-5}"
+	local start_sec="$(cxr_common_abs ${2:-30})"
+	local mod_sec="${3:-5}"
+	local i
 	
-	for i in $(seq $START_SEC -1 0)
+	for i in $(seq $start_sec -1 0)
 	do
-		if [[ $(expr $i % $MOD_SEC) -eq 0  ]]
+		if [[ $(expr $i % $mod_sec) -eq 0  ]]
 		then
 			cxr_main_logger -w -B "$FUNCNAME" "$i seconds left."
 		fi
@@ -140,59 +141,62 @@ function cxr_common_countdown()
 #>done
 #
 # Parameters:
-# $1 - Question
+# $1 - question
 # [$2] - Optional default value (either Y or N)
 ################################################################################
 function cxr_common_get_consent()
 ################################################################################
 {
-
+	local message
+	local default
+	local answer
+	
 	# Code repeated for clarity
-	# Default only accepted if either Y or N
+	# default only accepted if either Y or N
 	if [[ ( -s "${2:-}" ) && ( "${2:-}" == Y || "${2:-}" == N ) ]]
 	then
 			
 		########################################
-		# Default is set
+		# default is set
 		########################################
-		DEFAULT=${2:-}
+		default=${2:-}
 
 		
-		MESSAGE="$1 [Y/N/D], D=$DEFAULT"
+		message="$1 [Y/N/D], D=$default"
 		
-		ANSWER=$(cxr_common_get_user_input "$MESSAGE")
+		answer=$(cxr_common_get_user_input "$message")
 	
-		until [  "$ANSWER" == Y -o "$ANSWER" == y \
-							-o "$ANSWER" == N -o "$ANSWER" == n \
-							-o "$ANSWER" == D -o "$ANSWER" == d ]
+		until [[  "$answer" == Y || "$answer" == y \
+							|| "$answer" == N || "$answer" == n \
+							|| "$answer" == D || "$answer" == d ]]
 		do
-			ANSWER=$(cxr_common_get_user_input "$MESSAGE\nAnswer with either Y, N or D")
+			answer=$(cxr_common_get_user_input "$message\nAnswer with either Y, N or D")
 		done
 		
-		if [[  "$ANSWER" == d || "$ANSWER" == D   ]]
+		if [[  "$answer" == d || "$answer" == D   ]]
 		then
-			ANSWER=$DEFAULT
+			answer=$default
 		fi
 		
 	else
 	
 		########################################
-		# No Default
+		# No default
 		########################################	
 
-		MESSAGE="$1 [Y/N]"
+		message="$1 [Y/N]"
 		
-		ANSWER=$(cxr_common_get_user_input "$MESSAGE")
+		answer=$(cxr_common_get_user_input "$message")
 	
-		until [  "$ANSWER" == Y -o "$ANSWER" == y \
-							-o "$ANSWER" == N -o "$ANSWER" == n ]
+		until [[  "$answer" == Y || "$answer" == y \
+							|| "$answer" == N || "$answer" == n ]]
 		do
-			ANSWER=$(cxr_common_get_user_input "$MESSAGE\nAnswer with either Y or N.")
+			answer=$(cxr_common_get_user_input "$message\nAnswer with either Y or N.")
 		done
 		
 	fi
 	
-	if [[  "$ANSWER" == Y || "$ANSWER" == y   ]]
+	if [[  "$answer" == Y || "$answer" == y   ]]
 	then
 		echo true
 	else
@@ -225,20 +229,21 @@ function cxr_common_get_consent()
 function cxr_common_get_user_input() 
 ################################################################################
 {
-	MESSAGE=$1
+	local message=$1
+	local answer
 	
 	# Communicate with the user on STDERR.
 	echo "${CXR_SINGLE_LINE}" 1>&2
-	echo -e "${MESSAGE}" 1>&2
+	echo -e "${message}" 1>&2
 	
 	if [[ $(cxr_main_is_numeric "${2:-}") == true  ]]
 	then
-		read -n $2 ANSWER
+		read -n $2 answer
 	else
-		read ANSWER
+		read answer
 	fi
 
-	echo $ANSWER
+	echo $answer
 }
 
 ################################################################################
@@ -259,9 +264,11 @@ function cxr_common_get_user_input()
 function cxr_common_pause() 
 ################################################################################
 {
+	local dummy
+	
 	echo "${CXR_SINGLE_LINE}"
 	echo "Press a key of your choice to continue..."
-	read -n 1 DUMMY
+	read -n 1 dummy
 }
 
 ################################################################################
@@ -310,39 +317,42 @@ function cxr_common_get_menu_choice()
 {
 	
 	echo "${CXR_SINGLE_LINE}" 1>&2
-	MESSAGE="$1\nEnter the *number* of your choice:"
-	OPTIONS=$2
+	local message="$1\nEnter the *number* of your choice:"
+	local options=$2
+	local default
+	local choice
+	local chosen
 	
 	if [[ "${3:-}"  ]]
 	then
 		# We have a default, set advanced prompt and add default as last
-		DEFAULT="${3:-}"
-		PS3="Your choice (a number - press [d] for default value [$DEFAULT]): "
+		default="${3:-}"
+		PS3="Your choice (a number - press [d] for default value [$default]): "
 	else
 		# no default, set normal prompt
 		PS3="Your choice (a number): "
 	fi
 	
 	# Communicate with the user on STDERR.
-	echo -e "${MESSAGE}" 1>&2
+	echo -e "${message}" 1>&2
 	
-	select CHOICE in ${OPTIONS};
+	select choice in ${options};
 	do
 	
-		CHOSEN="$CHOICE"
+		chosen="$choice"
 		# Without the break we are left in an endless loop...
 		break
 		
 	done
 	
-	# Default handling. If the user presses d (or any non-numeric character),
+	# default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [[  "${DEFAULT:-}" && -z "$(cxr_common_trim "$CHOSEN")"   ]]
+	if [[  "${default:-}" && -z "$(cxr_common_trim "$chosen")"   ]]
 	then
-		CHOSEN="$DEFAULT"
+		chosen="$default"
 	fi
 	
-	echo "$CHOSEN"
+	echo "$chosen"
 }
 
 ################################################################################
@@ -356,7 +366,7 @@ function cxr_common_get_menu_choice()
 # Split - ask question - store result
 #
 # Format of .ask files:
-# Variable|Datatype|Question|Default|Value1|Value2|...|ValueN
+# variable|datatype|Question|Default|Value1|Value2|...|ValueN
 # A minimal line looks like this (An integer value without question and default):
 # MXCOLA|I||
 #
@@ -367,7 +377,7 @@ function cxr_common_get_menu_choice()
 # All but the first string are optional, the number of Values at the end is not fixed.
 # Actually, a line could just consist of a Variablename,
 # the installer would then choose these vales:
-# * Datatype S
+# * datatype S
 # * Question: What is the value of Variablename?
 # * Default: Value of the variable from environment if set
 #
@@ -376,7 +386,7 @@ function cxr_common_get_menu_choice()
 # At the end, a variable amount of possible values is allowed - but you can also specify a variable name
 # that contains a list of values (makes maintenance easier, you can maintain these lists in base.conf or something)
 #
-# Datatype can be (as supported by cxr_common_check_datataype)
+# datatype can be (as supported by cxr_common_check_datataype)
 # S (String - Default)
 # I (Integer)
 # F (Float)
@@ -388,62 +398,74 @@ function cxr_common_get_menu_choice()
 #
 #
 # Format of resulting .play files:
-# Variable:Value
+# variable:Value
 #
 # Returns:
 # void - aborts program on failure.
 #
 # Example:
-# cxr_common_get_answers $ASKFILE $PLAYFILE
+# cxr_common_get_answers $askfile $playfile
 #
 # Parameters:
-# $1 - Askfile (with full path)
-# $2 - Playfile to store answers in (with full path - WILL BE OVERWRITTEN!)
+# $1 - askfile (with full path)
+# $2 - playfile to store answers in (with full path - WILL BE OVERWRITTEN!)
 ################################################################################
 function cxr_common_get_answers()
 ################################################################################
 {
-	ASKFILE="$1"
-	PLAYFILE="$2"
+	local askfile="$1"
+	local playfile="$2"
+	local curline
+	local line
+	local lov
+	local curlov
+	local oIFS
+	local line_array
+	local num_elements
+	local variable
+	local datatype
+	local question
+	local default
 	
-	cxr_main_logger -a "${FUNCNAME}" "Using ask-file ${PLAYFILE}"
+	
+	cxr_main_logger -a "${FUNCNAME}" "Using ask-file ${playfile}"
 	
 	# Write a comment to the file
-	echo -e "#This is a machine-generated file. Generated on $(date) by user $USER\n#It can be used to replay an installation." > $PLAYFILE
+	echo -e "#This is a machine-generated file. Generated on $(date) by user $USER\n#It can be used to replay an installation." > $playfile
 	
 	# The canonical way to loop through a file is
-	# while read LINE
+	# while read line
 	# do
 	# done
 	# This is not possible because I want to read input from stdin as well.
 	
-	CURLINE=1
+	curline=1
 
-	while [ $CURLINE -le $(wc -l < $ASKFILE) ]
+	while [[ $curline -le $(wc -l < $askfile) ]]
 	do
 		# Read the line (I know this is not nice, read comment above)
-		# This is a ugly standard construct: Read first $CURLINE lines
-		# the last of which is line $CURLINE
-		LINE="$(head -n $CURLINE $ASKFILE | tail -n 1)"
+		# This is a ugly standard construct: Read first $curline lines
+		# the last of which is line $curline
+		line="$(head -n $curline $askfile | tail -n 1)"
 		
-		# LOV (List of values) is unset yet
-		LOV=""
+		# lov (List of values) is unset yet
+		lov=""
 
 		# Ignore Comments - but only if in first column
-		if [[ "${LINE:0:1}" == \#  ]]
+		if [[ "${line:0:1}" == \#  ]]
 		then
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 			continue
 		fi
 		
 		# Ignore empty lines
-		if [[ -z "$(cxr_common_trim "$LINE")"  ]]
+		if [[ -z "$(cxr_common_trim "$line")"  ]]
 		then
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 			continue
 		fi
 
-		# Parse it - structure Variable|Datatype|Question|Default|Value1|Value2|...|ValueN
+		# Parse it - structure variable|datatype|question|Default|Value1|Value2|...|ValueN
 		# All but the first are optional, the number of Values at the end is not fixed.
 		# 
 
@@ -454,93 +476,93 @@ function cxr_common_get_answers()
 
 		IFS="$CXR_DELIMITER"
 
-		# Suck line into LINE_ARRAY
-		LINE_ARRAY=($LINE)
+		# Suck line into line_array
+		line_array=($line)
 		
 		# Reset IFS
 		IFS="$oIFS"
 
-		NUM_ELEMENTS=${#LINE_ARRAY[@]}
+		num_elements=${#line_array[@]}
 
-		if [[ "$NUM_ELEMENTS" -ge 1  ]]
+		if [[ "$num_elements" -ge 1  ]]
 		then
-			VARIABLE=${LINE_ARRAY[0]}
+			variable=${line_array[0]}
 		else
 			# No variable - skip
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 			continue
 		fi
 		
-		if [[ "${VARIABLE}" == COMMENT  ]]
+		if [[ "${variable}" == COMMENT  ]]
 		then
 			########################################
 			# A comment the user should see, then skip
 			########################################
 			echo "${CXR_DOUBLE_LINE}"
-			echo -e "${LINE_ARRAY[1]}"
+			echo -e "${line_array[1]}"
 			echo "${CXR_DOUBLE_LINE}"
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 			continue
 		fi
 
-		if [[ "$NUM_ELEMENTS" -ge 2  ]]
+		if [[ "$num_elements" -ge 2  ]]
 		then
-			DATATYPE=${LINE_ARRAY[1]}
+			datatype=${line_array[1]}
 		else
-			DATATYPE=S
+			datatype=S
 		fi
 
-		if [[ "$NUM_ELEMENTS" -ge 3  ]]
+		if [[ "$num_elements" -ge 3  ]]
 		then
-			QUESTION=${LINE_ARRAY[2]}
+			question=${line_array[2]}
 		else
-			QUESTION="What should be the value of $VARIABLE?"
+			question="What should be the value of $variable?"
 		fi
 
-		if [[ "$NUM_ELEMENTS" -ge 4  ]]
+		if [[ "$num_elements" -ge 4  ]]
 		then
-			DEFAULT=${LINE_ARRAY[3]}
+			default=${line_array[3]}
 			
 			# If it starts with CXR_ we knwo its a variable and try to resolve it
-			if [[ ${DEFAULT:0:4} == CXR_  ]]
+			if [[ ${default:0:4} == CXR_  ]]
 			then
 				# Create an expandable rule
-				DEFAULT="\$$DEFAULT"
+				default="\$$default"
 			fi
 			
 		else
 			# Otherwise just try to create an expandable rule
-			DEFAULT="\$$VARIABLE"
+			default="\$$variable"
 		fi
 
 		########################################	
-		# Handling of an optinal list of values (LOV)
+		# Handling of an optinal list of values (lov)
 		########################################	
-		if [[ "$NUM_ELEMENTS" -eq 5  ]]
+		if [[ "$num_elements" -eq 5  ]]
 		then
 			# If we have exactly one value, it is taken as the list of values
 			# this is to simplify the maintenance of base.ask
-			LOV="${LINE_ARRAY[4]}"
-		elif [[ "$NUM_ELEMENTS" -gt 5  ]]
+			lov="${line_array[4]}"
+		elif [[ "$num_elements" -gt 5  ]]
 		then
 			# We must go through a list and reconstruct it
-			for CURLOV in $(seq 4 $(( $NUM_ELEMENTS - 1 )) )
+			for curlov in $(seq 4 $(( $num_elements - 1 )) )
 			do
-				LOV="$LOV ${LINE_ARRAY[$CURLOV]}"
+				lov="$lov ${line_array[$curlov]}"
 			done
 		fi
 
-		cxr_main_logger -v "${FUNCNAME}"  "VARIABLE: $VARIABLE"
-		cxr_main_logger -v "${FUNCNAME}"  "QUESTION: $QUESTION"
-		cxr_main_logger -v "${FUNCNAME}"  "DEFAULT: $DEFAULT"
-		cxr_main_logger -v "${FUNCNAME}"  "DATATYPE: $DATATYPE"
-		cxr_main_logger -v "${FUNCNAME}"  "LOV: $LOV"
+		cxr_main_logger -v "${FUNCNAME}"  "variable: $variable"
+		cxr_main_logger -v "${FUNCNAME}"  "question: $question"
+		cxr_main_logger -v "${FUNCNAME}"  "default: $default"
+		cxr_main_logger -v "${FUNCNAME}"  "datatype: $datatype"
+		cxr_main_logger -v "${FUNCNAME}"  "lov: $lov"
 
 
-		if [[ -z "$(cxr_common_trim "${VARIABLE}")"  ]]
+		if [[ -z "$(cxr_common_trim "${variable}")"  ]]
 		then
 			# No variable - skip
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 			continue
 		else
 			########################################	
@@ -550,53 +572,53 @@ function cxr_common_get_answers()
 			# Some optimizations
 
 			# If the question is empty, supply your own
-			if [[ -z "$(cxr_common_trim "$QUESTION")"  ]]
+			if [[ -z "$(cxr_common_trim "$question")"  ]]
 			then
-				QUESTION="What should be the value of $VARIABLE?"
+				question="What should be the value of $variable?"
 			fi
 
-			# Default - might contain an expandable rule
+			# default - might contain an expandable rule
 			# It does not matter if the rule does not expand (are we?)
 			# We call the rule DEFAULT
-			DEFAULT=$(cxr_common_evaluate_rule "$DEFAULT" true DEFAULT)
+			default=$(cxr_common_evaluate_rule "$default" true DEFAULT)
 			
 			# Do we have a list of values?
-			if [[ -z "$LOV"  ]]
+			if [[ -z "$lov"  ]]
 			then
 				# No
 				# Add Default to question
-				QUESTION="$QUESTION\n(Default: $DEFAULT)"
+				question="$question\n(default: $default)"
 
-				VALUE=$(cxr_common_get_user_input "$QUESTION\n[D] for Default")
+				VALUE=$(cxr_common_get_user_input "$question\n[D] for default")
 
 				if [[  "$VALUE" == D || "$VALUE" == d   ]]
 				then
-					# Use Default
-					VALUE="$DEFAULT"
+					# Use default
+					VALUE="$default"
 				fi
 
 			else
 				# Yes
-				VALUE=$(cxr_common_get_menu_choice "$QUESTION" "$LOV")
+				VALUE=$(cxr_common_get_menu_choice "$question" "$lov")
 			fi
 
-			if [[ "$(cxr_common_check_datataype "$VALUE" "$DATATYPE")" == false  ]]
+			if [[ "$(cxr_common_check_datataype "$VALUE" "$datatype")" == false  ]]
 			then
-				cxr_main_logger "${FUNCNAME}" "Datatpe of $VALUE is not $DATATYPE! I use the default instead."
-				# Use Default
-				VALUE="$DEFAULT"
+				cxr_main_logger "${FUNCNAME}" "Datatpe of $VALUE is not $datatype! I use the default instead."
+				# Use default
+				VALUE="$default"
 			fi
 
 			# If the user does not want to write this 
-			# value, we will ask the same question again (by not increasing CURLINE)
+			# value, we will ask the same question again (by not increasing curline)
 			# Thats actually an advantage of this form of loop.
-			if [[ "$(cxr_common_get_consent "Is the value $VALUE for Variable $VARIABLE correct?" Y )" == true  ]]
+			if [[ "$(cxr_common_get_consent "Is the value $VALUE for variable $variable correct?" Y )" == true  ]]
 			then
 			
 				# Write data to play-file
-				echo "$VARIABLE:$VALUE" >> $PLAYFILE
+				echo "$variable:$VALUE" >> $playfile
 
-				CURLINE=$(( $CURLINE + 1 ))
+				curline=$(( $curline + 1 ))
 			fi
 		fi
 	done
@@ -611,139 +633,145 @@ function cxr_common_get_answers()
 # replaces them by the repective value.
 #
 # Format of input .play files:
-# Variable|Value
+# variable|Value
 # Some older playfiles use : as delimiter, we can detect this
 #
 # Returns:
 # void - aborts program on failure.
 #
 # Example:
-# cxr_common_apply_playfile $PLAYFILE "file1 file2"
+# cxr_common_apply_playfile $playfile "file1 file2"
 #
 # Parameters:
-# $1 - Playfile (with full path)
+# $1 - playfile (with full path)
 # $2 - A list of files to operate on (search & replace) - they WILL BE OVERRIDDEN!
 ################################################################################
 function cxr_common_apply_playfile()
 ################################################################################
 {
 	# The delimiter in use here (might change below if file has a different format)
-	local DELIMITER="${CXR_DELIMITER}"
-
+	local delimiter="${CXR_DELIMITER}"
 
 	if [[ $# -ne 2  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a Playfile and a list of input files as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a playfile and a list of input files as input"
 	fi
 
-	PLAYFILE="$1"
-	FILES="$2"
+	local playfile="$1"
+	local files="$2"
+	local sed_tmp
+	local current_file
+	local line
+	local line_array
+	local variable
+	local value
+	local curline
 
 	########################################
-	cxr_main_logger "${FUNCNAME}" "Playback of $PLAYFILE..."
+	cxr_main_logger "${FUNCNAME}" "Playback of $playfile..."
 	########################################
 	
 	# Quickly check if is old-style
 	# We count the number of lines containing colons
 	# The first line is ok (comment contains a time like 15:10:55)
-	if [[ "$(grep -c : "$PLAYFILE")" -gt 1  ]]
+	if [[ "$(grep -c : "$playfile")" -gt 1  ]]
 	then	
 		# More than 1 line contains :
-		cxr_main_logger -w $FUNCNAME "More than one line of the file $PLAYFILE contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
-		# Use old DELIMITER
-		DELIMITER=":"
+		cxr_main_logger -w $FUNCNAME "More than one line of the file $playfile contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
+		# Use old delimiter
+		delimiter=":"
 	fi
 	
 	# This one will be re-used
-	TMPFILE=$(cxr_common_create_tempfile sed)
+	sed_tmp=$(cxr_common_create_tempfile sed)
 	
 	# Start at line 1
-	CURLINE=1
+	curline=1
 	
 	cxr_main_logger -a "${FUNCNAME}" "Applying changes to the template files..."
 		
-	# Loop trough playfile, CURLINE is the line index 1..n
-	while [ $CURLINE -le $(wc -l < $PLAYFILE) ]
+	# Loop trough playfile, curline is the line index 1..n
+	while [ $curline -le $(wc -l < $playfile) ]
 	do
 		# Read the current line (needed because we use read in the loop)
-		# This is an ugly standard construct: Read first $CURLINE lines
-		# the last of which is line $CURLINE
-		LINE=$(head -n $CURLINE $PLAYFILE | tail -n 1)
+		# This is an ugly standard construct: Read first $curline lines
+		# the last of which is line $curline
+		line=$(head -n $curline $playfile | tail -n 1)
 			
 			# Ignore Comments - but only if in first column
-			if [[ "${LINE:0:1}" == \#  ]]
+			if [[ "${line:0:1}" == \#  ]]
 			then
-				CURLINE=$(( $CURLINE + 1 ))
+				curline=$(( $curline + 1 ))
 				continue
 			fi
 			
 			# Ignore empty lines
-			if [[ -z "$(cxr_common_trim "$LINE")"  ]]
+			if [[ -z "$(cxr_common_trim "$line")"  ]]
 			then
-				CURLINE=$(( $CURLINE + 1 ))
+				curline=$(( $curline + 1 ))
 				continue
 			fi
 			
 			# Split
 			oIFS="$IFS"
 
-			IFS="$DELIMITER"
+			IFS="$delimiter"
 		
-			# Suck line into LINE_ARRAY
-			LINE_ARRAY=($LINE)
+			# Suck line into line_array
+			line_array=($line)
 		
 			# Reset IFS
 			IFS="$oIFS"
 			
-			VARIABLE=${LINE_ARRAY[0]}
-			VALUE=${LINE_ARRAY[1]}
+			variable=${line_array[0]}
+			value=${line_array[1]}
 			
-			if [[ -z "$VARIABLE"  ]]
+			if [[ -z "$variable"  ]]
 			then
 				# Skip empty variables
-				CURLINE=$(( $CURLINE + 1 ))
+				curline=$(( $curline + 1 ))
 				continue
 			fi
 
 			cxr_main_logger -v "${FUNCNAME}" "For each variable, we go through all files now."
 
 			# Replace the current variable in all files listed
-			for CURRENT_FILE in $2
+			for current_file in $files
 			do
-				cxr_main_logger -v "${FUNCNAME}" "CURRENT_FILE: $CURRENT_FILE"
+				cxr_main_logger -v "${FUNCNAME}" "current_file: $current_file"
 				
-				# replace the @VARIABLE@ with the value (globally) 
-				# send the output to $TMPFILE (sed cannot work on the same file as the input)
+				# replace the @variable@ with the value (globally) 
+				# send the output to $sed_tmp (sed cannot work on the same file as the input)
 				# The TEMPFILE is automatically re-used (overwritten)
-				sed -e "s/@$VARIABLE@/$VALUE/g" $CURRENT_FILE > $TMPFILE
+				sed -e "s/@$variable@/$value/g" $current_file > $sed_tmp
 
 				# Copy file back
-				cp $TMPFILE $CURRENT_FILE || cxr_main_die_gracefully "Could not copy $TMPFILE to the draft file $CURRENT_FILE"
+				cp $sed_tmp $current_file || cxr_main_die_gracefully "Could not copy $sed_tmp to the draft file $current_file"
 				
 				# Empty tempfile
-				: > $TMPFILE
+				: > $sed_tmp
 				
 			done # Loop through files
 			
 			# Advance to next line in playfile
-			CURLINE=$(( $CURLINE + 1 ))
+			curline=$(( $curline + 1 ))
 
-		done # Loop trough Playfile
+		done # Loop trough playfile
 
 		if [[ "$(cxr_common_get_consent "Do you want to have a look at the new files?" N )" == true  ]]
 		then
-			for CURRENT_FILE in $2
+			for current_file in $files
 			do
 				echo -e "${CXR_BOX_HUGE}"
 				
-				echo "File $CURRENT_FILE:"
+				echo "File $current_file:"
 				
 				echo -e "${CXR_BOX_HUGE}"
 				
-				cat $CURRENT_FILE
+				cat $current_file
 				
 				echo -e "${CXR_BOX_HUGE}\n\n"
-				echo "(That was file ${CURRENT_FILE})"
+				echo "(That was file ${current_file})"
 			
 				cxr_common_pause
 			done

@@ -95,18 +95,25 @@ function cxr_common_install()
 	# - Run them (while checking they are not yet run)
 	# The interactivity is mostly hidden in these modules
 	
+	local model
+	local model_id
+	local supported
+	local oIFS
+	local array
+	local version
+	
 	cxr_main_logger -a "$FUNCNAME"  "Checking internal files (may take a while)..."
 	
 	cxr_common_check_runner_executables
 	
 	while [ "$(cxr_common_get_consent "Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase" )" == true ]
 	do
-		MODEL=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
+		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		MODEL_ID=$(cxr_common_get_model_id "$MODEL") || cxr_main_die_gracefully "Model $MODEL is not known."
+		model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "model $model is not known."
 		
 		# Extract the list of supported versions
-		SUPPORTED="${CXR_SUPPORTED_MODEL_VERSIONS[${MODEL_ID}]}"
+		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 		
 		# Set the default to the first entry
 		# Save old IFS
@@ -115,22 +122,22 @@ function cxr_common_install()
 		IFS="$CXR_SPACE"
 		
 		# Suck line into array
-		ARRAY=($SUPPORTED)
+		array=($supported)
 		
 		# Reset IFS
 		IFS="$oIFS"
 		
-		DEFAULT_VERSION=${ARRAY[0]}
+		DEFAULT_VERSION=${array[0]}
 	
 		#Generate a menu automatically
-		VERSION=$(cxr_common_get_menu_choice "Which version of $MODEL should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $SUPPORTED)" "$SUPPORTED" "$DEFAULT_VERSION")
+		version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
-		cxr_common_is_version_supported $VERSION $MODEL
+		cxr_common_is_version_supported $version $model
 		
-		cxr_main_logger "${FUNCNAME}" "Installing system for $MODEL $VERSION..."
+		cxr_main_logger "${FUNCNAME}" "Installing system for $model $version..."
 		
 		# reload config for this version (the run is called "installer")
-		cxr_main_read_config "installer" "$VERSION" "$MODEL" "$CXR_RUN_DIR"
+		cxr_main_read_config "installer" "$version" "$model" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
 		cxr_common_run_modules ${CXR_TYPE_INSTALLER}
@@ -151,9 +158,10 @@ function cxr_common_install()
 function cxr_common_determine_patch_target()
 ################################################################################
 {
-	PATCH=${1:-}
+	local patch=${1:-}
+	local file
 	
-	if [[ ! -f "$PATCH"  ]]
+	if [[ ! -f "$patch"  ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME - no filename passed or file not readable!"
 	fi
@@ -161,11 +169,11 @@ function cxr_common_determine_patch_target()
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
 	# +++ /path/to/new some other stuff might be here
 	# I know I spawn 2 procs here...
-	FILE=$(basename $(grep -h '+++' "$PATCH" | head -n1 | cut -f2 -d' '))
+	file=$(basename $(grep -h '+++' "$patch" | head -n1 | cut -f2 -d' '))
 	
-	if [[ "$FILE"  ]]
+	if [[ "$file"  ]]
 	then
-		echo "$FILE"
+		echo "$file"
 	else
 		cxr_main_die_gracefully "$FUNCNAME - Could not find any filename"
 	fi
@@ -183,29 +191,37 @@ function cxr_common_determine_patch_target()
 # Parameters:
 # $1 - Directory containig the patches
 # $2 - Directory containig the files to be patched
-# $3 - ASK_USER, if false do not prompt user for consent, default true
+# $3 - ask_user, if false do not prompt user for consent, default true
 ################################################################################
 function cxr_common_apply_patches()
 ################################################################################
 {
 
-	ASK_USER="${3:-true}"
+	local patch_dir="$1"
+	local src_dir="$2"
+	local ask_user="${3:-true}"
 	
-	PATCH_DIR="$1"
-	SRC_DIR="$2"
+	local patchlist
+	local curline
+	local patch_file
+	local file
+	local len_patch_dir
+	local current_dir
+	local real_file
 	
-	if [[  ! -d "$PATCH_DIR" || ! -d "$SRC_DIR"   ]]
+	
+	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $PATCH_DIR or $SRC_DIR not found."
+		cxr_main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
 	fi
 	
-	cxr_main_logger "${FUNCNAME}" "Applying patches in $PATCH_DIR to $SRC_DIR..."
+	cxr_main_logger "${FUNCNAME}" "Applying patches in $patch_dir to $src_dir..."
 	
-	# Create a list of all patches in all Subdirectories of $PATCH_DIR
-	PATCHLIST=$(cxr_common_create_tempfile $FUNCNAME)
+	# Create a list of all patches in all Subdirectories of $patch_dir
+	patchlist=$(cxr_common_create_tempfile $FUNCNAME)
 	
 	# Prepare the files containing all patches and no .svn stuff
-	find $PATCH_DIR -noleaf -type f -name \*.patch | grep -v ".svn" > $PATCHLIST
+	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" > $patchlist
 	
 	# Loop through all patches
 	
@@ -216,16 +232,16 @@ function cxr_common_apply_patches()
 
 	# This is not possible because I want to read input from stdin as well.
 	# Therefore, I use a slightly more cumbersome/inefficient construct:
-	CURLINE=1
-	while [ $CURLINE -le $(wc -l < $PATCHLIST) ]
+	curline=1
+	while [ $curline -le $(wc -l < $patchlist) ]
 	do
 		# Read the current line (I know this is not nice, read comment above)
-		# Read first $CURLINE lines
-		# the last of which is line $CURLINE
-		PATCH_FILE=$(head -n $CURLINE $PATCHLIST | tail -n 1)
+		# Read first $curline lines
+		# the last of which is line $curline
+		patch_file=$(head -n $curline $patchlist | tail -n 1)
 		
 		# Which file do we need to patch?
-		FILE=$(cxr_common_determine_patch_target $PATCH_FILE)
+		file=$(cxr_common_determine_patch_target $patch_file)
 		
 		##########
 		# Get the relative path of the current patch
@@ -233,36 +249,36 @@ function cxr_common_apply_patches()
 		
 		# How long is the part we need to romeve?
 		# we add 1 because of /
-		LEN_PATCH_DIR=$(( ${#PATCH_DIR} + 1 ))
+		len_patch_dir=$(( ${#patch_dir} + 1 ))
 
-		# Give back substring starting at position $LEN_PATCH_DIR
+		# Give back substring starting at position $len_patch_dir
 		# and then the "path-part"
-		CURRENT_DIR=$(dirname ${PATCH_FILE:$LEN_PATCH_DIR})
+		current_dir=$(dirname ${patch_file:$len_patch_dir})
 		
-		# Complete path of the File to patch
-		REAL_FILE=$SRC_DIR/$CURRENT_DIR/$FILE
+		# Complete path of the file to patch
+		real_file=$src_dir/$current_dir/$file
 		
-		cxr_main_logger -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - $PATCH_FILE\nREAL_FILE: $REAL_FILE"
+		cxr_main_logger -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - $patch_file\nREAL_FILE: $real_file"
 
-		if [[ -f $REAL_FILE  ]]
+		if [[ -f $real_file  ]]
 		then
-			if [[ "$ASK_USER" == true  ]]
+			if [[ "$ask_user" == true  ]]
 			then
 				# Ask user
-				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $PATCH_FILE to $REAL_FILE?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
+				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $patch_file to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
-					patch $REAL_FILE < $PATCH_FILE
+					patch $real_file < $patch_file
 				fi
 			else
 				# Just do it
-				patch $REAL_FILE < $PATCH_FILE
+				patch $real_file < $patch_file
 			fi
 		else
-			cxr_main_logger -e "${FUNCNAME}" "File $REAL_FILE does not exist. Check the header of $PATCH_FILE!"
+			cxr_main_logger -e "${FUNCNAME}" "file $real_file does not exist. Check the header of $patch_file!"
 		fi
 		
 		# Increment
-		CURLINE=$(( $CURLINE + 1 ))
+		curline=$(( $curline + 1 ))
 	done
 	
 }
