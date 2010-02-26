@@ -53,6 +53,8 @@ function cxr_main_is_numeric()
 function cxr_main_count_cores()
 ################################################################################
 {
+	local num_cores
+	
 	if [[ ! -r /proc/cpuinfo  ]]
 	then
 		#Probably no linux box.
@@ -79,16 +81,17 @@ function cxr_main_increase_log_indent()
 {
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
+	local next
 	
-	NEXT=$(( $CXR_LOG_INDENT + 1 ))
+	next=$(( $CXR_LOG_INDENT + 1 ))
 	
-	if [[ "$NEXT" -gt "$CXR_MAX_LOG_INDENT"  ]]
+	if [[ "$next" -gt "$CXR_MAX_LOG_INDENT"  ]]
 	then
 		# Maximum reached
-		NEXT=$CXR_MAX_LOG_INDENT
+		next=$CXR_MAX_LOG_INDENT
 	fi
 	
-	CXR_LOG_INDENT=$NEXT
+	CXR_LOG_INDENT=$next
 	
 }
 
@@ -104,15 +107,16 @@ function cxr_main_decrease_log_indent()
 {
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
+	local next
 	
-	NEXT=$(( $CXR_LOG_INDENT - 1 ))
+	next=$(( $CXR_LOG_INDENT - 1 ))
 	
-	if [[ $NEXT -lt 0  ]]
+	if [[ $next -lt 0  ]]
 	then
-		NEXT=0
+		next=0
 	fi
 	
-	CXR_LOG_INDENT=$NEXT
+	CXR_LOG_INDENT=$next
 }
 
 ################################################################################
@@ -162,11 +166,13 @@ function cxr_main_increase_error_count()
 function cxr_main_get_error_count()
 ################################################################################
 {
+	local number
+	
 	# Read from file - if not set, use /dev/null
 	# Also redirect errors of cat to /dev/null
-	NUMBER=$(cat ${CXR_INSTANCE_FILE_ERROR_STACK:-/dev/null} 2>/dev/null | wc -l )
+	number=$(cat ${CXR_INSTANCE_FILE_ERROR_STACK:-/dev/null} 2>/dev/null | wc -l )
 	
-	echo $NUMBER
+	echo $number
 }
 
 ################################################################################
@@ -220,33 +226,33 @@ function cxr_main_get_error_count()
 function cxr_main_logger()
 ################################################################################
 {
-	# By default, we write to STDERR
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
-	local TO_STDERR=true
-	local PREFIX=
+	local prefix=
 	
 	# A standard message is an info
-	LOG_LEVEL=${CXR_LOG_LEVEL_INF}
+	local log_level=${CXR_LOG_LEVEL_INF}
 	
 	# A line of stars
-	local STARS=""
+	local stars=""
 	
-	# One star
-	local STAR=""
+	local function_name
+	local blank_message
+	local stderr_message
+	local message
 	
 	while getopts ":ndviweabBH" opt
 	do
 		case $opt in
-		b) STARS="${CXR_BOX_SMALL}"; STAR="${CXR_STAR} ";;
-		B) STARS="${CXR_BOX_LARGE}"; STAR="${CXR_STAR} ";;
-		H) STARS="${CXR_BOX_HUGE}"; STAR="${CXR_STAR} " ;;
+		b) stars="${CXR_BOX_SMALL}";;
+		B) stars="${CXR_BOX_LARGE}";;
+		H) stars="${CXR_BOX_HUGE}";;
 		n) local CXR_DO_FILE_LOGGING=false;; #Local only!
-		d) LOG_LEVEL=$CXR_LOG_LEVEL_DBG ; PREFIX=DBG: ;;
-		v) LOG_LEVEL=$CXR_LOG_LEVEL_VRB ; PREFIX= ;;
-		i) LOG_LEVEL=$CXR_LOG_LEVEL_INF ; PREFIX= ;;
-		w) LOG_LEVEL=$CXR_LOG_LEVEL_WRN ; PREFIX=WRN: ;;
-		e) LOG_LEVEL=$CXR_LOG_LEVEL_ERR ; PREFIX=ERR: ;;
-		a) LOG_LEVEL=$CXR_LOG_LEVEL_ALW ; PREFIX= ;;
+		d) log_level=$CXR_LOG_LEVEL_DBG ; prefix=DBG: ;;
+		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix= ;;
+		i) log_level=$CXR_LOG_LEVEL_INF ; prefix= ;;
+		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
+		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
+		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix= ;;
 		esac
 	done
 	
@@ -264,19 +270,19 @@ function cxr_main_logger()
 	if [[ $# -eq 2  ]]
 	then
 		# Standard case
-		FUNCTION_NAME="${1:-}"
-		BLANK_MESSAGE="${PREFIX}${2:-}"
+		function_name="${1:-}"
+		blank_message="${prefix}${2:-}"
 	else
 		# Non-Standard case, accept anyway
-		FUNCTION_NAME=""
-		BLANK_MESSAGE="${PREFIX}${1:-}"
+		function_name=""
+		blank_message="${prefix}${1:-}"
 	fi
 	
-	STDERR_MESSAGE="$BLANK_MESSAGE"
+	stderr_message="$blank_message"
 	
 	### In case of error, write current day to failed days file
 	### and increase error count
-	if [[ "${LOG_LEVEL}" == "${CXR_LOG_LEVEL_ERR}"  ]]
+	if [[ "${log_level}" == "${CXR_LOG_LEVEL_ERR}"  ]]
 	then
 		# Could be that the state db is not yet initialized
 		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}"  ]]
@@ -284,7 +290,7 @@ function cxr_main_logger()
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
 		
-		cxr_main_increase_error_count "${FUNCTION_NAME} - ${BLANK_MESSAGE}"
+		cxr_main_increase_error_count "${function_name} - ${blank_message}"
 	fi
 	
 	# We have to look at several things separately: 
@@ -294,36 +300,36 @@ function cxr_main_logger()
 	
 	# STDERR
 	# Here we add no indentation
-	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}"  ]]
+	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}"  ]]
 	then
 	
 		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${STARS}"  ]]
+		if [[ "${stars}"  ]]
 		then
-			STDERR_MESSAGE="${STARS}\n${STDERR_MESSAGE}\n${STARS}\n"
+			stderr_message="${stars}\n${stderr_message}\n${stars}\n"
 		fi
 		
 		# Write a unformatted copy to sterr
-		echo -e "${STDERR_MESSAGE}" 1>&2
+		echo -e "${stderr_message}" 1>&2
 		
 	else
 	
 		# There is a second chance: the user might have added the function in question to 
 		# CXR_LOG_FUNCTION_VERBOSE_LIST
-		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${FUNCTION_NAME}.*")
+		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
 		
 		if [[ "${FOUND}" -ne 0  ]]
 		then
 			# Function was added by user
 			
 			# If stars are set, we add a line of stars at the beginning and end
-			if [[ "${STARS}"  ]]
+			if [[ "${stars}"  ]]
 			then
-				STDERR_MESSAGE"${STARS}\n${STDERR_MESSAGE}\n${STARS}\n"
+				stderr_message"${stars}\n${stderr_message}\n${stars}\n"
 			fi
 			
 			# Write a unformatted copy to sterr
-			echo -e "${STDERR_MESSAGE}" 1>&2
+			echo -e "${stderr_message}" 1>&2
 		fi
 		
 	fi
@@ -331,36 +337,36 @@ function cxr_main_logger()
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${LOG_LEVEL}" && -n "${CXR_LOG:-}" && "$CXR_DO_FILE_LOGGING" == true    ]]
+	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$CXR_DO_FILE_LOGGING" == true    ]]
 	then
 		# Logfile is defined
 
 		# Add date of form Aug 26 15:44:45
 		# The printf prints CXR_LOG_INDENT tabs
-		PREFIX="$(date +"%b %d %H:%M:%S"):$(printf '\t%.0s' {1..$CXR_LOG_INDENT})"
+		prefix="$(date +"%b %d %H:%M:%S"):$(printf '\t%.0s' {1..$CXR_LOG_INDENT})"
 	
-		# Put prefix in front of the Blank Message
-		MESSAGE="${PREFIX}${BLANK_MESSAGE}"
+		# Put prefix in front of the Blank message
+		message="${prefix}${blank_message}"
 	
 		# Now, all the newline characters need a prefix as well:
 		# \\n is what we are looking for, // request ALL \n to be replaced
-		MESSAGE="${MESSAGE//\\n/\n${PREFIX}}"
+		message="${message//\\n/\n${prefix}}"
 		
 		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${STARS}"  ]]
+		if [[ "${stars}"  ]]
 		then
-			MESSAGE="${PREFIX}${STARS}\n${MESSAGE}\n${PREFIX}${STARS}\n"
+			message="${prefix}${stars}\n${message}\n${prefix}${stars}\n"
 		fi
 		
 		# Writing to file
-		echo -e "$MESSAGE" >> ${CXR_LOG}
+		echo -e "$message" >> ${CXR_LOG}
 	fi
 	
 	# The external channels (motify decides who needs to get the message)
 	# -a does not go there
-	if [[  "${LOG_LEVEL}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${LOG_LEVEL}"   ]]
+	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}"   ]]
 	then
-		cxr_main_notify "Log" "$BLANK_MESSAGE"
+		cxr_main_notify "Log" "$blank_message"
 	fi
 	
 
@@ -380,24 +386,24 @@ function cxr_main_logger()
 function cxr_main_notify()
 ################################################################################
 {
-	ADRESSES=
+	local adresses=
 	
 	#Add SMS Adress if needed
 	if [[ ${CXR_SEND_SMS} == true  ]]
 	then
-		ADRESSES="$ADRESSES $CXR_SMSADDR"
+		adresses="$adresses $CXR_SMSADDR"
 	fi
 	
 	# Add Email if needed
 	if [[ ${CXR_SEND_EMAIL} == true  ]]
 	then
-		ADRESSES="$ADRESSES $CXR_MAILADDR"
+		adresses="$adresses $CXR_MAILADDR"
 	fi
 	
-	if [[ "${ADRESSES}"  ]]
+	if [[ "${adresses}"  ]]
 	then
 		# send it if we have any adresses
-		echo -e $2 | mail -s "$1" $ADRESSES
+		echo -e $2 | mail -s "$1" $adresses
 	fi
 	
 	# Twitter
@@ -432,6 +438,8 @@ function cxr_main_notify()
 function cxr_main_cleanup()
 ################################################################################
 {
+	local error_count
+	local dummy_file
 	
 	cxr_main_logger "$FUNCNAME" "Cleaning up - note that it can take more than $CXR_WAITING_SLEEP_SECONDS seconds until all processes are down!"
 	
@@ -446,13 +454,13 @@ function cxr_main_cleanup()
 	then
 		
 		# All the non-hollow stuff goes here
-		ERROR_COUNT=$(cxr_main_get_error_count)
+		error_count=$(cxr_main_get_error_count)
 		
 		cxr_main_logger -B "$FUNCNAME"  "Error Report (may be repeated)"
 		
-		if [[ "${ERROR_COUNT:-0}" -ne 0  ]]
+		if [[ "${error_count:-0}" -ne 0  ]]
 		then
-			cxr_main_logger "$FUNCNAME"  "The system detected at least $ERROR_COUNT errors, fix them!\n\nHere is the error stack:\n"
+			cxr_main_logger "$FUNCNAME"  "The system detected at least $error_count errors, fix them!\n\nHere is the error stack:\n"
 			
 			if [[ "${CXR_LOG:-}"  ]]
 			then
@@ -487,11 +495,11 @@ function cxr_main_cleanup()
 			touch "$CXR_INSTANCE_FILE_DUMMY_LIST" 2>/dev/null
 			
 			# Clean dummy files away
-			for DUMMY_FILE in $(cat "$CXR_INSTANCE_FILE_DUMMY_LIST")
+			for dummy_file in $(cat "$CXR_INSTANCE_FILE_DUMMY_LIST")
 			do
-				cxr_main_logger -v "$FUNCNAME"  "Deleting $DUMMY_FILE"
+				cxr_main_logger -v "$FUNCNAME"  "Deleting $dummy_file"
 				
-				rm -f "$DUMMY_FILE"
+				rm -f "$dummy_file"
 			done
 		fi
 		
@@ -576,7 +584,7 @@ function cxr_main_die_gracefully()
 	# If still not set, use 1
 	RET_CODE=${3:-${CXR_RET_ERROR:-1}}
 
-	exit $CXR_RET_ERROR
+	exit $RET_CODE
 }
 
 ################################################################################
@@ -612,30 +620,30 @@ function cxr_main_get_binary_name()
 	fi
 	
 	#Determine possible names
-	GENERAL_EXEC=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/$1-${HOSTTYPE}
-	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
+	local general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/$1-${HOSTTYPE}
+	local machine_exec=${general_exec}-$(uname -n)
 	
 	# Check name - machine first
-	if [[ -x ${MACHINE_EXEC}  ]]
+	if [[ -x ${machine_exec}  ]]
 	then
 		# Machine dependent exists
-		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${MACHINE_EXEC}"
-		echo "${MACHINE_EXEC}"
-	elif [[ -x ${GENERAL_EXEC}  ]]
+		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${machine_exec}"
+		echo "${machine_exec}"
+	elif [[ -x ${general_exec}  ]]
 	then
 		# general exists
-		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${GENERAL_EXEC}"
-		echo "${GENERAL_EXEC}"
+		cxr_main_logger "$FUNCNAME"  "Binary $1 is actually called ${general_exec}"
+		echo "${general_exec}"
 	else
 		#None exists
 		if [[ "$1" == false  ]]
 		then
 			# optional paratemeter is false,
 			# We do not care and return CXR_GENERAL_EXEC
-			echo "$GENERAL_EXEC" 
+			echo "$general_exec" 
 		else
 			# NOK!
-			cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
 	
@@ -655,28 +663,31 @@ function cxr_main_get_binary_name()
 function cxr_main_determine_model_and_version()
 ################################################################################
 {
+	local model
+	local version
+
 	# We expect a name like CAMx-v4.42-bafu3_winter07.run3_lcsl5a
 	# So we split using "-"
 	
 	if [[   $1 == CAMxRunner.sh || $1 == base || $1 == installer    ]]
 	then
 		# If the user does CAMxRunner.sh -h this must work too!
-		VERSION=4.51
-		MODEL=CAMx
+		version=4.51
+		model=CAMx
 	else
 		# Split it
-		MODEL=$(echo "$1" | cut -d- -f1)
-		VERSION=$(echo "$1" | cut -d- -f2)
+		model=$(echo "$1" | cut -d- -f1)
+		version=$(echo "$1" | cut -d- -f2)
 		
 		# Remove v
-		VERSION="${VERSION#v}"
+		version="${version#v}"
 	fi
 	
 	#######################################
 	# Basic variables
 	#######################################
-	CXR_MODEL_VERSION=$VERSION
-	CXR_MODEL=$MODEL
+	CXR_MODEL_VERSION=$version
+	CXR_MODEL=$model
 }
 
 ################################################################################
@@ -862,24 +873,28 @@ function cxr_main_read_config()
 function cxr_main_extract_module_name() 
 ################################################################################
 {
+	local full_name
+	local module_name
+	local index_us
+	
 	if [[ $# -ne 1   ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
 	fi	
 	
-	FULL_NAME=$1
+	full_name=$1
 	
 	# We just want the filename
-	MODULE_NAME=$(basename $FULL_NAME)
+	module_name=$(basename $full_name)
 
 	# Remove extension
-	MODULE_NAME=${MODULE_NAME%.sh}
+	module_name=${module_name%.sh}
 	
 	# Remove XX_
-	INDEX_US=$(expr index "$MODULE_NAME" _)
-	MODULE_NAME=${MODULE_NAME:$INDEX_US}
+	index_us=$(expr index "$module_name" _)
+	module_name=${module_name:$index_us}
 	
-	echo "$MODULE_NAME"
+	echo "$module_name"
 	return $CXR_RET_OK
 }
 
@@ -897,12 +912,12 @@ function cxr_main_enumerate_modules
 {
 	# TODO: How do model and installer modules fit in here?
 	
-	MODULE_TYPE="$1"
+	local module_type="$1"
 	
 	# What kind of module?
 	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
 	# - DISABLED_MODULES is a list of disabled modules of the current type
-	case "$MODULE_TYPE" in
+	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
 			cxr_main_die_gracefully "Common modules cannot be run this way!" ;;
@@ -928,7 +943,7 @@ function cxr_main_enumerate_modules
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $MODULE_TYPE" ;;
+			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	
@@ -961,7 +976,7 @@ function cxr_main_enumerate_modules
 			# Increase global indent level
 			cxr_main_increase_log_indent
 	
-			cxr_main_logger "${FUNCNAME}"  "No enabled modules of type $MODULE_TYPE where found. Is this intended?\n"
+			cxr_main_logger "${FUNCNAME}"  "No enabled modules of type $module_type where found. Is this intended?\n"
 			
 			# Decrease global indent level
 			cxr_main_decrease_log_indent
@@ -972,7 +987,7 @@ function cxr_main_enumerate_modules
 			cxr_main_logger -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
 	
-		cxr_main_logger -i "${FUNCNAME}"  "\n  These $MODULE_TYPE modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"    
+		cxr_main_logger -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"    
 		
 		# How do disabled modules look like?
 		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
@@ -992,7 +1007,7 @@ function cxr_main_enumerate_modules
 			# Increase global indent level
 			cxr_main_increase_log_indent
 	
-			cxr_main_logger -v "${FUNCNAME}"  "  No disabled modules of type $MODULE_TYPE where found.\n"
+			cxr_main_logger -v "${FUNCNAME}"  "  No disabled modules of type $module_type where found.\n"
 			
 			# Decrease global indent level
 			cxr_main_decrease_log_indent
