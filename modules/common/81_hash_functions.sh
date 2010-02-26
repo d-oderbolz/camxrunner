@@ -446,7 +446,7 @@ function test_module()
 	
 	is "$(cxr_common_hash_get test "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test (instance) with path as key"
 	is "$(cxr_common_hash_has? test "/hallo/velo")" true "cxr_common_hash_has? test (instance) with path as key"
-	is "$(cxr_common_hash_keys test)" "/hallo/velo /hallo/gugs" "cxr_common_hash_keys test (instance) with path as key"
+	is "$(cxr_common_hash_keys test)" "/hallo/gugs /hallo/velo" "cxr_common_hash_keys test (instance) with path as key"
 	
 	cxr_common_hash_delete test "/hallo/velo"
 	is "$(cxr_common_hash_has? test "/hallo/velo")" false "cxr_common_hash_delete test (instance) with path as key"
@@ -454,7 +454,7 @@ function test_module()
 	
 	is "$(cxr_common_hash_get test_g "/hallo/velo" global)" SomeOtherValue "cxr_common_hash_get test (global) with path as key"
 	is "$(cxr_common_hash_has? test_g "/hallo/velo" global)" true "cxr_common_hash_has? test (global) with path as key"
-	is "$(cxr_common_hash_keys test_g global)" "/hallo/velo /hallo/gugs" "cxr_common_hash_keys test (global) with path as key"
+	is "$(cxr_common_hash_keys test_g global)" "/hallo/gugs /hallo/velo" "cxr_common_hash_keys test (global) with path as key"
 	
 	cxr_common_hash_delete test_g "/hallo/velo" 
 	is "$(cxr_common_hash_has? test_g "/hallo/velo")" false "cxr_common_hash_delete test (global) with path as key"
