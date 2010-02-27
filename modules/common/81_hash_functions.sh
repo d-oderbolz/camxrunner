@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=8
+CXR_META_MODULE_NUM_TESTS=11
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -349,6 +349,8 @@ function cxr_common_hash_new? ()
 # Function: cxr_common_hash_keys
 #
 # Returns a list of keys of the given hash as a quoted space separated list.
+# Do not assume any particular order, it depends on the order ls imposes on the
+# encoded keys.
 #
 # Parameters:
 # $1 - name of the hash
@@ -435,17 +437,22 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
-	# Instance hash
+	# (Implicit) Instance hash
 	cxr_common_hash_init test
-	cxr_common_hash_put test /hallo/velo SomeOtherValue
 	cxr_common_hash_put test /hallo/gugs SomeOtherValue
+	cxr_common_hash_put test /hallo/velo SomeOtherValue
+
+	
+	# Explicit Instance Hash with strange keys
+	cxr_common_hash_init test2 instance
+	cxr_common_hash_put test2 "This key has spaces" "a value"
+	cxr_common_hash_put test2 "This key also has spaces" "another value"
 	
 	# Global Hash
 	cxr_common_hash_init test_g global
-	cxr_common_hash_put test_g /hallo/velo SomeOtherValue global
 	cxr_common_hash_put test_g /hallo/gugs SomeOtherValue global
-	
-	
+	cxr_common_hash_put test_g /hallo/velo SomeOtherValue global
+
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
@@ -453,6 +460,15 @@ function test_module()
 	is "$(cxr_common_hash_get test "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test (instance) with path as key"
 	is "$(cxr_common_hash_has? test "/hallo/velo")" true "cxr_common_hash_has? test (instance) with path as key"
 	is "$(cxr_common_hash_keys test)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test (instance) with path as key"
+	
+	# Now lets iterate over keys
+	for key in $(cxr_common_hash_keys test)
+	do
+		is "$(cxr_common_hash_get test "$key")" SomeOtherValue "Going trough keys in an interator"
+	done
+	
+	# Lets retrieve those with spaces
+	is "$(cxr_common_hash_get test2 "This key has spaces")" "a value" "cxr_common_hash_get test (instance) - key with spaces"
 	
 	cxr_common_hash_delete test "/hallo/velo"
 	is "$(cxr_common_hash_has? test "/hallo/velo")" false "cxr_common_hash_delete test (instance) with path as key"
@@ -488,6 +504,7 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	cxr_common_hash_destroy test
+	cxr_common_hash_destroy test2
 	cxr_common_hash_destroy test_g global
 }
 
