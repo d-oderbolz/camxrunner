@@ -152,209 +152,197 @@ function cxr_common_test_all_modules()
 	# For this, all modules are enumerated and then tested if marked as testable.
 	# To do this, we need to know the model name and version to test for (otherwise we might repeat many tests)
 	
-	# Do we do this?
-	if [[ "$(cxr_common_get_consent "Do you want to run the test suite of CAMxRunner?)" Y )" == false  ]]
-	then
-		return 0
-	fi
-	
-	################################################################################
-	# Interactive is not imlemented yet
-	# We would need to store the modules to be tested in the counting stage
-	################################################################################	
-	
-	# INTERACTIVE="$(cxr_common_get_consent "Do you want to run the test suite interactively?" )"
-	
-	################################################################################
-	# Determine model and version
-	################################################################################	
-	
-	if [[ ! "${model}"  ]]
-	then
-		# Model was not passed
-		model=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
-	fi
-	
-	model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "Model $model is not known."
-	
-	
-	if [[ ! "${version}"  ]]
-	then
-		# version was not passed
-	
-		# Extract the list of supported versions
-		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
-		
-		# Set the default to the first entry
-		# Save old IFS
-		oIFS="$IFS"
-	
-		IFS="$CXR_SPACE"
-		
-		# Suck line into array
-		array=($supported)
-		
-		# Reset IFS
-		IFS="$oIFS"
-		
-		default_version=${array[0]}
-	
-		#Generate a menu automatically
-		version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
-		
-	fi
-	
-	cxr_common_is_version_supported $version $model
-	
-	cxr_main_logger "${FUNCNAME}" "Testing system using modules for $model $version..."
-	
-	# This is a marker that tells the modules they do not need init anymore
-	CXR_TESTING_FROM_HARNESS=true
-	
-	# Pre-load testing interface
-	CXR_RUN=base
-
-	source inc/init_test.inc
-
-	########################################
-	#  Count all tests
-	########################################
-	
-	total_tests=0
-	
-	# save stdin and redirect it from an in-line file
-	exec 9<&0 <<-EOF
-	# Here we list all directories and a comment on each
-	# The order might need to change later
-	$CXR_COMMON_INPUT_DIR                 "Common Modules"
-	$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
-	$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
-	$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
-	$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
-	$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
-	$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
-	$CXR_MODEL_INPUT_DIR                  "Model Modules"
-	$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
-	$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
-	$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
-	EOF
-	while read CURRENT_DIR COMMENT
+	while [ "$(cxr_common_get_consent "Do you want to (further) run the test suite of CAMxRunner?" )" == true ]
 	do
-		# ignore comment and blank lines
-		echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 
-		cxr_main_logger "$FUNCNAME" "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
+		################################################################################
+		# Determine model and version
+		################################################################################	
 		
-		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+		if [[ ! "${model}"  ]]
+		then
+			# Model was not passed
+			model=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
+		fi
+		
+		model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "Model $model is not known."
+		
+		
+		if [[ ! "${version}"  ]]
+		then
+			# version was not passed
+		
+			# Extract the list of supported versions
+			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
+			
+			# Set the default to the first entry
+			# Save old IFS
+			oIFS="$IFS"
+		
+			IFS="$CXR_SPACE"
+			
+			# Suck line into array
+			array=($supported)
+			
+			# Reset IFS
+			IFS="$oIFS"
+			
+			default_version=${array[0]}
+		
+			#Generate a menu automatically
+			version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
+			
+		fi
+		
+		cxr_common_is_version_supported $version $model
+		
+		cxr_main_logger "${FUNCNAME}" "Testing system using modules for $model $version..."
+		
+		# This is a marker that tells the modules they do not need init anymore
+		CXR_TESTING_FROM_HARNESS=true
+		
+		# Pre-load testing interface
+		CXR_RUN=base
+	
+		source inc/init_test.inc
+	
+		########################################
+		#  Count all tests
+		########################################
+		
+		total_tests=0
+		
+		# save stdin and redirect it from an in-line file
+		exec 9<&0 <<-EOF
+		# Here we list all directories and a comment on each
+		# The order might need to change later
+		$CXR_COMMON_INPUT_DIR                 "Common Modules"
+		$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+		$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
+		$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
+		$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
+		$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
+		$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
+		$CXR_MODEL_INPUT_DIR                  "Model Modules"
+		$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
+		$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
+		$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
+		EOF
+		while read CURRENT_DIR COMMENT
 		do
-			# Create the "bare" name (analogous to extract_module_name, but hen&egg)
-			BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
-			RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
+			# ignore comment and blank lines
+			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
+	
+			cxr_main_logger "$FUNCNAME" "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
-			# Remove XX_
-			INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
-			RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
-			
-			# Load it
-			CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
+			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			do
+				# Create the "bare" name (analogous to extract_module_name, but hen&egg)
+				BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
+				RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
 				
-			source $FUNCTION_FILE
-			
-			cxr_main_logger -v "$FUNCNAME" "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
-			
-			total_tests=$(( $total_tests + $CXR_META_MODULE_NUM_TESTS ))
-			
+				# Remove XX_
+				INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
+				RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
+				
+				# Load it
+				CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
+					
+				source $FUNCTION_FILE
+				
+				cxr_main_logger -v "$FUNCNAME" "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
+				
+				total_tests=$(( $total_tests + $CXR_META_MODULE_NUM_TESTS ))
+				
+			done
 		done
-	done
-	# Restore stdin and close fd 9
-	exec 0<&9 9<&-
-	
-	########################################
-	#  Plan these tests
-	########################################
-	cxr_main_logger -v "$FUNCNAME" "Planning to run $total_tests tests..."
-	plan_tests $total_tests
-
-	########################################
-	#  Do these tests
-	########################################
-	
-	# This is to remember the last loaded config
-	LAST_LOADED_CONFIG=base
-	
-	# save stdin and redirect it from an in-line file
-	exec 9<&0 <<-EOF
-	# Here we list all directories and a comment on each
-	# The order might need to change later
-	$CXR_COMMON_INPUT_DIR                 "Common Modules"
-	$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
-	$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
-	$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
-	$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
-	$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
-	$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
-	$CXR_MODEL_INPUT_DIR                  "Model Modules"
-	$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
-	$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
-	$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
-	EOF
-	while read CURRENT_DIR COMMENT
-	do
-		# ignore comment and blank lines
-		echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
-
-		cxr_main_logger "$FUNCNAME" "Executing ${COMMENT} tests..."
+		# Restore stdin and close fd 9
+		exec 0<&9 9<&-
 		
-		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+		########################################
+		#  Plan these tests
+		########################################
+		cxr_main_logger -v "$FUNCNAME" "Planning to run $total_tests tests..."
+		plan_tests $total_tests
+	
+		########################################
+		#  Do these tests
+		########################################
+		
+		# This is to remember the last loaded config
+		LAST_LOADED_CONFIG=base
+		
+		# save stdin and redirect it from an in-line file
+		exec 9<&0 <<-EOF
+		# Here we list all directories and a comment on each
+		# The order might need to change later
+		$CXR_COMMON_INPUT_DIR                 "Common Modules"
+		$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+		$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
+		$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
+		$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
+		$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
+		$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
+		$CXR_MODEL_INPUT_DIR                  "Model Modules"
+		$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
+		$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
+		$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
+		EOF
+		while read CURRENT_DIR COMMENT
 		do
-			# Create the "bare" name (analogous to extract_module_name, but hen&egg)
-			BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
-			RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
+			# ignore comment and blank lines
+			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
+	
+			cxr_main_logger "$FUNCNAME" "Executing ${COMMENT} tests..."
 			
-			# Remove XX_
-			INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
-			RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
-			
-			# Load it
-			CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
+			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			do
+				# Create the "bare" name (analogous to extract_module_name, but hen&egg)
+				BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
+				RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
 				
-			source $FUNCTION_FILE
-			
-			if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
-			then
+				# Remove XX_
+				INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
+				RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
 				
-				# We must state the run name properly
-				CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
+				# Load it
+				CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
+					
+				source $FUNCTION_FILE
 				
-				# If we did not just load this config, do it now
-				if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG"  ]]
+				if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
 				then
-					# We prepare the tests
-					source inc/init_test.inc
-					LAST_LOADED_CONFIG=$CXR_RUN
+					
+					# We must state the run name properly
+					CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
+					
+					# If we did not just load this config, do it now
+					if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG"  ]]
+					then
+						# We prepare the tests
+						source inc/init_test.inc
+						LAST_LOADED_CONFIG=$CXR_RUN
+					fi
+					
+					cxr_main_logger -b "$FUNCNAME" "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
+					
+					test_module
+					
+				else
+					cxr_main_logger -v "$FUNCNAME" "There are no tests in $CXR_META_MODULE_NAME yet."
 				fi
 				
-				cxr_main_logger -b "$FUNCNAME" "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
-				
-				test_module
-				
-			else
-				cxr_main_logger -v "$FUNCNAME" "There are no tests in $CXR_META_MODULE_NAME yet."
-			fi
-			
+			done
 		done
+		# Restore stdin and close fd 9
+		exec 0<&9 9<&-
+		
+		########################################
+		#  Get stats
+		########################################
+		summarize_tests
+
 	done
-	# Restore stdin and close fd 9
-	exec 0<&9 9<&-
-	
-	########################################
-	#  Get stats
-	########################################
-	summarize_tests
-	
-	########################################
-	#  Visualize
-	########################################
 }
 
 ################################################################################
