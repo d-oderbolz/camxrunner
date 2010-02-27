@@ -215,7 +215,7 @@ function get_model_exec()
 			echo "${GENERAL_EXEC}" 
 		else
 			# NOK - just issue a warning (if we are compiling e.g.)
-			xr_main_logger -w "${FUNCNAME}" "Could not find a suitable CAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
+			cxr_main_logger -w "${FUNCNAME}" "Could not find a suitable CAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
 }
