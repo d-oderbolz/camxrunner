@@ -150,7 +150,7 @@ function cxr_common_trim()
 		cxr_main_logger -w "$FUNCNAME" "Wrong call."
 		echo ""
 	else
-		echo "$(expr "$1" : '[$to_remove]*\(.*[^ ]\)[$to_remove]*$')`"
+		echo "$(expr "$1" : '[$to_remove]*\(.*[^ ]\)[$to_remove]*$')"
 	fi
 }
 
