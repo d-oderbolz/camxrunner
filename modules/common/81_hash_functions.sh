@@ -176,8 +176,6 @@ function _hash_fn ()
 	# Generate the filename
 	fn="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
 	
-	echo "fn:*${fn}*" 1>&2
-	
 	echo "${hash_dir}/${hash}/${fn}"
 }
 
@@ -477,7 +475,7 @@ function test_module()
 	# Now lets iterate over keys
 	for key in $(cxr_common_hash_keys test)
 	do
-		is "$(cxr_common_hash_get test "$key")" SomeOtherValue "Going trough keys in an interator"
+		is "$(cxr_common_hash_get test $key)" SomeOtherValue "Going trough keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
