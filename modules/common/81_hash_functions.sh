@@ -163,7 +163,10 @@ function _hash_fn ()
 		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
 	esac
 	
+	# Remove any leading or trailing spaces
+	echo "key before:*${key}*" 1>&2
 	key="$(cxr_common_trim "$key")"
+	echo "key after:*${key}*" 1>&2
 	
 	if [[ ! "$key" ]]
 	then
@@ -172,6 +175,8 @@ function _hash_fn ()
 	
 	# Generate the filename
 	fn="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
+	
+	echo "fn:*${fn}*" 1>&2
 	
 	echo "${hash_dir}/${hash}/${fn}"
 }

@@ -81,7 +81,6 @@ exit 1
 function cxr_common_is_substring_present() 
 ################################################################################
 {
-	
 	local found=$(expr match " $1" ".*$2.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
@@ -111,8 +110,6 @@ function cxr_common_to_lower()
 	else
 		echo $1 | tr "[:upper:]" "[:lower:]"
 	fi
-	
-	
 } 
 
 ################################################################################
@@ -132,8 +129,6 @@ function cxr_common_to_upper()
 	else
 		echo $1 | tr "[:lower:]" "[:upper:]"
 	fi
-	
-	
 }
 
 ################################################################################
