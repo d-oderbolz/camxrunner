@@ -247,7 +247,7 @@ function cxr_common_hash_delete ()
 		# remove the value
 		rm -f "${fn}"
 	else
-		cxr_main_logger -w "$FUNCNAME" "Key $key not found in $type hash $hash"
+		cxr_main_logger -v "$FUNCNAME" "Key $key not found in $type hash $hash"
 	fi
 }
 
