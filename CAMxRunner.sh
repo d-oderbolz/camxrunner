@@ -524,8 +524,8 @@ then
 		cxr_common_test_all_modules
 	fi
 	
-	# Delete instance data if any
-	cxr_common_delete_instance_data
+	# Do cleanup
+	cxr_main_cleanup
 	
 	# We are happy
 	CXR_STATUS=${CXR_STATUS_SUCCESS}
