@@ -102,7 +102,9 @@ function cxr_common_array_zero()
 	local i_arr
 	
 	# We must suck the array passed as list into an array again
-	local array=( "$@" )
+	local array
+	
+	array=( "$@" )
 	
 	for i_arr in $(seq 0 $(( ${#array[@]} - 1 )) )
 	do
@@ -113,7 +115,6 @@ function cxr_common_array_zero()
 	done
 	
 	echo $status
-
 }
 
 ################################################################################
@@ -268,7 +269,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	# Arrays to xount zeros
+	# Arrays to count zeros
 	a=(1 1 1 1)
 	b=(0 0 0 0)
 	c=(-1 1 1 -1)
