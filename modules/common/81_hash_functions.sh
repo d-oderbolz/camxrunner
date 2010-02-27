@@ -164,9 +164,7 @@ function _hash_fn ()
 	esac
 	
 	# Remove leading or trailing quotes
-	echo "key before:*${key}*" 1>&2
 	key="$(cxr_common_trim "${key}" '\"')"
-	echo "key after:*${key}*" 1>&2
 	
 	if [[ ! "$key" ]]
 	then
