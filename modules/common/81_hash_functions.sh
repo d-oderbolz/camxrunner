@@ -14,7 +14,7 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
-# TODO: Make Hashes independent of HASH_DIR (For MD5 Cache)
+# TODO: 
 ################################################################################
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
@@ -348,7 +348,7 @@ function cxr_common_hash_new? ()
 ################################################################################
 # Function: cxr_common_hash_keys
 #
-# Returns a list of keys of the given hash
+# Returns a list of keys of the given hash as a quoted space separated list.
 #
 # Parameters:
 # $1 - name of the hash
@@ -362,6 +362,7 @@ function cxr_common_hash_keys ()
 	local hash_dir
 	local fn
 	local key
+	local list=""
 	
 	# Work out the directory
 	case $type in
@@ -373,8 +374,13 @@ function cxr_common_hash_keys ()
 	for fn in $(ls ${hash_dir}/${hash})
 	do
 		key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
-		echo -n "$key "
+		list="${list}\"$key\" "
 	done
+	
+	# Remove last space
+	list=${list%\ }
+	
+	echo "$list"
 }
 
 
