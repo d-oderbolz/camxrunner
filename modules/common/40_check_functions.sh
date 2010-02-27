@@ -423,7 +423,7 @@ function cxr_common_check_environment_executables ()
 					# Do not increase error count here - maybe we do not need this one
 				else
 					# All OK, just report MD5
-					cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${!executable} is $(cxr_common_md5 ${!executable})"
+					cxr_common_report_md5 "${!executable}"
 				fi
 			else
 			  # Not present!
@@ -447,20 +447,53 @@ function cxr_common_check_environment_executables ()
 function cxr_common_md5() 
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+		if [[ $# -ne 1  ]]
+		then
+			echo -e "$FUNCNAME" "Programming error: no filename passed!"
+		fi
+		
+		local file="$1"
+		
+		if [[ -r "${file}" ]]
+		then
+			"${CXR_MD5_EXEC}" "${file}" | cut -d" " -f1
+		else
+			# Return the empty string
+			echo -w "$FUNCNAME" "File $file not readable."
+			echo ""
+		fi
+}
+
+
+################################################################################
+# Function: cxr_common_report_md5
+#	
+# Logs the MD5 Hash of a file.
+# Also stores this information in a global hash called MD5. If there is a current 
+# value in there (generated during this run), we do not report a new value, 
+# otherwise we do and compare the new with the old value.
+#
+# Parameters:
+# $1 - file to Hash
+################################################################################
+function cxr_common_report_md5() 
+################################################################################
+{
+	if [[ "${CXR_REPORT_MD5}" == true  ]]
 	then
-		echo -e "$FUNCNAME" "You must pass a file for which I should determine the MD5 checksum"
-	fi
 	
-	local file="$1"
-	
-	if [[ -r "${file}"  ]]
-	then
-		"${CXR_MD5_EXEC}" "${file}" | cut -d" " -f1
-	else
-		# Return the empty string
-		echo -w "$FUNCNAME" "File $file not readable."
-		echo ""
+		if [[ $# -ne 1  ]]
+		then
+			echo -e "$FUNCNAME" "Programming error: no filename passed!"
+		fi
+		
+		local file="$1"
+		local hash
+		
+		hash="$(cxr_common_md5 "$file")"
+		
+		cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${file} is ${hash}"
+
 	fi
 }
 
@@ -716,14 +749,8 @@ function cxr_common_check_preconditions()
 						cxr_main_logger -e "${FUNCNAME}" "File ${input_file} is empty!"
 						errors_found=true
 					else
-						# Nono-empty, report hash if wanted
-						if [[ "${CXR_REPORT_MD5}" == true  ]]
-						then
-							if [[ "${CXR_REPORT_MD5}" == true  ]]
-							then
-								cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${input_file} is $(cxr_common_md5 ${input_file})"
-							fi
-						fi
+						# Non-empty, report hash if wanted
+						cxr_common_report_md5 "${input_file}"
 					fi # larger than 0
 				else
 					# Not readable!

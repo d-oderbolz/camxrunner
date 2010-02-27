@@ -149,7 +149,7 @@ function cxr_common_trim()
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		cxr_main_logger -w "$FUNCNAME" "Programming error: wrong call."
+		cxr_main_logger -e "$FUNCNAME" "Programming error: wrong call."
 		echo ""
 	else
 		# trim in front

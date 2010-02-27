@@ -130,6 +130,7 @@ function get_chemparam_file ()
 		cxr_main_logger $FUNCNAME "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
 	fi
 	
+	cxr_common_report_md5 "${MY_CHEMPARAM_INPUT_FILE}"
 	echo "$MY_CHEMPARAM_INPUT_FILE"
 }
 

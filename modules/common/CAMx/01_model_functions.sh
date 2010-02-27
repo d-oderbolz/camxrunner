@@ -150,10 +150,7 @@ function get_chemparam_file()
 		cxr_main_logger -a $FUNCNAME "Using chemparam file (${our_chemparam})."
 		
 		# Also report MD5
-		if [[ "${CXR_REPORT_MD5}" == true  ]]
-		then
-			cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${our_chemparam} is $(cxr_common_md5 ${our_chemparam})"
-		fi
+		cxr_common_report_md5 "${our_chemparam}"
 	fi
 	
 	echo "${our_chemparam}"

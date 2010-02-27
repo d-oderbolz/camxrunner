@@ -141,6 +141,7 @@ function cxr_common_hash_destroy ()
 #
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
 # Trims the key of leading or trailing double quotes because <cxr_common_hash_keys> adds them.
+# Tries to remedy missing directories (if <cxr_common_hash_init> was not called!)
 #
 # Parameters:
 # $1 - name of the hash
@@ -172,9 +173,12 @@ function _hash_fn ()
 	fi
 	
 	# Generate the filename
-	fn="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
+	fn="${hash_dir}/${hash}/$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
 	
-	echo "${hash_dir}/${hash}/${fn}"
+	# Make the directory, just in case
+	mkdir -p "$(dirname "${fn}")" >/dev/null 2>&1
+	
+	echo "${fn}"
 }
 
 ################################################################################
@@ -182,6 +186,7 @@ function _hash_fn ()
 #
 # Puts a value into a key of a given hash. First the key is urlencoded using perl
 # then we use this value as a filename to store the value in.
+# 
 #
 # Parameters:
 # $1 - name of the hash
@@ -208,7 +213,7 @@ function cxr_common_hash_put ()
 ################################################################################
 # Function: cxr_common_hash_get
 #
-# Gets a certain value for a hash
+# Gets a certain value from a hash
 #
 # Parameters:
 # $1 - name of the hash
