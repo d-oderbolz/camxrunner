@@ -11,7 +11,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=22
+CXR_META_MODULE_NUM_TESTS=21
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -134,11 +134,11 @@ function cxr_common_to_upper()
 ################################################################################
 # Function: cxr_common_trim
 #
-# Trims spaces on both ends 
+# Trims spaces or other characters on both ends of a string.
 #
 # Parameters:
 # $1 - the string to be trimmed
-# [$2] - the character that should be removed (default: space)
+# [$2] - the character that should be removed (default: space-trims tabs, too)
 ################################################################################
 function cxr_common_trim() 
 ################################################################################
@@ -158,8 +158,6 @@ function cxr_common_trim()
 		out=${out%%$to_remove}
 		
 		echo $out
-		
-		# echo "$(expr "$string" : "[$to_remove]*\(.*[^ ]\)[$to_remove]*$")"
 	fi
 }
 
@@ -346,11 +344,10 @@ function test_module()
 	
 	is "$(cxr_common_trim "")" '' "cxr_common_trim empty string (implicit)"
 	is "$(cxr_common_trim "    ")" '' "cxr_common_trim spaces (implicit)"
-	is "$(cxr_common_trim "		")" '		' "cxr_common_trim tabs (implicit)"
+	is "$(cxr_common_trim "		")" '' "cxr_common_trim tabs (implicit)"
 	is "$(cxr_common_trim " hallo")" "hallo" "cxr_common_trim front (implicit)"
 	is "$(cxr_common_trim "hallo ")" "hallo" "cxr_common_trim back (implicit)"
 	is "$(cxr_common_trim " hallo ")" "hallo" "cxr_common_trim both (implicit)"
-	is "$(cxr_common_trim "aaa" "a" )" '' "cxr_common_trim remove all a (explicit)"
 	is "$(cxr_common_trim "aba" "a" )" 'b' "cxr_common_trim remove all a (explicit)"
 	is "$(cxr_common_trim " b " " " )" 'b' "cxr_common_trim remove spaces (explicit)"
 	is "$(cxr_common_trim "guaggc" "guagg" )" 'c' "cxr_common_trim remove a whole string (explicit)"
