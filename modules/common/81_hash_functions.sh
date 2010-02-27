@@ -92,7 +92,7 @@ function cxr_common_hash_init ()
 ################################################################################
 {
 	local hash="$1"
-	local type=${2:-instance}
+	local type="${2:-instance}"
 	local hash_dir
 	
 	# Work out the directory
@@ -122,7 +122,7 @@ function cxr_common_hash_destroy ()
 ################################################################################
 {
 	local hash="$1"
-	local type=${2:-instance}
+	local type="${2:-instance}"
 	local hash_dir
 	
 	# Work out the directory
@@ -151,7 +151,7 @@ function _hash_fn ()
 {
 	hash="$1"
 	key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	local hash_dir
 	local fn
 	
@@ -186,11 +186,11 @@ function cxr_common_hash_put ()
 	local hash="$1"
 	local key="$2"
 	local value="$3"
-	local type=${4:-instance}
+	local type="${4:-instance}"
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn $hash $key $type)"
+	fn="$(_hash_fn "$hash" "$key" "$type")"
 	
 	# Write the value
 	echo "${value}" > "${fn}"
@@ -211,11 +211,11 @@ function cxr_common_hash_get ()
 {
 	local hash="$1"
 	local key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn $hash $key $type)"
+	fn="$(_hash_fn "$hash" "$key" "$type")"
 	
 	# Get the value
 	cat "${fn}"
@@ -236,18 +236,18 @@ function cxr_common_hash_delete ()
 {
 	local hash="$1"
 	local key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	local fn
 	
-	if [[ $(cxr_common_hash_has? $hash $key $type) == true ]]
+	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true ]]
 	then
 		# Generate the filename
-		fn="$(_hash_fn $hash $key $type)"
+		fn="$(_hash_fn "$hash" "$key" "$type")"
 		
 		# remove the value
 		rm -f "${fn}"
 	else
-		cxr_main_logger -v "$FUNCNAME" "Key $key not found in $type hash $hash"
+		cxr_main_logger -v "$FUNCNAME" "Key "$key" not found in "$type" hash "$hash""
 	fi
 }
 
@@ -266,11 +266,11 @@ function cxr_common_hash_mtime ()
 {
 	local hash="$1"
 	local key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn $hash $key $type)"
+	fn="$(_hash_fn "$hash" "$key" "$type")"
 	
 	# Get the mtime
 	$(cxr_common_get_file_mtime "$fn")
@@ -291,11 +291,11 @@ function cxr_common_hash_has? ()
 {
 	local hash="$1"
 	local key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn $hash $key $type)"
+	fn="$(_hash_fn "$hash" "$key" "$type")"
 	
 	if [[ -f "${fn}"  ]]
 	then
@@ -322,16 +322,16 @@ function cxr_common_hash_new? ()
 {
 	local hash="$1"
 	local key="$2"
-	local type=${3:-instance}
+	local type="${3:-instance}"
 	
 	local res
 	
 	# Is it in the hash?
-	if [[ $(cxr_common_hash_has? $hash $key $type) == true  ]]
+	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true  ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash es epoch is smaller, it is older
-		if [[ "$(cxr_common_hash_mtime $hash $key $type)" -lt $CXR_EPOCH  ]]
+		if [[ "$(cxr_common_hash_mtime "$hash" "$key" "$type")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -359,8 +359,8 @@ function cxr_common_hash_new? ()
 function cxr_common_hash_keys ()
 ################################################################################
 {
-	local hash=${1}
-	local type=${2:-instance}
+	local hash="${1}"
+	local type="${2:-instance}"
 	local hash_dir
 	local fn
 	local key
