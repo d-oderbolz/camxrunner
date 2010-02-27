@@ -422,7 +422,7 @@ function cxr_common_check_environment_executables ()
 
 					# Do not increase error count here - maybe we do not need this one
 				else
-					# Allo OK, just report MD5
+					# All OK, just report MD5
 					cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${!executable} is $(cxr_common_md5 ${!executable})"
 				fi
 			else
@@ -719,7 +719,10 @@ function cxr_common_check_preconditions()
 						# Nono-empty, report hash if wanted
 						if [[ "${CXR_REPORT_MD5}" == true  ]]
 						then
-							cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${input_file} is $(cxr_common_md5 ${input_file})"
+							if [[ "${CXR_REPORT_MD5}" == true  ]]
+							then
+								cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${input_file} is $(cxr_common_md5 ${input_file})"
+							fi
 						fi
 					fi # larger than 0
 				else
