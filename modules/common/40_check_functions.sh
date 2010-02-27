@@ -814,7 +814,7 @@ function cxr_common_check_preconditions()
 	set -u
 	
 	# Inverting
-	if [[ "${errors_found:-false}" == false  ]]
+	if [[ "${errors_found:-false}" == false ]]
 	then
 		# No errors
 		echo true

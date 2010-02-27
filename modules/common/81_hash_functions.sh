@@ -140,6 +140,7 @@ function cxr_common_hash_destroy ()
 # Function: _hash_fn
 #
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
+# Trims the key of any leading or trailing spaces.
 #
 # Parameters:
 # $1 - name of the hash
@@ -161,6 +162,13 @@ function _hash_fn ()
 		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
 		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
 	esac
+	
+	key="$(cxr_common_trim "$key")"
+	
+	if [[ ! "$key" ]]
+	then
+		cxr_main_logger -w "Detected empty key!"
+	fi
 	
 	# Generate the filename
 	fn="$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
