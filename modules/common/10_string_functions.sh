@@ -134,7 +134,7 @@ function cxr_common_to_upper()
 ################################################################################
 # Function: cxr_common_trim
 #
-# Trims the given string of spaces or other characters on both ends.
+# Trims spaces on both ends 
 #
 # Parameters:
 # $1 - the string to be trimmed
@@ -143,14 +143,23 @@ function cxr_common_to_upper()
 function cxr_common_trim() 
 ################################################################################
 {
+	local string="${1}"
 	local to_remove="${2:-" "}"
+	local out
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		cxr_main_logger -w "$FUNCNAME" "Wrong call."
+		cxr_main_logger -w "$FUNCNAME" "Programming error: wrong call."
 		echo ""
 	else
-		echo "$(expr "$1" : '[$to_remove]*\(.*[^ ]\)[$to_remove]*$')"
+		# trim in front
+		out=${string##$to_remove}
+		# and at the back
+		out=${out%%$to_remove}
+		
+		echo $out
+		
+		# echo "$(expr "$string" : "[$to_remove]*\(.*[^ ]\)[$to_remove]*$")"
 	fi
 }
 
