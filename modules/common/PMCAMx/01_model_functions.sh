@@ -188,8 +188,8 @@ function get_model_exec()
 			# We do not care and return CXR_GENERAL_EXEC
 			echo "${GENERAL_EXEC}" 
 		else
-			# NOK - we fail
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not find a suitable PMCAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
+			# NOK - just issue a warning (if we are compiling e.g.)
+			cxr_main_logger -w "${FUNCNAME}" "Could not find a suitable PMCAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
 }
