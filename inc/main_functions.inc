@@ -642,8 +642,8 @@ function cxr_main_get_binary_name()
 			# We do not care and return CXR_GENERAL_EXEC
 			echo "$general_exec" 
 		else
-			# NOK!
-			cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			# NOK-just issue a warning
+			cxr_main_logger -w "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
 	
