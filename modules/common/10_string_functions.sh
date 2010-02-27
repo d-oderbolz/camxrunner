@@ -11,7 +11,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=18
+CXR_META_MODULE_NUM_TESTS=22
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -134,19 +134,23 @@ function cxr_common_to_upper()
 ################################################################################
 # Function: cxr_common_trim
 #
-# Trims the given string of spaces on both ends. Does not remove tabs! 
+# Trims the given string of spaces or other characters on both ends.
 #
 # Parameters:
 # $1 - the string to be trimmed
+# [$2] - the character that should be removed (default: space)
 ################################################################################
 function cxr_common_trim() 
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	local to_remove="${2:-" "}"
+	
+	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
+		cxr_main_logger -w "$FUNCNAME" "Wrong call."
 		echo ""
 	else
-		echo "`expr "$1" : '[ ]*\(.*[^ ]\)[ ]*$'`"
+		echo "$(expr "$1" : '[$to_remove]*\(.*[^ ]\)[$to_remove]*$')`"
 	fi
 }
 
@@ -322,22 +326,32 @@ function test_module()
 	########################################
 	
 	is "$(cxr_common_is_substring_present abc a)" true "cxr_common_is_substring_present is a in abc?"
+	
 	is "$(cxr_common_to_lower QUERTY)" querty "cxr_common_to_lower QUERTY"
 	is "$(cxr_common_to_lower querty)" querty "cxr_common_to_lower querty"
 	is "$(cxr_common_to_lower '')" "" "cxr_common_to_lower empty string"
+	
 	is "$(cxr_common_to_upper QUERTY)" QUERTY "cxr_common_to_upper QUERTY"
 	is "$(cxr_common_to_upper querty)" QUERTY "cxr_common_to_upper querty"
 	is "$(cxr_common_to_upper "")" '' "cxr_common_to_upper empty string"
-	is "$(cxr_common_trim "")" '' "cxr_common_trim empty string"
-	is "$(cxr_common_trim "    ")" '' "cxr_common_trim spaces"
-	is "$(cxr_common_trim "		")" '		' "cxr_common_trim tabs"
-	is "$(cxr_common_trim " hallo")" "hallo" "cxr_common_trim front"
-	is "$(cxr_common_trim "hallo ")" "hallo" "cxr_common_trim back"
-	is "$(cxr_common_trim " hallo ")" "hallo" "cxr_common_trim both"
+	
+	is "$(cxr_common_trim "")" '' "cxr_common_trim empty string (implicit)"
+	is "$(cxr_common_trim "    ")" '' "cxr_common_trim spaces (implicit)"
+	is "$(cxr_common_trim "		")" '		' "cxr_common_trim tabs (implicit)"
+	is "$(cxr_common_trim " hallo")" "hallo" "cxr_common_trim front (implicit)"
+	is "$(cxr_common_trim "hallo ")" "hallo" "cxr_common_trim back (implicit)"
+	is "$(cxr_common_trim " hallo ")" "hallo" "cxr_common_trim both (implicit)"
+	is "$(cxr_common_trim "aaa" "a" )" '' "cxr_common_trim remove all a (explicit)"
+	is "$(cxr_common_trim "aba" "a" )" 'b' "cxr_common_trim remove all a (explicit)"
+	is "$(cxr_common_trim " b " " " )" 'b' "cxr_common_trim remove spaces (explicit)"
+	is "$(cxr_common_trim "guaggc" "guagg" )" 'c' "cxr_common_trim remove a whole string (explicit)"
+	
 	is "$(cxr_common_extract_characters 1234 2)" 12 "cxr_common_extract_characters"
+	
 	is "$(cxr_common_two_digits 1)" 01 "cxr_common_two_digits 1"
 	is "$(cxr_common_two_digits 01)" 01 "cxr_common_two_digits 01"
 	is "$(cxr_common_two_digits 001)" 01 "cxr_common_two_digits too long"
+	
 	is "$(cxr_common_extract_number xx00xx )" '' "cxr_common_extract_number not at beginning"
 	
 	########################################

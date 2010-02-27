@@ -140,7 +140,7 @@ function cxr_common_hash_destroy ()
 # Function: _hash_fn
 #
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
-# Trims the key of any leading or trailing spaces.
+# Trims the key of leading or trailing double quotes because <cxr_common_hash_keys> adds them.
 #
 # Parameters:
 # $1 - name of the hash
@@ -163,9 +163,9 @@ function _hash_fn ()
 		*) cxr_main_logger -e "$FUNCNAME" "Unknown Hashtype $type" ;;
 	esac
 	
-	# Remove any leading or trailing spaces
+	# Remove leading or trailing quotes
 	echo "key before:*${key}*" 1>&2
-	key="$(cxr_common_trim "$key")"
+	key="$(cxr_common_trim '"')"
 	echo "key after:*${key}*" 1>&2
 	
 	if [[ ! "$key" ]]
@@ -475,7 +475,7 @@ function test_module()
 	# Now lets iterate over keys
 	for key in $(cxr_common_hash_keys test)
 	do
-		is "$(cxr_common_hash_get test $key)" SomeOtherValue "Going trough keys in an interator"
+		is "$(cxr_common_hash_get test "$key")" SomeOtherValue "Going trough keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
