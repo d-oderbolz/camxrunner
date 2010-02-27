@@ -393,6 +393,7 @@ function cxr_common_check_runner_executables ()
 # * Set
 # * Present
 # * Executable
+# * also report their MD5 Hashes
 #
 # This function is only visual, does not terminate
 ################################################################################
@@ -407,19 +408,22 @@ function cxr_common_check_environment_executables ()
 		cxr_main_logger -v "${FUNCNAME}"  "Variable $executable has value: ${!executable}\n"
 			
 		# is it set?
-		if [[ "${!executable}"  ]]
+		if [[ "${!executable}" ]]
 		then
 			# Does it exist?
-			if [[ -f "${!executable}"  ]]
+			if [[ -f "${!executable}" ]]
 			then
 				# is it executable 
-				if [[ ! -x ${!executable}  ]]
+				if [[ ! -x ${!executable} ]]
 				then
 					cxr_main_logger -w "${FUNCNAME}"  "Executable ${!executable}, Parameter $executable not executable - I try to correct this ..."     
 					
 					chmod +x ${!executable} || cxr_main_logger "${FUNCNAME}" "Could not change permissions on file $FILE"
 
 					# Do not increase error count here - maybe we do not need this one
+				else
+					# Allo OK, just report MD5
+					cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${!executable} is $(cxr_common_md5 ${!executable})"
 				fi
 			else
 			  # Not present!
