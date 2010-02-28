@@ -490,9 +490,32 @@ function cxr_common_report_md5()
 		local file="$1"
 		local hash
 		
-		hash="$(cxr_common_md5 "$file")"
+		# Is this file already in the cache?
+		if [[ $(cxr_common_hash_has? MD5 "${file}" global ) == true ]]
+		then
 		
-		cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${file} is ${hash}"
+			# Did we encounter it recently?
+			if [[ $(cxr_common_hash_new? MD5 "${file}" global) == false ]]
+			then
+				# it must be older, check if hash has changed.
+				new_hash="$(cxr_common_md5 "$file")"
+				old_hash="$(cxr_common_hash_get MD5 "${file}" global)"
+			fi
+		
+		else
+			# Never seen this file before!
+			hash="$(cxr_common_md5 "$file")"
+			cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${file} is ${hash}"
+			
+			# Store in Cache
+			cxr_common_hash_put MD5 "$file" "$hash" global
+		fi
+		
+	
+			
+		
+			
+		
 
 	fi
 }

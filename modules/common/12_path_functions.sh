@@ -214,7 +214,7 @@ function cxr_common_wait_for_file()
 {
 	local filename="$1"
 	
-	while [[ ! -f $filename && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
+	until [[ -f $filename && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
 	do
 		sleep ${CXR_WAITING_SLEEP_SECONDS}
 		waited_mins=$(( ($waited_mins + $CXR_WAITING_SLEEP_SECONDS)/60  ))
@@ -250,7 +250,7 @@ function cxr_common_wait_for_stable_size()
 	local filename="$1"
 	local old_size=0
 	
-	while [[ $(cxr_common_file_size_megabytes $filename) -lt $old_size  && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
+	until [[ $(cxr_common_file_size_megabytes $filename) -eq $old_size  &&  ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
 	do
 		# Store the current size as old
 		old_size="$(cxr_common_file_size_megabytes $filename)"
@@ -261,7 +261,7 @@ function cxr_common_wait_for_stable_size()
 	done
 	
 	# We fail if the filesize is 0 or it did not grow
-	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -lt $old_size ]]
+	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -ne $old_size ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "$filename does not grow (fast enough)."
 		echo false
