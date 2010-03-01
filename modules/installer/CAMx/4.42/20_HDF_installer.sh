@@ -14,7 +14,6 @@
 ################################################################################
 # TODO: The code here is pretty repetitive because bash has no nice
 # hash construct (mostly needed for configure options etc.)
-# TODO: imlpement "local"
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -92,6 +91,9 @@ function HDF_installer()
 {
 	if [[ "$(cxr_common_get_consent "Do you want to complile the zlib, HDF, netCDF and IOAPI libraries (needed for HDF and IOAPI support)?\nRequires about $CXR_LIB_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
+	
+		local patch_all_dir
+		local patch_platform_dir
 	
 		########################################
 		# Setup
@@ -255,21 +257,21 @@ function HDF_installer()
 		CXR_CURRENT_BINARY=ioapi
 		
 		# These directories might not exist!
-		PATCH_ALL_DIR=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
-		PATCH_PLATFORM_DIR=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
+		patch_all_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
+		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
-		if [[ -d "$PATCH_ALL_DIR"  ]]
+		if [[ -d "$patch_all_dir"  ]]
 		then
-			cxr_common_apply_patches "$PATCH_ALL_DIR" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
+			cxr_common_apply_patches "$patch_all_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
-		if [[ -d "$PATCH_PLATFORM_DIR"  ]]
+		if [[ -d "$patch_platform_dir"  ]]
 		then
-			cxr_common_apply_patches "$PATCH_PLATFORM_DIR" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
+			cxr_common_apply_patches "$patch_platform_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
 		cd ${CXR_IOAPI_TAR_DIR} || cxr_main_die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"

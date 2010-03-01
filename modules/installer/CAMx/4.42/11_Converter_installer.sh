@@ -79,15 +79,13 @@ exit 1
 }
 
 ################################################################################
-# Function: 	CAMxRunner_installer
+# Function: Converter_installer
 #
 # Compiles a couple of converter binaries.
 #
 function Converter_installer() 
 ################################################################################
 {
-	#There is not much to do, other than regenerating the API documentation
-	
 	if [[ "$(cxr_common_get_consent "Do you want to compile the converters?" Y )" == true  ]]
 	then
 	

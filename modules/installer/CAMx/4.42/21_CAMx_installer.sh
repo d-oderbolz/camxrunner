@@ -89,29 +89,29 @@ exit 1
 function CAMx_installer() 
 ################################################################################
 {
-	local input_dir
-	local parallel_paradigm
-	local probing_tool
-	local domain
-	local binary_name
-	local target_prm_file
-	local expected_name
-	local run
-	local conffile
-	local logfile
-	local hdf
-	local mpi
-	local default_platform
-	local resulting_binary
-	local patch_all_dir
-	local patch_platform_dir
-	local draft_dir
-	local askfile
-	local playfile
-	local prm_file
-	
 	if [[ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true  ]]
 	then
+	
+		local input_dir
+		local parallel_paradigm
+		local probing_tool
+		local domain
+		local binary_name
+		local target_prm_file
+		local expected_name
+		local run
+		local conffile
+		local logfile
+		local hdf
+		local mpi
+		local default_platform
+		local resulting_binary
+		local patch_all_dir
+		local patch_platform_dir
+		local draft_dir
+		local askfile
+		local playfile
+		local prm_file
 	
 		########################################
 		# Setup
@@ -414,7 +414,7 @@ function CAMx_installer()
 		cxr_main_logger -a "${FUNCNAME}" "Cleanup..."
 		########################################
 		
-		# We do not need te "old" binary - we copied it away
+		# We do not need to keep the "old" binary - we copied it away
 		rm $resulting_binary
 		
 		# We no longer need the draft files

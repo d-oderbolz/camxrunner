@@ -82,7 +82,7 @@ exit 1
 # Function: cxr_common_get_module_type
 #
 # Searches for a module name (not in common and installers) and returns its type. Module names need to be unique
-# across all module types! Used by <cxr_common_is_dependency_ok>.
+# across all module types! Used by <cxr_common_dependency_ok?>.
 # We look at
 #	CXR_PREPROCESSOR_DAILY_INPUT_DIR
 #	CXR_PREPROCESSOR_ONCE_INPUT_DIR

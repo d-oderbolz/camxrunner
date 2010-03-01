@@ -602,6 +602,21 @@ function cxr_common_add_modules()
 }
 
 ################################################################################
+# Function: cxr_common_get_dependency_graph_file
+# 
+# Creates a file containing the dependency tree of all modules in a format that
+# can be read by tsort.
+# 
+# 
+################################################################################
+function cxr_common_get_dependency_graph_file()
+################################################################################
+{
+
+}
+
+
+################################################################################
 # Function: cxr_common_create_task_list
 # 
 # Creates a process dependency tree
@@ -710,7 +725,7 @@ function cxr_common_count_open_tasks()
 }
 
 ################################################################################
-# Function: cxr_common_is_dependency_ok
+# Function: cxr_common_dependency_ok?
 #
 # Checks if a given dependency is fullfilled. If the dependency has failed,
 # the run is destroyed, if the depdendency was not yet started, false is returned,
@@ -732,7 +747,7 @@ function cxr_common_count_open_tasks()
 # Parameters:
 # $1 - resolved name of the dependency like create_emissions_01
 ################################################################################
-function cxr_common_is_dependency_ok()
+function cxr_common_dependency_ok?()
 ################################################################################
 {
 	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
@@ -815,7 +830,7 @@ function cxr_common_is_dependency_ok()
 }
 
 ################################################################################
-# Function: cxr_common_get_next_task_descriptor
+# Function: cxr_common_get_next_task
 #
 # Returns the file of the task descriptor for the next task to execute
 # 
@@ -823,7 +838,7 @@ function cxr_common_is_dependency_ok()
 # Parameters:
 # $1 - the TASK_PID of the calling cxr_common_worker (to terminate it if needed)
 ################################################################################
-function cxr_common_get_next_task_descriptor()
+function cxr_common_get_next_task()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -849,7 +864,7 @@ function cxr_common_get_next_task_descriptor()
 	fi 
 
 	# Entering critical section...
-	cxr_common_get_lock cxr_common_get_next_task_descriptor
+	cxr_common_get_lock cxr_common_get_next_task
 	
 	TASK_COUNT=$(cxr_common_count_open_tasks)
 	
@@ -862,7 +877,7 @@ function cxr_common_get_next_task_descriptor()
 		echo /dev/null
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_get_next_task_descriptor
+		cxr_common_release_lock cxr_common_get_next_task
 		
 		cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 		return $CXR_RET_OK
@@ -919,8 +934,8 @@ function cxr_common_get_next_task_descriptor()
 				for DEPENDENCY in $DEPENDENCIES
 				do
 				
-					# cxr_common_is_dependency_ok terminates run, if the dependency has failed
-					if [[ "$(cxr_common_is_dependency_ok "$DEPENDENCY" "$DAY_OFFSET")" == true  ]]
+					# cxr_common_dependency_ok? terminates run, if the dependency has failed
+					if [[ "$(cxr_common_dependency_ok? "$DEPENDENCY" "$DAY_OFFSET")" == true  ]]
 					then
 						# OK - check next dependency
 						cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok."
@@ -957,7 +972,7 @@ function cxr_common_get_next_task_descriptor()
 		cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_get_next_task_descriptor
+		cxr_common_release_lock cxr_common_get_next_task
 		
 		return $CXR_RET_OK
 	else
@@ -970,7 +985,7 @@ function cxr_common_get_next_task_descriptor()
 		mv $POTENTIAL_TASK $NEW_DESCRIPTOR_NAME
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_get_next_task_descriptor
+		cxr_common_release_lock cxr_common_get_next_task
 		
 		# Return full path
 		echo "$NEW_DESCRIPTOR_NAME"
@@ -1196,10 +1211,10 @@ function cxr_common_worker()
 		# Do we stop here?
 		cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
 	
-		# cxr_common_get_next_task_descriptor must provide tasks in an atomic fashion (locking needed)
+		# cxr_common_get_next_task must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
 		# We get a full file name
-		NEW_TASK_DESCRIPTOR=$(cxr_common_get_next_task_descriptor $TASK_PID)
+		NEW_TASK_DESCRIPTOR=$(cxr_common_get_next_task $TASK_PID)
 		
 		# If we are on wait state, we get the non-file /dev/null back
 		# Note that links to files are handled properly (they are files, too)
