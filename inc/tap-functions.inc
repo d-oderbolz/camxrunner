@@ -687,6 +687,24 @@ function _die()
 }
 
 ################################################################################
+# Function: _reset_vars
+#
+# Resets the global variables
+#
+################################################################################
+function _reset_vars()
+################################################################################
+{
+	_plan_set=0
+	_executed_tests=0
+	_expected_tests=0
+	_failed_tests=0
+	_test_died=0
+	_skip_all=0
+	_no_plan=0
+}
+
+################################################################################
 # Function: _exit
 #
 # Ends test and shows test summary, resets a couple of RT variables
@@ -701,10 +719,7 @@ function _exit()
 		diag "Looks like your test died before it could output anything."
 		
 		# Reset stuff
-		_plan_set=0
-		_executed_tests=0
-		_expected_tests=0
-		
+		_reset_vars
 		return $rc
 	fi
 
@@ -712,10 +727,7 @@ function _exit()
 		diag "Looks like your test died just after ${_executed_tests:-0}."
 		
 		# Reset stuff
-		_plan_set=0
-		_executed_tests=0
-		_expected_tests=0
-		
+		_reset_vars
 		return $rc
 	fi
 
@@ -744,10 +756,7 @@ function _exit()
 	fi
 
 	# Reset stuff
-	_plan_set=0
-	_executed_tests=0
-	_expected_tests=0
-
+	_reset_vars
 	return $rc
 }
 
