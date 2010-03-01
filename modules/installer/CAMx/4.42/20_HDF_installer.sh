@@ -14,6 +14,7 @@
 ################################################################################
 # TODO: The code here is pretty repetitive because bash has no nice
 # hash construct (mostly needed for configure options etc.)
+# TODO: imlpement "local"
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################

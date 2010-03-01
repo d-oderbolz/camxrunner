@@ -191,8 +191,8 @@ function cxr_common_determine_patch_target()
 # Parameters:
 # $1 - Directory containig the patches
 # $2 - Directory containig the files to be patched
-# $3 - ask_user, if false do not prompt user for consent, default true
-# $4 - an optional filename to report actions (other than the normal log)
+# $3 - an optional filename to report actions (other than the normal log)
+# $4 - ask_user, if false do not prompt user for consent, default true
 ################################################################################
 function cxr_common_apply_patches()
 ################################################################################
@@ -200,8 +200,8 @@ function cxr_common_apply_patches()
 
 	local patch_dir="$1"
 	local src_dir="$2"
-	local ask_user="${3:-true}"
-	local logfile="${4:-/dev/null}"
+	local logfile="${3:-/dev/null}"
+	local ask_user="${4:-true}"
 	
 	local patchlist
 	local curline
@@ -241,6 +241,12 @@ function cxr_common_apply_patches()
 		# Read first $curline lines
 		# the last of which is line $curline
 		patch_file=$(head -n $curline $patchlist | tail -n 1)
+		
+		# Test status
+		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		then
+			cxr_main_die_gracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
+		fi
 		
 		# Which file do we need to patch?
 		file=$(cxr_common_determine_patch_target $patch_file)
