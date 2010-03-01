@@ -277,11 +277,24 @@ function cxr_common_apply_patches()
 				then
 					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 					patch $real_file < $patch_file
+					
+					# Test status
+					if [[ $? -ne 0 ]]
+					then
+						cxr_main_die_gracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+					fi
+					
 				fi
 			else
 				# Just do it
 				echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 				patch $real_file < $patch_file
+				
+				# Test status
+				if [[ $? -ne 0 ]]
+				then
+					cxr_main_die_gracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+				fi
 			fi
 		else
 			cxr_main_logger -e "${FUNCNAME}" "file $real_file does not exist. Check the header of $patch_file!"
