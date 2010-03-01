@@ -158,7 +158,7 @@ function cxr_common_get_file_type()
 	local file=$1
 	local filetype
 	
-	filetype=$(file "${FILE}" | cut -f2 -d' ')
+	filetype=$(file "${file}" | cut -f2 -d' ')
 	
 	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 	then

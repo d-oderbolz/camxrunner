@@ -421,7 +421,7 @@ function cxr_main_notify()
 			
 			# Communicate w. Twitter (easy using curl)
 			# Send any output to /dev/null
-			curl --basic --user "${ACCOUNT}:${PASS}" --data-ascii "status=`perl -MURI::Escape -e \
+			curl --basic --user "${ACCOUNT:-}:${PASS:-}" --data-ascii "status=`perl -MURI::Escape -e \
 			"print uri_escape('$(echo -e ${1}:${2})');"`"  http://twitter.com/statuses/update.json >/dev/null 2>&1
 			
 		fi
