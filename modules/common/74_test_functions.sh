@@ -266,6 +266,11 @@ function cxr_common_test_all_modules()
 		#  Plan these tests
 		########################################
 		cxr_main_logger -v "$FUNCNAME" "Planning to run $total_tests tests..."
+		
+		# This is ugly, but we have to convince TAP to run this potentially more than once
+		_plan_set=0
+		
+		# Plan them
 		plan_tests $total_tests
 	
 		########################################
