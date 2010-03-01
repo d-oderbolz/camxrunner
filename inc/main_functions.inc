@@ -407,9 +407,8 @@ function cxr_main_notify()
 	fi
 	
 	# Twitter
-	if [[ ${CXR_SEND_TWITTER} == true  ]]
+	if [[ ${CXR_SEND_TWITTER} == true ]]
 	then
-		
 		# Get the data from .twitterrc
 		if [[ ! -r ~/.twitterrc  ]]
 		then
