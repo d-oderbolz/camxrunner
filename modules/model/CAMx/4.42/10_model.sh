@@ -594,7 +594,7 @@ function write_model_control_file()
 		echo " Initial_Conditions   = '${CXR_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE}
 	else
 		# Another day (restart) - nothing, not even a comma.
-		echo " Initial_Conditions   = " >> ${CXR_MODEL_CTRL_FILE}
+		echo " Initial_Conditions   = '${CXR_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE}
 	fi
 	
 	echo " Boundary_Conditions  = '${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
