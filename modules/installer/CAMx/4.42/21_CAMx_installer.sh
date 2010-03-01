@@ -408,7 +408,7 @@ function CAMx_installer()
 		cxr_main_logger -a "${FUNCNAME}" "Saving playfile..."
 		########################################
 		
-		cp "$playfile" "${conffile}.conf"
+		cp "$playfile" "${conffile}"
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Cleanup..."
