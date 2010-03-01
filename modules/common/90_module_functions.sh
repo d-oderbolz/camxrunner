@@ -280,7 +280,7 @@ function cxr_common_run_modules()
 						# Increase global indent level
 						cxr_main_increase_log_indent
 						
-						if [[ "$(cxr_common_check_module_version)" == true  ]]
+						if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
@@ -328,7 +328,7 @@ function cxr_common_run_modules()
 						# Increase global indent level
 						cxr_main_increase_log_indent
 						
-						if [[ "$(cxr_common_check_module_version)" == true  ]]
+						if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 						then
 							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR

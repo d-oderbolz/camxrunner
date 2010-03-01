@@ -835,6 +835,8 @@ CXR_API_DOC_EXEC=${CXR_BIN_DIR}/generate-api-doc.sh
 # wget to download stuff (only needed for installation  - save space)
 CXR_WGET_EXEC=$(which wget)
 
+# this can be used to draw graphs
+CXR_DOT_EXEC=$(which dot)
 
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name

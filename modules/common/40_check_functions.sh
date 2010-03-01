@@ -889,21 +889,29 @@ function cxr_common_check_preconditions()
 }
 
 ################################################################################
-# Function: cxr_common_check_module_version
+# Function: cxr_common_check_module_requirements
 #	
 # Checks if the currently loaded module requests a CAMxRunner and configuration
-# Version less or equal than current one.
+# Version less or equal than current one and if it needs anything special 
+# (like special executables).
+# The executable check is still a bit rough - we later need to integrate it with
+# the new approach to determine any executables name.
 #
-# Returns true on success, fals otherwise
+# Returns true on success, false otherwise
 ################################################################################
-function cxr_common_check_module_version() 
+function cxr_common_check_module_requirements() 
 ################################################################################
 {
 	# Test if Module was already announced (for efficiency and log-file size reasons)
-	# The problem is that we live in a subprocess (function), so we cannot
-	# add the name of this module to the string in here. this mst be done outside
-	# (by the caller)
 	local found=$(cxr_common_is_substring_present "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
+	local requirement
+	local elements
+	local n_elements
+	local kind
+	local what
+	local need
+	local executable
+	local found=false
 	
 	# We announce only if it was not found
 	if [[ "$found" == false  ]]
@@ -937,7 +945,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check CAMxRunner revision
-	if [[  "$CXR_META_MODULE_REQ_RUNNER_VERSION" && (  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" )   ]]
+	if [[ "$CXR_META_MODULE_REQ_RUNNER_VERSION" && (  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" )   ]]
 	then
 		
 		# Increase global indent level
@@ -964,7 +972,7 @@ function cxr_common_check_module_version()
 	
 	# check if the stuff is set properly
 	# Check config revision
-	if [[  "$CXR_META_MODULE_REQ_CONF_VERSION" && (  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" )   ]]
+	if [[  "$CXR_META_MODULE_REQ_CONF_VERSION" && (  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" ) ]]
 	then
 		
 		# Increase global indent level
@@ -987,6 +995,79 @@ function cxr_common_check_module_version()
 		
 	else
 			cxr_main_logger -w "${FUNCNAME}" "Consider to set the required Config Version in Module ${CXR_META_MODULE_NAME} using variable CXR_META_MODULE_REQ_CONF_VERSION"
+	fi
+	
+	################################################################################
+	# Perform exectuable check
+	################################################################################
+	
+	if [[ "$CXR_META_MODULE_REQ_SPECIAL" && ( "$CXR_META_MODULE_REQ_SPECIAL" != "-" ) ]]
+	then
+		# Parsing something like "exec|dot|optional exec|wget"
+		
+		# Save old IFS
+		oIFS="$IFS"
+		IFS="$CXR_DELIMITER"
+		
+		for requirement in $CXR_META_MODULE_REQ_SPECIAL
+		do
+			# get requirement into array
+			elements=($requirement)
+			
+			n_elements=${#elements[@]}
+			
+			# do we have at least 2 elements?
+			if [[ ${n_elements} -eq 2 ]]
+			then
+				# only stl. "exec|dot"
+				kind=$(cxr_common_trim ${elements[0]})
+				what=$(cxr_common_trim ${elements[1]})
+				# The default is that we need it really
+				need=mandatory
+			elif [[ ${n_elements} -eq 3 ]]
+			then
+				# only stl. "exec|dot|optional"
+				kind=$(cxr_common_trim ${elements[0]})
+				what=$(cxr_common_trim ${elements[1]})
+				need=$(cxr_common_trim ${elements[2]})
+			else
+				# this is wrong!
+				cxr_main_logger -e "$FUNCNAME" "Requirement string $$requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
+			fi
+			
+			case $what in
+			
+				exec) # Now we search the environment for this executable
+							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
+							do
+								cxr_main_logger -v "${FUNCNAME}"  "Variable $executable has value: ${!executable}\n"
+								
+								if [[ "$(basename ${!executable})" == "$what" ]]
+								then
+									found=true
+									break
+								fi
+							done
+							
+							if [[ "$found" == false  ]]
+							then
+								if [[ "$need" == mandatory ]]
+								then
+									cxr_main_logger -e "${FUNCNAME}" "Module $CXR_META_MODULE_NAME mandatorily needs the executable $what which was not found."
+									echo false
+									return 0
+								else
+									cxr_main_logger -w "${FUNCNAME}" "Module $CXR_META_MODULE_NAME needs the executable $what which was not found."
+								fi
+							fi
+							;;
+				*) cxr_main_logger -e "$FUNCNAME" "Currently, only exec requirements are supported." ;;
+			
+		done
+		
+		# Reset IFS
+		IFS="$oIFS"
+		
 	fi
 	
 	# Decrease global indent level

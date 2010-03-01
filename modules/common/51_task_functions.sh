@@ -6,13 +6,13 @@
 # Version: $Id$ 
 #
 # Contains the Functions for the built-in task management - a very central part of the CAMxRunner.
-# Prepares a pool of tasks, which are then harvested by cxr_common_worker threads. These threads can run parallel
-# - even on different machines.
+# Prepares a pool of tasks, which are then harvested by cxr_common_worker threads. 
+# These threads can run parallel - even on different machines.
 #
 # First, a list of tasks is generated (this may pre-exist, then we leave this step out).
 # This list is sorted according to the dependencies (topological sorting), so that tasks with no or few
 # dependencies appear first.
-# Then, we create a number of workers, which each get an exclusive entry of this list. They check first if the dependencies
+# Then, we create a number of workers, which each get a unique entry of this list. They check first if the dependencies
 # are already fulfilled, if not they wait.
 # If they are fulfilled, the task starts.
 # After successful execution, the worker gets the next task from the list.
@@ -39,6 +39,11 @@ CXR_META_MODULE_NUM_TESTS=0
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
+
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|dot|optional"
 
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=750
@@ -563,7 +568,7 @@ function cxr_common_add_modules()
 					if [[ "$RUN_IT" == true  ]]
 					then
 							# Check the version
-							if [[ "$(cxr_common_check_module_version)" == true  ]]
+							if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 							then
 								# Add this module
 								cxr_common_create_task_descriptor "$CXR_CURRENT_ID" "$FUNCTION_FILE" "$MODULE_TYPE" "${DAY_OFFSET}" "${CXR_META_MODULE_DEPENDS_ON:-}" "${CXR_META_MODULE_RUN_EXCLUSIVELY:-false}"
@@ -601,6 +606,28 @@ function cxr_common_add_modules()
 	return ${CXR_RET_OK}
 }
 
+
+################################################################################
+# Function: cxr_common_draw_dependency_graph
+# 
+# Creats an image of the dependency graphy using dot (graphviz)
+# 
+# 
+################################################################################
+function cxr_common_draw_dependency_graph()
+################################################################################
+{
+	local dotfile
+	local psfile
+	local pdffile
+	
+	#digraph graphname
+	# {
+	#    a -> b -> c;
+	#    b -> d;
+	#}
+
+}
 ################################################################################
 # Function: cxr_common_get_dependency_graph_file
 # 
