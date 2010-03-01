@@ -147,6 +147,8 @@ function create_emissions()
 	# Define & Initialize local vars
 	local i
 	local exec_tmp_file
+	local stop_h
+	local start_h
 	
 	# Store the state
 	STAGE=${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@all_days
@@ -188,10 +190,20 @@ function create_emissions()
 				cxr_main_logger "${FUNCNAME}" "Creating Emissions for grid $i..."
 				
 				# Create the file to run IDL
-				# We assume (danger, Will Robinson) that Emissions start at hour 0 and end at hour 23
+				# Emissions stop at 23, while the model stops at 24
+				# we ned to cut off 2 digits
+				if [[ "${CXR_STOP_HOUR}" == 2400 ]]
+				then
+					stop_h=23
+				else
+					stop_h=${CXR_STOP_HOUR:0:2}
+				fi
+				
+				start_h=${CXR_START_HOUR:0:2}
+				
 				cat <<-EOF > $EXEC_TMP_FILE
 				.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
-				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},0,${CXR_YEAR},${CXR_MONTH},${CXR_DAY},23,${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
+				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
 				echo "exit" >> ${exec_tmp_file}
 				EOF
 				

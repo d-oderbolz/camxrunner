@@ -68,9 +68,9 @@ CXR_START_DATE=@CXR_START_DATE@
 # The Stop of the simulation in YYYY-MM-DD notation
 CXR_STOP_DATE=@CXR_STOP_DATE@
 
-# Must be in HHHH Format
-CXR_START_HOUR=0000
-CXR_STOP_HOUR=2400
+# Must be in HHMI Format, applies just to first and last day, all others are from 0000 to 2400
+CXR_START_HOUR_FIRST_DAY=0000
+CXR_STOP_HOUR_LAST_DAY=2400
 
 # Timezone (0=UTC,5=EST,6=CST,7=MST,8=PST)
 CXR_TIME_ZONE=0

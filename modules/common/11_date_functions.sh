@@ -900,6 +900,41 @@ function cxr_common_subtract_days()
 	echo "$dateresult"
 }
 
+################################################################################
+# Function: cxr_common_is_first_day
+#
+# Returns true if the day currently processed is the first simulated.
+# Reads CXR_DAY_OFFSET
+# 
+################################################################################	
+function cxr_common_is_first_day ()
+################################################################################
+{
+	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_last_day
+#
+# Returns true if the day currently processed is the last simulated
+# Reads CXR_DAY_OFFSET
+# 
+################################################################################	
+function cxr_common_is_last_day ()
+################################################################################
+{
+	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
 
 ################################################################################
 # Function: cxr_common_set_date_variables
@@ -932,7 +967,28 @@ function cxr_common_set_date_variables()
 	# Alos we need it for certain date functions like cxr_common_is_first_day
 	CXR_DAY_OFFSET=$2
 	
-	# First, calculate the julian day of the start
+	# Set start and stop hour correctly
+	if [[ $(cxr_common_is_first_day) == "true" ]]
+	then
+		CXR_START_HOUR=${CXR_START_HOUR_FIRST_DAY}
+		cxr_main_logger -v "We are at the first day, simulation time starts at ${CXR_START_HOUR}"
+	else
+		CXR_START_HOUR=0000
+		cxr_main_logger -v "We are at a normal day, simulation time starts at ${CXR_START_HOUR}"
+	fi
+	
+	if [[ $(cxr_common_is_last_day) == "true" ]]
+	then
+		CXR_STOP_HOUR=${CXR_STOP_HOUR_LAST_DAY}
+		cxr_main_logger -v "We are at the last day, simulation time stops at ${CXR_STOP_HOUR}"
+	else
+		CXR_STOP_HOUR=2400
+		cxr_main_logger -v "We are at a normal day, simulation time stops at ${CXR_STOP_HOUR}"
+	fi
+	
+	
+	
+	# Calculate the julian day of the start
 	# then add the offset - we calculate all in "julian space"
 	
 	JULSTART=$(cxr_common_date2julian "$START_DATE")
@@ -1010,42 +1066,6 @@ function cxr_common_set_date_variables()
 		
 		# week of year
 		CXR_WOY_YESTERDAY=$(cxr_common_week_of_year $CXR_DATE)
-	fi
-}
-
-################################################################################
-# Function: cxr_common_is_first_day
-#
-# Returns true if the day currently processed is the first simulated.
-# Reads CXR_DAY_OFFSET
-# 
-################################################################################	
-function cxr_common_is_first_day ()
-################################################################################
-{
-	if [[ "$CXR_DAY_OFFSET" -eq 0  ]]
-	then
-		echo true
-	else
-		echo false
-	fi
-}
-
-################################################################################
-# Function: cxr_common_is_last_day
-#
-# Returns true if the day currently processed is the last simulated
-# Reads CXR_DAY_OFFSET
-# 
-################################################################################	
-function cxr_common_is_last_day ()
-################################################################################
-{
-	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
-	then
-		echo true
-	else
-		echo false
 	fi
 }
 
