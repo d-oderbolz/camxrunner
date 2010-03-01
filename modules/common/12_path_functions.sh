@@ -375,6 +375,7 @@ function cxr_common_compress_output()
 # 
 # Checks if an input file is compressed, decompresses it and returns a new name.
 # Wo do this by searching files that have specific suffixes added to their name.
+# We decompress even if its a dry-run.
 #
 # Due to potential permission issues, we decompress into temp files unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
@@ -470,48 +471,38 @@ function cxr_common_try_decompressing_file()
 				# This is NOT derived from the filename
 				filetype=$(cxr_common_get_file_type "$comp_file")
 				
-				if [[ "${CXR_DRY}" == false  ]]
-				then
+				case $filetype in
+		
+					bzip2)
+						cxr_main_logger -a "$FUNCNAME" "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
+						$CXR_BUNZIP2_EXEC -c "$comp_file" > $tempfile
+						;;
+						
+					gzip)
+						cxr_main_logger -a "$FUNCNAME" "${input_file} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
+						"$CXR_GUNZIP_EXEC" -c "$comp_file" > $tempfile
+						;;
 				
-					case $filetype in
-			
-						bzip2)
-							cxr_main_logger -a "$FUNCNAME" "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
-							$CXR_BUNZIP2_EXEC -c "$comp_file" > $tempfile
-							;;
-							
-						gzip)
-							cxr_main_logger -a "$FUNCNAME" "${input_file} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
-							"$CXR_GUNZIP_EXEC" -c "$comp_file" > $tempfile
-							;;
-					
-						zip)
-							cxr_main_logger -a "$FUNCNAME" "${input_file} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
-							"$CXR_GUNZIP_EXEC" -S .zip -c "$comp_file" > $tempfile
-							;;
-					
-						*)
-							cxr_main_logger -e "$FUNCNAME" "Compressed file type $filetype not supported"
-							;;
-					esac
-	
-					# Check retval of decompressor
-					if [[ $? -eq 0  ]]
-					then
-						was_compressed=true
-						new_file=$tempfile
-						break
-					else
-						cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${comp_file} could not be decompressed by $DECOMP"
-					fi
-				else
-					cxr_main_logger -a "$FUNCNAME" "File ${input_file} is compressed using $filetype but in a dryrun, we do not decompress. Instead, we create a dummy file."
-					cxr_common_create_dummyfile $tempfile
-					
+					zip)
+						cxr_main_logger -a "$FUNCNAME" "${input_file} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
+						"$CXR_GUNZIP_EXEC" -S .zip -c "$comp_file" > $tempfile
+						;;
+				
+					*)
+						cxr_main_logger -e "$FUNCNAME" "Compressed file type $filetype not supported"
+						;;
+				esac
+
+				# Check retval of decompressor
+				if [[ $? -eq 0  ]]
+				then
 					was_compressed=true
 					new_file=$tempfile
 					break
-				fi # Dryrun?
+				else
+					cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${comp_file} could not be decompressed by $DECOMP"
+				fi
+
 			fi # File readable?
 			
 		done # Loop over extensions
