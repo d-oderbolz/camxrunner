@@ -26,6 +26,11 @@ CXR_META_MODULE_NUM_TESTS=2
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
 
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|md5sum|optional"
+
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=100
 
@@ -1040,10 +1045,9 @@ function cxr_common_check_module_requirements()
 				exec) # Now we search the environment for this executable
 							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 							do
-								cxr_main_logger -v "${FUNCNAME}"  "Variable $executable has value: ${!executable}\n"
-								
 								if [[ "$(basename ${!executable})" == "$what" ]]
 								then
+									cxr_main_logger -v "${FUNCNAME}"  "${!executable} matches $what"
 									found=true
 									break
 								fi

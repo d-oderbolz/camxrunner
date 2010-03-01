@@ -48,6 +48,11 @@ CXR_META_MODULE_NUM_TESTS=0
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.42-test-ic-bc-tc
 
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|idl"
+
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=94
 
