@@ -610,23 +610,53 @@ function cxr_common_add_modules()
 ################################################################################
 # Function: cxr_common_draw_dependency_graph
 # 
-# Creats an image of the dependency graphy using dot (graphviz)
+# Creates an image of the dependency graphy using dot (graphviz)
 # 
-# 
+# Parameters:
+# $1 - a file describing the dependencies in tsort format
 ################################################################################
 function cxr_common_draw_dependency_graph()
 ################################################################################
 {
-	local dotfile
-	local psfile
-	local pdffile
+	local input_file="$1"
+	local dotfile=$(create_tempfile $FUNCNAME)
+	local pdffile=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
+	local elements
 	
-	#digraph graphname
-	# {
-	#    a -> b -> c;
-	#    b -> d;
-	#}
-
+	echo "digraph dependencies" > $dotfile
+	echo "{" >> $dotfile
+	
+	# Now go through each entry of the file, the form is
+	# independent_mod dependent_mod
+	# if the two names are the same, ignore them
+	# always exchange the order.
+	while read line
+	do
+		# IFS is ok with space
+		elements=($line)
+		indep=${elements[0]}
+		dep=${elements[1]}
+		
+		if [[ $indep != $dep ]]
+		then
+			echo "    ${dep} -> ${indep} ;" >> $dotfile
+		else
+			cxr_main_logger -v "$FUNCNAME" "$indep equals $dep"
+		fi
+	
+	done < ${input_file}
+	
+	echo "}" >> $dotfile
+	
+	# Now call dot
+	${CXR_DOT_EXEC} -Tpdf "${dotfile}" -o "${pdffile}" 2>&1 | tee -a $CXR_LOG
+	
+	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+	then
+		cxr_main_logger -e "$FUNCNAME" "Could not visualize the dependencies."
+	else	
+		cxr_main_logger -a "$FUNCNAME" "You find a visualisation of the modules dependencies in the file ${pdffile}"
+	fi
 }
 ################################################################################
 # Function: cxr_common_get_dependency_graph_file
