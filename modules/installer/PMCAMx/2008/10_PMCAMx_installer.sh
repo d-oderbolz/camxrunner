@@ -17,6 +17,7 @@
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
 # TODO: Make more flexible, no explicit prm treatment
+# TODO: Apply changes of CAMx
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -134,7 +135,7 @@ function PMCAMx_installer()
 		
 		INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
-		if [[ ! -d "$INPUT_DIR"  ]]
+		if [[ ! -d "$INPUT_DIR" ]]
 		then
 			cxr_main_die_gracefully "Could not find the input directory $INPUT_DIR"
 		fi

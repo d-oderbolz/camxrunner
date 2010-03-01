@@ -381,10 +381,22 @@ function CAMx_installer()
 		########################################
 		
 		echo "make clean"
-		make clean || cxr_main_die_gracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+		make clean 2>&1 | tee -a ${logfile} 
+		
+		# Test status
+		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		then
+			cxr_main_die_gracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+		fi
 		
 		echo "make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi"
-		make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi || cxr_main_die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+		make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi 2>&1 | tee -a ${logfile}
+		
+		# Test status
+		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		then
+			cxr_main_die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+		fi
 		
 		########################################
 		cxr_main_logger -a "${FUNCNAME}" "Moving binary..."

@@ -383,7 +383,8 @@ function cxr_common_check_runner_executables ()
 			chmod +x $file || cxr_main_die_gracefully "Could not change permissions on file $file - exiting"
 			
 		fi
-	done<<<"$(find ${CXR_RUN_DIR} -noleaf -type f -name \*.sh )"
+	# Make sure we exclude state dir
+	done<<<"$(find ${CXR_RUN_DIR} -noleaf -type f -name \*.sh | grep -v "^${CXR_RUN_DIR}/state/")"
 }
 
 ################################################################################
