@@ -479,16 +479,19 @@ function cxr_common_md5()
 function cxr_common_report_md5() 
 ################################################################################
 {
-	if [[ "${CXR_REPORT_MD5}" == true  ]]
+	if [[ "${CXR_REPORT_MD5}" == true ]]
 	then
 	
-		if [[ $# -ne 1  ]]
+		if [[ $# -ne 1 ]]
 		then
 			echo -e "$FUNCNAME" "Programming error: no filename passed!"
 		fi
 		
 		local file="$1"
 		local hash
+		local new_hash
+		local old_hash
+		local old_mtime
 		
 		# Is this file already in the cache?
 		if [[ $(cxr_common_hash_has? MD5 "${file}" global ) == true ]]
@@ -500,6 +503,14 @@ function cxr_common_report_md5()
 				# it must be older, check if hash has changed.
 				new_hash="$(cxr_common_md5 "$file")"
 				old_hash="$(cxr_common_hash_get MD5 "${file}" global)"
+				
+				if [[ "$new_hash" != "$old_hash" ]]
+				then
+					# Get the old mtime
+					old_mtime="$(cxr_common_hash_mtime MD5 "${file}" global )"
+					old_datetime="$(cxr_common_epoch2datetime $old_mtime)"
+					cxr_logger -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
+				fi
 			fi
 		
 		else

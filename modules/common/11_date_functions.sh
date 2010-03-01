@@ -12,7 +12,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-
+# TODO: Use  <date> more often.
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -361,7 +361,6 @@ function cxr_common_julian2date()
 # Function: cxr_common_epoch2date
 # 
 # Calculates the date in YYYY-MM-DD format from a Unix Epoch time,
-# using <cxr_common_julian2date>.
 # Unix Epoch is defined as (http://en.wikipedia.org/wiki/Unix_time)
 # the number of seconds elapsed since midnight proleptic Coordinated Universal Time (UTC) of January 1, 1970.
 #
@@ -381,20 +380,36 @@ function cxr_common_epoch2date()
 	
 	local epoch_seconds=$1
 	
-	# Get the julian date of January 1, 1970
-	local base_jul=$(cxr_common_date2julian 1970-01-01)
-	
-	# We want to know how many days the epoch seconds correspond to
-	local epoch_days=$(( $epoch_seconds / 86400 ))
-	
-	# Now the Julian date we are interested in is Base plus the epoch days
-	local our_jul=$(( $base_jul + $epoch_days ))
-	
-	# Convert back to date
-	local our_date=$(cxr_common_julian2date $our_jul)
-	
-	echo $our_date
+	echo "$(date -d "1970-01-01 $epoch_seconds sec" +"%Y-%m-%d")"
 }
+
+################################################################################
+# Function: cxr_common_epoch2datetime
+# 
+# Calculates the date in YYYY-MM-DD HH:MM:SS UTC format from a Unix Epoch time.
+# Unix Epoch is defined as (http://en.wikipedia.org/wiki/Unix_time)
+# the number of seconds elapsed since midnight proleptic Coordinated Universal Time (UTC) of January 1, 1970.
+#
+# Parameters:
+# $1 - integer epoch date (numeric)
+################################################################################
+function cxr_common_epoch2datetime()
+################################################################################
+{
+	# Check for numeric input
+	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
+	then
+		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	local epoch_seconds=$1
+	
+	echo "$(date -d "1970-01-01 $epoch_seconds sec" +"%Y-%m-%d %T")"
+}
+
+
 
 ################################################################################
 # Function: cxr_common_week_of_year

@@ -185,7 +185,7 @@ CXR_SEND_SMS=false
 # Twitter allows us to publish our logs to a whole group of people
 # To use it, create a ~/.twitterrc file (readable only to you)
 # that sets the variables ACCOUNT and PASS
-CXR_SEND_TWITTER=true
+CXR_SEND_TWITTER=false
 
 # Delimiter for ask and playfiles and other "DB-like" files
 CXR_DELIMITER="|"
@@ -594,6 +594,10 @@ readonly CXR_STATE_DIR
 CXR_STATE_GLOBAL_DIR=${CXR_RUN_DIR}/state/global
 readonly CXR_STATE_GLOBAL_DIR
 
+# Global Hashes (e. g. MD5 database) go here
+CXR_GLOBAL_HASH_DIR=$CXR_STATE_GLOBAL_DIR/hashes
+readonly CXR_GLOBAL_HASH_DIR
+
 ########################################
 # Data that is global to all instances of a given run
 ########################################
@@ -602,10 +606,6 @@ readonly CXR_STATE_GLOBAL_DIR
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/global
 readonly CXR_GLOBAL_DIR
-
-# GLobal Hashes (e. g. MD% database) go here
-CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
-readonly CXR_GLOBAL_HASH_DIR
 
 ########################################
 # Parallel Task execution. 

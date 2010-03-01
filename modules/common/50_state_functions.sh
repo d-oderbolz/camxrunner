@@ -532,7 +532,7 @@ function cxr_common_cleanup_state()
 			all)
 					cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 						
-					find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\}
+					find ${CXR_STATE_DIR} -noleaf -type f -maxdepth 1 | xargs -i basename \{\}
 			
 					# Do we do this?
 					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]

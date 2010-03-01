@@ -260,10 +260,10 @@ function cxr_common_wait_for_stable_size()
 		total_waited_mins=$(( $total_waited_mins + $waited_mins  ))
 	done
 	
-	# We fail if the filesize is 0 or it did not grow
+	# We fail if the filesize is 0 or it still grows
 	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -ne $old_size ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "$filename does not grow (fast enough)."
+		cxr_main_logger -e "$FUNCNAME" "$filename still seems to grow."
 		echo false
 	else
 		cxr_main_logger -v "$FUNCNAME" "$filename size is stable now."
