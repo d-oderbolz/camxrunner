@@ -689,7 +689,7 @@ function _die()
 ################################################################################
 # Function: _exit
 #
-# Ends test and shows test summary
+# Ends test and shows test summary, resets a couple of RT variables
 #
 ################################################################################
 function _exit()
@@ -699,11 +699,23 @@ function _exit()
 
 	if (( ${_plan_set:-0} == 0 )) ; then
 		diag "Looks like your test died before it could output anything."
+		
+		# Reset stuff
+		_plan_set=0
+		_executed_tests=0
+		_expected_tests=0
+		
 		return $rc
 	fi
 
 	if (( ${_test_died:-0} != 0 )) ; then
 		diag "Looks like your test died just after ${_executed_tests:-0}."
+		
+		# Reset stuff
+		_plan_set=0
+		_executed_tests=0
+		_expected_tests=0
+		
 		return $rc
 	fi
 
@@ -730,6 +742,11 @@ function _exit()
 	else
 		diag "Looks like all tests (${_executed_tests:-0}/${_executed_tests:-0}) passed!."
 	fi
+
+	# Reset stuff
+	_plan_set=0
+	_executed_tests=0
+	_expected_tests=0
 
 	return $rc
 }
