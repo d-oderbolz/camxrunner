@@ -139,8 +139,8 @@ function cxr_common_load_test_data()
 function cxr_common_test_all_modules()
 ################################################################################
 {
-	local model="${1:-}"
-	local version="${2:-}"
+	local iput_model="${1:-}"
+	local input_version="${2:-}"
 	local model_id
 	local supported
 	local array
@@ -159,16 +159,18 @@ function cxr_common_test_all_modules()
 		# Determine model and version
 		################################################################################	
 		
-		if [[ ! "${model}"  ]]
+		if [[ ! "${iput_model}"  ]]
 		then
 			# Model was not passed
 			model=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
+		else
+			model=$iput_model
 		fi
 		
 		model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "Model $model is not known."
 		
 		
-		if [[ ! "${version}"  ]]
+		if [[ ! "${input_version}"  ]]
 		then
 			# version was not passed
 		
@@ -191,7 +193,8 @@ function cxr_common_test_all_modules()
 		
 			#Generate a menu automatically
 			version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
-			
+		else
+			version=$input_version
 		fi
 		
 		cxr_common_is_version_supported $version $model
