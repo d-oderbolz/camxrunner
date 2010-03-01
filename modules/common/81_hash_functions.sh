@@ -495,25 +495,6 @@ function test_module()
 	cxr_common_hash_delete test_g "/hallo/velo" 
 	is "$(cxr_common_hash_has? test_g "/hallo/velo")" false "cxr_common_hash_delete test (global) with path as key"
 
-
-	NUMEL=100
-	
-	echo "Hash Performance: Adding $NUMEL elements..."
-	time (
-		for a in $(seq 1 $NUMEL)
-		do 
-			cxr_common_hash_put test $a $a
-		done 
-	)
-	
-	echo "Array Performance: Adding $NUMEL elements..."
-	time (
-		for a in $(seq 1 $NUMEL)
-		do 
-			b[$a]=$a
-		done 
-	)
-	
 	########################################
 	# teardown tests if needed
 	########################################
