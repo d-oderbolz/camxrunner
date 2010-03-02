@@ -384,7 +384,7 @@ fi
 # Ok, now less than 2 processes is not parallel
 if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1   ]]
 then
-	cxr_main_logger -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_worker, this will literally not work. I will use 1".
+	cxr_main_logger -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_parallel_worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
 	CXR_PARALLEL_PROCESSING=false
 fi
@@ -701,9 +701,9 @@ then
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh
-		cxr_common_create_task_list
+		cxr_common_parallel_create_task_list
 	
-		# Creates CXR_MAX_PARALLEL_PROCS cxr_common_worker processes
+		# Creates CXR_MAX_PARALLEL_PROCS cxr_common_parallel_worker processes
 		# The workers
 		#		Get the next task
 		#		Execute the task
@@ -724,9 +724,9 @@ then
 		# We need a way to find out if all workers returned happily to
 		# manipulate CXR_STATUS if needed
 		
-		if [[ "$(cxr_common_count_open_tasks)" -ne 0  ]]
+		if [[ "$(cxr_common_parallel_count_open_tasks)" -ne 0  ]]
 		then
-			cxr_main_logger "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_count_open_tasks) open tasks!"
+			cxr_main_logger "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_parallel_count_open_tasks) open tasks!"
 			# We are not happy
 			CXR_STATUS=$CXR_STATUS_FAILURE
 		else
