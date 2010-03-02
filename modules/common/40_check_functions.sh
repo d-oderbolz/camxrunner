@@ -386,11 +386,14 @@ function cxr_common_check_runner_executables ()
 	# We use a bash 3.x structure, the so-called "here-variable"
 	while read file
 	do
+	
+		# Show that we are alive
+		cxr_common_show_progress
+	
 		if [[ ! -x $file ]]
 		then
 		
-			# Show that we are alive
-			cxr_common_show_progress
+			
 		
 			cxr_main_logger -w "${FUNCNAME}" "File $file is not executable,I try to correct this"
 			# File is not executable, try to correct
