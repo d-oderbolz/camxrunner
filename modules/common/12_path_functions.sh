@@ -153,8 +153,8 @@ function cxr_common_same_fs?()
 	local file1="$1"
 	local file2="$1"
 	
-	local dev1=$(stat -c"%d" "${file1}"
-	local dev2=$(stat -c"%d" "${file2}"
+	local dev1=$(stat -c"%d" "${file1})"
+	local dev2=$(stat -c"%d" "${file2})"
 	
 	if [[ "$dev1" -eq "$dev2" ]]
 	then
