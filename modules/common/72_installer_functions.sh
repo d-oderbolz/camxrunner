@@ -26,6 +26,11 @@ CXR_META_MODULE_NUM_TESTS=1
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
 
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|dos2unix"
+
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=100
 
@@ -249,6 +254,18 @@ function cxr_common_apply_patches()
 		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 		then
 			cxr_main_die_gracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
+		fi
+		
+		# Is the patch a dos-file ?
+		if [[ "$(cxr_common_is_dos? "$patch_file")" == true ]]
+		then
+			cxr_main_logger -w "$FUNCNAME" "Patch $patch_file is in dos format. I will correct this."
+			${CXR_DOS2UNIX_EXEC} $patch_file
+			
+			if [[ $? -ne 0 ]
+			then
+				cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
+			fi
 		fi
 		
 		# Which file do we need to patch?

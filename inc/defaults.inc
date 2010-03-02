@@ -835,6 +835,10 @@ CXR_API_DOC_EXEC=${CXR_BIN_DIR}/generate-api-doc.sh
 # wget to download stuff (only needed for installation  - save space)
 CXR_WGET_EXEC=$(which wget)
 
+# needed to convert dos-unix and back
+CXR_DOS2UNIX_EXEC=$(which dos2unix)
+CXR_UNIX2DOS_EXEC=$(which unix2dos)
+
 # this can be used to draw graphs
 CXR_DOT_EXEC=$(which dot)
 

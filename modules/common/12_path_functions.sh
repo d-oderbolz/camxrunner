@@ -26,6 +26,11 @@ CXR_META_MODULE_NUM_TESTS=12
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
 
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|dos2unix exec|unix2dos"
+
 # Min CAMxRunner Version needed (Revision number)
 CXR_META_MODULE_REQ_RUNNER_VERSION=100
 
@@ -822,10 +827,10 @@ function test_module()
 	is $(cxr_common_same_fs? /proc .) false "cxr_common_same_fs with proc and current path"
 	
 	# test the dos-detection
-	unix2dos "$a"
+	${CXR_UNIX2DOS_EXEC} "$a"
 	is $(cxr_common_is_dos? "$a") true "cxr_common_is_dos? on dos-file"
 	
-	dos2unix "$a"
+	${CXR_DOS2UNIX_EXEC} "$a"
 	is $(cxr_common_is_dos? "$a") false "cxr_common_is_dos? on unix-file"
 	# compress
 	cxr_common_compress_output

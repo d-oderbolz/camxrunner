@@ -38,6 +38,11 @@ CXR_META_MODULE_REQ_RUNNER_VERSION=100
 # The revision number is automatically extracted from the config file
 CXR_META_MODULE_REQ_CONF_VERSION=100
 
+# This string describes special requirements this module has
+# it is a space-separated list of requirement|value[|optional] tuples.
+# If a requirement is not binding, optional is added at the end
+CXR_META_MODULE_REQ_SPECIAL="exec|dos2unix"
+
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains most of the check functions for the CAMxRunner"
 
@@ -386,6 +391,17 @@ function cxr_common_check_runner_executables ()
 			cxr_main_logger -w "${FUNCNAME}" "File $file is not executable,I try to correct this"
 			# File is not executable, try to correct
 			chmod +x $file || cxr_main_die_gracefully "Could not change permissions on file $file - exiting"
+			
+			if [[ "$(cxr_common_is_dos? "$file")" == true ]]
+			then
+				cxr_main_logger -w "$FUNCNAME" "$file is in dos format. I will correct this."
+				${CXR_DOS2UNIX_EXEC} $file
+				
+				if [[ $? -ne 0 ]
+				then
+					cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not convert $file to Unix format!"
+				fi
+			fi
 			
 		fi
 	# Make sure we exclude state dir
