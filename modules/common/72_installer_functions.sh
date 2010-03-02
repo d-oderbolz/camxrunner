@@ -110,6 +110,7 @@ function cxr_common_install()
 	cxr_main_logger -a "$FUNCNAME"  "Checking internal files (may take a while)..."
 	
 	cxr_common_check_runner_executables
+	cxr_main_logger -a "$FUNCNAME"  "Checked."
 	
 	while [ "$(cxr_common_get_consent "Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase" )" == true ]
 	do

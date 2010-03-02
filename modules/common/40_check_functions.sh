@@ -392,9 +392,6 @@ function cxr_common_check_runner_executables ()
 	
 		if [[ ! -x $file ]]
 		then
-		
-			
-		
 			cxr_main_logger -w "${FUNCNAME}" "File $file is not executable,I try to correct this"
 			# File is not executable, try to correct
 			chmod +x $file || cxr_main_die_gracefully "Could not change permissions on file $file - exiting"
