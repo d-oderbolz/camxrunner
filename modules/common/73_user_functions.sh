@@ -80,6 +80,19 @@ exit 1
 }
 
 ################################################################################
+# Function: cxr_common_show_progress
+#
+# Very simple fnction you can call in any long-runnig loop to show the user 
+# that we are still alive. Just echoes a dot on stderr.
+#
+################################################################################
+function cxr_common_show_progress()
+################################################################################
+{
+	echo -n "." 1>&2
+}
+
+################################################################################
 # Function: cxr_common_countdown
 #
 # Most of the Time, CAMxRunner is run non-interactively. Sometimes, the Runner might take decisions
