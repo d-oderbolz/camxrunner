@@ -1037,7 +1037,7 @@ function cxr_common_check_module_requirements()
 				need=$(cxr_common_trim ${elements[2]})
 			else
 				# this is wrong!
-				cxr_main_logger -e "$FUNCNAME" "Requirement string $$requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
+				cxr_main_logger -e "$FUNCNAME" "Requirement string $requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
 			fi
 			
 			case $what in
