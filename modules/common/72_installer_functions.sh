@@ -262,7 +262,7 @@ function cxr_common_apply_patches()
 			cxr_main_logger -w "$FUNCNAME" "Patch $patch_file is in dos format. I will correct this."
 			${CXR_DOS2UNIX_EXEC} $patch_file
 			
-			if [[ $? -ne 0 ]
+			if [[ $? -ne 0 ]]
 			then
 				cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
 			fi
