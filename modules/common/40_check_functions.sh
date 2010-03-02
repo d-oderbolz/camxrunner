@@ -1006,7 +1006,7 @@ function cxr_common_check_module_requirements()
 	# Perform exectuable check
 	################################################################################
 	
-	if [[ "$CXR_META_MODULE_REQ_SPECIAL" && ( "$CXR_META_MODULE_REQ_SPECIAL" != "-" ) ]]
+	if [[ "${CXR_META_MODULE_REQ_SPECIAL:-}" && ( "${CXR_META_MODULE_REQ_SPECIAL:-}" != "-" ) ]]
 	then
 		# Parsing something like "exec|dot|optional exec|wget"
 		
