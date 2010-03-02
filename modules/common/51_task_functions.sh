@@ -17,7 +17,7 @@
 # If they are fulfilled, the task starts.
 # After successful execution, the worker gets the next task from the list.
 # A task is identified by its module name and a day offset, like create_emissions_01. 
-# One-Time Tasks have a day offset of 0, like initial_conditions_0. 
+# One-Time Tasks have no day offset, like initial_conditions. 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -35,7 +35,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -614,13 +614,14 @@ function cxr_common_add_modules()
 # 
 # Parameters:
 # $1 - a file describing the dependencies in tsort format
+# [$2] - an output file (PDF)
 ################################################################################
 function cxr_common_draw_dependency_graph()
 ################################################################################
 {
 	local input_file="$1"
+	local output_file="${2:-$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf}"
 	local dotfile=$(create_tempfile $FUNCNAME)
-	local pdffile=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
 	local elements
 	
 	echo "digraph dependencies" > $dotfile
@@ -669,7 +670,16 @@ function cxr_common_draw_dependency_graph()
 function cxr_common_get_dependency_graph_file()
 ################################################################################
 {
-
+	local filename=$(cxr_common_create_tempfile $FUNCNAME)
+	
+	# This is just to play
+	echo "create_emissions_0 model_0" >> "${filename}"
+	echo "convert_emissions_0 model_0" >> "${filename}"
+	echo "convert_input_0 model_0" >> "${filename}"
+	echo "initial_conditions model_0" >> "${filename}"
+	echo "boundary_conditions_0 model_0" >> "${filename}"
+	
+	echo "${filename}"
 }
 
 
@@ -1481,11 +1491,15 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	dep_file="$(cxr_common_get_dependency_graph_file)"
+	pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
+	cxr_common_draw_dependency_graph "$dep_file" "$pdf_file"
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# None yet
+	is "$(cxr_common_file_non_empty? "$pdf_file")" true "cxr_common_draw_dependency_graph simple existence check. Look at $pdf_file "
 
 	########################################
 	# teardown tests if needed
