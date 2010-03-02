@@ -1,5 +1,5 @@
---- F:/CAMxRunner/bin/CAMx/4.51/src/CAMx/old/Makefile.orig	Fri Feb 12 10:35:56 2010
-+++ F:/CAMxRunner/bin/CAMx/4.51/src/CAMx/Makefile.orig	Tue Mar 02 11:38:51 2010
+--- Makefile
++++ Makefile
 @@ -126,11 +126,11 @@
             HDF=$(HDF) \
             FC=f90 \
