@@ -125,7 +125,7 @@ function cxr_common_get_svn_revision()
 			revision=$( echo "${version_string}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
 		else
 			# We do not have 6 fields, cannot garantee anything!
-			cxr_main_logger -e "${FUNCNAME}" "Version string of file $filename is broken. Fix using svn!"
+			cxr_main_logger -w "${FUNCNAME}" "Version string of file $filename is broken. Fix using svn!"
 			revision=0
 		fi
 		
