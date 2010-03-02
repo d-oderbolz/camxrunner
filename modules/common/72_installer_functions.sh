@@ -197,7 +197,6 @@ function cxr_common_determine_patch_target()
 function cxr_common_apply_patches()
 ################################################################################
 {
-
 	local patch_dir="$1"
 	local src_dir="$2"
 	local logfile="${3:-/dev/null}"
@@ -211,7 +210,6 @@ function cxr_common_apply_patches()
 	local current_dir
 	local real_file
 	
-	
 	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
@@ -223,7 +221,12 @@ function cxr_common_apply_patches()
 	patchlist=$(cxr_common_create_tempfile $FUNCNAME)
 	
 	# Prepare the files containing all patches and no .svn stuff
-	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" > $patchlist
+	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" | sort > $patchlist
+	
+	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+	then
+			cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not list the patches in $patch_dir"
+	fi
 	
 	# Loop through all patches
 	
