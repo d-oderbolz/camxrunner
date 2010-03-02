@@ -270,10 +270,9 @@ CXR_TASK_ID_DIGITS=5
 
 # These are the indexes of the task descriptor structure
 CXR_TASK_DESCR_I_PATH=0					# Relative Path to module,
-CXR_TASK_DESCR_I_TYPE=1					# Module type
-CXR_TASK_DESCR_I_OFFSET=2				# Day offset
-CXR_TASK_DESCR_I_EXCLUSIVE=3			# Run exclusively (boolean flag)
-CXR_TASK_DESCR_I_DEPENDENCIES=4	# Dependencies
+CXR_TASK_DESCR_I_OFFSET=1				# Day offset
+CXR_TASK_DESCR_I_EXCLUSIVE=2			# Run exclusively (boolean flag)
+CXR_TASK_DESCR_I_DEPENDENCIES=3	# Dependencies
 
 # These are special dependencies
 CXR_DEP_ALL_ONCE_PRE=all_once_preprocessors

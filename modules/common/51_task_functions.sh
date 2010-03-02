@@ -105,6 +105,8 @@ exit 1
 # - the predicate "-" is resolved to the day before (if available)
 # - the special dependencies like "all_model" are resolved to all active modules of that class.
 #
+# The returned string looks similar to this
+#
 # Parameters:
 # $1 - name of the dependency (a module name or a special dependency like "all_model"
 # $2 - the day_offset for which this is to resolve
@@ -112,45 +114,35 @@ exit 1
 function cxr_common_resolve_dependency()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
-	
-	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
-	then
-		cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
-		echo true
-		cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
-		return $CXR_RET_OK
-	fi
-	
 	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency and a day_offset as input"
 	fi
 
-	DEPENDENCY=$1
-	DAY_OFFSET=$2
+	local dependency=$1
+	local day_offset=$2
 	
-	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $DEPENDENCY for day offset $DAY_OFFSET"
+	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $dependency for day offset $day_offset"
 	
 	# Is there a predicate?
 	# The last character of a string
-	# We get 1 character at the position $(( ${#DEPENDENCY} -1)) (length of string minus 1)
-	PREDICATE=${DEPENDENCY:$(( ${#DEPENDENCY} -1)):1}
+	# We get 1 character at the position $(( ${#dependency} -1)) (length of string minus 1)
+	local predicate=${dependency:$(( ${#dependency} -1)):1}
 	
-	case $PREDICATE in
+	case $predicate in
 	
 		-) # Currently, we only support -
 			cxr_main_logger -v "${FUNCNAME}" "Found the - predicate, will check last days results"
-			DAY_OFFSET=$(( $DAY_OFFSET - 1 ))
+			day_offset=$(( $day_offset - 1 ))
 			
 			# Cut off final -
-			DEPENDENCY=${DEPENDENCY%-}
-			if [[ $DAY_OFFSET -lt 0  ]]
+			dependency=${dependency%-}
+			if [[ $day_offset -lt 0  ]]
 			then
 				# At day 0, all previous day predicates are fulfilled
 				cxr_main_logger -v "${FUNCNAME}" "We are at day 0 - previous day dependency ok"
 				echo true
-				cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+				
 				return $CXR_RET_OK
 			fi
 			;;
@@ -158,7 +150,7 @@ function cxr_common_resolve_dependency()
 	esac
 	
 	# Check if we look at a special dependency or not
-	case $DEPENDENCY in
+	case $dependency in
 	
 		$CXR_DEP_ALL_ONCE_PRE)
 			LIST_FILE=$CXR_ACTIVE_ONCE_PRE_LIST
@@ -166,11 +158,11 @@ function cxr_common_resolve_dependency()
 			
 		$CXR_DEP_ALL_DAILY_PRE) 
 			LIST_FILE=$CXR_ACTIVE_DAILY_PRE_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
+			MY_PREFIX=${day_offset}_;;
 			
 		$CXR_DEP_ALL_DAILY_POST) 
 			LIST_FILE=$CXR_ACTIVE_DAILY_POST_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
+			MY_PREFIX=${day_offset}_;;
 			
 		$CXR_DEP_ALL_ONCE_POST) 
 			LIST_FILE=$CXR_ACTIVE_ONCE_POST_LIST
@@ -178,80 +170,79 @@ function cxr_common_resolve_dependency()
 			
 		$CXR_DEP_ALL_MODEL) 
 			LIST_FILE=$CXR_ACTIVE_MODEL_LIST
-			MY_PREFIX=${DAY_OFFSET}_;;
+			MY_PREFIX=${day_offset}_;;
 			
 	
 		*) # A boring standard case
 		
 			# Is the dependency disabled?
-			if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false  ]]
+			if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$dependency") == false  ]]
 			then
 				# Do we care?
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 				then
 					# No, user wants to ignore this
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $DEPENDENCY is disabled. We will not check if this module was run"
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
 					echo true
-					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+					
 					return $CXR_RET_OK
 				else
 					# Yes, we return false
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $DEPENDENCY is disabled. The dependency $DEPENDENCY is not fulfilled!"
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 					echo false
-					cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+					
 					return $CXR_RET_OK
 				fi
 			fi
 			
 			# Determine type
-			MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
+			MODULE_TYPE="$(cxr_common_get_module_type "$dependency")"
 			
 			# Convert date
-			cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+			cxr_common_raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
 			
-			MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$DEPENDENCY" "$cxr_common_raw_date" )"
+			MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$dependency" "$cxr_common_raw_date" )"
 			
 			# Is this known to have worked?
 			if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
 			then
-				cxr_main_logger -v "${FUNCNAME}"  "Dependency ${DEPENDENCY} fullfilled"
+				cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
 				echo true
 			else
-				# Dependency NOK, Find out why
+				# dependency NOK, Find out why
 				
-				# Find out if Dependency failed - if so, we crash
+				# Find out if dependency failed - if so, we crash
 				if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
 				then
 					# It failed
 					# Destroy run if no dryrun
 					if [[ $CXR_DRY == false  ]]
 					then
-						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${DAY_OFFSET}_${DEPENDENCY} failed!"
+						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
 					else
-						cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed - but this is a dryrun, so we keep going!"
+						cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
 						echo true
 					fi
 				else
 					# It did not fail, it seems that it was not yet run - we have to wait
-					cxr_main_logger -v "${FUNCNAME}" "${DEPENDENCY} has not yet finished - we need to wait."
+					cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
 					echo false
 				fi
 			fi
-			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+			
 			return $CXR_RET_OK
 			;;
 	
 	esac
-	
 	
 	# Here, we handle the special cases
 	# This dependencies require that all modules listed in
 	# the LIST_FILE must have been run successfully.
 	# Since the LIST_FILE only contains modules that are really run,
 	# there is no need to check for isabled stuff!
-	SKIP_IT=false
+	skip_it=false
 	
-	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${DEPENDENCY} using ${MY_PREFIX}..."
+	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${dependency} using ${MY_PREFIX}..."
 	
 	while read MODULE
 	do
@@ -264,7 +255,7 @@ function cxr_common_resolve_dependency()
 		MODULE_TYPE="$(cxr_common_get_module_type "$MODULE")"
 		
 		# Convert date
-		cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+		cxr_common_raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
 		
 		MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$MODULE" "$cxr_common_raw_date" )"
 
@@ -272,28 +263,28 @@ function cxr_common_resolve_dependency()
 		if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
 		then
 			# this one is ok, check next
-			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE fullfilled - checking further..."
+			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE fullfilled - checking further..."
 			continue
 		else
-			# Dependency NOK, Find out why
-			cxr_main_logger -v "${FUNCNAME}" "Dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${MY_PREFIX}${MODULE}"
-			# Find out if Dependency failed - if so, we crash
+			# dependency NOK, Find out why
+			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${MY_PREFIX}${MODULE}"
+			# Find out if dependency failed - if so, we crash
 			if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
 			then
 				# It failed
 				# Destroy run if no dryrun
 				if [[ $CXR_DRY == false  ]]
 				then
-					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $DEPENDENCY failed because of $MODULE!"
+					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $dependency failed because of $MODULE!"
 				else
-					cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed because of $MODULE - but this is a dryrun, so we keep going!"
+					cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed because of $MODULE - but this is a dryrun, so we keep going!"
 					continue
 				fi
 			else
 				# It did not fail, it seems that it was not yet run - we have to wait
 				# Still, we must check the rest 
-				cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} is not yet fulfilled, we must wait!"
-				SKIP_IT=true
+				cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} is not yet fulfilled, we must wait!"
+				skip_it=true
 				# We continue, because we might need to fail in another case (failed dependency)
 				continue
 			fi
@@ -301,20 +292,17 @@ function cxr_common_resolve_dependency()
 		
 	done < "$LIST_FILE" # Loop over listed modules
 	
-	if [[ $SKIP_IT == true  ]]
+	if [[ $skip_it == true  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY not ok!"
+		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency not ok!"
 		echo false
 	else
-		cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok"
+		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency ok"
 		echo true
 	fi
 	
-	cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 	return $CXR_RET_OK
 }
-
-
 
 ################################################################################
 # Function: cxr_common_create_task_descriptor
@@ -324,26 +312,19 @@ function cxr_common_resolve_dependency()
 # The name of a descriptor is a unique number identifying the task and giving the task
 # its rank (they are executed ordered by rank).
 #
-# This function also fills files of "active modules" 
-# ($CXR_ACTIVE_ONCE_PRE_LIST ...)
-# This is later used for module type based dependencies like "all_preprocessors"
-#
 # Think about the parameters being positional parameters, so you need to give 
 # at least the empty string "" for a parameter if you want to skip a parameter in between.
 #
 # Parameters:
 # $1 - the task id (UNIQUE)
 # $2 - the relative path to the module (from CXR_RUN_DIR)
-# $3 - the module type
-# $4 - the day offset to run the module with. 0 if the date is irrelevant (we need to initialize date vars anyway!)
+# $3 - the day offset to run the module with. 0 if the date is irrelevant (we need to initialize date vars anyway!)
+# [$4] - optional flag, if true, this module is run exclusively (after starting it, no new tasks will be issued on the executing machine)
 # [$5] - the optional dependency string (a space separated list of module names that this module depends on)
-# [$6] - optional flag, if true, this module is run exclusively (after starting it, no new tasks will be issued on the executing machine)
 ################################################################################
 function cxr_common_create_task_descriptor()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
-	
 	NAME=$CXR_TASK_POOL_DIR/$(printf "%0${CXR_TASK_ID_DIGITS}d" $1)
 	
 	# Is this a unique number?
@@ -352,63 +333,17 @@ function cxr_common_create_task_descriptor()
 		cxr_main_die_gracefully "The task Id $1 is already taken"
 	fi
 	
-	MODULE_PATH="$2"
-	MODULE_TYPE="$3"
-	DAY_OFFSET="$4"
-	DEPENDENCIES="$5"
-	RUN_EXCLUSIVELY="$6"
+	local module_path="$2"
+	local day_offset="$3"
+	local run_exclusively="$4"
+	local dependencies="$5"
+	local module_name="$(cxr_main_extract_module_name "$module_path")"
 	
-	# List management
-	case $MODULE_TYPE in
-		
-		"${CXR_TYPE_COMMON}" ) 
-			cxr_main_die_gracefully "Common modules cannot be run this way!" ;;
-			
-		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-			ACTIVE_LIST=$CXR_ACTIVE_ONCE_PRE_LIST;; 
-			
-		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-			ACTIVE_LIST=$CXR_ACTIVE_DAILY_PRE_LIST;;
-			
-		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-			ACTIVE_LIST=$CXR_ACTIVE_DAILY_POST_LIST;;
-			
-		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-			ACTIVE_LIST=$CXR_ACTIVE_ONCE_POST_LIST;; 
-			
-		"${CXR_TYPE_MODEL}" ) 
-			ACTIVE_LIST=$CXR_ACTIVE_MODEL_LIST;;
-			
-		"${CXR_TYPE_INSTALLER}" ) 
-			cxr_main_die_gracefully "Installer modules cannot be run this way!" ;;
-			
-		* ) 
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $MODULE_TYPE" ;;
-	esac
-	
-	# touch the list so we can cat later
-	touch "$ACTIVE_LIST"
-	
-	MODULE_NAME="$(cxr_main_extract_module_name "$MODULE_PATH")"
-	
-	cxr_main_logger -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - module name $MODULE_NAME, type $MODULE_TYPE"
-	
-	if [[ $(cxr_common_is_substring_present  "$(cat $ACTIVE_LIST)" "$MODULE_NAME") == false  ]]
-	then
-		# Add this module to the list if not already there
-		echo -n " $MODULE_NAME" >> $ACTIVE_LIST
-	fi
-	
-	# Also fill the "all" list
-	if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$MODULE_NAME") == false  ]]
-	then
-		# Add this module to the list if not already there
-		echo -n " $MODULE_NAME" >> $CXR_ACTIVE_ALL_LIST
-	fi
+	cxr_main_logger -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - module name $module_name, type $MODULE_TYPE"
 	
 	# We put all the values into a : Delimited string
-	# Relative Path to module, Module type, Day offset, Run exclusively (boolean flag), Dependencies
-	echo "${MODULE_PATH}${CXR_DELIMITER}${MODULE_TYPE}${CXR_DELIMITER}${DAY_OFFSET}${CXR_DELIMITER}${RUN_EXCLUSIVELY:-}${CXR_DELIMITER}${DEPENDENCIES:-}" > $NAME
+	# Relative Path to module, Module type, Day offset, Run exclusively (boolean flag), dependencies
+	echo "${module_path}${CXR_DELIMITER}${day_offset}${CXR_DELIMITER}${run_exclusively:-}${CXR_DELIMITER}${dependencies:-}" > $NAME
 
 	## Create the todo links
 	if [[ ! -d "$CXR_TASK_TODO_DIR"  ]]
@@ -435,11 +370,15 @@ function cxr_common_create_task_descriptor()
 # Cannot be used to run single steps (this is always done sequentially)
 #
 # The function also checks if any module has dependencies to a disabled module
-# that was not yet run. If it had, we need to fail (the run could not finish otherwise)
-# Setting  "CXR_IGNORE_DISABLED_DEPENDENCIES=true" turns this check off
+# that was not yet run. If it had, we need to fail (the run could never succeed otherwise)
+# Setting  "CXR_IGNORE_DISABLED_DEPENDENCIES=true" turns this check off.
+#
+# This function also fills files of "active modules" 
+# ($CXR_ACTIVE_ONCE_PRE_LIST ...)
+# This is later used for module type based dependencies like "all_preprocessors"
 #
 # Also, all modules are checked for their version compliance, only the good ones
-# are entered.
+# are added.
 #
 # Parameters:
 # $1 - Type of modules to run
@@ -449,134 +388,168 @@ function cxr_common_add_modules()
 {
 	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
 	
-	MODULE_TYPE="$1"
+	local module_type="$1"
+	local active_list
+	local module_directories
+	local module_directory
+	local disabled_modules
+	local enabled_modules
+	local simdays
+	local day_offset
+	local function_file
+	local file_name
+	local run_it=false
 	
-	cxr_main_logger "${FUNCNAME}" "Loading $MODULE_TYPE modules..."
+	
+	cxr_main_logger "${FUNCNAME}" "Loading $module_type modules..."
 	
 	# Variables:
 	# MODULE_DIRECOTRIES - is a list of directories that will be used to search for modules
-	# ENABLED_MODULES - is a list of explicitly enables modules of the current type
-	# DISABLED_MODULES - is a list of disabled modules of the current type
-	case "$MODULE_TYPE" in
+	# enabled_modules - is a list of explicitly enables modules of the current type
+	# disabled_modules - is a list of disabled modules of the current type
+	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
 			cxr_main_die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_ONCE_INPUT_DIR" 
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_PREPROC"
-			ENABLED_MODULES="$CXR_ENABLED_ONCE_PREPROC"
-			SIMDAYS=0 # This module type is "timeless"
+			active_list=$CXR_ACTIVE_ONCE_PRE_LIST
+			module_directories="$CXR_PREPROCESSOR_ONCE_INPUT_DIR" 
+			disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+			enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+			simdays=0 # This module type is "timeless"
 			cxr_main_logger "${FUNCNAME}" "One-Time Preprocessors are run only once";;
 			
-		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_DAILY_INPUT_DIR" 
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_PREPROC"
-			ENABLED_MODULES="$CXR_ENABLED_DAILY_PREPROC"
-			SIMDAYS=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+		"${CXR_TYPE_PREPROCESS_DAILY}" )
+			active_list=$CXR_ACTIVE_DAILY_PRE_LIST
+			module_directories="$CXR_PREPROCESSOR_DAILY_INPUT_DIR" 
+			disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+			enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+			simdays=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 			cxr_main_logger "${FUNCNAME}" "Single Preprocessors are run for each of the ${CXR_NUMBER_OF_SIM_DAYS} simulation days";;
 			
-		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR" 
-			DISABLED_MODULES="$CXR_DISABLED_DAILY_POSTPROC"
-			ENABLED_MODULES="$CXR_ENABLED_DAILY_POSTPROC"
-			SIMDAYS=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+		"${CXR_TYPE_POSTPROCESS_DAILY}" )
+			active_list=$CXR_ACTIVE_DAILY_POST_LIST
+			module_directories="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR" 
+			disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+			enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+			simdays=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 			cxr_main_logger "${FUNCNAME}" "Single Postprocessors are run for each of the ${CXR_NUMBER_OF_SIM_DAYS}  simulation days";;
 			
-		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR" 
-			DISABLED_MODULES="$CXR_DISABLED_ONCE_POSTPROC"
-			ENABLED_MODULES="$CXR_ENABLED_ONCE_POSTPROC"
-			SIMDAYS=0 # This module type is "timeless"
+		"${CXR_TYPE_POSTPROCESS_ONCE}" )
+			active_list=$CXR_ACTIVE_ONCE_POST_LIST
+			module_directories="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR" 
+			disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+			enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+			simdays=0 # This module type is "timeless"
 			cxr_main_logger "${FUNCNAME}" "Finish Postprocessors are run only once" ;; 
 			
-		"${CXR_TYPE_MODEL}" ) 
-			MODULE_DIRECTORIES="$CXR_MODEL_INPUT_DIR" 
-			DISABLED_MODULES="$CXR_DISABLED_MODEL"
-			ENABLED_MODULES="$CXR_ENABLED_MODEL"
-			SIMDAYS=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+		"${CXR_TYPE_MODEL}" )
+			active_list=$CXR_ACTIVE_MODEL_LIST
+			module_directories="$CXR_MODEL_INPUT_DIR" 
+			disabled_modules="$CXR_DISABLED_MODEL"
+			enabled_modules="$CXR_ENABLED_MODEL"
+			simdays=$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 			cxr_main_logger "${FUNCNAME}" "Model Modules are run for each of the ${CXR_NUMBER_OF_SIM_DAYS}  simulation days";;
 			
 		"${CXR_TYPE_INSTALLER}" ) 
 			cxr_main_die_gracefully "Installer modules cannot be run this way!" ;;
 			
 		* ) 
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $MODULE_TYPE" ;;
+			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	
-	if [[ "$DISABLED_MODULES:-"  ]]
+	# touch the active lists so we can cat later
+	touch "$active_list"
+	touch "$CXR_ACTIVE_ALL_LIST"
+	
+	if [[ "$disabled_modules:-"  ]]
 	then
-		cxr_main_logger $FUNCNAME "Disabled modules: $DISABLED_MODULES"
+		cxr_main_logger $FUNCNAME "Disabled modules: $disabled_modules"
 	fi
 	
 	# Increase global indent level
 	cxr_main_increase_log_indent
 	
 	## Now we need to loop through the days
-	for DAY_OFFSET in $(seq 0 $SIMDAYS )
+	for day_offset in $(seq 0 $simdays )
 	do
 	
 		# if we run only 1 day, do it
-		if [[ "${CXR_ONE_DAY}"  ]]
+		if [[ "${CXR_ONE_DAY}" ]]
 		then
-			DAY_OFFSET="$(cxr_common_date2offset ${CXR_ONE_DAY})"
-			cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${DAY_OFFSET}."
+			day_offset="$(cxr_common_date2offset ${CXR_ONE_DAY})"
+			cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${day_offset}."
 		fi
 	
-		cxr_main_logger -v "${FUNCNAME}"  "Scheduling $MODULE_TYPE tasks for day offset $DAY_OFFSET"
+		cxr_main_logger -v "${FUNCNAME}"  "Scheduling $module_type tasks for day offset $day_offset"
 	
 		# Check if we need any of them at all
-		if [[ "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"  ]]
+		if [[ "${disabled_modules}" != "${CXR_SKIP_ALL}"  ]]
 		then
 		
 			# We did not turn off everything.
 		
 			# Loop through available input dirs
-			for MODULE_DIRECTORY in $MODULE_DIRECTORIES
+			for module_directory in $module_directories
 			do
 				# Loop through all files
-				for FUNCTION_FILE in $(ls ${MODULE_DIRECTORY}/??_*.sh 2>/dev/null)
+				for function_file in $(ls ${module_directory}/??_*.sh 2>/dev/null)
 				do
-					FILE_NAME=$(basename "$FUNCTION_FILE")
+					file_name=$(basename "$function_file")
 					
 					# Before loading a new module, remove old meta variables
 					unset ${!CXR_META_MODULE*}
 					
 					# Export the module name
-					CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $FUNCTION_FILE)
+					CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $function_file)
 				
 					# source the file to get the rest of the metadata
-					source $FUNCTION_FILE
+					source $function_file
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(cxr_common_is_substring_present "$ENABLED_MODULES" "$CXR_META_MODULE_NAME")" == true  ]]
+					if [[ "$(cxr_common_is_substring_present "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
-						RUN_IT=true
-					elif [[  "$(cxr_common_is_substring_present "$DISABLED_MODULES" "$CXR_META_MODULE_NAME")" == false && "${DISABLED_MODULES}" != "${CXR_SKIP_ALL}"   ]]
+						run_it=true
+					elif [[  "$(cxr_common_is_substring_present "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
-						RUN_IT=true
+						run_it=true
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
-						RUN_IT=false
-						cxr_main_logger "${FUNCNAME}" "Step $FILE_NAME is disabled, skipped"
+						run_it=false
+						cxr_main_logger "${FUNCNAME}" "Step $file_name is disabled, skipped"
 					fi
 				
 					# Execute if needed
-					if [[ "$RUN_IT" == true  ]]
+					if [[ "$run_it" == true ]]
 					then
 							# Check the version
 							if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 							then
 								# Add this module
-								cxr_common_create_task_descriptor "$CXR_CURRENT_ID" "$FUNCTION_FILE" "$MODULE_TYPE" "${DAY_OFFSET}" "${CXR_META_MODULE_DEPENDS_ON:-}" "${CXR_META_MODULE_RUN_EXCLUSIVELY:-false}"
+								cxr_common_create_task_descriptor "$CXR_CURRENT_ID" "$function_file" "${day_offset}" "${CXR_META_MODULE_RUN_EXCLUSIVELY:-false} "${CXR_META_MODULE_DEPENDS_ON:-}""
 							
 								# Increase ID
 								CXR_CURRENT_ID=$(( $CXR_CURRENT_ID + 1 ))
 							else
 								cxr_main_logger "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed - we do not run this module"
+							fi
+							
+							# Add to active list
+							if [[ $(cxr_common_is_substring_present  "$(cat $active_list)" "$CXR_META_MODULE_NAME") == false  ]]
+							then
+								# Add this module to the list if not already there
+								echo -n " $CXR_META_MODULE_NAME" >> $active_list
+							fi
+							
+							# Also fill the "all" list
+							if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$CXR_META_MODULE_NAME") == false  ]]
+							then
+								# Add this module to the list if not already there
+								echo -n " $CXR_META_MODULE_NAME" >> $CXR_ACTIVE_ALL_LIST
 							fi
 							
 							# Take note that this module was already announced
@@ -587,14 +560,14 @@ function cxr_common_add_modules()
 				
 			done # Loop through module dirs
 		else
-			cxr_main_logger "${FUNCNAME}" "You disabled all modules of type $MODULE_TYPE by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none will be executed."
+			cxr_main_logger "${FUNCNAME}" "You disabled all modules of type $module_type by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none will be executed."
 		fi 
 		
 		# Decrease global indent level
 		cxr_main_decrease_log_indent
 		
 		# If we do only 1 day, that's it
-		if [[ "${CXR_ONE_DAY}"  ]]
+		if [[ "${CXR_ONE_DAY}" ]]
 		then
 			break
 		fi
@@ -693,8 +666,7 @@ function cxr_common_get_dependency_graph_file()
 function cxr_common_create_task_list()
 ################################################################################
 {
-
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	
 
 	# Check if we already have tasks - fail if this is the case
 	if [[ $(find "$CXR_TASK_POOL_DIR" -noleaf -maxdepth 1 -type f 2>/dev/null | wc -l ) -ne 0  ]]
@@ -740,34 +712,6 @@ function cxr_common_create_task_list()
 }
 
 ################################################################################
-# Returns a sorted list of open tasks (machine based) to stdout.
-# First come the machine-relevant tasks, then the general ones.
-# Contains the full path of the todo links
-#
-# Note that ls sorts automatically
-#
-################################################################################
-function cxr_common_get_open_tasks()
-################################################################################
-{
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
-
-	MACHINE_DIR=$CXR_TASK_TODO_DIR/$(uname -n)
-	GENERAL_DIR=$CXR_TASK_TODO_DIR
-	
-	# First check out the machine dir if available
-	if [[ -d $MACHINE_DIR  ]]
-	then
-		find "$MACHINE_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null
-	fi
-	
-	# Concatenate with rest
-	find "$GENERAL_DIR" -noleaf -maxdepth 1 -type l 2>/dev/null
-	
-	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
-}
-
-################################################################################
 # Function: cxr_common_count_open_tasks
 #
 # Returns the number of open tasks. 
@@ -782,19 +726,19 @@ function cxr_common_count_open_tasks()
 	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
 
 	# Find all links below CXR_TASK_TODO_DIR
-	TASK_COUNT=$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | wc -l)
+	task_count=$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | wc -l)
 	
-	cxr_main_logger -v "${FUNCNAME}"  "Found $TASK_COUNT open tasks"
+	cxr_main_logger -v "${FUNCNAME}"  "Found $task_count open tasks"
 	
-	echo $TASK_COUNT
+	echo $task_count
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 }
 
 ################################################################################
-# Function: cxr_common_dependency_ok?
+# Function: cxr_common_dependencies_ok?
 #
-# Checks if a given dependency is fullfilled. If the dependency has failed,
+# Checks if all given dependency are fullfilled. If any dependency has failed,
 # the run is destroyed, if the depdendency was not yet started, false is returned,
 # if it is OK, true is returned.
 #
@@ -805,25 +749,23 @@ function cxr_common_count_open_tasks()
 #
 # If this is a dryrun, we go on even if a dependency failed.
 #
-# There are 2 main reasons why a dependency is not fulfilled:
+# There are 2 main reasons why a dependency may not be fulfilled:
 # - it was not started yet or is still running, in this case we can wait
 # - it failed, in this case we have to stop the run
 # 
 # We access the state DB using <cxr_common_has_finished>.
 #
 # Parameters:
-# $1 - resolved name of the dependency like create_emissions_01
+# $1 - a list of unresolved dependencies
+# $2 - a day offset used as reference
 ################################################################################
-function cxr_common_dependency_ok?()
+function cxr_common_dependencies_ok?()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}" "Entering $FUNCNAME"
-	
 	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
 	then
 		cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
 		echo true
-		cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 		return $CXR_RET_OK
 	fi
 	
@@ -832,93 +774,95 @@ function cxr_common_dependency_ok?()
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency as input"
 	fi
 
-	DEPENDENCY=$1
+	dependency=$1
+	day_offset=$2
 	
-	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $DEPENDENCY for day offset $DAY_OFFSET"
+	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependency on $dependency for day offset $day_offset"
 
 	# Is the dependency disabled?
-	if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$DEPENDENCY") == false  ]]
+	if [[ $(cxr_common_is_substring_present  "$(cat $CXR_ACTIVE_ALL_LIST)" "$dependency") == false  ]]
 	then
 	
 		# Do we care?
 		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 		then
 			# No, user wants to ignore this
-			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $DEPENDENCY is disabled. We will not check if this module was run"
+			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
 			echo true
-			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+			
 			return $CXR_RET_OK
 		else
 			# Yes, we return false
-			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $DEPENDENCY is disabled. The dependency $DEPENDENCY is not fulfilled!"
+			cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 			echo false
-			cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+			
 			return $CXR_RET_OK
 		fi
 		
 	fi
 			
 	# Determine type
-	MODULE_TYPE="$(cxr_common_get_module_type "$DEPENDENCY")"
+	module_type="$(cxr_common_get_module_type "$dependency")"
 	
 	# Convert date
-	cxr_common_raw_date="$(cxr_common_offset2_raw_date ${DAY_OFFSET})"
+	cxr_common_raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
 	
-	MY_STAGE="$(cxr_common_get_stage_name "$MODULE_TYPE" "$DEPENDENCY" "$cxr_common_raw_date" )"
+	MY_STAGE="$(cxr_common_get_stage_name "$module_type" "$dependency" "$cxr_common_raw_date" )"
 	
 	# Is this known to have worked?
 	if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}"  "Dependency ${DEPENDENCY} fullfilled"
+		cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
 		echo true
 	else
-		# Dependency NOK, Find out why
+		# dependency NOK, Find out why
 		
-		# Find out if Dependency failed - if so, we crash
+		# Find out if dependency failed - if so, we crash
 		if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
 		then
 			# It failed
 			# Destroy run if no dryrun
 			if [[ $CXR_DRY == false  ]]
 			then
-				cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${DAY_OFFSET}_${DEPENDENCY} failed!"
+				cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
 			else
-				cxr_main_logger -v "${FUNCNAME}" "The dependency ${DEPENDENCY} failed - but this is a dryrun, so we keep going!"
+				cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
 				echo true
 			fi
 		else
 			# It did not fail, it seems that it was not yet run - we have to wait
-			cxr_main_logger -v "${FUNCNAME}" "${DEPENDENCY} has not yet finished - we need to wait."
+			cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
 			echo false
 		fi
 	fi
-	cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
+	
 	return $CXR_RET_OK
 }
 
 ################################################################################
 # Function: cxr_common_get_next_task
 #
-# Returns the file of the task descriptor for the next task to execute
+# Returns the file of the task descriptor for the next task to execute.
+# If there are no more tasks or a module runs exclusively, /dev/null is returned.
+# If all tasks are executed, deletes the continue file.
 # 
-#
 # Parameters:
-# $1 - the TASK_PID of the calling cxr_common_worker (to terminate it if needed)
+# $1 - the task_pid of the calling cxr_common_worker (to terminate it if needed)
 ################################################################################
 function cxr_common_get_next_task()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a TASK_PID as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
-	TASK_PID=$1
-	
-	# Here, we could account fo changes in CXR_MAX_PARALLEL_PROCS
-	# 	Start new workers
-	# 	Kill idle ones
-	# 	BUT: CXR_MAX_PARALLEL_PROCS is a per-machine setting!
+	local task_pid=$1
+	local task_count
+	local potential_task
+	local skip_it
+	local descriptor
+	local new_descriptor_name
 	
 	# If the system wants exclusive access to all processors,
 	# (e. g. to run the model in parallel mode) do not give out new assignments
@@ -933,110 +877,32 @@ function cxr_common_get_next_task()
 	# Entering critical section...
 	cxr_common_get_lock cxr_common_get_next_task
 	
-	TASK_COUNT=$(cxr_common_count_open_tasks)
+	task_count=$(cxr_common_count_open_tasks)
 	
 	# Are there open tasks at all?
-	if [[ "$TASK_COUNT" -eq 0  ]]
+	if [[ "$task_count" -eq 0  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "All tasks have been processed, I terminate all workers"
+		cxr_main_logger "${FUNCNAME}" "All tasks have been processed, notifing system..."
 		# there are no more tasks, remove all continue file
 		cxr_common_delete_continue_files
 		echo /dev/null
 		
 		# Release lock
 		cxr_common_release_lock cxr_common_get_next_task
-		
-		cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 		return $CXR_RET_OK
 	else
-		cxr_main_logger -v "${FUNCNAME}"  "There are $TASK_COUNT unfinished tasks - we choose the most urgent one with fulfilled dependencies."
+		cxr_main_logger -v "${FUNCNAME}"  "There are $task_count unfinished tasks - we choose the top one."
 	fi
-
-	# Now loop in search of a match
-	for POTENTIAL_TASK in $(cxr_common_get_open_tasks)
-	do
-		SKIP_IT=false
-		
-		if [[ ! -f "${POTENTIAL_TASK}"  ]]
-		then
-			# There is no file behind the link!
-			# Unset task to prevent issues if this was the last check!
-			POTENTIAL_TASK=""
-		else
-
-			######################
-			# Parse the descriptor
-			######################
-			
-			# Save old IFS
-			oIFS="$IFS"
-			IFS="$CXR_DELIMITER"
-			
-			# Suck one line into DESCRIPTOR
-			DESCRIPTOR=($(cat "${POTENTIAL_TASK}" | head -n1 ))
-			
-			# Reset IFS
-			IFS="$oIFS"
-			
-			# extract the data from the array
-			TASK="${DESCRIPTOR[$CXR_TASK_DESCR_I_PATH]}"
-			TYPE="${DESCRIPTOR[$CXR_TASK_DESCR_I_TYPE]}"
-			DAY_OFFSET="${DESCRIPTOR[$CXR_TASK_DESCR_I_OFFSET]}"
-			EXCLUSIVE="${DESCRIPTOR[$CXR_TASK_DESCR_I_EXCLUSIVE]}"
-			DEPENDENCIES="${DESCRIPTOR[$CXR_TASK_DESCR_I_DEPENDENCIES]:-}"
 	
-			if [[ -z "$DEPENDENCIES"  ]]
-			then
-			
-				# If the string is empty, there are no dependencies,
-				# we are happy to leave the loop
-				cxr_main_logger -v "${FUNCNAME}" "No dependencies found - $TASK is the next task!"
-				break
-				
-			else
-			
-				cxr_main_logger -v "${FUNCNAME}" "We must check the dependencies of $TASK $DAY_OFFSET"
-			
-				# Go trough each dependency
-				for DEPENDENCY in $DEPENDENCIES
-				do
-				
-					# cxr_common_dependency_ok? terminates run, if the dependency has failed
-					if [[ "$(cxr_common_dependency_ok? "$DEPENDENCY" "$DAY_OFFSET")" == true  ]]
-					then
-						# OK - check next dependency
-						cxr_main_logger -v "${FUNCNAME}" "Dependency $DEPENDENCY ok."
-					else
-						# We must wait
-						# We continue because we want to check if further dependencies have failed
-						SKIP_IT=true
-					fi
-				done # DEPENDENCY
-	
-				if [[ $SKIP_IT == true  ]]
-				then
-					# Go to next potential task
-					cxr_main_logger -v "${FUNCNAME}" "The task $TASK $DAY_OFFSET cannot be run yet - check next one"
-					# Unset task to prevent issues if this was the last check!
-					POTENTIAL_TASK=""
-				else
-					# Found a good task
-					cxr_main_logger -v "${FUNCNAME}" "Ready to execute $TASK $DAY_OFFSET"
-					break
-				fi
-				
-			fi # Dependencies found
-		fi # Task available
-		
-	done # POTENTIAL_TASK
+	# get first file
+	potential_task="$(ls "$CXR_TASK_TODO_DIR" 2>/dev/null | head -n1)"
 	
 	# It can be that we did not get a string
-	if [[ -z "$POTENTIAL_TASK"  ]]
+	if [[ -z "$potential_task" ]]
 	then
 		# No task!
-		cxr_main_logger -v "${FUNCNAME}" "Did not find anything suitable..."
+		cxr_main_logger -v "${FUNCNAME}" "Did not find any task..."
 		echo /dev/null
-		cxr_main_logger -v "${FUNCNAME}" "Leaving $FUNCNAME"
 		
 		# Release lock
 		cxr_common_release_lock cxr_common_get_next_task
@@ -1045,19 +911,17 @@ function cxr_common_get_next_task()
 	else
 		# We got a task
 		# Immediately assign it, so that we can leave the protected area (not an atomic operation!)
-		NEW_DESCRIPTOR_NAME=$CXR_TASK_RUNNING_DIR/${TASK_PID}_$(basename $POTENTIAL_TASK)
+		new_descriptor_name=$CXR_TASK_RUNNING_DIR/${task_pid}_$(basename $potential_task)
 		
-		cxr_main_logger -v "${FUNCNAME}"  "New Descriptor is $NEW_DESCRIPTOR_NAME"
+		cxr_main_logger -v "${FUNCNAME}"  "New descriptor is $new_descriptor_name"
 		
-		mv $POTENTIAL_TASK $NEW_DESCRIPTOR_NAME
+		mv $potential_task $new_descriptor_name
 		
 		# Release lock
 		cxr_common_release_lock cxr_common_get_next_task
 		
 		# Return full path
-		echo "$NEW_DESCRIPTOR_NAME"
-		cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
-		
+		echo "$new_descriptor_name"
 		return $CXR_RET_OK
 	fi
 }
@@ -1069,24 +933,28 @@ function cxr_common_get_next_task()
 # As a workaround, we also notify the state DB (modules should do this!)
 #
 # Parameters:
-# $1 - Descriptor file of task
-# $2 - Status (SUCCESS/FAILURE)
+# $1 - descriptor file of task
+# $2 - status (SUCCESS/FAILURE)
 ################################################################################
 function cxr_common_change_task_status()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
-
+	
+	
+	local task_descriptor_path
+	local task_descriptor
+	local status
+	
 	if [[ $# -ne 2  ]]
 	then
 		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task descriptor and a status as input"
 	fi
 	
-	TASK_DESCRIPTOR_PATH="$1"
-	TASK_DESCRIPTOR="$(basename "$TASK_DESCRIPTOR_PATH")"
-	STATUS="$2"
+	task_descriptor_path="$1"
+	task_descriptor="$(basename "$task_descriptor_path")"
+	status="$2"
 	
-	case $STATUS in
+	case $status in
 	
 		$CXR_STATUS_SUCCESS) 
 			DIRECTORY="$CXR_TASK_SUCCESSFUL_DIR";;
@@ -1099,11 +967,11 @@ function cxr_common_change_task_status()
 			;;
 			
 		*)
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Status $STATUS not supported!"
+			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - status $status not supported!"
 	
 	esac
 	
-	mv "$TASK_DESCRIPTOR_PATH" "$DIRECTORY/$TASK_DESCRIPTOR"
+	mv "$task_descriptor_path" "$DIRECTORY/$task_descriptor"
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 }
@@ -1111,29 +979,29 @@ function cxr_common_change_task_status()
 ################################################################################
 # Function: cxr_common_worker_waiting
 #
-# Add a TASK_PID file in the CXR_WAITING_WORKER_DIR
+# Add a task_pid file in the CXR_WAITING_WORKER_DIR
 # Remove it from CXR_RUNNING_WORKER_DIR
 #
 # Parameters:
-# $1 - TASK_PID of cxr_common_worker
+# $1 - task_pid of cxr_common_worker
 ################################################################################
 function cxr_common_worker_waiting ()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	
 	
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a TASK_PID as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
-	TASK_PID=$1
+	local task_pid=$1
 	
-	rm -f $CXR_RUNNING_WORKER_DIR/$TASK_PID >/dev/null 2>&1
+	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid >/dev/null 2>&1
 	
-	touch $CXR_WAITING_WORKER_DIR/$TASK_PID
+	touch $CXR_WAITING_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_worker (TASK_PID: $TASK_PID) changed its state to waiting"
+	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_worker (task_pid: $task_pid) changed its state to waiting"
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 }
@@ -1141,29 +1009,29 @@ function cxr_common_worker_waiting ()
 ################################################################################
 # Function: cxr_common_worker_working
 #
-# Add a TASK_PID file in the CXR_RUNNING_WORKER_DIR
+# Add a task_pid file in the CXR_RUNNING_WORKER_DIR
 # Remove it from CXR_WAITING_WORKER_DIR
 #
 # Parameters:
-# $1 - TASK_PID of cxr_common_worker
+# $1 - task_pid of cxr_common_worker
 ################################################################################
 function cxr_common_worker_working ()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	
 	
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a TASK_PID as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
-	TASK_PID=$1
+	local task_pid=$1
 	
-	rm -f $CXR_WAITING_WORKER_DIR/$TASK_PID >/dev/null 2>&1
+	rm -f $CXR_WAITING_WORKER_DIR/$task_pid >/dev/null 2>&1
 	
-	touch $CXR_RUNNING_WORKER_DIR/$TASK_PID
+	touch $CXR_RUNNING_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_worker (TASK_PID: $TASK_PID) changed its state to working"
+	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_worker (task_pid: $task_pid) changed its state to working"
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 }
@@ -1171,39 +1039,43 @@ function cxr_common_worker_working ()
 ################################################################################
 # Function: cxr_common_remove_worker
 #
-# kills the cxr_common_worker of the given TASK_PID and alse removes it from the process list.
-# For this the TASK_PID is parsed
+# kills the cxr_common_worker of the given task_pid and alse removes it from the process list.
+# For this the task_pid is parsed
 ################################################################################
 function cxr_common_remove_worker()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	
+	
+	local task_pid
+	local pid
+	local node
 	
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a TASK_PID as input"
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	# Remove identifier
-	rm -f $CXR_WORKER_DIR/$TASK_PID
+	rm -f $CXR_WORKER_DIR/$task_pid
 	
-	TASK_PID=$1
+	task_pid=$1
 	
-	PID=$(echo $TASK_PID | cut -d_ -f1)
-	NODE=$(echo $TASK_PID | cut -d_ -f2)
+	pid=$(echo $task_pid | cut -d_ -f1)
+	node=$(echo $task_pid | cut -d_ -f2)
 	
-	if [[ "$NODE" != "$(uname -n)"  ]]
+	if [[ "$node" != "$(uname -n)"  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "Strange: $TASK_PID seems to run on $NODE rather than on $(uname -n)"
+		cxr_main_logger "${FUNCNAME}" "Strange: $task_pid seems to run on $node rather than on $(uname -n)"
 		return $CXR_RET_ERROR
 	fi
 	
 	# Add check if the process is running at all!
-	kill $PID 2>/dev/null
+	kill $pid 2>/dev/null
 	
 	# We do not care if the process was waiting or running
-	rm -f $CXR_WAITING_WORKER_DIR/$TASK_PID >/dev/null 2>&1
-	rm -f $CXR_RUNNING_WORKER_DIR/$TASK_PID >/dev/null 2>&1
+	rm -f $CXR_WAITING_WORKER_DIR/$task_pid >/dev/null 2>&1
+	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid >/dev/null 2>&1
 	
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
@@ -1239,41 +1111,54 @@ function cxr_common_release_exclusive_access()
 # This function is the workhorse of the parallel CAMxRunner. The Runner spawns one 
 # or more of this functions to operate on the existing tasks.
 # This can even be done from more than one machine.
+#
+# The worker gets a new task via <cxr_common_get_next_task>, but he must then 
+# make sure (using <cxr_common_dependency_ok?>)
+# it waits until the dependencies of this task are fullfilled. 
 ################################################################################
 function cxr_common_worker()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	local tmp
+	local task_pid
+	local new_task_descriptor
+	local oIFS
+	local descriptor
+	local task
+	local exclusive
+	local dependencies
 	
-	#Getting the PID is not easy, we do not want to many processes...
-	TMP=$(cxr_common_create_tempfile $FUNCNAME)
 	
-	# The PID is the parent of the awk process
+	
+	#Getting the pid is not easy, we do not want to many processes...
+	tmp=$(cxr_common_create_tempfile $FUNCNAME)
+	
+	# The pid is the parent of the awk process
 	# and the 4th field of /proc/self/stat is the PPID
-	awk '{print $4}' /proc/self/stat > $TMP
+	awk '{print $4}' /proc/self/stat > $tmp
 	# We add the machine name so that it is unique among all machines
-	TASK_PID=$(cat $TMP)_$(uname -n)
+	task_pid=$(cat $tmp)_$(uname -n)
 	
 	# Create a file identifying the cxr_common_worker in the cxr_common_worker dir
-	touch $CXR_WORKER_DIR/$TASK_PID
+	touch $CXR_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -B "${FUNCNAME}" "Starting new cxr_common_worker (TASK_PID $TASK_PID)..."
+	cxr_main_logger -B "${FUNCNAME}" "Starting new cxr_common_worker (task_pid $task_pid)..."
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
-	if [[  "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "$CXR_DO_FILE_LOGGING" == true   ]]
+	if [[  "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "$CXR_DO_FILE_LOGGING" == true ]]
 	then
-		# Set TASK_PID-dependent logfile to disentangle things
-		CXR_LOG=${CXR_LOG%.log}_${TASK_PID}.log
+		# Set task_pid-dependent logfile to disentangle things
+		CXR_LOG=${CXR_LOG%.log}_${task_pid}.log
 		
 		cxr_main_logger "${FUNCNAME}" "This cxr_common_worker will use its own logfile: ${CXR_LOG}"
 	fi
 
 	# We are not yet busy
-	cxr_common_worker_waiting $TASK_PID
+	cxr_common_worker_waiting $task_pid
 
 	# We stay in this loop as long as the continue file exists
-	while [ -f "$CXR_CONTINUE_FILE" ]
+	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
 		cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
@@ -1281,14 +1166,11 @@ function cxr_common_worker()
 		# cxr_common_get_next_task must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
 		# We get a full file name
-		NEW_TASK_DESCRIPTOR=$(cxr_common_get_next_task $TASK_PID)
+		new_task_descriptor=$(cxr_common_get_next_task $task_pid)
 		
 		# If we are on wait state, we get the non-file /dev/null back
-		# Note that links to files are handled properly (they are files, too)
-		if [[ -f "$NEW_TASK_DESCRIPTOR"  ]]
+		if [[ -f "$new_task_descriptor" ]]
 		then
-			# Time to work
-			cxr_common_worker_working $TASK_PID
 			
 			######################
 			# Parse the descriptor
@@ -1298,73 +1180,84 @@ function cxr_common_worker()
 			oIFS="$IFS"
 			IFS="$CXR_DELIMITER"
 			
-			# Suck one line into DESCRIPTOR
-			DESCRIPTOR=($(cat "$NEW_TASK_DESCRIPTOR" | head -n1 ))
+			# Suck one line into descriptor
+			descriptor=($(cat "$new_task_descriptor" | head -n1 ))
 			
 			# Reset IFS
 			IFS="$oIFS"
 			
 			# extract the needed data from the array
-			TASK="${DESCRIPTOR[$CXR_TASK_DESCR_I_PATH]}"
-			DAY_OFFSET="${DESCRIPTOR[$CXR_TASK_DESCR_I_OFFSET]}"
-			EXCLUSIVE="${DESCRIPTOR[$CXR_TASK_DESCR_I_EXCLUSIVE]}"
+			task="${descriptor[$CXR_TASK_DESCR_I_PATH]}"
+			day_offset="${descriptor[$CXR_TASK_DESCR_I_OFFSET]}"
+			exclusive="${descriptor[$CXR_TASK_DESCR_I_EXCLUSIVE]}"
+			dependencies="${descriptor[$CXR_TASK_DESCR_I_DEPENDENCIES]}"
 			
-			cxr_main_logger -v "${FUNCNAME}"  "TASK: $TASK\nDAY_OFFSET: $DAY_OFFSET\nEXCLUSIVE: $EXCLUSIVE"
+			# We need to wait until all dependencies are ok
+			cxr_common_worker_waiting $task_pid
+			until [[ "$(cxr_common_dependencies_ok? "$dependencies" "$day_offset" )"]]
+			do
+				sleep $CXR_WAITING_SLEEP_SECONDS
+			done
+			
+			# Time to work
+			cxr_common_worker_working $task_pid
+			
+			cxr_main_logger -v "${FUNCNAME}"  "task: $task\nDAY_OFFSET: $day_offset\nEXCLUSIVE: $exclusive"
 			
 			#Reserve resources if needed
-			if [[ "$EXCLUSIVE" == true  ]]
+			if [[ "$exclusive" == true  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "This task needs exclusive access, we suspend the assignment of new tasks temporarily"
 				cxr_common_request_exclusive_access
 			fi
 		
 			# Setup environment
-			cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+			cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
 			
-			cxr_main_logger -B "${FUNCNAME}"  "cxr_common_worker $TASK_PID assigned to $TASK for $CXR_DATE"
+			cxr_main_logger -B "${FUNCNAME}"  "cxr_common_worker $task_pid assigned to $task for $CXR_DATE"
 			
 			# Before loading a new module, remove old meta variables
 			unset ${!CXR_META_MODULE*}
 			
 			# Export the module name
-			CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $TASK)
+			CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $task)
 			
 			# source the file to get the rest of the metadata
-			source $TASK
+			source $task
 			
 			# Now start the work.
 			# The function we use is the Module name (derived from the file name)
-			# We use the return status to determine if it was sucessful
-			$CXR_META_MODULE_NAME || cxr_common_change_task_status $NEW_TASK_DESCRIPTOR $CXR_STATUS_FAILURE
+			# We use the return status to determine if it was successful
+			$CXR_META_MODULE_NAME || cxr_common_change_task_status $new_task_descriptor $CXR_STATUS_FAILURE
 			
 			# This is a simple check (task_failed moves the descriptor away)
-			if [[ -f $NEW_TASK_DESCRIPTOR  ]]
+			if [[ -f $new_task_descriptor  ]]
 			then
-				cxr_common_change_task_status $NEW_TASK_DESCRIPTOR $CXR_STATUS_SUCCESS
+				cxr_common_change_task_status $new_task_descriptor $CXR_STATUS_SUCCESS
 			fi
 			
 			#Release resources if needed
-			if [[ "$EXCLUSIVE" == true  ]]
+			if [[ "$exclusive" == true  ]]
 			then
 				cxr_main_logger "${FUNCNAME}" "Activating the assignment of new tasks again."
 				cxr_common_release_exclusive_access
 			fi
 		else
 			# If we don't get anything, but we should, we terminate
-			if [[ $CXR_BLOCK_ASSIGNMENTS == false  ]]
+			if [[ $CXR_BLOCK_ASSIGNMENTS == false ]]
 			then
-				cxr_main_logger -v  "${FUNCNAME}" "cxr_common_worker $TASK_PID did not receive an assignment - there seem to be too many workers (starvation)"
+				cxr_main_logger -v  "${FUNCNAME}" "cxr_common_worker $task_pid did not receive an assignment - there seem to be too many workers (starvation)"
 			fi
 		
 			# This means that someone wants exclusive access, so we sleep
-			cxr_common_worker_waiting $TASK_PID
+			cxr_common_worker_waiting $task_pid
 			# Sleep a bit
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		fi
 	done
 	
 	# We have done our duty
-	cxr_common_remove_worker $TASK_PID
+	cxr_common_remove_worker $task_pid
 
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
 
@@ -1380,7 +1273,7 @@ function cxr_common_worker()
 function cxr_common_spawn_workers()
 ################################################################################
 {
-	cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+	
 	
 	cxr_main_logger "${FUNCNAME}" "We create now a number of $1 cxr_common_worker threads"
 	
@@ -1406,9 +1299,9 @@ function cxr_common_remove_all_workers()
 	
 	cxr_main_logger "${FUNCNAME}" "We remove all workers now."
 	
-	for TASK_PID in $(find "$CXR_WORKER_DIR" -noleaf -name \*_$(uname -n) )
+	for task_pid in $(find "$CXR_WORKER_DIR" -noleaf -name \*_$(uname -n) )
 	do
-		cxr_common_remove_worker "$(basename $TASK_PID)"
+		cxr_common_remove_worker "$(basename $task_pid)"
 	done
 	
 	cxr_main_logger -v "${FUNCNAME}"  "Leaving $FUNCNAME"
@@ -1423,7 +1316,7 @@ function cxr_common_remove_all_workers()
 function cxr_common_wait_for_workers()
 ################################################################################
 {
-		cxr_main_logger -v "${FUNCNAME}"  "Entering $FUNCNAME"
+		
 		cxr_main_logger "${FUNCNAME}" "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 		
 		while [ -f "$CXR_CONTINUE_FILE" ]
