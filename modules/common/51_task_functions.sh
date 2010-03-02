@@ -656,7 +656,7 @@ function cxr_common_draw_dependency_graph()
 	then
 		cxr_main_logger -e "$FUNCNAME" "Could not visualize the dependencies."
 	else	
-		cxr_main_logger -a "$FUNCNAME" "You find a visualisation of the modules dependencies in the file ${pdffile}"
+		cxr_main_logger -a "$FUNCNAME" "You find a visualisation of the modules dependencies in the file ${output_file}"
 	fi
 }
 ################################################################################
