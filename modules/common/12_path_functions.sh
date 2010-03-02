@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=10
+CXR_META_MODULE_NUM_TESTS=12
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -194,7 +194,7 @@ function cxr_common_get_file_mtime()
 ################################################################################
 # Function: cxr_common_get_file_type
 # 
-# Returns a parsed version of the output of "file". Curruntly used to detect compressed files by
+# Returns a parsed version of the output of "file". Currently used to detect compressed files by
 # <cxr_common_try_decompressing_file> and <init_test.inc>. 
 # Returns the empty string if the file is not readable.
 #
@@ -216,6 +216,31 @@ function cxr_common_get_file_type()
 		echo ""
 	else
 		echo "$filetype"
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_dos?
+# 
+# Returns a parsed version of the output of "file", can detect dos-files.
+#
+# Parameters:
+# $1 - file to test
+################################################################################
+function cxr_common_is_dos?()
+################################################################################
+{
+	local file=$1
+	local filetype
+	
+	# Grep returns a string if found
+	found="$(file "${file}" | grep "CRLF line terminators" )"
+	
+	if [[ "$found" ]]
+	then
+		echo true
+	else
+		echo false
 	fi
 }
 
@@ -762,6 +787,7 @@ function test_module()
 	b=$(cxr_common_create_tempfile $FUNCNAME)
 	
 	echo "Hallo" > $a
+	echo "Velo" >> $a
 	
 	# Set settings
 	CXR_COMPRESS_OUTPUT=true
@@ -795,6 +821,12 @@ function test_module()
 	is $(cxr_common_same_fs? . .) true "cxr_common_same_fs with twice the current path"
 	is $(cxr_common_same_fs? /proc .) false "cxr_common_same_fs with proc and current path"
 	
+	# test the dos-detection
+	unix2dos "$a"
+	is $(cxr_common_is_dos? "$a") true "cxr_common_is_dos? on dos-file"
+	
+	dos2unix "$a"
+	is $(cxr_common_is_dos? "$a") false "cxr_common_is_dos? on unix-file"
 	# compress
 	cxr_common_compress_output
 	
