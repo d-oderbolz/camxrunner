@@ -57,7 +57,7 @@ function cxr_main_count_cores()
 	
 	if [[ ! -r /proc/cpuinfo  ]]
 	then
-		#Probably no linux box.
+		# Probably no linux box.
 		# TODO: We need to find a POSIX approach!
 		echo 1
 	else

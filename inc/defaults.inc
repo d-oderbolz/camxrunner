@@ -838,6 +838,10 @@ CXR_WGET_EXEC=$(which wget)
 CXR_DOS2UNIX_EXEC=$(which dos2unix)
 CXR_UNIX2DOS_EXEC=$(which unix2dos)
 
+# This is important for parallel processing,
+# we sort or tasks with it according to the dependencies
+CXR_TSORT_EXEC=$(which tsort)
+
 # this can be used to draw graphs
 CXR_DOT_EXEC=$(which dot)
 

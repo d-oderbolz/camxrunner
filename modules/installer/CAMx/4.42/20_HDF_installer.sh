@@ -12,8 +12,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: The code here is pretty repetitive because bash has no nice
-# hash construct (mostly needed for configure options etc.)
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
