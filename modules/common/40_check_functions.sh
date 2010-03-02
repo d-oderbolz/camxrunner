@@ -1066,6 +1066,7 @@ function cxr_common_check_module_requirements()
 							fi
 							;;
 				*) cxr_main_logger -e "$FUNCNAME" "Currently, only exec requirements are supported." ;;
+			esac
 			
 		done
 		
