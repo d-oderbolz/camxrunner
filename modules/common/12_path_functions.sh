@@ -145,13 +145,13 @@ function cxr_common_is_absolute_path()
 #
 # Parameters:
 # $1 - path1 to test
-# $1 - path2 to test
+# $2 - path2 to test
 ################################################################################
 function cxr_common_same_fs?()
 ################################################################################
 {
 	local file1="$1"
-	local file2="$1"
+	local file2="$2"
 	
 	local dev1="$(stat -c"%d" "${file1}")"
 	local dev2="$(stat -c"%d" "${file2}")"
