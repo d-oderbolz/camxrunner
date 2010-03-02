@@ -12,7 +12,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Implement retval check in execute_model
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 # This is checked by "main_announce_and_check_module" at the end of the module
