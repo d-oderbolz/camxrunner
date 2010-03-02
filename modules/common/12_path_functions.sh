@@ -78,6 +78,27 @@ EOF
 exit 1
 }
 
+
+################################################################################
+# Function: cxr_common_file_non_empty?
+# 
+# Returns true if argument is an non-empty file, false otherwise.
+# Used mostly as a wrapper for testing
+#
+# Parameters:
+# $1 - path of file to test
+################################################################################
+function cxr_common_file_non_empty?()
+################################################################################
+{
+	if [[ -s "${1}" ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
 ################################################################################
 # Function: cxr_common_file_exists?
 # 
