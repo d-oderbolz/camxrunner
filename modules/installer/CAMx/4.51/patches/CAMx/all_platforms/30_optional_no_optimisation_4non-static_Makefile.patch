@@ -1,0 +1,47 @@
+--- Makefile
++++ Makefile
+@@ -129 +129 @@
+-           FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O3 -align dcommons"
++           FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O0 -align dcommons"
+@@ -133 +133 @@
+-           FLGS="-I$(CAMx_INC) -convert big_endian -O3 -align dcommons"
++           FLGS="-I$(CAMx_INC) -convert big_endian -O0 -align dcommons"
+@@ -144 +144 @@
+-           FLGS="-DSGI $(DEFHDF) -O2 -Wf,$(INCLUDES)"
++           FLGS="-DSGI $(DEFHDF) -O0 -Wf,$(INCLUDES)"
+@@ -148 +148 @@
+-           FLGS="-O2 -Wf,-I$(CAMx_INC)"
++           FLGS="-O0 -Wf,-I$(CAMx_INC)"
+@@ -208 +208 @@
+-           FLGS="-I$(CAMx_INC) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
++           FLGS="-I$(CAMx_INC) -O0 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+@@ -219 +219 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -223 +223 @@
+-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -234 +234 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -238 +238 @@
+-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O0 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -249 +249 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -align dcommons -extend_source -convert big_endian -ipo"
+@@ -253 +253 @@
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo"
++           FLGS="-I$(CAMx_INC) -O0 -align dcommons -extend_source -convert big_endian -ipo"
+@@ -264 +264 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+@@ -268 +268 @@
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="-I$(CAMx_INC) -O0 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+@@ -279 +279 @@
+-           FLGS="-I$(CAMx_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O3 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++           FLGS="-I$(CAMx_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
+@@ -283 +283 @@
+-           FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++           FLGS="-I$(CAMx_INC) -V -O0 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
