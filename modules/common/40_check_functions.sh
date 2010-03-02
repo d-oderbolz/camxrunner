@@ -504,7 +504,7 @@ function cxr_common_report_md5()
 		then
 		
 			# Did we encounter it recently?
-			if [[ $(cxr_common_hash_new? MD5 "${file}" global) == false ]]
+			if [[ "$(cxr_common_hash_new? MD5 "${file}" global)" == false ]]
 			then
 				# it must be older, check if hash has changed.
 				new_hash="$(cxr_common_md5 "$file")"

@@ -346,10 +346,10 @@ function cxr_common_hash_new? ()
 	local res
 	
 	# Is it in the hash?
-	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true  ]]
+	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
-		# if the hash es epoch is smaller, it is older
+		# if the hash's epoch is smaller, it is older
 		if [[ "$(cxr_common_hash_mtime "$hash" "$key" "$type")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
