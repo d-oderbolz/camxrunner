@@ -165,8 +165,6 @@ function CAMx_installer()
 		########################################
 		tar xvzf ${CXR_CAMX_TAR}
 		
-		exit 0
-		
 		# Go to directory
 		cd ${CXR_CAMX_TAR_DIR} || cxr_main_die_gracefully "could not change to $CXR_CAMX_TAR_DIR"
 		
