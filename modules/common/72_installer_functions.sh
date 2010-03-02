@@ -113,9 +113,6 @@ function cxr_common_install()
 	
 	while [ "$(cxr_common_get_consent "Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase" )" == true ]
 	do
-		# Show that we are alive
-		cxr_common_show_progress
-		
 		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
 		model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "model $model is not known."
