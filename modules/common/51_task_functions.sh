@@ -621,11 +621,11 @@ function cxr_common_draw_dependency_graph()
 {
 	local input_file="$1"
 	local output_file="${2:-$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf}"
-	local dotfile=$(create_tempfile $FUNCNAME)
+	local dotfile=$(cxr_common_create_tempfile $FUNCNAME)
 	local elements
 	
-	echo "digraph dependencies" > $dotfile
-	echo "{" >> $dotfile
+	echo "digraph dependencies" > "$dotfile"
+	echo "{" >> "$dotfile"
 	
 	# Now go through each entry of the file, the form is
 	# independent_mod dependent_mod
@@ -640,14 +640,14 @@ function cxr_common_draw_dependency_graph()
 		
 		if [[ $indep != $dep ]]
 		then
-			echo "    ${dep} -> ${indep} ;" >> $dotfile
+			echo "    ${dep} -> ${indep} ;" >> "$dotfile"
 		else
 			cxr_main_logger -v "$FUNCNAME" "$indep equals $dep"
 		fi
 	
-	done < ${input_file}
+	done < "${input_file}"
 	
-	echo "}" >> $dotfile
+	echo "}" >> "$dotfile"
 	
 	# Now call dot
 	${CXR_DOT_EXEC} -Tpdf "${dotfile}" -o "${pdffile}" 2>&1 | tee -a $CXR_LOG
