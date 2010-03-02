@@ -1,0 +1,109 @@
+--- F:/CAMxRunner/bin/CAMx/4.51/src/CAMx/old/Makefile.orig	Fri Feb 12 10:35:56 2010
++++ F:/CAMxRunner/bin/CAMx/4.51/src/CAMx/Makefile.orig	Tue Mar 02 11:38:51 2010
+@@ -126,11 +126,11 @@
+            HDF=$(HDF) \
+            FC=f90 \
+            CC=cc \
+-           FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O3 -align dcommons"
++           FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O0 -align dcommons"
+ 	make model \
+            FC=f90 \
+            TARGT=CAMx.$(DOMAIN).dec \
+-           FLGS="-I$(CAMx_INC) -convert big_endian -O3 -align dcommons"
++           FLGS="-I$(CAMx_INC) -convert big_endian -O0 -align dcommons"
+ 
+ sgi:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -141,11 +141,11 @@
+            HDF=$(HDF) \
+            FC=f90 \
+            CC=cc \
+-           FLGS="-DSGI $(DEFHDF) -O2 -Wf,$(INCLUDES)"
++           FLGS="-DSGI $(DEFHDF) -O0 -Wf,$(INCLUDES)"
+ 	make model \
+            FC=f90 \
+            TARGT=CAMx.$(DOMAIN).sgi \
+-           FLGS="-O2 -Wf,-I$(CAMx_INC)"
++           FLGS="-O0 -Wf,-I$(CAMx_INC)"
+ 
+ sgiomp:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -205,7 +205,7 @@
+ 	make model \
+            FC=xlf \
+            TARGT=CAMx.$(DOMAIN).ibm \
+-           FLGS="-I$(CAMx_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
++           FLGS="-I$(CAMx_INC) -O0 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+ 
+ pg_linux:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -216,11 +216,11 @@
+            HDF=$(HDF) \
+            FC=pgf90 \
+            CC=gcc \
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+ 	make model \
+            FC=pgf90 \
+            TARGT=CAMx.$(DOMAIN).pg_linux \
+-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
++           FLGS="-I$(CAMx_INC) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
+ 
+ pg_linuxomp:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -231,11 +231,11 @@
+            HDF=$(HDF) \
+            FC=pgf90 \
+            CC=gcc \
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio"
+ 	make model \
+            FC=pgf90 \
+            TARGT=CAMx.$(DOMAIN).pg_linuxomp \
+-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
++           FLGS="-I$(CAMx_INC) -O0 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
+ 
+ i_linux:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -246,11 +246,11 @@
+            HDF=$(HDF) \
+            FC=ifort \
+            CC=gcc \
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -align dcommons -extend_source -convert big_endian -ipo -static"
+ 	make model \
+            FC=ifort \
+            TARGT=CAMx.$(DOMAIN).i_linux \
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
++           FLGS="-I$(CAMx_INC) -O0 -align dcommons -extend_source -convert big_endian -ipo -static"
+ 
+ i_linuxomp:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -261,11 +261,11 @@
+            HDF=$(HDF) \
+            FC=ifort \
+            CC=gcc \
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+ 	make model \
+            FC=ifort \
+            TARGT=CAMx.$(DOMAIN).i_linuxomp \
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="-I$(CAMx_INC) -O0 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+ 
+ ab_linux:
+ 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
+@@ -276,11 +276,11 @@
+            HDF=$(HDF) \
+            FC=f90 \
+            CC=cc \
+-           FLGS="-I$(CAMx_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O3 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++           FLGS="-I$(CAMx_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
+ 	make model \
+            FC=ifort \
+            TARGT=CAMx.$(DOMAIN).ab_linux \
+-           FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++           FLGS="-I$(CAMx_INC) -V -O0 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
+ 
+ linux:
+ 	@echo ' '
