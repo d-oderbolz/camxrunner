@@ -1010,14 +1010,18 @@ function cxr_common_check_module_requirements()
 	then
 		# Parsing something like "exec|dot|optional exec|wget"
 		
-		# Save old IFS
-		oIFS="$IFS"
-		IFS="$CXR_DELIMITER"
-		
+		# Attention - we need tha standard IFS here!
 		for requirement in $CXR_META_MODULE_REQ_SPECIAL
 		do
+			# Save old IFS
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
+			
 			# get requirement into array
 			elements=($requirement)
+			
+			# Reset IFS
+			IFS="$oIFS"
 			
 			n_elements=${#elements[@]}
 			
@@ -1069,10 +1073,6 @@ function cxr_common_check_module_requirements()
 			esac
 			
 		done
-		
-		# Reset IFS
-		IFS="$oIFS"
-		
 	fi
 	
 	# Decrease global indent level
