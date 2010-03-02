@@ -792,8 +792,8 @@ function test_module()
 	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
 	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
 	is $(cxr_common_file_size_megabytes $b) 100 "cxr_common_file_size_megabytes of 100MB file"
-	is $(cxr_common_same_fs? . .) true "cxr_common_same_fs with twice the corrent path"
-	is $(cxr_common_same_fs? /proc ~) false "cxr_common_same_fs with proc and home"
+	is $(cxr_common_same_fs? . .) true "cxr_common_same_fs with twice the current path"
+	is $(cxr_common_same_fs? /proc .) false "cxr_common_same_fs with proc and current path"
 	
 	# compress
 	cxr_common_compress_output
