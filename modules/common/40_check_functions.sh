@@ -1044,9 +1044,9 @@ function cxr_common_check_module_requirements()
 				cxr_main_logger -e "$FUNCNAME" "Requirement string $requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
 			fi
 			
-			case $what in
+			case "$kind" in
 			
-				exec) # Now we search the environment for this executable
+				"exec") # Now we search the environment for this executable
 							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 							do
 								if [[ "$(basename ${!executable})" == "$what" ]]
