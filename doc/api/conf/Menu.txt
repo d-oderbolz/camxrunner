@@ -115,6 +115,7 @@ Group: Modules  {
       Group: 4.42  {
 
          File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/4.42/once/10_concatenate_station_data.sh)
+         File: 99_set_permissions.sh  (modules/postproc/CAMx/4.42/once/99_set_permissions.sh)
 
          Group: Daily  {
 
@@ -138,6 +139,7 @@ Group: Modules  {
       Group: 4.51  {
 
          File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/4.51/once/10_concatenate_station_data.sh)
+         File: 99_set_permissions.sh  (modules/postproc/CAMx/4.51/once/99_set_permissions.sh)
 
          Group: Daily  {
 
@@ -161,6 +163,7 @@ Group: Modules  {
       Group: 5.10  {
 
          File: 10_concatenate_station_data.sh  (modules/postproc/CAMx/5.10/once/10_concatenate_station_data.sh)
+         File: 99_set_permissions.sh  (modules/postproc/CAMx/5.10/once/99_set_permissions.sh)
 
          Group: Daily  {
 
