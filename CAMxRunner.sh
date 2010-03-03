@@ -607,7 +607,7 @@ cxr_common_check_model_limits
 # Print out the variables and their settings
 ################################################################################
 
-INFO="\nThis CAMxRunner has process id $$ and is running on host $(uname -n)\nRun ${CXR_RUN}, we use the ${CXR_MODEL_EXEC} executable. \n It is now $(date)\n\n The script was called as \n \t \$ ${0} ${CXR_ARGUMENTS} \n\n" 
+INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname -n)\nRun ${CXR_RUN}, we use the ${CXR_MODEL_EXEC} executable. \n It is now $(date)\n\n The script was called as \n \t \$ ${0} ${CXR_ARGUMENTS} \n\n" 
 
 cxr_main_notify "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
 cxr_main_logger -i "CAMxRunner.sh" "$INFO"

@@ -34,6 +34,9 @@ HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 # This is our internal reference time (in Unix Epoch), used for Chacing etc.
 CXR_EPOCH="$(date "+%s")"
 
+# This is our porecess number (to be used when exiting on error)
+CXR_PID=$$
+
 ################################################################################
 # Default Behaviour     ########################################################
 ################################################################################
@@ -625,7 +628,6 @@ CXR_TASK_TODO_DIR=$CXR_TASK_POOL_DIR/todo
 readonly CXR_TASK_TODO_DIR
 
 # Contains links to tasks that are currently running
-# the name is $(uname -n)$$ 
 CXR_TASK_RUNNING_DIR=$CXR_TASK_POOL_DIR/running
 readonly CXR_TASK_RUNNING_DIR
 

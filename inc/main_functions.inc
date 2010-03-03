@@ -542,7 +542,7 @@ function cxr_main_cleanup()
 	fi
 	
 	# Change Back to rundir
-	cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
+	cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
 }
 
 # Set the trap (needs function first)
@@ -579,11 +579,9 @@ function cxr_main_die_gracefully()
 	
 	cxr_main_cleanup
 	
-	# Use second parameter as exit value if set, otherwise use ${CXR_RET_ERROR}
-	# If still not set, use 1
-	RET_CODE=${3:-${CXR_RET_ERROR:-1}}
-
-	exit $RET_CODE
+	# We cannot use exit here, since we might live in a subprocess
+	# What we do is kill the CAMxRunner process
+	kill $CXR_PID
 }
 
 ################################################################################
