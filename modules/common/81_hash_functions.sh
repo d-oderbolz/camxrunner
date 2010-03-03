@@ -223,7 +223,7 @@ function cxr_common_hash_put ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$key" "$type")"
+	fn="$(_hash_fn "$hash" "$type" "$key")"
 	
 	# Write the value
 	echo "${value}" > "${fn}"
@@ -249,7 +249,7 @@ function cxr_common_hash_get ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$key" "$type")"
+	fn="$(_hash_fn "$hash" "$type" "$key")"
 	
 	# Get the value
 	cat "${fn}"
@@ -277,7 +277,7 @@ function cxr_common_hash_delete ()
 	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true ]]
 	then
 		# Generate the filename
-		fn="$(_hash_fn "$hash" "$key" "$type")"
+		fn="$(_hash_fn "$hash" "$type" "$key")"
 		
 		# remove the value
 		rm -f "${fn}"
@@ -306,7 +306,7 @@ function cxr_common_hash_mtime ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$key" "$type")"
+	fn="$(_hash_fn "$hash" "$type" "$key")"
 	
 	# Get the mtime
 	echo "$(cxr_common_get_file_mtime "$fn")"
@@ -332,7 +332,7 @@ function cxr_common_hash_has? ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$key" "$type")"
+	fn="$(_hash_fn "$hash" "$type" "$key")"
 	
 	if [[ -f "${fn}"  ]]
 	then
