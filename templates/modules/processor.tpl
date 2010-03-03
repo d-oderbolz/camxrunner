@@ -128,7 +128,7 @@ function set_variables()
 	########################################################################
 	
 	# If you need special checks on the first or last day,
-	# use the functions cxr_common_is_first_day and cxr_common_is_last_day
+	# use the functions cxr_common_is_first_simulation_day? and cxr_common_is_last_simulation_day?
 	
 	########################################################################
 	# Set variables

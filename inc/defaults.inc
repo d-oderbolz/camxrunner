@@ -590,12 +590,12 @@ CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
 # Some state data is global to all runs (e. g. the hash used for change detection)
-CXR_STATE_GLOBAL_DIR=${CXR_RUN_DIR}/state/global
-readonly CXR_STATE_GLOBAL_DIR
+CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/universal
+readonly CXR_STATE_UNIVERSAL_DIR
 
-# Global Hashes (e. g. MD5 database) go here
-CXR_GLOBAL_HASH_DIR=$CXR_STATE_GLOBAL_DIR/hashes
-readonly CXR_GLOBAL_HASH_DIR
+# Universal Hashes (e. g. MD5 database) go here
+CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
+readonly CXR_UNIVERSAL_HASH_DIR
 
 ########################################
 # Data that is global to all instances of a given run
@@ -604,6 +604,10 @@ readonly CXR_GLOBAL_HASH_DIR
 # Directory where the global stuff goes
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/global
+readonly CXR_GLOBAL_DIR
+
+# Global Hashes (e. g. MD5 database) go here
+CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
 readonly CXR_GLOBAL_DIR
 
 ########################################

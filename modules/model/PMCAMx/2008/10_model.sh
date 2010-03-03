@@ -160,7 +160,7 @@ function set_variables()
 		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
 
 		
-		if [[ "$(cxr_common_is_first_day)" == true  ]]
+		if [[ "$(cxr_common_is_first_simulation_day?)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -644,7 +644,7 @@ function model()
 			then
 			
 				# If we do not run the first day, its a restart
-				if [[ "$(cxr_common_is_first_day)" == false  ]]
+				if [[ "$(cxr_common_is_first_simulation_day?)" == false  ]]
 				then
 					# This must be a restart!
 					CXR_RESTART=true

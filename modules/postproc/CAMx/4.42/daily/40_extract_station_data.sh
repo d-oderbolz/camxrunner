@@ -280,7 +280,7 @@ function extract_station_data
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
 		
 		# We instruct the extractors to print a header for the first day
-		if [[ $(cxr_common_is_first_day) == true  ]]
+		if [[ $(cxr_common_is_first_simulation_day?) == true  ]]
 		then
 			write_header=1
 		else

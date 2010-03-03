@@ -165,7 +165,7 @@ function set_variables()
 		########################################################################
 		
 		
-		if [[ "$(cxr_common_is_first_day)" == true  ]]
+		if [[ "$(cxr_common_is_first_simulation_day?)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -937,7 +937,7 @@ function model()
 			cxr_main_logger -B "$FUNCNAME" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			
 			# If we do not run the first day, its a restart
-			if [[ "$(cxr_common_is_first_day)" == false  ]]
+			if [[ "$(cxr_common_is_first_simulation_day?)" == false  ]]
 			then
 				# This must be a restart!
 				CXR_RESTART=true

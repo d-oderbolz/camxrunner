@@ -384,7 +384,7 @@ function boundary_conditions()
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We only create a file the first day, all others we link
-						if [[ "$(cxr_common_is_first_day)" == false  ]]
+						if [[ "$(cxr_common_is_first_simulation_day?)" == false  ]]
 						then
 							# Not the first day, just link
 							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"

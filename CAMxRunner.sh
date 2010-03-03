@@ -539,7 +539,7 @@ cxr_main_logger -H "CAMxRunner.sh" "$progname - running stage\nLoading external 
 if [[ "${CXR_ONE_DAY}"  ]]
 then
 
-	if [[ "$(cxr_common_is_yyyymmdd_format ${CXR_ONE_DAY})" == true  ]]
+	if [[ "$(cxr_common_is_yyyymmdd_format? ${CXR_ONE_DAY})" == true  ]]
 	then
 		cxr_main_logger -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
 	else
