@@ -1,0 +1,20 @@
+--- Makefile	Tue Mar 02 14:02:19 2010
++++ Makefile	Tue Mar 02 14:04:56 2010
+@@ -223 +223 @@
+-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O2 -fltconsistency -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -238 +238 @@
+-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
++           FLGS="-I$(CAMx_INC) -O2 -fltconsistency -mp -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -249 +249 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -fltconsistency -align dcommons -extend_source -convert big_endian -ipo"
+@@ -253 +253 @@
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
++           FLGS="-I$(CAMx_INC) -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
+@@ -264 +264 @@
+-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -fltconsistency -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+@@ -268 +268 @@
+-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
++           FLGS="-I$(CAMx_INC) -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
