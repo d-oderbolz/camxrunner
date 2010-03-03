@@ -264,6 +264,10 @@ function cxr_common_initialize_state_db()
 	mkdir -p "${CXR_RUNNING_WORKER_DIR}"
 	mkdir -p "${CXR_WAITING_WORKER_DIR}"
 	
+	# Init a few Hashes
+	cxr_common_hash_init MD5 universal
+	
+	
 	# Creating .continue file
 	cxr_main_logger -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}

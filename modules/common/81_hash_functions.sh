@@ -121,7 +121,7 @@ function cxr_common_hash_init ()
 ################################################################################
 {
 	local hash="$1"
-	local type="${2:-instance}"
+	local type="$2"
 	local hash_dir
 	
 	# Work out the directory
@@ -147,7 +147,7 @@ function cxr_common_hash_destroy ()
 ################################################################################
 {
 	local hash="$1"
-	local type="${2:-instance}"
+	local type="$2"
 	local hash_dir
 	
 	# Work out the directory
@@ -166,7 +166,7 @@ function cxr_common_hash_destroy ()
 #
 # Parameters:
 # $1 - name of the hash
-# $3 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "instance" , "global" or "universal"
 # $3 - key
 ################################################################################
 function _hash_fn ()
@@ -396,8 +396,8 @@ function cxr_common_hash_new? ()
 function cxr_common_hash_keys ()
 ################################################################################
 {
-	local hash="${1}"
-	local type="${2}"
+	local hash="$1"
+	local type="$2"
 	local hash_dir
 	local fn
 	local key
