@@ -1221,10 +1221,10 @@ function test_module()
 	is $(cxr_common_add_days 2009-02-28 1) 2009-03-01 "cxr_common_add_days"
 	is $(cxr_common_add_days 2004-02-28 1) 2004-02-29 "cxr_common_add_days"
 	is $(cxr_common_subtract_days 2004-02-29 1) 2004-02-28 "cxr_common_subtract_days"
-	is $(cxr_common_is_first_day_of_year 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
-	is $(cxr_common_is_first_day_of_week 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
-	is $(cxr_common_is_first_day_of_week 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
-	is $(cxr_common_is_first_day_of_month 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
+	is $(cxr_common_is_first_day_of_year? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
+	is $(cxr_common_is_first_day_of_week? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
+	is $(cxr_common_is_first_day_of_week? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
+	is $(cxr_common_is_first_day_of_month? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
 	
 	########################################
 	# teardown tests if needed
