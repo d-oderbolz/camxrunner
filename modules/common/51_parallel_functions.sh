@@ -581,7 +581,7 @@ function cxr_common_parallel_create_raw_dep_list()
 								then
 									# Loop through dependencies and add them
 									for dependency in ${CXR_META_MODULE_DEPENDS_ON:-}
-									
+									do
 										# if simdays is 0 we have a "timeless" module type
 										if [[ "${simdays}" -eq 0 ]]
 										then
