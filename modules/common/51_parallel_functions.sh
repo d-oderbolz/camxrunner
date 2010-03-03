@@ -1230,7 +1230,7 @@ function cxr_common_parallel_worker()
 			
 			# We need to wait until all dependencies are ok
 			cxr_common_parallel_worker_waiting $task_pid
-			until [[ "$(cxr_common_parallel_dependencies_ok? "$dependencies" "$day_offset" )"]]
+			until [[ "$(cxr_common_parallel_dependencies_ok? "$dependencies" "$day_offset" )" == true ]]
 			do
 				sleep $CXR_WAITING_SLEEP_SECONDS
 			done
