@@ -323,7 +323,7 @@ function cxr_common_parallel_resolve_dependency()
 function cxr_common_parallel_create_resolved_dep_list()
 ################################################################################
 {
-
+	:
 }
 
 ################################################################################
