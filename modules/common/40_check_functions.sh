@@ -520,20 +520,20 @@ function cxr_common_report_md5()
 		local old_mtime
 		
 		# Is this file already in the cache?
-		if [[ $(cxr_common_hash_has? MD5 "${file}" global ) == true ]]
+		if [[ "$(cxr_common_hash_has? MD5 universal "${file}" )" == true ]]
 		then
 		
 			# Did we encounter it recently?
-			if [[ "$(cxr_common_hash_new? MD5 "${file}" global)" == false ]]
+			if [[ "$(cxr_common_hash_new? MD5 universal "${file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
 				new_hash="$(cxr_common_md5 "$file")"
-				old_hash="$(cxr_common_hash_get MD5 "${file}" global)"
+				old_hash="$(cxr_common_hash_get MD5 universal "${file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
 				then
 					# Get the old mtime
-					old_mtime="$(cxr_common_hash_mtime MD5 "${file}" global )"
+					old_mtime="$(cxr_common_hash_mtime MD5 universal "${file}" )"
 					old_datetime="$(cxr_common_epoch2datetime $old_mtime)"
 					cxr_logger -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
 				fi
@@ -545,7 +545,7 @@ function cxr_common_report_md5()
 			cxr_main_logger -a "$FUNCNAME" "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
-			cxr_common_hash_put MD5 "$file" "$hash" global
+			cxr_common_hash_put MD5 universal "$file" "$hash"
 		fi
 		
 	
