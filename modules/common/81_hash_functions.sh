@@ -277,7 +277,7 @@ function cxr_common_hash_delete ()
 	
 	local fn
 	
-	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true ]]
+	if [[ $(cxr_common_hash_has? "$hash" "$type" "$key") == true ]]
 	then
 		# Generate the filename
 		fn="$(_hash_fn "$hash" "$type" "$key")"
@@ -367,11 +367,11 @@ function cxr_common_hash_new? ()
 	local res
 	
 	# Is it in the hash?
-	if [[ $(cxr_common_hash_has? "$hash" "$key" "$type") == true ]]
+	if [[ $(cxr_common_hash_has? "$hash" "$type" "$key") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(cxr_common_hash_mtime "$hash" "$key" "$type")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(cxr_common_hash_mtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
