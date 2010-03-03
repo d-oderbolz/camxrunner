@@ -103,6 +103,9 @@ function cxr_common_hash_get_dir ()
 		universal) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
 		*) cxr_main_die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
 	esac
+	
+	echo "$hash_dir"
+	
 }
 ################################################################################
 # Function: cxr_common_hash_init
