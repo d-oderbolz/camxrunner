@@ -259,7 +259,7 @@ function PMCAMx_installer()
 		
 		draft_dir=$(mktemp -d)
 		
-		cp -r $input_dir $draft_dir || die_gracefully "Could not make a copy of the templates"
+		cp -r $input_dir $draft_dir || cxr_main_die_gracefully "Could not make a copy of the templates"
 
 		## Clean up draft dir
 		# Readmes

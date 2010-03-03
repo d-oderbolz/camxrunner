@@ -30,7 +30,10 @@
 # Executables with _EXEC
 #
 ################################################################################
-# TODO:
+# TODO: Remove XX_ digits
+# TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
+# TODO: Enable the execution of more than one specific module
+# TODO: Replace all cxr_common_is_substring_present calls with hashes
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.
@@ -668,7 +671,7 @@ then
 	# If we do a dry run, we want to show the detected pre- and postprocessors
 	if [[ "$CXR_DRY" == true  ]]
 	then
-		cxr_main_logger -v -b "CAMxRunner.sh" "Listing all detected pre- and postprocessors...\n"    
+		cxr_main_logger -v -b "CAMxRunner.sh" "Listing all detected pre- and postprocessors...\n"
 		
 		# Increase global indent level
 		cxr_main_increase_log_indent
@@ -692,16 +695,19 @@ then
 		
 	fi
 	
+	# Update the module path hash and form the lists of active modules
+	cxr_common_update_module_information
+	
 	#
 	# Here we really start things. Note that the execution of tasks is no longer sequential
 	# if not needed (Dryruns are always sequential, though)
 	# 
 	
-	if [[  "$CXR_PARALLEL_PROCESSING" == true && "$CXR_DRY" == false   ]]
+	if [[  "$CXR_PARALLEL_PROCESSING" == true && "$CXR_DRY" == false ]]
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh
-		cxr_common_parallel_create_task_list
+		cxr_common_parallel_init
 	
 		# Creates CXR_MAX_PARALLEL_PROCS cxr_common_parallel_worker processes
 		# The workers

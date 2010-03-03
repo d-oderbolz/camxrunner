@@ -79,29 +79,25 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_get_module_type
+# Function: cxr_common_update_module_information
 #
-# Searches for a module name (not in common and installers) and returns its type. Module names need to be unique
-# across all module types! Used by <cxr_common_parallel_dependencies_ok?>.
-# We look at
-#	CXR_PREPROCESSOR_DAILY_INPUT_DIR
-#	CXR_PREPROCESSOR_ONCE_INPUT_DIR
-#	CXR_POSTPROCESSOR_DAILY_INPUT_DIR
-#	CXR_POSTPROCESSOR_ONCE_INPUT_DIR
-#	CXR_MODEL_INPUT_DIR
+# Goes through all available modules for the current model and version, and collects 
+# vital information in various hashes.
 # 
-# Parameters:
-# $1 - name of module (without prefix or suffix, just something like "convert output"
+# Hashes:
+# CXR_MODULE_PATH_HASH - maps module names to their path
+# CXR_MODULE_TYPE_HASH - maps module names to their type
+# CXR_ACTIVE_ALL_HASH - contains all active modules (dummy value)
+# CXR_ACTIVE_ONCE_PRE_HASH - contains all active One-Time preprocessing modules (dummy value)
+# CXR_ACTIVE_DAILY_PRE_HASH - contains all active daily preprocessing modules (dummy value)
+# CXR_ACTIVE_DAILY_POST_HASH - contains all active daily postprocessing modules (dummy value)
+# CXR_ACTIVE_ONCE_POST_HASH - contains all active One-Time postprocessing modules (dummy value)
+# CXR_ACTIVE_MODEL_HASH - contains all active model modules (dummy value)
 ################################################################################
-function cxr_common_get_module_type()
+function cxr_common_update_module_information()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
-	then
-		cxr_main_logger -e "$FUNCNAME" "Need a module name as input"
-	fi
-	
-	local module_type=""
+		local module_type=""
 	local name="??_${1}.sh"
 	local dirs
 	local types
@@ -130,6 +126,41 @@ function cxr_common_get_module_type()
 		echo "$module_type"
 	else
 		die_gracefully "$FUNCNAME: Could not find module $1!"
+	fi
+}
+
+################################################################################
+# Function: cxr_common_get_module_type
+#
+# Gets its information directly from the CXR_MODULE_TYPE_HASH
+# 
+# Parameters:
+# $1 - name of module (without prefix or suffix, just something like "convert output"
+################################################################################
+function cxr_common_get_module_type()
+################################################################################
+{
+	if [[ $# -ne 1  ]]
+	then
+		cxr_main_logger -e "$FUNCNAME" "Need a module name as input"
+	fi
+	
+	local name="${1}"
+	local module_type
+
+	if [[ "$(cxr_common_hash_has? "$CXR_MODULE_TYPE_HASH" universal "$name" )" == true ]]
+	then
+		module_type="$(cxr_common_hash_get "$CXR_MODULE_TYPE_HASH" universal "$name" )"
+		
+		if [[ "$module_type" ]]
+		then
+			echo "$module_type"
+		else
+			cxr_main_die_gracefully "$FUNCNAME: Could not find module type of $1!"
+		fi
+		
+	else
+		cxr_main_die_gracefully "$FUNCNAME: Could not find module $1!"
 	fi
 	
 }

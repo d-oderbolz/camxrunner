@@ -600,6 +600,14 @@ readonly CXR_STATE_UNIVERSAL_DIR
 CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
 readonly CXR_UNIVERSAL_HASH_DIR
 
+# The name of the hash that will hold the directories of the modules
+CXR_MODULE_PATH_HASH=module_paths_${CXR_MODEL}_${CXR_MODEL_VERSION}
+readonly CXR_MODULE_PATH_HASH
+
+# The name of the hash that will hold the types of the modules
+CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
+readonly CXR_MODULE_TYPE_HASH
+
 ########################################
 # Data that is global to all instances of a given run
 ########################################
@@ -652,28 +660,28 @@ readonly CXR_RUNNING_WORKER_DIR
 CXR_WAITING_WORKER_DIR=$CXR_WORKER_DIR/waiting
 readonly CXR_WAITING_WORKER_DIR
 
-# Files to store currently active modules (for simpler dependecies)
-CXR_ACTIVE_ONCE_PRE_LIST=$CXR_GLOBAL_DIR/active_once_pre_list
-readonly CXR_ACTIVE_ONCE_PRE_LIST
+# Hashes to store currently active modules (to resolve dependecies)
+CXR_ACTIVE_ALL_HASH=active_all_hash
+readonly CXR_ACTIVE_ALL_HASH
 
-CXR_ACTIVE_DAILY_PRE_LIST=$CXR_GLOBAL_DIR/active_daily_pre_list
-readonly CXR_ACTIVE_DAILY_PRE_LIST
+CXR_ACTIVE_ONCE_PRE_HASH=active_once_pre_hash
+readonly CXR_ACTIVE_ONCE_PRE_HASH
 
-CXR_ACTIVE_DAILY_POST_LIST=$CXR_GLOBAL_DIR/active_daily_post_list
-readonly CXR_ACTIVE_DAILY_POST_LIST
+CXR_ACTIVE_DAILY_PRE_HASH=active_daily_pre_hash
+readonly CXR_ACTIVE_DAILY_PRE_HASH
 
-CXR_ACTIVE_ONCE_POST_LIST=$CXR_GLOBAL_DIR/active_once_post_list
-readonly CXR_ACTIVE_ONCE_POST_LIST
+CXR_ACTIVE_DAILY_POST_HASH=active_daily_post_hash
+readonly CXR_ACTIVE_DAILY_POST_HASH
 
-CXR_ACTIVE_MODEL_LIST=$CXR_GLOBAL_DIR/active_model_list
-readonly CXR_ACTIVE_MODEL_LIST
+CXR_ACTIVE_ONCE_POST_HASH=active_once_post_hash
+readonly CXR_ACTIVE_ONCE_POST_HASH
 
-CXR_ACTIVE_ALL_LIST=$CXR_GLOBAL_DIR/active_all_list
-readonly CXR_ACTIVE_ALL_LIST
+CXR_ACTIVE_MODEL_HASH=active_model_hash
+readonly CXR_ACTIVE_MODEL_HASH
 
 # This is where the locks go
 # must be exported because lock manager reads from environment
-CXR_LOCK_DIR=$CXR_GLOBAL_DIR/locks
+export CXR_LOCK_DIR=$CXR_GLOBAL_DIR/locks
 readonly CXR_LOCK_DIR
 
 # In this file, we store files that where decompressed

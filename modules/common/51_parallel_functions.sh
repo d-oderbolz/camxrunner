@@ -102,13 +102,15 @@ exit 1
 # 
 # For a given dependency string, returns a resolved dependency string.
 # This means that
-# - the osset if taken from the dependency (if available)
+# - the offset is taken from the dependency (if available), so create_emissions_0 means create emissions for the initial day
 # - the predicate "-" is resolved to the day before (if available)
 # - the special dependencies like "all_model" are resolved to all active modules of that class.
+# - the resolved string is stored in the hash resolved_dependency_${CXR_MODEL}_${CXR_MODEL_VERSION}_$day_offset
+#
 # If a module is disabled, it is not resolved, but a warning is issued (but only if
 # a module is mentioned directly, so if create_emissions is disabled, the dependency "all_daily_preprocessors"
 # will not cause a warning, but "create_emissions" will. 
-# This is because the lists used to resolve these special dependencies are build much earlier.
+# This is because the hashes used to resolve these special dependencies are built much earlier.
 #
 # The returned string looks similar to this: "boundary_conditions_1 create_emissions_1"
 #
@@ -373,12 +375,12 @@ function cxr_common_parallel_create_descriptor()
 		mkdir -p "$CXR_TASK_TODO_DIR"
 	fi
 	
-	cd $CXR_TASK_TODO_DIR || die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
+	cd $CXR_TASK_TODO_DIR || cxr_main_die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
 	
 	# General
 	ln -s $NAME
 	
-	cd $CXR_RUN_DIR ||  die_gracefully "Could not change back to rundir."
+	cd $CXR_RUN_DIR ||  cxr_main_die_gracefully "Could not change back to rundir."
 		
 	
 }
@@ -386,7 +388,7 @@ function cxr_common_parallel_create_descriptor()
 ################################################################################
 # Function: cxr_common_parallel_create_raw_dep_list
 #	
-# This is the workhorse of <cxr_common_parallel_create_task_list>
+# This is the workhorse of <cxr_common_parallel_init>
 # Adds all single module pre/postproc/model but not installers
 # to the file given. 
 #
@@ -689,13 +691,13 @@ function cxr_common_parallel_draw_dependency_graph()
 }
 
 ################################################################################
-# Function: cxr_common_parallel_create_task_list
+# Function: cxr_common_parallel_init
 # 
 # Creates a sorted lists of files in the TODO directory. Calls <cxr_common_parallel_create_raw_dep_list>
 # 
 # 
 ################################################################################
-function cxr_common_parallel_create_task_list()
+function cxr_common_parallel_init()
 ################################################################################
 {
 	# Check if we already have tasks - fail if this is the case

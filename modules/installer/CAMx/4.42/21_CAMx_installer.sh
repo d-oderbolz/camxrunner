@@ -297,7 +297,7 @@ function CAMx_installer()
 		cxr_main_logger -a $FUNCNAME "We copy our templates to $draft_dir and work there..."
 		
 		cd $input_dir || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $input_dir"
-		cp -r * $draft_dir || die_gracefully "Could not create a copy of the templates"
+		cp -r * $draft_dir || cxr_main_die_gracefully "Could not create a copy of the templates"
 		cd ${CXR_RUN_DIR} || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 		
 		## Clean up draft dir
@@ -348,7 +348,7 @@ function CAMx_installer()
 		
 		# Just copy all out.
 		cd $draft_dir || cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Could not change to $draft_dir"
-		cp -r * $CXR_CAMX_SRC_DIR || die_gracefully "Could not copy changed files back to $CXR_CAMX_SRC_DIR"
+		cp -r * $CXR_CAMX_SRC_DIR || cxr_main_die_gracefully "Could not copy changed files back to $CXR_CAMX_SRC_DIR"
 		cd ${CXR_RUN_DIR}  || cxr_main_die_gracefully "Could not change to $CXR_RUN_DIR"
 
 		

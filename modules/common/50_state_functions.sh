@@ -264,9 +264,17 @@ function cxr_common_initialize_state_db()
 	mkdir -p "${CXR_RUNNING_WORKER_DIR}"
 	mkdir -p "${CXR_WAITING_WORKER_DIR}"
 	
+	##################
 	# Init a few Hashes
+	##################
+	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
 	cxr_common_hash_init MD5 universal
 	
+	# Contains the paths of all detected modules for this model and version
+	cxr_common_hash_init $CXR_MODULE_PATH_HASH universal
+
+	# Contains the module types of given modules
+	cxr_common_hash_init $CXR_MODULE_TYPE_HASH universal
 	
 	# Creating .continue file
 	cxr_main_logger -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
