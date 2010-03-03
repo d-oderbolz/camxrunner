@@ -122,7 +122,7 @@ function cxr_common_date_vars()
 }
 
 ################################################################################
-# Function: cxr_common_is_yyyymmdd_format
+# Function: cxr_common_is_yyyymmdd_format?
 #
 # Checks if a date is really in YYYY-MM-DD form.
 # Relatively basic check.
@@ -131,7 +131,7 @@ function cxr_common_date_vars()
 # Parameters:
 # $1 - date in YYYY-MM-DD form
 ################################################################################
-function cxr_common_is_yyyymmdd_format()
+function cxr_common_is_yyyymmdd_format?()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -143,8 +143,7 @@ function cxr_common_is_yyyymmdd_format()
 
 	#Check for Date
 	# If this returns 0, we look at a correct date
-	# Might be expressed more elegant using quantors, but does your grep have them?
-	echo "$date" | grep "[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" >/dev/null
+	echo "$date" | grep "\(19\|20\)[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}" >/dev/null
 	
 	if [[ $? -eq 0  ]]
 	then
@@ -173,7 +172,7 @@ function cxr_common_raw_date()
 	# Define & Initialize local vars
 	local new_date
 	
-	if [[  $# -ne 1 || $(cxr_common_is_yyyymmdd_format "$1") == false   ]]
+	if [[  $# -ne 1 || $(cxr_common_is_yyyymmdd_format? "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
@@ -524,7 +523,7 @@ function cxr_common_days_left_in_week
 	
 	if [[ $# -lt 1  ]]
 	then
-		cxr_main_logger -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
+		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -806,7 +805,7 @@ function cxr_common_days_between()
 	local julend
 	local julstart
 	
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_common_is_yyyymmdd_format "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_common_is_yyyymmdd_format? "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "needs 2 dates as input"
 		echo false
@@ -849,7 +848,7 @@ function cxr_common_add_days()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -883,7 +882,7 @@ function cxr_common_subtract_days()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -898,42 +897,6 @@ function cxr_common_subtract_days()
 	dateresult=$(cxr_common_julian2date $julresult)
 	
 	echo "$dateresult"
-}
-
-################################################################################
-# Function: cxr_common_is_first_day
-#
-# Returns true if the day currently processed is the first simulated.
-# Reads CXR_DAY_OFFSET
-# 
-################################################################################	
-function cxr_common_is_first_day ()
-################################################################################
-{
-	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
-	then
-		echo true
-	else
-		echo false
-	fi
-}
-
-################################################################################
-# Function: cxr_common_is_last_day
-#
-# Returns true if the day currently processed is the last simulated
-# Reads CXR_DAY_OFFSET
-# 
-################################################################################	
-function cxr_common_is_last_day ()
-################################################################################
-{
-	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
-	then
-		echo true
-	else
-		echo false
-	fi
 }
 
 ################################################################################
@@ -954,7 +917,7 @@ function cxr_common_set_date_variables()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -964,11 +927,11 @@ function cxr_common_set_date_variables()
 	START_DATE=$1
 	
 	# Export the offset so that we can save and restore settings
-	# Alos we need it for certain date functions like cxr_common_is_first_day
+	# Alos we need it for certain date functions like cxr_common_is_first_simulation_day?
 	CXR_DAY_OFFSET=$2
 	
 	# Set start and stop hour correctly
-	if [[ $(cxr_common_is_first_day) == "true" ]]
+	if [[ $(cxr_common_is_first_simulation_day?) == "true" ]]
 	then
 		CXR_START_HOUR=${CXR_START_HOUR_FIRST_DAY}
 		cxr_main_logger -v "We are at the first day, simulation time starts at ${CXR_START_HOUR}"
@@ -977,7 +940,7 @@ function cxr_common_set_date_variables()
 		cxr_main_logger -v "We are at a normal day, simulation time starts at ${CXR_START_HOUR}"
 	fi
 	
-	if [[ $(cxr_common_is_last_day) == "true" ]]
+	if [[ $(cxr_common_is_last_simulation_day?) == "true" ]]
 	then
 		CXR_STOP_HOUR=${CXR_STOP_HOUR_LAST_DAY}
 		cxr_main_logger -v "We are at the last day, simulation time stops at ${CXR_STOP_HOUR}"
@@ -1070,6 +1033,113 @@ function cxr_common_set_date_variables()
 }
 
 ################################################################################
+# Function: cxr_common_is_first_day_of_week?
+#
+# Returns true if the day currently processed is the first of a week (Monday).
+#
+# Parameters:
+# $1 - day in YYYY-MM-DD notation
+################################################################################	
+function cxr_common_is_first_day_of_week? ()
+################################################################################
+{
+	local date=$1
+	local days_left=$(cxr_common_days_left_in_week $date)
+	
+	if [[ "$days_left" -eq 7 ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_first_day_of_month?
+#
+# Returns true if the day currently processed is the first of a month (01).
+#
+# Parameters:
+# $1 - day in YYYY-MM-DD notation
+################################################################################	
+function cxr_common_is_first_day_of_month? ()
+################################################################################
+{
+	local date=$1
+	
+	if [[ "$CXR_DAY" == "01" ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_first_day_of_year?
+#
+# Returns true if the day currently processed is the first of a month (01).
+#
+# Parameters:
+# $1 - day in YYYY-MM-DD notation
+################################################################################	
+function cxr_common_is_first_day_of_year? ()
+################################################################################
+{
+	local date=$1
+	
+	month="$(date -d "$date" +%m)"
+	day="$(date -d "$date" +%d)"
+	
+	if [[ "$month" == "01" && "$day" == "01" ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_first_simulation_day?
+#
+# Returns true if the day currently processed is the first simulated.
+#
+# Variables:
+# CXR_DAY_OFFSET - the current day offset
+# 
+################################################################################	
+function cxr_common_is_first_simulation_day? ()
+################################################################################
+{
+	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: cxr_common_is_last_simulation_day?
+#
+# Returns true if the day currently processed is the last simulated
+#
+# Variables:
+# CXR_DAY_OFFSET - the current day offset
+# 
+################################################################################	
+function cxr_common_is_last_simulation_day? ()
+################################################################################
+{
+	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module
@@ -1124,8 +1194,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_is_yyyymmdd_format 1999-06-12) true "cxr_common_is_yyyymmdd_format"
-	is $(cxr_common_is_yyyymmdd_format 1999-6-12)  false "cxr_common_is_yyyymmdd_format"
+	is $(cxr_common_is_yyyymmdd_format? 1999-06-12) true "cxr_common_is_yyyymmdd_format?"
+	is $(cxr_common_is_yyyymmdd_format? 1999-6-12)  false "cxr_common_is_yyyymmdd_format?"
 	is $(cxr_common_raw_date 2009-01-12) 20090112 "cxr_common_raw_date"
 	is $(cxr_common_to_iso_date 20090112) 2009-01-12 "cxr_common_to_iso_date"
 	is $(cxr_common_date2julian 2009-01-27) 2454859 "cxr_common_date2julian"
@@ -1151,6 +1221,11 @@ function test_module()
 	is $(cxr_common_add_days 2009-02-28 1) 2009-03-01 "cxr_common_add_days"
 	is $(cxr_common_add_days 2004-02-28 1) 2004-02-29 "cxr_common_add_days"
 	is $(cxr_common_subtract_days 2004-02-29 1) 2004-02-28 "cxr_common_subtract_days"
+	
+	is $(cxr_common_is_first_day_of_year 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
+	is $(cxr_common_is_first_day_of_week 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
+	is $(cxr_common_is_first_day_of_week 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
+	is $(cxr_common_is_first_day_of_month 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
 	
 	########################################
 	# teardown tests if needed
