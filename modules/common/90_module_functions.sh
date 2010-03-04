@@ -493,7 +493,7 @@ function cxr_common_module_update_info()
 		for file in $files
 		do
 			module_name=$(cxr_main_extract_module_name $file)
-			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name ($file)"
+			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name in $file"
 			
 			# Path 
 			cxr_common_hash_put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
