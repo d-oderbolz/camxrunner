@@ -494,9 +494,7 @@ function cxr_common_module_update_info()
 		
 		# Find all of them
 		files="$(find $dir -noleaf -maxdepth 1 -name '*.sh')"
-		
-		echo $files
-		
+
 		for file in $files
 		do
 			module_name="$(cxr_main_extract_module_name $file)"
