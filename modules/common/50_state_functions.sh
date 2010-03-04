@@ -297,6 +297,9 @@ function cxr_common_initialize_state_db()
 	# This file should not be deleted
 	touch "$CXR_INSTANCE_FILE_OUTPUT_LIST"
 	chmod 600 "$CXR_INSTANCE_FILE_OUTPUT_LIST"
+	
+	# Update the module path hash and form the lists of active modules
+	cxr_common_module_update_info
 }
 
 ################################################################################

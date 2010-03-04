@@ -696,9 +696,6 @@ then
 		
 	fi
 	
-	# Update the module path hash and form the lists of active modules
-	cxr_common_module_update_info
-	
 	#
 	# Here we really start things. Note that the execution of tasks is no longer sequential
 	# if not needed (Dryruns are always sequential, though)
