@@ -294,7 +294,7 @@ function cxr_common_apply_patches()
 			if [[ "$ask_user" == true  ]]
 			then
 				# Ask user
-				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $patch_file to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
+				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $patch_file to $real_file?\nCheck if the patch is compatible with the current platform.\First few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)" Y )" == true  ]]
 				then
 					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 					patch $real_file < $patch_file

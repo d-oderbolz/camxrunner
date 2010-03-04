@@ -577,6 +577,9 @@ CXR_SUPPORTED_PLATFORMS="dec pg_linux pg_linuxomp i_linux i_linuxomp ab_linux sg
 CXR_PATCH_ALL_DIR_RULE='${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/patches/${CXR_CURRENT_BINARY}/all_platforms'
 CXR_PATCH_PLATFORM_DIR_RULE='${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/patches/${CXR_CURRENT_BINARY}/$CXR_CURRENT_PLATFORM'
 
+# before applying a patch, this number of lines is shown
+CXR_PATCH_HEADER_LENGHT=20
+
 ################################################################################
 # CAMxRunner specific settings
 ################################################################################

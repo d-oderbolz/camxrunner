@@ -170,7 +170,16 @@ function cxr_common_module_get_exlusive()
 # resolves a single dependenency string (containig just one dependency), depending 
 # on the day offset.
 # Any dependency that is not relevant (like module- for the first day) is not returned.
+# If a dependency is disabled, we either terminate or ignore this (depends on CXR_IGNORE_DISABLED_DEPENDENCIES)
 # 
+# Hashes:
+# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
+# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
+# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
+# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
+# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
+# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
+
 # Parameters:
 # $1 - name of the dependency like "create_emissions" or a special dependency like "all_model")
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
@@ -191,7 +200,11 @@ function cxr_common_module_resolve_single_dependency()
 	local module_type
 	local raw_date
 	local resolved_dependencies
-	
+	local resolved_dependency
+	local active_modules
+	local module
+	local resolved_list
+	local first=true
 	
 	if [[ "$day_offset" ]]
 	then
@@ -206,7 +219,6 @@ function cxr_common_module_resolve_single_dependency()
 	predicate=${dependency:$(( ${#dependency} -1)):1}
 	
 	case $predicate in
-	
 		-) 
 			# Currently, we only support -
 			# if there is no day offset, this dependency is not relevant
@@ -229,31 +241,20 @@ function cxr_common_module_resolve_single_dependency()
 				return $CXR_RET_OK
 			fi # day_offset present?
 			;;
-		
 	esac
 	
 	# Check if we look at a special dependency or not
 	case $dependency in
 	
-		$CXR_DEP_ALL_ONCE_PRE)
-			active_hash=$CXR_ACTIVE_ONCE_PRE_HASH
-			;; 
+		$CXR_DEP_ALL_ONCE_PRE) active_hash=$CXR_ACTIVE_ONCE_PRE_HASH;; 
 			
-		$CXR_DEP_ALL_DAILY_PRE) 
-			active_hash=$CXR_ACTIVE_DAILY_PRE_HASH
-			;;
+		$CXR_DEP_ALL_DAILY_PRE) active_hash=$CXR_ACTIVE_DAILY_PRE_HASH;;
 			
-		$CXR_DEP_ALL_DAILY_POST) 
-			active_hash=$CXR_ACTIVE_DAILY_POST_HASH
-			;;
+		$CXR_DEP_ALL_DAILY_POST) active_hash=$CXR_ACTIVE_DAILY_POST_HASH;;
 			
-		$CXR_DEP_ALL_ONCE_POST) 
-			active_hash=$CXR_ACTIVE_ONCE_POST_HASH
-			;;
+		$CXR_DEP_ALL_ONCE_POST) active_hash=$CXR_ACTIVE_ONCE_POST_HASH;;
 			
-		$CXR_DEP_ALL_MODEL) 
-			active_hash=$CXR_ACTIVE_MODEL_HASH
-			;;
+		$CXR_DEP_ALL_MODEL) active_hash=$CXR_ACTIVE_MODEL_HASH;;
 			
 		*) # A boring standard case
 		
@@ -269,119 +270,45 @@ function cxr_common_module_resolve_single_dependency()
 					
 					return $CXR_RET_OK
 				else
-					# Yes, we return false
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
-					echo false
-					
-					return $CXR_RET_OK
+					# Yes, we terminate
+					cxr_main_die_gracefully "${FUNCNAME} - You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 				fi
 			fi
 			
-			# Determine type
-			module_type="$(cxr_common_module_get_type "$dependency")"
-			
-			# Convert date
-			raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
-			
-			MY_STAGE="$(cxr_common_get_stage_name "$module_type" "$dependency" "$raw_date" )"
-			
-			# Is this known to have worked?
-			if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
-			then
-				cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
-				echo true
-			else
-				# dependency NOK, Find out why
-				
-				# Find out if dependency failed - if so, we crash
-				if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
-				then
-					# It failed
-					# Destroy run if no dryrun
-					if [[ $CXR_DRY == false  ]]
-					then
-						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
-					else
-						cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
-						echo true
-					fi
-				else
-					# It did not fail, it seems that it was not yet run - we have to wait
-					cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
-					echo false
-				fi
-			fi
+			# We return something like create_emissions0
+			echo ${dependency}${day_offset}
 			
 			return $CXR_RET_OK
 			;;
 	
 	esac
 	
+	########################################
 	# Here, we handle the special cases
-	# This dependencies require that all modules listed in
-	# the active_hash must have been run successfully.
-	# Since the active_hash only contains modules that are really run,
-	# there is no need to check for isabled stuff!
-	skip_it=false
+	########################################	
+	cxr_main_logger -v "${FUNCNAME}" "We resolve the special dependency ${dependency}..."
 	
-	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${dependency} using ${my_prefix}..."
+	# Create list of active modules
+	active_modules="$(cxr_common_hash_keys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 	
-	while read MODULE
+	for module in $active_modules
 	do
-		cxr_main_logger -v "${FUNCNAME}" "my_prefix: ${my_prefix}"
-		cxr_main_logger -v "${FUNCNAME}" "MODULE: ${MODULE}"
-		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $MODULE - checking file $CXR_TASK_SUCCESSFUL_DIR/${my_prefix}${MODULE}"
-	
-		# Determine type
-		module_type="$(cxr_common_module_get_type "$MODULE")"
+		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $module"
 		
-		# Convert date
-		raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
+		resolved_dependency=${module}${day_offset}
 		
-		MY_STAGE="$(cxr_common_get_stage_name "$module_type" "$MODULE" "$raw_date" )"
-
-	
-		if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
+		if [[ "$first" == true ]]
 		then
-			# this one is ok, check next
-			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE fullfilled - checking further..."
-			continue
+			# First iteration
+			resolved_list="$resolved_dependency"
+			first=false
 		else
-			# dependency NOK, Find out why
-			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${my_prefix}${MODULE}"
-			# Find out if dependency failed - if so, we crash
-			if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
-			then
-				# It failed
-				# Destroy run if no dryrun
-				if [[ $CXR_DRY == false  ]]
-				then
-					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $dependency failed because of $MODULE!"
-				else
-					cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed because of $MODULE - but this is a dryrun, so we keep going!"
-					continue
-				fi
-			else
-				# It did not fail, it seems that it was not yet run - we have to wait
-				# Still, we must check the rest 
-				cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} is not yet fulfilled, we must wait!"
-				skip_it=true
-				# We continue, because we might need to fail in another case (failed dependency)
-				continue
-			fi
+			# any other iteration
+			resolved_list="$resolved_list $resolved_dependency"
 		fi
-		
-	done <  # Loop over active modules
+	done  # Loop over active modules
 	
-	if [[ $skip_it == true  ]]
-	then
-		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency not ok!"
-		echo false
-	else
-		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency ok"
-		echo true
-	fi
-	
+	echo "$resolved_list"
 	return $CXR_RET_OK
 }
 
@@ -409,7 +336,7 @@ function cxr_common_module_resolve_all_dependencies()
 	for dependency in $dependencies
 	do
 		resolved_dependency="$(cxr_common_module_resolve_single_dependency "$dependency" "$day_offset")"
-		if [[ "" == true ]]
+		if [[ "$first" == true ]]
 		then
 			# First iteration
 			resolved_list="$resolved_dependency"
