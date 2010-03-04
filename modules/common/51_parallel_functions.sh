@@ -541,7 +541,7 @@ function cxr_common_parallel_worker()
 	# Create a file identifying the cxr_common_parallel_worker in the cxr_common_parallel_worker dir
 	touch $CXR_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -B "${FUNCNAME}" "Starting new cxr_common_parallel_worker (task_pid $task_pid)..."
+	cxr_main_logger -a -B "${FUNCNAME}" "parallel worker (task_pid $task_pid) starts..."
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
@@ -570,6 +570,8 @@ function cxr_common_parallel_worker()
 		# If we are on wait state, we get the empty string back
 		if [[ "$new_task_descriptor" ]]
 		then
+		
+			cxr_main_logger -a "${FUNCNAME}" "New task received: $new_task_descriptor"
 			
 			######################
 			# Parse the task
@@ -676,7 +678,7 @@ function cxr_common_parallel_worker()
 function cxr_common_spawn_workers()
 ################################################################################
 {
-	cxr_main_logger "${FUNCNAME}" "We create now a number of $1 cxr_common_parallel_worker threads"
+	cxr_main_logger "${FUNCNAME}" "We create now $1 cxr_common_parallel_worker threads"
 	
 	for i in $(seq 1 $1)
 	do

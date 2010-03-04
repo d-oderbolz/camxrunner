@@ -439,12 +439,11 @@ function cxr_common_evaluate_rule()
 # $2 - The offset of the simulation day (0..NUMBER_OF_SIM_DAYS-1)
 # [$3] - allow_empty if false, a rule must expand to a non-empty string
 # [$4] - optional name of the rule
-#
 ################################################################################
 function cxr_common_evaluate_rule_at_offset()
 ################################################################################
 {
-	if [[  $# -lt 2 && $# -gt 4   ]]
+	if [[  $# -lt 2 && $# -gt 4 ]]
 	then
 		cxr_main_die_gracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
