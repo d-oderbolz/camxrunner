@@ -464,6 +464,13 @@ function cxr_common_module_dependencies_ok?()
 function cxr_common_module_update_info()
 ################################################################################
 {
+	# Its possible that this is called more than once (e. g. during testing).
+	# But this makes it hard to detect duplicates.
+	if [[ "${CXR_MODULES_UP_TO_DATE:-false}" == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+
 	cxr_main_logger -v "$FUNCNAME" "Updating module information..."
 	
 	# Increase global indent level
@@ -524,6 +531,8 @@ function cxr_common_module_update_info()
 	
 	# decrease global indent level
 	cxr_main_decrease_log_indent
+	
+	CXR_MODULES_UP_TO_DATE=true
 }
 
 ################################################################################
