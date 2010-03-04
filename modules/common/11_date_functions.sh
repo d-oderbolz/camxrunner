@@ -1233,7 +1233,7 @@ function test_module()
 	is $(cxr_common_is_first_day_of_week? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
 	is $(cxr_common_is_first_day_of_week? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
 	is $(cxr_common_is_first_day_of_month? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
-	is $(cxr_common_offset2_raw_date "") "" "cxr_common_offset2_raw_date empty string"
+	is "$(cxr_common_offset2_raw_date "")" '' "cxr_common_offset2_raw_date empty string"
 	
 	########################################
 	# teardown tests if needed
