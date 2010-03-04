@@ -152,19 +152,15 @@ function cxr_common_test_all_modules()
 	# This function runs all tests that are availabe (asking the user before each new test if wanted).
 	# For this, all modules are enumerated and then tested if marked as testable.
 	# To do this, we need to know the model name and version to test for (otherwise we might repeat many tests)
-	
-	# Fix the message
-	if [[ "${TESTS_RAN:-false}" == true ]]
-	then
-		message="Do you want to further run the test suite of CAMxRunner (for other models/versions)?"
-	else
-		message="Do you want to run the test suite of CAMxRunner?"
-		TESTS_RAN=true
-	fi
+
+	message="Do you want to run the test suite of CAMxRunner?"
 	
 	while [ "$(cxr_common_get_consent "$message" )" == true ]
 	do
-
+	
+		# Fix the message
+		message="Do you want to further run the test suite of CAMxRunner (for other models/versions)?"
+		
 		################################################################################
 		# Determine model and version
 		################################################################################	

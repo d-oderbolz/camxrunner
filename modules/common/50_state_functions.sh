@@ -538,17 +538,13 @@ function cxr_common_cleanup_state()
 	local which_step
 	local message
 	
-	# Fix the message
-	if [[ "${DB_CLEANED:-false}" == true ]]
-	then
-		message="Do you want to (further) change the state database?"
-	else
-		message="Do you want to change the state database?"
-		DB_CLEANED=true
-	fi
+	message="Do you want to change the state database?"
 	
 	while [ "$(cxr_common_get_consent "$message" )" == true ]
 	do
+		# Fix the message
+		message="Do you want to further change the state database?"
+		
 		# what do you want?
 		what=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
 		
