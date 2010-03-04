@@ -119,7 +119,7 @@ function cxr_common_module_get_meta_field()
 		# variable not known!
 		cxr_main_die_gracefully "$FUNCNAME - variable $item not found!"
 	else
-		# Return value (indiret)
+		# Return value (indirect)
 		echo ${!item}
 	fi
 }
@@ -488,11 +488,11 @@ function cxr_common_module_update_info()
 		cxr_main_logger -v "$FUNCNAME" "Adding $type modules"
 		
 		# Find all of them
-		files=$(find $dir -noleaf -maxdepth 1 -name $name)"
+		files="$(find $dir -noleaf -maxdepth 1 -name $name)"
 		
 		for file in $files
 		do
-			module_name=$(cxr_main_extract_module_name $file)
+			module_name="$(cxr_main_extract_module_name $file)"
 			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name in $file"
 			
 			# Path 
@@ -538,11 +538,10 @@ function cxr_common_module_get_type()
 		then
 			echo "$module_type"
 		else
-			cxr_main_die_gracefully "$FUNCNAME: Could not find module type of $1!"
+			cxr_main_die_gracefully "$FUNCNAME: Could not find module type of $name!"
 		fi
-		
 	else
-		cxr_main_die_gracefully "$FUNCNAME: Could not find module $1!"
+		cxr_main_die_gracefully "$FUNCNAME: Could not find module $name!"
 	fi
 	
 }
@@ -646,36 +645,34 @@ function cxr_common_module_run_type()
 		# We did not turn off everything or we need only a specific module to be run
 	
 		# Loop through available input dirs
-		for MODULE_DIRECTORY in $module_directories
+		for module_directory in $module_directories
 		do
-			cxr_main_logger "${FUNCNAME}" "Loading $module_type modules from $MODULE_DIRECTORY..."
+			cxr_main_logger "${FUNCNAME}" "Loading $module_type modules from $module_directory..."
 		
-			for FUNCTION_FILE in $(ls ${MODULE_DIRECTORY}/??_*.sh 2>/dev/null)
+			for function_file in $(ls ${module_directory}/??_*.sh 2>/dev/null)
 			do
-				
 				# Check if we are still happy if needed
 				if [[ "${check_continue}" == true  ]]
 				then
 					cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
 				fi
 				
-				FILE_NAME=$(basename "$FUNCTION_FILE")
+				FILE_NAME=$(basename "$function_file")
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
 				
 				# Export the module name
-				CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $FUNCTION_FILE)
+				CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $function_file)
 				
 				if [[ "$run_only" != "${CXR_RUN_ALL}"  ]]
 				then
-				
 					# is this the module we should run?
 					# here we do no further checks on disabled/enabled
 					if [[ "$run_only" == "${CXR_META_MODULE_NAME}"  ]]
 					then
 						# First source the file to get the CXR_META_MODULE_NAME
-						source $FUNCTION_FILE
+						source $function_file
 						
 						# This is not needed for installers
 						
@@ -711,7 +708,7 @@ function cxr_common_module_run_type()
 					#Run all modules of the given type
 				
 					# First source the file to get the meta info
-					source $FUNCTION_FILE
+					source $function_file
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
