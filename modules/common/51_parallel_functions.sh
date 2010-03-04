@@ -199,7 +199,6 @@ function cxr_common_parallel_create_dep_list()
 				fi
 				
 			done # days
-		fi
 	done # hashes of active modules
 }
 
