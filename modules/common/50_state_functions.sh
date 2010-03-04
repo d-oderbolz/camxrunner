@@ -753,7 +753,7 @@ function cxr_common_cleanup_state()
 			tasks)
 					cxr_main_logger -w "${FUNCNAME}" "The following files will be deleted:"
 						
-					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* {CXR_LOCK_DIR}/* | xargs -i basename \{\}
+					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* ${CXR_LOCK_DIR}/* | xargs -i basename \{\}
 			
 					# Do we do this?
 					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
