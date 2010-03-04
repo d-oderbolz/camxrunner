@@ -493,7 +493,7 @@ function cxr_common_module_update_info()
 		cxr_main_logger -v "$FUNCNAME" "Adding $type modules..."
 		
 		# Find all of them
-		files="$(find $dir -noleaf -maxdepth 1 -name $name)"
+		files="$(find $dir -noleaf -maxdepth 1 -name '*.sh')"
 		
 		echo $files
 		
