@@ -386,7 +386,6 @@ function cxr_common_check_runner_executables ()
 	# We use a bash 3.x structure, the so-called "here-variable"
 	while read file
 	do
-	
 		# Show that we are alive
 		cxr_common_show_progress
 	
@@ -410,6 +409,8 @@ function cxr_common_check_runner_executables ()
 		fi
 	# Make sure we exclude state dir
 	done<<<"$(find ${CXR_RUN_DIR} -noleaf -type f -name \*.sh | grep -v "^${CXR_RUN_DIR}/state/")"
+	
+	cxr_main_logger -a "$FUNCNAME" "Checked."
 }
 
 ################################################################################

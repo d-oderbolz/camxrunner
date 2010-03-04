@@ -110,9 +110,17 @@ function cxr_common_install()
 	cxr_main_logger -a "$FUNCNAME"  "Checking internal files (may take a while)..."
 	
 	cxr_common_check_runner_executables
-	cxr_main_logger -a "$FUNCNAME"  "Checked."
 	
-	while [ "$(cxr_common_get_consent "Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase" )" == true ]
+	# Fix the message
+	if [[ "${INSTALLED:-false}" == true ]]
+	then
+		message="Do you want to (further) run the installer for the CAMxRunner, some converters, model and the testcase?"
+	else
+		message="Do you want to run the installer for the CAMxRunner, some converters, model and the testcase?"
+		INSTALLED=true
+	fi
+	
+	while [ "$(cxr_common_get_consent "$message" )" == true ]
 	do
 		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
