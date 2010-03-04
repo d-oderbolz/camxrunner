@@ -463,6 +463,8 @@ function cxr_common_module_dependencies_ok?()
 function cxr_common_module_update_info()
 ################################################################################
 {
+	cxr_main_logger -v "$FUNCNAME" "Updating module information..."
+	
 	local i
 	local dirs
 	local dir
