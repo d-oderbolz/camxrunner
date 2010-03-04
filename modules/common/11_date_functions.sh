@@ -721,7 +721,7 @@ function cxr_common_offset2date()
 # > 20070102
 #
 # Parameters:
-# $1 - offset
+# $1 - day offset
 ################################################################################
 function cxr_common_offset2_raw_date()
 ################################################################################
@@ -737,17 +737,16 @@ function cxr_common_offset2_raw_date()
 		return $CXR_RET_ERROR
 	fi
 	
-	local day_offset="$1"
+	local day_offset="${1}"
 	
 	if [[ "$day_offset" ]]
 	then
 		# Day offset is set
 		date=$(cxr_common_offset2date "$day_offset")
+		echo $(cxr_common_raw_date "$date")
 	else
-		date=""
+		echo ""
 	fi
-	
-	echo $(cxr_common_raw_date "$date")
 }
 
 ################################################################################
