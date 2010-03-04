@@ -213,7 +213,7 @@ function test_module()
 	# Create a file with garbage afterwards
 	test_file4=$(cxr_common_create_tempfile $FUNCNAME)
 	echo -n '$' > "$test_file4"
-	echo 'Id: 30_version_control_functions.sh 12345 2010-02-14 13:14:29Z oderbolz $andhereisgarbage' >> "$test_file4"
+	echo 'Id: 30_version_control_functions.sh 12345 2010-02-14 13:14:29Z oderbolz $ andhereisgarbage' >> "$test_file4"
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -222,7 +222,7 @@ function test_module()
 	is $(cxr_common_get_svn_revision "$test_file1") 2605 "cxr_common_get_svn_revision normal"
 	is $(cxr_common_get_svn_revision "$test_file2") 2605 "cxr_common_get_svn_revision double-contradiction"
 	
-	cxr_main_logger -a "$FUNCNAME" "We provoke two error mesages here - you can ignore them..."
+	cxr_main_logger -a "$FUNCNAME" "We provoke an error mesage here - you can ignore this..."
 	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
 	is $(cxr_common_get_svn_revision "$test_file4") 12345 "cxr_common_get_svn_revision with garbage at end"
 	
