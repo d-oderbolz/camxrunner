@@ -465,6 +465,9 @@ function cxr_common_module_update_info()
 {
 	cxr_main_logger -v "$FUNCNAME" "Updating module information..."
 	
+	# Increase global indent level
+	cxr_main_increase_log_indent
+	
 	local i
 	local dirs
 	local dir
@@ -487,10 +490,12 @@ function cxr_common_module_update_info()
 		dir=${dirs[$i]}
 		active_hash=${hashes[$i]}
 		
-		cxr_main_logger -v "$FUNCNAME" "Adding $type modules"
+		cxr_main_logger -v "$FUNCNAME" "Adding $type modules..."
 		
 		# Find all of them
 		files="$(find $dir -noleaf -maxdepth 1 -name $name)"
+		
+		echo $files
 		
 		for file in $files
 		do
@@ -511,6 +516,9 @@ function cxr_common_module_update_info()
 		
 		done # Loop over files
 	done # loop over type-index
+	
+	# decrease global indent level
+	cxr_main_decrease_log_indent
 }
 
 ################################################################################
