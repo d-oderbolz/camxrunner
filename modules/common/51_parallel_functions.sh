@@ -163,42 +163,15 @@ function cxr_common_parallel_create_dep_list()
 		# Get all active modules of the current type
 		local active_modules="$(cxr_common_hash_keys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 		
-		# get type
-		module_type=$(cxr_common_hash_get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL)
-		
-		cxr_main_logger -v "$FUNCNAME" "Processing $module_type modules"
-		
-		# If we are looking at One-Time processing, time does not matter
-		if [[ "$module_type" == "$CXR_TYPE_PREPROCESS_ONCE" || "$module_type" == "$CXR_TYPE_POSTPROCESS_ONCE" ]]
-		then
-			for module in $active_modules
-			do
-				# Get the raw dependencies
-				raw_dependencies=$(cxr_common_module_get_raw_dependencies $module)
-				
-				# resolve them
-				resolved_dependencies=$(cxr_common_module_resolve_all_dependencies $module )
-				
-				# Are there any?
-				if [[ "$resolved_dependencies" ]]
-				then
-					# Loop 
-					for dependency in $resolved_dependencies
-					do
-						echo "$dependency $module" >> "$output_file"
-					done
-				else
-					# Add the module twice (see header)
-					echo "$module $module" >> "$output_file"
-				fi
-			
-			done # current active modules
-		else
-			# Time matters, let us loop
+			# Loop through days
 			for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 			do
 				for module in $active_modules
 				do
+					
+					# get type (its not efficient here - will fix this later WIHT)
+					module_type=$(cxr_common_hash_get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
+					
 					# Get the raw dependencies
 					raw_dependencies=$(cxr_common_module_get_raw_dependencies $module)
 					
@@ -218,6 +191,13 @@ function cxr_common_parallel_create_dep_list()
 						echo "$module $module" >> "$output_file"
 					fi
 				done # current active modules
+				
+				if [[ "$module_type" == "$CXR_TYPE_PREPROCESS_ONCE" || "$module_type" == "$CXR_TYPE_POSTPROCESS_ONCE" ]]
+				then
+					# For these module types, time is not important, so we can break after one iteration
+					break
+				fi
+				
 			done # days
 		fi
 	done # hashes of active modules
