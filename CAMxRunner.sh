@@ -333,7 +333,7 @@ then
 	CXR_DO_FILE_LOGGING=true
 fi
 
-if [[ "${CXR_DO_FILE_LOGGING}" == false  ]]
+if [[ "${CXR_DO_FILE_LOGGING}" == false ]]
 then
 	# No logging!
 	# Log to the null device
@@ -567,14 +567,13 @@ then
 	last=$(cxr_common_get_last_day_modelled)
 	
 	# last could be empty
-	if [[ "$last"  ]]
+	if [[ "$last" ]]
 	then
 		if [[ "$(cxr_common_get_last_day_modelled)" != ${CXR_STOP_DATE}  ]]
 		then
 			cxr_main_logger -i "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 		fi
 	fi
-	
 fi
 
 
@@ -696,12 +695,10 @@ then
 		
 	fi
 	
-	#
 	# Here we really start things. Note that the execution of tasks is no longer sequential
-	# if not needed (Dryruns are always sequential, though)
-	# 
-	
-	if [[  "$CXR_PARALLEL_PROCESSING" == true && "$CXR_DRY" == false ]]
+	# if not needed 
+
+	if [[ "$CXR_PARALLEL_PROCESSING" == true ]]
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh
