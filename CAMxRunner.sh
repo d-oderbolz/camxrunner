@@ -441,9 +441,9 @@ then
 	
 	cxr_main_logger -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	
-	if [[ "$CXR_BASECONFIG_REV" -ne "$CXR_CONFIG_REV"  ]]
+	if [[ "$CXR_BASECONFIG_REV" -gt "$CXR_CONFIG_REV" ]]
 	then
-		cxr_main_logger -w "CAMxRunner.sh" "The Configuration file ${CXR_CONFIG} \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
+		cxr_main_logger -w "CAMxRunner.sh" "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
 	fi
 	
 fi
