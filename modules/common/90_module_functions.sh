@@ -448,6 +448,7 @@ function cxr_common_module_dependencies_ok?()
 #
 # Goes through all available modules for the current model and version, and collects 
 # vital information in various hashes.
+# If a module name is non-unique, we fail.
 #
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
@@ -499,6 +500,12 @@ function cxr_common_module_update_info()
 		do
 			module_name="$(cxr_main_extract_module_name $file)"
 			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name in $file"
+			
+			# Is there a new entry of this name? (this would indicate non-uniqueness!)
+			if [[ $(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(cxr_common_hash_new? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
+			then
+				cxr_main_die_gracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+			fi
 			
 			# Path 
 			cxr_common_hash_put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
