@@ -89,7 +89,7 @@ exit 1
 #	
 # * Interactively installs the CAMxRunner, CAMx and the testcase.
 # * TODO: Use the state DB to keep track of what is installed already.
-# * Uses <cxr_common_run_modules> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
+# * Uses <cxr_common_module_run_type> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
 #   and executes them in order
 ################################################################################
 function cxr_common_install()
@@ -146,7 +146,7 @@ function cxr_common_install()
 		cxr_main_read_config "installer" "$version" "$model" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
-		cxr_common_run_modules ${CXR_TYPE_INSTALLER}
+		cxr_common_module_run_type ${CXR_TYPE_INSTALLER}
 	
 		cxr_main_logger -a -b "${FUNCNAME}" "All installation actions finished."
 	done

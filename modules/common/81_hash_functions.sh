@@ -89,7 +89,7 @@ exit 1
 # Returns the hash_dir to use depending on the type.
 #
 # Parameters:
-# $1 - type of hash, either "instance" , "global" or "universal" 
+# $1 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 ################################################################################
 function cxr_common_hash_get_dir ()
 ################################################################################
@@ -98,9 +98,9 @@ function cxr_common_hash_get_dir ()
 	
 	# Work out the directory
 	case $type in
-		instance) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
-		global) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
-		universal) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
+		$CXR_HASH_TYPE_INSTANCE) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
+		$CXR_HASH_TYPE_GLOBAL) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
+		$CXR_HASH_TYPE_UNIVERSAL) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
 		*) cxr_main_die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
 	esac
 	
@@ -118,7 +118,7 @@ function cxr_common_hash_get_dir ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal" 
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 ################################################################################
 function cxr_common_hash_init ()
 ################################################################################
@@ -144,7 +144,7 @@ function cxr_common_hash_init ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
 function cxr_common_hash_destroy ()
 ################################################################################
@@ -169,7 +169,7 @@ function cxr_common_hash_destroy ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function _hash_fn ()
@@ -211,7 +211,7 @@ function _hash_fn ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # $4 - value
 ################################################################################
@@ -239,7 +239,7 @@ function cxr_common_hash_put ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function cxr_common_hash_get ()
@@ -265,7 +265,7 @@ function cxr_common_hash_get ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function cxr_common_hash_delete ()
@@ -296,7 +296,7 @@ function cxr_common_hash_delete ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function cxr_common_hash_mtime ()
@@ -322,7 +322,7 @@ function cxr_common_hash_mtime ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function cxr_common_hash_has? ()
@@ -354,7 +354,7 @@ function cxr_common_hash_has? ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
 function cxr_common_hash_new? ()
@@ -394,7 +394,7 @@ function cxr_common_hash_new? ()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "instance" , "global" or "universal"
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
 function cxr_common_hash_keys ()
 ################################################################################
@@ -474,55 +474,55 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	# Instance hash
-	cxr_common_hash_init test_instance instance
-	cxr_common_hash_put test_instance instance /hallo/gugs SomeOtherValue
-	cxr_common_hash_put test_instance instance /hallo/velo SomeOtherValue
+	cxr_common_hash_init test_instance $CXR_HASH_TYPE_INSTANCE
+	cxr_common_hash_put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
+	cxr_common_hash_put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
 
 	
 	# Glabal Hash with strange keys
-	cxr_common_hash_init test_global global
-	cxr_common_hash_put test_global global "This key has spaces" "a value"
-	cxr_common_hash_put test_global global "This key also has spaces" "another value"
+	cxr_common_hash_init test_global $CXR_HASH_TYPE_GLOBAL
+	cxr_common_hash_put test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces" "a value"
+	cxr_common_hash_put test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces" "another value"
 	
 	# Universal Hash
-	cxr_common_hash_init test_universal universal
-	cxr_common_hash_put test_universal universal /hallo/gugs SomeOtherValue
-	cxr_common_hash_put test_universal  universal /hallo/velo SomeOtherValue
+	cxr_common_hash_init test_universal $CXR_HASH_TYPE_UNIVERSAL
+	cxr_common_hash_put test_universal $CXR_HASH_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
+	cxr_common_hash_put test_universal  $CXR_HASH_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(cxr_common_hash_get test_instance instance "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_instance with path as key"
-	is "$(cxr_common_hash_has? test_instance instance "/hallo/velo")" true "cxr_common_hash_has? test_instance with path as key"
-	is "$(cxr_common_hash_keys test_instance instance)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_instance with path as key"
+	is "$(cxr_common_hash_get test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_instance with path as key"
+	is "$(cxr_common_hash_has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" true "cxr_common_hash_has? test_instance with path as key"
+	is "$(cxr_common_hash_keys test_instance $CXR_HASH_TYPE_INSTANCE)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_instance with path as key"
 	
 	# Now lets iterate over keys
-	for key in $(cxr_common_hash_keys test_instance instance)
+	for key in $(cxr_common_hash_keys test_instance $CXR_HASH_TYPE_INSTANCE)
 	do
-		is "$(cxr_common_hash_get test_instance instance "$key")" SomeOtherValue "Going trough keys in an interator"
+		is "$(cxr_common_hash_get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going trough keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
-	is "$(cxr_common_hash_get test_global global "This key has spaces")" "a value" "cxr_common_hash_get test_instance - key with spaces"
+	is "$(cxr_common_hash_get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "cxr_common_hash_get test_instance - key with spaces"
 	
-	cxr_common_hash_delete test_instance instance "/hallo/velo"
-	is "$(cxr_common_hash_has? test_instance instance "/hallo/velo")" false "cxr_common_hash_delete test_instance with path as key"
+	cxr_common_hash_delete test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
+	is "$(cxr_common_hash_has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" false "cxr_common_hash_delete test_instance with path as key"
 
 	
-	is "$(cxr_common_hash_get test_universal universal "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_universal with path as key"
-	is "$(cxr_common_hash_has? test_universal universal "/hallo/velo")" true "cxr_common_hash_has? test_universal with path as key"
-	is "$(cxr_common_hash_keys test_universal universal)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_universal with path as key"
+	is "$(cxr_common_hash_get test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_universal with path as key"
+	is "$(cxr_common_hash_has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" true "cxr_common_hash_has? test_universal with path as key"
+	is "$(cxr_common_hash_keys test_universal $CXR_HASH_TYPE_UNIVERSAL)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_universal with path as key"
 	
-	cxr_common_hash_delete test_universal universal "/hallo/velo" 
-	is "$(cxr_common_hash_has? test_universal universal "/hallo/velo")" false "cxr_common_hash_delete test_universal with path as key"
+	cxr_common_hash_delete test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo" 
+	is "$(cxr_common_hash_has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" false "cxr_common_hash_delete test_universal with path as key"
 
 	########################################
 	# teardown tests if needed
 	########################################
-	cxr_common_hash_destroy test_instance instance
-	cxr_common_hash_destroy test_global global
-	cxr_common_hash_destroy test_universal universal
+	cxr_common_hash_destroy test_instance $CXR_HASH_TYPE_INSTANCE
+	cxr_common_hash_destroy test_global $CXR_HASH_TYPE_GLOBAL
+	cxr_common_hash_destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
 }
 
 ################################################################################

@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=2
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -79,65 +79,520 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_update_module_information
-#
-# Goes through all available modules for the current model and version, and collects 
-# vital information in various hashes.
+# Function: cxr_common_module_get_meta_field
 # 
-# Hashes:
-# CXR_MODULE_PATH_HASH - maps module names to their path
-# CXR_MODULE_TYPE_HASH - maps module names to their type
-# CXR_ACTIVE_ALL_HASH - contains all active modules (dummy value)
-# CXR_ACTIVE_ONCE_PRE_HASH - contains all active One-Time preprocessing modules (dummy value)
-# CXR_ACTIVE_DAILY_PRE_HASH - contains all active daily preprocessing modules (dummy value)
-# CXR_ACTIVE_DAILY_POST_HASH - contains all active daily postprocessing modules (dummy value)
-# CXR_ACTIVE_ONCE_POST_HASH - contains all active One-Time postprocessing modules (dummy value)
-# CXR_ACTIVE_MODEL_HASH - contains all active model modules (dummy value)
+# For a given module name, returns the given meta-data item.
+#
+# Parameters:
+# $1 - name of a module
+# $2 - the name of the item
 ################################################################################
-function cxr_common_update_module_information()
+function cxr_common_module_get_meta_field()
 ################################################################################
 {
-		local module_type=""
-	local name="??_${1}.sh"
-	local dirs
-	local types
-	local i
-	local dir
+	local module="$1"
+	local item="$2"
+	local module_path
+	local value
+
 	
-	# Create an array of directories to work on
-	# And an equivalent one for the types
-	dirs=($CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR $CXR_MODEL_INPUT_DIR)
-	types=($CXR_TYPE_PREPROCESS_DAILY $CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE $CXR_TYPE_MODEL)
-	
-	for i in $(seq 0 $(( ${#dirs[@]} - 1 )) )
-	do
-		dir=${dirs[$i]}
-		
-		# Find the thingy
-		if [[ $(find $dir -noleaf -name $name | wc -l) -ne 0  ]] 
-		then
-			module_type=${types[$i]}
-			break
-		fi
-	done
-	
-	if [[ "$module_type"  ]]
+	if [[ "$(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
 	then
-		echo "$module_type"
+		module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 	else
-		die_gracefully "$FUNCNAME: Could not find module $1!"
+		cxr_main_die_gracefully "$FUNCNAME - cannot find path of $module"
+	fi
+	
+	# source module
+	source "$module_path"
+	
+	if [[ $? -ne 0 ]]
+	then
+		cxr_main_die_gracefully "$FUNCNAME - could not source $module ($module_path)"
+	fi
+	
+	# Do we have this variable?
+	set | grep $item 2>&1 > /dev/null
+	
+	if [[ $? -ne 0 ]]
+	then
+		# variable not known!
+		cxr_main_die_gracefully "$FUNCNAME - variable $item not found!"
+	else
+		# Return value (indiret)
+		echo ${!item}
 	fi
 }
 
 ################################################################################
-# Function: cxr_common_get_module_type
+# Function: cxr_common_module_get_raw_dependencies
+# 
+# For a given module name, returns the raw dependency string that is
+# in the header (CXR_META_MODULE_DEPENDS_ON)
+#
+# Parameters:
+# $1 - name of a module
+################################################################################
+function cxr_common_module_get_raw_dependencies()
+################################################################################
+{
+	local module="$1"
+	local raw_dependencies
+	
+	raw_dependencies=$(cxr_common_module_get_meta_field "$module" "CXR_META_MODULE_DEPENDS_ON")
+
+	echo "${raw_dependencies}"
+}
+
+################################################################################
+# Function: cxr_common_module_get_exlusive
+# 
+# For a given module name, returns the exclusive string that is
+# in the header (CXR_META_MODULE_RUN_EXCLUSIVELY)
+#
+# Parameters:
+# $1 - name of a module
+################################################################################
+function cxr_common_module_get_exlusive()
+################################################################################
+{
+	local module="$1"
+	local exclusive
+	
+	exclusive=$(cxr_common_module_get_meta_field "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
+
+	echo "${exclusive}"
+}
+
+################################################################################
+# Function: cxr_common_module_resolve_single_dependency
+# 
+# resolves a single dependenency string (containig just one dependency), depending 
+# on the day offset.
+# Any dependency that is not relevant (like module- for the first day) is not returned.
+# 
+# Parameters:
+# $1 - name of the dependency like "create_emissions" or a special dependency like "all_model")
+# [$2] - day offset (if not given, we are resolving for a One-Time module)
+################################################################################
+function cxr_common_module_resolve_single_dependency()
+################################################################################
+{
+	if [[ $# -lt 1 && $# -gt 2 ]]
+	then
+		cxr_main_die_gracefully "Programming error @ ${FUNCNAME}:${LINENO} - needs at least a depdendency and an optional day_offset as input"
+	fi
+
+	local dependency="$1"
+	local day_offset="${2:-}"
+	local predicate
+	local my_prefix
+	local active_hash
+	local module_type
+	local raw_date
+	local resolved_dependencies
+	
+	
+	if [[ "$day_offset" ]]
+	then
+		cxr_main_logger -v "${FUNCNAME}" "Resolving dependency $dependency for day offset $day_offset"
+	else
+		cxr_main_logger -v "${FUNCNAME}" "Resolving dependency $dependency (no day offset)"
+	fi
+	
+	# Is there a predicate?
+	# The last character of a string
+	# We get 1 character at the position $(( ${#dependency} -1)) (length of string minus 1)
+	predicate=${dependency:$(( ${#dependency} -1)):1}
+	
+	case $predicate in
+	
+		-) 
+			# Currently, we only support -
+			# if there is no day offset, this dependency is not relevant
+			if [[ "$day_offset" ]]
+			then
+				cxr_main_logger -v "${FUNCNAME}" "Found the - predicate, will check last days results"
+				day_offset=$(( $day_offset - 1 ))
+				
+				# Cut off final -
+				dependency=${dependency%-}
+				if [[ ! $day_offset -le 0 ]]
+				then
+					# At day 0, all previous day predicates are fulfilled
+					cxr_main_logger -v "${FUNCNAME}" "We are at day 0 - previous day dependency not relevant"
+					echo ""
+					return $CXR_RET_OK
+				fi
+			else
+				echo ""
+				return $CXR_RET_OK
+			fi # day_offset present?
+			;;
+		
+	esac
+	
+	# Check if we look at a special dependency or not
+	case $dependency in
+	
+		$CXR_DEP_ALL_ONCE_PRE)
+			active_hash=$CXR_ACTIVE_ONCE_PRE_HASH
+			;; 
+			
+		$CXR_DEP_ALL_DAILY_PRE) 
+			active_hash=$CXR_ACTIVE_DAILY_PRE_HASH
+			;;
+			
+		$CXR_DEP_ALL_DAILY_POST) 
+			active_hash=$CXR_ACTIVE_DAILY_POST_HASH
+			;;
+			
+		$CXR_DEP_ALL_ONCE_POST) 
+			active_hash=$CXR_ACTIVE_ONCE_POST_HASH
+			;;
+			
+		$CXR_DEP_ALL_MODEL) 
+			active_hash=$CXR_ACTIVE_MODEL_HASH
+			;;
+			
+		*) # A boring standard case
+		
+			# Is the dependency disabled?
+			if [[ $(cxr_common_hash_has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_UNIVERSAL "$dependency") == false  ]]
+			then
+				# Do we care?
+				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
+				then
+					# No, user wants to ignore this
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
+					echo ""
+					
+					return $CXR_RET_OK
+				else
+					# Yes, we return false
+					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
+					echo false
+					
+					return $CXR_RET_OK
+				fi
+			fi
+			
+			# Determine type
+			module_type="$(cxr_common_module_get_type "$dependency")"
+			
+			# Convert date
+			raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
+			
+			MY_STAGE="$(cxr_common_get_stage_name "$module_type" "$dependency" "$raw_date" )"
+			
+			# Is this known to have worked?
+			if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
+			then
+				cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
+				echo true
+			else
+				# dependency NOK, Find out why
+				
+				# Find out if dependency failed - if so, we crash
+				if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
+				then
+					# It failed
+					# Destroy run if no dryrun
+					if [[ $CXR_DRY == false  ]]
+					then
+						cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
+					else
+						cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
+						echo true
+					fi
+				else
+					# It did not fail, it seems that it was not yet run - we have to wait
+					cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
+					echo false
+				fi
+			fi
+			
+			return $CXR_RET_OK
+			;;
+	
+	esac
+	
+	# Here, we handle the special cases
+	# This dependencies require that all modules listed in
+	# the active_hash must have been run successfully.
+	# Since the active_hash only contains modules that are really run,
+	# there is no need to check for isabled stuff!
+	skip_it=false
+	
+	cxr_main_logger -v "${FUNCNAME}" "We check the special dependency ${dependency} using ${my_prefix}..."
+	
+	while read MODULE
+	do
+		cxr_main_logger -v "${FUNCNAME}" "my_prefix: ${my_prefix}"
+		cxr_main_logger -v "${FUNCNAME}" "MODULE: ${MODULE}"
+		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $MODULE - checking file $CXR_TASK_SUCCESSFUL_DIR/${my_prefix}${MODULE}"
+	
+		# Determine type
+		module_type="$(cxr_common_module_get_type "$MODULE")"
+		
+		# Convert date
+		raw_date="$(cxr_common_offset2_raw_date ${day_offset})"
+		
+		MY_STAGE="$(cxr_common_get_stage_name "$module_type" "$MODULE" "$raw_date" )"
+
+	
+		if [[ "$(cxr_common_has_finished "$MY_STAGE")" == true  ]]
+		then
+			# this one is ok, check next
+			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE fullfilled - checking further..."
+			continue
+		else
+			# dependency NOK, Find out why
+			cxr_main_logger -v "${FUNCNAME}" "dependency on $MODULE not fullfilled, checking file $CXR_TASK_FAILED_DIR/${my_prefix}${MODULE}"
+			# Find out if dependency failed - if so, we crash
+			if [[ "$(cxr_common_has_failed "$MY_STAGE")" == true  ]]
+			then
+				# It failed
+				# Destroy run if no dryrun
+				if [[ $CXR_DRY == false  ]]
+				then
+					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency $dependency failed because of $MODULE!"
+				else
+					cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed because of $MODULE - but this is a dryrun, so we keep going!"
+					continue
+				fi
+			else
+				# It did not fail, it seems that it was not yet run - we have to wait
+				# Still, we must check the rest 
+				cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} is not yet fulfilled, we must wait!"
+				skip_it=true
+				# We continue, because we might need to fail in another case (failed dependency)
+				continue
+			fi
+		fi
+		
+	done <  # Loop over active modules
+	
+	if [[ $skip_it == true  ]]
+	then
+		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency not ok!"
+		echo false
+	else
+		cxr_main_logger -v "${FUNCNAME}" "dependency $dependency ok"
+		echo true
+	fi
+	
+	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: cxr_common_module_resolve_all_dependencies
+# 
+# resolves a complete dependenency string (containig more than one dependency), depending 
+# on the day offset.
+# 
+# Parameters:
+# $1 - a list of dependencies "create_emissions all_module-"
+# [$2] - day offset (if not given, we are resolving for a One-Time module)
+################################################################################
+function cxr_common_module_resolve_all_dependencies()
+################################################################################
+{
+	local dependencies="$1"
+	local day_offset="$2"
+	local dependency
+	local resolved_dependency
+	local resolved_list
+	local first=true
+	
+	#Loop through dependencies
+	for dependency in $dependencies
+	do
+		resolved_dependency="$(cxr_common_module_resolve_single_dependency "$dependency" "$day_offset")"
+		if [[ "" == true ]]
+		then
+			# First iteration
+			resolved_list="$resolved_dependency"
+			first=false
+		else
+			# any other iteration
+			resolved_list="$resolved_list $resolved_dependency"
+		fi
+	done
+	
+	echo "$resolved_list"
+}
+
+################################################################################
+# Function: cxr_common_module_dependencies_ok?
+#
+# Checks if all given raw dependencies are fullfilled. If any dependency has failed,
+# the run is destroyed, if the depdendency was not yet started, false is returned,
+# if it is OK, true is returned.
+#
+# Can handle dependencies on a whole type (like all_model) and the predicate - (previous day)
+#
+# Checks if a dependency is listed in the list of active modules.
+#
+# If this is a dryrun, we go on even if a dependency failed.
+# 
+# We access the state DB using <cxr_common_has_finished> to test if stuff has finished.
+#
+# Parameters:
+# $1 - a list of raw dependencies
+# $2 - a day offset used as reference
+################################################################################
+function cxr_common_module_dependencies_ok?()
+################################################################################
+{
+	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
+	then
+		cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
+		echo true
+		return $CXR_RET_OK
+	fi
+	
+	if [[ $# -ne 2 ]]
+	then
+		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency list and a day offset as input"
+	fi
+
+	local raw_dependencies="$1"
+	local day_offset="$2"
+	local dep_day_offset
+	local dep_module_name
+	local dependencies="$(cxr_common_module_resolve_all_dependencies "$raw_dependencies" "$day_offset" )"
+	local dependency
+	local my_stage
+	
+	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependencies on $dependencies for day offset $day_offset"
+
+	for dependency in $dependencies
+	do
+		# We need to parse the dependency
+		# Remove potential digits
+		dep_module_name=$(expr match "$dependency" '\(\<[_a-z]\{1,\}\)')
+		# get only the digits at the end
+		dep_day_offset=$(expr match "$dependency" '.*\([0-9]\{1,\}\>\)')
+		
+		# Determine type
+		module_type="$(cxr_common_module_get_type "$dep_module_name")"
+		
+		# Convert date
+		raw_date="$(cxr_common_offset2_raw_date "${dep_day_offset}")"
+		
+		my_stage="$(cxr_common_get_stage_name "$module_type" "$dependency" "$raw_date" )"
+		
+		# Is this known to have worked?
+		if [[ "$(cxr_common_has_finished "$my_stage")" == true ]]
+		then
+			cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
+		else
+			# dependency NOK, Find out why
+			
+			# Find out if dependency failed - if so, we crash
+			if [[ "$(cxr_common_has_failed "$my_stage")" == true  ]]
+			then
+				# It failed
+				# Destroy run 
+				if [[ $CXR_DRY == false  ]]
+				then
+					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
+				else
+					cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
+				fi
+			else
+				# It did not fail, it seems that it was not yet run - we have to wait
+				cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
+				echo false
+				return $CXR_RET_OK
+			fi
+		fi
+	done # Loop over all dependencies
+	
+	# If we arrive here, all is swell
+	echo true
+	
+	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: cxr_common_module_update_info
+#
+# Goes through all available modules for the current model and version, and collects 
+# vital information in various hashes.
+#
+# Hashes:
+# CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
+# CXR_MODULE_TYPE_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their type
+#
+# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
+# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
+# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
+# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
+# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
+# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
+################################################################################
+function cxr_common_module_update_info()
+################################################################################
+{
+	local i
+	local dirs
+	local dir
+	local types
+	local type
+	local hashes
+	local active_hash
+	local files
+	local file
+	local module_name
+	
+	# Create a few working arrays we will go through
+	types=($CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_PREPROCESS_DAILY  $CXR_TYPE_MODEL $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE)
+	dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_MODEL_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+	hashes=($CXR_ACTIVE_ONCE_PRE_HASH $CXR_ACTIVE_DAILY_PRE_HASH $CXR_ACTIVE_MODEL_HASH $CXR_ACTIVE_DAILY_POST_HASH $CXR_ACTIVE_ONCE_POST_HASH)
+	
+	for i in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+	do
+		type=${types[$i]}
+		dir=${dirs[$i]}
+		active_hash=${hashes[$i]}
+		
+		cxr_main_logger -v "$FUNCNAME" "Adding $type modules"
+		
+		# Find all of them
+		files=$(find $dir -noleaf -maxdepth 1 -name $name)"
+		
+		for file in $files
+		do
+			module_name=$(cxr_main_extract_module_name $file)
+			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name ($file)"
+			
+			# Path 
+			cxr_common_hash_put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
+			
+			# Type
+			cxr_common_hash_put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
+			
+			# All Hash (value is dummy)
+			cxr_common_hash_put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+		
+			# The current types active hash
+			cxr_common_hash_put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+		
+		done # Loop over files
+	done # loop over type-index
+}
+
+################################################################################
+# Function: cxr_common_module_get_type
 #
 # Gets its information directly from the CXR_MODULE_TYPE_HASH
 # 
 # Parameters:
 # $1 - name of module (without prefix or suffix, just something like "convert output"
 ################################################################################
-function cxr_common_get_module_type()
+function cxr_common_module_get_type()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -148,9 +603,9 @@ function cxr_common_get_module_type()
 	local name="${1}"
 	local module_type
 
-	if [[ "$(cxr_common_hash_has? "$CXR_MODULE_TYPE_HASH" universal "$name" )" == true ]]
+	if [[ "$(cxr_common_hash_has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )" == true ]]
 	then
-		module_type="$(cxr_common_hash_get "$CXR_MODULE_TYPE_HASH" universal "$name" )"
+		module_type="$(cxr_common_hash_get "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )"
 		
 		if [[ "$module_type" ]]
 		then
@@ -166,7 +621,7 @@ function cxr_common_get_module_type()
 }
 
 ################################################################################
-# Function: cxr_common_run_modules
+# Function: cxr_common_module_run_type
 #	
 # Calls all or just one single module (adressed by their module name) at a specific 
 # point in time (or One-Time)
@@ -179,7 +634,7 @@ function cxr_common_get_module_type()
 # $1 - Type of modules to run
 # [$2] - Single Step (number)
 ################################################################################
-function cxr_common_run_modules()
+function cxr_common_module_run_type()
 ################################################################################
 {
 	local module_type="$1"
@@ -388,15 +843,15 @@ function cxr_common_run_modules()
 }
 
 ################################################################################
-# Function: cxr_common_process_sequentially
+# Function: cxr_common_module_process_sequentially
 #	
 # Executes all (needed) modules in sequential order (non-parallel version of the task_functions)
 # If only one process is used, this is faster because there is less overhead.
 # For each part of the processing, we check if we need to run it and pass any limitations
-# on to <cxr_common_run_modules>.
+# on to <cxr_common_module_run_type>.
 #
 ################################################################################
-function cxr_common_process_sequentially
+function cxr_common_module_process_sequentially
 ################################################################################
 {
 	# Set up return value
@@ -409,7 +864,7 @@ function cxr_common_process_sequentially
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
-		cxr_common_run_modules ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
@@ -438,21 +893,21 @@ function cxr_common_process_sequentially
 			
 			if [[ ${CXR_RUN_PRE_DAILY} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				cxr_common_module_run_type ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
-				cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
@@ -470,7 +925,7 @@ function cxr_common_process_sequentially
 	
 	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
-		cxr_common_run_modules ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
@@ -535,7 +990,10 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_get_module_type boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "cxr_common_get_module_type boundary_conditions"
+	is $(cxr_common_module_get_type boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "cxr_common_module_get_type boundary_conditions"
+	is $(cxr_common_module_get_exlusive model) true "cxr_common_module_get_exlusive model"
+
+
 
 	########################################
 	# teardown tests if needed
@@ -559,14 +1017,12 @@ then
 	while getopts ":dvFST" opt
 	do
 		case "${opt}" in
-		
 			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
 			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
 			F) CXR_USER_TEMP_FORCE=true ;;
 			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
 			
 			T) TEST_IT=true;;
-			
 		esac
 	done
 	
@@ -585,5 +1041,4 @@ then
 	else
 		usage
 	fi
-
 fi

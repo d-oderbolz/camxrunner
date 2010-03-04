@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=31
+CXR_META_MODULE_NUM_TESTS=32
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -714,6 +714,7 @@ function cxr_common_offset2date()
 # 
 # Takes a day offset as input and converts it to a raw date (YYYYMMDD)
 # It does so by calculating the difference of the julian dates.
+# Returns the empty string on the empty string
 #
 # Example (assuming the simulation starts 2007-01-01):
 # > $ cxr_common_offset2_raw_date 1
@@ -729,14 +730,22 @@ function cxr_common_offset2_raw_date()
 	local date
 	
 	# Check input
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
 	
-	date=$(cxr_common_offset2date "$1")
+	local day_offset="$1"
+	
+	if [[ "$day_offset" ]]
+	then
+		# Day offset is set
+		date=$(cxr_common_offset2date "$day_offset")
+	else
+		date=""
+	fi
 	
 	echo $(cxr_common_raw_date "$date")
 }
@@ -1225,6 +1234,7 @@ function test_module()
 	is $(cxr_common_is_first_day_of_week? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
 	is $(cxr_common_is_first_day_of_week? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
 	is $(cxr_common_is_first_day_of_month? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
+	is $(cxr_common_offset2_raw_date "") "" "cxr_common_offset2_raw_date empty string"
 	
 	########################################
 	# teardown tests if needed

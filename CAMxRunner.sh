@@ -34,6 +34,7 @@
 # TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
 # TODO: Enable the execution of more than one specific module
 # TODO: Replace all cxr_common_is_substring_present calls with hashes
+# TODO: selective module data update (none if limited processing)
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.
@@ -696,7 +697,7 @@ then
 	fi
 	
 	# Update the module path hash and form the lists of active modules
-	cxr_common_update_module_information
+	cxr_common_module_update_info
 	
 	#
 	# Here we really start things. Note that the execution of tasks is no longer sequential
@@ -745,7 +746,7 @@ then
 		CXR_STATUS=$CXR_STATUS_SUCCESS
 	
 		# Sequential processing (module_functions)
-		cxr_common_process_sequentially || CXR_STATUS=$CXR_STATUS_FAILURE
+		cxr_common_module_process_sequentially || CXR_STATUS=$CXR_STATUS_FAILURE
 	fi
 fi
 

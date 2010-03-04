@@ -268,13 +268,13 @@ function cxr_common_initialize_state_db()
 	# Init a few Hashes
 	##################
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
-	cxr_common_hash_init MD5 universal
+	cxr_common_hash_init MD5 $CXR_HASH_TYPE_UNIVERSAL
 	
 	# Contains the paths of all detected modules for this model and version
-	cxr_common_hash_init $CXR_MODULE_PATH_HASH universal
+	cxr_common_hash_init $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL
 
 	# Contains the module types of given modules
-	cxr_common_hash_init $CXR_MODULE_TYPE_HASH universal
+	cxr_common_hash_init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
 	
 	# Creating .continue file
 	cxr_main_logger -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"

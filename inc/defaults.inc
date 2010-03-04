@@ -119,14 +119,14 @@ readonly CXR_TYPE_PREPROCESS_ONCE
 CXR_TYPE_PREPROCESS_DAILY=preprocess_daily
 readonly CXR_TYPE_PREPROCESS_DAILY
 
+CXR_TYPE_MODEL=model
+readonly CXR_TYPE_MODEL
+
 CXR_TYPE_POSTPROCESS_DAILY=postprocess_daily
 readonly CXR_TYPE_POSTPROCESS_DAILY
 
 CXR_TYPE_POSTPROCESS_ONCE=postprocess_once
 readonly CXR_TYPE_POSTPROCESS_ONCE
-
-CXR_TYPE_MODEL=model
-readonly CXR_TYPE_MODEL
 
 CXR_TYPE_INSTALLER=${CXR_INSTALLER}
 readonly CXR_TYPE_INSTALLER
@@ -592,8 +592,13 @@ readonly CXR_LOG_OUTPUT_DIR
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 readonly CXR_STATE_DIR
 
+# Supported Types of Hashes
+CXR_HASH_TYPE_UNIVERSAL=universal
+CXR_HASH_TYPE_GLOBAL=global
+CXR_HASH_TYPE_INSTANCE=instance
+
 # Some state data is global to all runs (e. g. the hash used for change detection)
-CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/universal
+CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
 readonly CXR_STATE_UNIVERSAL_DIR
 
 # Universal Hashes (e. g. MD5 database) go here
@@ -614,7 +619,7 @@ readonly CXR_MODULE_TYPE_HASH
 
 # Directory where the global stuff goes
 # Global data is normally not deleted
-CXR_GLOBAL_DIR=$CXR_STATE_DIR/global
+CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
 readonly CXR_GLOBAL_DIR
 
 # Global Hashes (e. g. MD5 database) go here
