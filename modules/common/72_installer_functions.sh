@@ -228,11 +228,7 @@ function cxr_common_apply_patches()
 	
 	# Prepare the files containing all patches and no .svn stuff
 	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" | sort > $patchlist
-	
-	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
-	then
-			cxr_main_die_gracefully "$FUNCNAME:$LINENO - could not list the patches in $patch_dir"
-	fi
+	# Dont check PIPESTATUS here, grep will return non-0 if no files are found 
 	
 	# Loop through all patches
 	
@@ -294,7 +290,10 @@ function cxr_common_apply_patches()
 			if [[ "$ask_user" == true  ]]
 			then
 				# Ask user
-				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $patch_file to $real_file?\nCheck if the patch is compatible with the current platform.\First few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)" Y )" == true  ]]
+				
+				cxr_main_logger -a "${FUNCNAME}"  "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
+				
+				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $(basename $patch_file) to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
 					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 					patch $real_file < $patch_file
