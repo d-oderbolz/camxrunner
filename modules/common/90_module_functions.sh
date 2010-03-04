@@ -326,7 +326,7 @@ function cxr_common_module_resolve_all_dependencies()
 ################################################################################
 {
 	local dependencies="$1"
-	local day_offset="$2"
+	local day_offset="${2:-}"
 	local dependency
 	local resolved_dependency
 	local resolved_list
@@ -385,7 +385,7 @@ function cxr_common_module_dependencies_ok?()
 	fi
 
 	local raw_dependencies="$1"
-	local day_offset="$2"
+	local day_offset="${2:-}"
 	local dep_day_offset
 	local dep_module_name
 	local dependencies="$(cxr_common_module_resolve_all_dependencies "$raw_dependencies" "$day_offset" )"
