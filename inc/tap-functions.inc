@@ -660,7 +660,7 @@ function diag()
 	local msg="${1:?}"
 
 	if [[ -n "$msg" ]] ; then
-		cxr_main_logger "TAP" "# $msg"
+		cxr_main_logger -a "TAP" "# $msg"
 	fi
 	
 	return 1
