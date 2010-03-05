@@ -27,7 +27,7 @@ function cxr_main_is_numeric?()
 	# present. Negative values are OK
 	echo "${1:-}" | grep "[-]?[^0-9]" >/dev/null
 	
-	if [[ "$?" -ne 0 || -z "$1" ]]
+	if [[ "$?" -eq 0 || -z "$1" ]]
 	then
 			echo false
 	else
