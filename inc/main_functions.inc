@@ -12,7 +12,6 @@
 ################################################################################
 # Who		When				What
 # dco		28.01.2009	Created by removal from CAMxRunner.sh
-
 ################################################################################
 # Function: cxr_main_is_numeric?
 #
@@ -28,7 +27,7 @@ function cxr_main_is_numeric?()
 	# present. Negative values are OK
 	echo "${1:-}" | grep "[-]?[^0-9]" >/dev/null
 	
-	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false || -z "$1" ]]
+	if [[ "$?" -ne 0 || -z "$1" ]]
 	then
 			echo false
 	else
