@@ -85,7 +85,7 @@ c
       integer   MXTRSP
       integer   MXFDDM
 c
-      parameter( MXTRSP =   99 )
+      parameter( MXTRSP =   250 )
       parameter( MXFDDM =   1 )
 c
 c-----------------------------------------------------------------------

@@ -201,11 +201,11 @@ ibm:
            HDF=$(HDF) \
            FC=xlf \
            CC=cc \
-           FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+           FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
 	make model \
            FC=xlf \
            TARGT=CAMx.$(DOMAIN).ibm \
-           FLGS="-I$(CAMx_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+           FLGS="-I$(CAMx_INC) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
 
 pg_linux:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -220,7 +220,7 @@ pg_linux:
 	make model \
            FC=pgf90 \
            TARGT=CAMx.$(DOMAIN).pg_linux \
-           FLGS="-I$(CAMx_INC) -O2 -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
+           FLGS="-I$(CAMx_INC) -O2 -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
 
 pg_linuxomp:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -235,7 +235,7 @@ pg_linuxomp:
 	make model \
            FC=pgf90 \
            TARGT=CAMx.$(DOMAIN).pg_linuxomp \
-           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
+           FLGS="-I$(CAMx_INC) -O2 -mp -pc 64 -mcmodel=medium -Mlarge_arrays -Mdalign -Mextend -Mnoframe -byteswapio"
 
 i_linux:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -246,11 +246,11 @@ i_linux:
            HDF=$(HDF) \
            FC=ifort \
            CC=gcc \
-           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
+           FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo"
 	make model \
            FC=ifort \
            TARGT=CAMx.$(DOMAIN).i_linux \
-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
+           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
 
 i_linuxomp:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
@@ -265,7 +265,7 @@ i_linuxomp:
 	make model \
            FC=ifort \
            TARGT=CAMx.$(DOMAIN).i_linuxomp \
-           FLGS="-I$(CAMx_INC) -O2 -align dcommons -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
+           FLGS="-I$(CAMx_INC) -O2 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -i_dynamic -fpp -openmp"
 
 ab_linux:
 	@rm -f $(IOHDF)/*.o $(MOD_DIR)/*.mod
