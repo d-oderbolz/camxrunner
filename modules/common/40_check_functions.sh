@@ -235,7 +235,7 @@ function cxr_common_check_datataype()
 		echo true
 		;;
 	I) # Integer
-		echo $(cxr_main_is_numeric "$value")
+		echo $(cxr_main_is_numeric? "$value")
 		;;
 	F) # Floating point number
 

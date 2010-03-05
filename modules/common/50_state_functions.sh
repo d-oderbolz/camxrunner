@@ -120,10 +120,44 @@ function cxr_common_get_last_day_modelled()
 		# A similar expression is used in cxr_common_cleanup_state
 		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
 		
-		if [[ "$max_day"  ]]
+		if [[ "$max_day" ]]
 		then
 			# Convert to ISO
 			date=$(cxr_common_to_iso_date "$max_day")
+		
+			echo "$date"
+		else
+			echo ""
+		fi
+	else
+		echo ""
+	fi
+	
+	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: cxr_common_get_first_day_modelled
+#
+# If the run was already done, returns the first day done in ISO Format. If it was not done, 
+# returns the empty string.
+# 
+################################################################################
+function cxr_common_get_first_day_modelled()
+################################################################################
+{
+	local min_day
+	local date
+	
+	if [[ $(cxr_common_is_repeated_run) == true  ]]
+	then
+		# A similar expression is used in cxr_common_cleanup_state
+		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | head -n1)
+		
+		if [[ "$min_day" ]]
+		then
+			# Convert to ISO
+			date=$(cxr_common_to_iso_date "$min_day")
 		
 			echo "$date"
 		else

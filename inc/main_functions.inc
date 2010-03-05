@@ -14,34 +14,26 @@
 # dco		28.01.2009	Created by removal from CAMxRunner.sh
 
 ################################################################################
-# Function: cxr_main_is_numeric
+# Function: cxr_main_is_numeric?
 #
 # A small, relatively robust function to test if the argument is numeric
 #
 # Parameters:
 # $1 - String to test
 ################################################################################
-function cxr_main_is_numeric()
+function cxr_main_is_numeric?()
 ################################################################################
 { 
 	# If this returns 0, there is at least a non-numeric character
 	# present. Negative values are OK
-	
-	# We neet the retval,
-	# turn off strict checks
-	set +e
-	
 	echo "${1:-}" | grep "[-]?[^0-9]" >/dev/null
 	
-	if [[  $? -eq 0 || -z "$1"   ]] 
+	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false || -z "$1" ]]
 	then
 			echo false
 	else
 			echo true
 	fi
-	
-	#Turn strict checks back on
-	set -e
 }
 
 ################################################################################
@@ -318,12 +310,12 @@ function cxr_main_logger()
 		# CXR_LOG_FUNCTION_VERBOSE_LIST
 		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
 		
-		if [[ "${FOUND}" -ne 0  ]]
+		if [[ "${FOUND}" -ne 0 ]]
 		then
 			# Function was added by user
 			
 			# If stars are set, we add a line of stars at the beginning and end
-			if [[ "${stars}"  ]]
+			if [[ "${stars}" ]]
 			then
 				stderr_message"${stars}\n${stderr_message}\n${stars}\n"
 			fi
@@ -369,7 +361,6 @@ function cxr_main_logger()
 		cxr_main_notify "Log" "$blank_message"
 	fi
 	
-
 	return $CXR_RET_OK
 }
 
@@ -513,7 +504,7 @@ function cxr_main_cleanup()
 
 	fi
 	
-	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS"  ]]
+	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
 	then
 		# All went well
 		
@@ -532,7 +523,7 @@ function cxr_main_cleanup()
 			cxr_main_decrease_log_indent
 		
 		else
-			if [[ "$CXR_HOLLOW" == false   ]]
+			if [[ "$CXR_HOLLOW" == false ]]
 			then
 				# print some infos if we are not hollow 
 				cxr_main_logger "$FUNCNAME" "Ending ${CXR_RUN}, its now $(date)"
@@ -558,7 +549,7 @@ trap "cxr_main_cleanup; exit" INT TERM EXIT
 # [$2] - Run cleanup (if false, no cleanup is done)
 # [$3] - Return code
 ################################################################################
-function cxr_main_die_gracefully() 
+function cxr_main_die_gracefully()
 ################################################################################
 {
 	# Release any traps
@@ -666,7 +657,7 @@ function cxr_main_determine_model_and_version()
 	# We expect a name like CAMx-v4.42-bafu3_winter07.run3_lcsl5a
 	# So we split using "-"
 	
-	if [[   $1 == CAMxRunner.sh || $1 == base || $1 == installer    ]]
+	if [[   $1 == CAMxRunner.sh || $1 == base || $1 == installer ]]
 	then
 		# If the user does CAMxRunner.sh -h this must work too!
 		version=4.51

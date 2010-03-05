@@ -96,7 +96,7 @@ exit 1
 function cxr_common_abs()
 ################################################################################
 {
-	if [[  $# -ne 1 || "$(cxr_main_is_numeric "$1")" == false   ]]
+	if [[  $# -ne 1 || "$(cxr_main_is_numeric? "$1")" == false   ]]
 	then
 		cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
 		echo false

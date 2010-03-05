@@ -5,7 +5,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the test harness of CAMxRunner.
+# Contains the test harness of CAMxRunner. Also contains tests for some inc functions.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=4
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -357,18 +357,113 @@ function cxr_common_test_all_modules()
 }
 
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module
+# 
+################################################################################	
+function test_module()
+################################################################################
+{
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
+	then
+		# We need to do initialisation
+	
+		# This is the run we use to test this
+		CXR_RUN=$CXR_META_MODULE_TEST_RUN
+	
+		# Safety measure if script is not called from .
+		MY_DIR=$(dirname $0) && cd $MY_DIR
+	
+		# We step down the directory tree until we either find CAMxRunner.sh
+		# or hit the root directory /
+		while [ $(pwd) != / ]
+		do
+			cd ..
+			# If we find CAMxRunner, we are there
+			ls CAMxRunner.sh >/dev/null 2>&1 && break
+			
+			# If we are in root, we have gone too far
+			if [[ $(pwd) == /  ]]
+			then
+				echo "Could not find CAMxRunner.sh!"
+				exit 1
+			fi
+		done
+		
+		# Save the number of tests, as other modules
+		# will overwrite this (major design issue...)
+		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
+		
+		# Include the init code
+		source inc/init_test.inc
+		
+		# Plan the number of tests
+		plan_tests $MY_META_MODULE_NUM_TESTS
+		
+	fi
+	
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	#Here, we test some main functions
+	is $(cxr_main_is_numeric? 0) true "cxr_main_is_numeric? 0"
+	is $(cxr_main_is_numeric? -1000) true "cxr_main_is_numeric? -1000"
+	is $(cxr_main_is_numeric? "") false "cxr_main_is_numeric? empty string"
+	is $(cxr_main_is_numeric? "A100") false "cxr_main_is_numeric? A100"
+	
+	########################################
+	# teardown tests if needed
+	########################################
+
+}
+
+################################################################################
+# Are we running stand-alone? 
 ################################################################################
 
-# If the CXR_META_MODULE_NAME  is not set,
+
+# If the CXR_META_MODULE_NAME  is not set
 # somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}" ]]
+# Normlly this is not allowed, except to test using -t
+if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
 then
-	usage
+
+	# When using getopts, never directly call a function inside the case,
+	# otherwise getopts does not process any parametres that come later
+	while getopts ":dvFST" opt
+	do
+		case "${opt}" in
+		
+			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
+			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
+			F) CXR_USER_TEMP_FORCE=true ;;
+			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
+			
+			T) TEST_IT=true;;
+			
+		esac
+	done
+	
+	# This is not strictly needed, but it allows to read 
+	# non-named command line options
+	shift $((${OPTIND} - 1))
+
+	# Make getopts ready again
+	unset OPTSTRING
+	unset OPTIND
+	
+	# This is needed so that getopts surely processes all parameters
+	if [[ "${TEST_IT:-false}" == true  ]]
+	then
+		test_module
+	else
+		usage
+	fi
+	
 fi
-
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-

@@ -332,7 +332,7 @@ function cxr_common_julian2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
+	if [[  $# -ne 1 || $(cxr_main_is_numeric? "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -370,7 +370,7 @@ function cxr_common_epoch2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
+	if [[  $# -ne 1 || $(cxr_main_is_numeric? "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -396,7 +396,7 @@ function cxr_common_epoch2datetime()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(cxr_main_is_numeric "$1") == false   ]]
+	if [[  $# -ne 1 || $(cxr_main_is_numeric? "$1") == false   ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -856,7 +856,7 @@ function cxr_common_add_days()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric? "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -890,7 +890,7 @@ function cxr_common_subtract_days()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric? "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -925,7 +925,7 @@ function cxr_common_set_date_variables()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric "$2") == false    ]]
+	if [[   $# -ne 2 || $(cxr_common_is_yyyymmdd_format? "$1") == false || $(cxr_main_is_numeric? "$2") == false    ]]
 	then
 		cxr_main_logger -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
