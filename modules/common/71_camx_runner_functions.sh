@@ -97,7 +97,7 @@ function cxr_common_get_x_dim()
 		
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_die_gracefully "$FUNCNAME:$LINENO - Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -134,7 +134,7 @@ function cxr_common_get_y_dim()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_die_gracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -170,7 +170,7 @@ function cxr_common_get_z_dim()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_die_gracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	echo ${CXR_NUMBER_OF_LAYERS[${domain}]}
@@ -370,7 +370,7 @@ function cxr_common_evaluate_rule()
 {
 	if [[  $# -lt 1 && $# -gt 4 ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
 	local rule="$1"
@@ -419,7 +419,7 @@ function cxr_common_evaluate_rule()
 	if [[  -z "$expansion" && "$allow_empty" == false   ]]
 	then
 		# Empty not allowed
-		main_dieGracefully "$FUNCNAME:$LINENO - Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+		main_die_gracefully "$FUNCNAME:$LINENO - Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
 	fi
 	
 	echo "$expansion"
@@ -445,7 +445,7 @@ function cxr_common_evaluate_rule_at_offset()
 {
 	if [[  $# -lt 2 && $# -gt 4 ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
 	
 	# Local variables
@@ -490,7 +490,7 @@ function cxr_common_evaluate_these_scalar_rules()
 {
 	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
 	
 	local rule_list="$1"
@@ -566,7 +566,7 @@ function cxr_common_create_tempfile()
 	# Check if that worked!
 	if [[ ! -d "${CXR_TMP_DIR}"  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
+		main_die_gracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
 	
 	local store=${2:-true}
@@ -679,7 +679,7 @@ function cxr_common_get_lock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
 	
 	local lock="$1"
@@ -720,7 +720,7 @@ function cxr_common_release_lock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
 	
 	local sed_tmp=$(cxr_common_create_tempfile $FUNCNAME)
@@ -801,16 +801,16 @@ function cxr_common_create_config_file()
 			#Yes, gimme options
 			
 			# To keep the list compact, we go into the conf dir and back out again
-			cd "${CXR_CONF_DIR}" || main_dieGracefully "$FUNCNAME:$LINENO - Could not change to ${CXR_CONF_DIR}!"
+			cd "${CXR_CONF_DIR}" || main_die_gracefully "$FUNCNAME:$LINENO - Could not change to ${CXR_CONF_DIR}!"
 			
 			basefile=${CXR_CONF_DIR}/$(cxr_common_get_menu_choice "Choose a file I should use:" "*.conf" )
 			
-			cd "$CXR_RUN_DIR" || main_dieGracefully "Could not change to $CXR_RUN_DIR"
+			cd "$CXR_RUN_DIR" || main_die_gracefully "Could not change to $CXR_RUN_DIR"
 		fi
 	
 		if [[ ! -f "$basefile"  ]]
 		then
-			main_dieGracefully "File $basefile is not readable!"
+			main_die_gracefully "File $basefile is not readable!"
 		fi
 	
 		# For the moment, I romoved the option to expand a config
@@ -1007,7 +1007,7 @@ function cxr_common_create_new_run()
 
 	local model=$(cxr_common_get_menu_choice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
 	
-	local model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
+	local model_id=$(cxr_common_get_model_id "$model") || main_die_gracefully "model $model is not known."
 	
 	# Extract the list of supported versions
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -1015,7 +1015,7 @@ function cxr_common_create_new_run()
 	#Generate a menu automatically
 	local version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
 	
-	cxr_common_is_version_supported $version $model || main_dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
+	cxr_common_is_version_supported $version $model || main_die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
 	local run=${model}-v${version}
 	
@@ -1027,7 +1027,7 @@ function cxr_common_create_new_run()
 	run="${run}-$addition"
 
 	# Name ok? ###################################################################
-	cxr_common_check_run_name $run || main_dieGracefully "$FUNCNAME:$LINENO - The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
+	cxr_common_check_run_name $run || main_die_gracefully "$FUNCNAME:$LINENO - The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
 		
 	# Name OK.
 	
@@ -1149,7 +1149,7 @@ function cxr_common_check_runner_consistency()
 			main_log -v "$FUNCNAME"  "Checking model $model..."
 		
 			# Get id of the current model
-			model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
+			model_id=$(cxr_common_get_model_id "$model") || main_die_gracefully "model $model is not known."
 	
 			# Extract the list of supported versions
 			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"

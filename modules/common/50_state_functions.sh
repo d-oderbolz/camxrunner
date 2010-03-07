@@ -226,7 +226,7 @@ function cxr_common_get_stage_name()
 		${CXR_TYPE_INSTALLER}) 
 			echo ${module_type}@${module_name} ;;
 			
-	 *) main_dieGracefully "${FUNCNAME}:${LINENO} - Unknown module type ${module_type}";;
+	 *) main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type ${module_type}";;
 	esac
 }
 
@@ -364,7 +364,7 @@ function cxr_common_store_state()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a state like $CXR_STATE_ERROR as Input"   
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state like $CXR_STATE_ERROR as Input"   
 	fi
 	
 	local state=$1
@@ -418,7 +418,7 @@ function cxr_common_store_state()
 			
 			*)
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				main_dieGracefully "Unknown state $state given"
+				main_die_gracefully "Unknown state $state given"
 				echo false
 			;;
 	esac
@@ -443,7 +443,7 @@ function cxr_common_get_state_file_name()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 	fi
 	
 	local state=$1
@@ -472,7 +472,7 @@ function cxr_common_detect_running_instances()
 		
 		main_log -e "${FUNCNAME}"  "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
-		main_dieGracefully "${FUNCNAME}:${LINENO} - Process stopped"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - Process stopped"
 	fi
 }
 
@@ -489,7 +489,7 @@ function cxr_common_has_finished()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -532,7 +532,7 @@ function cxr_common_has_failed()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -834,7 +834,7 @@ function cxr_common_do_we_continue()
 	# of CXR_ERROR_THRESHOLD is not -1
 	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 	
 	# Do we care at all?

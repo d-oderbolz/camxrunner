@@ -99,7 +99,7 @@ function cxr_common_check_bash_version()
 {
 	if [[ ${BASH_VERSINFO[0]} -lt 3  ]]
 	then
-		main_dieGracefully "We need at least Bash Version 3.x - please upgrade."
+		main_die_gracefully "We need at least Bash Version 3.x - please upgrade."
 	fi
 }
 
@@ -174,7 +174,7 @@ function cxr_common_check_mb_needed()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs 2 parameters: a path and a number (megabytes needed)"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs 2 parameters: a path and a number (megabytes needed)"
 	fi
 	
 	local dir="$1"
@@ -194,7 +194,7 @@ function cxr_common_check_mb_needed()
 	then
 		main_log -i "${FUNCNAME}" "Space in $dir is sufficient."
 	else
-		main_dieGracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
+		main_die_gracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
 	fi
 	
 }
@@ -222,7 +222,7 @@ function cxr_common_check_datataype()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs 2 strings as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs 2 strings as input"
 	fi
 	
 	local value=$1
@@ -278,7 +278,7 @@ function cxr_common_check_datataype()
 		fi
 			
 		;;
-	*) main_dieGracefully "${FUNCNAME}:${LINENO} - illegal Datatype $datatype" ;;
+	*) main_die_gracefully "${FUNCNAME}:${LINENO} - illegal Datatype $datatype" ;;
 	esac
 }
 
@@ -393,7 +393,7 @@ function cxr_common_check_runner_executables ()
 		then
 			main_log -w "${FUNCNAME}" "File $file is not executable,I try to correct this"
 			# File is not executable, try to correct
-			chmod +x $file || main_dieGracefully "Could not change permissions on file $file - exiting"
+			chmod +x $file || main_die_gracefully "Could not change permissions on file $file - exiting"
 			
 			if [[ "$(cxr_common_is_dos? "$file")" == true ]]
 			then
@@ -402,7 +402,7 @@ function cxr_common_check_runner_executables ()
 				
 				if [[ $? -ne 0 ]]
 				then
-					main_dieGracefully "$FUNCNAME:$LINENO - could not convert $file to Unix format!"
+					main_die_gracefully "$FUNCNAME:$LINENO - could not convert $file to Unix format!"
 				fi
 			fi
 			
@@ -662,7 +662,7 @@ function cxr_common_check_preconditions()
 				then
 					main_log -w "${FUNCNAME}" "Directory ${!output_dir} Parameter $output_dir does not exist - will create it"
 					
-					mkdir -p ${!output_dir} || main_dieGracefully "${FUNCNAME}:${LINENO} - could not create output dir ${!output_dir}"
+					mkdir -p ${!output_dir} || main_die_gracefully "${FUNCNAME}:${LINENO} - could not create output dir ${!output_dir}"
 					
 				# is it writeable?
 				elif [[ ! -w ${!output_dir}  ]]
@@ -1214,7 +1214,7 @@ function cxr_common_is_version_supported()
 	
 	local version=$1
 	local model=$2
-	local model_id="$(cxr_common_get_model_id "$model")" || main_dieGracefully "Model $model is not known."
+	local model_id="$(cxr_common_get_model_id "$model")" || main_die_gracefully "Model $model is not known."
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version

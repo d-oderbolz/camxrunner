@@ -218,7 +218,7 @@ function string_leftPadZero
 {
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
+		main_die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
 	local number="$1"

@@ -136,7 +136,7 @@ function math_FloatOperation()
 {
 	if [[ $# -lt 1  ]]
 	then
-		main_dieGracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
+		main_die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
 	fi
 	
 	# Define & Initialize local vars

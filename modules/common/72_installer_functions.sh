@@ -120,7 +120,7 @@ function cxr_common_install()
 		
 		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
+		model_id=$(cxr_common_get_model_id "$model") || main_die_gracefully "model $model is not known."
 		
 		# Extract the list of supported versions
 		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -173,7 +173,7 @@ function cxr_common_determine_patch_target()
 	
 	if [[ ! -f "$patch"  ]]
 	then
-		main_dieGracefully "$FUNCNAME - no filename passed or file not readable!"
+		main_die_gracefully "$FUNCNAME - no filename passed or file not readable!"
 	fi
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
@@ -185,7 +185,7 @@ function cxr_common_determine_patch_target()
 	then
 		echo "$file"
 	else
-		main_dieGracefully "$FUNCNAME - Could not find any filename"
+		main_die_gracefully "$FUNCNAME - Could not find any filename"
 	fi
 	
 }
@@ -222,7 +222,7 @@ function cxr_common_apply_patches()
 	
 	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then
-		main_dieGracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
+		main_die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
 	fi
 	
 	main_log "${FUNCNAME}" "Applying patches in $patch_dir to $src_dir..."
@@ -254,7 +254,7 @@ function cxr_common_apply_patches()
 		# Test status
 		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 		then
-			main_dieGracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
+			main_die_gracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
 		fi
 		
 		# Is the patch a dos-file ?
@@ -265,7 +265,7 @@ function cxr_common_apply_patches()
 			
 			if [[ $? -ne 0 ]]
 			then
-				main_dieGracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
+				main_die_gracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
 			fi
 		fi
 		
@@ -305,7 +305,7 @@ function cxr_common_apply_patches()
 					# Test status
 					if [[ $? -ne 0 ]]
 					then
-						main_dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+						main_die_gracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
 					fi
 					
 				fi
@@ -317,7 +317,7 @@ function cxr_common_apply_patches()
 				# Test status
 				if [[ $? -ne 0 ]]
 				then
-					main_dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+					main_die_gracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
 				fi
 			fi
 		else

@@ -329,7 +329,7 @@ function cxr_common_parallel_get_next_task()
 	# Check status
 	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 	then
-		main_dieGracefully "$FUNCNAME - could not find next task!"
+		main_die_gracefully "$FUNCNAME - could not find next task!"
 	fi
 	
 	# It can be that we did not get a string
@@ -379,7 +379,7 @@ function cxr_common_task_change_status()
 	
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a task descriptor and a status as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task descriptor and a status as input"
 	fi
 	
 	task_descriptor_path="$1"
@@ -399,7 +399,7 @@ function cxr_common_task_change_status()
 			;;
 			
 		*)
-			main_dieGracefully "${FUNCNAME}:${LINENO} - status $status not supported!"
+			main_die_gracefully "${FUNCNAME}:${LINENO} - status $status not supported!"
 	
 	esac
 	
@@ -420,7 +420,7 @@ function cxr_common_parallel_worker_waiting ()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -450,7 +450,7 @@ function cxr_common_parallel_worker_working ()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -481,7 +481,7 @@ function cxr_common_parallel_remove_worker()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	# Remove identifier
@@ -560,7 +560,7 @@ function cxr_common_parallel_worker()
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
-		cxr_common_do_we_continue || main_dieGracefully "Continue file no longer present."
+		cxr_common_do_we_continue || main_die_gracefully "Continue file no longer present."
 	
 		# cxr_common_parallel_get_next_task must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
@@ -587,7 +587,7 @@ function cxr_common_parallel_worker()
 			then
 				module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 			else
-				main_dieGracefully "$FUNCNAME - cannot find path of $module"
+				main_die_gracefully "$FUNCNAME - cannot find path of $module"
 			fi
 			
 			exclusive="$(cxr_common_module_get_exlusive $module_name)"
@@ -770,7 +770,7 @@ function cxr_common_parallel_init()
 	
 	if [[ $? -ne 0 ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
+		main_die_gracefully "$FUNCNAME:$LINENO - I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
 	fi
 	
 	main_log -a "${FUNCNAME}" "Creating todo-structure"
@@ -782,7 +782,7 @@ function cxr_common_parallel_init()
 		# Is this a unique number?
 		if [[ -f "$task_file" ]]
 		then
-			main_dieGracefully "The task Id $current_id is already taken"
+			main_die_gracefully "The task Id $current_id is already taken"
 		fi
 		
 		# each line contains something like "create_emissions0" or "initial_conditions"
@@ -792,7 +792,7 @@ function cxr_common_parallel_init()
 		
 		# Create link in todo dir
 		(
-			cd $CXR_TASK_TODO_DIR || main_dieGracefully "Could not change to dir $CXR_TASK_TODO_DIR"
+			cd $CXR_TASK_TODO_DIR || main_die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
 	
 			# General
 			ln -s $task_file

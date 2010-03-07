@@ -667,7 +667,7 @@ function cxr_common_apply_playfile()
 
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a playfile and a list of input files as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a playfile and a list of input files as input"
 	fi
 
 	local playfile="$1"
@@ -759,7 +759,7 @@ function cxr_common_apply_playfile()
 				sed -e "s/@$variable@/$value/g" $current_file > $sed_tmp
 
 				# Copy file back
-				cp $sed_tmp $current_file || main_dieGracefully "Could not copy $sed_tmp to the draft file $current_file"
+				cp $sed_tmp $current_file || main_die_gracefully "Could not copy $sed_tmp to the draft file $current_file"
 				
 				# Empty tempfile
 				: > $sed_tmp

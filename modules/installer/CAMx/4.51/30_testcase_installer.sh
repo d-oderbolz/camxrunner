@@ -96,14 +96,14 @@ function testcase_installer()
 	
 	if [[ "$(cxr_common_get_consent "Do you want to install the ${CXR_MODEL_VERSION} testcase to $TESTCASE_DIR?\n\nRequires about $CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
-		mkdir -p $TESTCASE_DIR || main_dieGracefully "Could not create $TESTCASE_DIR"
+		mkdir -p $TESTCASE_DIR || main_die_gracefully "Could not create $TESTCASE_DIR"
 		
 		########################################
 		# Check space
 		########################################
 		cxr_common_check_mb_needed "$TESTCASE_DIR" "$CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED"
 		
-		cd $TESTCASE_DIR || main_dieGracefully "Could change to $TESTCASE_DIR"
+		cd $TESTCASE_DIR || main_die_gracefully "Could change to $TESTCASE_DIR"
 		
 		########################################
 		main_log "${FUNCNAME}" "Downloading three files - might take a while..."
@@ -111,18 +111,18 @@ function testcase_installer()
 		########################################
 		
 		# Get the 3 files
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main_dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main_dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main_dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
 		
 		########################################
 		main_log "${FUNCNAME}" "Unpacking tar files..."
 		########################################
 		
 		# Untar
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || main_dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main_dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main_dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
 		
 		if [[ "$(cxr_common_get_consent "Do you want to remove the tar files?\nRecommended, they are large and unneeded." Y )" == true  ]]
 		then

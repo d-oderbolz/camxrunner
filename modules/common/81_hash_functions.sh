@@ -105,7 +105,7 @@ function cxr_common_hash_get_dir ()
 		$CXR_HASH_TYPE_INSTANCE) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_GLOBAL) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_UNIVERSAL) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
-		*) main_dieGracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
+		*) main_die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
 	esac
 	
 	echo "$hash_dir"

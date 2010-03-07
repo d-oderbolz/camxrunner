@@ -371,7 +371,7 @@ fi
 # Hollow and non-hollow options should not be mixed
 if [[ "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true ]]
 then
-	main_dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
+	main_die_gracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
 
 ################################################################################
@@ -380,12 +380,12 @@ main_log -v -B "CAMxRunner.sh" "Checking if selected options are valid..."
 
 if [[ $(main_isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
-	main_dieGracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
+	main_die_gracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
 fi
 
 if [[ $(main_isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
 then
-	main_dieGracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
+	main_die_gracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
 fi
 
 # Ok, now less than 2 processes is not parallel
@@ -408,7 +408,7 @@ if [[ "${CXR_HOLLOW}" == false  ]]
 then
 	if [[ ${CXR_RUN} == ${CXR_RUNNER_NAME}  ]]
 	then
-		main_dieGracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
+		main_die_gracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
 	else
 		
 		# Check if the name of the script has changed
@@ -420,12 +420,12 @@ then
 		
 		if [[ "$link_target" != " ${CXR_RUNNER_NAME}" ]]
 		then
-			main_dieGracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
+			main_die_gracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
 	
 		# Make sure Run name is ok (Model.vVersion...)
 		# XX_check_functions.sh
-		cxr_common_check_run_name ${CXR_RUN} || main_dieGracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
+		cxr_common_check_run_name ${CXR_RUN} || main_die_gracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
 	fi
 	
@@ -550,7 +550,7 @@ then
 	then
 		main_log -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
 	else
-		main_dieGracefully "the -D option needs a date in YYYY-MM-DD format as input!"
+		main_die_gracefully "the -D option needs a date in YYYY-MM-DD format as input!"
 	fi
 
 fi
@@ -586,7 +586,7 @@ then
 	then
 		if [[ "$first" != ${CXR_START_DATE} ]]
 		then
-			main_dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
+			main_die_gracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
 		fi
 	fi
 	
@@ -682,7 +682,7 @@ then
 	# Create a Continue File. If it is gone, the worker thread(s) will stop
 	################################################################################
 
-	cxr_common_initialize_state_db || main_dieGracefully "Could not initialize state DB"
+	cxr_common_initialize_state_db || main_die_gracefully "Could not initialize state DB"
 	
 	# If we do a dry run, we want to show the detected pre- and postprocessors
 	if [[ "$CXR_DRY" == true  ]]

@@ -98,7 +98,7 @@ function get_chemparam_file ()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
@@ -125,7 +125,7 @@ function get_chemparam_file ()
 
 	if [[ ! -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 	else
 		main_log $FUNCNAME "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
 	fi

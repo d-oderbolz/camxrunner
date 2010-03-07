@@ -421,7 +421,7 @@ function initial_conditions()
 							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24
 							EOF
 						else
-							main_dieGracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
+							main_die_gracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
 						fi
 					else
 						main_log "${FUNCNAME}"  "This is a dry-run, will not run the program"

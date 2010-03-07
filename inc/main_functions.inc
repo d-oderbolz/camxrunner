@@ -542,7 +542,7 @@ function main_doCleanup()
 trap "main_doCleanup; exit" INT TERM EXIT
 
 ################################################################################
-# Function: main_dieGracefully
+# Function: main_die_gracefully
 #
 # Prints a message and exits with value $2. must be in here because its important
 # 
@@ -551,7 +551,7 @@ trap "main_doCleanup; exit" INT TERM EXIT
 # [$2] - Run cleanup (if false, no cleanup is done)
 # [$3] - Return code
 ################################################################################
-function main_dieGracefully()
+function main_die_gracefully()
 ################################################################################
 {
 	# Release any traps
@@ -614,7 +614,7 @@ function main_getBinaryName()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs the name of a binary as input"
+		main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a binary as input"
 	fi
 	
 	#Determine possible names
@@ -725,16 +725,16 @@ function main_readConfig()
 	
 	if [[ -z "$CXR_MODEL_VERSION"  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - Could not determine Model Version when loading config!"
+		main_die_gracefully "$FUNCNAME:$LINENO - Could not determine Model Version when loading config!"
 	fi
 	
 	if [[ -z "$CXR_RUN_DIR"  ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - Could not determine run dir when loading config!"
+		main_die_gracefully "$FUNCNAME:$LINENO - Could not determine run dir when loading config!"
 	fi
 	
 	# Change to run dir
-	cd "$CXR_RUN_DIR" || main_dieGracefully "Could not change to $CXR_RUN_DIR"
+	cd "$CXR_RUN_DIR" || main_die_gracefully "Could not change to $CXR_RUN_DIR"
 
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
@@ -794,7 +794,7 @@ function main_readConfig()
 		main_log -a "$FUNCNAME"  "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
 		source "${CXR_BASECONFIG}"
 	else
-		main_dieGracefully "$FUNCNAME:$LINENO - The base configuration ${CXR_BASECONFIG} is not available - exiting"
+		main_die_gracefully "$FUNCNAME:$LINENO - The base configuration ${CXR_BASECONFIG} is not available - exiting"
 	fi
 	
 	########################################
@@ -835,7 +835,7 @@ function main_readConfig()
 			# If the user types CAMxRunner.sh -h we land here
 			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
 			then
-				main_dieGracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
+				main_die_gracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
 			fi
 		fi
 	fi
@@ -877,7 +877,7 @@ function main_getModuleName()
 	
 	if [[ $# -ne 1   ]]
 	then
-		main_dieGracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
+		main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
 	fi	
 	
 	full_name=$1
@@ -918,7 +918,7 @@ function main_listModuleType
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-			main_dieGracefully "Common modules cannot be run this way!" ;;
+			main_die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			CALL="-p"
@@ -941,7 +941,7 @@ function main_listModuleType
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
-			main_dieGracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
+			main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	

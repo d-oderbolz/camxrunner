@@ -98,7 +98,7 @@ function cxr_common_load_test_data()
 	if [[   "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -f "${CXR_TEST_DATA_INPUT_FILE:-}"    ]]
 	then
 	
-		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main_dieGracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
+		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main_die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
 		
 		# Query filetype
 		filetype=$(cxr_common_get_file_type "${CXR_TEST_DATA_INPUT_FILE}")
@@ -119,7 +119,7 @@ function cxr_common_load_test_data()
 				;;
 		esac
 		
-		cd $CXR_RUN_DIR || main_dieGracefully "Could not change back to ${CXR_RUN_DIR}"
+		cd $CXR_RUN_DIR || main_die_gracefully "Could not change back to ${CXR_RUN_DIR}"
 	
 	else
 		main_log -e "${FUNCNAME}" "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
@@ -173,7 +173,7 @@ function cxr_common_test_all_modules()
 			model=$iput_model
 		fi
 		
-		model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "Model $model is not known."
+		model_id=$(cxr_common_get_model_id "$model") || main_die_gracefully "Model $model is not known."
 		
 		
 		if [[ ! "${input_version}"  ]]

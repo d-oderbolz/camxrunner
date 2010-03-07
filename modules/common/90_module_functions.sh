@@ -100,7 +100,7 @@ function cxr_common_module_get_meta_field()
 	then
 		module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 	else
-		main_dieGracefully "$FUNCNAME - cannot find path of $module"
+		main_die_gracefully "$FUNCNAME - cannot find path of $module"
 	fi
 	
 	# source module
@@ -108,7 +108,7 @@ function cxr_common_module_get_meta_field()
 	
 	if [[ $? -ne 0 ]]
 	then
-		main_dieGracefully "$FUNCNAME - could not source $module ($module_path)"
+		main_die_gracefully "$FUNCNAME - could not source $module ($module_path)"
 	fi
 	
 	# Do we have this variable?
@@ -117,7 +117,7 @@ function cxr_common_module_get_meta_field()
 	if [[ $? -ne 0 ]]
 	then
 		# variable not known!
-		main_dieGracefully "$FUNCNAME - variable $item not found!"
+		main_die_gracefully "$FUNCNAME - variable $item not found!"
 	else
 		# Return value (indirect)
 		echo ${!item}
@@ -189,7 +189,7 @@ function cxr_common_module_resolve_single_dependency()
 {
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		main_dieGracefully "Programming error @ ${FUNCNAME}:${LINENO} - needs at least a depdendency and an optional day_offset as input"
+		main_die_gracefully "Programming error @ ${FUNCNAME}:${LINENO} - needs at least a depdendency and an optional day_offset as input"
 	fi
 
 	local dependency="$1"
@@ -271,7 +271,7 @@ function cxr_common_module_resolve_single_dependency()
 					return $CXR_RET_OK
 				else
 					# Yes, we terminate
-					main_dieGracefully "${FUNCNAME} - You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
+					main_die_gracefully "${FUNCNAME} - You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 				fi
 			fi
 			
@@ -381,7 +381,7 @@ function cxr_common_module_dependencies_ok?()
 	
 	if [[ $# -ne 2 ]]
 	then
-		main_dieGracefully "${FUNCNAME}:${LINENO} - needs a depdendency list and a day offset as input"
+		main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency list and a day offset as input"
 	fi
 
 	local raw_dependencies="$1"
@@ -424,7 +424,7 @@ function cxr_common_module_dependencies_ok?()
 				# Destroy run 
 				if [[ $CXR_DRY == false  ]]
 				then
-					main_dieGracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
+					main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
 				else
 					main_log -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
 				fi
@@ -511,7 +511,7 @@ function cxr_common_module_update_info()
 			# Is there a new entry of this name? (this would indicate non-uniqueness!)
 			if [[ $(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(cxr_common_hash_new? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 			then
-				main_dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				main_die_gracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 			fi
 			
 			# Path 
@@ -562,10 +562,10 @@ function cxr_common_module_get_type()
 		then
 			echo "$module_type"
 		else
-			main_dieGracefully "$FUNCNAME: Could not find module type of $name!"
+			main_die_gracefully "$FUNCNAME: Could not find module type of $name!"
 		fi
 	else
-		main_dieGracefully "$FUNCNAME: Could not find module $name!"
+		main_die_gracefully "$FUNCNAME: Could not find module $name!"
 	fi
 	
 }
@@ -614,7 +614,7 @@ function cxr_common_module_run_type()
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-			main_dieGracefully "Common modules cannot be run this way!" ;;
+			main_die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			module_directories="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
@@ -654,7 +654,7 @@ function cxr_common_module_run_type()
 			our_date=;;
 			
 		* ) 
-			main_dieGracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
+			main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	
@@ -678,7 +678,7 @@ function cxr_common_module_run_type()
 				# Check if we are still happy if needed
 				if [[ "${check_continue}" == true  ]]
 				then
-					cxr_common_do_we_continue || main_dieGracefully "Continue file no longer present."
+					cxr_common_do_we_continue || main_die_gracefully "Continue file no longer present."
 				fi
 				
 				FILE_NAME=$(basename "$function_file")

@@ -92,7 +92,7 @@ function Converter_installer()
 		# Is the compiler there?
 		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC}  ]]
 		then
-			main_dieGracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
+			main_die_gracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
 		fi
 		
 		########################################
@@ -122,13 +122,13 @@ function Converter_installer()
 			
 				main_log -b "${FUNCNAME}" "Compiling source in $SRC_DIR..."
 				
-				cd $SRC_DIR || main_dieGracefully "Could not change to $SRC_DIR"
+				cd $SRC_DIR || main_die_gracefully "Could not change to $SRC_DIR"
 				
 				# Clean up whatever there was
 				make clean DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				
 				# Make it
-				make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}" || main_dieGracefully "The compilation did not complete successfully"
+				make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}" || main_die_gracefully "The compilation did not complete successfully"
 			fi
 		done
 		

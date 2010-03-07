@@ -912,7 +912,7 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main_dieGracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
+		main_die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back
