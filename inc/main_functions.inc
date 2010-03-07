@@ -571,7 +571,7 @@ function main_die_gracefully()
 	
 	main_log -a "Call Stack:"
 	
-	for i in $(seq 1 $(( ${#FUNCNAME[@]:-0} - 1 ))
+	for i in $(seq 1 $(( ${#FUNCNAME[@]:-0} - 1 )) )
 	do
 		echo ${FUNCNAME[$i]:-}:${BASH_LINENO[$i]:-0}
 	done
@@ -908,7 +908,114 @@ function main_getModuleName()
 function main_listModuleType()
 ################################################################################
 {
-	:
+	# TODO: How do model and installer modules fit in here?
+	
+	local module_type="$1"
+	
+	# What kind of module?
+	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
+	# - DISABLED_MODULES is a list of disabled modules of the current type
+	
+	case "$module_type" in
+	
+		"${CXR_TYPE_COMMON}" ) 
+		main_die_gracefully "Common modules cannot be run this way!" ;;
+			
+		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+			CALL="-p"
+			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
+			DISABLED_MODULES="${CXR_DISABLED_ONCE_PREPROC:-}";;
+			
+		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+			CALL="-i"
+			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
+			DISABLED_MODULES="${CXR_DISABLED_DAILY_PREPROC:-}";;
+			
+		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+			CALL="-o"
+			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
+			DISABLED_MODULES="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			
+		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+			CALL="-f"
+			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
+			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
+			
+		* ) 
+			main_die_gracefully "Unknown module type $module_type" ;;
+
+	esac
+	
+	# Increase global indent level
+	main_increaseLogIndent
+	
+	# Loop through available input dirs
+	for MODULE_DIRECTORY in $MODULE_DIRECTORIES
+	do
+		# How do processors look like?
+		PATTERN="${MODULE_DIRECTORY}/??_*.sh"
+		
+		#Count modules
+		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
+		
+		if [[ "$NUM_MODULES" -gt 0  ]]
+		then
+			main_log -v "${FUNCNAME}" "  $(printf %-32s%-75s Name Call)"
+			
+			# Active Processors
+			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
+			do
+				FILE_NAME=$(basename $FUNCTION_FILE)
+				TOTAL_CALL="${CXR_CALL} ${CALL}$(main_getModuleName $FUNCTION_FILE)"
+				
+				main_log -v "${FUNCNAME}" "  $(printf %-32s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"
+				FOUND=true
+			done
+		else
+			# Increase global indent level
+			main_increaseLogIndent
+	
+			main_log "${FUNCNAME}"  "No enabled modules of type $module_type where found. Is this intended?\n"
+			
+			# Decrease global indent level
+			main_decreaseLogIndent
+		fi
+	
+		if [[ "$DISABLED_MODULES" ]]
+		then
+			main_log -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
+		fi
+	
+		main_log -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
+		
+		# How do disabled modules look like?
+		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
+		
+		#Count processors
+		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
+		
+		if [[ "$NUM_MODULES" -gt 0 ]]
+		then
+			# Disabled Processors
+			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
+			do
+				FILE_NAME=$(basename $FUNCTION_FILE)
+				main_log -w "${FUNCNAME}"  "$FILE_NAME"
+			done
+		else
+			# Increase global indent level
+			main_increaseLogIndent
+	
+			main_log -v "${FUNCNAME}"  "  No disabled modules of type $module_type where found.\n"
+			
+			# Decrease global indent level
+			main_decreaseLogIndent
+		fi
+		
+	done # Loop through directories
+	
+	# Decrease global indent level
+	main_decreaseLogIndent
 }
 
 ################################################################################
