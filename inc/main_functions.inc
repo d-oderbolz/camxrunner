@@ -868,7 +868,7 @@ function main_readConfig()
 # Parameters:
 # $1 - Module name with or without path
 ################################################################################
-function main_getModuleName() 
+function main_getModuleName()
 ################################################################################
 {
 	local full_name
@@ -905,7 +905,7 @@ function main_getModuleName()
 # Parameters:
 # $1 - Type of modules to be shown
 ################################################################################
-function main_listModuleType
+function main_listModuleType()
 ################################################################################
 {
 	# TODO: How do model and installer modules fit in here?
@@ -915,32 +915,34 @@ function main_listModuleType
 	# What kind of module?
 	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
 	# - DISABLED_MODULES is a list of disabled modules of the current type
+	
 	case "$module_type" in
 	
-		"${CXR_TYPE_COMMON}" ) echo "Common modules cannot be run this way!" ;;
+		"${CXR_TYPE_COMMON}" ) 
+		main_die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			CALL="-p"
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_ONCE_INPUT_DIR" 
+			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_PREPROC:-}";;
 			
 		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
 			CALL="-i"
-			MODULE_DIRECTORIES="$CXR_PREPROCESSOR_DAILY_INPUT_DIR" 
+			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
 			DISABLED_MODULES="${CXR_DISABLED_DAILY_PREPROC:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
 			CALL="-o"
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR" 
+			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
 			DISABLED_MODULES="${CXR_DISABLED_DAILY_POSTPROC:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
 			CALL="-f"
-			MODULE_DIRECTORIES="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR" 
+			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
-			main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
+			main_die_gracefully "Unknown module type $module_type" ;;
 
 	esac
 	
@@ -979,12 +981,12 @@ function main_listModuleType
 			main_decreaseLogIndent
 		fi
 	
-		if [[ "$DISABLED_MODULES"  ]]
+		if [[ "$DISABLED_MODULES" ]]
 		then
 			main_log -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
 	
-		main_log -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"    
+		main_log -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
 		
 		# How do disabled modules look like?
 		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
@@ -992,7 +994,7 @@ function main_listModuleType
 		#Count processors
 		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
 		
-		if [[ "$NUM_MODULES" -gt 0  ]]
+		if [[ "$NUM_MODULES" -gt 0 ]]
 		then
 			# Disabled Processors
 			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
