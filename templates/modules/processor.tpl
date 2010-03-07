@@ -128,7 +128,7 @@ function set_variables()
 	########################################################################
 	
 	# If you need special checks on the first or last day,
-	# use the functions cxr_common_is_first_simulation_day? and cxr_common_is_last_simulation_day?
+	# use the functions common.date.isFirstDayOfSimulation? and common.date.isLastDayOfSimulation?
 	
 	########################################################################
 	# Set variables
@@ -179,12 +179,12 @@ function name()
 		# this failed one - otherwise we can go on!
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			cxr_main_logger "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		cxr_main_logger "$FUNCNAME"  "Running NAME..."
+		main.log "$FUNCNAME"  "Running NAME..."
 		
 		# Normally the actual work is done in a loop for all grids
 		# But this depends!
@@ -199,14 +199,14 @@ function name()
 			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
 			then
 				# Skip it
-				cxr_main_logger "$FUNCNAME"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main.log "$FUNCNAME"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
 				continue
 			fi
 	
 			# Increase global indent level
-			cxr_main_increase_log_indent
+			main.increaseLogIndent
 	
-			cxr_main_logger "$FUNCNAME" "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+			main.log "$FUNCNAME" "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
 	
 			if [[ "$CXR_DRY" == false  ]]
 			then
@@ -216,11 +216,11 @@ function name()
 				# Call an exec stored in a variable and redirect output and error to file and stdout.
 	
 			else
-				cxr_main_logger -w "$FUNCNAME"  "Dryrun - no action performed"
+				main.log -w "$FUNCNAME"  "Dryrun - no action performed"
 			fi
 	
 			# Decrease global indent level
-			cxr_main_decrease_log_indent
+			main.decreaseLogIndent
 	
 			# Check if all went well
 			# We do not stop the run here if the module failed, this is decided by the 
@@ -228,14 +228,14 @@ function name()
 			# this failed one - otherwise we can go on!
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				cxr_main_logger "$FUNCNAME" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+				main.log "$FUNCNAME" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
 			
 			
 			# -v option shows message only if the log level is high enough
-			cxr_main_logger -v "$FUNCNAME"  "Some verbose message here"
+			main.log -v "$FUNCNAME"  "Some verbose message here"
 	
 		done
 	
@@ -303,7 +303,7 @@ function test_module()
 	########################################
 	
 	# Example test
-	is $(cxr_common_abs 0) 0 "cxr_common_abs of 0"
+	is $(common.math.abs 0) 0 "common.math.abs of 0"
 
 	########################################
 	# teardown tests if needed

@@ -237,7 +237,7 @@ function cxr_common_parallel_draw_dependency_graph()
 		then
 			echo "    ${dep} -> ${indep} ;" >> "$dot_file"
 		else
-			cxr_main_logger -v "$FUNCNAME" "$indep equals $dep"
+			main.log -v "$FUNCNAME" "$indep equals $dep"
 		fi
 	
 	done < "${input_file}"
@@ -249,9 +249,9 @@ function cxr_common_parallel_draw_dependency_graph()
 	
 	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "Could not visualize the dependencies."
+		main.log -e "$FUNCNAME" "Could not visualize the dependencies."
 	else	
-		cxr_main_logger -a "$FUNCNAME" "You find a visualisation of the modules dependencies in the file ${output_file}"
+		main.log -a "$FUNCNAME" "You find a visualisation of the modules dependencies in the file ${output_file}"
 	fi
 }
 
@@ -270,7 +270,7 @@ function cxr_common_count_open_tasks()
 	# Find all links below CXR_TASK_TODO_DIR
 	task_count="$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | wc -l)"
 	
-	cxr_main_logger -v "${FUNCNAME}"  "Found $task_count open tasks"
+	main.log -v "${FUNCNAME}"  "Found $task_count open tasks"
 	
 	echo "$task_count"
 }
@@ -297,7 +297,7 @@ function cxr_common_parallel_get_next_task()
 	# (e. g. to run the model in parallel mode) do not give out new assignments
 	if [[ "$CXR_BLOCK_ASSIGNMENTS" == true  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}"  "Currently, no new tasks are being assigned. Probably the model is running"
+		main.log -v "${FUNCNAME}"  "Currently, no new tasks are being assigned. Probably the model is running"
 		
 		echo ""
 		return $CXR_RET_OK
@@ -311,7 +311,7 @@ function cxr_common_parallel_get_next_task()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "All tasks have been processed, notifing system..."
+		main.log "${FUNCNAME}" "All tasks have been processed, notifing system..."
 		# there are no more tasks, remove all continue file
 		cxr_common_delete_continue_files
 		echo ""
@@ -320,7 +320,7 @@ function cxr_common_parallel_get_next_task()
 		cxr_common_release_lock cxr_common_parallel_get_next_task
 		return $CXR_RET_OK
 	else
-		cxr_main_logger -v "${FUNCNAME}"  "There are $task_count unfinished tasks - we choose the top one."
+		main.log -v "${FUNCNAME}"  "There are $task_count unfinished tasks - we choose the top one."
 	fi
 	
 	# get first file
@@ -329,14 +329,14 @@ function cxr_common_parallel_get_next_task()
 	# Check status
 	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME - could not find next task!"
+		main.dieGracefully "$FUNCNAME - could not find next task!"
 	fi
 	
 	# It can be that we did not get a string
 	if [[ -z "$potential_task" ]]
 	then
 		# No task!
-		cxr_main_logger -v "${FUNCNAME}" "Did not find any task..."
+		main.log -v "${FUNCNAME}" "Did not find any task..."
 		echo ""
 		
 		# Release lock
@@ -352,7 +352,7 @@ function cxr_common_parallel_get_next_task()
 		# Release lock
 		cxr_common_release_lock cxr_common_parallel_get_next_task
 		
-		cxr_main_logger -v "${FUNCNAME}"  "New descriptor is $new_descriptor_name"
+		main.log -v "${FUNCNAME}"  "New descriptor is $new_descriptor_name"
 		
 		# Return content
 		cat "$new_descriptor_name"
@@ -379,7 +379,7 @@ function cxr_common_task_change_status()
 	
 	if [[ $# -ne 2  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task descriptor and a status as input"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - needs a task descriptor and a status as input"
 	fi
 	
 	task_descriptor_path="$1"
@@ -399,7 +399,7 @@ function cxr_common_task_change_status()
 			;;
 			
 		*)
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - status $status not supported!"
+			main.dieGracefully "${FUNCNAME}:${LINENO} - status $status not supported!"
 	
 	esac
 	
@@ -420,7 +420,7 @@ function cxr_common_parallel_worker_waiting ()
 {
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -429,7 +429,7 @@ function cxr_common_parallel_worker_waiting ()
 	
 	touch $CXR_WAITING_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to waiting"
+	main.log -v "${FUNCNAME}"  "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to waiting"
 	
 	
 }
@@ -450,7 +450,7 @@ function cxr_common_parallel_worker_working ()
 	
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -459,7 +459,7 @@ function cxr_common_parallel_worker_working ()
 	
 	touch $CXR_RUNNING_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -v "${FUNCNAME}"  "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to working"
+	main.log -v "${FUNCNAME}"  "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to working"
 	
 	
 }
@@ -481,7 +481,7 @@ function cxr_common_parallel_remove_worker()
 	
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - needs a task_pid as input"
 	fi
 	
 	# Remove identifier
@@ -494,7 +494,7 @@ function cxr_common_parallel_remove_worker()
 	
 	if [[ "$node" != "$(uname -n)"  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "Strange: $task_pid seems to run on $node rather than on $(uname -n)"
+		main.log "${FUNCNAME}" "Strange: $task_pid seems to run on $node rather than on $(uname -n)"
 		return $CXR_RET_ERROR
 	fi
 	
@@ -541,7 +541,7 @@ function cxr_common_parallel_worker()
 	# Create a file identifying the cxr_common_parallel_worker in the cxr_common_parallel_worker dir
 	touch $CXR_WORKER_DIR/$task_pid
 	
-	cxr_main_logger -a -B "${FUNCNAME}" "parallel worker (task_pid $task_pid) starts..."
+	main.log -a -B "${FUNCNAME}" "parallel worker (task_pid $task_pid) starts..."
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
@@ -550,7 +550,7 @@ function cxr_common_parallel_worker()
 		# Set task_pid-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${task_pid}.log
 		
-		cxr_main_logger "${FUNCNAME}" "This cxr_common_parallel_worker will use its own logfile: ${CXR_LOG}"
+		main.log "${FUNCNAME}" "This cxr_common_parallel_worker will use its own logfile: ${CXR_LOG}"
 	fi
 
 	# We are not yet busy
@@ -560,7 +560,7 @@ function cxr_common_parallel_worker()
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
-		cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
+		cxr_common_do_we_continue || main.dieGracefully "Continue file no longer present."
 	
 		# cxr_common_parallel_get_next_task must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
@@ -571,7 +571,7 @@ function cxr_common_parallel_worker()
 		if [[ "$new_task_descriptor" ]]
 		then
 		
-			cxr_main_logger -a "${FUNCNAME}" "New task received: $new_task_descriptor"
+			main.log -a "${FUNCNAME}" "New task received: $new_task_descriptor"
 			
 			######################
 			# Parse the task
@@ -587,7 +587,7 @@ function cxr_common_parallel_worker()
 			then
 				module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 			else
-				cxr_main_die_gracefully "$FUNCNAME - cannot find path of $module"
+				main.dieGracefully "$FUNCNAME - cannot find path of $module"
 			fi
 			
 			exclusive="$(cxr_common_module_get_exlusive $module_name)"
@@ -604,25 +604,25 @@ function cxr_common_parallel_worker()
 			# Time to work
 			cxr_common_parallel_worker_working $task_pid
 			
-			cxr_main_logger -v "${FUNCNAME}"  "task: $task\nDAY_OFFSET: $day_offset\nEXCLUSIVE: $exclusive"
+			main.log -v "${FUNCNAME}"  "task: $task\nDAY_OFFSET: $day_offset\nEXCLUSIVE: $exclusive"
 			
 			#Reserve resources if needed
 			if [[ "$exclusive" == true  ]]
 			then
-				cxr_main_logger "${FUNCNAME}" "This task needs exclusive access, we suspend the assignment of new tasks temporarily"
+				main.log "${FUNCNAME}" "This task needs exclusive access, we suspend the assignment of new tasks temporarily"
 				CXR_BLOCK_ASSIGNMENTS=true
 			fi
 		
 			# Setup environment
-			cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
+			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
-			cxr_main_logger -B "${FUNCNAME}"  "cxr_common_parallel_worker $task_pid assigned to $task for $CXR_DATE"
+			main.log -B "${FUNCNAME}"  "cxr_common_parallel_worker $task_pid assigned to $task for $CXR_DATE"
 			
 			# Before loading a new module, remove old meta variables
 			unset ${!CXR_META_MODULE*}
 			
 			# Export the module name
-			CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $task)
+			CXR_META_MODULE_NAME=$(main.getModuleName $task)
 			
 			# source the file to get the rest of the metadata
 			source $module_path
@@ -645,14 +645,14 @@ function cxr_common_parallel_worker()
 			#Release resources if needed
 			if [[ "$exclusive" == true  ]]
 			then
-				cxr_main_logger "${FUNCNAME}" "Activating the assignment of new tasks again."
+				main.log "${FUNCNAME}" "Activating the assignment of new tasks again."
 				CXR_BLOCK_ASSIGNMENTS=false
 			fi
 		else
 			# If we don't get anything, but we should, we terminate
 			if [[ $CXR_BLOCK_ASSIGNMENTS == false ]]
 			then
-				cxr_main_logger -v "${FUNCNAME}" "cxr_common_parallel_worker $task_pid did not receive an assignment - there seem to be too many workers (starvation)"
+				main.log -v "${FUNCNAME}" "cxr_common_parallel_worker $task_pid did not receive an assignment - there seem to be too many workers (starvation)"
 				cxr_common_parallel_remove_worker "$task_pid"
 			fi
 		
@@ -678,7 +678,7 @@ function cxr_common_parallel_worker()
 function cxr_common_spawn_workers()
 ################################################################################
 {
-	cxr_main_logger "${FUNCNAME}" "We create now $1 cxr_common_parallel_worker threads"
+	main.log "${FUNCNAME}" "We create now $1 cxr_common_parallel_worker threads"
 	
 	for i in $(seq 1 $1)
 	do
@@ -696,7 +696,7 @@ function cxr_common_spawn_workers()
 function cxr_common_remove_all_workers()
 ################################################################################
 {
-	cxr_main_logger "${FUNCNAME}" "We remove all workers now."
+	main.log "${FUNCNAME}" "We remove all workers now."
 	
 	for task_pid in $(find "$CXR_WORKER_DIR" -noleaf -name \*_$(uname -n) )
 	do
@@ -713,14 +713,14 @@ function cxr_common_remove_all_workers()
 function cxr_common_wait_for_workers()
 ################################################################################
 {
-		cxr_main_logger "${FUNCNAME}" "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
+		main.log "${FUNCNAME}" "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 		
 		while [ -f "$CXR_CONTINUE_FILE" ]
 		do
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		done
 		
-		cxr_main_logger -B "${FUNCNAME}"  "The Continue file is gone, all workers will stop asap."
+		main.log -B "${FUNCNAME}"  "The Continue file is gone, all workers will stop asap."
 		
 		# OK, remove the workers now
 		cxr_common_remove_all_workers
@@ -742,7 +742,7 @@ function cxr_common_parallel_init()
 	# Check if we already have tasks - fail if this is the case
 	if [[ $(find "$CXR_TASK_POOL_DIR" -noleaf -maxdepth 1 -type f 2>/dev/null | wc -l ) -ne 0  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "There is already a tasklist - we will use it.\nIf you want to start from scratch, delete all state info using\n ${CXR_CALL} -c\n"
+		main.log "${FUNCNAME}" "There is already a tasklist - we will use it.\nIf you want to start from scratch, delete all state info using\n ${CXR_CALL} -c\n"
 		return 0
 	fi
 	
@@ -760,20 +760,20 @@ function cxr_common_parallel_init()
 	local current_id=1
 	local task_file
 	
-	cxr_main_logger -a "${FUNCNAME}" "Creating a list of dependencies..."
+	main.log -a "${FUNCNAME}" "Creating a list of dependencies..."
 		
 	cxr_common_parallel_create_dep_list "$dep_file"
 	
-	cxr_main_logger -a "${FUNCNAME}" "Ordering tasks..."
+	main.log -a "${FUNCNAME}" "Ordering tasks..."
 	
 	${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file"
 	
 	if [[ $? -ne 0 ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
+		main.dieGracefully "$FUNCNAME:$LINENO - I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
 	fi
 	
-	cxr_main_logger -a "${FUNCNAME}" "Creating todo-structure"
+	main.log -a "${FUNCNAME}" "Creating todo-structure"
 	
 	while read line 
 	do
@@ -782,7 +782,7 @@ function cxr_common_parallel_init()
 		# Is this a unique number?
 		if [[ -f "$task_file" ]]
 		then
-			cxr_main_die_gracefully "The task Id $current_id is already taken"
+			main.dieGracefully "The task Id $current_id is already taken"
 		fi
 		
 		# each line contains something like "create_emissions0" or "initial_conditions"
@@ -792,7 +792,7 @@ function cxr_common_parallel_init()
 		
 		# Create link in todo dir
 		(
-			cd $CXR_TASK_TODO_DIR || cxr_main_die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
+			cd $CXR_TASK_TODO_DIR || main.dieGracefully "Could not change to dir $CXR_TASK_TODO_DIR"
 	
 			# General
 			ln -s $task_file
@@ -803,7 +803,7 @@ function cxr_common_parallel_init()
 	
 	done < "$sorted_file"
 	
-	cxr_main_logger -a "${FUNCNAME}" "This run consists of $(( $current_id -1 )) tasks."
+	main.log -a "${FUNCNAME}" "This run consists of $(( $current_id -1 )) tasks."
 }
 
 

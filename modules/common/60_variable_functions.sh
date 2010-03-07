@@ -86,19 +86,19 @@ exit 1
 function cxr_common_list_cxr_variables()
 ################################################################################
 {
-	cxr_main_logger -B "${FUNCNAME}"  "The current Environment looks like this:"    
+	main.log -B "${FUNCNAME}"  "The current Environment looks like this:"    
 	
 	# Increase global indent level
-	cxr_main_increase_log_indent
+	main.increaseLogIndent
 	
 	for VAR in $(set | sort | grep ^CXR_.*= | cut -d= -f1)
 	do
 		# The ! allows for _indirection_
-		cxr_main_logger "${FUNCNAME}"  "${VAR}=${!VAR}"
+		main.log "${FUNCNAME}"  "${VAR}=${!VAR}"
 	done
 
 	# Decrease global indent level
-	cxr_main_decrease_log_indent
+	main.decreaseLogIndent
 	
 }
  
@@ -113,16 +113,16 @@ function cxr_common_list_system_variables()
 	local var
 	
 	# Increase global indent level
-	cxr_main_increase_log_indent
+	main.increaseLogIndent
 
 	CXR_OMP_VARS="NCPUS MPSTKZ OMP_NUM_THREADS"
 	for var in $CXR_OMP_VARS
 	do
-		cxr_main_logger "${FUNCNAME}"  "$VAR: ${!VAR}"
+		main.log "${FUNCNAME}"  "$VAR: ${!VAR}"
 	done
 	
 	# Decrease global indent level
-	cxr_main_decrease_log_indent
+	main.decreaseLogIndent
 }
 
 ################################################################################

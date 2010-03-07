@@ -192,7 +192,7 @@ function extract_station_data
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -280,7 +280,7 @@ function extract_station_data
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
 		
 		# We instruct the extractors to print a header for the first day
-		if [[ $(cxr_common_is_first_simulation_day?) == true  ]]
+		if [[ $(common.date.isFirstDayOfSimulation?) == true  ]]
 		then
 			write_header=1
 		else
@@ -331,14 +331,14 @@ function extract_station_data
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
 		else
-			cxr_main_logger "${FUNCNAME}"  "This is a dry-run, no action required"    
+			main.log "${FUNCNAME}"  "This is a dry-run, no action required"    
 		fi
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -348,7 +348,7 @@ function extract_station_data
 
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		cxr_main_logger "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

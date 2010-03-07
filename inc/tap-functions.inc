@@ -370,7 +370,7 @@ function _is_diag()
 # Tests for equality, the most important test function.
 #
 # Example:
-# > is $(cxr_common_abs 0) 0 "cxr_common_abs of 0 is 0"
+# > is $(common.math.abs 0) 0 "common.math.abs of 0 is 0"
 #
 # Parameters:
 # $1 - actual result
@@ -531,7 +531,7 @@ function differs_less_or_equal()
 	local limit="${3:-}"
 	local name="${4:-''}"
 	
-	local diff=$(cxr_common_abs $(( $result - $expected )) )
+	local diff=$(common.math.abs $(( $result - $expected )) )
 
 	_less_than_or_equal "$diff" "$limit"
 	(( $? == 0 ))
@@ -660,7 +660,7 @@ function diag()
 	local msg="${1:?}"
 
 	if [[ -n "$msg" ]] ; then
-		cxr_main_logger -a "TAP" "# $msg"
+		main.log -a "TAP" "# $msg"
 	fi
 	
 	return 1
@@ -680,7 +680,7 @@ function _die()
 	local reason="${1:-'<unspecified error>'}"
 
 	# Call our logger
-	cxr_main_logger -e "TAP" "$reason"
+	main.log -e "TAP" "$reason"
 	
 	_test_died=1
 	_exit 255

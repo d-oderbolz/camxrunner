@@ -138,15 +138,15 @@ function split_emissions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
 		# Increase global indent level
-		cxr_main_increase_log_indent
+		main.increaseLogIndent
 
-		cxr_main_logger  "${FUNCNAME}" "Splitting Emission data"
+		main.log  "${FUNCNAME}" "Splitting Emission data"
 		
 		# Is the output there?
 		if [[ ! -f "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"  ]]
@@ -156,7 +156,7 @@ function split_emissions()
 			if [[ "$CXR_DRY" == false  ]]
 			then
 			
-					cxr_main_logger "${FUNCNAME}" "Calling split_emissions_area - be patient...\n"
+					main.log "${FUNCNAME}" "Calling split_emissions_area - be patient...\n"
 			
 					# Call Processor 
 					${CXR_SPLIT_EMISSIONS_AREA_EXEC} <<-EOT 2>&1 | tee -a $CXR_LOG¨
@@ -166,16 +166,16 @@ function split_emissions()
 					EOT
 	
 			else
-				cxr_main_logger "${FUNCNAME}"  "Dryrun - splitting not performed"
+				main.log "${FUNCNAME}"  "Dryrun - splitting not performed"
 			fi
 	
 			# Decrease global indent level
-			cxr_main_decrease_log_indent
+			main.decreaseLogIndent
 	
 			# Check if all went well
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -188,11 +188,11 @@ function split_emissions()
 			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
-				cxr_main_logger -w "${FUNCNAME}" "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists, because of CXR_SKIP_EXISTING, file will skipped."
+				main.log -w "${FUNCNAME}" "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists, because of CXR_SKIP_EXISTING, file will skipped."
 				return 0
 			else
 				# Fail!
-				cxr_main_logger -e "${FUNCNAME}" "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				main.log -e "${FUNCNAME}" "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -200,7 +200,7 @@ function split_emissions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		cxr_main_logger "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

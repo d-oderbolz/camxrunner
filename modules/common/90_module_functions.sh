@@ -100,7 +100,7 @@ function cxr_common_module_get_meta_field()
 	then
 		module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 	else
-		cxr_main_die_gracefully "$FUNCNAME - cannot find path of $module"
+		main.dieGracefully "$FUNCNAME - cannot find path of $module"
 	fi
 	
 	# source module
@@ -108,7 +108,7 @@ function cxr_common_module_get_meta_field()
 	
 	if [[ $? -ne 0 ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME - could not source $module ($module_path)"
+		main.dieGracefully "$FUNCNAME - could not source $module ($module_path)"
 	fi
 	
 	# Do we have this variable?
@@ -117,7 +117,7 @@ function cxr_common_module_get_meta_field()
 	if [[ $? -ne 0 ]]
 	then
 		# variable not known!
-		cxr_main_die_gracefully "$FUNCNAME - variable $item not found!"
+		main.dieGracefully "$FUNCNAME - variable $item not found!"
 	else
 		# Return value (indirect)
 		echo ${!item}
@@ -189,7 +189,7 @@ function cxr_common_module_resolve_single_dependency()
 {
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		cxr_main_die_gracefully "Programming error @ ${FUNCNAME}:${LINENO} - needs at least a depdendency and an optional day_offset as input"
+		main.dieGracefully "Programming error @ ${FUNCNAME}:${LINENO} - needs at least a depdendency and an optional day_offset as input"
 	fi
 
 	local dependency="$1"
@@ -208,9 +208,9 @@ function cxr_common_module_resolve_single_dependency()
 	
 	if [[ "$day_offset" ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}" "Resolving dependency $dependency for day offset $day_offset"
+		main.log -v "${FUNCNAME}" "Resolving dependency $dependency for day offset $day_offset"
 	else
-		cxr_main_logger -v "${FUNCNAME}" "Resolving dependency $dependency (no day offset)"
+		main.log -v "${FUNCNAME}" "Resolving dependency $dependency (no day offset)"
 	fi
 	
 	# Is there a predicate?
@@ -224,7 +224,7 @@ function cxr_common_module_resolve_single_dependency()
 			# if there is no day offset, this dependency is not relevant
 			if [[ "$day_offset" ]]
 			then
-				cxr_main_logger -v "${FUNCNAME}" "Found the - predicate, will check last days results"
+				main.log -v "${FUNCNAME}" "Found the - predicate, will check last days results"
 				day_offset=$(( $day_offset - 1 ))
 				
 				# Cut off final -
@@ -232,7 +232,7 @@ function cxr_common_module_resolve_single_dependency()
 				if [[ ! $day_offset -le 0 ]]
 				then
 					# At day 0, all previous day predicates are fulfilled
-					cxr_main_logger -v "${FUNCNAME}" "We are at day 0 - previous day dependency not relevant"
+					main.log -v "${FUNCNAME}" "We are at day 0 - previous day dependency not relevant"
 					echo ""
 					return $CXR_RET_OK
 				fi
@@ -265,13 +265,13 @@ function cxr_common_module_resolve_single_dependency()
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 				then
 					# No, user wants to ignore this
-					cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
+					main.log "${FUNCNAME}" "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
 					echo ""
 					
 					return $CXR_RET_OK
 				else
 					# Yes, we terminate
-					cxr_main_die_gracefully "${FUNCNAME} - You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
+					main.dieGracefully "${FUNCNAME} - You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 				fi
 			fi
 			
@@ -286,14 +286,14 @@ function cxr_common_module_resolve_single_dependency()
 	########################################
 	# Here, we handle the special cases
 	########################################	
-	cxr_main_logger -v "${FUNCNAME}" "We resolve the special dependency ${dependency}..."
+	main.log -v "${FUNCNAME}" "We resolve the special dependency ${dependency}..."
 	
 	# Create list of active modules
 	active_modules="$(cxr_common_hash_keys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 	
 	for module in $active_modules
 	do
-		cxr_main_logger -v "${FUNCNAME}" "Found dependency on $module"
+		main.log -v "${FUNCNAME}" "Found dependency on $module"
 		
 		resolved_dependency=${module}${day_offset}
 		
@@ -374,14 +374,14 @@ function cxr_common_module_dependencies_ok?()
 {
 	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
 	then
-		cxr_main_logger "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
+		main.log "${FUNCNAME}" "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
 		echo true
 		return $CXR_RET_OK
 	fi
 	
 	if [[ $# -ne 2 ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - needs a depdendency list and a day offset as input"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - needs a depdendency list and a day offset as input"
 	fi
 
 	local raw_dependencies="$1"
@@ -392,7 +392,7 @@ function cxr_common_module_dependencies_ok?()
 	local dependency
 	local my_stage
 	
-	cxr_main_logger -v "${FUNCNAME}" "Evaluating dependencies on $dependencies for day offset $day_offset"
+	main.log -v "${FUNCNAME}" "Evaluating dependencies on $dependencies for day offset $day_offset"
 
 	for dependency in $dependencies
 	do
@@ -413,7 +413,7 @@ function cxr_common_module_dependencies_ok?()
 		# Is this known to have worked?
 		if [[ "$(cxr_common_has_finished "$my_stage")" == true ]]
 		then
-			cxr_main_logger -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
+			main.log -v "${FUNCNAME}"  "dependency ${dependency} fullfilled"
 		else
 			# dependency NOK, Find out why
 			
@@ -424,13 +424,13 @@ function cxr_common_module_dependencies_ok?()
 				# Destroy run 
 				if [[ $CXR_DRY == false  ]]
 				then
-					cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
+					main.dieGracefully "${FUNCNAME}:${LINENO} - dependency ${day_offset}_${dependency} failed!"
 				else
-					cxr_main_logger -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
+					main.log -v "${FUNCNAME}" "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
 				fi
 			else
 				# It did not fail, it seems that it was not yet run - we have to wait
-				cxr_main_logger -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
+				main.log -v "${FUNCNAME}" "${dependency} has not yet finished - we need to wait."
 				echo false
 				return $CXR_RET_OK
 			fi
@@ -471,10 +471,10 @@ function cxr_common_module_update_info()
 		return $CXR_RET_OK
 	fi
 
-	cxr_main_logger -v "$FUNCNAME" "Updating module information..."
+	main.log -v "$FUNCNAME" "Updating module information..."
 	
 	# Increase global indent level
-	cxr_main_increase_log_indent
+	main.increaseLogIndent
 	
 	local i
 	local dirs
@@ -498,20 +498,20 @@ function cxr_common_module_update_info()
 		dir=${dirs[$i]}
 		active_hash=${hashes[$i]}
 		
-		cxr_main_logger -v "$FUNCNAME" "Adding $type modules..."
+		main.log -v "$FUNCNAME" "Adding $type modules..."
 		
 		# Find all of them
 		files="$(find $dir -noleaf -maxdepth 1 -name '*.sh')"
 
 		for file in $files
 		do
-			module_name="$(cxr_main_extract_module_name $file)"
-			cxr_main_logger -v "$FUNCNAME" "Adding module $module_name in $file"
+			module_name="$(main.getModuleName $file)"
+			main.log -v "$FUNCNAME" "Adding module $module_name in $file"
 			
 			# Is there a new entry of this name? (this would indicate non-uniqueness!)
 			if [[ $(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(cxr_common_hash_new? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 			then
-				cxr_main_die_gracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 			fi
 			
 			# Path 
@@ -530,7 +530,7 @@ function cxr_common_module_update_info()
 	done # loop over type-index
 	
 	# decrease global indent level
-	cxr_main_decrease_log_indent
+	main.decreaseLogIndent
 	
 	CXR_MODULES_UP_TO_DATE=true
 }
@@ -548,7 +548,7 @@ function cxr_common_module_get_type()
 {
 	if [[ $# -ne 1  ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "Need a module name as input"
+		main.log -e "$FUNCNAME" "Need a module name as input"
 	fi
 	
 	local name="${1}"
@@ -562,10 +562,10 @@ function cxr_common_module_get_type()
 		then
 			echo "$module_type"
 		else
-			cxr_main_die_gracefully "$FUNCNAME: Could not find module type of $name!"
+			main.dieGracefully "$FUNCNAME: Could not find module type of $name!"
 		fi
 	else
-		cxr_main_die_gracefully "$FUNCNAME: Could not find module $name!"
+		main.dieGracefully "$FUNCNAME: Could not find module $name!"
 	fi
 	
 }
@@ -614,7 +614,7 @@ function cxr_common_module_run_type()
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-			cxr_main_die_gracefully "Common modules cannot be run this way!" ;;
+			main.dieGracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			module_directories="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
@@ -654,12 +654,12 @@ function cxr_common_module_run_type()
 			our_date=;;
 			
 		* ) 
-			cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
+			main.dieGracefully "${FUNCNAME}:${LINENO} - Unknown module type $module_type" ;;
 
 	esac
 	
 	# Increase global indent level
-	cxr_main_increase_log_indent
+	main.increaseLogIndent
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
@@ -671,14 +671,14 @@ function cxr_common_module_run_type()
 		# Loop through available input dirs
 		for module_directory in $module_directories
 		do
-			cxr_main_logger "${FUNCNAME}" "Loading $module_type modules from $module_directory..."
+			main.log "${FUNCNAME}" "Loading $module_type modules from $module_directory..."
 		
 			for function_file in $(ls ${module_directory}/??_*.sh 2>/dev/null)
 			do
 				# Check if we are still happy if needed
 				if [[ "${check_continue}" == true  ]]
 				then
-					cxr_common_do_we_continue || cxr_main_die_gracefully "Continue file no longer present."
+					cxr_common_do_we_continue || main.dieGracefully "Continue file no longer present."
 				fi
 				
 				FILE_NAME=$(basename "$function_file")
@@ -687,7 +687,7 @@ function cxr_common_module_run_type()
 				unset ${!CXR_META_MODULE*}
 				
 				# Export the module name
-				CXR_META_MODULE_NAME=$(cxr_main_extract_module_name $function_file)
+				CXR_META_MODULE_NAME=$(main.getModuleName $function_file)
 				
 				if [[ "$run_only" != "${CXR_RUN_ALL}"  ]]
 				then
@@ -702,31 +702,31 @@ function cxr_common_module_run_type()
 						
 						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
+							main.log -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
 						fi
 						
 						# Show dependencies, if any
 						if [[ "${CXR_META_MODULE_DEPENDS_ON:-}"  ]]
 						then
-							cxr_main_logger -a -B "${FUNCNAME}" "This module depends on these modules:\n${CXR_META_MODULE_DEPENDS_ON}\nif it fails, run these dependencies first"
+							main.log -a -B "${FUNCNAME}" "This module depends on these modules:\n${CXR_META_MODULE_DEPENDS_ON}\nif it fails, run these dependencies first"
 						fi
 
 						# Increase global indent level
-						cxr_main_increase_log_indent
+						main.increaseLogIndent
 						
 						if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 						then
-							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
+							main.log -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
 						else
-							cxr_main_logger "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
+							main.log "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
 
 						# Take note that this module was already announced
 						CXR_ANNOUNCED_MODULES="${CXR_ANNOUNCED_MODULES} ${CXR_META_MODULE_NAME}"
 							
 						# Decrease global indent level
-						cxr_main_decrease_log_indent
+						main.decreaseLogIndent
 					fi
 				else
 					#Run all modules of the given type
@@ -736,18 +736,18 @@ function cxr_common_module_run_type()
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(cxr_common_is_substring_present "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
+					if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
 						# Module was explicitly enabled
 						run_it=true
-					elif [[  "$(cxr_common_is_substring_present "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+					elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
 						run_it=true
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
 						run_it=false
-						cxr_main_logger "${FUNCNAME}" "Step $FILE_NAME is disabled, skipped"
+						main.log "${FUNCNAME}" "Step $FILE_NAME is disabled, skipped"
 					fi
 					
 					# Execute if needed
@@ -756,36 +756,36 @@ function cxr_common_module_run_type()
 					
 						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
 						then
-							cxr_main_logger -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
+							main.log -a -b "${FUNCNAME}"  "Running $FILE_NAME ${our_date:-}"
 						fi
 						
 						# Increase global indent level
-						cxr_main_increase_log_indent
+						main.increaseLogIndent
 						
 						if [[ "$(cxr_common_check_module_requirements)" == true  ]]
 						then
-							cxr_main_logger -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
+							main.log -v "${FUNCNAME}"  "Starting Module $CXR_META_MODULE_NAME"
 							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
 						else
-							cxr_main_logger "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
+							main.log "${FUNCNAME}" "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
 
 						# Take note that this module was already announced
 						CXR_ANNOUNCED_MODULES="${CXR_ANNOUNCED_MODULES} ${CXR_META_MODULE_NAME}"
 							
 						# Decrease global indent level
-						cxr_main_decrease_log_indent
+						main.decreaseLogIndent
 					fi
 					
 				fi
 			done
 		done # Loop through module dirs
 	else
-		cxr_main_logger "${FUNCNAME}" "You disabled all modules of type $module_type by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none executed."
+		main.log "${FUNCNAME}" "You disabled all modules of type $module_type by setting  CXR_DISABLED_... to ${CXR_SKIP_ALL}, none executed."
 	fi 
 	
 	# Decrease global indent level
-	cxr_main_decrease_log_indent
+	main.decreaseLogIndent
 	
 	return ${ret_val}
 }
@@ -808,13 +808,13 @@ function cxr_common_module_process_sequentially
 	
 
 	# Setup environment
-	cxr_common_set_date_variables "$CXR_START_DATE" 0
+	common.date.setVars "$CXR_START_DATE" 0
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
 		cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
-		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
+		main.log -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
 
 	## Now we need to loop through the days
@@ -829,13 +829,13 @@ function cxr_common_module_process_sequentially
 			if [[ "${CXR_ONE_DAY}"  ]]
 			then
 				day_offset="$(cxr_common_date2offset ${CXR_ONE_DAY})"
-				cxr_main_logger "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${day_offset}."
+				main.log "$FUNCNAME" "${CXR_ONE_DAY} corresponds to offset ${day_offset}."
 			fi
 		
 			# Setup environment
-			cxr_common_set_date_variables "$CXR_START_DATE" "$day_offset"
+			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
-			cxr_main_logger -B $FUNCNAME "Processing ${CXR_DATE:-now}"
+			main.log -B $FUNCNAME "Processing ${CXR_DATE:-now}"
 			
 			# Run the three daily module types in order
 			
@@ -843,21 +843,21 @@ function cxr_common_module_process_sequentially
 			then
 				cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
-				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
+				main.log -w $FUNCNAME "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
 				cxr_common_module_run_type ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
-				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_MODEL} modules."
+				main.log -w $FUNCNAME "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
 				cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
-				cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
+				main.log -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
 			
 			# If we do only 1 day, that's it
@@ -868,14 +868,14 @@ function cxr_common_module_process_sequentially
 			
 		done # Loop through days
 	else
-		cxr_main_logger -w $FUNCNAME "We do not run any daily modules"
+		main.log -w $FUNCNAME "We do not run any daily modules"
 	fi
 	
 	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
 		cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
-		cxr_main_logger -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
+		main.log -w $FUNCNAME "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
 	
 	return $ret_val

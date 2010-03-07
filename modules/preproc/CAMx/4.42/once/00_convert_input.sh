@@ -170,7 +170,7 @@ function set_variables()
 	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Setup environment
-		cxr_common_set_date_variables "$CXR_START_DATE" "$DAY_OFFSET"
+		common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
 		
 		# Set i to one, we only want the outermost domain
 		i=1
@@ -196,7 +196,7 @@ function set_variables()
 	done
 	
 	# Reset date variables for first day
-	cxr_common_set_date_variables "$CXR_START_DATE" "0"
+	common.date.setVars "$CXR_START_DATE" "0"
 	
 }
 
@@ -224,7 +224,7 @@ function convert_input()
 		#  --- Check Settings (only input)
 		if [[ $(cxr_common_check_preconditions -i) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -242,26 +242,26 @@ function convert_input()
 				# Does the output already exist?
 				if [[ -s "${CXR_OUTPUT_FILES[$k]}"  ]]
 				then
-					cxr_main_logger -w "${FUNCNAME}"  "File ${CXR_OUTPUT_FILES[$k]} exists - file will skipped."
+					main.log -w "${FUNCNAME}"  "File ${CXR_OUTPUT_FILES[$k]} exists - file will skipped."
 					continue
 				else
 					# Call the converter, collect sterr and stout
 					# 0 indicates stdout for logging
-					cxr_main_logger $FUNCNAME "Calling ${CXR_CONVERTERS[$k]} ${CXR_INPUT_FILES[$k]} ${CXR_OUTPUT_FILES[$k]} ${CXR_OPTIONS[$k]} 0 2>&1 | tee -a $CXR_LOG"
+					main.log $FUNCNAME "Calling ${CXR_CONVERTERS[$k]} ${CXR_INPUT_FILES[$k]} ${CXR_OUTPUT_FILES[$k]} ${CXR_OPTIONS[$k]} 0 2>&1 | tee -a $CXR_LOG"
 					${CXR_CONVERTERS[$k]} ${CXR_INPUT_FILES[$k]} ${CXR_OUTPUT_FILES[$k]} ${CXR_OPTIONS[$k]} 0 2>&1 | tee -a $CXR_LOG
 				fi
 			done
 		else
-			cxr_main_logger "${FUNCNAME}" "This is a dry-run, no action required"
+			main.log "${FUNCNAME}" "This is a dry-run, no action required"
 		fi
 	
 		# Decrease global indent level
-		cxr_main_decrease_log_indent
+		main.decreaseLogIndent
 	
 		# Check if all went well
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -269,7 +269,7 @@ function convert_input()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		cxr_main_logger "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 
@@ -319,7 +319,7 @@ function test_module()
 	echo "For now, you need to inspect the results manually"
 	
 	# Cleanup all locks etc...
-	cxr_main_cleanup
+	main.doCleanup
 	
 	exit 1
 }

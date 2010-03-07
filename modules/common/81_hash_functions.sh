@@ -6,6 +6,10 @@
 # Version: $Id$ 
 #
 # Contains the Hash Functions, allows to map strings (keys) to other strings (values).
+# We use files to store the hash values, their names are the URL-Encoded keys.
+# This has the disadvantage of being slower than traditional, memory-base hashes (like perl
+# has them), but it has two advantages: our hashes are persistent (they survive a run) and
+# we can determine meta-information, such as the time of the last update of a single key.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -101,7 +105,7 @@ function cxr_common_hash_get_dir ()
 		$CXR_HASH_TYPE_INSTANCE) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_GLOBAL) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_UNIVERSAL) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
-		*) cxr_main_die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
+		*) main.dieGracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
 	esac
 	
 	echo "$hash_dir"
@@ -156,7 +160,7 @@ function cxr_common_hash_destroy ()
 	# Work out the directory
 	hash_dir="$(cxr_common_hash_get_dir "$type")"
 	
-	cxr_main_logger -i "Deleting the Hash ${hash}"
+	main.log -i "Deleting the Hash ${hash}"
 	rm -rf "${hash_dir}/${hash}"
 }
 
@@ -186,11 +190,11 @@ function _hash_fn ()
 	hash_dir="$(cxr_common_hash_get_dir "$type")"
 	
 	# Remove leading or trailing quotes
-	key="$(cxr_common_trim "${key}" '\"')"
+	key="$(common.string.trim "${key}" '\"')"
 	
 	if [[ ! "$key" ]]
 	then
-		cxr_main_logger -w "Detected empty key!"
+		main.log -w "Detected empty key!"
 	fi
 	
 	# Generate the filename
@@ -285,7 +289,7 @@ function cxr_common_hash_delete ()
 		# remove the value
 		rm -f "${fn}"
 	else
-		cxr_main_logger -v "$FUNCNAME" "Key "$key" not found in "$type" hash "$hash""
+		main.log -v "$FUNCNAME" "Key "$key" not found in "$type" hash "$hash""
 	fi
 }
 

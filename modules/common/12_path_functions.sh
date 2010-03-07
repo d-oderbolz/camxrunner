@@ -189,7 +189,7 @@ function cxr_common_get_file_mtime()
 	then
 		mtime="$(stat "${file}" -c"%Y")"
 	else
-		cxr_main_logger -e "$FUNCNAME" "No valid filename passed!"
+		main.log -e "$FUNCNAME" "No valid filename passed!"
 		mtime=0
 	fi
 	
@@ -217,7 +217,7 @@ function cxr_common_get_file_type()
 	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 	then
 		# Something went wrong
-		cxr_main_logger -e "$FUNCNAME" "the file command reported an error for $file"
+		main.log -e "$FUNCNAME" "the file command reported an error for $file"
 		echo ""
 	else
 		echo "$filetype"
@@ -264,7 +264,7 @@ function cxr_common_file_size_megabytes()
 	
 	if [[ ! -f "$1"  ]]
 	then
-		cxr_main_logger -w "$FUNCNAME" "The file $1 does not exist!"
+		main.log -w "$FUNCNAME" "The file $1 does not exist!"
 		echo 0
 		return $CXR_RET_PARAM_ERROR
 	fi
@@ -303,10 +303,10 @@ function cxr_common_wait_for_file()
 	# If we arrive here and the file is not there, we failed
 	if [[ ! -f "$filename" ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "$filename still does not exist, timeout reached."
+		main.log -e "$FUNCNAME" "$filename still does not exist, timeout reached."
 		echo false
 	else
-		cxr_main_logger -v "$FUNCNAME" "$filename exists now."
+		main.log -v "$FUNCNAME" "$filename exists now."
 		echo true
 	fi
 }
@@ -342,10 +342,10 @@ function cxr_common_wait_for_stable_size()
 	# We fail if the filesize is 0 or it still grows
 	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -ne $old_size ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "$filename still seems to grow."
+		main.log -e "$FUNCNAME" "$filename still seems to grow."
 		echo false
 	else
-		cxr_main_logger -v "$FUNCNAME" "$filename size is stable now."
+		main.log -v "$FUNCNAME" "$filename size is stable now."
 		echo true
 	fi
 }
@@ -417,7 +417,7 @@ function cxr_common_compress_output()
 								# Do it
 								do_this=true
 							else
-								cxr_main_logger -v "$FUNCNAME" "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match $line, will not compress this file"
+								main.log -v "$FUNCNAME" "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match $line, will not compress this file"
 							fi
 						fi
 					else
@@ -430,22 +430,22 @@ function cxr_common_compress_output()
 					then
 						if [[ $(cxr_common_file_size_megabytes ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 						then
-							cxr_main_logger -v "$FUNCNAME" "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
+							main.log -v "$FUNCNAME" "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
 							"${CXR_COMPRESSOR_EXEC}" "${filename}"
 						else
-							cxr_main_logger -v "$FUNCNAME" "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB})."
+							main.log -v "$FUNCNAME" "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB})."
 						fi
 					fi
 				else
 					#File empty
-					cxr_main_logger -w "$FUNCNAME" "The output file ${filename} is empty, no compression attempted!"
+					main.log -w "$FUNCNAME" "The output file ${filename} is empty, no compression attempted!"
 				fi
 			done < "${CXR_INSTANCE_FILE_OUTPUT_LIST}" # Loop over lines
 		else
-			cxr_main_logger -w "$FUNCNAME" "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
+			main.log -w "$FUNCNAME" "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
 		fi
 	else
-		cxr_main_logger "$FUNCNAME" "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
+		main.log "$FUNCNAME" "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
 	fi
 }
 
@@ -485,7 +485,7 @@ function cxr_common_try_decompressing_file()
 	
 	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true  ]]
 	then
-		cxr_main_logger -v -B "$FUNCNAME" "Testing compression on $(basename ${input_file})..."
+		main.log -v -B "$FUNCNAME" "Testing compression on $(basename ${input_file})..."
 	
 		# Check first if we already have decompressed this file
 		# Look for an entry like
@@ -503,14 +503,14 @@ function cxr_common_try_decompressing_file()
 			
 			if [[ -s "$tempfile" ]]
 			then
-				cxr_main_logger -v "$FUNCNAME" "File ${input_file} was already decompressed into $tempfile"
+				main.log -v "$FUNCNAME" "File ${input_file} was already decompressed into $tempfile"
 			
 				# tempfile not empty
 				echo "$tempfile"
 				return $CXR_RET_OK
 			else
 				# tempfile empty, need to repeat
-				cxr_main_logger -v "$FUNCNAME" "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
+				main.log -v "$FUNCNAME" "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
 				
 				# First remove that line via sed
 				sed_tmp=$(cxr_common_create_tempfile sed)
@@ -530,7 +530,7 @@ function cxr_common_try_decompressing_file()
 			
 			# Note that our extensions already contain a dot
 			comp_file="${input_file}${ext}"
-			cxr_main_logger -v "$FUNCNAME" "Looking for $comp_file"
+			main.log -v "$FUNCNAME" "Looking for $comp_file"
 			
 			if [[ -r "$comp_file"  ]]
 			then
@@ -553,22 +553,22 @@ function cxr_common_try_decompressing_file()
 				case $filetype in
 		
 					bzip2)
-						cxr_main_logger -a "$FUNCNAME" "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
+						main.log -a "$FUNCNAME" "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
 						$CXR_BUNZIP2_EXEC -c "$comp_file" > $tempfile
 						;;
 						
 					gzip)
-						cxr_main_logger -a "$FUNCNAME" "${input_file} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
+						main.log -a "$FUNCNAME" "${input_file} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
 						"$CXR_GUNZIP_EXEC" -c "$comp_file" > $tempfile
 						;;
 				
 					zip)
-						cxr_main_logger -a "$FUNCNAME" "${input_file} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
+						main.log -a "$FUNCNAME" "${input_file} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
 						"$CXR_GUNZIP_EXEC" -S .zip -c "$comp_file" > $tempfile
 						;;
 				
 					*)
-						cxr_main_logger -e "$FUNCNAME" "Compressed file type $filetype not supported"
+						main.log -e "$FUNCNAME" "Compressed file type $filetype not supported"
 						;;
 				esac
 
@@ -579,7 +579,7 @@ function cxr_common_try_decompressing_file()
 					new_file=$tempfile
 					break
 				else
-					cxr_main_logger -e "${FUNCNAME}:${LINENO} - File ${comp_file} could not be decompressed by $DECOMP"
+					main.log -e "${FUNCNAME}:${LINENO} - File ${comp_file} could not be decompressed by $DECOMP"
 				fi
 
 			fi # File readable?
@@ -595,13 +595,13 @@ function cxr_common_try_decompressing_file()
 			echo "$new_file"
 		else
 			# Was not compressed
-			cxr_main_logger -v "$FUNCNAME" "File ${input_file} is not compressed."
+			main.log -v "$FUNCNAME" "File ${input_file} is not compressed."
 			echo "$input_file"
 		fi
 		
 	else
 		# We do not consider compressed files
-		cxr_main_logger -v "$FUNCNAME" "We do not try to decompress files, CXR_DETECT_COMPRESSED_INPUT_FILES is false"
+		main.log -v "$FUNCNAME" "We do not try to decompress files, CXR_DETECT_COMPRESSED_INPUT_FILES is false"
 		echo "$input_file"
 	fi # Detect compression?
 }
@@ -624,7 +624,7 @@ function cxr_common_get_fs_type()
 {
 	if [[ $# -ne 1 ]]
 	then
-		cxr_main_logger -e "${FUNCNAME}" "Could not determine FS type - no path passed!"
+		main.log -e "${FUNCNAME}" "Could not determine FS type - no path passed!"
 		echo ""
 		return $CXR_RET_ERROR
 	fi
@@ -658,14 +658,14 @@ function cxr_common_get_fs_type()
 	
 	if [[ "$num_lines" -eq 3  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}"  "FS type of $1 was determined to be ${df_array[0]}. If this is strange, check your df -T output!"
+		main.log -v "${FUNCNAME}"  "FS type of $1 was determined to be ${df_array[0]}. If this is strange, check your df -T output!"
 		echo "${df_array[0]}" 
 	elif [[ "$num_lines" -eq 2  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}"  "FS type of $1 was determined to be ${df_array[1]}. If this is strange, check your df -T output!"
+		main.log -v "${FUNCNAME}"  "FS type of $1 was determined to be ${df_array[1]}. If this is strange, check your df -T output!"
 		echo "${df_array[1]}" 
 	else
-		cxr_main_logger -e "${FUNCNAME}" "Could not determine FS type of $1. Check your df -T output!"
+		main.log -e "${FUNCNAME}" "Could not determine FS type of $1. Check your df -T output!"
 		echo ""
 	fi
 }
@@ -702,7 +702,7 @@ function cxr_common_free_megabytes()
 	
 	case $fs in
 	afs)
-			cxr_main_logger -v "${FUNCNAME}" "Directory $1 seems to be on AFS. Getting AFS quota..."
+			main.log -v "${FUNCNAME}" "Directory $1 seems to be on AFS. Getting AFS quota..."
 			
 			# Get last line
 			last_line=$(fs listquota "$1" | tail -n1)

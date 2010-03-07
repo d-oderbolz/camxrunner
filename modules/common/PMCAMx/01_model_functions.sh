@@ -98,7 +98,7 @@ function get_chemparam_file ()
 {
 	if [[ $# -ne 2  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
@@ -106,7 +106,7 @@ function get_chemparam_file ()
 	# First check if there is a run-specific file
 	if [[ -f "${RUN_SPECIFIC}"  ]]
 	then
-		cxr_main_logger $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
+		main.log $FUNCNAME "Using run-specific chemparam file (${RUN_SPECIFIC})."
 	
 		echo "${RUN_SPECIFIC}"
 		
@@ -125,9 +125,9 @@ function get_chemparam_file ()
 
 	if [[ ! -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 	then
-		cxr_main_die_gracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+		main.dieGracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 	else
-		cxr_main_logger $FUNCNAME "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
+		main.log $FUNCNAME "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
 	fi
 	
 	cxr_common_report_md5 "${MY_CHEMPARAM_INPUT_FILE}"
@@ -169,17 +169,17 @@ function get_model_exec()
 	if [[ -x ${RUN_EXEC}  ]]
 	then
 		# Run dependent exists
-		cxr_main_logger -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
+		main.log -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
 		echo "${RUN_EXEC}"
 	elif [[ -x ${MACHINE_EXEC}  ]]
 	then
 		# Machine dependent exists
-		cxr_main_logger -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${MACHINE_EXEC}"
+		main.log -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${MACHINE_EXEC}"
 		echo "${MACHINE_EXEC}"
 	elif [[ -x ${GENERAL_EXEC}  ]]
 	then
 		# general exists
-		cxr_main_logger -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${GENERAL_EXEC}"
+		main.log -v "${FUNCNAME}"  "PMCAMx Binary is actually called ${GENERAL_EXEC}"
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
@@ -190,7 +190,7 @@ function get_model_exec()
 			echo "${GENERAL_EXEC}" 
 		else
 			# NOK - just issue a warning (if we are compiling e.g.)
-			cxr_main_logger -w "${FUNCNAME}" "Could not find a suitable PMCAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
+			main.log -w "${FUNCNAME}" "Could not find a suitable PMCAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
 }

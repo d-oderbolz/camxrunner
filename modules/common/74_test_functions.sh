@@ -93,12 +93,12 @@ function cxr_common_load_test_data()
 	local filetype
 	
 	# Need to load test data
-	cxr_main_logger -B "${FUNCNAME}" " Loading test data (CXR_LOAD_TEST_DATA is true)... "
+	main.log -B "${FUNCNAME}" " Loading test data (CXR_LOAD_TEST_DATA is true)... "
 
 	if [[   "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -f "${CXR_TEST_DATA_INPUT_FILE:-}"    ]]
 	then
 	
-		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || cxr_main_die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
+		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main.dieGracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
 		
 		# Query filetype
 		filetype=$(cxr_common_get_file_type "${CXR_TEST_DATA_INPUT_FILE}")
@@ -115,14 +115,14 @@ function cxr_common_load_test_data()
 				;;
 		
 			*)
-				cxr_main_logger -e "${FUNCNAME}" "File type $FILETYPE not supported"
+				main.log -e "${FUNCNAME}" "File type $FILETYPE not supported"
 				;;
 		esac
 		
-		cd $CXR_RUN_DIR || cxr_main_die_gracefully "Could not change back to ${CXR_RUN_DIR}"
+		cd $CXR_RUN_DIR || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 	
 	else
-		cxr_main_logger -e "${FUNCNAME}" "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
+		main.log -e "${FUNCNAME}" "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
 	fi
 }
 
@@ -173,7 +173,7 @@ function cxr_common_test_all_modules()
 			model=$iput_model
 		fi
 		
-		model_id=$(cxr_common_get_model_id "$model") || cxr_main_die_gracefully "Model $model is not known."
+		model_id=$(cxr_common_get_model_id "$model") || main.dieGracefully "Model $model is not known."
 		
 		
 		if [[ ! "${input_version}"  ]]
@@ -205,7 +205,7 @@ function cxr_common_test_all_modules()
 		
 		cxr_common_is_version_supported $version $model
 		
-		cxr_main_logger "${FUNCNAME}" "Testing system using modules for $model $version..."
+		main.log "${FUNCNAME}" "Testing system using modules for $model $version..."
 		
 		# This is a marker that tells the modules they do not need init anymore
 		CXR_TESTING_FROM_HARNESS=true
@@ -242,7 +242,7 @@ function cxr_common_test_all_modules()
 			# ignore comment and blank lines
 			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 	
-			cxr_main_logger "$FUNCNAME" "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
+			main.log "$FUNCNAME" "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
 			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 			do
@@ -259,7 +259,7 @@ function cxr_common_test_all_modules()
 					
 				source $FUNCTION_FILE
 				
-				cxr_main_logger -v "$FUNCNAME" "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
+				main.log -v "$FUNCNAME" "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
 				
 				total_tests=$(( $total_tests + $CXR_META_MODULE_NUM_TESTS ))
 				
@@ -271,7 +271,7 @@ function cxr_common_test_all_modules()
 		########################################
 		#  Plan these tests
 		########################################
-		cxr_main_logger -v "$FUNCNAME" "Planning to run $total_tests tests..."
+		main.log -v "$FUNCNAME" "Planning to run $total_tests tests..."
 		
 		# Plan them
 		plan_tests $total_tests
@@ -304,7 +304,7 @@ function cxr_common_test_all_modules()
 			# ignore comment and blank lines
 			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 	
-			cxr_main_logger "$FUNCNAME" "Executing ${COMMENT} tests..."
+			main.log "$FUNCNAME" "Executing ${COMMENT} tests..."
 			
 			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 			do
@@ -335,12 +335,12 @@ function cxr_common_test_all_modules()
 						LAST_LOADED_CONFIG=$CXR_RUN
 					fi
 					
-					cxr_main_logger -b "$FUNCNAME" "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
+					main.log -b "$FUNCNAME" "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
 					
 					test_module
 					
 				else
-					cxr_main_logger -v "$FUNCNAME" "There are no tests in $CXR_META_MODULE_NAME yet."
+					main.log -v "$FUNCNAME" "There are no tests in $CXR_META_MODULE_NAME yet."
 				fi
 				
 			done
@@ -412,10 +412,10 @@ function test_module()
 	########################################
 	
 	#Here, we test some main functions
-	is $(cxr_main_is_numeric? 0) true "cxr_main_is_numeric? 0"
-	is $(cxr_main_is_numeric? -1000) true "cxr_main_is_numeric? -1000"
-	is $(cxr_main_is_numeric? "") false "cxr_main_is_numeric? empty string"
-	is $(cxr_main_is_numeric? "A100") false "cxr_main_is_numeric? A100"
+	is $(main.isNumeric? 0) true "main.isNumeric? 0"
+	is $(main.isNumeric? -1000) true "main.isNumeric? -1000"
+	is $(main.isNumeric? "") false "main.isNumeric? empty string"
+	is $(main.isNumeric? "A100") false "main.isNumeric? A100"
 	
 	########################################
 	# teardown tests if needed

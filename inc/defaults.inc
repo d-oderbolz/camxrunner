@@ -871,42 +871,42 @@ CXR_DOT_EXEC=$(which dot)
 #### into binaries that carry the machine type in their name
 #### CAMxRunner -I can do this for you.
 #### 
-#### Also the function cxr_main_get_binary_name then selects the most appropriate one.
+#### Also the function main.getBinaryName then selects the most appropriate one.
 #### replace with literal for your own choice
 
 # Checker for landuse
-CXR_SRFLND_EXEC=$(cxr_main_get_binary_name srflnd)
+CXR_SRFLND_EXEC=$(main.getBinaryName srflnd)
 
 # The binary to convert bin2asc
-CXR_BIN2ASC_EXEC=$(cxr_main_get_binary_name bin2asc)
+CXR_BIN2ASC_EXEC=$(main.getBinaryName bin2asc)
 
 # The binary to convert asc2bin
-CXR_ASC2IBN_EXEC=$(cxr_main_get_binary_name asc2bin)
+CXR_ASC2IBN_EXEC=$(main.getBinaryName asc2bin)
 
 # The binary to convert Emission ascii to Bin
-CXR_AIRCONV_EXEC=$(cxr_main_get_binary_name airconv)
+CXR_AIRCONV_EXEC=$(main.getBinaryName airconv)
 
 # The binary to convert MM5 Input
-CXR_UAMVASCII_EXEC=$(cxr_main_get_binary_name uamvascii)
+CXR_UAMVASCII_EXEC=$(main.getBinaryName uamvascii)
 
 # Binary to convert the other way
-CXR_UAMVBINR_EXEC=$(cxr_main_get_binary_name uamvbinr)
+CXR_UAMVBINR_EXEC=$(main.getBinaryName uamvbinr)
 
 # Yet another binary to convert MM5 Input
-CXR_AIRASCII_EXEC=$(cxr_main_get_binary_name airascii)
+CXR_AIRASCII_EXEC=$(main.getBinaryName airascii)
 
 # Needed to create constant IC/BC fields
-CXR_ICBCPREP_EXEC=$(cxr_main_get_binary_name icbcprep)
+CXR_ICBCPREP_EXEC=$(main.getBinaryName icbcprep)
 
 # Avgdif
-CXR_AVGDIF_EXEC=$(cxr_main_get_binary_name avgdif)
+CXR_AVGDIF_EXEC=$(main.getBinaryName avgdif)
 
 ########################################
 # Preprocessors
 ########################################	
-CXR_AHOMAP_EXEC=$(cxr_main_get_binary_name ahomap)
+CXR_AHOMAP_EXEC=$(main.getBinaryName ahomap)
 
-CXR_TUV_EXEC=$(cxr_main_get_binary_name tuv)
+CXR_TUV_EXEC=$(main.getBinaryName tuv)
 
 ################################################################################
 # Advanced Input check

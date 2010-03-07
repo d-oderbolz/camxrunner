@@ -86,19 +86,19 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_abs
+# Function: common.math.abs
 #
 # Calculates the absolute value of a number
 #
 # Parameters:
 # $1 - number to be treated
 ################################################################################
-function cxr_common_abs()
+function common.math.abs()
 ################################################################################
 {
-	if [[  $# -ne 1 || "$(cxr_main_is_numeric? "$1")" == false   ]]
+	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false   ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
+		main.log -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -121,7 +121,7 @@ function cxr_common_abs()
 
 
 ################################################################################
-# Function: cxr_common_fp_calculate
+# Function: common.math.FloatOperation
 #
 # Performs FP arithmetic (other than $(()) )
 # If the result is a whole number, a . is appended at the end (FORTRAN compatibility)
@@ -131,12 +131,12 @@ function cxr_common_abs()
 # $2 - an optional scale parameter (default CXR_NUM_DIGITS). 0 Means truncate
 # $3 - an optional boolean parameter indicating if a trailing decimal should be added (default: true)
 ################################################################################
-function cxr_common_fp_calculate()
+function common.math.FloatOperation()
 ################################################################################
 {
 	if [[ $# -lt 1  ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
+		main.dieGracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
 	fi
 	
 	# Define & Initialize local vars
@@ -221,16 +221,16 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_abs 0) 0 "cxr_common_abs of 0"
-	is $(cxr_common_abs -0) 0 "cxr_common_abs of -0"
-	is $(cxr_common_abs 1) 1 "cxr_common_abs of 1"
-	is $(cxr_common_abs -1) 1 "cxr_common_abs of -1"
-	is $(cxr_common_abs -1000000) 1000000 "cxr_common_abs of -1000000"
-	is $(cxr_common_fp_calculate "-1000000 * -1" )  1000000. "cxr_common_fp_calculate -1000000 * -1"
-	is $(cxr_common_fp_calculate "12.43 * 2" ) 24.86 "cxr_common_fp_calculate 12.43 * 2"
-	is $(cxr_common_fp_calculate "5" )  5. "cxr_common_fp_calculate 5 (trailing .)"
-	is $(cxr_common_fp_calculate "5" "" false )  5 "cxr_common_fp_calculate 5 false (no trailing .)"
-	is $(cxr_common_fp_calculate "0.0000224784 * 300000" 0 false) 6 "cxr_common_fp_calculate Rounding"
+	is $(common.math.abs 0) 0 "common.math.abs of 0"
+	is $(common.math.abs -0) 0 "common.math.abs of -0"
+	is $(common.math.abs 1) 1 "common.math.abs of 1"
+	is $(common.math.abs -1) 1 "common.math.abs of -1"
+	is $(common.math.abs -1000000) 1000000 "common.math.abs of -1000000"
+	is $(common.math.FloatOperation "-1000000 * -1" )  1000000. "common.math.FloatOperation -1000000 * -1"
+	is $(common.math.FloatOperation "12.43 * 2" ) 24.86 "common.math.FloatOperation 12.43 * 2"
+	is $(common.math.FloatOperation "5" )  5. "common.math.FloatOperation 5 (trailing .)"
+	is $(common.math.FloatOperation "5" "" false )  5 "common.math.FloatOperation 5 false (no trailing .)"
+	is $(common.math.FloatOperation "0.0000224784 * 300000" 0 false) 6 "common.math.FloatOperation Rounding"
 
 	########################################
 	# teardown tests if needed

@@ -70,15 +70,16 @@ exit 1
 
 
 ################################################################################
-# Function: cxr_common_is_substring_present
+# Function: common.string.isSubstringPresent?
 #
 # Returns true if a substring needle was found within haystack, false otherwise.
+# TODO: most calls of thsi function are better replaced by a hash (has?) operation.
 #
 # Parameters:
 # $1 - haystack, the string in which we search
 # $2 - needle, the substring to be found
 ################################################################################
-function cxr_common_is_substring_present() 
+function common.string.isSubstringPresent?() 
 ################################################################################
 {
 	local found=$(expr match " $1" ".*$2.*")
@@ -86,7 +87,7 @@ function cxr_common_is_substring_present()
 	
 	if [[ $found -gt 0  ]]
 	then
-		cxr_main_logger -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
+		main.log -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
 		echo true
 	else
 		echo false
@@ -94,14 +95,14 @@ function cxr_common_is_substring_present()
 }
 
 ################################################################################
-# Function: cxr_common_to_lower
+# Function: common.string.toLower
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function cxr_common_to_lower() 
+function common.string.toLower() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -113,14 +114,14 @@ function cxr_common_to_lower()
 } 
 
 ################################################################################
-# Function: cxr_common_to_upper
+# Function: common.string.toUpper
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function cxr_common_to_upper() 
+function common.string.toUpper() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -132,7 +133,7 @@ function cxr_common_to_upper()
 }
 
 ################################################################################
-# Function: cxr_common_trim
+# Function: common.string.trim
 #
 # Trims spaces or other characters on both ends of a string.
 #
@@ -140,7 +141,7 @@ function cxr_common_to_upper()
 # $1 - the string to be trimmed
 # [$2] - the character that should be removed (default: space-trims tabs, too)
 ################################################################################
-function cxr_common_trim() 
+function common.string.trim() 
 ################################################################################
 {
 	local string="${1}"
@@ -149,7 +150,7 @@ function cxr_common_trim()
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		cxr_main_logger -e "$FUNCNAME" "Programming error: wrong call."
+		main.log -e "$FUNCNAME" "Programming error: wrong call."
 		echo ""
 	else
 		# trim in front
@@ -172,7 +173,7 @@ function cxr_common_trim()
 function cxr_common_len() 
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
 		echo 0
 	else
@@ -181,7 +182,7 @@ function cxr_common_len()
 }
 
 ################################################################################
-# Function: cxr_common_extract_characters
+# Function: common.string.getCharacters
 #
 # Extracts a number of characters from the start of a string
 #
@@ -189,7 +190,7 @@ function cxr_common_len()
 # $1 - string from which the chars should be extracted
 # $2 - number of chars to return
 ################################################################################
-function cxr_common_extract_characters() 
+function common.string.getCharacters() 
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -203,7 +204,7 @@ function cxr_common_extract_characters()
 
 
 ################################################################################
-# Function: cxr_common_n_digits
+# Function: common.string.leftPadZero
 #
 # Makes sure a number has n digits (left padded with 0). Can be used in File rules to make sure
 # you get something like my_file0001.dat or something.
@@ -212,12 +213,12 @@ function cxr_common_extract_characters()
 # $1 - a number to be padded
 # $2 - number of digits to be used
 ################################################################################
-function cxr_common_n_digits
+function common.string.leftPadZero
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
 	then
-		cxr_main_die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
+		main.dieGracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
 	local number="$1"
@@ -227,33 +228,14 @@ function cxr_common_n_digits
 }
 
 ################################################################################
-# Function: cxr_common_two_digits
-#
-# Convenience function (could be replaced by the one above...)
-#
-# Parameters:
-# $1 - a number, either single or double-digit
-################################################################################
-function cxr_common_two_digits
-################################################################################
-{
-	if [[ $# -ne 1  ]]
-	then
-		echo ""
-	else
-		cxr_common_n_digits $1 2
-	fi
-}
-
-################################################################################
-# Function: cxr_common_extract_number
+# Function: common.string.getPrefixNumber
 #
 # Extracts a 2-digit number from the beginning of a string
 #
 # Parameters:
 # $1 - string from which the numbers should be extracted
 ################################################################################
-function cxr_common_extract_number
+function common.string.getPrefixNumber
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -270,9 +252,9 @@ function cxr_common_extract_number
 		numbers=$(expr match $string '\([0-9]*\)')
 		
 		# Extract 2 Digits
-		numbers=$(cxr_common_extract_characters $numbers 2)
+		numbers=$(common.string.getCharacters $numbers 2)
 		
-		echo $(cxr_common_two_digits ${numbers})
+		echo $(common.string.leftPadZero ${numbers} 2)
 	fi
 }
 
@@ -332,33 +314,33 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(cxr_common_is_substring_present abc a)" true "cxr_common_is_substring_present is a in abc?"
+	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
 	
-	is "$(cxr_common_to_lower QUERTY)" querty "cxr_common_to_lower QUERTY"
-	is "$(cxr_common_to_lower querty)" querty "cxr_common_to_lower querty"
-	is "$(cxr_common_to_lower '')" "" "cxr_common_to_lower empty string"
+	is "$(common.string.toLower QUERTY)" querty "common.string.toLower QUERTY"
+	is "$(common.string.toLower querty)" querty "common.string.toLower querty"
+	is "$(common.string.toLower '')" "" "common.string.toLower empty string"
 	
-	is "$(cxr_common_to_upper QUERTY)" QUERTY "cxr_common_to_upper QUERTY"
-	is "$(cxr_common_to_upper querty)" QUERTY "cxr_common_to_upper querty"
-	is "$(cxr_common_to_upper "")" '' "cxr_common_to_upper empty string"
+	is "$(common.string.toUpper QUERTY)" QUERTY "common.string.toUpper QUERTY"
+	is "$(common.string.toUpper querty)" QUERTY "common.string.toUpper querty"
+	is "$(common.string.toUpper "")" '' "common.string.toUpper empty string"
 	
-	is "$(cxr_common_trim "")" '' "cxr_common_trim empty string (implicit)"
-	is "$(cxr_common_trim "    ")" '' "cxr_common_trim spaces (implicit)"
-	is "$(cxr_common_trim "		")" '' "cxr_common_trim tabs (implicit)"
-	is "$(cxr_common_trim " hallo")" "hallo" "cxr_common_trim front (implicit)"
-	is "$(cxr_common_trim "hallo ")" "hallo" "cxr_common_trim back (implicit)"
-	is "$(cxr_common_trim " hallo ")" "hallo" "cxr_common_trim both (implicit)"
-	is "$(cxr_common_trim "aba" "a" )" 'b' "cxr_common_trim remove all a (explicit)"
-	is "$(cxr_common_trim " b " " " )" 'b' "cxr_common_trim remove spaces (explicit)"
-	is "$(cxr_common_trim "guaggc" "guagg" )" 'c' "cxr_common_trim remove a whole string (explicit)"
+	is "$(common.string.trim "")" '' "common.string.trim empty string (implicit)"
+	is "$(common.string.trim "    ")" '' "common.string.trim spaces (implicit)"
+	is "$(common.string.trim "		")" '' "common.string.trim tabs (implicit)"
+	is "$(common.string.trim " hallo")" "hallo" "common.string.trim front (implicit)"
+	is "$(common.string.trim "hallo ")" "hallo" "common.string.trim back (implicit)"
+	is "$(common.string.trim " hallo ")" "hallo" "common.string.trim both (implicit)"
+	is "$(common.string.trim "aba" "a" )" 'b' "common.string.trim remove all a (explicit)"
+	is "$(common.string.trim " b " " " )" 'b' "common.string.trim remove spaces (explicit)"
+	is "$(common.string.trim "guaggc" "guagg" )" 'c' "common.string.trim remove a whole string (explicit)"
 	
-	is "$(cxr_common_extract_characters 1234 2)" 12 "cxr_common_extract_characters"
+	is "$(common.string.getCharacters 1234 2)" 12 "common.string.getCharacters"
 	
-	is "$(cxr_common_two_digits 1)" 01 "cxr_common_two_digits 1"
-	is "$(cxr_common_two_digits 01)" 01 "cxr_common_two_digits 01"
-	is "$(cxr_common_two_digits 001)" 01 "cxr_common_two_digits too long"
+	is "$(common.string.leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
+	is "$(common.string.leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
+	is "$(common.string.leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
 	
-	is "$(cxr_common_extract_number xx00xx )" '' "cxr_common_extract_number not at beginning"
+	is "$(common.string.getPrefixNumber xx00xx )" '' "common.string.getPrefixNumber not at beginning"
 	
 	########################################
 	# teardown tests if needed

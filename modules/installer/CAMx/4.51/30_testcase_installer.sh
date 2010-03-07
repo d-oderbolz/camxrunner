@@ -96,33 +96,33 @@ function testcase_installer()
 	
 	if [[ "$(cxr_common_get_consent "Do you want to install the ${CXR_MODEL_VERSION} testcase to $TESTCASE_DIR?\n\nRequires about $CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
-		mkdir -p $TESTCASE_DIR || cxr_main_die_gracefully "Could not create $TESTCASE_DIR"
+		mkdir -p $TESTCASE_DIR || main.dieGracefully "Could not create $TESTCASE_DIR"
 		
 		########################################
 		# Check space
 		########################################
 		cxr_common_check_mb_needed "$TESTCASE_DIR" "$CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED"
 		
-		cd $TESTCASE_DIR || cxr_main_die_gracefully "Could change to $TESTCASE_DIR"
+		cd $TESTCASE_DIR || main.dieGracefully "Could change to $TESTCASE_DIR"
 		
 		########################################
-		cxr_main_logger "${FUNCNAME}" "Downloading three files - might take a while..."
+		main.log "${FUNCNAME}" "Downloading three files - might take a while..."
 		sleep 2
 		########################################
 		
 		# Get the 3 files
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || cxr_main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || cxr_main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || cxr_main_die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
 		
 		########################################
-		cxr_main_logger "${FUNCNAME}" "Unpacking tar files..."
+		main.log "${FUNCNAME}" "Unpacking tar files..."
 		########################################
 		
 		# Untar
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || cxr_main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || cxr_main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || cxr_main_die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
 		
 		if [[ "$(cxr_common_get_consent "Do you want to remove the tar files?\nRecommended, they are large and unneeded." Y )" == true  ]]
 		then
@@ -132,13 +132,13 @@ function testcase_installer()
 		fi
 		
 		########################################
-		cxr_main_logger "${FUNCNAME}" "Renaming testcase files for use with CAMxRunner run CAMx-v${CXR_MODEL_VERSION}.ENVIRON_testcase"
+		main.log "${FUNCNAME}" "Renaming testcase files for use with CAMxRunner run CAMx-v${CXR_MODEL_VERSION}.ENVIRON_testcase"
 		########################################	
 		
 		# Run renamer
 		${CXR_RUN_DIR}/testcase/${CXR_MODEL}/${CXR_MODEL_VERSION}/rename_inputs4CAMxRunner.sh
 		
-		cxr_main_logger "${FUNCNAME}" "Done. You should now have a working testcase for CAMx ${CXR_MODEL_VERSION}.\nStart if with the run CAMx.v${CXR_MODEL_VERSION}.ENVIRON_testcase\nThe expected output is in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION} and the new model output will be in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION}/outputs after the run."
+		main.log "${FUNCNAME}" "Done. You should now have a working testcase for CAMx ${CXR_MODEL_VERSION}.\nStart if with the run CAMx.v${CXR_MODEL_VERSION}.ENVIRON_testcase\nThe expected output is in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION} and the new model output will be in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION}/outputs after the run."
 			
 	
 	fi

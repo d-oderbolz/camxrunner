@@ -206,7 +206,7 @@ function prepare_output_dir()
 
 	if [[  "${CXR_RUN_LIMITED_PROCESSING}" == true && "${CXR_REMOVE_DECOMPRESSED_FILES}" == true   ]]
 	then
-		cxr_main_logger -w "${FUNCNAME}"  "This module is susceptible to limited processing, because it creates links rather than files.\nIf you use compressed input files, the temporary files into which we decompress wil be deleted.\nUse \n \t ${CXR_CALL} -L \nto avoid this."
+		main.log -w "${FUNCNAME}"  "This module is susceptible to limited processing, because it creates links rather than files.\nIf you use compressed input files, the temporary files into which we decompress wil be deleted.\nUse \n \t ${CXR_CALL} -L \nto avoid this."
 	fi
 
 	#Was this stage already completed?
@@ -219,7 +219,7 @@ function prepare_output_dir()
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			cxr_main_logger "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -245,10 +245,10 @@ function prepare_output_dir()
 				then
 					if [[ "$CXR_DRY" == "false"  ]]
 					then
-						cxr_main_logger "${FUNCNAME}"  "Linking ${current_base} to ${current_file}..."
+						main.log "${FUNCNAME}"  "Linking ${current_base} to ${current_file}..."
 						ln -s ${current_file} ${current_base}
 					else
-						cxr_main_logger "${FUNCNAME}"  "This is a dry run, do not create a link for output processing"
+						main.log "${FUNCNAME}"  "This is a dry run, do not create a link for output processing"
 					fi
 				fi
 			done
@@ -258,7 +258,7 @@ function prepare_output_dir()
 
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		cxr_main_logger "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 
