@@ -33,7 +33,7 @@
 # TODO: Remove XX_ digits
 # TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
 # TODO: Enable the execution of more than one specific module
-# TODO: Replace all common.string.isSubstringPresent? calls with hashes
+# TODO: Replace all string_isSubstringPresent? calls with hashes
 # TODO: selective module data update (none if limited processing)
 # TODO: Logger/die no FUNCNAME anymore
 # TODO: change naming convention of all functions
@@ -139,7 +139,7 @@ function main_usage()
 	  Available modules for ${CXR_MODEL} ${CXR_MODEL_VERSION}:
 	  ----------------------------------------------------------------------------
 	  
-	  $(main.listAllModules 2>&1) 
+	  $(main_listAllModules 2>&1) 
 	  
 	  ----------------------------------------------------------------------------
 	  Examples:
@@ -229,7 +229,7 @@ source $CXR_RUN_DIR/inc/main_functions.inc
 # from the run name and export it to the environment.
 # Also set the directories where to look for commom modules and 
 # processors
-main.setModelAndVersion ${CXR_RUN}
+main_setModelAndVersion ${CXR_RUN}
 
 # Load defaults
 source $CXR_RUN_DIR/inc/defaults.inc
@@ -308,7 +308,7 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 ################################################################################
 
 # The run determines the files to use
-main.readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "${CXR_RUN_DIR}"
+main_readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "${CXR_RUN_DIR}"
 
 
 ################################################################################
@@ -371,32 +371,32 @@ fi
 # Hollow and non-hollow options should not be mixed
 if [[ "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true ]]
 then
-	main.dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
+	main_dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
 fi
 
 ################################################################################
 
-main.log -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
+main_log -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
 
-if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
+if [[ $(main_isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
-	main.dieGracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
+	main_dieGracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
 fi
 
-if [[ $(main.isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
+if [[ $(main_isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
 then
-	main.dieGracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
+	main_dieGracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
 fi
 
 # Ok, now less than 2 processes is not parallel
 if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1   ]]
 then
-	main.log -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_parallel_worker, this will literally not work. I will use 1".
+	main_log -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_parallel_worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
 	CXR_PARALLEL_PROCESSING=false
 fi
 
-main.log -v -B "CAMxRunner.sh" "Selected options are valid." 
+main_log -v -B "CAMxRunner.sh" "Selected options are valid." 
 
 
 ################################################################################
@@ -408,7 +408,7 @@ if [[ "${CXR_HOLLOW}" == false  ]]
 then
 	if [[ ${CXR_RUN} == ${CXR_RUNNER_NAME}  ]]
 	then
-		main.dieGracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
+		main_dieGracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
 	else
 		
 		# Check if the name of the script has changed
@@ -420,12 +420,12 @@ then
 		
 		if [[ "$link_target" != " ${CXR_RUNNER_NAME}" ]]
 		then
-			main.dieGracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
+			main_dieGracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
 	
 		# Make sure Run name is ok (Model.vVersion...)
 		# XX_check_functions.sh
-		cxr_common_check_run_name ${CXR_RUN} || main.dieGracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
+		cxr_common_check_run_name ${CXR_RUN} || main_dieGracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
 	fi
 	
@@ -439,14 +439,14 @@ then
 	################################################################################
 	
 	# Get revisions of configuration and the CAMxRunner.sh
-	# The other variables are set in main.readConfig
+	# The other variables are set in main_readConfig
 	CXR_RUNNER_REV=$(cxr_common_get_svn_revision $0)
 	
-	main.log -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
+	main_log -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	
 	if [[ "$CXR_BASECONFIG_REV" -gt "$CXR_CONFIG_REV" ]]
 	then
-		main.log -w "CAMxRunner.sh" "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
+		main_log -w "CAMxRunner.sh" "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
 	fi
 	
 fi
@@ -455,10 +455,10 @@ fi
 # Is the configuration OK?
 ################################################################################
 
-main.log -v -B "CAMxRunner.sh" "Checking CAMxRunner for consistency..." 
+main_log -v -B "CAMxRunner.sh" "Checking CAMxRunner for consistency..." 
 
 # Increase global indent level
-main.increaseLogIndent
+main_increaseLogIndent
 
 # XX_check_functions
 cxr_common_check_bash_version
@@ -467,9 +467,9 @@ cxr_common_check_bash_version
 cxr_common_check_runner_consistency
 
 # Decrease global indent level
-main.decreaseLogIndent
+main_decreaseLogIndent
 
-main.log -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can tell." 
+main_log -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can tell." 
 
 ################################################################################
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
@@ -481,7 +481,7 @@ then
 	#String is non-empty, check if it is sensible
 	if [[ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-}  ]]
 	then
-		main.log -w "CAMxRunner.sh" "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found. I try to find the correct setting."
+		main_log -w "CAMxRunner.sh" "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found. I try to find the correct setting."
 		# String is not properly set - try to get it
 		CXR_CHEMPARAM_INPUT_FILE=$(get_chemparam_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
 	fi
@@ -532,7 +532,7 @@ then
 	fi
 	
 	# Do cleanup
-	main.doCleanup
+	main_doCleanup
 	
 	# We are happy
 	CXR_STATUS=${CXR_STATUS_SUCCESS}
@@ -541,16 +541,16 @@ fi
 
 ### No hollow function gets further here
 
-main.log -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
+main_log -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
 if [[ "${CXR_ONE_DAY}"  ]]
 then
 
-	if [[ "$(common.date.isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
+	if [[ "$(date_isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
 	then
-		main.log -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
+		main_log -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
 	else
-		main.dieGracefully "the -D option needs a date in YYYY-MM-DD format as input!"
+		main_dieGracefully "the -D option needs a date in YYYY-MM-DD format as input!"
 	fi
 
 fi
@@ -565,7 +565,7 @@ CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "${CXR_START_DATE}" "${CXR_STOP
 # Is this a repetition of an earlier run?
 if [[ $(cxr_common_is_repeated_run) == true ]]
 then
-	main.log -i "CAMxRunner.sh" "This run has already been started earlier."
+	main_log -i "CAMxRunner.sh" "This run has already been started earlier."
 	
 	last="$(cxr_common_get_last_day_modelled)"
 	
@@ -574,7 +574,7 @@ then
 	then
 		if [[ "$last" != ${CXR_STOP_DATE} ]]
 		then
-			main.log -i "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+			main_log -i "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 		fi
 	fi
 	
@@ -586,7 +586,7 @@ then
 	then
 		if [[ "$first" != ${CXR_START_DATE} ]]
 		then
-			main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
+			main_dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
 		fi
 	fi
 	
@@ -595,7 +595,7 @@ fi
 
 mb_needed=$(cxr_common_predict_model_output_megabytes)
 
-main.log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
+main_log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
 
 if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
 then
@@ -607,17 +607,17 @@ then
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
+			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(math_FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
 		fi
 	else
-		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
+		main_log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
 	fi
 fi
 
 # Show grid dimensions
 cxr_common_report_dimensions
 
-main.log -B "CAMxRunner.sh" "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
+main_log -B "CAMxRunner.sh" "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
 
 # Check if the selected binary supports our settings
 cxr_common_check_model_limits
@@ -628,29 +628,29 @@ cxr_common_check_model_limits
 
 INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname -n)\nRun ${CXR_RUN}, we use the ${CXR_MODEL_EXEC} executable. \n It is now $(date)\n\n The script was called as \n \t \$ ${0} ${CXR_ARGUMENTS} \n\n" 
 
-main.sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
-main.log -i "CAMxRunner.sh" "$INFO"
+main_sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
+main_log -i "CAMxRunner.sh" "$INFO"
 
 if [[  "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true   ]]
 then
-	main.log -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
+	main_log -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
 
 if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD}  ]]
 then
-	main.log -i "CAMxRunner.sh" "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
+	main_log -i "CAMxRunner.sh" "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
 else
-	main.log -i "CAMxRunner.sh" "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
+	main_log -i "CAMxRunner.sh" "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
 fi
 
 if [[ ${CXR_SKIP_EXISTING} == true  ]]
 then
-	main.log -w "CAMxRunner.sh" "Existing output files will be skipped."
+	main_log -w "CAMxRunner.sh" "Existing output files will be skipped."
 fi
 
 if [[ ${CXR_FORCE} == true  ]]
 then
-	main.log -w "CAMxRunner.sh" "Existing output files will be deleted."
+	main_log -w "CAMxRunner.sh" "Existing output files will be deleted."
 fi
 
 if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
@@ -659,7 +659,7 @@ then
 	
 	cxr_common_list_system_variables
 	
-	main.log -v -b "CAMxRunner.sh"  "Bash stack size: $(ulimit -s)" 
+	main_log -v -b "CAMxRunner.sh"  "Bash stack size: $(ulimit -s)" 
 fi
 
 
@@ -671,43 +671,43 @@ fi
 if [[ "$CXR_HOLLOW" == false  ]]
 then
 
-	main.log -v -B "CAMxRunner.sh" "Checking if another instance is running on this run..." 
+	main_log -v -B "CAMxRunner.sh" "Checking if another instance is running on this run..." 
 	 
 	cxr_common_detect_running_instances
 	
-	main.log -v -B "CAMxRunner.sh" "No other instance found." 
+	main_log -v -B "CAMxRunner.sh" "No other instance found." 
 
 
 	################################################################################
 	# Create a Continue File. If it is gone, the worker thread(s) will stop
 	################################################################################
 
-	cxr_common_initialize_state_db || main.dieGracefully "Could not initialize state DB"
+	cxr_common_initialize_state_db || main_dieGracefully "Could not initialize state DB"
 	
 	# If we do a dry run, we want to show the detected pre- and postprocessors
 	if [[ "$CXR_DRY" == true  ]]
 	then
-		main.log -v -b "CAMxRunner.sh" "Listing all detected pre- and postprocessors...\n"
+		main_log -v -b "CAMxRunner.sh" "Listing all detected pre- and postprocessors...\n"
 		
 		# Increase global indent level
-		main.increaseLogIndent
+		main_increaseLogIndent
 		
-		main.log -v "CAMxRunner.sh" "If you just want to run just a part of either the input or the output preparation\nrun it like\n"    
+		main_log -v "CAMxRunner.sh" "If you just want to run just a part of either the input or the output preparation\nrun it like\n"    
 	
 		# Increase global indent level
-		main.increaseLogIndent
+		main_increaseLogIndent
 	
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -pXX for a one-time input step,\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -iXX for a daily input step,\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -oXX for a daily output step or\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -fXX for a one-time output step.\n"
-		main.log -v "CAMxRunner.sh" "  These are the possible values for one-time input steps:\n"
+		main_log -v "CAMxRunner.sh" "${CXR_CALL} -pXX for a one-time input step,\n"
+		main_log -v "CAMxRunner.sh" "${CXR_CALL} -iXX for a daily input step,\n"
+		main_log -v "CAMxRunner.sh" "${CXR_CALL} -oXX for a daily output step or\n"
+		main_log -v "CAMxRunner.sh" "${CXR_CALL} -fXX for a one-time output step.\n"
+		main_log -v "CAMxRunner.sh" "  These are the possible values for one-time input steps:\n"
 		
 		# Decrease global indent level
-		main.decreaseLogIndent
+		main_decreaseLogIndent
 		
 		# Show what can be done
-		main.listAllModules
+		main_listAllModules
 		
 	fi
 	
@@ -743,7 +743,7 @@ then
 		
 		if [[ "$(cxr_common_parallel_count_open_tasks)" -ne 0  ]]
 		then
-			main.log "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_parallel_count_open_tasks) open tasks!"
+			main_log "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_parallel_count_open_tasks) open tasks!"
 			# We are not happy
 			CXR_STATUS=$CXR_STATUS_FAILURE
 		else
@@ -764,13 +764,13 @@ fi
 cxr_common_compress_output
 
 # Echo the "Finish message"
-main.log -i "CAMxRunner.sh" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
+main_log -i "CAMxRunner.sh" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 
 
 ################################################################################
 # Cleanup all locks etc...
 ################################################################################
-main.doCleanup
+main_doCleanup
 
 # Set exit status (too coarse)
 case "$CXR_STATUS" in

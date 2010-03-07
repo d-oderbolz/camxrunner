@@ -86,7 +86,7 @@ exit 1
 }
 
 ################################################################################
-# Function: common.date.decompose
+# Function: date_decompose
 # 
 # Put date components into multiple variables
 #
@@ -97,7 +97,7 @@ exit 1
 # Parameters:
 # $1 - date
 ################################################################################
-function common.date.decompose()
+function date_decompose()
 ################################################################################
 {
 	eval "$(date ${1:+"$@"} "+
@@ -122,7 +122,7 @@ function common.date.decompose()
 }
 
 ################################################################################
-# Function: common.date.isYYYYMMDD?
+# Function: date_isYYYYMMDD?
 #
 # Checks if a date is really in YYYY-MM-DD form.
 # Relatively basic check.
@@ -131,7 +131,7 @@ function common.date.decompose()
 # Parameters:
 # $1 - date in YYYY-MM-DD form
 ################################################################################
-function common.date.isYYYYMMDD?()
+function date_isYYYYMMDD?()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -158,7 +158,7 @@ function common.date.isYYYYMMDD?()
 }
 
 ################################################################################
-# Function: common.date.toRaw
+# Function: date_toRaw
 #
 # Converts a YYYY-MM-DD into YYYYMMDD
 # 
@@ -166,15 +166,15 @@ function common.date.isYYYYMMDD?()
 # Parameters:
 # $1 - date in YYYY-MM-DD form
 ################################################################################
-function common.date.toRaw()
+function date_toRaw()
 ################################################################################
 {
 	# Define & Initialize local vars
 	local new_date
 	
-	if [[  $# -ne 1 || $(common.date.isYYYYMMDD? "$1") == false   ]]
+	if [[  $# -ne 1 || $(date_isYYYYMMDD? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -187,19 +187,19 @@ function common.date.toRaw()
 }
 
 ################################################################################
-# Function: common.date.toISO
+# Function: date_toISO
 #
 # Converts a date to  YYYY-MM-DD. If the empty string is passed, it is also returned.
 # 
 # Parameters:
 # $1 - date 
 ################################################################################
-function common.date.toISO()
+function date_toISO()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs 1 date as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs 1 date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -207,7 +207,7 @@ function common.date.toISO()
 	# If we got the empty string, return the empty string
 	if [[ ! "$1"  ]]
 	then
-		main.log -w "$FUNCNAME" "Got the empty string and will return it"
+		main_log -w "$FUNCNAME" "Got the empty string and will return it"
 	else
 		# Convert
 		date +%Y-%m-%d -d $1
@@ -218,7 +218,7 @@ function common.date.toISO()
 }
 
 ################################################################################
-# Function: common.date.split
+# Function: date_split
 # 
 # Splits a date into constituents
 #
@@ -226,7 +226,7 @@ function common.date.toISO()
 # Taken from <http://it.toolbox.com/wiki/index.php/Split_a_date_into_its_parts>
 # 
 # Example:
-# > $ common.date.split 04-12-07 month day year
+# > $ date_split 04-12-07 month day year
 # > $ echo "year=$year month=$month day=$day"
 # > year=7 month=4 day=12
 #
@@ -234,7 +234,7 @@ function common.date.toISO()
 # $1 - date in YYYY-MM-DD form (or almost any other form)
 # Further - parts needed
 ################################################################################
-function common.date.split()
+function date_split()
 ################################################################################
 {
 	sd_1=${2:-SD_YEAR}
@@ -247,7 +247,7 @@ function common.date.split()
 	case $1 in
 	.|"")
 		shift
-		common.date.decompose
+		date_decompose
 		set "$datestamp" "$@"
 		;;
 	esac
@@ -298,11 +298,11 @@ function cxr_common_date2julian()
 	local d2j_tmpyear
 	
 	case $1 in "")
-		common.date.decompose
+		date_decompose
 		set -- $TODAY ;; 
 	esac
 	
-	common.date.split $1 d2j_year d2j_month d2j_day || return 2
+	date_split $1 d2j_year d2j_month d2j_day || return 2
 
 	## Calculate number of months from March
 	d2j_tmpmonth=$((12 * $d2j_year + $d2j_month - 3))
@@ -332,9 +332,9 @@ function cxr_common_julian2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -370,9 +370,9 @@ function cxr_common_epoch2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -396,9 +396,9 @@ function cxr_common_epoch2datetime()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -424,7 +424,7 @@ function cxr_common_week_of_year()
 
 	if [[ $# -lt 1   ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
+		main_log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -454,7 +454,7 @@ function cxr_common_day_of_year()
 	
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
+		main_log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -493,7 +493,7 @@ function cxr_common_days_in_month
 	
 	if [[ $# -lt 2  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a month and a year as input"
+		main_log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a month and a year as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -523,7 +523,7 @@ function cxr_common_days_left_in_week
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -555,7 +555,7 @@ function cxr_common_days_left_in_month
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
+		main_log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -587,7 +587,7 @@ function cxr_common_is_leap_year
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a year as input"
+		main_log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a year as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -644,7 +644,7 @@ function cxr_common_date2offset()
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -656,12 +656,12 @@ function cxr_common_date2offset()
 	
 	if [[ ${offset} -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main_log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main_log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	else
@@ -696,7 +696,7 @@ function cxr_common_offset2date()
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -732,7 +732,7 @@ function cxr_common_offset2_raw_date()
 	# Check input
 	if [[ $# -ne 1 ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -743,7 +743,7 @@ function cxr_common_offset2_raw_date()
 	then
 		# Day offset is set
 		date=$(cxr_common_offset2date "$day_offset")
-		echo $(common.date.toRaw "$date")
+		echo $(date_toRaw "$date")
 	else
 		echo ""
 	fi
@@ -772,7 +772,7 @@ function cxr_common_modelling_hour()
 	# Check for numeric input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -781,12 +781,12 @@ function cxr_common_modelling_hour()
 	
 	if [[ ${offset} -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
+		main_log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main_log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	else
@@ -813,9 +813,9 @@ function cxr_common_days_between()
 	local julend
 	local julstart
 	
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(date_isYYYYMMDD? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "needs 2 dates as input"
+		main_log -e "${FUNCNAME}" "needs 2 dates as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -828,7 +828,7 @@ function cxr_common_days_between()
 	
 	if [[ $diff -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "Date2 is smaller than Date1"
+		main_log -e "${FUNCNAME}" "Date2 is smaller than Date1"
 		echo 0
 		return $CXR_RET_ERROR
 	fi
@@ -840,7 +840,7 @@ function cxr_common_days_between()
 }
 
 ################################################################################
-# Function: common.date.addDays
+# Function: date_addDays
 #
 # Adds a number of days to a date and returns result
 # 
@@ -848,7 +848,7 @@ function cxr_common_days_between()
 # $1 - Date in YYYY-MM-DD form
 # $2 - number of days to add (integer!)
 ################################################################################	
-function common.date.addDays()
+function date_addDays()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -856,9 +856,9 @@ function common.date.addDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -874,7 +874,7 @@ function common.date.addDays()
 }
 
 ################################################################################
-# Function: common.date.subtractDays
+# Function: date_subtractDays
 #
 # Subtracts a number of days from a date and returns result
 # 
@@ -882,7 +882,7 @@ function common.date.addDays()
 # $1 - Date in YYYY-MM-DD form
 # $2 - number of days to subtract (integer!)
 ################################################################################	
-function common.date.subtractDays()
+function date_subtractDays()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -890,9 +890,9 @@ function common.date.subtractDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -908,26 +908,26 @@ function common.date.subtractDays()
 }
 
 ################################################################################
-# Function: common.date.setVars
+# Function: date_setVars
 #
 # Exports a number of date variables from a simulation day offset
 # Maybe this can be done more efficiently by using date directly
 # (see http://ss64.com/bash/date.html)
 #
 # Example:
-# > common.date.setVars "$CXR_START_DATE" "0"
+# > date_setVars "$CXR_START_DATE" "0"
 # 
 # Parameters:
 # $1 - Start day in YYYY-MM-DD notation
 # $2 - Simulation day offset
 ################################################################################	
-function common.date.setVars()
+function date_setVars()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -935,26 +935,26 @@ function common.date.setVars()
 	START_DATE=$1
 	
 	# Export the offset so that we can save and restore settings
-	# Alos we need it for certain date functions like common.date.isFirstDayOfSimulation?
+	# Alos we need it for certain date functions like date_isFirstDayOfSimulation?
 	CXR_DAY_OFFSET=$2
 	
 	# Set start and stop hour correctly
-	if [[ $(common.date.isFirstDayOfSimulation?) == "true" ]]
+	if [[ $(date_isFirstDayOfSimulation?) == "true" ]]
 	then
 		CXR_START_HOUR=${CXR_START_HOUR_FIRST_DAY}
-		main.log -v "We are at the first day, simulation time starts at ${CXR_START_HOUR}"
+		main_log -v "We are at the first day, simulation time starts at ${CXR_START_HOUR}"
 	else
 		CXR_START_HOUR=0000
-		main.log -v "We are at a normal day, simulation time starts at ${CXR_START_HOUR}"
+		main_log -v "We are at a normal day, simulation time starts at ${CXR_START_HOUR}"
 	fi
 	
-	if [[ $(common.date.isLastDayOfSimulation?) == "true" ]]
+	if [[ $(date_isLastDayOfSimulation?) == "true" ]]
 	then
 		CXR_STOP_HOUR=${CXR_STOP_HOUR_LAST_DAY}
-		main.log -v "We are at the last day, simulation time stops at ${CXR_STOP_HOUR}"
+		main_log -v "We are at the last day, simulation time stops at ${CXR_STOP_HOUR}"
 	else
 		CXR_STOP_HOUR=2400
-		main.log -v "We are at a normal day, simulation time stops at ${CXR_STOP_HOUR}"
+		main_log -v "We are at a normal day, simulation time stops at ${CXR_STOP_HOUR}"
 	fi
 	
 	
@@ -971,10 +971,10 @@ function common.date.setVars()
 	CXR_DATE=$(cxr_common_julian2date $CXR_JUL)
 	
 	# Date without separators (YYYYMMDD)
-	CXR_DATE_RAW=$(common.date.toRaw $CXR_DATE)
+	CXR_DATE_RAW=$(date_toRaw $CXR_DATE)
 	
 	#Split it
-	common.date.split $CXR_DATE year month day
+	date_split $CXR_DATE year month day
 	
 	# YYYY year
 	CXR_YEAR=$year
@@ -986,7 +986,7 @@ function common.date.setVars()
 	CXR_MONTH=$(cxr_common_two_digits $month)
 	
 	# DD day
-	CXR_DAY=$(common.string.leftPadZero $day 2)
+	CXR_DAY=$(string_leftPadZero $day 2)
 	
 	# Modelling hour
 	CXR_MODEL_HOUR=$(cxr_common_modelling_hour $CXR_DATE)
@@ -1014,10 +1014,10 @@ function common.date.setVars()
 		CXR_JUL_YESTERDAY=$(( $CXR_JUL - 1 ))
 		CXR_DATE_YESTERDAY=$(cxr_common_julian2date $CXR_JUL_YESTERDAY)
 		
-		CXR_DATE_RAW_YESTERDAY=$(common.date.toRaw $CXR_DATE_YESTERDAY)
+		CXR_DATE_RAW_YESTERDAY=$(date_toRaw $CXR_DATE_YESTERDAY)
 		
 		#Split it
-		common.date.split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
+		date_split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
 		
 	
 		# YYYY year
@@ -1027,10 +1027,10 @@ function common.date.setVars()
 		CXR_YEAR_S_YESTERDAY=${CXR_YEAR:2:2}
 		
 		# MM month
-		CXR_MONTH_YESTERDAY=$(common.string.leftPadZero $month_yesterday 2)
+		CXR_MONTH_YESTERDAY=$(string_leftPadZero $month_yesterday 2)
 		
 		# DD day
-		CXR_DAY_YESTERDAY=$(common.string.leftPadZero $day_yesterday 2)
+		CXR_DAY_YESTERDAY=$(string_leftPadZero $day_yesterday 2)
 		
 		# Day of year
 		CXR_DOY_YESTERDAY=$(cxr_common_day_of_year $CXR_DATE)
@@ -1041,14 +1041,14 @@ function common.date.setVars()
 }
 
 ################################################################################
-# Function: common.date.isFirstDayOfWeek?
+# Function: date_isFirstDayOfWeek?
 #
 # Returns true if the day currently processed is the first of a week (Monday).
 #
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
 ################################################################################	
-function common.date.isFirstDayOfWeek? ()
+function date_isFirstDayOfWeek? ()
 ################################################################################
 {
 	local date=$1
@@ -1063,14 +1063,14 @@ function common.date.isFirstDayOfWeek? ()
 }
 
 ################################################################################
-# Function: common.date.isFirstDayOfMonth?
+# Function: date_isFirstDayOfMonth?
 #
 # Returns true if the day currently processed is the first of a month (01).
 #
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
 ################################################################################	
-function common.date.isFirstDayOfMonth? ()
+function date_isFirstDayOfMonth? ()
 ################################################################################
 {
 	local date=$1
@@ -1084,14 +1084,14 @@ function common.date.isFirstDayOfMonth? ()
 }
 
 ################################################################################
-# Function: common.date.isFirstDayOfYear?
+# Function: date_isFirstDayOfYear?
 #
 # Returns true if the day currently processed is the first of a month (01).
 #
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
 ################################################################################	
-function common.date.isFirstDayOfYear? ()
+function date_isFirstDayOfYear? ()
 ################################################################################
 {
 	local date=$1
@@ -1108,7 +1108,7 @@ function common.date.isFirstDayOfYear? ()
 }
 
 ################################################################################
-# Function: common.date.isFirstDayOfSimulation?
+# Function: date_isFirstDayOfSimulation?
 #
 # Returns true if the day currently processed is the first simulated.
 #
@@ -1116,7 +1116,7 @@ function common.date.isFirstDayOfYear? ()
 # CXR_DAY_OFFSET - the current day offset
 # 
 ################################################################################	
-function common.date.isFirstDayOfSimulation? ()
+function date_isFirstDayOfSimulation? ()
 ################################################################################
 {
 	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
@@ -1128,7 +1128,7 @@ function common.date.isFirstDayOfSimulation? ()
 }
 
 ################################################################################
-# Function: common.date.isLastDayOfSimulation?
+# Function: date_isLastDayOfSimulation?
 #
 # Returns true if the day currently processed is the last simulated
 #
@@ -1136,7 +1136,7 @@ function common.date.isFirstDayOfSimulation? ()
 # CXR_DAY_OFFSET - the current day offset
 # 
 ################################################################################	
-function common.date.isLastDayOfSimulation? ()
+function date_isLastDayOfSimulation? ()
 ################################################################################
 {
 	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
@@ -1202,10 +1202,10 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(common.date.isYYYYMMDD? 1999-06-12) true "common.date.isYYYYMMDD?"
-	is $(common.date.isYYYYMMDD? 1999-6-12)  false "common.date.isYYYYMMDD?"
-	is $(common.date.toRaw 2009-01-12) 20090112 "common.date.toRaw"
-	is $(common.date.toISO 20090112) 2009-01-12 "common.date.toISO"
+	is $(date_isYYYYMMDD? 1999-06-12) true "date_isYYYYMMDD?"
+	is $(date_isYYYYMMDD? 1999-6-12)  false "date_isYYYYMMDD?"
+	is $(date_toRaw 2009-01-12) 20090112 "date_toRaw"
+	is $(date_toISO 20090112) 2009-01-12 "date_toISO"
 	is $(cxr_common_date2julian 2009-01-27) 2454859 "cxr_common_date2julian"
 	is $(cxr_common_julian2date 2454859) 2009-01-27 "cxr_common_julian2date"
 	is $(cxr_common_epoch2date 1266874169) 2010-02-22 "cxr_common_epoch2date normal"
@@ -1226,13 +1226,13 @@ function test_module()
 	is $(cxr_common_days_between 2009-01-01 2009-12-31) 365 "cxr_common_days_between one year (non-leap)"
 	is $(cxr_common_days_between 2004-01-01 2004-12-31) 366 "cxr_common_days_between one year (leap)"
 	is $(cxr_common_days_between 2009-01-01 2009-02-28) 59 "cxr_common_days_between"
-	is $(common.date.addDays 2009-02-28 1) 2009-03-01 "common.date.addDays"
-	is $(common.date.addDays 2004-02-28 1) 2004-02-29 "common.date.addDays"
-	is $(common.date.subtractDays 2004-02-29 1) 2004-02-28 "common.date.subtractDays"
-	is $(common.date.isFirstDayOfYear? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
-	is $(common.date.isFirstDayOfWeek? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
-	is $(common.date.isFirstDayOfWeek? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
-	is $(common.date.isFirstDayOfMonth? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
+	is $(date_addDays 2009-02-28 1) 2009-03-01 "date_addDays"
+	is $(date_addDays 2004-02-28 1) 2004-02-29 "date_addDays"
+	is $(date_subtractDays 2004-02-29 1) 2004-02-28 "date_subtractDays"
+	is $(date_isFirstDayOfYear? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
+	is $(date_isFirstDayOfWeek? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
+	is $(date_isFirstDayOfWeek? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
+	is $(date_isFirstDayOfMonth? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
 	is "$(cxr_common_offset2_raw_date "")" '' "cxr_common_offset2_raw_date empty string"
 	
 	########################################

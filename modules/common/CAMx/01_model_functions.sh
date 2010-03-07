@@ -105,7 +105,7 @@ function get_chemparam_file()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
+		main_dieGracefully "${FUNCNAME}:${LINENO} - need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
 	local our_chemparam
@@ -138,7 +138,7 @@ function get_chemparam_file()
 				our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 			else
 				# File still does not exist
-				main.dieGracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+				main_dieGracefully "${FUNCNAME}:${LINENO} - Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 			fi
 		fi
 	fi
@@ -147,7 +147,7 @@ function get_chemparam_file()
 	if [[ ${CXR_RUN_MODEL} == true  ]]
 	then
 		# Report only if we run the model
-		main.log -a $FUNCNAME "Using chemparam file (${our_chemparam})."
+		main_log -a $FUNCNAME "Using chemparam file (${our_chemparam})."
 		
 		# Also report MD5
 		cxr_common_report_md5 "${our_chemparam}"
@@ -191,17 +191,17 @@ function get_model_exec()
 	if [[ -x ${RUN_EXEC}  ]]
 	then
 		# Run dependent exists
-		main.log -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
+		main_log -v "${FUNCNAME}"  "CAMx Binary is actually called ${RUN_EXEC}"
 		echo "${RUN_EXEC}"
 	elif [[ -x ${MACHINE_EXEC}  ]]
 	then
 		# Machine dependent exists
-		main.log -v "${FUNCNAME}"  "CAMx Binary is actually called ${MACHINE_EXEC}"
+		main_log -v "${FUNCNAME}"  "CAMx Binary is actually called ${MACHINE_EXEC}"
 		echo "${MACHINE_EXEC}"
 	elif [[ -x ${GENERAL_EXEC}  ]]
 	then
 		# general exists
-		main.log -v "${FUNCNAME}"  "CAMx Binary is actually called ${GENERAL_EXEC}"
+		main_log -v "${FUNCNAME}"  "CAMx Binary is actually called ${GENERAL_EXEC}"
 		echo "${GENERAL_EXEC}"
 	else
 		#None exists
@@ -212,7 +212,7 @@ function get_model_exec()
 			echo "${GENERAL_EXEC}" 
 		else
 			# NOK - just issue a warning (if we are compiling e.g.)
-			main.log -w "${FUNCNAME}" "Could not find a suitable CAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
+			main_log -w "${FUNCNAME}" "Could not find a suitable CAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
 }

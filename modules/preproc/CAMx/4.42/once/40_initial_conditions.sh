@@ -204,7 +204,7 @@ function create_topconc_file()
 		if [[ "$spec_line"  ]]
 		then
 			# Make sure its uppercase
-			species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
+			species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
 			conc=$(echo $spec_line | cut -d: -f2)
 			
 			# Format should be (a10,f10.7), e. g. 
@@ -246,7 +246,7 @@ function initial_conditions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -256,9 +256,9 @@ function initial_conditions()
 			# Output File does not exist - good.
 			
 			# Increase global indent level
-			main.increaseLogIndent
+			main_increaseLogIndent
 			
-			main.log "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using method ${CXR_IC_BC_TC_METHOD}..."
+			main_log "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using method ${CXR_IC_BC_TC_METHOD}..."
 	
 			# What method is wanted?
 			case "${CXR_IC_BC_TC_METHOD}" in
@@ -283,7 +283,7 @@ function initial_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -314,7 +314,7 @@ function initial_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -367,7 +367,7 @@ function initial_conditions()
 					# interface:
 					# fmoz,fln,mm5camxinfile,outfile_bc,nlevs,nspec,note,xorg,yorg,delx,dely,ibdate,extra
 					# we need to multiply the resolution by 1000 (metre) 
-					echo "$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${exec_tmp_file}
+					echo "$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(math_FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(math_FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${exec_tmp_file}
 					echo "exit" >> ${exec_tmp_file}
 					
 					# Get a copy of the call
@@ -383,19 +383,19 @@ function initial_conditions()
 						"${CXR_AIRCONV_EXEC}" ${CXR_IC_ASC_OUTPUT_FILE} ${CXR_IC_OUTPUT_FILE} AIRQUALITY 0 2>&1 | tee -a $CXR_LOG
 						
 					else
-						main.log "${FUNCNAME}"  "This is a dry-run, will not run the program"
+						main_log "${FUNCNAME}"  "This is a dry-run, will not run the program"
 					fi
 			
 					# Get back
 					cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
 			
 					# Decrease global indent level
-					main.decreaseLogIndent
+					main_decreaseLogIndent
 				;;
 				
 				ICBCPREP )
 				
-					main.log -w "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
+					main_log -w "${FUNCNAME}"  "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
 					
 					if [[ "$CXR_DRY" == false  ]]
 					then
@@ -421,10 +421,10 @@ function initial_conditions()
 							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24
 							EOF
 						else
-							main.dieGracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
+							main_dieGracefully "$FUNCNAME:$LINENO - could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"
 						fi
 					else
-						main.log "${FUNCNAME}"  "This is a dry-run, will not run the program"
+						main_log "${FUNCNAME}"  "This is a dry-run, will not run the program"
 					fi
 					
 				
@@ -435,7 +435,7 @@ function initial_conditions()
 			# Check if all went well
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -446,11 +446,11 @@ function initial_conditions()
 			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
-				main.log -w "${FUNCNAME}"  "File $CXR_IC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main_log -w "${FUNCNAME}"  "File $CXR_IC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
 				return 0
 			else
 				# Fail!
-				main.log -e "${FUNCNAME}" "File $CXR_IC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				main_log -e "${FUNCNAME}" "File $CXR_IC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -458,7 +458,7 @@ function initial_conditions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 
@@ -508,7 +508,7 @@ function test_module()
 	echo "For now, you need to inspect the results manually"
 	
 	# Cleanup all locks etc...
-	main.doCleanup
+	main_doCleanup
 	
 	exit 1
 }

@@ -70,7 +70,7 @@ exit 1
 
 
 ################################################################################
-# Function: common.string.isSubstringPresent?
+# Function: string_isSubstringPresent?
 #
 # Returns true if a substring needle was found within haystack, false otherwise.
 # TODO: most calls of thsi function are better replaced by a hash (has?) operation.
@@ -79,7 +79,7 @@ exit 1
 # $1 - haystack, the string in which we search
 # $2 - needle, the substring to be found
 ################################################################################
-function common.string.isSubstringPresent?() 
+function string_isSubstringPresent?() 
 ################################################################################
 {
 	local found=$(expr match " $1" ".*$2.*")
@@ -87,7 +87,7 @@ function common.string.isSubstringPresent?()
 	
 	if [[ $found -gt 0  ]]
 	then
-		main.log -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
+		main_log -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
 		echo true
 	else
 		echo false
@@ -95,14 +95,14 @@ function common.string.isSubstringPresent?()
 }
 
 ################################################################################
-# Function: common.string.toLower
+# Function: string_toLower
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function common.string.toLower() 
+function string_toLower() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -114,14 +114,14 @@ function common.string.toLower()
 } 
 
 ################################################################################
-# Function: common.string.toUpper
+# Function: string_toUpper
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function common.string.toUpper() 
+function string_toUpper() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -133,7 +133,7 @@ function common.string.toUpper()
 }
 
 ################################################################################
-# Function: common.string.trim
+# Function: string_trim
 #
 # Trims spaces or other characters on both ends of a string.
 #
@@ -141,7 +141,7 @@ function common.string.toUpper()
 # $1 - the string to be trimmed
 # [$2] - the character that should be removed (default: space-trims tabs, too)
 ################################################################################
-function common.string.trim() 
+function string_trim() 
 ################################################################################
 {
 	local string="${1}"
@@ -150,7 +150,7 @@ function common.string.trim()
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.log -e "$FUNCNAME" "Programming error: wrong call."
+		main_log -e "$FUNCNAME" "Programming error: wrong call."
 		echo ""
 	else
 		# trim in front
@@ -182,7 +182,7 @@ function cxr_common_len()
 }
 
 ################################################################################
-# Function: common.string.getCharacters
+# Function: string_getCharacters
 #
 # Extracts a number of characters from the start of a string
 #
@@ -190,7 +190,7 @@ function cxr_common_len()
 # $1 - string from which the chars should be extracted
 # $2 - number of chars to return
 ################################################################################
-function common.string.getCharacters() 
+function string_getCharacters() 
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -204,7 +204,7 @@ function common.string.getCharacters()
 
 
 ################################################################################
-# Function: common.string.leftPadZero
+# Function: string_leftPadZero
 #
 # Makes sure a number has n digits (left padded with 0). Can be used in File rules to make sure
 # you get something like my_file0001.dat or something.
@@ -213,12 +213,12 @@ function common.string.getCharacters()
 # $1 - a number to be padded
 # $2 - number of digits to be used
 ################################################################################
-function common.string.leftPadZero
+function string_leftPadZero
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
+		main_dieGracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
 	local number="$1"
@@ -228,14 +228,14 @@ function common.string.leftPadZero
 }
 
 ################################################################################
-# Function: common.string.getPrefixNumber
+# Function: string_getPrefixNumber
 #
 # Extracts a 2-digit number from the beginning of a string
 #
 # Parameters:
 # $1 - string from which the numbers should be extracted
 ################################################################################
-function common.string.getPrefixNumber
+function string_getPrefixNumber
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -252,9 +252,9 @@ function common.string.getPrefixNumber
 		numbers=$(expr match $string '\([0-9]*\)')
 		
 		# Extract 2 Digits
-		numbers=$(common.string.getCharacters $numbers 2)
+		numbers=$(string_getCharacters $numbers 2)
 		
-		echo $(common.string.leftPadZero ${numbers} 2)
+		echo $(string_leftPadZero ${numbers} 2)
 	fi
 }
 
@@ -314,33 +314,33 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
+	is "$(string_isSubstringPresent? abc a)" true "string_isSubstringPresent? is a in abc?"
 	
-	is "$(common.string.toLower QUERTY)" querty "common.string.toLower QUERTY"
-	is "$(common.string.toLower querty)" querty "common.string.toLower querty"
-	is "$(common.string.toLower '')" "" "common.string.toLower empty string"
+	is "$(string_toLower QUERTY)" querty "string_toLower QUERTY"
+	is "$(string_toLower querty)" querty "string_toLower querty"
+	is "$(string_toLower '')" "" "string_toLower empty string"
 	
-	is "$(common.string.toUpper QUERTY)" QUERTY "common.string.toUpper QUERTY"
-	is "$(common.string.toUpper querty)" QUERTY "common.string.toUpper querty"
-	is "$(common.string.toUpper "")" '' "common.string.toUpper empty string"
+	is "$(string_toUpper QUERTY)" QUERTY "string_toUpper QUERTY"
+	is "$(string_toUpper querty)" QUERTY "string_toUpper querty"
+	is "$(string_toUpper "")" '' "string_toUpper empty string"
 	
-	is "$(common.string.trim "")" '' "common.string.trim empty string (implicit)"
-	is "$(common.string.trim "    ")" '' "common.string.trim spaces (implicit)"
-	is "$(common.string.trim "		")" '' "common.string.trim tabs (implicit)"
-	is "$(common.string.trim " hallo")" "hallo" "common.string.trim front (implicit)"
-	is "$(common.string.trim "hallo ")" "hallo" "common.string.trim back (implicit)"
-	is "$(common.string.trim " hallo ")" "hallo" "common.string.trim both (implicit)"
-	is "$(common.string.trim "aba" "a" )" 'b' "common.string.trim remove all a (explicit)"
-	is "$(common.string.trim " b " " " )" 'b' "common.string.trim remove spaces (explicit)"
-	is "$(common.string.trim "guaggc" "guagg" )" 'c' "common.string.trim remove a whole string (explicit)"
+	is "$(string_trim "")" '' "string_trim empty string (implicit)"
+	is "$(string_trim "    ")" '' "string_trim spaces (implicit)"
+	is "$(string_trim "		")" '' "string_trim tabs (implicit)"
+	is "$(string_trim " hallo")" "hallo" "string_trim front (implicit)"
+	is "$(string_trim "hallo ")" "hallo" "string_trim back (implicit)"
+	is "$(string_trim " hallo ")" "hallo" "string_trim both (implicit)"
+	is "$(string_trim "aba" "a" )" 'b' "string_trim remove all a (explicit)"
+	is "$(string_trim " b " " " )" 'b' "string_trim remove spaces (explicit)"
+	is "$(string_trim "guaggc" "guagg" )" 'c' "string_trim remove a whole string (explicit)"
 	
-	is "$(common.string.getCharacters 1234 2)" 12 "common.string.getCharacters"
+	is "$(string_getCharacters 1234 2)" 12 "string_getCharacters"
 	
-	is "$(common.string.leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
-	is "$(common.string.leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
-	is "$(common.string.leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
+	is "$(string_leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
+	is "$(string_leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
+	is "$(string_leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
 	
-	is "$(common.string.getPrefixNumber xx00xx )" '' "common.string.getPrefixNumber not at beginning"
+	is "$(string_getPrefixNumber xx00xx )" '' "string_getPrefixNumber not at beginning"
 	
 	########################################
 	# teardown tests if needed

@@ -142,34 +142,34 @@ function set_permissions
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [[ $(main.isNumeric? "${CXR_OUTPUT_DIR_PERMISSIONS}") == true  ]]
+		if [[ $(main_isNumeric? "${CXR_OUTPUT_DIR_PERMISSIONS}") == true  ]]
 		then
 			# OK, go ahead
-			main.log -a -b "${FUNCNAME}"  "Setting Permissions on output directories to ${CXR_OUTPUT_DIR_PERMISSIONS}"
+			main_log -a -b "${FUNCNAME}"  "Setting Permissions on output directories to ${CXR_OUTPUT_DIR_PERMISSIONS}"
 		
 		
 			for VAR in $(set | sort | grep ^CXR_.*OUTPUT_DIR= | cut -d= -f1)
 			do
-				main.log -v "${FUNCNAME}"  "Changing permissions on ${VAR}..."
+				main_log -v "${FUNCNAME}"  "Changing permissions on ${VAR}..."
 				
 				if [[ "${CXR_DRY}" == false  ]]
 				then
 					# The ! allows for _indirection_
 					chmod -R ${CXR_OUTPUT_DIR_PERMISSIONS} "${!VAR}"
 				else
-					main.log -a "$FUNCNAME" "This is a dry-run, will not change any permissions,"
+					main_log -a "$FUNCNAME" "This is a dry-run, will not change any permissions,"
 				fi
 				
 			done
 			
 		else
 			# Nope, we need an octal permision string
-			main.log "${FUNCNAME}" "We need an octal permission string in CXR_OUTPUT_DIR_PERMISSIONS, got ${CXR_OUTPUT_DIR_PERMISSIONS}"
+			main_log "${FUNCNAME}" "We need an octal permission string in CXR_OUTPUT_DIR_PERMISSIONS, got ${CXR_OUTPUT_DIR_PERMISSIONS}"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -177,7 +177,7 @@ function set_permissions
 		# OK, done
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

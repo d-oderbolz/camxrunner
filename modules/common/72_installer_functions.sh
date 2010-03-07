@@ -107,7 +107,7 @@ function cxr_common_install()
 	local array
 	local version
 	
-	main.log -a "$FUNCNAME"  "Checking internal files (may take a while)..."
+	main_log -a "$FUNCNAME"  "Checking internal files (may take a while)..."
 	
 	cxr_common_check_runner_executables
 	
@@ -120,7 +120,7 @@ function cxr_common_install()
 		
 		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		model_id=$(cxr_common_get_model_id "$model") || main.dieGracefully "model $model is not known."
+		model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
 		
 		# Extract the list of supported versions
 		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -144,15 +144,15 @@ function cxr_common_install()
 		
 		cxr_common_is_version_supported $version $model
 		
-		main.log "${FUNCNAME}" "Installing system for $model $version..."
+		main_log "${FUNCNAME}" "Installing system for $model $version..."
 		
 		# reload config for this version (the run is called "installer")
-		main.readConfig "installer" "$version" "$model" "$CXR_RUN_DIR"
+		main_readConfig "installer" "$version" "$model" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
 		cxr_common_module_run_type ${CXR_TYPE_INSTALLER}
 	
-		main.log -a -b "${FUNCNAME}" "All installation actions finished."
+		main_log -a -b "${FUNCNAME}" "All installation actions finished."
 	done
 }
 
@@ -173,7 +173,7 @@ function cxr_common_determine_patch_target()
 	
 	if [[ ! -f "$patch"  ]]
 	then
-		main.dieGracefully "$FUNCNAME - no filename passed or file not readable!"
+		main_dieGracefully "$FUNCNAME - no filename passed or file not readable!"
 	fi
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
@@ -185,7 +185,7 @@ function cxr_common_determine_patch_target()
 	then
 		echo "$file"
 	else
-		main.dieGracefully "$FUNCNAME - Could not find any filename"
+		main_dieGracefully "$FUNCNAME - Could not find any filename"
 	fi
 	
 }
@@ -222,10 +222,10 @@ function cxr_common_apply_patches()
 	
 	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then
-		main.dieGracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
+		main_dieGracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
 	fi
 	
-	main.log "${FUNCNAME}" "Applying patches in $patch_dir to $src_dir..."
+	main_log "${FUNCNAME}" "Applying patches in $patch_dir to $src_dir..."
 	
 	# Create a list of all patches in all Subdirectories of $patch_dir
 	patchlist=$(cxr_common_create_tempfile $FUNCNAME)
@@ -254,18 +254,18 @@ function cxr_common_apply_patches()
 		# Test status
 		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 		then
-			main.dieGracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
+			main_dieGracefully "$FUNCNAME:$LINENO could not read name of file to be patched."
 		fi
 		
 		# Is the patch a dos-file ?
 		if [[ "$(cxr_common_is_dos? "$patch_file")" == true ]]
 		then
-			main.log -w "$FUNCNAME" "Patch $patch_file is in dos format. I will correct this."
+			main_log -w "$FUNCNAME" "Patch $patch_file is in dos format. I will correct this."
 			${CXR_DOS2UNIX_EXEC} $patch_file
 			
 			if [[ $? -ne 0 ]]
 			then
-				main.dieGracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
+				main_dieGracefully "$FUNCNAME:$LINENO - could not convert $patch_file to Unix format!"
 			fi
 		fi
 		
@@ -287,7 +287,7 @@ function cxr_common_apply_patches()
 		# Complete path of the file to patch
 		real_file=$src_dir/$current_dir/$file
 		
-		main.log -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - $patch_file\nREAL_FILE: $real_file"
+		main_log -v "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - $patch_file\nREAL_FILE: $real_file"
 
 		if [[ -f $real_file  ]]
 		then
@@ -295,7 +295,7 @@ function cxr_common_apply_patches()
 			then
 				# Ask user
 				
-				main.log -a "${FUNCNAME}"  "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
+				main_log -a "${FUNCNAME}"  "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
 				
 				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $(basename $patch_file) to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
@@ -305,7 +305,7 @@ function cxr_common_apply_patches()
 					# Test status
 					if [[ $? -ne 0 ]]
 					then
-						main.dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+						main_dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
 					fi
 					
 				fi
@@ -317,11 +317,11 @@ function cxr_common_apply_patches()
 				# Test status
 				if [[ $? -ne 0 ]]
 				then
-					main.dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
+					main_dieGracefully "$FUNCNAME:$LINENO could not patch $real_file with $patch_file"
 				fi
 			fi
 		else
-			main.log -e "${FUNCNAME}" "file $real_file does not exist. Check the header of $patch_file!"
+			main_log -e "${FUNCNAME}" "file $real_file does not exist. Check the header of $patch_file!"
 		fi
 		
 		# Increment

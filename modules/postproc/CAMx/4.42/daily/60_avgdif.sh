@@ -170,17 +170,17 @@ function avgdif
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		main.log "${FUNCNAME}" "Comparing Model output to existing model data..."    
+		main_log "${FUNCNAME}" "Comparing Model output to existing model data..."    
 		
 		# Loop over grids
 		for i in $(seq 1 $(($CXR_NUMBER_OF_GRIDS)) );
 		do
-			main.log "${FUNCNAME}" "Comparing ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]} and ${CXR_TEST_INPUT_ARR_FILES[${i}]}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
+			main_log "${FUNCNAME}" "Comparing ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]} and ${CXR_TEST_INPUT_ARR_FILES[${i}]}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
 			
 			# Put call into this file
 			exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
@@ -194,7 +194,7 @@ function avgdif
 			EOF
 			
 			# Get a copy of the call
-			main.log "${FUNCNAME}" "Calling AVGDIF - using this jobfile (be patient)...\n"
+			main_log "${FUNCNAME}" "Calling AVGDIF - using this jobfile (be patient)...\n"
 			cat ${exec_tmp_file} | tee -a $CXR_LOG
 			
 			#Dry?
@@ -203,7 +203,7 @@ function avgdif
 				# Call AVGDIF (never mind the strange calling convention...)
 				$CXR_AVGDIF_EXEC < $exec_tmp_file
 			else
-				main.log "${FUNCNAME}"  "This is a dry-run, no action required"    
+				main_log "${FUNCNAME}"  "This is a dry-run, no action required"    
 			fi
 		
 		done
@@ -212,14 +212,14 @@ function avgdif
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 		
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

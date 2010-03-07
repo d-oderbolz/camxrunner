@@ -209,7 +209,7 @@ function boundary_conditions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -219,9 +219,9 @@ function boundary_conditions()
 			# File does not exist
 		
 			# Increase global indent level
-			main.increaseLogIndent
+			main_increaseLogIndent
 	
-			main.log "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data..."
+			main_log "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data..."
 			
 			# What method is wanted?
 			case "${CXR_IC_BC_TC_METHOD}" in
@@ -243,7 +243,7 @@ function boundary_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -274,7 +274,7 @@ function boundary_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -348,7 +348,7 @@ function boundary_conditions()
 					# ,extra=extra
 					# we need to multiply the resolution by 1000 (metre)
 					
-					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}" >> ${exec_tmp_file}
+					echo "$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(math_FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(math_FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}" >> ${exec_tmp_file}
 					echo "exit" >> ${exec_tmp_file}
 					
 					# Get a copy of the call
@@ -364,33 +364,33 @@ function boundary_conditions()
 						"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG
 						
 					else
-						main.log "${FUNCNAME}"  "This is a dry-run, will not run program"
+						main_log "${FUNCNAME}"  "This is a dry-run, will not run program"
 					fi
 			
 					# Get back
 					cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 			
 					# Decrease global indent level
-					main.decreaseLogIndent
+					main_decreaseLogIndent
 			
 				;;
 				
 				ICBCPREP )
 				
-					main.log -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
+					main_log -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
 					# We use the topconc file that was created by initial_conditions
 					# And we link to the BC file that was created there.
 				
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We only create a file the first day, all others we link
-						if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
+						if [[ "$(date_isFirstDayOfSimulation?)" == false  ]]
 						then
 							# Not the first day, just link
 							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
 						fi
 					else
-						main.log "${FUNCNAME}"  "This is a dry-run, no action required"
+						main_log "${FUNCNAME}"  "This is a dry-run, no action required"
 					fi
 				;;
 				
@@ -399,7 +399,7 @@ function boundary_conditions()
 			# Check if all went well
 			if [[ "$(cxr_common_check_result)" == false  ]]
 			then
-				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -410,11 +410,11 @@ function boundary_conditions()
 			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
-				main.log -w "${FUNCNAME}"  "File $CXR_BC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main_log -w "${FUNCNAME}"  "File $CXR_BC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
 				return 0
 			else
 				# Fail!
-				main.log -e "${FUNCNAME}" "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				main_log -e "${FUNCNAME}" "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -422,7 +422,7 @@ function boundary_conditions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

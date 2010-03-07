@@ -131,14 +131,14 @@ function CAMx_installer()
 		cxr_common_check_mb_needed "$CXR_CAMX_SRC_DIR" "$CXR_CAMX_MEGABYTES_REQUIRED"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "We will install the sourcode to ${CXR_CAMX_SRC_DIR}"
-		main.log -a "${FUNCNAME}" "Creating the target directories..."
+		main_log -a "${FUNCNAME}" "We will install the sourcode to ${CXR_CAMX_SRC_DIR}"
+		main_log -a "${FUNCNAME}" "Creating the target directories..."
 		########################################
 		
 		mkdir -p "$CXR_CAMX_SRC_DIR"
 
 		# Go to location
-		cd "$CXR_CAMX_SRC_DIR" || main.dieGracefully "could not change to $CXR_CAMX_SRC_DIR"
+		cd "$CXR_CAMX_SRC_DIR" || main_dieGracefully "could not change to $CXR_CAMX_SRC_DIR"
 		
 		# Is the tar file already present?
 		if [[ -s ${CXR_CAMX_TAR}  ]]
@@ -147,40 +147,40 @@ function CAMx_installer()
 			if [[ "$(cxr_common_get_consent "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true  ]]
 			then
 				########################################
-				main.log -a "${FUNCNAME}" "Downloading ..."
+				main_log -a "${FUNCNAME}" "Downloading ..."
 				########################################
 				
-				${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main.dieGracefully "could not download $CXR_CAMX_TAR_LOC"
+				${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main_dieGracefully "could not download $CXR_CAMX_TAR_LOC"
 			fi
 		else
 			########################################
-			main.log -a "${FUNCNAME}" "Downloading ..."
+			main_log -a "${FUNCNAME}" "Downloading ..."
 			########################################
 			
-			${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main.dieGracefully "could not download $CXR_CAMX_TAR_LOC"
+			${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main_dieGracefully "could not download $CXR_CAMX_TAR_LOC"
 		fi
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Expanding  ${CXR_CAMX_TAR}..."
+		main_log -a "${FUNCNAME}" "Expanding  ${CXR_CAMX_TAR}..."
 		########################################
 		tar xvzf ${CXR_CAMX_TAR}
 		
 		# Go to directory
-		cd ${CXR_CAMX_TAR_DIR} || main.dieGracefully "could not change to $CXR_CAMX_TAR_DIR"
+		cd ${CXR_CAMX_TAR_DIR} || main_dieGracefully "could not change to $CXR_CAMX_TAR_DIR"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Setup Input directory containing templates..."
+		main_log -a "${FUNCNAME}" "Setup Input directory containing templates..."
 		########################################
 		
 		input_dir=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
 		if [[ ! -d "$input_dir"  ]]
 		then
-			main.dieGracefully "Could not find the input directory $input_dir"
+			main_dieGracefully "Could not find the input directory $input_dir"
 		fi
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Determining name of binary..."
+		main_log -a "${FUNCNAME}" "Determining name of binary..."
 		########################################
 		
 		#	${CXR_MODEL}-${parallel_paradigm}-${probing_tool}-${HOSTTYPE}
@@ -203,7 +203,7 @@ function CAMx_installer()
 		# Check if CAMxRunner expects this name
 		if [[ "$(basename "$expected_name")" != "$(basename "$binary_name")"  ]]
 		then
-			main.log "${FUNCNAME}" "Note that your configuration expects the binary to be called $expected_name.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
+			main_log "${FUNCNAME}" "Note that your configuration expects the binary to be called $expected_name.\n Adjust CXR_PARALLEL_PARADIGM, CXR_PROBING_TOOL and check your machine type!"
 		fi
 		
 		# Now we can add a machine name,
@@ -223,7 +223,7 @@ function CAMx_installer()
 			binary_name=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
 		fi
 		
-		main.log "${FUNCNAME}" "The new binary will be called $binary_name"
+		main_log "${FUNCNAME}" "The new binary will be called $binary_name"
 		
 		# Here we store the current configuration
 		conffile=${binary_name}.conf
@@ -271,10 +271,10 @@ function CAMx_installer()
 		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
 		
 		#File resulting from compilation due to CAMx defaults
-		resulting_binary=$CXR_CAMX_SRC_DIR/CAMx.$domain.$CXR_CURRENT_PLATFORM
+		resulting_binary=$CXR_CAMX_SRC_DIR/CAMx.$domain_$CXR_CURRENT_PLATFORM
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Setup Input directories containing patches..."
+		main_log -a "${FUNCNAME}" "Setup Input directories containing patches..."
 		########################################
 		
 		# We compile CAMx
@@ -294,11 +294,11 @@ function CAMx_installer()
 		
 		draft_dir=$(mktemp -d ${CXR_TMP_DIR}/${FUNCNAME}-dir.XXXXXXXX)
 		
-		main.log -a $FUNCNAME "We copy our templates to $draft_dir and work there..."
+		main_log -a $FUNCNAME "We copy our templates to $draft_dir and work there..."
 		
-		cd $input_dir || main.dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $input_dir"
-		cp -r * $draft_dir || main.dieGracefully "Could not create a copy of the templates"
-		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+		cd $input_dir || main_dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $input_dir"
+		cp -r * $draft_dir || main_dieGracefully "Could not create a copy of the templates"
+		cd ${CXR_RUN_DIR} || main_dieGracefully "Could not change to $CXR_RUN_DIR"
 		
 		## Clean up draft dir
 		# Readmes
@@ -343,46 +343,46 @@ function CAMx_installer()
 		cxr_common_apply_playfile "$playfile" "$( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
 		########################################
-		main.log -a "${FUNCNAME}" "Installing the changed files..."
+		main_log -a "${FUNCNAME}" "Installing the changed files..."
 		########################################
 		
 		# Just copy all out.
-		cd $draft_dir || main.dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $draft_dir"
-		cp -r * $CXR_CAMX_SRC_DIR || main.dieGracefully "Could not copy changed files back to $CXR_CAMX_SRC_DIR"
-		cd ${CXR_RUN_DIR}  || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+		cd $draft_dir || main_dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $draft_dir"
+		cp -r * $CXR_CAMX_SRC_DIR || main_dieGracefully "Could not copy changed files back to $CXR_CAMX_SRC_DIR"
+		cd ${CXR_RUN_DIR}  || main_dieGracefully "Could not change to $CXR_RUN_DIR"
 
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Prepare prm file..."
+		main_log -a "${FUNCNAME}" "Prepare prm file..."
 		########################################
 		
 		# The PRM file needs a special name!
 		prm_file=$(find $draft_dir -noleaf -type f -name camx.prm)
 		
-		cp $prm_file $target_prm_file || main.dieGracefully "Could not prepare prm file $target_prm_file"
+		cp $prm_file $target_prm_file || main_dieGracefully "Could not prepare prm file $target_prm_file"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Applying patches..."
+		main_log -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
 		if [[ -d "$patch_all_dir"  ]]
 		then
 			cxr_common_apply_patches "$patch_all_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
-			main.log -w "${FUNCNAME}" "Did not find general patch dir $patch_all_dir"
+			main_log -w "${FUNCNAME}" "Did not find general patch dir $patch_all_dir"
 		fi
 		
 		if [[ -d "$patch_platform_dir"  ]]
 		then
 			cxr_common_apply_patches "$patch_platform_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
-			main.log -w "${FUNCNAME}" "Did not find specific patch dir $patch_platform_dir"
+			main_log -w "${FUNCNAME}" "Did not find specific patch dir $patch_platform_dir"
 		fi
 		
-		cd $CXR_CAMX_SRC_DIR || main.dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $CXR_CAMX_SRC_DIR"
+		cd $CXR_CAMX_SRC_DIR || main_dieGracefully "${FUNCNAME}:${LINENO} - Could not change to $CXR_CAMX_SRC_DIR"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Compilation starts..."
+		main_log -a "${FUNCNAME}" "Compilation starts..."
 		########################################
 		
 		echo "make clean"
@@ -391,7 +391,7 @@ function CAMx_installer()
 		# Test status
 		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 		then
-			main.dieGracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+			main_dieGracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
 		
 		echo "make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi"
@@ -400,23 +400,23 @@ function CAMx_installer()
 		# Test status
 		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 		then
-			main.dieGracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+			main_dieGracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Moving binary..."
+		main_log -a "${FUNCNAME}" "Moving binary..."
 		########################################
 		
-		cp $resulting_binary $binary_name || main.dieGracefully "Could not copy $resulting_binary to $binary_name"
+		cp $resulting_binary $binary_name || main_dieGracefully "Could not copy $resulting_binary to $binary_name"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Saving playfile..."
+		main_log -a "${FUNCNAME}" "Saving playfile..."
 		########################################
 		
 		cp "$playfile" "${conffile}"
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Cleanup..."
+		main_log -a "${FUNCNAME}" "Cleanup..."
 		########################################
 		
 		# We do not need to keep the "old" binary - we copied it away
@@ -432,10 +432,10 @@ function CAMx_installer()
 			rm $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR}
 		fi
 		
-		main.log -a "${FUNCNAME}" "Done. You should now have a working ${CXR_MODEL} ${CXR_MODEL_VERSION}"
+		main_log -a "${FUNCNAME}" "Done. You should now have a working ${CXR_MODEL} ${CXR_MODEL_VERSION}"
 		
 		
-		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+		cd ${CXR_RUN_DIR} || main_dieGracefully "Could not change to $CXR_RUN_DIR"
 	fi
 }
 

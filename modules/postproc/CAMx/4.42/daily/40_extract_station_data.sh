@@ -192,7 +192,7 @@ function extract_station_data
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -280,7 +280,7 @@ function extract_station_data
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
 		
 		# We instruct the extractors to print a header for the first day
-		if [[ $(common.date.isFirstDayOfSimulation?) == true  ]]
+		if [[ $(date_isFirstDayOfSimulation?) == true  ]]
 		then
 			write_header=1
 		else
@@ -296,7 +296,7 @@ function extract_station_data
 			extract_stations)
 				# Here, we also need an MM5 file for the pressure (for ppb conversion and potential coordinate conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
-				# We set this fag to 0 because currently we only run on the innermost domain.
+				# We set this fag to 0 because currently we only run on the innermost domain_
 				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
 				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
 				echo "exit" >> ${exec_tmp_file}
@@ -305,7 +305,7 @@ function extract_station_data
 			extract_arpa_stations)
 				# Here, we also need an MM5 file for the pressure (for ppb conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
-				# We set this fag to 0 because currently we only run on the innermost domain.
+				# We set this fag to 0 because currently we only run on the innermost domain_
 				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
 				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
 				echo "exit" >> ${exec_tmp_file}
@@ -331,14 +331,14 @@ function extract_station_data
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
 		else
-			main.log "${FUNCNAME}"  "This is a dry-run, no action required"    
+			main_log "${FUNCNAME}"  "This is a dry-run, no action required"    
 		fi
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -348,7 +348,7 @@ function extract_station_data
 
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

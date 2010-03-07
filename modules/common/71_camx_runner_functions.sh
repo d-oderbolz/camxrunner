@@ -97,7 +97,7 @@ function cxr_common_get_x_dim()
 		
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_dieGracefully "$FUNCNAME:$LINENO - Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -134,7 +134,7 @@ function cxr_common_get_y_dim()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -170,7 +170,7 @@ function cxr_common_get_z_dim()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main_dieGracefully "$FUNCNAME:$LINENO - domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	echo ${CXR_NUMBER_OF_LAYERS[${domain}]}
@@ -316,10 +316,10 @@ function cxr_common_report_dimensions()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		main.log -B $FUNCNAME "Grid dimensions domain ${i}:\nX: $(cxr_common_get_x_dim ${i})\nY: $(cxr_common_get_y_dim ${i})\nZ: $(cxr_common_get_z_dim ${i})"
+		main_log -B $FUNCNAME "Grid dimensions domain ${i}:\nX: $(cxr_common_get_x_dim ${i})\nY: $(cxr_common_get_y_dim ${i})\nZ: $(cxr_common_get_z_dim ${i})"
 	done
 	
-	main.log -B $FUNCNAME "Total number of cells: $(cxr_common_get_num_cells_3d)"
+	main_log -B $FUNCNAME "Total number of cells: $(cxr_common_get_num_cells_3d)"
 	
 }
 
@@ -357,7 +357,7 @@ function cxr_common_report_dimensions()
 #
 # >CXR_FINISH_MESSAGE_RULE='Please copy this into https://wiki.intranet.psi.ch/twiki/LAC/CAMxRuns \\n \| $(date +"%Y/%M/%D") \| ${USER} \| ${CXR_STATUS} \| ${CXR_RUN} \| ${CXR_START_DATE} \| ${CXR_STOP_DATE} \| http://people.web.psi.ch/oderbolz/CAMx/conf/$(basename $CXR_CONFIG) \| http://people.web.psi.ch/oderbolz/CAMx/log/$(basename $CXR_LOG) \| \\n'
 # ...
-# >main.log "$FUNCNAME" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
+# >main_log "$FUNCNAME" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 #
 # Parameters:
 # $1 - The rule to be evaluated (a string, not a variable)
@@ -370,7 +370,7 @@ function cxr_common_evaluate_rule()
 {
 	if [[  $# -lt 1 && $# -gt 4 ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
+		main_dieGracefully "$FUNCNAME:$LINENO - needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
 	local rule="$1"
@@ -385,23 +385,23 @@ function cxr_common_evaluate_rule()
 	if [[ -z "$rule"  ]]
 	then
 		# If the rule is empty, we return empty
-		main.log -v "$FUNCNAME"  "rule $rule_name was empty..."
+		main_log -v "$FUNCNAME"  "rule $rule_name was empty..."
 		echo ""
 		return
 	fi
 	
-	main.log -v "$FUNCNAME"  "Evaluating rule $rule_name $rule..."
+	main_log -v "$FUNCNAME"  "Evaluating rule $rule_name $rule..."
 
 	# Original code: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
 	expansion="$(eval "echo $(echo "$rule")")"
 	
-	main.log -v "$FUNCNAME" "Evaluated rule: $expansion"
+	main_log -v "$FUNCNAME" "Evaluated rule: $expansion"
 	
 	# *_FILE_RULE might be compressed
 	# Does the name of the rule end in _FILE_RULE ?
 	if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
 	#                 ¦
-	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/math_abs/html/string-manipulation.html)
 	then
 		if [[ "${try_decompression}" == true  ]]
 		then
@@ -410,16 +410,16 @@ function cxr_common_evaluate_rule()
 			expansion=$(cxr_common_try_decompressing_file $expansion)
 			
 		else
-			main.log -v "$FUNCNAME" "No decompression attempted."
+			main_log -v "$FUNCNAME" "No decompression attempted."
 		fi # try_decompression
 	fi
 	
-	main.log -v "$FUNCNAME" "Evaluated rule: $expansion"
+	main_log -v "$FUNCNAME" "Evaluated rule: $expansion"
 	
 	if [[  -z "$expansion" && "$allow_empty" == false   ]]
 	then
 		# Empty not allowed
-		main.dieGracefully "$FUNCNAME:$LINENO - Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+		main_dieGracefully "$FUNCNAME:$LINENO - Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
 	fi
 	
 	echo "$expansion"
@@ -445,7 +445,7 @@ function cxr_common_evaluate_rule_at_offset()
 {
 	if [[  $# -lt 2 && $# -gt 4 ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
+		main_dieGracefully "$FUNCNAME:$LINENO - needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
 	
 	# Local variables
@@ -461,7 +461,7 @@ function cxr_common_evaluate_rule_at_offset()
 	current_offset=${CXR_DAY_OFFSET}
 	
 	# Re-evaluate the date variables
-	common.date.setVars "${CXR_START_DATE}" "${day_offset}"
+	date_setVars "${CXR_START_DATE}" "${day_offset}"
 	
 	# Evaluate the rule
 	expansion=$(cxr_common_evaluate_rule "${rule}" "${3:-}" "${4:-}")
@@ -470,7 +470,7 @@ function cxr_common_evaluate_rule_at_offset()
 	CXR_DAY_OFFSET=${current_offset}
 	
 	# Reset the date vars
-	common.date.setVars "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
+	date_setVars "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
 	
 	echo "$expansion"
 }
@@ -490,7 +490,7 @@ function cxr_common_evaluate_these_scalar_rules()
 {
 	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
+		main_dieGracefully "$FUNCNAME:$LINENO - needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
 	
 	local rule_list="$1"
@@ -528,7 +528,7 @@ function cxr_common_create_dummyfile()
 ################################################################################
 {
 	local filename="$1"
-	main.log "$FUNCNAME" "Creating Dummy $filename"
+	main_log "$FUNCNAME" "Creating Dummy $filename"
 	
 	# Add to dummy list 
 	echo "This is a Dummy output file generated by a dry-run of CAMxRunner" > "$filename"
@@ -566,7 +566,7 @@ function cxr_common_create_tempfile()
 	# Check if that worked!
 	if [[ ! -d "${CXR_TMP_DIR}"  ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
+		main_dieGracefully "$FUNCNAME:$LINENO - could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
 	
 	local store=${2:-true}
@@ -580,7 +580,7 @@ function cxr_common_create_tempfile()
 	template=${template// /_}
 	
 	local filename=$(mktemp $template)
-	main.log -v "$FUNCNAME"  "Creating temporary file $filename"
+	main_log -v "$FUNCNAME"  "Creating temporary file $filename"
 	
 	if [[ "${store}" == true  ]]
 	then
@@ -614,7 +614,7 @@ function cxr_common_remove_tempfiles()
 		if [[ -s "$CXR_DECOMPRESSED_LIST"  ]]
 		then
 			# List file is non-empty
-			main.log "$FUNCNAME" "Removing temporarily decompressed files..."
+			main_log "$FUNCNAME" "Removing temporarily decompressed files..."
 		
 			# Loop trough all entries
 			while read line 
@@ -622,7 +622,7 @@ function cxr_common_remove_tempfiles()
 				# The line has the format compressed_file|decompressed_file
 				filename=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				main.log -v "$FUNCNAME"  "Deleting $filename"
+				main_log -v "$FUNCNAME"  "Deleting $filename"
 				rm -f "${filename}"
 				
 				# remove that line via sed
@@ -632,7 +632,7 @@ function cxr_common_remove_tempfiles()
 			done < "$CXR_DECOMPRESSED_LIST"
 		fi
 	else
-		main.log "$FUNCNAME" "The temporarily decompressed files \n$(cat ${CXR_DECOMPRESSED_LIST} | cut -d${CXR_DELIMITER} -f 2 2>/dev/null )\n will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
+		main_log "$FUNCNAME" "The temporarily decompressed files \n$(cat ${CXR_DECOMPRESSED_LIST} | cut -d${CXR_DELIMITER} -f 2 2>/dev/null )\n will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 
 	# remove temporary files, if wanted
@@ -641,12 +641,12 @@ function cxr_common_remove_tempfiles()
 		# Does the list even exist?
 		if [[ -s "$CXR_INSTANCE_FILE_TEMP_LIST"  ]]
 		then
-			main.log "$FUNCNAME" "Removing temporary files..."
+			main_log "$FUNCNAME" "Removing temporary files..."
 			
 			# Clean temp files away
 			for temp_file in $(cat "${CXR_INSTANCE_FILE_TEMP_LIST}")
 			do
-				main.log -v "$FUNCNAME"  "Deleting $temp_file"
+				main_log -v "$FUNCNAME"  "Deleting $temp_file"
 				
 				rm -f "$temp_file" >/dev/null 2>&1
 			done
@@ -655,7 +655,7 @@ function cxr_common_remove_tempfiles()
 			: > ${CXR_INSTANCE_FILE_TEMP_LIST}
 		fi
 	else
-		main.log "$FUNCNAME" "The temporary files $(cat ${CXR_INSTANCE_FILE_TEMP_LIST} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
+		main_log "$FUNCNAME" "The temporary files $(cat ${CXR_INSTANCE_FILE_TEMP_LIST} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 	fi
 	
 
@@ -679,7 +679,7 @@ function cxr_common_get_lock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
+		main_dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
 	
 	local lock="$1"
@@ -687,16 +687,16 @@ function cxr_common_get_lock()
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false  ]]
 	then
-		main.log -v "$FUNCNAME"  "Waiting to set lock $lock..."
+		main_log -v "$FUNCNAME"  "Waiting to set lock $lock..."
 	
 		$CXR_LOCK_MAN_EXEC set "$lock" -1
 		
-		main.log -v "$FUNCNAME"  "Got lock $lock."
+		main_log -v "$FUNCNAME"  "Got lock $lock."
 		
 		if [[ $(grep -c -e "^$lock\$") -ne 0  ]]
 		then
 			# lock already in list (should not happen!)
-			main.log "$FUNCNAME" "Weird: it seems as if the lock $lock was given out more than once!"
+			main_log "$FUNCNAME" "Weird: it seems as if the lock $lock was given out more than once!"
 		else
 			# Put the new lock on the list
 			echo "$lock" >> $CXR_INSTANCE_FILE_LOCK_LIST
@@ -720,19 +720,19 @@ function cxr_common_release_lock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
+		main_dieGracefully "$FUNCNAME:$LINENO - needs the name of a lock as input"
 	fi
 	
 	local sed_tmp=$(cxr_common_create_tempfile $FUNCNAME)
 	
 	lock="$1"
 	
-	main.log -v "$FUNCNAME"  "Waiting to release lock $lock..."
+	main_log -v "$FUNCNAME"  "Waiting to release lock $lock..."
 
 	# We even release locks if locking is turned off
 	$CXR_LOCK_MAN_EXEC unset "$lock"
 	
-	main.log -v "$FUNCNAME"  "lock $lock released."
+	main_log -v "$FUNCNAME"  "lock $lock released."
 	
 	# Remove this line from the lock-list
 	sed "/^$lock\$/d" $CXR_INSTANCE_FILE_LOCK_LIST > $sed_tmp
@@ -758,7 +758,7 @@ function cxr_common_release_all_locks()
 	
 	if [[ -s "$CXR_INSTANCE_FILE_LOCK_LIST"  ]]
 	then
-		main.log "$FUNCNAME" "Releasing all locks..."
+		main_log "$FUNCNAME" "Releasing all locks..."
 	
 		for lock in $(cat $CXR_INSTANCE_FILE_LOCK_LIST)
 		do
@@ -801,16 +801,16 @@ function cxr_common_create_config_file()
 			#Yes, gimme options
 			
 			# To keep the list compact, we go into the conf dir and back out again
-			cd "${CXR_CONF_DIR}" || main.dieGracefully "$FUNCNAME:$LINENO - Could not change to ${CXR_CONF_DIR}!"
+			cd "${CXR_CONF_DIR}" || main_dieGracefully "$FUNCNAME:$LINENO - Could not change to ${CXR_CONF_DIR}!"
 			
 			basefile=${CXR_CONF_DIR}/$(cxr_common_get_menu_choice "Choose a file I should use:" "*.conf" )
 			
-			cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+			cd "$CXR_RUN_DIR" || main_dieGracefully "Could not change to $CXR_RUN_DIR"
 		fi
 	
 		if [[ ! -f "$basefile"  ]]
 		then
-			main.dieGracefully "File $basefile is not readable!"
+			main_dieGracefully "File $basefile is not readable!"
 		fi
 	
 		# For the moment, I romoved the option to expand a config
@@ -909,7 +909,7 @@ function cxr_common_create_config_file()
 		
 	fi # Decision if copy or .ask
 	
-	main.log "$FUNCNAME" "$FUNCNAME:$LINENO - Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${run} -d";
+	main_log "$FUNCNAME" "$FUNCNAME:$LINENO - Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${run} -d";
 }
 
 ################################################################################
@@ -1007,7 +1007,7 @@ function cxr_common_create_new_run()
 
 	local model=$(cxr_common_get_menu_choice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
 	
-	local model_id=$(cxr_common_get_model_id "$model") || main.dieGracefully "model $model is not known."
+	local model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
 	
 	# Extract the list of supported versions
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -1015,7 +1015,7 @@ function cxr_common_create_new_run()
 	#Generate a menu automatically
 	local version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
 	
-	cxr_common_is_version_supported $version $model || main.dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
+	cxr_common_is_version_supported $version $model || main_dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
 	local run=${model}-v${version}
 	
@@ -1027,12 +1027,12 @@ function cxr_common_create_new_run()
 	run="${run}-$addition"
 
 	# Name ok? ###################################################################
-	cxr_common_check_run_name $run || main.dieGracefully "$FUNCNAME:$LINENO - The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
+	cxr_common_check_run_name $run || main_dieGracefully "$FUNCNAME:$LINENO - The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
 		
 	# Name OK.
 	
 	# Extract and export model name and version 
-	main.setModelAndVersion $run
+	main_setModelAndVersion $run
 	
 	# This is the file name of an extended config
 	CXR_EXPANDED_CONFIG=${CXR_CONF_DIR}/${run}.econf
@@ -1043,7 +1043,7 @@ function cxr_common_create_new_run()
 	#name is OK - create link ##################################################
 	if [[ ! -L $run  ]]
 	then
-		main.log "$FUNCNAME"  "Creating link $run."
+		main_log "$FUNCNAME"  "Creating link $run."
 			
 		ln -s $CXR_RUNNER_NAME $run
 		
@@ -1060,7 +1060,7 @@ function cxr_common_create_new_run()
 	cxr_common_create_config_file $run
 	
 	# Messages & Good wishes #####################################################
-	main.log "$FUNCNAME" "New run was created, start it with \n\t \$ $run -d"
+	main_log "$FUNCNAME" "New run was created, start it with \n\t \$ $run -d"
 
 }
 
@@ -1078,78 +1078,78 @@ function cxr_common_check_runner_consistency()
 	local subdir
 	
 	# Increase global indent level
-	main.increaseLogIndent
+	main_increaseLogIndent
 
-	main.log "$FUNCNAME"  "Checking if subdirectories exist..."
+	main_log "$FUNCNAME"  "Checking if subdirectories exist..."
 	
 	for SUBIDR in $CXR_RUN_SUBDIRS
 	do
 		# Increase global indent level
-		main.increaseLogIndent
+		main_increaseLogIndent
 
 		if [[ ! -d $CXR_RUN_DIR/$SUBIDR  ]]
 		then
 			# Oh Oh!
 			mkdir -p $CXR_RUN_DIR/$SUBIDR
-			main.log "$FUNCNAME" "$FUNCNAME:$LINENO - The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
+			main_log "$FUNCNAME" "$FUNCNAME:$LINENO - The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
 			
 		else 
 
-			main.log -v "$FUNCNAME"  "The directory $CXR_RUN_DIR/$SUBIDR exists"
+			main_log -v "$FUNCNAME"  "The directory $CXR_RUN_DIR/$SUBIDR exists"
 
 		fi
 		
 		# Decrease global indent level
-		main.decreaseLogIndent
+		main_decreaseLogIndent
 	done
 	
 	# Check executables
 	
 	############################################################################
-	main.log "$FUNCNAME"  "Checking if all executables are present and executable..."
+	main_log "$FUNCNAME"  "Checking if all executables are present and executable..."
 	
 	# Increase global indent level
-	main.increaseLogIndent
+	main_increaseLogIndent
 	
 	########################################
-	main.log "$FUNCNAME"  "Checking external files..."
+	main_log "$FUNCNAME"  "Checking external files..."
 	########################################
 	
 	# Increase global indent level
-	main.increaseLogIndent
+	main_increaseLogIndent
 	
 	cxr_common_check_environment_executables
 	
 	# Decrease global indent level
-	main.decreaseLogIndent
+	main_decreaseLogIndent
 	
 	# Decrease global indent level
-	main.decreaseLogIndent
+	main_decreaseLogIndent
 	
 	# Decrease global indent level
-	main.decreaseLogIndent
+	main_decreaseLogIndent
 	############################################################################
 	
 	# Each directory in $CXR_RUN_VERSION_SUBDIRS must have 
 	# one subdir for each model and each version 
 	
-	main.log "$FUNCNAME"  "Checking if version sub-subdirectories exist..."
+	main_log "$FUNCNAME"  "Checking if version sub-subdirectories exist..."
 	
 	for subdir in $CXR_RUN_VERSION_SUBDIRS
 	do
 		
 		# Increase global indent level
-		main.increaseLogIndent
+		main_increaseLogIndent
 		
-		main.log -v "$FUNCNAME"  "Checking subdirs of $subdir..."
+		main_log -v "$FUNCNAME"  "Checking subdirs of $subdir..."
 		
 		for model in $CXR_SUPPORTED_MODELS
 		do
 		
-			main.log -v "$FUNCNAME"  "Checking model $model..."
+			main_log -v "$FUNCNAME"  "Checking model $model..."
 		
 			# Get id of the current model
-			model_id=$(cxr_common_get_model_id "$model") || main.dieGracefully "model $model is not known."
+			model_id=$(cxr_common_get_model_id "$model") || main_dieGracefully "model $model is not known."
 	
 			# Extract the list of supported versions
 			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -1157,7 +1157,7 @@ function cxr_common_check_runner_consistency()
 			for version in $supported
 			do
 				
-				main.log -v "$FUNCNAME"  "Checking version $version..."
+				main_log -v "$FUNCNAME"  "Checking version $version..."
 				
 				dir=$CXR_RUN_DIR/$subdir/$model/$version
 			
@@ -1165,10 +1165,10 @@ function cxr_common_check_runner_consistency()
 				then
 					# Oh Oh!
 					mkdir -p $dir
-					main.log "$FUNCNAME" "$FUNCNAME:$LINENO - The directory $dir did not exist. All directories stored in CXR_RUN_VERSION_SUBDIRS need a subdirectory for each supported version of model and each supported version  (stored in CXR_SUPPORTED_MODEL_VERSIONS).\n I created this one now, but if you want to use model $model $version you need to fill it with sensible stuff!"
+					main_log "$FUNCNAME" "$FUNCNAME:$LINENO - The directory $dir did not exist. All directories stored in CXR_RUN_VERSION_SUBDIRS need a subdirectory for each supported version of model and each supported version  (stored in CXR_SUPPORTED_MODEL_VERSIONS).\n I created this one now, but if you want to use model $model $version you need to fill it with sensible stuff!"
 				else
 	
-					main.log -v "$FUNCNAME"  "The directory $CXR_RUN_DIR/$subdir/$version exists"
+					main_log -v "$FUNCNAME"  "The directory $CXR_RUN_DIR/$subdir/$version exists"
 	
 				fi
 			done # Versions
@@ -1176,11 +1176,11 @@ function cxr_common_check_runner_consistency()
 		done # model
 		
 		# Decrease global indent level
-		main.decreaseLogIndent
+		main_decreaseLogIndent
 	done # Directory
 	
 	# Decrease global indent level
-	main.decreaseLogIndent
+	main_decreaseLogIndent
 }
 
 ################################################################################
@@ -1242,8 +1242,8 @@ function test_module()
 	########################################
 	
 	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
-	is $(cxr_common_evaluate_rule "$(common.math.abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
-	is $(cxr_common_evaluate_rule "domain$(common.string.leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
+	is $(cxr_common_evaluate_rule "$(math_abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
+	is $(cxr_common_evaluate_rule "domain$(string_leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
 	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
 	
 	########################################

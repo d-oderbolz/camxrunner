@@ -1,9 +1,9 @@
-	main.log -H "load_common_modules" "Loading external modules from ${CXR_COMMON_INPUT_DIR}..." 
+	main_log -H "load_common_modules" "Loading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 	
 	# Increase global indent level
-	main.increaseLogIndent
+	main_increaseLogIndent
 	
-	main.log "load_common_modules" "Get more information about the modules using verbose output (-v)" 
+	main_log "load_common_modules" "Get more information about the modules using verbose output (-v)" 
 	
 	# Find all external functions.
 	# 3 levels:
@@ -16,7 +16,7 @@
 	for CURRENT_DIR in $CXR_COMMON_INPUT_DIR $CXR_COMMON_MODEL_INPUT_DIR $CXR_COMMON_VERSION_INPUT_DIR
 	do
 	
-		main.log "load_common_modules" "Reading modules from ${CURRENT_DIR} (if there are any)..."
+		main_log "load_common_modules" "Reading modules from ${CURRENT_DIR} (if there are any)..."
 		
 		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 		do
@@ -37,13 +37,13 @@
 				
 				source $FUNCTION_FILE
 			else
-				main.log "load_common_modules" "\nModule ${CXR_NOLOAD} seems to be running already"
+				main_log "load_common_modules" "\nModule ${CXR_NOLOAD} seems to be running already"
 			fi
 		done
 		
 	done
 	
 	# Decrease global indent level
-	main.decreaseLogIndent
+	main_decreaseLogIndent
 	
-	main.log -H "load_common_modules" "Modules loaded." 
+	main_log -H "load_common_modules" "Modules loaded." 
