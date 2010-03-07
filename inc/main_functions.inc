@@ -917,7 +917,7 @@ function main_listModuleType
 	# - DISABLED_MODULES is a list of disabled modules of the current type
 	case "$module_type" in
 	
-		"${CXR_TYPE_COMMON}" ) main_die_gracefully "Common modules cannot be run this way!" ;;
+		"${CXR_TYPE_COMMON}" ) echo "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			CALL="-p"
