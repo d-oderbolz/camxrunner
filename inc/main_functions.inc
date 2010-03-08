@@ -739,7 +739,7 @@ function main.readConfig()
 		main.die_gracefully "Could not determine Model Version when loading config!"
 	fi
 	
-	if [[ -z "$CXR_RUN_DIR"  ]]
+	if [[ -z "$CXR_RUN_DIR" ]]
 	then
 		main.die_gracefully "Could not determine run dir when loading config!"
 	fi
@@ -756,6 +756,9 @@ function main.readConfig()
 	########################################
 	# Locations of configuration
 	########################################
+	
+	# Defaults
+	defaults="$CXR_RUN_DIR/inc/defaults.inc"
 
 	# Site config
 	CXR_SITECONFIG=${CXR_CONF_DIR}/site.conf
@@ -776,11 +779,25 @@ function main.readConfig()
 	# Revisions
 	########################################
 	
+	CXR_DEFAULTS_REV="$(common.version_control.getRevision $defaults)"
 	CXR_SITECONFIG_REV="$(common.version_control.getRevision $CXR_SITECONFIG)"
 	CXR_BASECONFIG_REV="$(common.version_control.getRevision $CXR_BASECONFIG)"
 	CXR_VERSIONCONFIG_REV="$(common.version_control.getRevision $CXR_VERSIONCONFIG)"
 	CXR_CONFIG_REV="$(common.version_control.getRevision $CXR_CONFIG)"
 	CXR_EXPANDED_CONFIG_REV="$(common.version_control.getRevision $CXR_EXPANDED_CONFIG)"
+	
+	
+	########################################
+	# Loading defaults
+	########################################
+	
+	if [[ -f "${defaults}" ]]
+	then
+		main.log -a "Loading ${defaults} revision ${CXR_DEFAULTS_REV}"
+		source "${defaults}"
+	else
+		main.die_gracefully "The default include file ${defaults} is not available - exiting"
+	fi
 	
 	########################################
 	# Try to load the site config
