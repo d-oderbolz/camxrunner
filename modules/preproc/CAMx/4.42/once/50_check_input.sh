@@ -156,7 +156,7 @@ function check_input()
 		set_variables 
 		
 		#  --- Check Settings
-		if [[ $(cxr_common_check_preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -205,7 +205,7 @@ function check_input()
 		main.decreaseLogIndent
 	
 		# Check if all went well
-		if [[ $(cxr_common_check_result) == false  ]]
+		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem

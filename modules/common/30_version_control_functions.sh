@@ -79,7 +79,7 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_get_svn_revision
+# Function: common.version_control.getRevision
 #
 # Extracts the svn version of a file. 
 # 
@@ -91,7 +91,7 @@ exit 1
 # Parameters:	
 # $1 - Full filename
 ################################################################################
-function cxr_common_get_svn_revision()
+function common.version_control.getRevision()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -219,14 +219,14 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_get_svn_revision "$test_file1") 2605 "cxr_common_get_svn_revision normal"
-	is $(cxr_common_get_svn_revision "$test_file2") 2605 "cxr_common_get_svn_revision double-contradiction"
+	is $(common.version_control.getRevision "$test_file1") 2605 "common.version_control.getRevision normal"
+	is $(common.version_control.getRevision "$test_file2") 2605 "common.version_control.getRevision double-contradiction"
 	
 	main.log -a  "We provoke an error mesage here - you can ignore this..."
-	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
-	is $(cxr_common_get_svn_revision "$test_file4") 12345 "cxr_common_get_svn_revision with garbage at end"
+	is $(common.version_control.getRevision "$test_file3") 0 "common.version_control.getRevision missing revision"
+	is $(common.version_control.getRevision "$test_file4") 12345 "common.version_control.getRevision with garbage at end"
 	
-	is $(cxr_common_get_svn_revision /some/nonexisting/file) 0 "cxr_common_get_svn_revision missing file"
+	is $(common.version_control.getRevision /some/nonexisting/file) 0 "common.version_control.getRevision missing file"
 
 	########################################
 	# teardown tests if needed

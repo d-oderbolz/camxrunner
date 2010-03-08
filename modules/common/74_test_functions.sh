@@ -203,7 +203,7 @@ function cxr_common_test_all_modules()
 			version=$input_version
 		fi
 		
-		cxr_common_is_version_supported $version $model
+		common.check.isVersionSupported? $version $model
 		
 		main.log  "Testing system using modules for $model $version..."
 		

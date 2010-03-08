@@ -425,7 +425,7 @@ then
 	
 		# Make sure Run name is ok (Model.vVersion...)
 		# XX_check_functions.sh
-		cxr_common_check_run_name ${CXR_RUN} || main.die_gracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
+		common.check.RunName ${CXR_RUN} || main.die_gracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
 	fi
 	
@@ -440,7 +440,7 @@ then
 	
 	# Get revisions of configuration and the CAMxRunner.sh
 	# The other variables are set in main.readConfig
-	CXR_RUNNER_REV=$(cxr_common_get_svn_revision $0)
+	CXR_RUNNER_REV=$(common.version_control.getRevision $0)
 	
 	main.log -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	
@@ -461,7 +461,7 @@ main.log -v -B "CAMxRunner.sh" "Checking CAMxRunner for consistency..."
 main.increaseLogIndent
 
 # XX_check_functions
-cxr_common_check_bash_version
+common.check.BashVersion
 
 # XX_camx_runner_functions.sh
 cxr_common_check_runner_consistency
@@ -593,7 +593,7 @@ then
 fi
 
 
-mb_needed=$(cxr_common_predict_model_output_megabytes)
+mb_needed=$(common.check.PredictModelOutputMb)
 
 main.log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
 
@@ -602,12 +602,12 @@ then
 	# Full simulation, do the space check if user has not disabled it
 	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
 	then
-		cxr_common_check_mb_needed "${CXR_OUTPUT_DIR}" "${mb_needed}"
+		common.check.MbNeeded "${CXR_OUTPUT_DIR}" "${mb_needed}"
 		
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
+			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
 		fi
 	else
 		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
@@ -620,7 +620,7 @@ cxr_common_report_dimensions
 main.log -B "CAMxRunner.sh" "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
 
 # Check if the selected binary supports our settings
-cxr_common_check_model_limits
+common.check.ModelLimits
 
 ################################################################################
 # Print out the variables and their settings

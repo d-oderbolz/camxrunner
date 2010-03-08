@@ -108,7 +108,7 @@ function HDF_installer()
 		# Check space
 		########################################
 		
-		cxr_common_check_mb_needed "$MYLIBDIR" "$CXR_LIB_MEGABYTES_REQUIRED"
+		common.check.MbNeeded "$MYLIBDIR" "$CXR_LIB_MEGABYTES_REQUIRED"
 		
 		########################################
 		# Determine platform.

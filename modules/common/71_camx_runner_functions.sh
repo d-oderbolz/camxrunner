@@ -259,7 +259,7 @@ function cxr_common_get_max_z_dim()
 # Function: cxr_common_get_num_cells_3d
 # 
 # Returns the sum of the number of cells in all grids (3D)
-# Used by <cxr_common_predict_model_output_megabytes>
+# Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
 function cxr_common_get_num_cells_3d()
@@ -283,7 +283,7 @@ function cxr_common_get_num_cells_3d()
 # Function: cxr_common_get_num_cells_2d
 # 
 # Returns the sum of the number of cells in all grids (Just lowest layer)
-# Used by <cxr_common_predict_model_output_megabytes>
+# Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
 function cxr_common_get_num_cells_2d()
@@ -1015,7 +1015,7 @@ function cxr_common_create_new_run()
 	#Generate a menu automatically
 	local version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
 	
-	cxr_common_is_version_supported $version $model || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
+	common.check.isVersionSupported? $version $model || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
 	local run=${model}-v${version}
 	
@@ -1027,7 +1027,7 @@ function cxr_common_create_new_run()
 	run="${run}-$addition"
 
 	# Name ok? ###################################################################
-	cxr_common_check_run_name $run || main.die_gracefully "The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
+	common.check.RunName $run || main.die_gracefully "The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
 		
 	# Name OK.
 	
@@ -1118,7 +1118,7 @@ function cxr_common_check_runner_consistency()
 	# Increase global indent level
 	main.increaseLogIndent
 	
-	cxr_common_check_environment_executables
+	common.check.Vars
 	
 	# Decrease global indent level
 	main.decreaseLogIndent

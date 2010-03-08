@@ -966,7 +966,7 @@ function model()
 				write_sa_receptor_definitions_file
 			fi
 			
-			if [[ $(cxr_common_check_preconditions) == false  ]]
+			if [[ $(common.check.preconditions) == false  ]]
 			then
 				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
@@ -978,7 +978,7 @@ function model()
 			
 		
 			# Did we run properly?
-			if [[ $(cxr_common_check_result) == false  ]]
+			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "$CXR_MODEL Run was not successful!"
 				# We notify the caller of the problem

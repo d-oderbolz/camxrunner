@@ -128,7 +128,7 @@ function CAMx_installer()
 		########################################
 		# Check space
 		########################################
-		cxr_common_check_mb_needed "$CXR_CAMX_SRC_DIR" "$CXR_CAMX_MEGABYTES_REQUIRED"
+		common.check.MbNeeded "$CXR_CAMX_SRC_DIR" "$CXR_CAMX_MEGABYTES_REQUIRED"
 		
 		########################################
 		main.log -a  "We will install the sourcode to ${CXR_CAMX_SRC_DIR}"

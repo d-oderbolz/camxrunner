@@ -177,7 +177,7 @@ function name()
 		# We do not stop the run here if the module failed, this is decided by the 
 		# task management. We only stop the run, if a task depends on
 		# this failed one - otherwise we can go on!
-		if [[ $(cxr_common_check_preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
@@ -226,7 +226,7 @@ function name()
 			# We do not stop the run here if the module failed, this is decided by the 
 			# task management. We only stop the run, if a task depends on
 			# this failed one - otherwise we can go on!
-			if [[ $(cxr_common_check_result) == false  ]]
+			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 				# We notify the caller of the problem

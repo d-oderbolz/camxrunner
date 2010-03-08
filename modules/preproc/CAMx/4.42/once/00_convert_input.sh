@@ -222,7 +222,7 @@ function convert_input()
 		set_variables 
 		
 		#  --- Check Settings (only input)
-		if [[ $(cxr_common_check_preconditions -i) == false  ]]
+		if [[ $(common.check.preconditions -i) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -259,7 +259,7 @@ function convert_input()
 		main.decreaseLogIndent
 	
 		# Check if all went well
-		if [[ $(cxr_common_check_result) == false  ]]
+		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem

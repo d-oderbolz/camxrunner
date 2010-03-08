@@ -662,7 +662,7 @@ function model()
 				#      but a link called CAMx.in wil be created where the CAMx binary is located
 				write_model_control_file				
 				
-				if [[ $(cxr_common_check_preconditions) == false  ]]
+				if [[ $(common.check.preconditions) == false  ]]
 				then
 					main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
@@ -677,7 +677,7 @@ function model()
 				fi
 			
 				# Did we run properly?
-				if [[ $(cxr_common_check_result) == false  ]]
+				if [[ $(common.check.postconditions) == false  ]]
 				then
 					main.log  "$CXR_MODEL Run was not successful!"
 					# We notify the caller of the problem

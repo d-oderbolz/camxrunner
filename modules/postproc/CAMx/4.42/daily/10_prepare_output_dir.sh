@@ -217,7 +217,7 @@ function prepare_output_dir()
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [[ $(cxr_common_check_preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem

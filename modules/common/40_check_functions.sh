@@ -90,11 +90,11 @@ exit 1
 
 
 ################################################################################
-# Function: cxr_common_check_bash_version
+# Function: common.check.BashVersion
 #	
 # Checks if the bash version is ok for what we do
 ################################################################################
-function cxr_common_check_bash_version() 
+function common.check.BashVersion() 
 ################################################################################
 {
 	if [[ ${BASH_VERSINFO[0]} -lt 3  ]]
@@ -104,10 +104,10 @@ function cxr_common_check_bash_version()
 }
 
 ################################################################################
-# Function: cxr_common_predict_file_size_megabytes
+# Function: common.check.PredictFileSizeMb
 # 
 # Gives a rough estimate  on the number of megabytes needed for a given output file.
-# This function is NOT used by <cxr_common_predict_model_output_megabytes>, the purpose of
+# This function is NOT used by <common.check.PredictModelOutputMb>, the purpose of
 # this function here is to check if a file has about the right size.
 #
 # Parameters:
@@ -116,7 +116,7 @@ function cxr_common_check_bash_version()
 # $3 - the storage type (ASCII, BINARY, FDA, HDF)
 #
 ################################################################################
-function cxr_common_predict_file_size_megabytes ()
+function common.check.PredictFileSizeMb ()
 ################################################################################
 {
 	# TODO Should be implemented
@@ -124,7 +124,7 @@ function cxr_common_predict_file_size_megabytes ()
 }
 
 ################################################################################
-# Function: cxr_common_predict_model_output_megabytes
+# Function: common.check.PredictModelOutputMb
 # 
 # Gives a rough (hopefully over-)estimate  on the number of megabytes needed for the output.
 #
@@ -134,7 +134,7 @@ function cxr_common_predict_file_size_megabytes ()
 # like HDF, source apportionment etc. into account later.
 #
 ################################################################################
-function cxr_common_predict_model_output_megabytes ()
+function common.check.PredictModelOutputMb()
 ################################################################################
 {
 	local cells
@@ -159,7 +159,7 @@ function cxr_common_predict_model_output_megabytes ()
 }
 
 ################################################################################
-# Function: cxr_common_check_mb_needed
+# Function: common.check.MbNeeded
 #	
 # Checks if space in target directory is sufficient.
 # Aborts if not sufficient.
@@ -169,7 +169,7 @@ function cxr_common_predict_model_output_megabytes ()
 # $1 - Directory to check
 # $2 - Space needed (in megabytes)
 ################################################################################
-function cxr_common_check_mb_needed() 
+function common.check.MbNeeded() 
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -201,7 +201,7 @@ function cxr_common_check_mb_needed()
 
 
 ################################################################################
-# Function: cxr_common_check_datataype
+# Function: common.check.DataType
 #	
 # Checks if a value has a certain datatype - needed for installation
 # to make sure the user entered sensible values
@@ -217,7 +217,7 @@ function cxr_common_check_mb_needed()
 # $1 - Value to check
 # $2 - Expected datatype (1 char)
 ################################################################################
-function cxr_common_check_datataype()
+function common.check.DataType()
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -283,7 +283,7 @@ function cxr_common_check_datataype()
 }
 
 ################################################################################
-# Function: cxr_common_check_model_limits
+# Function: common.check.ModelLimits
 #
 # Checks if the current model supports our current settings by inspecting the 
 # relevant .play file.
@@ -291,7 +291,7 @@ function cxr_common_check_datataype()
 # in a module under modules/common/model/version directory
 #
 ################################################################################
-function cxr_common_check_model_limits() 
+function common.check.ModelLimits() 
 ################################################################################
 {
 	main.log -a -B  "Checking model limits for ${CXR_MODEL_EXEC}..."
@@ -373,12 +373,12 @@ function cxr_common_check_model_limits()
 
 
 ################################################################################
-# Function: cxr_common_check_runner_executables
+# Function: common.check.RunnerExecutables
 #	
 # Loop through all *.sh scripts in the ${CXR_RUN_DIR} and check if they are executable
 #
 ################################################################################
-function cxr_common_check_runner_executables ()
+function common.check.RunnerExecutables ()
 ################################################################################
 {
 	local file
@@ -414,9 +414,9 @@ function cxr_common_check_runner_executables ()
 }
 
 ################################################################################
-# Function: cxr_common_check_environment_executables
+# Function: common.check.Vars
 #	
-# Loop through all CXR_*.*_EXEC enviranment variables and check if they are 
+# Loop through all CXR_*.*_EXEC variables and check if they are 
 # * Set
 # * Present
 # * Executable
@@ -424,7 +424,7 @@ function cxr_common_check_runner_executables ()
 #
 # This function is only visual, does not terminate
 ################################################################################
-function cxr_common_check_environment_executables ()
+function common.check.Vars ()
 ################################################################################
 {
 	local executable
@@ -450,7 +450,7 @@ function cxr_common_check_environment_executables ()
 					# Do not increase error count here - maybe we do not need this one
 				else
 					# All OK, just report MD5
-					cxr_common_report_md5 "${!executable}"
+					common.check.reportMD5 "${!executable}"
 				fi
 			else
 			  # Not present!
@@ -464,14 +464,14 @@ function cxr_common_check_environment_executables ()
 }
 
 ################################################################################
-# Function: cxr_common_md5
+# Function: common.check.getMD5
 #	
 # Returns an MD5 Hash of a file. Returns the empty string if file does not exist.
 #
 # Parameters:
 # $1 - file to Hash
 ################################################################################
-function cxr_common_md5() 
+function common.check.getMD5() 
 ################################################################################
 {
 		if [[ $# -ne 1  ]]
@@ -493,7 +493,7 @@ function cxr_common_md5()
 
 
 ################################################################################
-# Function: cxr_common_report_md5
+# Function: common.check.reportMD5
 #	
 # Logs the MD5 Hash of a file.
 # Also stores this information in a global hash called MD5. If there is a current 
@@ -503,7 +503,7 @@ function cxr_common_md5()
 # Parameters:
 # $1 - file to Hash
 ################################################################################
-function cxr_common_report_md5() 
+function common.check.reportMD5() 
 ################################################################################
 {
 	if [[ "${CXR_REPORT_MD5}" == true ]]
@@ -528,7 +528,7 @@ function cxr_common_report_md5()
 			if [[ "$(cxr_common_hash_new? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
-				new_hash="$(cxr_common_md5 "$file")"
+				new_hash="$(common.check.getMD5 "$file")"
 				old_hash="$(cxr_common_hash_get MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
@@ -542,7 +542,7 @@ function cxr_common_report_md5()
 		
 		else
 			# Never seen this file before!
-			hash="$(cxr_common_md5 "$file")"
+			hash="$(common.check.getMD5 "$file")"
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
@@ -559,7 +559,7 @@ function cxr_common_report_md5()
 }
 
 ################################################################################
-# Function: cxr_common_check_preconditions
+# Function: common.check.preconditions
 #	
 # Checks if all input files listed in CXR_CHECK_THESE_INPUT_FILES are available.
 # If -w is given, we wait until the files arrive.
@@ -578,7 +578,7 @@ function cxr_common_report_md5()
 # -i - check input files (Default: Check all)
 # -o - check output files (Default: Check all)
 ################################################################################
-function cxr_common_check_preconditions() 
+function common.check.preconditions() 
 ################################################################################
 {
 	# Does the user want to limit the checks?
@@ -683,7 +683,7 @@ function cxr_common_check_preconditions()
 		main.increaseLogIndent
 
 		# EXECUTABLES
-		cxr_common_check_environment_executables
+		common.check.Vars
 		
 		# Decrease global indent level
 		main.decreaseLogIndent
@@ -811,7 +811,7 @@ function cxr_common_check_preconditions()
 						errors_found=true
 					else
 						# Non-empty, report hash if wanted
-						cxr_common_report_md5 "${input_file}"
+						common.check.reportMD5 "${input_file}"
 					fi # larger than 0
 				else
 					# Not readable!
@@ -915,7 +915,7 @@ function cxr_common_check_preconditions()
 }
 
 ################################################################################
-# Function: cxr_common_check_module_requirements
+# Function: common.check.ModuleRequirements
 #	
 # Checks if the currently loaded module requests a CAMxRunner and configuration
 # Version less or equal than current one and if it needs anything special 
@@ -925,7 +925,7 @@ function cxr_common_check_preconditions()
 #
 # Returns true on success, false otherwise
 ################################################################################
-function cxr_common_check_module_requirements() 
+function common.check.ModuleRequirements() 
 ################################################################################
 {
 	# Test if Module was already announced (for efficiency and log-file size reasons)
@@ -978,7 +978,7 @@ function cxr_common_check_module_requirements()
 		main.increaseLogIndent
 		
 		# CAMxRunner Version
-		RUNNER_REVISION=$(cxr_common_get_svn_revision $CXR_RUN_DIR/CAMxRunner.sh)
+		RUNNER_REVISION=$(common.version_control.getRevision $CXR_RUN_DIR/CAMxRunner.sh)
 		
 		if [[ "$RUNNER_REVISION" -ge "$CXR_META_MODULE_REQ_RUNNER_VERSION"  ]] 
 		then
@@ -1005,7 +1005,7 @@ function cxr_common_check_module_requirements()
 		main.increaseLogIndent
 		
 		# Config Revision
-		CONFIG_REVISION=$(cxr_common_get_svn_revision $CXR_CONFIG)
+		CONFIG_REVISION=$(common.version_control.getRevision $CXR_CONFIG)
 
 		if [[ "$CONFIG_REVISION" -ge "$CXR_META_MODULE_REQ_CONF_VERSION"  ]] 
 		then
@@ -1107,7 +1107,7 @@ function cxr_common_check_module_requirements()
 }
 
 ################################################################################
-# Function: cxr_common_check_result
+# Function: common.check.postconditions
 #	
 # Checks if the output was generated
 # Later, we can think about a real size check
@@ -1121,7 +1121,7 @@ function cxr_common_check_module_requirements()
 # This function does not terminate the runner if errors are found,
 # but it returns false
 ################################################################################
-function cxr_common_check_result() 
+function common.check.postconditions() 
 ################################################################################
 {
 	local errors_found=false
@@ -1192,7 +1192,7 @@ function cxr_common_check_result()
 }
 
 ################################################################################
-# Function: cxr_common_is_version_supported
+# Function: common.check.isVersionSupported?
 #	
 # Checks if a version number is supported by a given model.
 #
@@ -1203,10 +1203,10 @@ function cxr_common_check_result()
 # $1 - The Version to check
 # $2 - The Model name as indicated in CXR_SUPPORTED_MODELS
 ################################################################################
-function cxr_common_is_version_supported()
+function common.check.isVersionSupported?()
 ################################################################################
 {
-	if [[ -z "${1:-}"  ]]
+	if [[ -z "${1:-}" ]]
 	then
 		# Forget it - must be larger than ""
 		return 1
@@ -1231,7 +1231,7 @@ function cxr_common_is_version_supported()
 }
 
 ################################################################################
-# Function: cxr_common_check_run_name
+# Function: common.check.RunName
 #	
 # Checks if run name has correct form and length (max 60 characters)
 # e. g. 
@@ -1248,7 +1248,7 @@ function cxr_common_is_version_supported()
 # Parameters:
 # $1 - String
 ################################################################################
-function cxr_common_check_run_name()
+function common.check.RunName()
 ################################################################################
 {
 	local oIFS
@@ -1288,7 +1288,7 @@ function cxr_common_check_run_name()
 	version=${run_array[1]#v}
 	
 	#This returns non-0 if its not ok
-	cxr_common_is_version_supported $version $model
+	common.check.isVersionSupported? $version $model
 		
 	# We return the return value
 	return $?
@@ -1354,8 +1354,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_check_datataype 1 I) true "cxr_common_check_datataype 1 I"
-	is $(cxr_common_md5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "cxr_common_md5 strings test"
+	is $(common.check.DataType 1 I) true "common.check.DataType 1 I"
+	is $(common.check.getMD5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "common.check.getMD5 strings test"
 
 	########################################
 	# teardown tests if needed

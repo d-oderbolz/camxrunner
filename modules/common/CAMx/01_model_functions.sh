@@ -150,7 +150,7 @@ function get_chemparam_file()
 		main.log -a "Using chemparam file (${our_chemparam})."
 		
 		# Also report MD5
-		cxr_common_report_md5 "${our_chemparam}"
+		common.check.reportMD5 "${our_chemparam}"
 	fi
 	
 	echo "${our_chemparam}"

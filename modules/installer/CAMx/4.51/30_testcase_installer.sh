@@ -101,7 +101,7 @@ function testcase_installer()
 		########################################
 		# Check space
 		########################################
-		cxr_common_check_mb_needed "$TESTCASE_DIR" "$CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED"
+		common.check.MbNeeded "$TESTCASE_DIR" "$CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED"
 		
 		cd $TESTCASE_DIR || main.die_gracefully "Could change to $TESTCASE_DIR"
 		

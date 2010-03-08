@@ -109,7 +109,7 @@ function cxr_common_install()
 	
 	main.log -a   "Checking internal files (may take a while)..."
 	
-	cxr_common_check_runner_executables
+	common.check.RunnerExecutables
 	
 	message="Do you want to run the installer for the CAMxRunner, some converters, model and the testcase?"
 
@@ -142,7 +142,7 @@ function cxr_common_install()
 		#Generate a menu automatically
 		version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
-		cxr_common_is_version_supported $version $model
+		common.check.isVersionSupported? $version $model
 		
 		main.log  "Installing system for $model $version..."
 		

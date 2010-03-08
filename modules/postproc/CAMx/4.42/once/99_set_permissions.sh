@@ -140,7 +140,7 @@ function set_permissions
 		set_variables 
 		
 		#  --- Check Settings
-		if [[ $(cxr_common_check_preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem

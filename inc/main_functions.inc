@@ -776,11 +776,11 @@ function main.readConfig()
 	# Revisions
 	########################################
 	
-	CXR_SITECONFIG_REV="$(cxr_common_get_svn_revision $CXR_SITECONFIG)"
-	CXR_BASECONFIG_REV="$(cxr_common_get_svn_revision $CXR_BASECONFIG)"
-	CXR_VERSIONCONFIG_REV="$(cxr_common_get_svn_revision $CXR_VERSIONCONFIG)"
-	CXR_CONFIG_REV="$(cxr_common_get_svn_revision $CXR_CONFIG)"
-	CXR_EXPANDED_CONFIG_REV="$(cxr_common_get_svn_revision $CXR_EXPANDED_CONFIG)"
+	CXR_SITECONFIG_REV="$(common.version_control.getRevision $CXR_SITECONFIG)"
+	CXR_BASECONFIG_REV="$(common.version_control.getRevision $CXR_BASECONFIG)"
+	CXR_VERSIONCONFIG_REV="$(common.version_control.getRevision $CXR_VERSIONCONFIG)"
+	CXR_CONFIG_REV="$(common.version_control.getRevision $CXR_CONFIG)"
+	CXR_EXPANDED_CONFIG_REV="$(common.version_control.getRevision $CXR_EXPANDED_CONFIG)"
 	
 	########################################
 	# Try to load the site config
@@ -858,7 +858,7 @@ function main.readConfig()
 	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}"  ]]
 	then
 		local INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
-		local INSTALLER_CONF_REV=$(cxr_common_get_svn_revision $INSTALLER_CONF)
+		local INSTALLER_CONF_REV=$(common.version_control.getRevision $INSTALLER_CONF)
 		
 		if [[ -f "${INSTALLER_CONF}"  ]]
 		then

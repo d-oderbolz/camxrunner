@@ -168,7 +168,7 @@ function avgdif
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [[ $(cxr_common_check_preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
@@ -210,7 +210,7 @@ function avgdif
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [[ $(cxr_common_check_result) == false  ]]
+		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem

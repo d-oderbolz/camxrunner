@@ -399,7 +399,7 @@ function cxr_common_get_menu_choice()
 # At the end, a variable amount of possible values is allowed - but you can also specify a variable name
 # that contains a list of values (makes maintenance easier, you can maintain these lists in base.conf or something)
 #
-# datatype can be (as supported by cxr_common_check_datataype)
+# datatype can be (as supported by common.check.DataType)
 # S (String - Default)
 # I (Integer)
 # F (Float)
@@ -615,7 +615,7 @@ function cxr_common_get_answers()
 				VALUE=$(cxr_common_get_menu_choice "$question" "$lov")
 			fi
 
-			if [[ "$(cxr_common_check_datataype "$VALUE" "$datatype")" == false  ]]
+			if [[ "$(common.check.DataType "$VALUE" "$datatype")" == false  ]]
 			then
 				main.log  "Datatpe of $VALUE is not $datatype! I use the default instead."
 				# Use default

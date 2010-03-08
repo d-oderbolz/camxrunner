@@ -123,7 +123,7 @@ function PMCAMx_installer()
 		########################################
 		# Check space
 		########################################
-		cxr_common_check_mb_needed "$CXR_PMCAMX_SRC_DIR" "$CXR_PMCAMX_MEGABYTES_REQUIRED"
+		common.check.MbNeeded "$CXR_PMCAMX_SRC_DIR" "$CXR_PMCAMX_MEGABYTES_REQUIRED"
 		
 		########################################
 		#main.log  "Create the target directories..."
