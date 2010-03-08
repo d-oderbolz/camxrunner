@@ -96,7 +96,7 @@ exit 1
 function math_abs()
 ################################################################################
 {
-	if [[  $# -ne 1 || "$(main_isNumeric? "$1")" == false   ]]
+	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false   ]]
 	then
 		main_log -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
 		echo false

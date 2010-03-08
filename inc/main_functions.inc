@@ -14,14 +14,14 @@
 ################################################################################
 
 ################################################################################
-# Function: main_isNumeric?
+# Function: main.isNumeric?
 #
 # A small, relatively robust function to test if the argument is numeric
 #
 # Parameters:
 # $1 - String to test
 ################################################################################
-function main_isNumeric?()
+function main.isNumeric?()
 ################################################################################
 { 
 	# If this returns 0, there is at least a non-numeric character

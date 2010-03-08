@@ -147,7 +147,7 @@ function set_permissions
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [[ $(main_isNumeric? "${CXR_OUTPUT_DIR_PERMISSIONS}") == true  ]]
+		if [[ $(main.isNumeric? "${CXR_OUTPUT_DIR_PERMISSIONS}") == true  ]]
 		then
 			# OK, go ahead
 			main_log -a -b "${FUNCNAME}"  "Setting Permissions on output directories to ${CXR_OUTPUT_DIR_PERMISSIONS}"

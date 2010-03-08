@@ -378,12 +378,12 @@ fi
 
 main_log -v -B "CAMxRunner.sh" "Checking if selected options are valid..." 
 
-if [[ $(main_isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
+if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
 	main_die_gracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
 fi
 
-if [[ $(main_isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
+if [[ $(main.isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
 then
 	main_die_gracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
 fi

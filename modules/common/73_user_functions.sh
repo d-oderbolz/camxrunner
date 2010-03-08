@@ -249,7 +249,7 @@ function cxr_common_get_user_input()
 	echo "${CXR_SINGLE_LINE}" 1>&2
 	echo -e "${message}" 1>&2
 	
-	if [[ $(main_isNumeric? "${2:-}") == true  ]]
+	if [[ $(main.isNumeric? "${2:-}") == true  ]]
 	then
 		read -n $2 answer
 	else

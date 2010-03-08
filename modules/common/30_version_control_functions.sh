@@ -130,7 +130,7 @@ function cxr_common_get_svn_revision()
 		fi
 		
 		# Correct any garbage
-		if [[ $(main_isNumeric? "$revision") == false   ]]
+		if [[ $(main.isNumeric? "$revision") == false   ]]
 		then
 			revision=0
 		fi

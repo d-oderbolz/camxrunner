@@ -412,10 +412,10 @@ function test_module()
 	########################################
 	
 	#Here, we test some main functions
-	is $(main_isNumeric? 0) true "main_isNumeric? 0"
-	is $(main_isNumeric? -1000) true "main_isNumeric? -1000"
-	is $(main_isNumeric? "") false "main_isNumeric? empty string"
-	is $(main_isNumeric? "A100") false "main_isNumeric? A100"
+	is $(main.isNumeric? 0) true "main.isNumeric? 0"
+	is $(main.isNumeric? -1000) true "main.isNumeric? -1000"
+	is $(main.isNumeric? "") false "main.isNumeric? empty string"
+	is $(main.isNumeric? "A100") false "main.isNumeric? A100"
 	
 	########################################
 	# teardown tests if needed

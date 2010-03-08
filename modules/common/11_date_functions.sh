@@ -332,7 +332,7 @@ function cxr_common_julian2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -370,7 +370,7 @@ function cxr_common_epoch2date()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -396,7 +396,7 @@ function cxr_common_epoch2datetime()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main_isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
 		echo false
@@ -856,7 +856,7 @@ function date_addDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -890,7 +890,7 @@ function date_subtractDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
@@ -925,7 +925,7 @@ function date_setVars()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main_isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main_log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
 		echo false
