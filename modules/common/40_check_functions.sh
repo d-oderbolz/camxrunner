@@ -536,7 +536,7 @@ function cxr_common_report_md5()
 					# Get the old mtime
 					old_mtime="$(cxr_common_hash_mtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
-					cxr_logger -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
+					main.log -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
 				fi
 			fi
 		
