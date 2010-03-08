@@ -22,7 +22,7 @@ CXR_META_MODULE_DESCRIPTION="Runs the split emissions preproc to create splitted
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_DAILY}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -179,9 +179,6 @@ function split_emissions()
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
-			
-			# Clean up
-			rm -f ${AHOMAP_CONTROL_FILE}
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
@@ -256,13 +253,22 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
 	# For this module, testing is harder 
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	
 	split_emissions
 	
-	echo "For now, you need to inspect the results manually"
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	is $(common.fs.isNotEmpty? ${CXR_SPLIT_EMISSIONS_OUTPUT_FILE}) true "split_emissions simple existence check, inspect ${CXR_SPLIT_EMISSIONS_OUTPUT_FILE}"
 	
 	########################################
 	# teardown tests if needed

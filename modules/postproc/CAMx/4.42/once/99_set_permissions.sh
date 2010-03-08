@@ -46,7 +46,7 @@ CXR_META_MODULE_DESCRIPTION="Sets permissions on output."
 CXR_META_MODULE_TYPE="${CXR_TYPE_POSTPROCESS_ONCE}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -233,11 +233,14 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	set_variables
+	set_permissions
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	
+	is $? 0 "set_permissions just return value"
 
 	########################################
 	# teardown tests if needed

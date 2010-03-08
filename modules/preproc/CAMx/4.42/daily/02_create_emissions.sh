@@ -43,7 +43,7 @@ CXR_META_MODULE_DESCRIPTION="Generates the emissions for the current day by call
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_DAILY}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
@@ -134,11 +134,17 @@ function set_variables()
 	
 	# Evaluate some rules
 	# Output files must not be decompressed!
-	CXR_EMISSION_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE false)"
+	
+	# Grid specific
+	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+	do
+		# This is a bit faked, we just use it to check preconditions
+		# the IDL procedures set the names themselves
+		CXR_EMISSION_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE false)"
 
-	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
-	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_EMISSION_OUTPUT_FILE"
-
+		# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_EMISSION_OUTPUT_FILE"
+	done
 }
 
 ################################################################################
@@ -154,9 +160,6 @@ function create_emissions()
 	local exec_tmp_file
 	local stop_h
 	local start_h
-	
-	# Store the state
-	STAGE=${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@all_days
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -312,13 +315,23 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
 
 	# For this module, testing is harder 
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	create_emissions
 	
-	echo "For now, you need to inspect the results manually"
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	is $(common.fs.isNotEmpty? ${CXR_EMISSION_OUTPUT_FILE}) true "create_emissions simple existence check, inspect ${CXR_EMISSION_OUTPUT_FILE}"
+	
 	
 	
 	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]

@@ -43,7 +43,7 @@ CXR_META_MODULE_DESCRIPTION="Generates a file containing the initial concentrati
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_ONCE}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.42-test-ic-bc-tc
@@ -514,12 +514,22 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
 	# For this module, testing is harder 
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	initial_conditions
 	
-	echo "For now, you need to inspect the results manually"
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	is $(common.fs.isNotEmpty? ${CXR_IC_OUTPUT_FILE}) true "initial_conditions simple existence check, inspect ${CXR_IC_OUTPUT_FILE}"
+	
 	
 	########################################
 	# teardown tests if needed

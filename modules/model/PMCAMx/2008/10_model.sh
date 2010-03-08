@@ -42,7 +42,7 @@ CXR_META_MODULE_RUN_EXCLUSIVELY=true
 CXR_META_MODULE_TYPE="${CXR_TYPE_MODEL}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=PMCAMx-v2008-test
@@ -747,19 +747,19 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
+	write_model_control_file
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-	do
-		# Initialise the date variables 
-		common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
-		
-		set_variables
-		
-		write_model_control_file
-	done
+	is $(common.fs.isNotEmpty? ${CXR_MODEL_CTRL_FILE}) true "write_model_control_file simple existence check, inspect ${CXR_MODEL_CTRL_FILE}"
+	
 	
 	########################################
 	# teardown tests if needed

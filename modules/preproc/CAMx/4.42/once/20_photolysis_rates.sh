@@ -43,7 +43,7 @@ CXR_META_MODULE_DESCRIPTION="Generates a a multi-dimensional lookup table of pho
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_ONCE}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
@@ -206,7 +206,6 @@ function photolysis_rates()
 	local last_week=
 	local last_month=
 	local day_offset=0
-	local substage=
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -225,12 +224,10 @@ function photolysis_rates()
 			
 				once )
 					main.log -b "Running TUV for whole period..."
-					substage=once
 					;;
 					
 				daily )
 					main.log -b "Running TUV for $CXR_DATE..."
-					substage=$CXR_DATE
 					;;
 					
 				weekly )
@@ -238,7 +235,6 @@ function photolysis_rates()
 					if [[ "$last_week" != "$CXR_WOY"  ]]
 					then
 						main.log -b "Running TUV for week $CXR_WOY..."
-						substage=$CXR_WOY
 					else
 						# No new week, next iteration
 						continue
@@ -426,13 +422,23 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
 
 	# For this module, testing is harder 
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	photolysis_rates
 	
-	echo "For now, you need to inspect the results manually"
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	is $(common.fs.isNotEmpty? ${CXR_TUV_OUTPUT_FILE}) true "photolysis_rates simple existence check, inspect ${CXR_TUV_OUTPUT_FILE}"
+	
 	
 	########################################
 	# teardown tests if needed

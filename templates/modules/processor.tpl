@@ -298,12 +298,17 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
 	# Example test
-	is $(common.math.abs 0) 0 "common.math.abs of 0"
+	# is $(common.fs.isNotEmpty? ${CXR_OUTPUT_FILES[0]}) true "simple existence check, inspect ${CXR_OUTPUT_FILES[0]}"
 
 	########################################
 	# teardown tests if needed

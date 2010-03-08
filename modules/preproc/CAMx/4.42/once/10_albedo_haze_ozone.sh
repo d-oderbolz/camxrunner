@@ -43,7 +43,7 @@ CXR_META_MODULE_DESCRIPTION="Runs AHOMAP to generate the Albedo/haze/ozone input
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_ONCE}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.51-co5-s160-sem063-run1
@@ -380,7 +380,6 @@ function albedo_haze_ozone()
 					num_days=${CXR_NUMBER_OF_SIM_DAYS}
 					
 					main.log -b "Running AHOMAP for whole period..."
-					substage=once
 					;;
 					
 				daily )
@@ -388,7 +387,6 @@ function albedo_haze_ozone()
 					start_offset=$day_offset
 					num_days=1
 					main.log -b "Running AHOMAP for $CXR_DATE..."
-					substage=$CXR_DATE
 					;;
 					
 				weekly )
@@ -412,7 +410,6 @@ function albedo_haze_ozone()
 						fi
 						
 						main.log -b "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $start_offset )..."
-						substage=$CXR_WOY
 						
 					else
 						# No new week, next iteration
@@ -597,17 +594,23 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
 	# For this module, testing is harder 
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	
 	albedo_haze_ozone
 	
-	echo "For now, you need to inspect the results manually"
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
 	
-	# All is fine
-	CXR_STATUS=$CXR_STATUS_SUCCESS
-	
+	is $(common.fs.isNotEmpty? ${CXR_AHOMAP_OUTPUT_FILE}) true "albedo_haze_ozone simple existence check, inspect ${CXR_AHOMAP_OUTPUT_FILE}"
 	
 	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
 	then

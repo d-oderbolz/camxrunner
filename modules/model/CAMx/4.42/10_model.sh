@@ -1055,19 +1055,18 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Initialise the date variables for first day
+	day_offset=0
+	common.date.setVars "$CXR_START_DATE" "$day_offset"
+	set_variables
+	
+	write_model_control_file
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-	do
-		# Initialise the date variables 
-		common.date.setVars "$CXR_START_DATE" "$day_offset"
-		
-		set_variables
-		
-		write_model_control_file
-	done
+	is $(common.fs.isNotEmpty? ${CXR_MODEL_CTRL_FILE}) true "write_model_control_file simple existence check, inspect ${CXR_MODEL_CTRL_FILE}"
 	
 	########################################
 	# teardown tests if needed
