@@ -57,7 +57,7 @@ CXR_ENABLE_STATE_DB=false
 CXR_HOLLOW=true
 
 # load configuration data.
-main.readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "."
+main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
 
 # count simulation days
 CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")

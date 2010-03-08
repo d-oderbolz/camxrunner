@@ -146,7 +146,7 @@ function CAMx_installer()
 		cd "$CXR_CAMX_SRC_DIR" || main.die_gracefully "could not change to $CXR_CAMX_SRC_DIR"
 		
 		# Is the tar file already present?
-		if [[ -s ${CXR_CAMX_TAR}  ]]
+		if [[ -s ${CXR_CAMX_TAR} ]]
 		then
 			# Does the user still want to download?
 			if [[ "$(common.user.getOK "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true  ]]

@@ -308,7 +308,7 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 ################################################################################
 
 # The run determines the files to use
-main.readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "${CXR_RUN_DIR}"
+main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
 
 ################################################################################

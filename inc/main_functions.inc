@@ -718,8 +718,8 @@ function main.setModelAndVersion()
 #
 # Parameters:
 # $1 - The name of the run to use
-# $2 - The Model Version to use
-# $3 - The Modelname to use
+# $2 - The Modelname to use
+# $3 - The Model Version to use
 # $4 - The Rundir to use
 ################################################################################
 function main.readConfig()
@@ -727,12 +727,12 @@ function main.readConfig()
 {
 	export CXR_RUN="${1}"
 	
-	CXR_MODEL="${3}"
+	CXR_MODEL="${2}"
 	
 	# Model Version
-	CXR_MODEL_VERSION="${2}"
+	CXR_MODEL_VERSION="${3}"
 		
-	CXR_RUN_DIR="$4"
+	CXR_RUN_DIR="${4}"
 	
 	if [[ -z "$CXR_MODEL_VERSION"  ]]
 	then

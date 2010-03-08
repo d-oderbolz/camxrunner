@@ -145,12 +145,12 @@ function common.install.do()
 		main.log  "Installing system for $CXR_MODEL $CXR_MODEL_VERSION..."
 		
 		# reload config for this version (the run is called "installer")
-		main.readConfig "installer" "$CXR_MODEL_VERSION" "$CXR_MODEL" "$CXR_RUN_DIR"
+		main.readConfig "installer" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
 		common.module.runType ${CXR_TYPE_INSTALLER}
 	
-		main.log -a -b  "All installation actions finished."
+		main.log -a -b "All installation actions finished."
 	done
 }
 

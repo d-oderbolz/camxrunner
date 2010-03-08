@@ -391,7 +391,7 @@ function common.user.getAnswers()
 	local default
 	
 	
-	main.log -a  "Using ask-file ${playfile}"
+	main.log -a  "Using ask-file ${askfile} to create playfile ${playfile}"
 	
 	# Write a comment to the file
 	echo -e "#This is a machine-generated file. Generated on $(date) by user $USER\n#It can be used to replay an installation." > $playfile
