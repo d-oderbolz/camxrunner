@@ -327,7 +327,7 @@ function CAMx_installer()
 		# an ask-file
 		# The result will be a play-file
 		askfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/camx.ask
-		playfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-${domain}.play
+		playfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${domain}.play
 		
 		# Might be simplified later
 		if [[ -s "$playfile"  ]]
