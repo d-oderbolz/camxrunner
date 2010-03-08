@@ -121,6 +121,16 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	# If we do not run the first day, its a restart
+	if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
+	then
+		# This must be a restart!
+		CXR_RESTART=true
+	else
+		# Nope.
+		CXR_RESTART=false
+	fi
+	
 	########################################################################
 	# Per-day settings
 	########################################################################
@@ -642,16 +652,6 @@ function model()
 			# common.state.storeState checks if we have finished this and if we need to continue
 			if [[ ! $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 			then
-			
-				# If we do not run the first day, its a restart
-				if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
-				then
-					# This must be a restart!
-					CXR_RESTART=true
-				else
-					# Nope.
-					CXR_RESTART=false
-				fi
 			
 				main.log -B  "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 				
