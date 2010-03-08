@@ -189,16 +189,19 @@ function test_module()
 		# or hit the root directory /
 		while [ $(pwd) != / ]
 		do
-			cd ..
+
 			# If we find CAMxRunner, we are there
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
 			# If we are in root, we have gone too far
-			if [[ $(pwd) == /  ]]
+			if [[ $(pwd) == / ]]
 			then
 				echo "Could not find CAMxRunner.sh!"
 				exit 1
 			fi
+			
+			cd ..
+			
 		done
 		
 		# Save the number of tests, as other modules
