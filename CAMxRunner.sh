@@ -437,7 +437,7 @@ then
 	
 	# Get revisions of configuration and the CAMxRunner.sh
 	# The other variables are set in main.readConfig
-	CXR_RUNNER_REV=$(common.version_control.getRevision $0)
+	CXR_RUNNER_REV=$(main.getRevision $0)
 	
 	main.log -v -B "CAMxRunner.sh" "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
 	

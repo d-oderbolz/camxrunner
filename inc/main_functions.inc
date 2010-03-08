@@ -10,7 +10,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO:
+# TODO: Test all functions referring to common. for existence
 ################################################################################
 
 ################################################################################
@@ -700,6 +700,67 @@ function main.setModelAndVersion()
 }
 
 ################################################################################
+# Function: main.getRevision
+#
+# Extracts the svn version of a file. 
+# 
+# Returns:
+# If the revision is not set or the file does not exist, returns 0
+#
+# otherwise, return revision found
+#
+# Parameters:	
+# $1 - Full filename
+################################################################################
+function main.getRevision()
+################################################################################
+{
+	# Define & Initialize local vars
+	local filename
+	local version_string
+	local revision
+	
+	if [[ $# -ne 1  ]]
+	then
+		# No filename supplied
+		filename=/dev/null
+	else
+		filename=$1
+	fi
+	
+	if [[ ! -f "$filename"  ]]
+	then
+		# File inexistent
+		revision=0
+	else
+		# File exists, get first version string
+		# We want only the version string, nothing afterwards
+		version_string="$(grep -o '\$Id.*\$' ${filename})"
+		
+		# We expect 7 fields:
+		# "$Id$"
+		
+		if [[ $(common.array.countDelimitedElements "${version_string}" " ") -eq 7  ]]
+		then
+			# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
+			revision=$( echo "${version_string}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
+		else
+			# We do not have 6 fields, cannot garantee anything!
+			main.log -w  "Version string of file $filename is broken. Fix using svn!"
+			revision=0
+		fi
+		
+		# Correct any garbage
+		if [[ $(main.isNumeric? "$revision") == false   ]]
+		then
+			revision=0
+		fi
+	fi
+	
+	echo $revision
+}
+
+################################################################################
 # Function: main.readConfig
 #
 # Determine relevant config files and load them, also report their names and versions.
@@ -778,11 +839,11 @@ function main.readConfig()
 	# Revisions
 	########################################
 	
-	CXR_SITECONFIG_REV="$(common.version_control.getRevision $CXR_SITECONFIG)"
-	CXR_BASECONFIG_REV="$(common.version_control.getRevision $CXR_BASECONFIG)"
-	CXR_VERSIONCONFIG_REV="$(common.version_control.getRevision $CXR_VERSIONCONFIG)"
-	CXR_CONFIG_REV="$(common.version_control.getRevision $CXR_CONFIG)"
-	CXR_EXPANDED_CONFIG_REV="$(common.version_control.getRevision $CXR_EXPANDED_CONFIG)"
+	CXR_SITECONFIG_REV="$(main.getRevision $CXR_SITECONFIG)"
+	CXR_BASECONFIG_REV="$(main.getRevision $CXR_BASECONFIG)"
+	CXR_VERSIONCONFIG_REV="$(main.getRevision $CXR_VERSIONCONFIG)"
+	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
+	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
 	
 	
 	########################################
@@ -911,7 +972,7 @@ function main.readConfig()
 	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}"  ]]
 	then
 		local INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
-		local INSTALLER_CONF_REV=$(common.version_control.getRevision $INSTALLER_CONF)
+		local INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
 		
 		if [[ -f "${INSTALLER_CONF}"  ]]
 		then

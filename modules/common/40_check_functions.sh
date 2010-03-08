@@ -975,7 +975,7 @@ function common.check.ModuleRequirements()
 		main.increaseLogIndent
 		
 		# CAMxRunner Version
-		RUNNER_REVISION=$(common.version_control.getRevision $CXR_RUN_DIR/CAMxRunner.sh)
+		RUNNER_REVISION=$(main.getRevision $CXR_RUN_DIR/CAMxRunner.sh)
 		
 		if [[ "$RUNNER_REVISION" -ge "$CXR_META_MODULE_REQ_RUNNER_VERSION"  ]] 
 		then
@@ -1002,7 +1002,7 @@ function common.check.ModuleRequirements()
 		main.increaseLogIndent
 		
 		# Config Revision
-		CONFIG_REVISION=$(common.version_control.getRevision $CXR_CONFIG)
+		CONFIG_REVISION=$(main.getRevision $CXR_CONFIG)
 
 		if [[ "$CONFIG_REVISION" -ge "$CXR_META_MODULE_REQ_CONF_VERSION"  ]] 
 		then
