@@ -100,12 +100,10 @@ function common.install.do()
 	# - Run them (while checking they are not yet run)
 	# The interactivity is mostly hidden in these modules
 	
-	local model
 	local model_id
 	local supported
 	local oIFS
 	local array
-	local version
 	
 	main.log -a   "Checking internal files (may take a while)..."
 	
@@ -118,7 +116,7 @@ function common.install.do()
 		# Fix the message
 		message="Do you want to further run the installer for the CAMxRunner, some converters, model and the testcase (for other models/versions)?"
 		
-		model=$(common.user.getMenuChoice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
+		CXR_MODEL=$(common.user.getMenuChoice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
 		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
 		
@@ -140,7 +138,7 @@ function common.install.do()
 		DEFAULT_VERSION=${array[0]}
 	
 		#Generate a menu automatically
-		version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
+		CXR_MODEL_VERSION=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
 		common.check.isVersionSupported? $version $model
 		
