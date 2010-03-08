@@ -101,7 +101,7 @@ function cxr_common_load_test_data()
 		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main.die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
 		
 		# Query filetype
-		filetype=$(cxr_common_get_file_type "${CXR_TEST_DATA_INPUT_FILE}")
+		filetype=$(common.fs.getFileType "${CXR_TEST_DATA_INPUT_FILE}")
 		
 		# We support gzip and bzip compression
 		case $filetype in

@@ -258,7 +258,7 @@ function cxr_common_apply_patches()
 		fi
 		
 		# Is the patch a dos-file ?
-		if [[ "$(cxr_common_is_dos? "$patch_file")" == true ]]
+		if [[ "$(common.fs.isDos? "$patch_file")" == true ]]
 		then
 			main.log -w  "Patch $patch_file is in dos format. I will correct this."
 			${CXR_DOS2UNIX_EXEC} $patch_file

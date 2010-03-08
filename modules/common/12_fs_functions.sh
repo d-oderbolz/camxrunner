@@ -5,7 +5,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Path/File functions of CAMxRunner.
+# Contains the Filesystem functions of CAMxRunner.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -39,7 +39,7 @@ CXR_META_MODULE_REQ_RUNNER_VERSION=100
 CXR_META_MODULE_REQ_CONF_VERSION=100
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains some path functions for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains filesystem functions for the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -85,7 +85,7 @@ exit 1
 
 
 ################################################################################
-# Function: common.file.isNotEmpty?
+# Function: common.fs.isNotEmpty?
 # 
 # Returns true if argument is an non-empty file, false otherwise.
 # Used mostly as a wrapper for testing
@@ -93,7 +93,7 @@ exit 1
 # Parameters:
 # $1 - path of file to test
 ################################################################################
-function common.file.isNotEmpty?()
+function common.fs.isNotEmpty?()
 ################################################################################
 {
 	if [[ -s "${1}" ]]
@@ -105,7 +105,7 @@ function common.file.isNotEmpty?()
 }
 
 ################################################################################
-# Function: common.file.exists?
+# Function: common.fs.exists?
 # 
 # Returns true if argument is an existing file, false otherwise.
 # Used mostly as a wrapper for testing
@@ -113,7 +113,7 @@ function common.file.isNotEmpty?()
 # Parameters:
 # $1 - path of file to test
 ################################################################################
-function common.file.exists?()
+function common.fs.exists?()
 ################################################################################
 {
 	if [[ -f "${1}" ]]
@@ -125,14 +125,14 @@ function common.file.exists?()
 }
 
 ################################################################################
-# Function: cxr_common_is_absolute_path
+# Function: common.fs.isAbsolutePath?
 # 
 # Returns true if argument is an absolute path, false otherwise
 #
 # Parameters:
 # $1 - path to test
 ################################################################################
-function cxr_common_is_absolute_path()
+function common.fs.isAbsolutePath?()
 ################################################################################
 {
 	case $1 in
@@ -143,7 +143,7 @@ function cxr_common_is_absolute_path()
 
 
 ################################################################################
-# Function: cxr_common_same_fs?
+# Function: common.fs.sameDevice?
 # 
 # Returns true if the two arguments reside on the same device.
 # This test is crucial whan attempting to hard-link.
@@ -152,7 +152,7 @@ function cxr_common_is_absolute_path()
 # $1 - path1 to test
 # $2 - path2 to test
 ################################################################################
-function cxr_common_same_fs?()
+function common.fs.sameDevice?()
 ################################################################################
 {
 	local file1="$1"
@@ -170,7 +170,7 @@ function cxr_common_same_fs?()
 }
 
 ################################################################################
-# Function: cxr_common_get_file_mtime
+# Function: common.fs.getMtime
 # 
 # Returns the files mtime (modification time, last update of the data, or touch)
 # As seconds since epoch (January 1, 1970).
@@ -179,7 +179,7 @@ function cxr_common_same_fs?()
 # Parameters:
 # $1 - filename to analyse
 ################################################################################
-function cxr_common_get_file_mtime()
+function common.fs.getMtime()
 ################################################################################
 {
 	local file=$1
@@ -197,16 +197,16 @@ function cxr_common_get_file_mtime()
 }
 
 ################################################################################
-# Function: cxr_common_get_file_type
+# Function: common.fs.getFileType
 # 
 # Returns a parsed version of the output of "file". Currently used to detect compressed files by
-# <cxr_common_try_decompressing_file> and <init_test.inc>. 
+# <common.fs.TryDecompressingFile> and <init_test.inc>. 
 # Returns the empty string if the file is not readable.
 #
 # Parameters:
 # $1 - file to test
 ################################################################################
-function cxr_common_get_file_type()
+function common.fs.getFileType()
 ################################################################################
 {
 	local file=$1
@@ -225,14 +225,14 @@ function cxr_common_get_file_type()
 }
 
 ################################################################################
-# Function: cxr_common_is_dos?
+# Function: common.fs.isDos?
 # 
 # Returns a parsed version of the output of "file", can detect dos-files.
 #
 # Parameters:
 # $1 - file to test
 ################################################################################
-function cxr_common_is_dos?()
+function common.fs.isDos?()
 ################################################################################
 {
 	local file=$1
@@ -250,14 +250,14 @@ function cxr_common_is_dos?()
 }
 
 ################################################################################
-# Function: cxr_common_file_size_megabytes
+# Function: common.fs.FileSizeMb
 #
 # Returns the number of megabytes used by a file, rounded to the nearest MB
 #
 # Parameters:
 # $1 - path to file to test
 ################################################################################
-function cxr_common_file_size_megabytes()
+function common.fs.FileSizeMb()
 ################################################################################
 {
 	local size
@@ -277,7 +277,7 @@ function cxr_common_file_size_megabytes()
 }
 
 ################################################################################
-# Function: cxr_common_wait_for_file
+# Function: common.fs.WaitForFile
 #
 # Waits for a file to appear. Returns true on success, false otherwise
 #
@@ -288,7 +288,7 @@ function cxr_common_file_size_megabytes()
 # $CXR_TIMEOUT_MINS - number of minutes to wait for this file
 # $CXR_TOTAL_WAITING_MINS - total number of minutes to wait
 ################################################################################
-function cxr_common_wait_for_file()
+function common.fs.WaitForFile()
 ################################################################################
 {
 	local filename="$1"
@@ -312,7 +312,7 @@ function cxr_common_wait_for_file()
 }
 
 ################################################################################
-# Function: cxr_common_wait_for_stable_size
+# Function: common.fs.WaitForStableSize
 #
 # Waits until a file has a constant size. Returns true on success, false otherwise
 #
@@ -323,16 +323,16 @@ function cxr_common_wait_for_file()
 # $CXR_TIMEOUT_MINS - number of minutes to wait for this file
 # $CXR_TOTAL_WAITING_MINS - total number of minutes to wait
 ################################################################################
-function cxr_common_wait_for_stable_size()
+function common.fs.WaitForStableSize()
 ################################################################################
 {
 	local filename="$1"
 	local old_size=0
 	
-	until [[ $(cxr_common_file_size_megabytes $filename) -eq $old_size  &&  ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
+	until [[ $(common.fs.FileSizeMb $filename) -eq $old_size  &&  ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
 	do
 		# Store the current size as old
-		old_size="$(cxr_common_file_size_megabytes $filename)"
+		old_size="$(common.fs.FileSizeMb $filename)"
 		
 		sleep ${CXR_WAITING_SLEEP_SECONDS}
 		waited_mins=$(( ($waited_mins + $CXR_WAITING_SLEEP_SECONDS)/60  ))
@@ -340,7 +340,7 @@ function cxr_common_wait_for_stable_size()
 	done
 	
 	# We fail if the filesize is 0 or it still grows
-	if [[ $(cxr_common_file_size_megabytes $filename) -eq 0 || $(cxr_common_file_size_megabytes $filename) -ne $old_size ]]
+	if [[ $(common.fs.FileSizeMb $filename) -eq 0 || $(common.fs.FileSizeMb $filename) -ne $old_size ]]
 	then
 		main.log -e  "$filename still seems to grow."
 		echo false
@@ -351,7 +351,7 @@ function cxr_common_wait_for_stable_size()
 }
 
 ################################################################################
-# Function: cxr_common_compress_output
+# Function: common.fs.CompressOutput
 # 
 # Compresses either all output files or such that match the pattern in
 # CXR_COMPRESS_OUTPUT_PATTERN and are bigger than CXR_COMPRESS_THRESHOLD_MB
@@ -368,7 +368,7 @@ function cxr_common_wait_for_stable_size()
 # Files:
 # $CXR_INSTANCE_FILE_OUTPUT_LIST - List of files to compress
 ################################################################################
-function cxr_common_compress_output()
+function common.fs.CompressOutput()
 ################################################################################
 {
 	local filename
@@ -428,7 +428,7 @@ function cxr_common_compress_output()
 					# Do it if it is large enough
 					if [[ "$do_this" == true  ]]
 					then
-						if [[ $(cxr_common_file_size_megabytes ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
+						if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 						then
 							main.log -v  "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
 							"${CXR_COMPRESSOR_EXEC}" "${filename}"
@@ -450,7 +450,7 @@ function cxr_common_compress_output()
 }
 
 ################################################################################
-# Function: cxr_common_try_decompressing_file
+# Function: common.fs.TryDecompressingFile
 # 
 # Checks if an input file is compressed, decompresses it and returns a new name.
 # Wo do this by searching files that have specific suffixes added to their name.
@@ -467,7 +467,7 @@ function cxr_common_compress_output()
 # Parameters:
 # $1 - path to test
 ################################################################################
-function cxr_common_try_decompressing_file()
+function common.fs.TryDecompressingFile()
 ################################################################################
 {
 	local input_file=$1
@@ -548,7 +548,7 @@ function cxr_common_try_decompressing_file()
 				
 				# What decompressor to use?
 				# This is NOT derived from the filename
-				filetype=$(cxr_common_get_file_type "$comp_file")
+				filetype=$(common.fs.getFileType "$comp_file")
 				
 				case $filetype in
 		
@@ -608,7 +608,7 @@ function cxr_common_try_decompressing_file()
 
 
 ################################################################################
-# Function: cxr_common_get_fs_type
+# Function: common.fs.getType
 #
 # Returns the the lowercase name of the filesystem in use in a particular path.
 # Returns the empty string on error.
@@ -619,7 +619,7 @@ function cxr_common_try_decompressing_file()
 # Parameters:
 # $1 - path to test
 ################################################################################
-function cxr_common_get_fs_type()
+function common.fs.getType()
 ################################################################################
 {
 	if [[ $# -ne 1 ]]
@@ -671,7 +671,7 @@ function cxr_common_get_fs_type()
 }
 
 ################################################################################
-# Function: cxr_common_free_megabytes
+# Function: common.fs.getFreeMb
 #
 # returns the number of megabytes free in given path (floored?)
 # This might actually fail on non Linux-systems...
@@ -681,7 +681,7 @@ function cxr_common_get_fs_type()
 # Parameters:
 # $1 - path to test
 ################################################################################
-function cxr_common_free_megabytes()
+function common.fs.getFreeMb()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -698,7 +698,7 @@ function cxr_common_free_megabytes()
 	local free_mb
 	
 	# Get File system
-	fs=$(cxr_common_get_fs_type $1)
+	fs=$(common.fs.getType $1)
 	
 	case $fs in
 	afs)
@@ -809,7 +809,7 @@ function test_module()
 	local rtc=$(date "+%s") 
 	
 	# Time of file
-	local ft=$(cxr_common_get_file_mtime $a)
+	local ft=$(common.fs.getMtime $a)
 	
 	# create a 100 MB file
 	dd bs=100M if=/dev/zero of=$b count=1
@@ -819,24 +819,24 @@ function test_module()
 	########################################
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
-	differs_less_or_equal $rtc $ft 1 "cxr_common_get_file_mtime immediate, time difference ok"
-	is $(cxr_common_is_absolute_path /) true "cxr_common_is_absolute_path /"
-	is $(cxr_common_file_size_megabytes $a) 1 "cxr_common_file_size_megabytes of small file"
-	is $(cxr_common_file_size_megabytes $b) 100 "cxr_common_file_size_megabytes of 100MB file"
-	is $(cxr_common_same_fs? . .) true "cxr_common_same_fs with twice the current path"
-	is $(cxr_common_same_fs? /proc .) false "cxr_common_same_fs with proc and current path"
+	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
+	is $(common.fs.isAbsolutePath? /) true "common.fs.isAbsolutePath? /"
+	is $(common.fs.FileSizeMb $a) 1 "common.fs.FileSizeMb of small file"
+	is $(common.fs.FileSizeMb $b) 100 "common.fs.FileSizeMb of 100MB file"
+	is $(common.fs.sameDevice? . .) true "cxr_common_same_fs with twice the current path"
+	is $(common.fs.sameDevice? /proc .) false "cxr_common_same_fs with proc and current path"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a"
-	is $(cxr_common_is_dos? "$a") true "cxr_common_is_dos? on dos-file"
+	is $(common.fs.isDos? "$a") true "common.fs.isDos? on dos-file"
 	
 	${CXR_DOS2UNIX_EXEC} "$a"
-	is $(cxr_common_is_dos? "$a") false "cxr_common_is_dos? on unix-file"
+	is $(common.fs.isDos? "$a") false "common.fs.isDos? on unix-file"
 	# compress
-	cxr_common_compress_output
+	common.fs.CompressOutput
 	
 	#Test
-	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, no pattern"
+	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, no pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -845,10 +845,10 @@ function test_module()
 	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
 	
 	# compress
-	cxr_common_compress_output
+	common.fs.CompressOutput
 	
 	#Test
-	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -857,10 +857,10 @@ function test_module()
 	CXR_COMPRESS_OUTPUT_PATTERN="path_.*"
 	
 	# compress
-	cxr_common_compress_output
+	common.fs.CompressOutput
 	
 	#Test
-	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -869,10 +869,10 @@ function test_module()
 	CXR_COMPRESS_OUTPUT_PATTERN=guagg
 	
 	# compress
-	cxr_common_compress_output
+	common.fs.CompressOutput
 	
 	#Test
-	is $(common.file.exists? ${a}.bz2 ) false "cxr_common_compress_output with simple file, not matching pattern"
+	is $(common.fs.exists? ${a}.bz2 ) false "common.fs.CompressOutput with simple file, not matching pattern"
 	
 	# No decompression needed (its not compressed)
 	

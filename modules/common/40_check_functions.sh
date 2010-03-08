@@ -163,7 +163,7 @@ function cxr_common_predict_model_output_megabytes ()
 #	
 # Checks if space in target directory is sufficient.
 # Aborts if not sufficient.
-# Internally uses <cxr_common_free_megabytes>
+# Internally uses <common.fs.getFreeMb>
 #
 # Parameters:
 # $1 - Directory to check
@@ -190,7 +190,7 @@ function cxr_common_check_mb_needed()
 		mkdir -p $dir
 	fi
 	
-	if [[ "$(cxr_common_free_megabytes "$dir")" -ge "$mb"  ]]
+	if [[ "$(common.fs.getFreeMb "$dir")" -ge "$mb"  ]]
 	then
 		main.log -i  "Space in $dir is sufficient."
 	else
@@ -395,7 +395,7 @@ function cxr_common_check_runner_executables ()
 			# File is not executable, try to correct
 			chmod +x $file || main.die_gracefully "Could not change permissions on file $file - exiting"
 			
-			if [[ "$(cxr_common_is_dos? "$file")" == true ]]
+			if [[ "$(common.fs.isDos? "$file")" == true ]]
 			then
 				main.log -w  "$file is in dos format. I will correct this."
 				${CXR_DOS2UNIX_EXEC} $file
@@ -713,7 +713,7 @@ function cxr_common_check_preconditions()
 					fi
 				else
 					# Does not exist, create it.
-					if [[ $(cxr_common_is_absolute_path ${!dir}) == true  ]]
+					if [[ $(common.fs.isAbsolutePath? ${!dir}) == true  ]]
 					then
 						main.log -w   "Directory ${!dir}, \nParameter $dir does not exist - creating it"
 						mkdir -p ${!dir}
@@ -777,7 +777,7 @@ function cxr_common_check_preconditions()
 				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
 					# We want to wait
-					if [[ "$(cxr_common_wait_for_file ${input_file})" == false ]]
+					if [[ "$(common.fs.WaitForFile ${input_file})" == false ]]
 					then
 						# Waiting did not help
 						errors_found=true
@@ -793,7 +793,7 @@ function cxr_common_check_preconditions()
 				# it still grows
 				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
-					if [[ "$(cxr_common_wait_for_stable_size ${input_file})" == false ]]
+					if [[ "$(common.fs.WaitForStableSize ${input_file})" == false ]]
 					then
 						# Waiting did not help
 						errors_found=true

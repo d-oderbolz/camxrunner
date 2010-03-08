@@ -316,7 +316,7 @@ function cxr_common_hash_mtime ()
 	fn="$(_hash_fn "$hash" "$type" "$key")"
 	
 	# Get the mtime
-	echo "$(cxr_common_get_file_mtime "$fn")"
+	echo "$(common.fs.getMtime "$fn")"
 }
 
 ################################################################################

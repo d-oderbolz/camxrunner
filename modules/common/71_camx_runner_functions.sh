@@ -328,7 +328,7 @@ function cxr_common_report_dimensions()
 # 
 # Evaluates a filerule and returns its expansion. Removes syntactical fluff unknown
 # to non-bashers.
-# If it is a file rule, the file might be compressed, <cxr_common_try_decompressing_file> is called.
+# If it is a file rule, the file might be compressed, <common.fs.TryDecompressingFile> is called.
 #
 # Side effect: if the file is compressed and we cannot decompress in place,
 # the returned file name will change. If you want the "expected" file name,
@@ -407,7 +407,7 @@ function cxr_common_evaluate_rule()
 		then
 	
 			# Try to decompress
-			expansion=$(cxr_common_try_decompressing_file $expansion)
+			expansion=$(common.fs.TryDecompressingFile $expansion)
 			
 		else
 			main.log -v  "No decompression attempted."
