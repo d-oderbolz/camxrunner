@@ -721,12 +721,7 @@ then
 		cxr_common_parallel_init
 	
 		# Creates CXR_MAX_PARALLEL_PROCS cxr_common_parallel_worker processes
-		# The workers
-		#		Get the next task
-		#		Execute the task
-		#		Send State DB Info about completion
-		#		Ask for the next job
-		# XX_task_functions.sh
+		# The workers then carry out the tasks in parallel
 		cxr_common_spawn_workers $CXR_MAX_PARALLEL_PROCS
 	
 		################################################################################

@@ -265,11 +265,20 @@ function main.log()
 		blank_message="${prefix}${2:-}"
 	else
 		# The caller is in ${FUNCNAME[1]}
-		function_name="${FUNCNAME[1]:-}"
+		if [[ ${#FUNCNAME[@]} -ge 2 ]]
+		then
+			function_name="${FUNCNAME[1]}"
+		else
+			function_name="CAMxRunner"
+		fi
+		
 		blank_message="${prefix}${1:-}"
 	fi
 	
-	line_no="${BASH_LINENO[1]:-0}"
+	if [[ ${#FUNCNAME[@]} -ge 2 ]]
+	then
+		line_no="${BASH_LINENO[1]}"
+	fi
 	
 	stderr_message="$blank_message"
 	
@@ -568,12 +577,15 @@ function main.die_gracefully()
 	# This function also echoes the message
 	main.addError "${1:-Unknown error.}"
 	
-	main.log -a "Call Stack:"
-	
-	for i in $(seq 1 $(( ${#FUNCNAME[@]:-0} - 1 )) )
-	do
-		echo ${FUNCNAME[$i]:-}:${BASH_LINENO[$i]:-0}
-	done
+	if [[ ${#FUNCNAME[@]} -ge 2 ]]
+	then
+		main.log -a "Call Stack:"
+		
+		for i in $(seq 1 $(( ${#FUNCNAME[@]} - 1 )) )
+		do
+			echo ${FUNCNAME[$i]}:${BASH_LINENO[$i]}
+		done
+	fi
 	
 	main.log -a  "##########################################################"
 	
