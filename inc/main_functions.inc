@@ -24,9 +24,8 @@
 function main.isNumeric?()
 ################################################################################
 { 
-	# If this returns 0, there is at least a non-numeric character
-	# present. Negative values are OK
-	echo "${1:-}" | grep '\-?[^0-9]' >/dev/null
+	# If this returns 0, this is a number
+	echo "${1:-}" | grep '\-?\([0-9]\+.\)?[0-9]\+' >/dev/null
 	
 	if [[ "$?" -eq 0 || -z "$1" ]]
 	then
