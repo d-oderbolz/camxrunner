@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=32
+CXR_META_MODULE_NUM_TESTS=31
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -1189,12 +1189,11 @@ function test_module()
 	is $(common.date.addDays 2009-02-28 1) 2009-03-01 "common.date.addDays"
 	is $(common.date.addDays 2004-02-28 1) 2004-02-29 "common.date.addDays"
 	is $(common.date.subtractDays 2004-02-29 1) 2004-02-28 "common.date.subtractDays"
-	is $(common.date.isFirstDayOfYear? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
+	is $(common.date.isFirstDayOfYear? 2012-01-01) true "cxr_common_is_first_day_of_year 2012-01-01"
 	is $(common.date.isFirstDayOfWeek? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
 	is $(common.date.isFirstDayOfWeek? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
 	is $(date_isFirstDayOfMonth? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
-	is "$(cxr_common_offset2_raw_date "")" '' "cxr_common_offset2_raw_date empty string"
-	
+
 	########################################
 	# teardown tests if needed
 	########################################
