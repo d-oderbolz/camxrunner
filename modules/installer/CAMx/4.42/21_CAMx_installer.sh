@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Installer for CAMx
+# Installer for CAMx 4.x-5.x
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
 # Version: $Id$ 
@@ -110,7 +110,10 @@ function CAMx_installer()
 		local hdf
 		local mpi
 		local default_platform
+		
+		# This is the name the Makefie chooses
 		local resulting_binary
+		
 		local patch_all_dir
 		local patch_platform_dir
 		local draft_dir
@@ -174,7 +177,7 @@ function CAMx_installer()
 		
 		input_dir=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/input/${CXR_MODEL}
 		
-		if [[ ! -d "$input_dir"  ]]
+		if [[ ! -d "$input_dir" ]]
 		then
 			main.die_gracefully "Could not find the input directory $input_dir"
 		fi
@@ -271,7 +274,18 @@ function CAMx_installer()
 		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
 		
 		#File resulting from compilation due to CAMx defaults
-		resulting_binary=${CXR_CAMX_SRC_DIR}/CAMx.${domain}_${CXR_CURRENT_PLATFORM}
+		#CAMx 5.x adds MPI info here
+		if [[ ${CXR_MODEL_VERSION:0:1} -eq 5 ]]
+		then
+			if [[ "$mpi" == true ]]
+			then
+				resulting_binary=${CXR_CAMX_SRC_DIR}/CAMx.${domain}.MPI.${CXR_CURRENT_PLATFORM}
+			else
+				resulting_binary=${CXR_CAMX_SRC_DIR}/CAMx.${domain}.noMPI.${CXR_CURRENT_PLATFORM}
+			fi
+		else
+			resulting_binary=${CXR_CAMX_SRC_DIR}/CAMx.${domain}.${CXR_CURRENT_PLATFORM}
+		fi
 		
 		########################################
 		main.log -a  "Setup Input directories containing patches..."
