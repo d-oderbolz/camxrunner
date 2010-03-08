@@ -148,7 +148,6 @@ function common.test.all()
 	local total_tests
 	local message
 	
-	
 	# This function runs all tests that are availabe (asking the user before each new test if wanted).
 	# For this, all modules are enumerated and then tested if marked as testable.
 	# To do this, we need to know the model name and version to test for (otherwise we might repeat many tests)
@@ -176,7 +175,7 @@ function common.test.all()
 		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "Model $model is not known."
 		
 		
-		if [[ ! "${input_version}"  ]]
+		if [[ ! "${input_version}" ]]
 		then
 			# version was not passed
 		
@@ -242,7 +241,7 @@ function common.test.all()
 			# ignore comment and blank lines
 			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 	
-			main.log  "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
+			main.log  -a "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
 			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 			do
@@ -271,7 +270,7 @@ function common.test.all()
 		########################################
 		#  Plan these tests
 		########################################
-		main.log -v  "Planning to run $total_tests tests..."
+		main.log -a "Planning to run $total_tests tests..."
 		
 		# Plan them
 		plan_tests $total_tests
@@ -328,10 +327,11 @@ function common.test.all()
 					CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
 					
 					# If we did not just load this config, do it now
-					if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG"  ]]
+					if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG" ]]
 					then
-						# We prepare the tests
-						source inc/init_test.inc
+						# We load the config
+						main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
+						
 						LAST_LOADED_CONFIG=$CXR_RUN
 					fi
 					
