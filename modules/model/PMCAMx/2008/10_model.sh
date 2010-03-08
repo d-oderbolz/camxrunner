@@ -387,7 +387,7 @@ function write_model_control_file()
 		LATLON)  echo "long,lat,dx,dy     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} " >> ${CXR_MODEL_CTRL_FILE} ;;
 		UTM)     echo "x,y,dx,dy,zone     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_UTM_ZONE} " >> ${CXR_MODEL_CTRL_FILE} ;;
 		POLAR)   echo "x,y,dx,dy,lo_p,la_p|${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_POLAR_LONGITUDE_POLE} ${CXR_POLAR_LATITUDE_POLE}" >> ${CXR_MODEL_CTRL_FILE} ;;
-		*) main.die_gracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
+		*) main.dieGracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
 	
 	esac
 	
@@ -630,7 +630,7 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main.die_gracefully "CAMx has returned a non-zero status for $CXR_DATE"
+		main.dieGracefully "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back

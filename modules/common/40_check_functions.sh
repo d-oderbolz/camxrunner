@@ -99,7 +99,7 @@ function common.check.BashVersion()
 {
 	if [[ ${BASH_VERSINFO[0]} -lt 3  ]]
 	then
-		main.die_gracefully "We need at least Bash Version 3.x - please upgrade."
+		main.dieGracefully "We need at least Bash Version 3.x - please upgrade."
 	fi
 }
 
@@ -174,7 +174,7 @@ function common.check.MbNeeded()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "needs 2 parameters: a path and a number (megabytes needed)"
+		main.dieGracefully "needs 2 parameters: a path and a number (megabytes needed)"
 	fi
 	
 	local dir="$1"
@@ -194,7 +194,7 @@ function common.check.MbNeeded()
 	then
 		main.log -i  "Space in $dir is sufficient."
 	else
-		main.die_gracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
+		main.dieGracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
 	fi
 	
 }
@@ -222,7 +222,7 @@ function common.check.DataType()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "needs 2 strings as input"
+		main.dieGracefully "needs 2 strings as input"
 	fi
 	
 	local value=$1
@@ -278,7 +278,7 @@ function common.check.DataType()
 		fi
 			
 		;;
-	*) main.die_gracefully "illegal Datatype $datatype" ;;
+	*) main.dieGracefully "illegal Datatype $datatype" ;;
 	esac
 }
 
@@ -390,7 +390,7 @@ function common.check.RunnerExecutables()
 		then
 			main.log -w  "File $file is not executable,I try to correct this"
 			# File is not executable, try to correct
-			chmod +x $file || main.die_gracefully "Could not change permissions on file $file - exiting"
+			chmod +x $file || main.dieGracefully "Could not change permissions on file $file - exiting"
 			
 			if [[ "$(common.fs.isDos? "$file")" == true ]]
 			then
@@ -399,7 +399,7 @@ function common.check.RunnerExecutables()
 				
 				if [[ $? -ne 0 ]]
 				then
-					main.die_gracefully "could not convert $file to Unix format!"
+					main.dieGracefully "could not convert $file to Unix format!"
 				fi
 			fi
 			
@@ -659,7 +659,7 @@ function common.check.preconditions()
 				then
 					main.log -w  "Directory ${!output_dir} Parameter $output_dir does not exist - will create it"
 					
-					mkdir -p ${!output_dir} || main.die_gracefully "could not create output dir ${!output_dir}"
+					mkdir -p ${!output_dir} || main.dieGracefully "could not create output dir ${!output_dir}"
 					
 				# is it writeable?
 				elif [[ ! -w ${!output_dir}  ]]
@@ -1211,7 +1211,7 @@ function common.check.isVersionSupported?()
 	
 	local version=$1
 	local model=$2
-	local model_id="$(common.runner.getModelId "$model")" || main.die_gracefully "Model $model is not known."
+	local model_id="$(common.runner.getModelId "$model")" || main.dieGracefully "Model $model is not known."
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
@@ -1312,7 +1312,7 @@ function common.check.runner()
 			main.log -v   "Checking model $model..."
 		
 			# Get id of the current model
-			model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
+			model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
 	
 			# Extract the list of supported versions
 			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"

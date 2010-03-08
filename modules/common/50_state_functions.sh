@@ -226,7 +226,7 @@ function common.state.getStageName()
 		${CXR_TYPE_INSTALLER}) 
 			echo ${module_type}@${module_name} ;;
 			
-	 *) main.die_gracefully "Unknown module type ${module_type}";;
+	 *) main.dieGracefully "Unknown module type ${module_type}";;
 	esac
 }
 
@@ -364,7 +364,7 @@ function common.state.storeState()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs a state like $CXR_STATE_ERROR as Input"   
+		main.dieGracefully "needs a state like $CXR_STATE_ERROR as Input"   
 	fi
 	
 	local state=$1
@@ -418,7 +418,7 @@ function common.state.storeState()
 			
 			*)
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				main.die_gracefully "Unknown state $state given"
+				main.dieGracefully "Unknown state $state given"
 				echo false
 			;;
 	esac
@@ -443,7 +443,7 @@ function _common.state.getStateFileName()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "needs a state and a stage as Input" 
+		main.dieGracefully "needs a state and a stage as Input" 
 	fi
 	
 	local state=$1
@@ -472,7 +472,7 @@ function common.state.detectInstances()
 		
 		main.log -e   "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
-		main.die_gracefully "Process stopped"
+		main.dieGracefully "Process stopped"
 	fi
 }
 
@@ -489,7 +489,7 @@ function common.state.hasFinished?()
 {
 	if [[ $# -ne 1 ]]
 	then
-		main.die_gracefully "needs a state and a stage as Input" 
+		main.dieGracefully "needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -532,7 +532,7 @@ function common.state.hasFailed?()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs a state and a stage as Input" 
+		main.dieGracefully "needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -834,7 +834,7 @@ function common.state.doContinue?()
 	# of CXR_ERROR_THRESHOLD is not -1
 	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
 	then
-		main.die_gracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		main.dieGracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 	
 	# Do we care at all?

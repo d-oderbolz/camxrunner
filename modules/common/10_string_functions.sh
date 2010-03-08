@@ -218,7 +218,7 @@ function common.string.leftPadZero
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "We need 2 digits as input: the number to pad and the number of digits to pad to"
+		main.dieGracefully "We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
 	local number="$1"

@@ -100,7 +100,7 @@ function common.module.getMetaField()
 	then
 		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 	else
-		main.die_gracefully "cannot find path of $module"
+		main.dieGracefully "cannot find path of $module"
 	fi
 	
 	# source module
@@ -108,7 +108,7 @@ function common.module.getMetaField()
 	
 	if [[ $? -ne 0 ]]
 	then
-		main.die_gracefully "could not source $module ($module_path)"
+		main.dieGracefully "could not source $module ($module_path)"
 	fi
 	
 	# Do we have this variable?
@@ -117,7 +117,7 @@ function common.module.getMetaField()
 	if [[ $? -ne 0 ]]
 	then
 		# variable not known!
-		main.die_gracefully "variable $item not found!"
+		main.dieGracefully "variable $item not found!"
 	else
 		# Return value (indirect)
 		echo ${!item}
@@ -189,7 +189,7 @@ function common.module.resolveSingleDependency()
 {
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		main.die_gracefully "Programming error @ needs at least a depdendency and an optional day_offset as input"
+		main.dieGracefully "Programming error @ needs at least a depdendency and an optional day_offset as input"
 	fi
 
 	local dependency="$1"
@@ -271,7 +271,7 @@ function common.module.resolveSingleDependency()
 					return $CXR_RET_OK
 				else
 					# Yes, we terminate
-					main.die_gracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
+					main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
 				fi
 			fi
 			
@@ -381,7 +381,7 @@ function common.module.areDependenciesOk?()
 	
 	if [[ $# -ne 2 ]]
 	then
-		main.die_gracefully "needs a depdendency list and a day offset as input"
+		main.dieGracefully "needs a depdendency list and a day offset as input"
 	fi
 
 	local raw_dependencies="$1"
@@ -424,7 +424,7 @@ function common.module.areDependenciesOk?()
 				# Destroy run 
 				if [[ $CXR_DRY == false  ]]
 				then
-					main.die_gracefully "dependency ${day_offset}_${dependency} failed!"
+					main.dieGracefully "dependency ${day_offset}_${dependency} failed!"
 				else
 					main.log -v  "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
 				fi
@@ -511,7 +511,7 @@ function common.module.updateInfo()
 			# Is there a new entry of this name? (this would indicate non-uniqueness!)
 			if [[ $(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 			then
-				main.die_gracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 			fi
 			
 			# Path 
@@ -562,10 +562,10 @@ function common.module.getType()
 		then
 			echo "$module_type"
 		else
-			main.die_gracefully "Could not find module type of $name!"
+			main.dieGracefully "Could not find module type of $name!"
 		fi
 	else
-		main.die_gracefully "Could not find module $name!"
+		main.dieGracefully "Could not find module $name!"
 	fi
 	
 }
@@ -614,7 +614,7 @@ function common.module.runType()
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-			main.die_gracefully "Common modules cannot be run this way!" ;;
+			main.dieGracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			module_directories="$CXR_PREPROCESSOR_ONCE_INPUT_DIR"
@@ -654,7 +654,7 @@ function common.module.runType()
 			our_date=;;
 			
 		* ) 
-			main.die_gracefully "Unknown module type $module_type" ;;
+			main.dieGracefully "Unknown module type $module_type" ;;
 
 	esac
 	
@@ -678,7 +678,7 @@ function common.module.runType()
 				# Check if we are still happy if needed
 				if [[ "${check_continue}" == true  ]]
 				then
-					common.state.doContinue? || main.die_gracefully "Continue file no longer present."
+					common.state.doContinue? || main.dieGracefully "Continue file no longer present."
 				fi
 				
 				FILE_NAME=$(basename "$function_file")

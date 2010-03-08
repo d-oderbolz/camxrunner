@@ -96,14 +96,14 @@ function testcase_installer()
 	
 	if [[ "$(common.user.getOK "Do you want to install the ${CXR_MODEL_VERSION} testcase to $TESTCASE_DIR?\n\nRequires about $CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
-		mkdir -p $TESTCASE_DIR || main.die_gracefully "Could not create $TESTCASE_DIR"
+		mkdir -p $TESTCASE_DIR || main.dieGracefully "Could not create $TESTCASE_DIR"
 		
 		########################################
 		# Check space
 		########################################
 		common.check.MbNeeded "$TESTCASE_DIR" "$CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED"
 		
-		cd $TESTCASE_DIR || main.die_gracefully "Could change to $TESTCASE_DIR"
+		cd $TESTCASE_DIR || main.dieGracefully "Could change to $TESTCASE_DIR"
 		
 		########################################
 		main.log  "Downloading three files - might take a while..."
@@ -111,18 +111,18 @@ function testcase_installer()
 		########################################
 		
 		# Get the 3 files
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main.die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main.die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
+		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
 		
 		########################################
 		main.log  "Unpacking tar files..."
 		########################################
 		
 		# Untar
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || main.die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main.die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
-		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_MET} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_MET"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
+		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.dieGracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
 		
 		if [[ "$(common.user.getOK "Do you want to remove the tar files?\nRecommended, they are large and unneeded." Y )" == true  ]]
 		then

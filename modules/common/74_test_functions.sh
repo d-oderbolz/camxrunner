@@ -98,7 +98,7 @@ function common.test.loadData()
 	if [[   "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -f "${CXR_TEST_DATA_INPUT_FILE:-}"    ]]
 	then
 	
-		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main.die_gracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
+		cd "${CXR_TEST_DATA_OUTPUT_DIR}" || main.dieGracefully "Could not change to ${CXR_TEST_DATA_OUTPUT_DIR}"
 		
 		# Query filetype
 		filetype=$(common.fs.getFileType "${CXR_TEST_DATA_INPUT_FILE}")
@@ -119,7 +119,7 @@ function common.test.loadData()
 				;;
 		esac
 		
-		cd $CXR_RUN_DIR || main.die_gracefully "Could not change back to ${CXR_RUN_DIR}"
+		cd $CXR_RUN_DIR || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 	
 	else
 		main.log -e  "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
@@ -172,7 +172,7 @@ function common.test.all()
 			model=$iput_model
 		fi
 		
-		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "Model $model is not known."
+		model_id=$(common.runner.getModelId "$model") || main.dieGracefully "Model $model is not known."
 		
 		
 		if [[ ! "${input_version}" ]]

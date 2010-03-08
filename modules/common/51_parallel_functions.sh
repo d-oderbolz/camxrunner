@@ -329,7 +329,7 @@ function common.parallel.getNextTask()
 	# Check status
 	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
-		main.die_gracefully "could not find next task!"
+		main.dieGracefully "could not find next task!"
 	fi
 	
 	# It can be that we did not get a string
@@ -379,7 +379,7 @@ function common.parallel.changeTaskStatus()
 	
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "needs a task descriptor and a status as input"
+		main.dieGracefully "needs a task descriptor and a status as input"
 	fi
 	
 	task_descriptor_path="$1"
@@ -399,7 +399,7 @@ function common.parallel.changeTaskStatus()
 			;;
 			
 		*)
-			main.die_gracefully "status $status not supported!"
+			main.dieGracefully "status $status not supported!"
 	
 	esac
 	
@@ -420,7 +420,7 @@ function common.parallel.waitingWorker()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs a task_pid as input"
+		main.dieGracefully "needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -450,7 +450,7 @@ function common.parallel.workingWorker()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs a task_pid as input"
+		main.dieGracefully "needs a task_pid as input"
 	fi
 	
 	local task_pid=$1
@@ -481,7 +481,7 @@ function common.parallel.removeWorker()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs a task_pid as input"
+		main.dieGracefully "needs a task_pid as input"
 	fi
 	
 	# Remove identifier
@@ -560,7 +560,7 @@ function common.parallel.Worker()
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
-		common.state.doContinue? || main.die_gracefully "Continue file no longer present."
+		common.state.doContinue? || main.dieGracefully "Continue file no longer present."
 	
 		# common.parallel.getNextTask must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
@@ -587,7 +587,7 @@ function common.parallel.Worker()
 			then
 				module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 			else
-				main.die_gracefully "cannot find path of $module"
+				main.dieGracefully "cannot find path of $module"
 			fi
 			
 			exclusive="$(common.module.getExclusive $module_name)"
@@ -770,7 +770,7 @@ function common.parallel.init()
 	
 	if [[ $? -ne 0 ]]
 	then
-		main.die_gracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
+		main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
 	fi
 	
 	main.log -a  "Creating todo-structure"
@@ -782,7 +782,7 @@ function common.parallel.init()
 		# Is this a unique number?
 		if [[ -f "$task_file" ]]
 		then
-			main.die_gracefully "The task Id $current_id is already taken"
+			main.dieGracefully "The task Id $current_id is already taken"
 		fi
 		
 		# each line contains something like "create_emissions0" or "initial_conditions"
@@ -792,7 +792,7 @@ function common.parallel.init()
 		
 		# Create link in todo dir
 		(
-			cd $CXR_TASK_TODO_DIR || main.die_gracefully "Could not change to dir $CXR_TASK_TODO_DIR"
+			cd $CXR_TASK_TODO_DIR || main.dieGracefully "Could not change to dir $CXR_TASK_TODO_DIR"
 	
 			# General
 			ln -s $task_file

@@ -617,7 +617,7 @@ function common.user.applyPlayfile()
 
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "needs a playfile and a list of input files as input"
+		main.dieGracefully "needs a playfile and a list of input files as input"
 	fi
 
 	local playfile="$1"
@@ -709,7 +709,7 @@ function common.user.applyPlayfile()
 				sed -e "s/@$variable@/$value/g" $current_file > $sed_tmp
 
 				# Copy file back
-				cp $sed_tmp $current_file || main.die_gracefully "Could not copy $sed_tmp to the draft file $current_file"
+				cp $sed_tmp $current_file || main.dieGracefully "Could not copy $sed_tmp to the draft file $current_file"
 				
 				# Empty tempfile
 				: > $sed_tmp

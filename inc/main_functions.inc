@@ -550,7 +550,7 @@ function main.doCleanup()
 trap "main.doCleanup; exit" INT TERM EXIT
 
 ################################################################################
-# Function: main.die_gracefully
+# Function: main.dieGracefully
 #
 # Prints a message and exits with value $2. must be in here because its important
 # 
@@ -559,7 +559,7 @@ trap "main.doCleanup; exit" INT TERM EXIT
 # [$2] - Run cleanup (if false, no cleanup is done)
 # [$3] - Return code
 ################################################################################
-function main.die_gracefully()
+function main.dieGracefully()
 ################################################################################
 {
 	# Release any traps
@@ -625,7 +625,7 @@ function main.getBinaryName()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs the name of a binary as input"
+		main.dieGracefully "needs the name of a binary as input"
 	fi
 	
 	#Determine possible names
@@ -843,16 +843,16 @@ function main.readConfig()
 	
 	if [[ -z "$CXR_MODEL_VERSION"  ]]
 	then
-		main.die_gracefully "Could not determine Model Version when loading config!"
+		main.dieGracefully "Could not determine Model Version when loading config!"
 	fi
 	
 	if [[ -z "$CXR_RUN_DIR" ]]
 	then
-		main.die_gracefully "Could not determine run dir when loading config!"
+		main.dieGracefully "Could not determine run dir when loading config!"
 	fi
 	
 	# Change to run dir
-	cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
+	cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
@@ -963,7 +963,7 @@ function main.readConfig()
 		main.log -a   "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
 		source "${CXR_BASECONFIG}"
 	else
-		main.die_gracefully "The base configuration ${CXR_BASECONFIG} is not available - exiting"
+		main.dieGracefully "The base configuration ${CXR_BASECONFIG} is not available - exiting"
 	fi
 	
 	########################################
@@ -1004,7 +1004,7 @@ function main.readConfig()
 			# If the user types CAMxRunner.sh -h we land here
 			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
 			then
-				main.die_gracefully "found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
+				main.dieGracefully "found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
 			fi
 		fi
 	fi
@@ -1045,7 +1045,7 @@ function main.getModuleName()
 	
 	if [[ $# -ne 1   ]]
 	then
-		main.die_gracefully "needs a string (the long module name) as input."
+		main.dieGracefully "needs a string (the long module name) as input."
 	fi	
 	
 	full_name=$1
@@ -1087,7 +1087,7 @@ function main.listModuleType()
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-		main.die_gracefully "Common modules cannot be run this way!" ;;
+		main.dieGracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			CALL="-p"
@@ -1110,7 +1110,7 @@ function main.listModuleType()
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
-			main.die_gracefully "Unknown module type $module_type" ;;
+			main.dieGracefully "Unknown module type $module_type" ;;
 
 	esac
 	

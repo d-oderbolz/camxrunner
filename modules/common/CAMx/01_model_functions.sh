@@ -105,7 +105,7 @@ function get_chemparam_file()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "need the name of the Chemical and Aerosol Mechanism!"
+		main.dieGracefully "need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
 	local our_chemparam
@@ -138,7 +138,7 @@ function get_chemparam_file()
 				our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 			else
 				# File still does not exist
-				main.die_gracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+				main.dieGracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 			fi
 		fi
 	fi

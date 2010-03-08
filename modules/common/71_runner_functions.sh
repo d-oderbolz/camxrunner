@@ -97,7 +97,7 @@ function common.runner.getX()
 		
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.die_gracefully "Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main.dieGracefully "Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -134,7 +134,7 @@ function common.runner.getY()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.die_gracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main.dieGracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	if [[ "${domain}" == 1  ]]
@@ -170,7 +170,7 @@ function common.runner.getZ()
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
-		main.die_gracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
+		main.dieGracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
 	echo ${CXR_NUMBER_OF_LAYERS[${domain}]}
@@ -370,7 +370,7 @@ function common.runner.evaluateRule()
 {
 	if [[  $# -lt 1 && $# -gt 4 ]]
 	then
-		main.die_gracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
+		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
 	local rule="$1"
@@ -419,7 +419,7 @@ function common.runner.evaluateRule()
 	if [[  -z "$expansion" && "$allow_empty" == false   ]]
 	then
 		# Empty not allowed
-		main.die_gracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+		main.dieGracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
 	fi
 	
 	echo "$expansion"
@@ -445,7 +445,7 @@ function common.runner.evaluateRuleAtDayOffset()
 {
 	if [[  $# -lt 2 && $# -gt 4 ]]
 	then
-		main.die_gracefully "needs at least one string (the rule) and one number (the day offset) as input!"
+		main.dieGracefully "needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
 	
 	# Local variables
@@ -490,7 +490,7 @@ function common.runner.evaluateScalarRules()
 {
 	if [[  $# -lt 1 && $# -gt 2   ]]
 	then
-		main.die_gracefully "needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
+		main.dieGracefully "needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
 	
 	local rule_list="$1"
@@ -578,7 +578,7 @@ function common.runner.createTempFile()
 	# Check if that worked!
 	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
-		main.die_gracefully "could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
+		main.dieGracefully "could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
 	
 	local store=${2:-true}
@@ -691,7 +691,7 @@ function common.runner.getLock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs the name of a lock as input"
+		main.dieGracefully "needs the name of a lock as input"
 	fi
 	
 	local lock="$1"
@@ -732,7 +732,7 @@ function common.runner.releaseLock()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "needs the name of a lock as input"
+		main.dieGracefully "needs the name of a lock as input"
 	fi
 	
 	local sed_tmp=$(common.runner.createTempFile $FUNCNAME)
@@ -813,16 +813,16 @@ function common.runner.createConfigFile()
 			#Yes, gimme options
 			
 			# To keep the list compact, we go into the conf dir and back out again
-			cd "${CXR_CONF_DIR}" || main.die_gracefully "Could not change to ${CXR_CONF_DIR}!"
+			cd "${CXR_CONF_DIR}" || main.dieGracefully "Could not change to ${CXR_CONF_DIR}!"
 			
 			basefile=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose a file I should use:" "*.conf" )
 			
-			cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
+			cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 		fi
 	
 		if [[ ! -f "$basefile"  ]]
 		then
-			main.die_gracefully "File $basefile is not readable!"
+			main.dieGracefully "File $basefile is not readable!"
 		fi
 	
 		# For the moment, I romoved the option to expand a config
@@ -1019,7 +1019,7 @@ function common.runner.createNewRun()
 
 	local model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
 	
-	local model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
+	local model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
 	
 	# Extract the list of supported versions
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -1027,7 +1027,7 @@ function common.runner.createNewRun()
 	#Generate a menu automatically
 	local version="$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )"
 	
-	common.check.isVersionSupported? "$version" "$model" || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
+	common.check.isVersionSupported? "$version" "$model" || main.dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
 	local run=${model}-v${version}
 	
@@ -1039,7 +1039,7 @@ function common.runner.createNewRun()
 	run="${run}-$addition"
 
 	# Name ok? ###################################################################
-	common.check.RunName $run || main.die_gracefully "The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
+	common.check.RunName $run || main.dieGracefully "The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
 		
 	# Name OK.
 	

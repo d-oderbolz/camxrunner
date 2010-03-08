@@ -110,7 +110,7 @@ function CAMxRunner_installer()
 		########################################
 		# Prepare draft file
 		########################################
-		cp $TEMPLATE $DRAFTFILE || main.die_gracefully "Could not copy $CXR_BASECONFIG to the draft file $DRAFTFILE"
+		cp $TEMPLATE $DRAFTFILE || main.dieGracefully "Could not copy $CXR_BASECONFIG to the draft file $DRAFTFILE"
 
 		# We will now ask the user a number of questions encoded in an ask-file
 		# The result will be a play-file
@@ -152,7 +152,7 @@ function CAMxRunner_installer()
 		
 		if [[ "$(common.user.getOK "Do you want to install the new file ?" Y )" == true  ]]
 		then
-			cp $DRAFTFILE $CXR_BASECONFIG || main.die_gracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
+			cp $DRAFTFILE $CXR_BASECONFIG || main.dieGracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
 		fi
 		
 		main.log  "You must manually adjust the ${CXR_CONF_DIR}/site.conf file - add any site specific settings there\nAlso, you might need to change CAMx Version specific settings in ${CXR_CONFIG_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf"

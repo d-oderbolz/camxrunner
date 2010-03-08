@@ -118,7 +118,7 @@ function common.install.do()
 		
 		CXR_MODEL=$(common.user.getMenuChoice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		model_id=$(common.runner.getModelId "$CXR_MODEL") || main.die_gracefully "model $CXR_MODEL is not known."
+		model_id=$(common.runner.getModelId "$CXR_MODEL") || main.dieGracefully "model $CXR_MODEL is not known."
 		
 		# Extract the list of supported versions
 		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -171,7 +171,7 @@ function common.install.getPatchTarget()
 	
 	if [[ ! -f "$patch"  ]]
 	then
-		main.die_gracefully "no filename passed or file not readable!"
+		main.dieGracefully "no filename passed or file not readable!"
 	fi
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
@@ -183,7 +183,7 @@ function common.install.getPatchTarget()
 	then
 		echo "$file"
 	else
-		main.die_gracefully "Could not find any filename"
+		main.dieGracefully "Could not find any filename"
 	fi
 	
 }
@@ -220,7 +220,7 @@ function common.install.applyPatch()
 	
 	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then
-		main.die_gracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
+		main.dieGracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
 	fi
 	
 	main.log  "Applying patches in $patch_dir to $src_dir..."
@@ -252,7 +252,7 @@ function common.install.applyPatch()
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
-			main.die_gracefully "could not read name of file to be patched."
+			main.dieGracefully "could not read name of file to be patched."
 		fi
 		
 		# Is the patch a dos-file ?
@@ -263,7 +263,7 @@ function common.install.applyPatch()
 			
 			if [[ $? -ne 0 ]]
 			then
-				main.die_gracefully "could not convert $patch_file to Unix format!"
+				main.dieGracefully "could not convert $patch_file to Unix format!"
 			fi
 		fi
 		
@@ -303,7 +303,7 @@ function common.install.applyPatch()
 					# Test status
 					if [[ $? -ne 0 ]]
 					then
-						main.die_gracefully "could not patch $real_file with $patch_file"
+						main.dieGracefully "could not patch $real_file with $patch_file"
 					fi
 					
 				fi
@@ -315,7 +315,7 @@ function common.install.applyPatch()
 				# Test status
 				if [[ $? -ne 0 ]]
 				then
-					main.die_gracefully "could not patch $real_file with $patch_file"
+					main.dieGracefully "could not patch $real_file with $patch_file"
 				fi
 			fi
 		else

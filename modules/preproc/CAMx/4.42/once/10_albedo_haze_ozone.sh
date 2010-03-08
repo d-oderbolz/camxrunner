@@ -445,7 +445,7 @@ function albedo_haze_ozone()
 					;;
 			
 				*)
-					main.die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
+					main.dieGracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 
 			#  --- Setup the Environment

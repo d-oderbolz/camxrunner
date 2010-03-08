@@ -132,13 +132,13 @@ function PMCAMx_installer()
 		mkdir -p "$CXR_PMCAMX_SRC_DIR"
 
 		# Go to location
-		cd "$CXR_PMCAMX_SRC_DIR" || main.die_gracefully "could not change to $CXR_PMCAMX_SRC_DIR"
+		cd "$CXR_PMCAMX_SRC_DIR" || main.dieGracefully "could not change to $CXR_PMCAMX_SRC_DIR"
 	
 		########################################
 		#main.log  "Downloading ..."
 		########################################
 		
-		#${CXR_WGET_EXEC} ${CXR_PMCAMX_TAR_LOC} -O ${CXR_PMCAMX_TAR} || main.die_gracefully "could not download $CXR_PMCAMX_TAR_LOC"
+		#${CXR_WGET_EXEC} ${CXR_PMCAMX_TAR_LOC} -O ${CXR_PMCAMX_TAR} || main.dieGracefully "could not download $CXR_PMCAMX_TAR_LOC"
 		
 		########################################
 		#main.log  "Expanding  ${CXR_CAMX_TAR}..."
@@ -146,7 +146,7 @@ function PMCAMx_installer()
 		#tar xvzf ${CXR_PMCAMX_TAR}
 		
 		# Go to directory
-		cd ${CXR_PMCAMX_TAR_DIR} || main.die_gracefully "could not change to $CXR_PMCAMX_TAR_DIR"
+		cd ${CXR_PMCAMX_TAR_DIR} || main.dieGracefully "could not change to $CXR_PMCAMX_TAR_DIR"
 		
 		########################################
 		main.log  "Setup Input directory containing templates..."
@@ -156,7 +156,7 @@ function PMCAMx_installer()
 		
 		if [[ ! -d "$input_dir" ]]
 		then
-			main.die_gracefully "Could not find the input directory $input_dir"
+			main.dieGracefully "Could not find the input directory $input_dir"
 		fi
 		
 		########################################
@@ -259,7 +259,7 @@ function PMCAMx_installer()
 		
 		draft_dir=$(mktemp -d)
 		
-		cp -r $input_dir $draft_dir || main.die_gracefully "Could not make a copy of the templates"
+		cp -r $input_dir $draft_dir || main.dieGracefully "Could not make a copy of the templates"
 
 		## Clean up draft dir
 		# Readmes
@@ -306,7 +306,7 @@ function PMCAMx_installer()
 		if [[ "$(common.user.getOK "Do you want to install the new files ?" Y )" == true  ]]
 		then
 			# Just copy all out - the relative paths will be preserved!
-			cd $draft_dir || main.die_gracefully "Could not change to $draft_dir"
+			cd $draft_dir || main.dieGracefully "Could not change to $draft_dir"
 			cp -r * $CXR_CAMX_SRC_DIR
 			cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 		fi
@@ -318,7 +318,7 @@ function PMCAMx_installer()
 		# The PRM file needs a special name!
 		prm_file=$(find $draft_dir -noleaf -type f -name camx.prm)
 		
-		cp $prm_file $target_prm_file || main.die_gracefully "Could not prepare prm file $target_prm_file"
+		cp $prm_file $target_prm_file || main.dieGracefully "Could not prepare prm file $target_prm_file"
 
 		########################################
 		main.log  "Applying patches..."
@@ -348,7 +348,7 @@ function PMCAMx_installer()
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
-			main.die_gracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+			main.dieGracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
 		
 		echo "make $CXR_CURRENT_PLATFORM  DOMAIN=$domain"
@@ -357,14 +357,14 @@ function PMCAMx_installer()
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
-			main.die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
+			main.dieGracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
 		
 		########################################
 		main.log  "Moving binary..."
 		########################################
 		
-		cp $resulting_binary $binary_name || main.die_gracefully "Could not copy $resulting_binary to $binary_name"
+		cp $resulting_binary $binary_name || main.dieGracefully "Could not copy $resulting_binary to $binary_name"
 		
 		
 		########################################

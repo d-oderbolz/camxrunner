@@ -98,7 +98,7 @@ function get_chemparam_file ()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "need the name of the Chemical and Aerosol Mechanism!"
+		main.dieGracefully "need the name of the Chemical and Aerosol Mechanism!"
 	fi
 	
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
@@ -125,7 +125,7 @@ function get_chemparam_file ()
 
 	if [[ ! -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 	then
-		main.die_gracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+		main.dieGracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
 	else
 		main.log "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
 	fi

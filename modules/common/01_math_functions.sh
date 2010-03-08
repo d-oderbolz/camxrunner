@@ -136,7 +136,7 @@ function common.math.FloatOperation()
 {
 	if [[ $# -lt 1 ]]
 	then
-		main.die_gracefully  "needs at least an expression as input"
+		main.dieGracefully  "needs at least an expression as input"
 	fi
 	
 	# Define & Initialize local vars
