@@ -101,6 +101,8 @@ function CAMx_installer()
 		local parallel_paradigm
 		local probing_tool
 		local domain
+		
+		# This is the filename we finally want
 		local binary_name
 		local target_prm_file
 		local expected_name
@@ -195,7 +197,7 @@ function CAMx_installer()
 		# and deterimes the name of the .play file
 		domain=${parallel_paradigm}-${probing_tool}-${HOSTTYPE}
 		
-		binary_name=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-${domain}
+		binary_name=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${domain}
 		
 		# The name of the .prm file to use
 		target_prm_file=$CXR_CAMX_SRC_DIR/Includes/camx.prm.$domain

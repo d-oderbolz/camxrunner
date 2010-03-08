@@ -466,8 +466,6 @@ function write_sa_receptor_definitions_file()
 	
 }
 
-
-
 ################################################################################
 # Function: write_model_control_file
 #
@@ -554,12 +552,20 @@ function write_model_control_file()
 	echo "" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Diagnostic_Error_Check = .${CXR_DIAGNOSTIC_ERROR_CHECK}.,    ! True = will stop before 1st timestep" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Advection_Solver       = '${CXR_ADVECTION_SOLVER}',      ! (PPM,BOTT)" >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Chemistry_Solver       = '${CXR_CHEMISTRY_SOLVER}',      ! (CMC,IEH,LSODE)" >> ${CXR_MODEL_CTRL_FILE} 
+	echo " Chemistry_Solver       = '${CXR_CHEMISTRY_SOLVER}',      ! (CMC,IEH,LSODE,EBI(5.x))" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " PiG_Submodel           = '${CXR_PIG_SUBMODEL}',     ! (None,GREASD,IRON)" >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Probing_Tool           = '${CXR_PROBING_TOOL}',     ! (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC)" >> ${CXR_MODEL_CTRL_FILE} 
+	echo " Probing_Tool           = '${CXR_PROBING_TOOL}',     ! (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC,HDDM(5.x))" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Chemistry              = .${CXR_CHEMISTRY}.," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Dry_Deposition         = .${CXR_DRY_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
+	
+	# Some CAMx 5.x features
+	if [[ ${CXR_MODEL_VERSION:0:1} -eq 5 ]]
+	then
+		echo " ACM2_Diffusion        = .${CXR_ACM2_DIFFUSION}.," >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Super_Stepping        = .${CXR_SUPER_STEPPING}.," >> ${CXR_MODEL_CTRL_FILE} 
+	fi
+	
 	echo " Staggered_Winds        = .${CXR_STAGGERED_WINDS}.," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Gridded_Emissions      = .${CXR_GRIDDED_EMISSIONS}.," >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Point_Emissions        = .${CXR_POINT_EMISSIONS}.," >> ${CXR_MODEL_CTRL_FILE} 

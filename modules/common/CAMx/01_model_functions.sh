@@ -175,7 +175,7 @@ function get_chemparam_file()
 #
 # It looks like this:
 #
-# > ${CXR_MODEL_BIN_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}[-$(uname -n)] (e. g. CAMx-OMP-None-x86_64 or CAMx-OMP-None-x86_64-lcsl5a)
+# > ${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}[-$(uname -n)] (e. g. CAMx-v4.51-OMP-None-x86_64 or CAMx-v4.51-OMP-None-x86_64-lcsl5a)
 # Parameters:
 # [$1] - if false - ignore that file does not exist (necessary during installation)
 ################################################################################
@@ -183,7 +183,7 @@ function get_model_exec()
 ################################################################################
 {
 	#Determine possible names
-	GENERAL_EXEC=${CXR_MODEL_BIN_DIR}/CAMx-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
+	GENERAL_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
 	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
 	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
