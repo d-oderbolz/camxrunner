@@ -27,6 +27,8 @@ function main.isNumeric?()
 	# If this returns 0, this is a number
 	echo "${1:-}" | grep '\<-\?\([0-9]\+\.\)\?[0-9]\+\>' >/dev/null
 	
+	main.log -a "Hallo"
+	
 	if [[ -z "$1" || "$?" -ne 0 ]]
 	then
 			echo false
