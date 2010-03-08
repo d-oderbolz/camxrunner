@@ -252,9 +252,9 @@ function string_getPrefixNumber
 		numbers=$(expr match $string '\([0-9]*\)')
 		
 		# Extract 2 Digits
-		numbers=$(string_getCharacters $numbers 2)
+		numbers=$(string_getCharacters "${numbers}" 2)
 		
-		echo $(string_leftPadZero ${numbers} 2)
+		echo $(string_leftPadZero "${numbers}" 2)
 	fi
 }
 
@@ -340,7 +340,7 @@ function test_module()
 	is "$(string_leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
 	is "$(string_leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
 	
-	is "$(string_getPrefixNumber xx00xx )" '' "string_getPrefixNumber not at beginning"
+	is "$(string_getPrefixNumber 00_ )" 00 "string_getPrefixNumber not at beginning"
 	
 	########################################
 	# teardown tests if needed
