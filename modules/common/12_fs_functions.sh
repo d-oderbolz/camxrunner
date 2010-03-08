@@ -85,7 +85,7 @@ exit 1
 
 
 ################################################################################
-# Function: cxr_common_file_non_empty?
+# Function: common.file.isNotEmpty?
 # 
 # Returns true if argument is an non-empty file, false otherwise.
 # Used mostly as a wrapper for testing
@@ -93,7 +93,7 @@ exit 1
 # Parameters:
 # $1 - path of file to test
 ################################################################################
-function cxr_common_file_non_empty?()
+function common.file.isNotEmpty?()
 ################################################################################
 {
 	if [[ -s "${1}" ]]
@@ -105,7 +105,7 @@ function cxr_common_file_non_empty?()
 }
 
 ################################################################################
-# Function: cxr_common_file_exists?
+# Function: common.file.exists?
 # 
 # Returns true if argument is an existing file, false otherwise.
 # Used mostly as a wrapper for testing
@@ -113,7 +113,7 @@ function cxr_common_file_non_empty?()
 # Parameters:
 # $1 - path of file to test
 ################################################################################
-function cxr_common_file_exists?()
+function common.file.exists?()
 ################################################################################
 {
 	if [[ -f "${1}" ]]
@@ -836,7 +836,7 @@ function test_module()
 	cxr_common_compress_output
 	
 	#Test
-	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, no pattern"
+	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, no pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -848,7 +848,7 @@ function test_module()
 	cxr_common_compress_output
 	
 	#Test
-	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -860,7 +860,7 @@ function test_module()
 	cxr_common_compress_output
 	
 	#Test
-	is $(cxr_common_file_exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
+	is $(common.file.exists? ${a}.bz2 ) true "cxr_common_compress_output with simple file, matching pattern"
 	
 	# Decompress again
 	${CXR_BUNZIP2_EXEC} ${a}.bz2
@@ -872,7 +872,7 @@ function test_module()
 	cxr_common_compress_output
 	
 	#Test
-	is $(cxr_common_file_exists? ${a}.bz2 ) false "cxr_common_compress_output with simple file, not matching pattern"
+	is $(common.file.exists? ${a}.bz2 ) false "cxr_common_compress_output with simple file, not matching pattern"
 	
 	# No decompression needed (its not compressed)
 	

@@ -875,7 +875,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(cxr_common_file_non_empty? "$pdf_file")" true "cxr_common_parallel_draw_dependency_graph simple existence check. Look at $pdf_file "
+	is "$(common.file.isNotEmpty? "$pdf_file")" true "cxr_common_parallel_draw_dependency_graph simple existence check. Look at $pdf_file "
 
 	########################################
 	# teardown tests if needed
