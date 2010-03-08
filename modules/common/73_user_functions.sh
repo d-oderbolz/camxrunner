@@ -388,6 +388,7 @@ function common.user.getAnswers()
 	local datatype
 	local question
 	local default
+	local value
 	
 	
 	main.log -a  "Using ask-file ${askfile} to create playfile ${playfile}"
@@ -551,34 +552,34 @@ function common.user.getAnswers()
 				# Add Default to question
 				question="$question\n(default: $default)"
 
-				VALUE=$(common.user.getInput "$question\n[D] for default")
+				value=$(common.user.getInput "$question\n[D] for default")
 
-				if [[  "$VALUE" == D || "$VALUE" == d   ]]
+				if [[  "$value" == D || "$value" == d   ]]
 				then
 					# Use default
-					VALUE="$default"
+					value="$default"
 				fi
 
 			else
 				# Yes
-				VALUE=$(common.user.getMenuChoice "$question" "$lov")
+				value=$(common.user.getMenuChoice "$question" "$lov")
 			fi
 
-			if [[ "$(common.check.DataType "$VALUE" "$datatype")" == false  ]]
+			if [[ "$(common.check.DataType "$value" "$datatype")" == false  ]]
 			then
-				main.log  "Datatpe of $VALUE is not $datatype! I use the default instead."
+				main.log  "Datatpe of $value is not $datatype! I use the default instead."
 				# Use default
-				VALUE="$default"
+				value="$default"
 			fi
 
 			# If the user does not want to write this 
 			# value, we will ask the same question again (by not increasing curline)
 			# Thats actually an advantage of this form of loop.
-			if [[ "$(common.user.getOK "Is the value $VALUE for variable $variable correct?" "Y" )" == true  ]]
+			if [[ "$(common.user.getOK "Is the value $value for variable $variable correct?" "Y" )" == true  ]]
 			then
 			
 				# Write data to play-file
-				echo "$variable:$VALUE" >> $playfile
+				echo "${variable}${CXR_DELIMITER}${value}" >> $playfile
 
 				curline=$(( $curline + 1 ))
 			fi
