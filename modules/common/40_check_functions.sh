@@ -1355,6 +1355,8 @@ function common.check.runner()
 # CAMx-v4.51-ENVIRON_testcase or
 # PMCAMx-v3.01-test
 #
+# As an exception, "installer" is accepted.
+#
 # So we basically split using "-"
 #
 # Much of the code here is repeated from <main.setModelAndVersion>
@@ -1372,19 +1374,27 @@ function common.check.RunName()
 	local run_array
 	local version
 	local model
+	local run
 
 	if [[ $# -ne 1 ]]
 	then
-		echo 0
-		main.log -e   "needs a string as input"
+		main.log -e "Programming error: needs a string as input"
+		return 1
+	fi
+	
+	run="${1}"
+	
+	if [[ "$run" == installer ]]
+	then
+		return 0
 	fi
 	
 	# Length must not exceed 60 because we use it as
 	# "note" field in all files
-	if [[ $(common.string.len $1) -gt 60  ]]
+	if [[ $(common.string.len $run) -gt 60  ]]
 	then
-		echo 0
-		main.log -e   "A run name must not be longer than 60 characters!"
+		main.log -e "A run name must not be longer than 60 characters!"
+		return 0
 	fi
 	
 	# Split it
@@ -1393,7 +1403,7 @@ function common.check.RunName()
 	IFS=-
 
 	# Suck line into array
-	run_array=($1)
+	run_array=($run)
 
 	# Reset IFS
 	IFS="$oIFS"
