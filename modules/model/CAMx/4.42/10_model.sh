@@ -42,7 +42,7 @@ CXR_META_MODULE_RUN_EXCLUSIVELY=true
 CXR_META_MODULE_TYPE="${CXR_TYPE_MODEL}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
@@ -1013,36 +1013,52 @@ function model()
 function test_module()
 ################################################################################
 {
-	local day_offset
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
+	then
+		# We need to do initialisation
 	
-	ERROR_COUNT=0
-	TEST_COUNT=1
+		# This is the run we use to test this
+		CXR_RUN=$CXR_META_MODULE_TEST_RUN
 	
-	# This is our test run for this module
-	CXR_RUN=$CXR_META_MODULE_TEST_RUN
+		# Safety measure if script is not called from .
+		MY_DIR=$(dirname $0) && cd $MY_DIR
 	
-	# Safety measure if script is not called from .
-	MY_DIR=$(dirname $0) && cd $MY_DIR
-
-	# We step down the directory tree until we either find CAMxRunner.sh
-	# or hit the root directory /
-	while [ $(pwd) != / ]
-	do
-		cd ..
-		# If we find CAMxRunner, we are there
-		ls CAMxRunner.sh >/dev/null 2>&1 && break
+		# We step down the directory tree until we either find CAMxRunner.sh
+		# or hit the root directory /
+		while [[ $(pwd) != / ]]
+		do
+			# If we find CAMxRunner, we are there
+			ls CAMxRunner.sh >/dev/null 2>&1 && break
+			
+			# If we are in root, we have gone too far
+			if [[ $(pwd) == / ]]
+			then
+				echo "Could not find CAMxRunner.sh!"
+				exit 1
+			fi
+			
+			cd ..
+		done
 		
-		# If we are in root, we have gone too far
-		if [[ $(pwd) == /  ]]
-		then
-			echo "Could not find CAMxRunner.sh!"
-			exit 1
-		fi
-	done
+		# Save the number of tests, as other modules
+		# will overwrite this (major design issue...)
+		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
+		
+		# Include the init code
+		source inc/init_test.inc
+		
+		# Plan the number of tests
+		plan_tests $MY_META_MODULE_NUM_TESTS
+	fi
 	
-	# Include the init code
-	source inc/init_test.inc
-
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
 	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Initialise the date variables 
@@ -1053,10 +1069,19 @@ function test_module()
 		write_model_control_file
 	done
 	
+	########################################
+	# teardown tests if needed
+	########################################
+	
 	# Reset date variables for first day
 	common.date.setVars "$CXR_START_DATE" "0"
 	
-	exit 0
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
+	then
+		# We where called stand-alone, cleanupo is needed
+		main.doCleanup
+	fi
+	
 }
 
 

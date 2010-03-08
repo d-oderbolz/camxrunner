@@ -187,9 +187,8 @@ function test_module()
 	
 		# We step down the directory tree until we either find CAMxRunner.sh
 		# or hit the root directory /
-		while [ $(pwd) != / ]
+		while [[ $(pwd) != / ]]
 		do
-
 			# If we find CAMxRunner, we are there
 			ls CAMxRunner.sh >/dev/null 2>&1 && break
 			
@@ -201,7 +200,6 @@ function test_module()
 			fi
 			
 			cd ..
-			
 		done
 		
 		# Save the number of tests, as other modules
@@ -213,7 +211,6 @@ function test_module()
 		
 		# Plan the number of tests
 		plan_tests $MY_META_MODULE_NUM_TESTS
-		
 	fi
 	
 	########################################
@@ -238,7 +235,13 @@ function test_module()
 	########################################
 	# teardown tests if needed
 	########################################
-
+	
+	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
+	then
+		# We where called stand-alone, cleanupo is needed
+		main.doCleanup
+	fi
+	
 }
 
 ################################################################################
