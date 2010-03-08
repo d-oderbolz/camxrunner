@@ -194,7 +194,8 @@ function _common.hash.getFileName()
 	
 	if [[ ! "$key" ]]
 	then
-		main.log -w "Detected empty key!"
+		# Empty keys cannot be handled
+		main.dieGracefully "Detected empty key!"
 	fi
 	
 	# Generate the filename
