@@ -575,7 +575,7 @@ function common.user.getAnswers()
 			# If the user does not want to write this 
 			# value, we will ask the same question again (by not increasing curline)
 			# Thats actually an advantage of this form of loop.
-			if [[ "$(common.user.getOK "Is the value $VALUE for variable $variable correct?" Y )" == true  ]]
+			if [[ "$(common.user.getOK "Is the value $VALUE for variable $variable correct?" "Y" )" == true  ]]
 			then
 			
 				# Write data to play-file
