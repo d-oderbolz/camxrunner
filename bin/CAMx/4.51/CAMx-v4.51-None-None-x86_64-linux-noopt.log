@@ -1,0 +1,414 @@
+This file documents a compilation of CAMx 4.51, done on Tue Mar  2 14:14:51 CET 2010 by oderbolz
+Output Binary name: /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/CAMx-None-None-x86_64-linux-noopt
+HDF: false
+PARALELL PARADIGM: None
+PLATFORM: i_linux
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/10_non-static_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/20_medium_memory_needs_non-static_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/30_optional_no_optimisation_4medium_memory_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/CAMx/00_camxerr.f.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/CAMx/camxerr.f
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/i_linux/IO_hdf/rams_head.f90.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/IO_hdf/rams_head.f90
+rm -f ./CAMx/CAMx.o ./CAMx/aerochem_cf.o ./CAMx/aerochem_cmu.o ./CAMx/aeroset.o ./CAMx/aggdep.o ./CAMx/aggr00.o ./CAMx/aggreg.o ./CAMx/ahoprep.o ./CAMx/average.o ./CAMx/bc1grd.o ./CAMx/bcmodfy.o ./CAMx/caldate.o ./CAMx/camxerr.o ./CAMx/chem10.o ./CAMx/chemdriv.o ./CAMx/chemrxn.o ./CAMx/chmdat.o ./CAMx/chrtime.o ./CAMx/cpivot.o ./CAMx/cvtdate.o ./CAMx/cvtwind.o ./CAMx/dateerr.o ./CAMx/depsmry.o ./CAMx/diffus.o ./CAMx/dlsode.o ./CAMx/drydep.o ./CAMx/emassign.o ./CAMx/emiss.o ./CAMx/emistrns.o ./CAMx/expndlay.o ./CAMx/exptbl.o ./CAMx/fgavrg.o ./CAMx/finwind.o ./CAMx/getdelt.o ./CAMx/getunit.o ./CAMx/getznth.o ./CAMx/grdprep.o ./CAMx/hadvbot.o ./CAMx/hadvppm.o ./CAMx/henryfnc.o ./CAMx/iassgn2d.o ./CAMx/iehsolv.o ./CAMx/iniptr.o ./CAMx/interp2d.o ./CAMx/interpv.o ./CAMx/intrpcnc.o ./CAMx/intrpdat.o ./CAMx/istrln.o ./CAMx/jstlft.o ./CAMx/juldate.o ./CAMx/khorz.o ./CAMx/kphoto.o ./CAMx/ktherm.o ./CAMx/khetero.o ./CAMx/lcpgeo.o ./CAMx/linpac.o ./CAMx/lscall.o ./CAMx/lsode.o ./CAMx/luassgn.o ./CAMx/massum.o ./CAMx/micromet.o ./CAMx/nesting.o ./CAMx/nstprep.o ./CAMx/parntchd.o ./CAMx/plumeris.o ./CAMx/pntprep.o ./CAMx/pspgeo.o ./CAMx/raddrivr.o ./CAMx/rassgn3d.o ./CAMx/rassgn4d.o ./CAMx/readaho.o ./CAMx/readchm.o ./CAMx/readnml.o ./CAMx/readpht.o ./CAMx/scavrat.o ./CAMx/setbc1d.o ./CAMx/setbc.o ./CAMx/startup.o ./CAMx/timestep.o ./CAMx/timrates.o ./CAMx/toupper.o ./CAMx/trap.o ./CAMx/trdiag.o ./CAMx/updtmet.o ./CAMx/uptime.o ./CAMx/utmgeo.o ./CAMx/vd_aer.o ./CAMx/vd_gas.o ./CAMx/vdiffimp.o ./CAMx/vnmshcal.o ./CAMx/vrtslv.o ./CAMx/wetdep.o ./CAMx/wrtmass.o ./CAMx/xerf.o ./CAMx/xyadvec.o ./CAMx/zadvec.o ./CAMx/zeros.o ./CAMx/zrates.o ./IO_bin/areaprep.o ./IO_bin/bndprep.o ./IO_bin/clciwt.o ./IO_bin/cncprep.o ./IO_bin/depprep.o ./IO_bin/getdepth.o ./IO_bin/openfils.o ./IO_bin/metinit.o ./IO_bin/rdfgcon.o ./IO_bin/rdpthdr.o ./IO_bin/rdsumbc.o ./IO_bin/readar.o ./IO_bin/readbnd.o ./IO_bin/readcnc.o ./IO_bin/readinp.o ./IO_bin/readpt.o ./IO_bin/srfprep.o ./IO_bin/wrfgcon.o ./IO_bin/wrtcon.o ./IO_bin/wrtdep.o ./CF_AERO/hlconst.o ./CF_AERO/hlindex.o ./CF_AERO/isocom_v1.6.o ./CF_AERO/isofwd_v1.6.o ./CF_AERO/isorev_v1.6.o ./CF_AERO/raqchem.o ./CMC/ddmjac1.o ./CMC/ddmjac3.o ./CMC/ddmjac4.o ./CMC/ddmjac5.o ./CMC/ddmjac6.o ./CMC/iejac1.o ./CMC/iejac3.o ./CMC/iejac4.o ./CMC/iejac5.o ./CMC/iejac6.o ./CMC/ierate1.o ./CMC/ierate3.o ./CMC/ierate4.o ./CMC/ierate5.o ./CMC/ierate6.o ./CMC/ierxn1.o ./CMC/ierxn3.o ./CMC/ierxn4.o ./CMC/ierxn5.o ./CMC/ierxn6.o ./CMC/ieslow1.o ./CMC/ieslow3.o ./CMC/ieslow4.o ./CMC/ieslow5.o ./CMC/ieslow6.o ./CMC/radslvr1.o ./CMC/radslvr3.o ./CMC/radslvr4.o ./CMC/radslvr5.o ./CMC/radslvr6.o ./CMC/ratejac1.o ./CMC/ratejac3.o ./CMC/ratejac4.o ./CMC/ratejac5.o ./CMC/ratejac6.o ./CMC/rateslo1.o ./CMC/rateslo3.o ./CMC/rateslo4.o ./CMC/rateslo5.o ./CMC/rateslo6.o ./CMC/rxnrate1.o ./CMC/rxnrate3.o ./CMC/rxnrate4.o ./CMC/rxnrate5.o ./CMC/rxnrate6.o ./CMC/lsrate1.o ./CMC/lsrate3.o ./CMC/lsrate4.o ./CMC/lsrate5.o ./CMC/lsrate6.o ./CMC/lsrxn1.o ./CMC/lsrxn3.o ./CMC/lsrxn4.o ./CMC/lsrxn5.o ./CMC/lsrxn6.o ./CMU_AERO/areag.o ./CMU_AERO/addit.o ./CMU_AERO/aerchem.o ./CMU_AERO/aero_err.o ./CMU_AERO/aqchem.o ./CMU_AERO/aqdist.o ./CMU_AERO/aqfex1.o ./CMU_AERO/aqfex2.o ./CMU_AERO/aqintegr1.o ./CMU_AERO/aqintegr2.o ./CMU_AERO/aqjex.o ./CMU_AERO/aqoperator1.o ./CMU_AERO/aqoperator2.o ./CMU_AERO/aqrates1.o ./CMU_AERO/aqrates2.o ./CMU_AERO/baddit.o ./CMU_AERO/block.o ./CMU_AERO/bmass.o ./CMU_AERO/coagul.o ./CMU_AERO/constants.o ./CMU_AERO/decisions.o ./CMU_AERO/diameter.o ./CMU_AERO/diff.o ./CMU_AERO/differ.o ./CMU_AERO/diffund.o ./CMU_AERO/dropinit.o ./CMU_AERO/electro.o ./CMU_AERO/eqpart.o ./CMU_AERO/eqparto.o ./CMU_AERO/equaer.o ./CMU_AERO/fullequil.o ./CMU_AERO/hybrid.o ./CMU_AERO/hybrd.o ./CMU_AERO/linint.o ./CMU_AERO/madm.o ./CMU_AERO/mass.o ./CMU_AERO/negchk.o ./CMU_AERO/newdist.o ./CMU_AERO/nucl.o ./CMU_AERO/qsaturation.o ./CMU_AERO/react.o ./CMU_AERO/state.o ./CMU_AERO/steady.o ./CMU_AERO/step.o ./CMU_AERO/svode.o ./CMU_AERO/values.o ./CMU_AERO/vsrm.o ./CMU_AERO/slsode.o ./DDM/adjddmc0.o ./DDM/avgrcpddm.o ./DDM/bottddm.o ./DDM/clrbdyddm.o ./DDM/cvticddm.o ./DDM/ddmchem.o ./DDM/filspddm.o ./DDM/hdrrcpddm.o ./DDM/loaddm.o ./DDM/rdarddm.o ./DDM/rdbcddm.o ./DDM/rdicddm.o ./DDM/rdoptddm.o ./DDM/rdptddm.o ./DDM/specddm.o ./DDM/startddm.o ./OSAT/addrcp.o ./OSAT/adjstc0.o ./OSAT/adjstsa.o ./OSAT/apcasa.o ./OSAT/avgrcp.o ./OSAT/avgwal.o ./OSAT/clcbwt.o ./OSAT/clcewt.o ./OSAT/clrbdysa.o ./OSAT/cyctpnsa.o ./OSAT/emprepsa.o ./OSAT/filaqsa.o ./OSAT/filbdysa.o ./OSAT/filvdsa.o ./OSAT/goatsa.o ./OSAT/hdrrcp.o ./OSAT/hdrwsa.o ./OSAT/initsa.o ./OSAT/osatsa.o ./OSAT/o3prdsa.o ./OSAT/psatsa.o ./OSAT/pekrcp.o ./OSAT/pigdumpsa.o ./OSAT/rdargrp.o ./OSAT/rdfgsa.o ./OSAT/rdinstsa.o ./OSAT/rdoptsa.o ./OSAT/rdptgrp.o ./OSAT/readarsa.o ./OSAT/readptsa.o ./OSAT/recalib.o ./OSAT/repartsa.o ./OSAT/rercp.o ./OSAT/spccbivsa.o ./OSAT/spcsprcsa.o ./OSAT/spccb05sa.o ./OSAT/resmap.o ./OSAT/specsa.o ./OSAT/stabsa.o ./OSAT/startsa.o ./OSAT/sum1grd.o ./OSAT/sum1pnt.o ./OSAT/sumgrps.o ./OSAT/sumicwt.o ./OSAT/sumwt4.o ./OSAT/timadv.o ./OSAT/wconsa.o ./OSAT/wfconsa.o ./OSAT/wsfcsa.o ./OSAT/xfluxsa.o ./OSAT/yfluxsa.o ./PA/cpamech3.o ./PA/cpamech4.o ./PA/cpamech5.o ./PA/cpamech6.o ./PA/cparad.o ./PA/initipr.o ./PA/pagrids.o ./PA/pasetup.o ./PA/pazero.o ./PA/rdoptpa.o ./PA/wrtcpa.o ./PA/wrtipr.o ./PA/wrtiprhdr.o ./PA/wrtirr.o ./PA/wrtirrhdr.o ./PiG/avepig.o ./PiG/irondry.o ./PiG/ironchem.o ./PiG/ironwet.o ./PiG/noxchem.o ./PiG/pigcoord.o ./PiG/pigdiag.o ./PiG/pigdrive.o ./PiG/pigevol.o ./PiG/piggrow.o ./PiG/piginit.o ./PiG/pigmscl.o ./PiG/pigprep.o ./PiG/pigwalk.o ./PiG/pigsampl.o ./PiG/siggrow.o ./PiG/smpl1puf.o ./PiG/smpprep.o ./PiG/virtdump.o ./PiG/walk1puf.o ./PiG/wrtpig.o ./PiG/wrtsmp.o ./RTRAC/chemrt.o ./RTRAC/cvticrt.o ./RTRAC/drydeprt.o ./RTRAC/empreprt.o ./RTRAC/hdrcprt.o ./RTRAC/pigchmrt.o ./RTRAC/rdarrt.o ./RTRAC/rdbcrt.o ./RTRAC/rdchmrt.o ./RTRAC/rdicrt.o ./RTRAC/rdptrt.o ./RTRAC/rdrcprt.o ./RTRAC/startrt.o ./RTRAC/wetdeprt.o ./RTRAC/wrrcprt.o ./SOAP/soachem.o ./SOAP/soapdat.o ./SOAP/soap.o ./SOAP/spfcn.o ./HG/hggaschem.o ./HG/hgaqschem.o ./IO_hdf/*.o ./Modules/*.mod *.a
+ 
+-------------------------------------------------------
+   You are about to compile with MXTRSP set to 1
+ 
+        If this is not correct, hit <CNTRL>C
+                    do "make clean"
+          Modify "tracer.com" and recompile.
+ 
+ The camx.prm is linked to camx.prm.None-None-x86_64-linux
+ 
+ The executable will be called: CAMx.None-None-x86_64-linux.i_linux
+ 
+-------------------------------------------------------
+ 
+make hdflib \
+           HDF=false \
+           FC=ifort \
+           CC=gcc \
+           FLGS="-I./Includes -DPC_LINUX1  -O0 -align dcommons -extend_source -convert big_endian -ipo"
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+ifort -c -o IO_hdf/camx_includes.o -I./Includes -DPC_LINUX1  -O0 -align dcommons -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_hdf/camx_includes.f
+ifort -c -o IO_hdf/hdf5_file_out.o -I./Includes -DPC_LINUX1  -O0 -align dcommons -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_hdf/hdf5_file_out.F90
+ar -rv libcamxhdf.a ./IO_hdf/camx_includes.o ./IO_hdf/hdf5_file_out.o
+ar: creating libcamxhdf.a
+a - ./IO_hdf/camx_includes.o
+a - ./IO_hdf/hdf5_file_out.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+make model \
+           FC=ifort \
+           TARGT=CAMx.None-None-x86_64-linux.i_linux \
+           FLGS="-I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+ifort -c -o CAMx/CAMx.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/CAMx.f
+ifort -c -o CAMx/aerochem_cf.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aerochem_cf.f
+ifort -c -o CAMx/aerochem_cmu.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aerochem_cmu.f
+ifort -c -o CAMx/aeroset.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aeroset.f
+ifort -c -o CAMx/aggdep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggdep.f
+ifort -c -o CAMx/aggr00.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggr00.f
+ifort -c -o CAMx/aggreg.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggreg.f
+ifort -c -o CAMx/ahoprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/ahoprep.f
+ifort -c -o CAMx/average.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/average.f
+ifort -c -o CAMx/bc1grd.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/bc1grd.f
+ifort -c -o CAMx/bcmodfy.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/bcmodfy.f
+ifort -c -o CAMx/caldate.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/caldate.f
+ifort -c -o CAMx/camxerr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/camxerr.f
+ifort -c -o CAMx/chem10.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chem10.f
+ifort -c -o CAMx/chemdriv.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chemdriv.f
+ifort -c -o CAMx/chemrxn.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chemrxn.f
+ifort -c -o CAMx/chmdat.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chmdat.f
+ifort -c -o CAMx/chrtime.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chrtime.f
+ifort -c -o CAMx/cpivot.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cpivot.f
+ifort -c -o CAMx/cvtdate.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cvtdate.f
+ifort -c -o CAMx/cvtwind.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cvtwind.f
+ifort -c -o CAMx/dateerr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/dateerr.f
+ifort -c -o CAMx/depsmry.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/depsmry.f
+ifort -c -o CAMx/diffus.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/diffus.f
+ifort -c -o CAMx/dlsode.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/dlsode.f
+ifort -c -o CAMx/drydep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/drydep.f
+ifort -c -o CAMx/emassign.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emassign.f
+ifort -c -o CAMx/emiss.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emiss.f
+ifort -c -o CAMx/emistrns.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emistrns.f
+ifort -c -o CAMx/expndlay.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/expndlay.f
+ifort -c -o CAMx/exptbl.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/exptbl.f
+ifort -c -o CAMx/fgavrg.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/fgavrg.f
+ifort -c -o CAMx/finwind.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/finwind.f
+ifort -c -o CAMx/getdelt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getdelt.f
+ifort -c -o CAMx/getunit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getunit.f
+ifort -c -o CAMx/getznth.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getznth.f
+ifort -c -o CAMx/grdprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/grdprep.f
+ifort -c -o CAMx/hadvbot.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/hadvbot.f
+ifort -c -o CAMx/hadvppm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/hadvppm.f
+ifort -c -o CAMx/henryfnc.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/henryfnc.f
+ifort -c -o CAMx/iassgn2d.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iassgn2d.f
+ifort -c -o CAMx/iehsolv.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iehsolv.f
+ifort -c -o CAMx/iniptr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iniptr.f
+ifort -c -o CAMx/interp2d.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/interp2d.f
+ifort -c -o CAMx/interpv.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/interpv.f
+ifort -c -o CAMx/intrpcnc.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/intrpcnc.f
+ifort -c -o CAMx/intrpdat.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/intrpdat.f
+ifort -c -o CAMx/istrln.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/istrln.f
+ifort -c -o CAMx/jstlft.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/jstlft.f
+ifort -c -o CAMx/juldate.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/juldate.f
+ifort -c -o CAMx/khorz.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/khorz.f
+ifort -c -o CAMx/kphoto.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/kphoto.f
+ifort -c -o CAMx/ktherm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/ktherm.f
+ifort -c -o CAMx/khetero.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/khetero.f
+ifort -c -o CAMx/lcpgeo.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lcpgeo.f
+ifort -c -o CAMx/linpac.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/linpac.f
+ifort -c -o CAMx/lscall.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lscall.f
+ifort -c -o CAMx/lsode.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lsode.f
+ifort -c -o CAMx/luassgn.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/luassgn.f
+ifort -c -o CAMx/massum.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/massum.f
+ifort -c -o CAMx/micromet.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/micromet.f
+ifort -c -o CAMx/nesting.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/nesting.f
+ifort -c -o CAMx/nstprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/nstprep.f
+ifort -c -o CAMx/parntchd.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/parntchd.f
+ifort -c -o CAMx/plumeris.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/plumeris.f
+ifort -c -o CAMx/pntprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/pntprep.f
+ifort -c -o CAMx/pspgeo.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/pspgeo.f
+ifort -c -o CAMx/raddrivr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/raddrivr.f
+ifort -c -o CAMx/rassgn3d.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/rassgn3d.f
+ifort -c -o CAMx/rassgn4d.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/rassgn4d.f
+ifort -c -o CAMx/readaho.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readaho.f
+ifort -c -o CAMx/readchm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readchm.f
+ifort -c -o CAMx/readnml.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readnml.f
+ifort -c -o CAMx/readpht.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readpht.f
+ifort -c -o CAMx/scavrat.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/scavrat.f
+ifort -c -o CAMx/setbc1d.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/setbc1d.f
+ifort -c -o CAMx/setbc.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/setbc.f
+ifort -c -o CAMx/startup.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/startup.f
+ifort -c -o CAMx/timestep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/timestep.f
+ifort -c -o CAMx/timrates.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/timrates.f
+ifort -c -o CAMx/toupper.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/toupper.f
+ifort -c -o CAMx/trap.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/trap.f
+ifort -c -o CAMx/trdiag.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/trdiag.f
+ifort -c -o CAMx/updtmet.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/updtmet.f
+ifort -c -o CAMx/uptime.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/uptime.f
+ifort -c -o CAMx/utmgeo.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/utmgeo.f
+ifort -c -o CAMx/vd_aer.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vd_aer.f
+ifort -c -o CAMx/vd_gas.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vd_gas.f
+ifort -c -o CAMx/vdiffimp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vdiffimp.f
+ifort -c -o CAMx/vnmshcal.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vnmshcal.f
+ifort -c -o CAMx/vrtslv.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vrtslv.f
+ifort -c -o CAMx/wetdep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/wetdep.f
+ifort -c -o CAMx/wrtmass.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/wrtmass.f
+ifort -c -o CAMx/xerf.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/xerf.f
+ifort -c -o CAMx/xyadvec.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/xyadvec.f
+ifort -c -o CAMx/zadvec.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zadvec.f
+ifort -c -o CAMx/zeros.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zeros.f
+ifort -c -o CAMx/zrates.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zrates.f
+ifort -c -o IO_bin/areaprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/areaprep.f
+ifort -c -o IO_bin/bndprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/bndprep.f
+ifort -c -o IO_bin/clciwt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/clciwt.f
+ifort -c -o IO_bin/cncprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/cncprep.f
+ifort -c -o IO_bin/depprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/depprep.f
+ifort -c -o IO_bin/getdepth.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/getdepth.f
+ifort -c -o IO_bin/openfils.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/openfils.f
+ifort -c -o IO_bin/metinit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/metinit.f
+ifort -c -o IO_bin/rdfgcon.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdfgcon.f
+ifort -c -o IO_bin/rdpthdr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdpthdr.f
+ifort -c -o IO_bin/rdsumbc.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdsumbc.f
+ifort -c -o IO_bin/readar.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readar.f
+ifort -c -o IO_bin/readbnd.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readbnd.f
+ifort -c -o IO_bin/readcnc.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readcnc.f
+ifort -c -o IO_bin/readinp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readinp.f
+ifort -c -o IO_bin/readpt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readpt.f
+ifort -c -o IO_bin/srfprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/srfprep.f
+ifort -c -o IO_bin/wrfgcon.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrfgcon.f
+ifort -c -o IO_bin/wrtcon.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrtcon.f
+ifort -c -o IO_bin/wrtdep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrtdep.f
+ifort -c -o CF_AERO/hlconst.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/hlconst.f
+ifort -c -o CF_AERO/hlindex.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/hlindex.f
+ifort -c -o CF_AERO/isocom_v1.6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isocom_v1.6.f
+ifort -c -o CF_AERO/isofwd_v1.6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isofwd_v1.6.f
+ifort -c -o CF_AERO/isorev_v1.6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isorev_v1.6.f
+ifort -c -o CF_AERO/raqchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/raqchem.f
+ifort -c -o CMC/ddmjac1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac1.f
+ifort -c -o CMC/ddmjac3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac3.f
+ifort -c -o CMC/ddmjac4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac4.f
+ifort -c -o CMC/ddmjac5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac5.f
+ifort -c -o CMC/ddmjac6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac6.f
+ifort -c -o CMC/iejac1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac1.f
+ifort -c -o CMC/iejac3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac3.f
+ifort -c -o CMC/iejac4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac4.f
+ifort -c -o CMC/iejac5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac5.f
+ifort -c -o CMC/iejac6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac6.f
+ifort -c -o CMC/ierate1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate1.f
+ifort -c -o CMC/ierate3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate3.f
+ifort -c -o CMC/ierate4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate4.f
+ifort -c -o CMC/ierate5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate5.f
+ifort -c -o CMC/ierate6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate6.f
+ifort -c -o CMC/ierxn1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn1.f
+ifort -c -o CMC/ierxn3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn3.f
+ifort -c -o CMC/ierxn4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn4.f
+ifort -c -o CMC/ierxn5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn5.f
+ifort -c -o CMC/ierxn6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn6.f
+ifort -c -o CMC/ieslow1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow1.f
+ifort -c -o CMC/ieslow3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow3.f
+ifort -c -o CMC/ieslow4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow4.f
+ifort -c -o CMC/ieslow5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow5.f
+ifort -c -o CMC/ieslow6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow6.f
+ifort -c -o CMC/radslvr1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr1.f
+ifort -c -o CMC/radslvr3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr3.f
+ifort -c -o CMC/radslvr4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr4.f
+ifort -c -o CMC/radslvr5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr5.f
+ifort -c -o CMC/radslvr6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr6.f
+ifort -c -o CMC/ratejac1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac1.f
+ifort -c -o CMC/ratejac3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac3.f
+ifort -c -o CMC/ratejac4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac4.f
+ifort -c -o CMC/ratejac5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac5.f
+ifort -c -o CMC/ratejac6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac6.f
+ifort -c -o CMC/rateslo1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo1.f
+ifort -c -o CMC/rateslo3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo3.f
+ifort -c -o CMC/rateslo4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo4.f
+ifort -c -o CMC/rateslo5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo5.f
+ifort -c -o CMC/rateslo6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo6.f
+ifort -c -o CMC/rxnrate1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate1.f
+ifort -c -o CMC/rxnrate3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate3.f
+ifort -c -o CMC/rxnrate4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate4.f
+ifort -c -o CMC/rxnrate5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate5.f
+ifort -c -o CMC/rxnrate6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate6.f
+ifort -c -o CMC/lsrate1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate1.f
+ifort -c -o CMC/lsrate3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate3.f
+ifort -c -o CMC/lsrate4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate4.f
+ifort -c -o CMC/lsrate5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate5.f
+ifort -c -o CMC/lsrate6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate6.f
+ifort -c -o CMC/lsrxn1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn1.f
+ifort -c -o CMC/lsrxn3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn3.f
+ifort -c -o CMC/lsrxn4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn4.f
+ifort -c -o CMC/lsrxn5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn5.f
+ifort -c -o CMC/lsrxn6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn6.f
+ifort -c -o CMU_AERO/areag.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/areag.f
+ifort -c -o CMU_AERO/addit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/addit.f
+ifort -c -o CMU_AERO/aerchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aerchem.f
+ifort -c -o CMU_AERO/aero_err.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aero_err.f
+ifort -c -o CMU_AERO/aqchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqchem.f
+ifort -c -o CMU_AERO/aqdist.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqdist.f
+ifort -c -o CMU_AERO/aqfex1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqfex1.f
+ifort -c -o CMU_AERO/aqfex2.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqfex2.f
+ifort -c -o CMU_AERO/aqintegr1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqintegr1.f
+ifort -c -o CMU_AERO/aqintegr2.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqintegr2.f
+ifort -c -o CMU_AERO/aqjex.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqjex.f
+ifort -c -o CMU_AERO/aqoperator1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqoperator1.f
+ifort -c -o CMU_AERO/aqoperator2.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqoperator2.f
+ifort -c -o CMU_AERO/aqrates1.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqrates1.f
+ifort -c -o CMU_AERO/aqrates2.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqrates2.f
+ifort -c -o CMU_AERO/baddit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/baddit.f
+ifort -c -o CMU_AERO/block.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/block.f
+./Includes/dynamic.inc(138): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [RWORK]
+       dimension rwork(lrw)                ! work array for lsoda
+-----------------^
+./Includes/dynamic.inc(139): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [IWORK]
+       dimension iwork(liw)                ! integer work array for lsoda
+-----------------^
+ifort -c -o CMU_AERO/bmass.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/bmass.f
+ifort -c -o CMU_AERO/coagul.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/coagul.f
+ifort -c -o CMU_AERO/constants.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/constants.f
+ifort -c -o CMU_AERO/decisions.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/decisions.f
+ifort -c -o CMU_AERO/diameter.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diameter.f
+ifort -c -o CMU_AERO/diff.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diff.f
+./Includes/dynamic.inc(138): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [RWORK]
+       dimension rwork(lrw)                ! work array for lsoda
+-----------------^
+./Includes/dynamic.inc(139): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [IWORK]
+       dimension iwork(liw)                ! integer work array for lsoda
+-----------------^
+ifort -c -o CMU_AERO/differ.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/differ.f
+ifort -c -o CMU_AERO/diffund.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diffund.f
+ifort -c -o CMU_AERO/dropinit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/dropinit.f
+ifort -c -o CMU_AERO/electro.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/electro.f
+ifort -c -o CMU_AERO/eqpart.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/eqpart.f
+ifort -c -o CMU_AERO/eqparto.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/eqparto.f
+ifort -c -o CMU_AERO/equaer.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/equaer.f
+ifort -c -o CMU_AERO/fullequil.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/fullequil.f
+ifort -c -o CMU_AERO/hybrid.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/hybrid.f
+CMU_AERO/hybrid.f(59): remark #7713: This statement function has not been used.   [F]
+      f(yKnD, alfa)=(1.0d0+yKnD)/(1.0d0+2.0d0*yKnD*(1.0d0+yKnD)/alfa)
+------^
+ifort -c -o CMU_AERO/hybrd.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/hybrd.f
+ifort -c -o CMU_AERO/linint.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/linint.f
+ifort -c -o CMU_AERO/madm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/madm.f
+ifort -c -o CMU_AERO/mass.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/mass.f
+ifort -c -o CMU_AERO/negchk.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/negchk.f
+ifort -c -o CMU_AERO/newdist.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/newdist.f
+ifort -c -o CMU_AERO/nucl.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/nucl.f
+ifort -c -o CMU_AERO/qsaturation.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/qsaturation.f
+ifort -c -o CMU_AERO/react.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/react.f
+ifort -c -o CMU_AERO/state.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/state.f
+ifort -c -o CMU_AERO/steady.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/steady.f
+ifort -c -o CMU_AERO/step.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/step.f
+ifort -c -o CMU_AERO/svode.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/svode.f
+ifort -c -o CMU_AERO/values.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/values.f
+ifort -c -o CMU_AERO/vsrm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/vsrm.f
+ifort -c -o CMU_AERO/slsode.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/slsode.f
+ifort -c -o DDM/adjddmc0.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/adjddmc0.f
+ifort -c -o DDM/avgrcpddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/avgrcpddm.f
+ifort -c -o DDM/bottddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/bottddm.f
+ifort -c -o DDM/clrbdyddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/clrbdyddm.f
+ifort -c -o DDM/cvticddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/cvticddm.f
+ifort -c -o DDM/ddmchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/ddmchem.f
+ifort -c -o DDM/filspddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/filspddm.f
+ifort -c -o DDM/hdrrcpddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/hdrrcpddm.f
+ifort -c -o DDM/loaddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/loaddm.f
+ifort -c -o DDM/rdarddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdarddm.f
+ifort -c -o DDM/rdbcddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdbcddm.f
+ifort -c -o DDM/rdicddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdicddm.f
+ifort -c -o DDM/rdoptddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdoptddm.f
+ifort -c -o DDM/rdptddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdptddm.f
+ifort -c -o DDM/specddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/specddm.f
+ifort -c -o DDM/startddm.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/startddm.f
+ifort -c -o OSAT/addrcp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/addrcp.f
+ifort -c -o OSAT/adjstc0.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/adjstc0.f
+ifort -c -o OSAT/adjstsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/adjstsa.f
+ifort -c -o OSAT/apcasa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/apcasa.f
+ifort -c -o OSAT/avgrcp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/avgrcp.f
+ifort -c -o OSAT/avgwal.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/avgwal.f
+ifort -c -o OSAT/clcbwt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clcbwt.f
+ifort -c -o OSAT/clcewt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clcewt.f
+ifort -c -o OSAT/clrbdysa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clrbdysa.f
+ifort -c -o OSAT/cyctpnsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/cyctpnsa.f
+ifort -c -o OSAT/emprepsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/emprepsa.f
+ifort -c -o OSAT/filaqsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filaqsa.f
+ifort -c -o OSAT/filbdysa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filbdysa.f
+ifort -c -o OSAT/filvdsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filvdsa.f
+ifort -c -o OSAT/goatsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/goatsa.f
+ifort -c -o OSAT/hdrrcp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/hdrrcp.f
+ifort -c -o OSAT/hdrwsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/hdrwsa.f
+ifort -c -o OSAT/initsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/initsa.f
+ifort -c -o OSAT/osatsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/osatsa.f
+ifort -c -o OSAT/o3prdsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/o3prdsa.f
+ifort -c -o OSAT/psatsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/psatsa.f
+ifort -c -o OSAT/pekrcp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/pekrcp.f
+ifort -c -o OSAT/pigdumpsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/pigdumpsa.f
+ifort -c -o OSAT/rdargrp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdargrp.f
+ifort -c -o OSAT/rdfgsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdfgsa.f
+ifort -c -o OSAT/rdinstsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdinstsa.f
+ifort -c -o OSAT/rdoptsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdoptsa.f
+ifort -c -o OSAT/rdptgrp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdptgrp.f
+ifort -c -o OSAT/readarsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/readarsa.f
+ifort -c -o OSAT/readptsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/readptsa.f
+ifort -c -o OSAT/recalib.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/recalib.f
+ifort -c -o OSAT/repartsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/repartsa.f
+ifort -c -o OSAT/rercp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rercp.f
+ifort -c -o OSAT/spccbivsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spccbivsa.f
+ifort -c -o OSAT/spcsprcsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spcsprcsa.f
+ifort -c -o OSAT/spccb05sa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spccb05sa.f
+ifort -c -o OSAT/resmap.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/resmap.f
+ifort -c -o OSAT/specsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/specsa.f
+ifort -c -o OSAT/stabsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/stabsa.f
+ifort -c -o OSAT/startsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/startsa.f
+ifort -c -o OSAT/sum1grd.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sum1grd.f
+ifort -c -o OSAT/sum1pnt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sum1pnt.f
+ifort -c -o OSAT/sumgrps.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumgrps.f
+ifort -c -o OSAT/sumicwt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumicwt.f
+ifort -c -o OSAT/sumwt4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumwt4.f
+ifort -c -o OSAT/timadv.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/timadv.f
+ifort -c -o OSAT/wconsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wconsa.f
+ifort -c -o OSAT/wfconsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wfconsa.f
+ifort -c -o OSAT/wsfcsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wsfcsa.f
+ifort -c -o OSAT/xfluxsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/xfluxsa.f
+ifort -c -o OSAT/yfluxsa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/yfluxsa.f
+ifort -c -o PA/cpamech3.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech3.f
+ifort -c -o PA/cpamech4.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech4.f
+ifort -c -o PA/cpamech5.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech5.f
+ifort -c -o PA/cpamech6.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech6.f
+ifort -c -o PA/cparad.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cparad.f
+ifort -c -o PA/initipr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/initipr.f
+ifort -c -o PA/pagrids.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pagrids.f
+ifort -c -o PA/pasetup.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pasetup.f
+ifort -c -o PA/pazero.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pazero.f
+ifort -c -o PA/rdoptpa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/rdoptpa.f
+ifort -c -o PA/wrtcpa.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtcpa.f
+ifort -c -o PA/wrtipr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtipr.f
+ifort -c -o PA/wrtiprhdr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtiprhdr.f
+ifort -c -o PA/wrtirr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtirr.f
+ifort -c -o PA/wrtirrhdr.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtirrhdr.f
+ifort -c -o PiG/avepig.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/avepig.f
+ifort -c -o PiG/irondry.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/irondry.f
+ifort -c -o PiG/ironchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/ironchem.f
+ifort -c -o PiG/ironwet.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/ironwet.f
+ifort -c -o PiG/noxchem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/noxchem.f
+ifort -c -o PiG/pigcoord.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigcoord.f
+ifort -c -o PiG/pigdiag.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigdiag.f
+ifort -c -o PiG/pigdrive.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigdrive.f
+ifort -c -o PiG/pigevol.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigevol.f
+ifort -c -o PiG/piggrow.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/piggrow.f
+ifort -c -o PiG/piginit.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/piginit.f
+ifort -c -o PiG/pigmscl.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigmscl.f
+ifort -c -o PiG/pigprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigprep.f
+ifort -c -o PiG/pigwalk.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigwalk.f
+ifort -c -o PiG/pigsampl.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigsampl.f
+ifort -c -o PiG/siggrow.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/siggrow.f
+ifort -c -o PiG/smpl1puf.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/smpl1puf.f
+ifort -c -o PiG/smpprep.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/smpprep.f
+ifort -c -o PiG/virtdump.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/virtdump.f
+ifort -c -o PiG/walk1puf.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/walk1puf.f
+ifort -c -o PiG/wrtpig.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/wrtpig.f
+ifort -c -o PiG/wrtsmp.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/wrtsmp.f
+ifort -c -o RTRAC/chemrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/chemrt.f
+ifort -c -o RTRAC/cvticrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/cvticrt.f
+ifort -c -o RTRAC/drydeprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/drydeprt.f
+ifort -c -o RTRAC/empreprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/empreprt.f
+ifort -c -o RTRAC/hdrcprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/hdrcprt.f
+ifort -c -o RTRAC/pigchmrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/pigchmrt.f
+ifort -c -o RTRAC/rdarrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdarrt.f
+ifort -c -o RTRAC/rdbcrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdbcrt.f
+ifort -c -o RTRAC/rdchmrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdchmrt.f
+ifort -c -o RTRAC/rdicrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdicrt.f
+ifort -c -o RTRAC/rdptrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdptrt.f
+ifort -c -o RTRAC/rdrcprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdrcprt.f
+ifort -c -o RTRAC/startrt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/startrt.f
+ifort -c -o RTRAC/wetdeprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/wetdeprt.f
+ifort -c -o RTRAC/wrrcprt.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/wrrcprt.f
+ifort -c -o SOAP/soachem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soachem.f
+ifort -c -o SOAP/soapdat.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soapdat.f
+ifort -c -o SOAP/soap.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soap.f
+ifort -c -o SOAP/spfcn.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/spfcn.f
+ifort -c -o HG/hggaschem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules HG/hggaschem.f
+ifort -c -o HG/hgaqschem.o -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules HG/hgaqschem.f
+ifort -o CAMx.None-None-x86_64-linux.i_linux -I./Includes -O0 -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo ./CAMx/CAMx.o ./CAMx/aerochem_cf.o ./CAMx/aerochem_cmu.o ./CAMx/aeroset.o ./CAMx/aggdep.o ./CAMx/aggr00.o ./CAMx/aggreg.o ./CAMx/ahoprep.o ./CAMx/average.o ./CAMx/bc1grd.o ./CAMx/bcmodfy.o ./CAMx/caldate.o ./CAMx/camxerr.o ./CAMx/chem10.o ./CAMx/chemdriv.o ./CAMx/chemrxn.o ./CAMx/chmdat.o ./CAMx/chrtime.o ./CAMx/cpivot.o ./CAMx/cvtdate.o ./CAMx/cvtwind.o ./CAMx/dateerr.o ./CAMx/depsmry.o ./CAMx/diffus.o ./CAMx/dlsode.o ./CAMx/drydep.o ./CAMx/emassign.o ./CAMx/emiss.o ./CAMx/emistrns.o ./CAMx/expndlay.o ./CAMx/exptbl.o ./CAMx/fgavrg.o ./CAMx/finwind.o ./CAMx/getdelt.o ./CAMx/getunit.o ./CAMx/getznth.o ./CAMx/grdprep.o ./CAMx/hadvbot.o ./CAMx/hadvppm.o ./CAMx/henryfnc.o ./CAMx/iassgn2d.o ./CAMx/iehsolv.o ./CAMx/iniptr.o ./CAMx/interp2d.o ./CAMx/interpv.o ./CAMx/intrpcnc.o ./CAMx/intrpdat.o ./CAMx/istrln.o ./CAMx/jstlft.o ./CAMx/juldate.o ./CAMx/khorz.o ./CAMx/kphoto.o ./CAMx/ktherm.o ./CAMx/khetero.o ./CAMx/lcpgeo.o ./CAMx/linpac.o ./CAMx/lscall.o ./CAMx/lsode.o ./CAMx/luassgn.o ./CAMx/massum.o ./CAMx/micromet.o ./CAMx/nesting.o ./CAMx/nstprep.o ./CAMx/parntchd.o ./CAMx/plumeris.o ./CAMx/pntprep.o ./CAMx/pspgeo.o ./CAMx/raddrivr.o ./CAMx/rassgn3d.o ./CAMx/rassgn4d.o ./CAMx/readaho.o ./CAMx/readchm.o ./CAMx/readnml.o ./CAMx/readpht.o ./CAMx/scavrat.o ./CAMx/setbc1d.o ./CAMx/setbc.o ./CAMx/startup.o ./CAMx/timestep.o ./CAMx/timrates.o ./CAMx/toupper.o ./CAMx/trap.o ./CAMx/trdiag.o ./CAMx/updtmet.o ./CAMx/uptime.o ./CAMx/utmgeo.o ./CAMx/vd_aer.o ./CAMx/vd_gas.o ./CAMx/vdiffimp.o ./CAMx/vnmshcal.o ./CAMx/vrtslv.o ./CAMx/wetdep.o ./CAMx/wrtmass.o ./CAMx/xerf.o ./CAMx/xyadvec.o ./CAMx/zadvec.o ./CAMx/zeros.o ./CAMx/zrates.o ./IO_bin/areaprep.o ./IO_bin/bndprep.o ./IO_bin/clciwt.o ./IO_bin/cncprep.o ./IO_bin/depprep.o ./IO_bin/getdepth.o ./IO_bin/openfils.o ./IO_bin/metinit.o ./IO_bin/rdfgcon.o ./IO_bin/rdpthdr.o ./IO_bin/rdsumbc.o ./IO_bin/readar.o ./IO_bin/readbnd.o ./IO_bin/readcnc.o ./IO_bin/readinp.o ./IO_bin/readpt.o ./IO_bin/srfprep.o ./IO_bin/wrfgcon.o ./IO_bin/wrtcon.o ./IO_bin/wrtdep.o ./CF_AERO/hlconst.o ./CF_AERO/hlindex.o ./CF_AERO/isocom_v1.6.o ./CF_AERO/isofwd_v1.6.o ./CF_AERO/isorev_v1.6.o ./CF_AERO/raqchem.o ./CMC/ddmjac1.o ./CMC/ddmjac3.o ./CMC/ddmjac4.o ./CMC/ddmjac5.o ./CMC/ddmjac6.o ./CMC/iejac1.o ./CMC/iejac3.o ./CMC/iejac4.o ./CMC/iejac5.o ./CMC/iejac6.o ./CMC/ierate1.o ./CMC/ierate3.o ./CMC/ierate4.o ./CMC/ierate5.o ./CMC/ierate6.o ./CMC/ierxn1.o ./CMC/ierxn3.o ./CMC/ierxn4.o ./CMC/ierxn5.o ./CMC/ierxn6.o ./CMC/ieslow1.o ./CMC/ieslow3.o ./CMC/ieslow4.o ./CMC/ieslow5.o ./CMC/ieslow6.o ./CMC/radslvr1.o ./CMC/radslvr3.o ./CMC/radslvr4.o ./CMC/radslvr5.o ./CMC/radslvr6.o ./CMC/ratejac1.o ./CMC/ratejac3.o ./CMC/ratejac4.o ./CMC/ratejac5.o ./CMC/ratejac6.o ./CMC/rateslo1.o ./CMC/rateslo3.o ./CMC/rateslo4.o ./CMC/rateslo5.o ./CMC/rateslo6.o ./CMC/rxnrate1.o ./CMC/rxnrate3.o ./CMC/rxnrate4.o ./CMC/rxnrate5.o ./CMC/rxnrate6.o ./CMC/lsrate1.o ./CMC/lsrate3.o ./CMC/lsrate4.o ./CMC/lsrate5.o ./CMC/lsrate6.o ./CMC/lsrxn1.o ./CMC/lsrxn3.o ./CMC/lsrxn4.o ./CMC/lsrxn5.o ./CMC/lsrxn6.o ./CMU_AERO/areag.o ./CMU_AERO/addit.o ./CMU_AERO/aerchem.o ./CMU_AERO/aero_err.o ./CMU_AERO/aqchem.o ./CMU_AERO/aqdist.o ./CMU_AERO/aqfex1.o ./CMU_AERO/aqfex2.o ./CMU_AERO/aqintegr1.o ./CMU_AERO/aqintegr2.o ./CMU_AERO/aqjex.o ./CMU_AERO/aqoperator1.o ./CMU_AERO/aqoperator2.o ./CMU_AERO/aqrates1.o ./CMU_AERO/aqrates2.o ./CMU_AERO/baddit.o ./CMU_AERO/block.o ./CMU_AERO/bmass.o ./CMU_AERO/coagul.o ./CMU_AERO/constants.o ./CMU_AERO/decisions.o ./CMU_AERO/diameter.o ./CMU_AERO/diff.o ./CMU_AERO/differ.o ./CMU_AERO/diffund.o ./CMU_AERO/dropinit.o ./CMU_AERO/electro.o ./CMU_AERO/eqpart.o ./CMU_AERO/eqparto.o ./CMU_AERO/equaer.o ./CMU_AERO/fullequil.o ./CMU_AERO/hybrid.o ./CMU_AERO/hybrd.o ./CMU_AERO/linint.o ./CMU_AERO/madm.o ./CMU_AERO/mass.o ./CMU_AERO/negchk.o ./CMU_AERO/newdist.o ./CMU_AERO/nucl.o ./CMU_AERO/qsaturation.o ./CMU_AERO/react.o ./CMU_AERO/state.o ./CMU_AERO/steady.o ./CMU_AERO/step.o ./CMU_AERO/svode.o ./CMU_AERO/values.o ./CMU_AERO/vsrm.o ./CMU_AERO/slsode.o ./DDM/adjddmc0.o ./DDM/avgrcpddm.o ./DDM/bottddm.o ./DDM/clrbdyddm.o ./DDM/cvticddm.o ./DDM/ddmchem.o ./DDM/filspddm.o ./DDM/hdrrcpddm.o ./DDM/loaddm.o ./DDM/rdarddm.o ./DDM/rdbcddm.o ./DDM/rdicddm.o ./DDM/rdoptddm.o ./DDM/rdptddm.o ./DDM/specddm.o ./DDM/startddm.o ./OSAT/addrcp.o ./OSAT/adjstc0.o ./OSAT/adjstsa.o ./OSAT/apcasa.o ./OSAT/avgrcp.o ./OSAT/avgwal.o ./OSAT/clcbwt.o ./OSAT/clcewt.o ./OSAT/clrbdysa.o ./OSAT/cyctpnsa.o ./OSAT/emprepsa.o ./OSAT/filaqsa.o ./OSAT/filbdysa.o ./OSAT/filvdsa.o ./OSAT/goatsa.o ./OSAT/hdrrcp.o ./OSAT/hdrwsa.o ./OSAT/initsa.o ./OSAT/osatsa.o ./OSAT/o3prdsa.o ./OSAT/psatsa.o ./OSAT/pekrcp.o ./OSAT/pigdumpsa.o ./OSAT/rdargrp.o ./OSAT/rdfgsa.o ./OSAT/rdinstsa.o ./OSAT/rdoptsa.o ./OSAT/rdptgrp.o ./OSAT/readarsa.o ./OSAT/readptsa.o ./OSAT/recalib.o ./OSAT/repartsa.o ./OSAT/rercp.o ./OSAT/spccbivsa.o ./OSAT/spcsprcsa.o ./OSAT/spccb05sa.o ./OSAT/resmap.o ./OSAT/specsa.o ./OSAT/stabsa.o ./OSAT/startsa.o ./OSAT/sum1grd.o ./OSAT/sum1pnt.o ./OSAT/sumgrps.o ./OSAT/sumicwt.o ./OSAT/sumwt4.o ./OSAT/timadv.o ./OSAT/wconsa.o ./OSAT/wfconsa.o ./OSAT/wsfcsa.o ./OSAT/xfluxsa.o ./OSAT/yfluxsa.o ./PA/cpamech3.o ./PA/cpamech4.o ./PA/cpamech5.o ./PA/cpamech6.o ./PA/cparad.o ./PA/initipr.o ./PA/pagrids.o ./PA/pasetup.o ./PA/pazero.o ./PA/rdoptpa.o ./PA/wrtcpa.o ./PA/wrtipr.o ./PA/wrtiprhdr.o ./PA/wrtirr.o ./PA/wrtirrhdr.o ./PiG/avepig.o ./PiG/irondry.o ./PiG/ironchem.o ./PiG/ironwet.o ./PiG/noxchem.o ./PiG/pigcoord.o ./PiG/pigdiag.o ./PiG/pigdrive.o ./PiG/pigevol.o ./PiG/piggrow.o ./PiG/piginit.o ./PiG/pigmscl.o ./PiG/pigprep.o ./PiG/pigwalk.o ./PiG/pigsampl.o ./PiG/siggrow.o ./PiG/smpl1puf.o ./PiG/smpprep.o ./PiG/virtdump.o ./PiG/walk1puf.o ./PiG/wrtpig.o ./PiG/wrtsmp.o ./RTRAC/chemrt.o ./RTRAC/cvticrt.o ./RTRAC/drydeprt.o ./RTRAC/empreprt.o ./RTRAC/hdrcprt.o ./RTRAC/pigchmrt.o ./RTRAC/rdarrt.o ./RTRAC/rdbcrt.o ./RTRAC/rdchmrt.o ./RTRAC/rdicrt.o ./RTRAC/rdptrt.o ./RTRAC/rdrcprt.o ./RTRAC/startrt.o ./RTRAC/wetdeprt.o ./RTRAC/wrrcprt.o ./SOAP/soachem.o ./SOAP/soapdat.o ./SOAP/soap.o ./SOAP/spfcn.o ./HG/hggaschem.o ./HG/hgaqschem.o ./IO_hdf/camx_includes.o ./IO_hdf/hdf5_file_out.o
+ipo: remark #11000: performing multi-file optimizations
+ipo: remark #11005: generating object file /tmp/ipo_ifortNXbrVQ.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'

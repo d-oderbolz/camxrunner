@@ -38,6 +38,8 @@
 #-------------------------------------------------------------------------------
 #
 
+MPI_INST = /usr/local/mpich
+
 .SUFFIXES: .c .f .o .f90 .F90
 
 #ifndef DOMAIN
@@ -72,8 +74,8 @@ CAMX_MPI  = ./MPI
 
 ifeq ($(MPI),true)
     MPI_INC   = /usr/local/mpich/include
-    MPI_LIBS =  -lparlib \
-         -lmpich
+    MPI_LIBS = -L$(CAMX_MPI)/util -lparlib \
+        -L$(MPI_INST)/lib -lmpich
     TARGT_STRING = MPI
 else
     MPI_INC   = ./Dummy
@@ -83,7 +85,7 @@ else
 endif
 
 ifeq ($(HDF),true)
-   HDF_LIB  = -lhdf5 -lz
+   HDF_LIB  = -L/usr/lib -L/usr/local/lib -lhdf5 -lz
    HDF_INC  = /usr/local/include/hdf5
    DEFHDF   = -DUSEHDF
    INCLUDES = -I$(CAMx_INC) -I$(MPI_INC) -I$(IOHDF) -I$(HDF_INC)
@@ -247,18 +249,18 @@ ibm:
 	make modules \
 	   FC=xlf \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
 	make hdflib \
 	   HDF=$(HDF) \
 	   FC=xlf \
 	   CC=cc \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+	   FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
 	make model \
 	   FC=xlf \
 	   TARGT=CAMx.$(DOMAIN).$(TARGT_STRING).ibm \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
 
 pg_linux:
 	@rm -f $(CAMx_INC)/camx.prm
@@ -266,18 +268,18 @@ pg_linux:
 	make modules \
 	   FC=pgf90 \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -O2 -pc 64 -Mdalign -mcmodel=medium -Mextend -Mnoframe -byteswapio"
+	   FLGS="$(INCLUDES) -O2 -pc 64 -Mdalign -mcmodel=medium -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 	make hdflib \
 	   HDF=$(HDF) \
 	   FC=pgf90 \
 	   CC=gcc \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio"
+	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 	make model \
 	   FC=pgf90 \
 	   TARGT=CAMx.$(DOMAIN).$(TARGT_STRING).pg_linux \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -O2 -pc 64 -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio"
+	   FLGS="$(INCLUDES) -O2 -pc 64 -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 
 pg_linuxomp:
 	@rm -f $(CAMx_INC)/camx.prm
@@ -285,18 +287,18 @@ pg_linuxomp:
 	make modules \
 	   FC=pgf90 \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mp -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio "
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mp -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 	make hdflib \
 	   HDF=$(HDF) \
 	   FC=pgf90 \
 	   CC=gcc \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio"
+	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 	make model \
 	   FC=pgf90 \
 	   TARGT=CAMx.$(DOMAIN).$(TARGT_STRING).pg_linuxomp \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mp -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio"
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mp -O2 -pc 64 -Mconcur=nonuma -mcmodel=medium -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 
 i_linux:
 	@rm -f $(CAMx_INC)/camx.prm
@@ -323,13 +325,13 @@ i_linuxomp:
 	make modules \
 	   FC=ifort \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O2 -align dcommons -extend_source -convert big_endian -ipo"
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
 	make hdflib \
 	   HDF=$(HDF) \
 	   FC=ifort \
 	   CC=gcc \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo"
+	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -align dcommons -extend_source -convert big_endian -ipo -static"
 	make model \
 	   FC=ifort \
 	   TARGT=CAMx.$(DOMAIN).$(TARGT_STRING).i_linuxomp \
@@ -342,18 +344,18 @@ ab_linux:
 	make modules \
 	   FC=ifort \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 "
+	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
 	make hdflib \
 	   HDF=$(HDF) \
 	   FC=f90 \
 	   CC=cc \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O3 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 "
+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O3 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
 	make model \
 	   FC=ifort \
 	   TARGT=CAMx.$(DOMAIN).$(TARGT_STRING).ab_linux \
            MODULES="-I${MOD_DIR} -module ${MOD_DIR}" \
-	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 "
+	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
 
 clean:	
 	rm -f $(OBJCTS) $(MOD_OBJCTS) $(IOHDF)/*.o Dummy/*.o *.mod $(MOD_DIR)/*.mod $(CAMX_MPI)/*.o *.a

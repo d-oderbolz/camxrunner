@@ -1,0 +1,1249 @@
+This file documents a compilation of CAMx 4.51, done on Wed Mar  3 23:05:37 CET 2010 by oderbolz
+Output Binary name: /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/CAMx-None-None-x86_64-linux-fltconsistency
+HDF: false
+PARALELL PARADIGM: None
+PLATFORM: i_linux
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/10_non-static_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/20_medium_memory_needs_non-static_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/30_optional_fltconsistency_4medium_memory_Makefile.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/./Makefile
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/all_platforms/CAMx/00_camxerr.f.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/CAMx/camxerr.f
+Applying patch /afs/psi.ch/user/o/oderbolz/CAMxRunner/modules/installer/CAMx/4.51/patches/CAMx/i_linux/IO_hdf/rams_head.f90.patch to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx/IO_hdf/rams_head.f90
+rm -f ./CAMx/CAMx.o ./CAMx/aerochem_cf.o ./CAMx/aerochem_cmu.o ./CAMx/aeroset.o ./CAMx/aggdep.o ./CAMx/aggr00.o ./CAMx/aggreg.o ./CAMx/ahoprep.o ./CAMx/average.o ./CAMx/bc1grd.o ./CAMx/bcmodfy.o ./CAMx/caldate.o ./CAMx/camxerr.o ./CAMx/chem10.o ./CAMx/chemdriv.o ./CAMx/chemrxn.o ./CAMx/chmdat.o ./CAMx/chrtime.o ./CAMx/cpivot.o ./CAMx/cvtdate.o ./CAMx/cvtwind.o ./CAMx/dateerr.o ./CAMx/depsmry.o ./CAMx/diffus.o ./CAMx/dlsode.o ./CAMx/drydep.o ./CAMx/emassign.o ./CAMx/emiss.o ./CAMx/emistrns.o ./CAMx/expndlay.o ./CAMx/exptbl.o ./CAMx/fgavrg.o ./CAMx/finwind.o ./CAMx/getdelt.o ./CAMx/getunit.o ./CAMx/getznth.o ./CAMx/grdprep.o ./CAMx/hadvbot.o ./CAMx/hadvppm.o ./CAMx/henryfnc.o ./CAMx/iassgn2d.o ./CAMx/iehsolv.o ./CAMx/iniptr.o ./CAMx/interp2d.o ./CAMx/interpv.o ./CAMx/intrpcnc.o ./CAMx/intrpdat.o ./CAMx/istrln.o ./CAMx/jstlft.o ./CAMx/juldate.o ./CAMx/khorz.o ./CAMx/kphoto.o ./CAMx/ktherm.o ./CAMx/khetero.o ./CAMx/lcpgeo.o ./CAMx/linpac.o ./CAMx/lscall.o ./CAMx/lsode.o ./CAMx/luassgn.o ./CAMx/massum.o ./CAMx/micromet.o ./CAMx/nesting.o ./CAMx/nstprep.o ./CAMx/parntchd.o ./CAMx/plumeris.o ./CAMx/pntprep.o ./CAMx/pspgeo.o ./CAMx/raddrivr.o ./CAMx/rassgn3d.o ./CAMx/rassgn4d.o ./CAMx/readaho.o ./CAMx/readchm.o ./CAMx/readnml.o ./CAMx/readpht.o ./CAMx/scavrat.o ./CAMx/setbc1d.o ./CAMx/setbc.o ./CAMx/startup.o ./CAMx/timestep.o ./CAMx/timrates.o ./CAMx/toupper.o ./CAMx/trap.o ./CAMx/trdiag.o ./CAMx/updtmet.o ./CAMx/uptime.o ./CAMx/utmgeo.o ./CAMx/vd_aer.o ./CAMx/vd_gas.o ./CAMx/vdiffimp.o ./CAMx/vnmshcal.o ./CAMx/vrtslv.o ./CAMx/wetdep.o ./CAMx/wrtmass.o ./CAMx/xerf.o ./CAMx/xyadvec.o ./CAMx/zadvec.o ./CAMx/zeros.o ./CAMx/zrates.o ./IO_bin/areaprep.o ./IO_bin/bndprep.o ./IO_bin/clciwt.o ./IO_bin/cncprep.o ./IO_bin/depprep.o ./IO_bin/getdepth.o ./IO_bin/openfils.o ./IO_bin/metinit.o ./IO_bin/rdfgcon.o ./IO_bin/rdpthdr.o ./IO_bin/rdsumbc.o ./IO_bin/readar.o ./IO_bin/readbnd.o ./IO_bin/readcnc.o ./IO_bin/readinp.o ./IO_bin/readpt.o ./IO_bin/srfprep.o ./IO_bin/wrfgcon.o ./IO_bin/wrtcon.o ./IO_bin/wrtdep.o ./CF_AERO/hlconst.o ./CF_AERO/hlindex.o ./CF_AERO/isocom_v1.6.o ./CF_AERO/isofwd_v1.6.o ./CF_AERO/isorev_v1.6.o ./CF_AERO/raqchem.o ./CMC/ddmjac1.o ./CMC/ddmjac3.o ./CMC/ddmjac4.o ./CMC/ddmjac5.o ./CMC/ddmjac6.o ./CMC/iejac1.o ./CMC/iejac3.o ./CMC/iejac4.o ./CMC/iejac5.o ./CMC/iejac6.o ./CMC/ierate1.o ./CMC/ierate3.o ./CMC/ierate4.o ./CMC/ierate5.o ./CMC/ierate6.o ./CMC/ierxn1.o ./CMC/ierxn3.o ./CMC/ierxn4.o ./CMC/ierxn5.o ./CMC/ierxn6.o ./CMC/ieslow1.o ./CMC/ieslow3.o ./CMC/ieslow4.o ./CMC/ieslow5.o ./CMC/ieslow6.o ./CMC/radslvr1.o ./CMC/radslvr3.o ./CMC/radslvr4.o ./CMC/radslvr5.o ./CMC/radslvr6.o ./CMC/ratejac1.o ./CMC/ratejac3.o ./CMC/ratejac4.o ./CMC/ratejac5.o ./CMC/ratejac6.o ./CMC/rateslo1.o ./CMC/rateslo3.o ./CMC/rateslo4.o ./CMC/rateslo5.o ./CMC/rateslo6.o ./CMC/rxnrate1.o ./CMC/rxnrate3.o ./CMC/rxnrate4.o ./CMC/rxnrate5.o ./CMC/rxnrate6.o ./CMC/lsrate1.o ./CMC/lsrate3.o ./CMC/lsrate4.o ./CMC/lsrate5.o ./CMC/lsrate6.o ./CMC/lsrxn1.o ./CMC/lsrxn3.o ./CMC/lsrxn4.o ./CMC/lsrxn5.o ./CMC/lsrxn6.o ./CMU_AERO/areag.o ./CMU_AERO/addit.o ./CMU_AERO/aerchem.o ./CMU_AERO/aero_err.o ./CMU_AERO/aqchem.o ./CMU_AERO/aqdist.o ./CMU_AERO/aqfex1.o ./CMU_AERO/aqfex2.o ./CMU_AERO/aqintegr1.o ./CMU_AERO/aqintegr2.o ./CMU_AERO/aqjex.o ./CMU_AERO/aqoperator1.o ./CMU_AERO/aqoperator2.o ./CMU_AERO/aqrates1.o ./CMU_AERO/aqrates2.o ./CMU_AERO/baddit.o ./CMU_AERO/block.o ./CMU_AERO/bmass.o ./CMU_AERO/coagul.o ./CMU_AERO/constants.o ./CMU_AERO/decisions.o ./CMU_AERO/diameter.o ./CMU_AERO/diff.o ./CMU_AERO/differ.o ./CMU_AERO/diffund.o ./CMU_AERO/dropinit.o ./CMU_AERO/electro.o ./CMU_AERO/eqpart.o ./CMU_AERO/eqparto.o ./CMU_AERO/equaer.o ./CMU_AERO/fullequil.o ./CMU_AERO/hybrid.o ./CMU_AERO/hybrd.o ./CMU_AERO/linint.o ./CMU_AERO/madm.o ./CMU_AERO/mass.o ./CMU_AERO/negchk.o ./CMU_AERO/newdist.o ./CMU_AERO/nucl.o ./CMU_AERO/qsaturation.o ./CMU_AERO/react.o ./CMU_AERO/state.o ./CMU_AERO/steady.o ./CMU_AERO/step.o ./CMU_AERO/svode.o ./CMU_AERO/values.o ./CMU_AERO/vsrm.o ./CMU_AERO/slsode.o ./DDM/adjddmc0.o ./DDM/avgrcpddm.o ./DDM/bottddm.o ./DDM/clrbdyddm.o ./DDM/cvticddm.o ./DDM/ddmchem.o ./DDM/filspddm.o ./DDM/hdrrcpddm.o ./DDM/loaddm.o ./DDM/rdarddm.o ./DDM/rdbcddm.o ./DDM/rdicddm.o ./DDM/rdoptddm.o ./DDM/rdptddm.o ./DDM/specddm.o ./DDM/startddm.o ./OSAT/addrcp.o ./OSAT/adjstc0.o ./OSAT/adjstsa.o ./OSAT/apcasa.o ./OSAT/avgrcp.o ./OSAT/avgwal.o ./OSAT/clcbwt.o ./OSAT/clcewt.o ./OSAT/clrbdysa.o ./OSAT/cyctpnsa.o ./OSAT/emprepsa.o ./OSAT/filaqsa.o ./OSAT/filbdysa.o ./OSAT/filvdsa.o ./OSAT/goatsa.o ./OSAT/hdrrcp.o ./OSAT/hdrwsa.o ./OSAT/initsa.o ./OSAT/osatsa.o ./OSAT/o3prdsa.o ./OSAT/psatsa.o ./OSAT/pekrcp.o ./OSAT/pigdumpsa.o ./OSAT/rdargrp.o ./OSAT/rdfgsa.o ./OSAT/rdinstsa.o ./OSAT/rdoptsa.o ./OSAT/rdptgrp.o ./OSAT/readarsa.o ./OSAT/readptsa.o ./OSAT/recalib.o ./OSAT/repartsa.o ./OSAT/rercp.o ./OSAT/spccbivsa.o ./OSAT/spcsprcsa.o ./OSAT/spccb05sa.o ./OSAT/resmap.o ./OSAT/specsa.o ./OSAT/stabsa.o ./OSAT/startsa.o ./OSAT/sum1grd.o ./OSAT/sum1pnt.o ./OSAT/sumgrps.o ./OSAT/sumicwt.o ./OSAT/sumwt4.o ./OSAT/timadv.o ./OSAT/wconsa.o ./OSAT/wfconsa.o ./OSAT/wsfcsa.o ./OSAT/xfluxsa.o ./OSAT/yfluxsa.o ./PA/cpamech3.o ./PA/cpamech4.o ./PA/cpamech5.o ./PA/cpamech6.o ./PA/cparad.o ./PA/initipr.o ./PA/pagrids.o ./PA/pasetup.o ./PA/pazero.o ./PA/rdoptpa.o ./PA/wrtcpa.o ./PA/wrtipr.o ./PA/wrtiprhdr.o ./PA/wrtirr.o ./PA/wrtirrhdr.o ./PiG/avepig.o ./PiG/irondry.o ./PiG/ironchem.o ./PiG/ironwet.o ./PiG/noxchem.o ./PiG/pigcoord.o ./PiG/pigdiag.o ./PiG/pigdrive.o ./PiG/pigevol.o ./PiG/piggrow.o ./PiG/piginit.o ./PiG/pigmscl.o ./PiG/pigprep.o ./PiG/pigwalk.o ./PiG/pigsampl.o ./PiG/siggrow.o ./PiG/smpl1puf.o ./PiG/smpprep.o ./PiG/virtdump.o ./PiG/walk1puf.o ./PiG/wrtpig.o ./PiG/wrtsmp.o ./RTRAC/chemrt.o ./RTRAC/cvticrt.o ./RTRAC/drydeprt.o ./RTRAC/empreprt.o ./RTRAC/hdrcprt.o ./RTRAC/pigchmrt.o ./RTRAC/rdarrt.o ./RTRAC/rdbcrt.o ./RTRAC/rdchmrt.o ./RTRAC/rdicrt.o ./RTRAC/rdptrt.o ./RTRAC/rdrcprt.o ./RTRAC/startrt.o ./RTRAC/wetdeprt.o ./RTRAC/wrrcprt.o ./SOAP/soachem.o ./SOAP/soapdat.o ./SOAP/soap.o ./SOAP/spfcn.o ./HG/hggaschem.o ./HG/hgaqschem.o ./IO_hdf/*.o ./Modules/*.mod *.a
+ 
+-------------------------------------------------------
+   You are about to compile with MXTRSP set to 1
+ 
+        If this is not correct, hit <CNTRL>C
+                    do "make clean"
+          Modify "tracer.com" and recompile.
+ 
+ The camx.prm is linked to camx.prm.None-None-x86_64-linux
+ 
+ The executable will be called: CAMx.None-None-x86_64-linux.i_linux
+ 
+-------------------------------------------------------
+ 
+make hdflib \
+           HDF=false \
+           FC=ifort \
+           CC=gcc \
+           FLGS="-I./Includes -DPC_LINUX1  -O2 -fltconsistency -align dcommons -extend_source -convert big_endian -ipo"
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+ifort -c -o IO_hdf/camx_includes.o -I./Includes -DPC_LINUX1  -O2 -fltconsistency -align dcommons -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_hdf/camx_includes.f
+ifort -c -o IO_hdf/hdf5_file_out.o -I./Includes -DPC_LINUX1  -O2 -fltconsistency -align dcommons -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_hdf/hdf5_file_out.F90
+ar -rv libcamxhdf.a ./IO_hdf/camx_includes.o ./IO_hdf/hdf5_file_out.o
+ar: creating libcamxhdf.a
+a - ./IO_hdf/camx_includes.o
+a - ./IO_hdf/hdf5_file_out.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+make model \
+           FC=ifort \
+           TARGT=CAMx.None-None-x86_64-linux.i_linux \
+           FLGS="-I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo"
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
+ifort -c -o CAMx/CAMx.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/CAMx.f
+ifort -c -o CAMx/aerochem_cf.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aerochem_cf.f
+ifort -c -o CAMx/aerochem_cmu.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aerochem_cmu.f
+ifort -c -o CAMx/aeroset.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aeroset.f
+ifort -c -o CAMx/aggdep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggdep.f
+ifort -c -o CAMx/aggr00.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggr00.f
+ifort -c -o CAMx/aggreg.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/aggreg.f
+ifort -c -o CAMx/ahoprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/ahoprep.f
+ifort -c -o CAMx/average.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/average.f
+ifort -c -o CAMx/bc1grd.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/bc1grd.f
+ifort -c -o CAMx/bcmodfy.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/bcmodfy.f
+ifort -c -o CAMx/caldate.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/caldate.f
+ifort -c -o CAMx/camxerr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/camxerr.f
+ifort -c -o CAMx/chem10.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chem10.f
+ifort -c -o CAMx/chemdriv.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chemdriv.f
+ifort -c -o CAMx/chemrxn.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chemrxn.f
+ifort -c -o CAMx/chmdat.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chmdat.f
+ifort -c -o CAMx/chrtime.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/chrtime.f
+ifort -c -o CAMx/cpivot.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cpivot.f
+ifort -c -o CAMx/cvtdate.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cvtdate.f
+ifort -c -o CAMx/cvtwind.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/cvtwind.f
+ifort -c -o CAMx/dateerr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/dateerr.f
+ifort -c -o CAMx/depsmry.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/depsmry.f
+ifort -c -o CAMx/diffus.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/diffus.f
+ifort -c -o CAMx/dlsode.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/dlsode.f
+ifort -c -o CAMx/drydep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/drydep.f
+ifort -c -o CAMx/emassign.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emassign.f
+ifort -c -o CAMx/emiss.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emiss.f
+ifort -c -o CAMx/emistrns.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/emistrns.f
+ifort -c -o CAMx/expndlay.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/expndlay.f
+ifort -c -o CAMx/exptbl.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/exptbl.f
+ifort -c -o CAMx/fgavrg.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/fgavrg.f
+ifort -c -o CAMx/finwind.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/finwind.f
+ifort -c -o CAMx/getdelt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getdelt.f
+ifort -c -o CAMx/getunit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getunit.f
+ifort -c -o CAMx/getznth.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/getznth.f
+ifort -c -o CAMx/grdprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/grdprep.f
+ifort -c -o CAMx/hadvbot.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/hadvbot.f
+ifort -c -o CAMx/hadvppm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/hadvppm.f
+ifort -c -o CAMx/henryfnc.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/henryfnc.f
+ifort -c -o CAMx/iassgn2d.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iassgn2d.f
+ifort -c -o CAMx/iehsolv.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iehsolv.f
+ifort -c -o CAMx/iniptr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/iniptr.f
+ifort -c -o CAMx/interp2d.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/interp2d.f
+ifort -c -o CAMx/interpv.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/interpv.f
+ifort -c -o CAMx/intrpcnc.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/intrpcnc.f
+ifort -c -o CAMx/intrpdat.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/intrpdat.f
+ifort -c -o CAMx/istrln.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/istrln.f
+ifort -c -o CAMx/jstlft.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/jstlft.f
+ifort -c -o CAMx/juldate.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/juldate.f
+ifort -c -o CAMx/khorz.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/khorz.f
+ifort -c -o CAMx/kphoto.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/kphoto.f
+ifort -c -o CAMx/ktherm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/ktherm.f
+ifort -c -o CAMx/khetero.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/khetero.f
+ifort -c -o CAMx/lcpgeo.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lcpgeo.f
+ifort -c -o CAMx/linpac.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/linpac.f
+ifort -c -o CAMx/lscall.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lscall.f
+ifort -c -o CAMx/lsode.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/lsode.f
+ifort -c -o CAMx/luassgn.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/luassgn.f
+ifort -c -o CAMx/massum.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/massum.f
+ifort -c -o CAMx/micromet.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/micromet.f
+ifort -c -o CAMx/nesting.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/nesting.f
+ifort -c -o CAMx/nstprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/nstprep.f
+ifort -c -o CAMx/parntchd.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/parntchd.f
+ifort -c -o CAMx/plumeris.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/plumeris.f
+ifort -c -o CAMx/pntprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/pntprep.f
+ifort -c -o CAMx/pspgeo.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/pspgeo.f
+ifort -c -o CAMx/raddrivr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/raddrivr.f
+ifort -c -o CAMx/rassgn3d.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/rassgn3d.f
+ifort -c -o CAMx/rassgn4d.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/rassgn4d.f
+ifort -c -o CAMx/readaho.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readaho.f
+ifort -c -o CAMx/readchm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readchm.f
+ifort -c -o CAMx/readnml.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readnml.f
+ifort -c -o CAMx/readpht.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/readpht.f
+ifort -c -o CAMx/scavrat.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/scavrat.f
+ifort -c -o CAMx/setbc1d.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/setbc1d.f
+ifort -c -o CAMx/setbc.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/setbc.f
+ifort -c -o CAMx/startup.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/startup.f
+ifort -c -o CAMx/timestep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/timestep.f
+ifort -c -o CAMx/timrates.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/timrates.f
+ifort -c -o CAMx/toupper.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/toupper.f
+ifort -c -o CAMx/trap.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/trap.f
+ifort -c -o CAMx/trdiag.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/trdiag.f
+ifort -c -o CAMx/updtmet.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/updtmet.f
+ifort -c -o CAMx/uptime.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/uptime.f
+ifort -c -o CAMx/utmgeo.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/utmgeo.f
+ifort -c -o CAMx/vd_aer.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vd_aer.f
+ifort -c -o CAMx/vd_gas.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vd_gas.f
+ifort -c -o CAMx/vdiffimp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vdiffimp.f
+ifort -c -o CAMx/vnmshcal.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vnmshcal.f
+ifort -c -o CAMx/vrtslv.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/vrtslv.f
+ifort -c -o CAMx/wetdep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/wetdep.f
+ifort -c -o CAMx/wrtmass.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/wrtmass.f
+ifort -c -o CAMx/xerf.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/xerf.f
+ifort -c -o CAMx/xyadvec.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/xyadvec.f
+ifort -c -o CAMx/zadvec.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zadvec.f
+ifort -c -o CAMx/zeros.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zeros.f
+ifort -c -o CAMx/zrates.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CAMx/zrates.f
+ifort -c -o IO_bin/areaprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/areaprep.f
+ifort -c -o IO_bin/bndprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/bndprep.f
+ifort -c -o IO_bin/clciwt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/clciwt.f
+ifort -c -o IO_bin/cncprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/cncprep.f
+ifort -c -o IO_bin/depprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/depprep.f
+ifort -c -o IO_bin/getdepth.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/getdepth.f
+ifort -c -o IO_bin/openfils.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/openfils.f
+ifort -c -o IO_bin/metinit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/metinit.f
+ifort -c -o IO_bin/rdfgcon.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdfgcon.f
+ifort -c -o IO_bin/rdpthdr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdpthdr.f
+ifort -c -o IO_bin/rdsumbc.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/rdsumbc.f
+ifort -c -o IO_bin/readar.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readar.f
+ifort -c -o IO_bin/readbnd.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readbnd.f
+ifort -c -o IO_bin/readcnc.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readcnc.f
+ifort -c -o IO_bin/readinp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readinp.f
+ifort -c -o IO_bin/readpt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/readpt.f
+ifort -c -o IO_bin/srfprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/srfprep.f
+ifort -c -o IO_bin/wrfgcon.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrfgcon.f
+ifort -c -o IO_bin/wrtcon.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrtcon.f
+ifort -c -o IO_bin/wrtdep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules IO_bin/wrtdep.f
+ifort -c -o CF_AERO/hlconst.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/hlconst.f
+ifort -c -o CF_AERO/hlindex.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/hlindex.f
+ifort -c -o CF_AERO/isocom_v1.6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isocom_v1.6.f
+ifort -c -o CF_AERO/isofwd_v1.6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isofwd_v1.6.f
+ifort -c -o CF_AERO/isorev_v1.6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/isorev_v1.6.f
+ifort -c -o CF_AERO/raqchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CF_AERO/raqchem.f
+ifort -c -o CMC/ddmjac1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac1.f
+ifort -c -o CMC/ddmjac3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac3.f
+ifort -c -o CMC/ddmjac4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac4.f
+ifort -c -o CMC/ddmjac5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac5.f
+ifort -c -o CMC/ddmjac6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ddmjac6.f
+ifort -c -o CMC/iejac1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac1.f
+ifort -c -o CMC/iejac3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac3.f
+ifort -c -o CMC/iejac4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac4.f
+ifort -c -o CMC/iejac5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac5.f
+ifort -c -o CMC/iejac6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/iejac6.f
+ifort -c -o CMC/ierate1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate1.f
+ifort -c -o CMC/ierate3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate3.f
+ifort -c -o CMC/ierate4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate4.f
+ifort -c -o CMC/ierate5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate5.f
+ifort -c -o CMC/ierate6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierate6.f
+ifort -c -o CMC/ierxn1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn1.f
+ifort -c -o CMC/ierxn3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn3.f
+ifort -c -o CMC/ierxn4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn4.f
+ifort -c -o CMC/ierxn5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn5.f
+ifort -c -o CMC/ierxn6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ierxn6.f
+ifort -c -o CMC/ieslow1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow1.f
+ifort -c -o CMC/ieslow3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow3.f
+ifort -c -o CMC/ieslow4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow4.f
+ifort -c -o CMC/ieslow5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow5.f
+ifort -c -o CMC/ieslow6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ieslow6.f
+ifort -c -o CMC/radslvr1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr1.f
+ifort -c -o CMC/radslvr3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr3.f
+ifort -c -o CMC/radslvr4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr4.f
+ifort -c -o CMC/radslvr5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr5.f
+ifort -c -o CMC/radslvr6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/radslvr6.f
+ifort -c -o CMC/ratejac1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac1.f
+ifort -c -o CMC/ratejac3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac3.f
+ifort -c -o CMC/ratejac4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac4.f
+ifort -c -o CMC/ratejac5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac5.f
+ifort -c -o CMC/ratejac6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/ratejac6.f
+ifort -c -o CMC/rateslo1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo1.f
+ifort -c -o CMC/rateslo3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo3.f
+ifort -c -o CMC/rateslo4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo4.f
+ifort -c -o CMC/rateslo5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo5.f
+ifort -c -o CMC/rateslo6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rateslo6.f
+ifort -c -o CMC/rxnrate1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate1.f
+ifort -c -o CMC/rxnrate3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate3.f
+ifort -c -o CMC/rxnrate4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate4.f
+ifort -c -o CMC/rxnrate5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate5.f
+ifort -c -o CMC/rxnrate6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/rxnrate6.f
+ifort -c -o CMC/lsrate1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate1.f
+ifort -c -o CMC/lsrate3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate3.f
+ifort -c -o CMC/lsrate4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate4.f
+ifort -c -o CMC/lsrate5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate5.f
+ifort -c -o CMC/lsrate6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrate6.f
+ifort -c -o CMC/lsrxn1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn1.f
+ifort -c -o CMC/lsrxn3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn3.f
+ifort -c -o CMC/lsrxn4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn4.f
+ifort -c -o CMC/lsrxn5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn5.f
+ifort -c -o CMC/lsrxn6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMC/lsrxn6.f
+ifort -c -o CMU_AERO/areag.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/areag.f
+ifort -c -o CMU_AERO/addit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/addit.f
+ifort -c -o CMU_AERO/aerchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aerchem.f
+ifort -c -o CMU_AERO/aero_err.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aero_err.f
+ifort -c -o CMU_AERO/aqchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqchem.f
+ifort -c -o CMU_AERO/aqdist.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqdist.f
+ifort -c -o CMU_AERO/aqfex1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqfex1.f
+ifort -c -o CMU_AERO/aqfex2.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqfex2.f
+ifort -c -o CMU_AERO/aqintegr1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqintegr1.f
+ifort -c -o CMU_AERO/aqintegr2.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqintegr2.f
+ifort -c -o CMU_AERO/aqjex.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqjex.f
+ifort -c -o CMU_AERO/aqoperator1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqoperator1.f
+ifort -c -o CMU_AERO/aqoperator2.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqoperator2.f
+ifort -c -o CMU_AERO/aqrates1.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqrates1.f
+ifort -c -o CMU_AERO/aqrates2.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/aqrates2.f
+ifort -c -o CMU_AERO/baddit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/baddit.f
+ifort -c -o CMU_AERO/block.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/block.f
+./Includes/dynamic.inc(138): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [RWORK]
+       dimension rwork(lrw)                ! work array for lsoda
+-----------------^
+./Includes/dynamic.inc(139): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [IWORK]
+       dimension iwork(liw)                ! integer work array for lsoda
+-----------------^
+ifort -c -o CMU_AERO/bmass.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/bmass.f
+ifort -c -o CMU_AERO/coagul.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/coagul.f
+ifort -c -o CMU_AERO/constants.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/constants.f
+ifort -c -o CMU_AERO/decisions.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/decisions.f
+ifort -c -o CMU_AERO/diameter.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diameter.f
+ifort -c -o CMU_AERO/diff.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diff.f
+./Includes/dynamic.inc(138): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [RWORK]
+       dimension rwork(lrw)                ! work array for lsoda
+-----------------^
+./Includes/dynamic.inc(139): remark #7784: Symbol in BLOCK DATA program unit is not in a COMMON block.   [IWORK]
+       dimension iwork(liw)                ! integer work array for lsoda
+-----------------^
+ifort -c -o CMU_AERO/differ.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/differ.f
+ifort -c -o CMU_AERO/diffund.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/diffund.f
+ifort -c -o CMU_AERO/dropinit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/dropinit.f
+ifort -c -o CMU_AERO/electro.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/electro.f
+ifort -c -o CMU_AERO/eqpart.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/eqpart.f
+ifort -c -o CMU_AERO/eqparto.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/eqparto.f
+ifort -c -o CMU_AERO/equaer.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/equaer.f
+ifort -c -o CMU_AERO/fullequil.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/fullequil.f
+ifort -c -o CMU_AERO/hybrid.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/hybrid.f
+CMU_AERO/hybrid.f(59): remark #7713: This statement function has not been used.   [F]
+      f(yKnD, alfa)=(1.0d0+yKnD)/(1.0d0+2.0d0*yKnD*(1.0d0+yKnD)/alfa)
+------^
+ifort -c -o CMU_AERO/hybrd.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/hybrd.f
+ifort -c -o CMU_AERO/linint.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/linint.f
+ifort -c -o CMU_AERO/madm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/madm.f
+ifort -c -o CMU_AERO/mass.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/mass.f
+ifort -c -o CMU_AERO/negchk.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/negchk.f
+ifort -c -o CMU_AERO/newdist.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/newdist.f
+ifort -c -o CMU_AERO/nucl.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/nucl.f
+ifort -c -o CMU_AERO/qsaturation.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/qsaturation.f
+ifort -c -o CMU_AERO/react.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/react.f
+ifort -c -o CMU_AERO/state.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/state.f
+ifort -c -o CMU_AERO/steady.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/steady.f
+ifort -c -o CMU_AERO/step.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/step.f
+ifort -c -o CMU_AERO/svode.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/svode.f
+ifort -c -o CMU_AERO/values.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/values.f
+ifort -c -o CMU_AERO/vsrm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/vsrm.f
+ifort -c -o CMU_AERO/slsode.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules CMU_AERO/slsode.f
+ifort -c -o DDM/adjddmc0.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/adjddmc0.f
+ifort -c -o DDM/avgrcpddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/avgrcpddm.f
+ifort -c -o DDM/bottddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/bottddm.f
+ifort -c -o DDM/clrbdyddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/clrbdyddm.f
+ifort -c -o DDM/cvticddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/cvticddm.f
+ifort -c -o DDM/ddmchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/ddmchem.f
+ifort -c -o DDM/filspddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/filspddm.f
+ifort -c -o DDM/hdrrcpddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/hdrrcpddm.f
+ifort -c -o DDM/loaddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/loaddm.f
+ifort -c -o DDM/rdarddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdarddm.f
+ifort -c -o DDM/rdbcddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdbcddm.f
+ifort -c -o DDM/rdicddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdicddm.f
+ifort -c -o DDM/rdoptddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdoptddm.f
+ifort -c -o DDM/rdptddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/rdptddm.f
+ifort -c -o DDM/specddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/specddm.f
+ifort -c -o DDM/startddm.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules DDM/startddm.f
+ifort -c -o OSAT/addrcp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/addrcp.f
+ifort -c -o OSAT/adjstc0.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/adjstc0.f
+ifort -c -o OSAT/adjstsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/adjstsa.f
+ifort -c -o OSAT/apcasa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/apcasa.f
+ifort -c -o OSAT/avgrcp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/avgrcp.f
+ifort -c -o OSAT/avgwal.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/avgwal.f
+ifort -c -o OSAT/clcbwt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clcbwt.f
+ifort -c -o OSAT/clcewt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clcewt.f
+ifort -c -o OSAT/clrbdysa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/clrbdysa.f
+ifort -c -o OSAT/cyctpnsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/cyctpnsa.f
+ifort -c -o OSAT/emprepsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/emprepsa.f
+ifort -c -o OSAT/filaqsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filaqsa.f
+ifort -c -o OSAT/filbdysa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filbdysa.f
+ifort -c -o OSAT/filvdsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/filvdsa.f
+ifort -c -o OSAT/goatsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/goatsa.f
+ifort -c -o OSAT/hdrrcp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/hdrrcp.f
+ifort -c -o OSAT/hdrwsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/hdrwsa.f
+ifort -c -o OSAT/initsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/initsa.f
+ifort -c -o OSAT/osatsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/osatsa.f
+ifort -c -o OSAT/o3prdsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/o3prdsa.f
+ifort -c -o OSAT/psatsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/psatsa.f
+ifort -c -o OSAT/pekrcp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/pekrcp.f
+ifort -c -o OSAT/pigdumpsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/pigdumpsa.f
+ifort -c -o OSAT/rdargrp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdargrp.f
+ifort -c -o OSAT/rdfgsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdfgsa.f
+ifort -c -o OSAT/rdinstsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdinstsa.f
+ifort -c -o OSAT/rdoptsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdoptsa.f
+ifort -c -o OSAT/rdptgrp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rdptgrp.f
+ifort -c -o OSAT/readarsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/readarsa.f
+ifort -c -o OSAT/readptsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/readptsa.f
+ifort -c -o OSAT/recalib.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/recalib.f
+ifort -c -o OSAT/repartsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/repartsa.f
+ifort -c -o OSAT/rercp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/rercp.f
+ifort -c -o OSAT/spccbivsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spccbivsa.f
+ifort -c -o OSAT/spcsprcsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spcsprcsa.f
+ifort -c -o OSAT/spccb05sa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/spccb05sa.f
+ifort -c -o OSAT/resmap.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/resmap.f
+ifort -c -o OSAT/specsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/specsa.f
+ifort -c -o OSAT/stabsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/stabsa.f
+ifort -c -o OSAT/startsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/startsa.f
+ifort -c -o OSAT/sum1grd.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sum1grd.f
+ifort -c -o OSAT/sum1pnt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sum1pnt.f
+ifort -c -o OSAT/sumgrps.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumgrps.f
+ifort -c -o OSAT/sumicwt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumicwt.f
+ifort -c -o OSAT/sumwt4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/sumwt4.f
+ifort -c -o OSAT/timadv.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/timadv.f
+ifort -c -o OSAT/wconsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wconsa.f
+ifort -c -o OSAT/wfconsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wfconsa.f
+ifort -c -o OSAT/wsfcsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/wsfcsa.f
+ifort -c -o OSAT/xfluxsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/xfluxsa.f
+ifort -c -o OSAT/yfluxsa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules OSAT/yfluxsa.f
+ifort -c -o PA/cpamech3.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech3.f
+ifort -c -o PA/cpamech4.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech4.f
+ifort -c -o PA/cpamech5.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech5.f
+ifort -c -o PA/cpamech6.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cpamech6.f
+ifort -c -o PA/cparad.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/cparad.f
+ifort -c -o PA/initipr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/initipr.f
+ifort -c -o PA/pagrids.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pagrids.f
+ifort -c -o PA/pasetup.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pasetup.f
+ifort -c -o PA/pazero.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/pazero.f
+ifort -c -o PA/rdoptpa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/rdoptpa.f
+ifort -c -o PA/wrtcpa.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtcpa.f
+ifort -c -o PA/wrtipr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtipr.f
+ifort -c -o PA/wrtiprhdr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtiprhdr.f
+ifort -c -o PA/wrtirr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtirr.f
+ifort -c -o PA/wrtirrhdr.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PA/wrtirrhdr.f
+ifort -c -o PiG/avepig.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/avepig.f
+ifort -c -o PiG/irondry.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/irondry.f
+ifort -c -o PiG/ironchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/ironchem.f
+ifort -c -o PiG/ironwet.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/ironwet.f
+ifort -c -o PiG/noxchem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/noxchem.f
+ifort -c -o PiG/pigcoord.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigcoord.f
+ifort -c -o PiG/pigdiag.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigdiag.f
+ifort -c -o PiG/pigdrive.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigdrive.f
+ifort -c -o PiG/pigevol.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigevol.f
+ifort -c -o PiG/piggrow.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/piggrow.f
+ifort -c -o PiG/piginit.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/piginit.f
+ifort -c -o PiG/pigmscl.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigmscl.f
+ifort -c -o PiG/pigprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigprep.f
+ifort -c -o PiG/pigwalk.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigwalk.f
+ifort -c -o PiG/pigsampl.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/pigsampl.f
+ifort -c -o PiG/siggrow.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/siggrow.f
+ifort -c -o PiG/smpl1puf.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/smpl1puf.f
+ifort -c -o PiG/smpprep.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/smpprep.f
+ifort -c -o PiG/virtdump.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/virtdump.f
+ifort -c -o PiG/walk1puf.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/walk1puf.f
+ifort -c -o PiG/wrtpig.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/wrtpig.f
+ifort -c -o PiG/wrtsmp.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules PiG/wrtsmp.f
+ifort -c -o RTRAC/chemrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/chemrt.f
+ifort -c -o RTRAC/cvticrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/cvticrt.f
+ifort -c -o RTRAC/drydeprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/drydeprt.f
+ifort -c -o RTRAC/empreprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/empreprt.f
+ifort -c -o RTRAC/hdrcprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/hdrcprt.f
+ifort -c -o RTRAC/pigchmrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/pigchmrt.f
+ifort -c -o RTRAC/rdarrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdarrt.f
+ifort -c -o RTRAC/rdbcrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdbcrt.f
+ifort -c -o RTRAC/rdchmrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdchmrt.f
+ifort -c -o RTRAC/rdicrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdicrt.f
+ifort -c -o RTRAC/rdptrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdptrt.f
+ifort -c -o RTRAC/rdrcprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/rdrcprt.f
+ifort -c -o RTRAC/startrt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/startrt.f
+ifort -c -o RTRAC/wetdeprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/wetdeprt.f
+ifort -c -o RTRAC/wrrcprt.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules RTRAC/wrrcprt.f
+ifort -c -o SOAP/soachem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soachem.f
+ifort -c -o SOAP/soapdat.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soapdat.f
+ifort -c -o SOAP/soap.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/soap.f
+ifort -c -o SOAP/spfcn.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules SOAP/spfcn.f
+ifort -c -o HG/hggaschem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules HG/hggaschem.f
+ifort -c -o HG/hgaqschem.o -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo -I./Modules -module ./Modules HG/hgaqschem.f
+ifort -o CAMx.None-None-x86_64-linux.i_linux -I./Includes -O2 -fltconsistency -align dcommons -mcmodel=medium -shared-intel -extend_source -convert big_endian -ipo ./CAMx/CAMx.o ./CAMx/aerochem_cf.o ./CAMx/aerochem_cmu.o ./CAMx/aeroset.o ./CAMx/aggdep.o ./CAMx/aggr00.o ./CAMx/aggreg.o ./CAMx/ahoprep.o ./CAMx/average.o ./CAMx/bc1grd.o ./CAMx/bcmodfy.o ./CAMx/caldate.o ./CAMx/camxerr.o ./CAMx/chem10.o ./CAMx/chemdriv.o ./CAMx/chemrxn.o ./CAMx/chmdat.o ./CAMx/chrtime.o ./CAMx/cpivot.o ./CAMx/cvtdate.o ./CAMx/cvtwind.o ./CAMx/dateerr.o ./CAMx/depsmry.o ./CAMx/diffus.o ./CAMx/dlsode.o ./CAMx/drydep.o ./CAMx/emassign.o ./CAMx/emiss.o ./CAMx/emistrns.o ./CAMx/expndlay.o ./CAMx/exptbl.o ./CAMx/fgavrg.o ./CAMx/finwind.o ./CAMx/getdelt.o ./CAMx/getunit.o ./CAMx/getznth.o ./CAMx/grdprep.o ./CAMx/hadvbot.o ./CAMx/hadvppm.o ./CAMx/henryfnc.o ./CAMx/iassgn2d.o ./CAMx/iehsolv.o ./CAMx/iniptr.o ./CAMx/interp2d.o ./CAMx/interpv.o ./CAMx/intrpcnc.o ./CAMx/intrpdat.o ./CAMx/istrln.o ./CAMx/jstlft.o ./CAMx/juldate.o ./CAMx/khorz.o ./CAMx/kphoto.o ./CAMx/ktherm.o ./CAMx/khetero.o ./CAMx/lcpgeo.o ./CAMx/linpac.o ./CAMx/lscall.o ./CAMx/lsode.o ./CAMx/luassgn.o ./CAMx/massum.o ./CAMx/micromet.o ./CAMx/nesting.o ./CAMx/nstprep.o ./CAMx/parntchd.o ./CAMx/plumeris.o ./CAMx/pntprep.o ./CAMx/pspgeo.o ./CAMx/raddrivr.o ./CAMx/rassgn3d.o ./CAMx/rassgn4d.o ./CAMx/readaho.o ./CAMx/readchm.o ./CAMx/readnml.o ./CAMx/readpht.o ./CAMx/scavrat.o ./CAMx/setbc1d.o ./CAMx/setbc.o ./CAMx/startup.o ./CAMx/timestep.o ./CAMx/timrates.o ./CAMx/toupper.o ./CAMx/trap.o ./CAMx/trdiag.o ./CAMx/updtmet.o ./CAMx/uptime.o ./CAMx/utmgeo.o ./CAMx/vd_aer.o ./CAMx/vd_gas.o ./CAMx/vdiffimp.o ./CAMx/vnmshcal.o ./CAMx/vrtslv.o ./CAMx/wetdep.o ./CAMx/wrtmass.o ./CAMx/xerf.o ./CAMx/xyadvec.o ./CAMx/zadvec.o ./CAMx/zeros.o ./CAMx/zrates.o ./IO_bin/areaprep.o ./IO_bin/bndprep.o ./IO_bin/clciwt.o ./IO_bin/cncprep.o ./IO_bin/depprep.o ./IO_bin/getdepth.o ./IO_bin/openfils.o ./IO_bin/metinit.o ./IO_bin/rdfgcon.o ./IO_bin/rdpthdr.o ./IO_bin/rdsumbc.o ./IO_bin/readar.o ./IO_bin/readbnd.o ./IO_bin/readcnc.o ./IO_bin/readinp.o ./IO_bin/readpt.o ./IO_bin/srfprep.o ./IO_bin/wrfgcon.o ./IO_bin/wrtcon.o ./IO_bin/wrtdep.o ./CF_AERO/hlconst.o ./CF_AERO/hlindex.o ./CF_AERO/isocom_v1.6.o ./CF_AERO/isofwd_v1.6.o ./CF_AERO/isorev_v1.6.o ./CF_AERO/raqchem.o ./CMC/ddmjac1.o ./CMC/ddmjac3.o ./CMC/ddmjac4.o ./CMC/ddmjac5.o ./CMC/ddmjac6.o ./CMC/iejac1.o ./CMC/iejac3.o ./CMC/iejac4.o ./CMC/iejac5.o ./CMC/iejac6.o ./CMC/ierate1.o ./CMC/ierate3.o ./CMC/ierate4.o ./CMC/ierate5.o ./CMC/ierate6.o ./CMC/ierxn1.o ./CMC/ierxn3.o ./CMC/ierxn4.o ./CMC/ierxn5.o ./CMC/ierxn6.o ./CMC/ieslow1.o ./CMC/ieslow3.o ./CMC/ieslow4.o ./CMC/ieslow5.o ./CMC/ieslow6.o ./CMC/radslvr1.o ./CMC/radslvr3.o ./CMC/radslvr4.o ./CMC/radslvr5.o ./CMC/radslvr6.o ./CMC/ratejac1.o ./CMC/ratejac3.o ./CMC/ratejac4.o ./CMC/ratejac5.o ./CMC/ratejac6.o ./CMC/rateslo1.o ./CMC/rateslo3.o ./CMC/rateslo4.o ./CMC/rateslo5.o ./CMC/rateslo6.o ./CMC/rxnrate1.o ./CMC/rxnrate3.o ./CMC/rxnrate4.o ./CMC/rxnrate5.o ./CMC/rxnrate6.o ./CMC/lsrate1.o ./CMC/lsrate3.o ./CMC/lsrate4.o ./CMC/lsrate5.o ./CMC/lsrate6.o ./CMC/lsrxn1.o ./CMC/lsrxn3.o ./CMC/lsrxn4.o ./CMC/lsrxn5.o ./CMC/lsrxn6.o ./CMU_AERO/areag.o ./CMU_AERO/addit.o ./CMU_AERO/aerchem.o ./CMU_AERO/aero_err.o ./CMU_AERO/aqchem.o ./CMU_AERO/aqdist.o ./CMU_AERO/aqfex1.o ./CMU_AERO/aqfex2.o ./CMU_AERO/aqintegr1.o ./CMU_AERO/aqintegr2.o ./CMU_AERO/aqjex.o ./CMU_AERO/aqoperator1.o ./CMU_AERO/aqoperator2.o ./CMU_AERO/aqrates1.o ./CMU_AERO/aqrates2.o ./CMU_AERO/baddit.o ./CMU_AERO/block.o ./CMU_AERO/bmass.o ./CMU_AERO/coagul.o ./CMU_AERO/constants.o ./CMU_AERO/decisions.o ./CMU_AERO/diameter.o ./CMU_AERO/diff.o ./CMU_AERO/differ.o ./CMU_AERO/diffund.o ./CMU_AERO/dropinit.o ./CMU_AERO/electro.o ./CMU_AERO/eqpart.o ./CMU_AERO/eqparto.o ./CMU_AERO/equaer.o ./CMU_AERO/fullequil.o ./CMU_AERO/hybrid.o ./CMU_AERO/hybrd.o ./CMU_AERO/linint.o ./CMU_AERO/madm.o ./CMU_AERO/mass.o ./CMU_AERO/negchk.o ./CMU_AERO/newdist.o ./CMU_AERO/nucl.o ./CMU_AERO/qsaturation.o ./CMU_AERO/react.o ./CMU_AERO/state.o ./CMU_AERO/steady.o ./CMU_AERO/step.o ./CMU_AERO/svode.o ./CMU_AERO/values.o ./CMU_AERO/vsrm.o ./CMU_AERO/slsode.o ./DDM/adjddmc0.o ./DDM/avgrcpddm.o ./DDM/bottddm.o ./DDM/clrbdyddm.o ./DDM/cvticddm.o ./DDM/ddmchem.o ./DDM/filspddm.o ./DDM/hdrrcpddm.o ./DDM/loaddm.o ./DDM/rdarddm.o ./DDM/rdbcddm.o ./DDM/rdicddm.o ./DDM/rdoptddm.o ./DDM/rdptddm.o ./DDM/specddm.o ./DDM/startddm.o ./OSAT/addrcp.o ./OSAT/adjstc0.o ./OSAT/adjstsa.o ./OSAT/apcasa.o ./OSAT/avgrcp.o ./OSAT/avgwal.o ./OSAT/clcbwt.o ./OSAT/clcewt.o ./OSAT/clrbdysa.o ./OSAT/cyctpnsa.o ./OSAT/emprepsa.o ./OSAT/filaqsa.o ./OSAT/filbdysa.o ./OSAT/filvdsa.o ./OSAT/goatsa.o ./OSAT/hdrrcp.o ./OSAT/hdrwsa.o ./OSAT/initsa.o ./OSAT/osatsa.o ./OSAT/o3prdsa.o ./OSAT/psatsa.o ./OSAT/pekrcp.o ./OSAT/pigdumpsa.o ./OSAT/rdargrp.o ./OSAT/rdfgsa.o ./OSAT/rdinstsa.o ./OSAT/rdoptsa.o ./OSAT/rdptgrp.o ./OSAT/readarsa.o ./OSAT/readptsa.o ./OSAT/recalib.o ./OSAT/repartsa.o ./OSAT/rercp.o ./OSAT/spccbivsa.o ./OSAT/spcsprcsa.o ./OSAT/spccb05sa.o ./OSAT/resmap.o ./OSAT/specsa.o ./OSAT/stabsa.o ./OSAT/startsa.o ./OSAT/sum1grd.o ./OSAT/sum1pnt.o ./OSAT/sumgrps.o ./OSAT/sumicwt.o ./OSAT/sumwt4.o ./OSAT/timadv.o ./OSAT/wconsa.o ./OSAT/wfconsa.o ./OSAT/wsfcsa.o ./OSAT/xfluxsa.o ./OSAT/yfluxsa.o ./PA/cpamech3.o ./PA/cpamech4.o ./PA/cpamech5.o ./PA/cpamech6.o ./PA/cparad.o ./PA/initipr.o ./PA/pagrids.o ./PA/pasetup.o ./PA/pazero.o ./PA/rdoptpa.o ./PA/wrtcpa.o ./PA/wrtipr.o ./PA/wrtiprhdr.o ./PA/wrtirr.o ./PA/wrtirrhdr.o ./PiG/avepig.o ./PiG/irondry.o ./PiG/ironchem.o ./PiG/ironwet.o ./PiG/noxchem.o ./PiG/pigcoord.o ./PiG/pigdiag.o ./PiG/pigdrive.o ./PiG/pigevol.o ./PiG/piggrow.o ./PiG/piginit.o ./PiG/pigmscl.o ./PiG/pigprep.o ./PiG/pigwalk.o ./PiG/pigsampl.o ./PiG/siggrow.o ./PiG/smpl1puf.o ./PiG/smpprep.o ./PiG/virtdump.o ./PiG/walk1puf.o ./PiG/wrtpig.o ./PiG/wrtsmp.o ./RTRAC/chemrt.o ./RTRAC/cvticrt.o ./RTRAC/drydeprt.o ./RTRAC/empreprt.o ./RTRAC/hdrcprt.o ./RTRAC/pigchmrt.o ./RTRAC/rdarrt.o ./RTRAC/rdbcrt.o ./RTRAC/rdchmrt.o ./RTRAC/rdicrt.o ./RTRAC/rdptrt.o ./RTRAC/rdrcprt.o ./RTRAC/startrt.o ./RTRAC/wetdeprt.o ./RTRAC/wrrcprt.o ./SOAP/soachem.o ./SOAP/soapdat.o ./SOAP/soap.o ./SOAP/spfcn.o ./HG/hggaschem.o ./HG/hgaqschem.o ./IO_hdf/camx_includes.o ./IO_hdf/hdf5_file_out.o
+ipo: remark #11000: performing multi-file optimizations
+ipo: remark #11005: generating object file /tmp/ipo_ifortF2LRQL.o
+CAMx/CAMx.f(107): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(109): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(115): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(126): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(134): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(232): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(262): (col. 29) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(268): (col. 27) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(303): (col. 25) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(303): (col. 25) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(397): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(573): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(871): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(873): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(889): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(926): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/CAMx.f(941): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/readaho.f(68): (col. 42) remark: LOOP WAS VECTORIZED.
+CAMx/readaho.f(69): (col. 42) remark: LOOP WAS VECTORIZED.
+CAMx/average.f(111): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/average.f(111): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/nesting.f(52): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/aggr00.f(58): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aggr00.f(99): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aggr00.f(103): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/setbc.f(55): (col. 19) remark: LOOP WAS VECTORIZED.
+CAMx/setbc.f(86): (col. 22) remark: LOOP WAS VECTORIZED.
+CAMx/bcmodfy.f(133): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/bcmodfy.f(141): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/bcmodfy.f(160): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/setbc1d.f(40): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/setbc1d.f(45): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/setbc1d.f(48): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/fgavrg.f(52): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/chemrxn.f(44): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/chemrxn.f(70): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/chemrxn.f(75): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/chemdriv.f(366): (col. 19) remark: BLOCK WAS VECTORIZED.
+CAMx/chemdriv.f(386): (col. 21) remark: LOOP WAS VECTORIZED.
+CAMx/chemdriv.f(618): (col. 15) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/chemdriv.f(748): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/chemdriv.f(753): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/chemdriv.f(795): (col. 22) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(107): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(124): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(153): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(153): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(153): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(159): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(159): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(159): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(166): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(166): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(166): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(172): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(172): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(172): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(188): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(202): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(242): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(245): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(254): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(259): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(274): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(279): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(284): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(289): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(301): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/iehsolv.f(305): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1149): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1201): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1114): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1298): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1335): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1414): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2252): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2269): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2289): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2295): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2295): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2276): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2276): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2280): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2280): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lsode.f(2242): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2391): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2468): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2473): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2369): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2411): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2438): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2333): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2221): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2494): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1933): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1900): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1904): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1877): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1858): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1838): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1842): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(786): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1069): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1089): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1115): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(2006): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1230): (col. 21) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1243): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1643): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1738): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1751): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1756): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1674): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1678): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1682): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lsode.f(1670): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(105): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(124): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(128): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(133): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lscall.f(133): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/lscall.f(153): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(168): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(171): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(184): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(194): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(198): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/lscall.f(202): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1206): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1110): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1110): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1119): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1302): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1341): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2255): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2273): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2293): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2299): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2299): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2280): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2280): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2284): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2284): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2245): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2394): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2471): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2476): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2372): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2414): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2441): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2336): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2200): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2224): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2179): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2497): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1938): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1905): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1909): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1882): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1863): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1843): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1847): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1632): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1477): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1497): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1523): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(2010): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1780): (col. 21) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(1793): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1643): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1648): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1606): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1621): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1741): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1754): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/dlsode.f(1759): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/chem10.f(51): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/ktherm.f(76): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cf.f(117): (col. 7) remark: LOOP WAS VECTORIZED.
+SOAP/soap.f(156): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+SOAP/soap.f(156): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+SOAP/soap.f(224): (col. 10) remark: LOOP WAS VECTORIZED.
+SOAP/soap.f(266): (col. 7) remark: LOOP WAS VECTORIZED.
+SOAP/soap.f(288): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+SOAP/soap.f(297): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/raqchem.f(530): (col. 7) remark: LOOP WAS VECTORIZED.
+CF_AERO/raqchem.f(1162): (col. 9) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(184): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(187): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(217): (col. 7) remark: BLOCK WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(398): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(410): (col. 18) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(446): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(5699): (col. 16) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(5707): (col. 18) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(2956): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(5355): (col. 16) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(5363): (col. 18) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(2687): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(2888): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(2891): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(3265): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isorev_v1.6.f(3268): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(1979): (col. 12) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2082): (col. 15) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2908): (col. 16) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2916): (col. 21) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2921): (col. 21) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2925): (col. 19) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(3230): (col. 15) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2619): (col. 16) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(2627): (col. 18) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(4381): (col. 15) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(4685): (col. 15) remark: LOOP WAS VECTORIZED.
+CF_AERO/isofwd_v1.6.f(5964): (col. 15) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(135): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(183): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(272): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(275): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(283): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(283): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(283): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(283): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(383): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(393): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(466): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(466): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(495): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/aerochem_cmu.f(501): (col. 16) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqchem.f(52): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqchem.f(58): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(87): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(190): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(223): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(223): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(223): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(223): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator1.f(237): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1338): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1358): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1482): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1556): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2132): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2179): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2179): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2265): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2265): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2299): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2206): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2206): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2163): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2238): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2242): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2327): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2343): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2370): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2889): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2912): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2919): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2922): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2923): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2897): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2899): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2902): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2904): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3344): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3085): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3107): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3145): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3208): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3224): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(3126): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2476): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2722): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2691): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2666): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(2658): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1908): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1921): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1926): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1775): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/svode.f(1778): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2226): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2242): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2262): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2268): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2268): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2249): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2249): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2253): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2253): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2216): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2362): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2439): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2443): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2340): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2382): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2409): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2304): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2195): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(2464): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1912): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1880): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1884): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1858): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1839): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1820): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1824): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1984): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1627): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1721): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1734): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/slsode.f(1739): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator2.f(79): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqoperator2.f(215): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqintegr2.f(16): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqintegr2.f(29): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqintegr2.f(53): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqintegr2.f(68): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/decisions.f(249): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(41): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(48): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(48): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(48): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(58): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(76): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(116): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(120): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(128): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(146): (col. 27) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(151): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/aerchem.f(158): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/madm.f(52): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/madm.f(55): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/madm.f(55): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/madm.f(95): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/madm.f(115): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(96): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(103): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(139): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(156): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(164): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(202): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(202): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(202): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(210): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(447): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(477): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(506): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(506): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(536): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(623): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(629): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(641): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(651): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/diffund.f(651): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/negchk.f(24): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/negchk.f(96): (col. 7) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(17632): (col. 10) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/coagul.f(64): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(64): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(64): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(70): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(86): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(94): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/coagul.f(102): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(81): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(134): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(166): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(173): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(215): (col. 8) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(222): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(229): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(319): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(373): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(378): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(382): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(437): (col. 15) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqpart.f(465): (col. 14) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(44): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(44): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(44): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(108): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(113): (col. 11) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(117): (col. 11) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(125): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(131): (col. 11) remark: LOOP WAS VECTORIZED.
+CMU_AERO/eqparto.f(159): (col. 17) remark: LOOP WAS VECTORIZED.
+CMU_AERO/hybrid.f(94): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/hybrid.f(112): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/hybrid.f(177): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/hybrid.f(187): (col. 13) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(54): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/newdist.f(107): (col. 7) remark: LOOP WAS VECTORIZED.
+RTRAC/chemrt.f(145): (col. 10) remark: LOOP WAS VECTORIZED.
+PA/cpamech3.f(978): (col. 7) remark: LOOP WAS VECTORIZED.
+PA/cpamech4.f(1015): (col. 7) remark: LOOP WAS VECTORIZED.
+PA/cpamech5.f(1731): (col. 7) remark: LOOP WAS VECTORIZED.
+PA/cpamech6.f(1363): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/zadvec.f(195): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/zadvec.f(195): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/zadvec.f(195): (col. 18) remark: LOOP WAS VECTORIZED.
+PiG/pigwalk.f(71): (col. 14) remark: LOOP WAS VECTORIZED.
+PiG/pigwalk.f(106): (col. 14) remark: LOOP WAS VECTORIZED.
+PiG/pigwalk.f(238): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(95): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(95): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(95): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(122): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(131): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(141): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(155): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(162): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(203): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(213): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(227): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/zrates.f(234): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/zrates.f(263): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/hadvbot.f(74): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvbot.f(204): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvbot.f(213): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(87): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(119): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(119): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(124): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(129): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(195): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(204): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/hadvppm.f(224): (col. 7) remark: LOOP WAS VECTORIZED.
+OSAT/timadv.f(87): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+OSAT/timadv.f(99): (col. 13) remark: LOOP WAS VECTORIZED.
+OSAT/timadv.f(144): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(106): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(146): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(154): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(170): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(182): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(196): (col. 18) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(217): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(217): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(279): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(318): (col. 19) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(318): (col. 19) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(386): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(401): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/xyadvec.f(426): (col. 18) remark: PARTIAL LOOP WAS VECTORIZED.
+DDM/bottddm.f(85): (col. 7) remark: LOOP WAS VECTORIZED.
+DDM/bottddm.f(93): (col. 9) remark: LOOP WAS VECTORIZED.
+RTRAC/wetdeprt.f(131): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/wetdep.f(176): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/wetdep.f(213): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/wetdep.f(501): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/wetdep.f(501): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/wetdep.f(521): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+OSAT/adjstc0.f(96): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/updtmet.f(111): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+OSAT/filvdsa.f(78): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/diffus.f(165): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/diffus.f(195): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/diffus.f(195): (col. 18) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/diffus.f(195): (col. 18) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/diffus.f(195): (col. 18) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/diffus.f(195): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/diffus.f(276): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/diffus.f(290): (col. 18) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(212): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(212): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(214): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(350): (col. 13) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(378): (col. 11) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(408): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(408): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(408): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(448): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(725): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(725): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(725): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(725): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(730): (col. 11) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(933): (col. 11) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(938): (col. 24) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(938): (col. 24) remark: LOOP WAS VECTORIZED.
+PiG/pigdrive.f(995): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(964): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(1024): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigdrive.f(1063): (col. 19) remark: LOOP WAS VECTORIZED.
+PiG/ironwet.f(81): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/ironwet.f(81): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/ironchem.f(81): (col. 7) remark: LOOP WAS VECTORIZED.
+PiG/ironchem.f(145): (col. 14) remark: LOOP WAS VECTORIZED.
+PiG/ironchem.f(155): (col. 7) remark: LOOP WAS VECTORIZED.
+PiG/ironchem.f(158): (col. 7) remark: LOOP WAS VECTORIZED.
+DDM/rdbcddm.f(343): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(62): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(76): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(79): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(98): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(107): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(128): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(145): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(145): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(175): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/intrpdat.f(175): (col. 20) remark: LOOP WAS VECTORIZED.
+CAMx/finwind.f(116): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/expndlay.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/expndlay.f(47): (col. 13) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(159): (col. 45) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(219): (col. 12) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(220): (col. 12) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(234): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(267): (col. 26) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(267): (col. 26) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(272): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(273): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(288): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(320): (col. 14) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(321): (col. 14) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(334): (col. 46) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(367): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(376): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(377): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(378): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(379): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(380): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(381): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(382): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(407): (col. 46) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(469): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/readinp.f(501): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/timestep.f(46): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(48): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(59): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(67): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/timestep.f(75): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(79): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(87): (col. 11) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/timestep.f(95): (col. 11) remark: LOOP WAS VECTORIZED.
+IO_bin/readcnc.f(88): (col. 17) remark: LOOP WAS VECTORIZED.
+IO_bin/readcnc.f(154): (col. 7) remark: LOOP WAS VECTORIZED.
+IO_bin/readcnc.f(177): (col. 7) remark: LOOP WAS VECTORIZED.
+IO_bin/rdfgcon.f(51): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/massum.f(47): (col. 10) remark: PARTIAL LOOP WAS VECTORIZED.
+RTRAC/rdicrt.f(89): (col. 16) remark: LOOP WAS VECTORIZED.
+DDM/rdicddm.f(92): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/intrpcnc.f(46): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/intrpcnc.f(46): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/drydep.f(353): (col. 11) remark: LOOP WAS VECTORIZED.
+RTRAC/drydeprt.f(245): (col. 11) remark: LOOP WAS VECTORIZED.
+OSAT/readptsa.f(98): (col. 10) remark: LOOP WAS VECTORIZED.
+OSAT/readptsa.f(166): (col. 16) remark: LOOP WAS VECTORIZED.
+IO_bin/readpt.f(104): (col. 9) remark: LOOP WAS VECTORIZED.
+OSAT/readarsa.f(161): (col. 23) remark: LOOP WAS VECTORIZED.
+OSAT/readarsa.f(171): (col. 23) remark: PARTIAL LOOP WAS VECTORIZED.
+OSAT/rdargrp.f(142): (col. 13) remark: LOOP WAS VECTORIZED.
+RTRAC/rdarrt.f(132): (col. 16) remark: LOOP WAS VECTORIZED.
+PiG/pigsampl.f(200): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/pigsampl.f(202): (col. 14) remark: LOOP WAS VECTORIZED.
+PiG/pigsampl.f(202): (col. 14) remark: LOOP WAS VECTORIZED.
+PiG/pigsampl.f(214): (col. 11) remark: LOOP WAS VECTORIZED.
+DDM/avgrcpddm.f(97): (col. 9) remark: LOOP WAS VECTORIZED.
+OSAT/avgrcp.f(113): (col. 10) remark: LOOP WAS VECTORIZED.
+PiG/pigmscl.f(47): (col. 9) remark: LOOP WAS VECTORIZED.
+PiG/pigmscl.f(57): (col. 13) remark: LOOP WAS VECTORIZED.
+PiG/pigmscl.f(99): (col. 7) remark: BLOCK WAS VECTORIZED.
+CAMx/wrtmass.f(53): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/wrtmass.f(95): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/wrtmass.f(102): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/startup.f(495): (col. 16) remark: LOOP WAS VECTORIZED.
+CAMx/startup.f(556): (col. 16) remark: PARTIAL LOOP WAS VECTORIZED.
+IO_bin/srfprep.f(48): (col. 11) remark: LOOP WAS VECTORIZED.
+IO_bin/srfprep.f(61): (col. 9) remark: LOOP WAS VECTORIZED.
+IO_bin/srfprep.f(82): (col. 12) remark: LOOP WAS VECTORIZED.
+IO_bin/areaprep.f(64): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(176): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(184): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(211): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(298): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(579): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(842): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readnml.f(878): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/cvtdate.f(64): (col. 12) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(345): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(705): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(932): (col. 11) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(998): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(999): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(1015): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(1022): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(1037): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readchm.f(1040): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/aeroset.f(135): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/aeroset.f(149): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/exptbl.f(73): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/readpht.f(104): (col. 15) remark: LOOP WAS VECTORIZED.
+CAMx/ahoprep.f(55): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/ahoprep.f(56): (col. 7) remark: LOOP WAS VECTORIZED.
+OSAT/clcbwt.f(126): (col. 13) remark: LOOP WAS VECTORIZED.
+OSAT/clcbwt.f(166): (col. 10) remark: LOOP WAS VECTORIZED.
+IO_bin/rdsumbc.f(50): (col. 10) remark: LOOP WAS VECTORIZED.
+IO_bin/getdepth.f(53): (col. 50) remark: LOOP WAS VECTORIZED.
+IO_bin/getdepth.f(62): (col. 19) remark: PARTIAL LOOP WAS VECTORIZED.
+IO_bin/getdepth.f(62): (col. 19) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/grdprep.f(101): (col. 14) remark: LOOP WAS VECTORIZED.
+OSAT/rdinstsa.f(184): (col. 16) remark: LOOP WAS VECTORIZED.
+OSAT/rdinstsa.f(196): (col. 17) remark: LOOP WAS VECTORIZED.
+OSAT/rdinstsa.f(199): (col. 10) remark: LOOP WAS VECTORIZED.
+CAMx/nstprep.f(43): (col. 13) remark: LOOP WAS VECTORIZED.
+OSAT/clcewt.f(103): (col. 9) remark: LOOP WAS VECTORIZED.
+OSAT/sum1pnt.f(68): (col. 11) remark: LOOP WAS VECTORIZED.
+OSAT/sum1pnt.f(73): (col. 11) remark: LOOP WAS VECTORIZED.
+IO_bin/clciwt.f(135): (col. 15) remark: LOOP WAS VECTORIZED.
+IO_bin/clciwt.f(169): (col. 7) remark: LOOP WAS VECTORIZED.
+IO_bin/clciwt.f(183): (col. 13) remark: PARTIAL LOOP WAS VECTORIZED.
+PA/pagrids.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+PA/pagrids.f(43): (col. 7) remark: LOOP WAS VECTORIZED.
+DDM/hdrrcpddm.f(137): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/pntprep.f(48): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/pntprep.f(48): (col. 12) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/pntprep.f(59): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/pntprep.f(64): (col. 9) remark: LOOP WAS VECTORIZED.
+OSAT/rdfgsa.f(82): (col. 7) remark: LOOP WAS VECTORIZED.
+PiG/pigprep.f(66): (col. 7) remark: BLOCK WAS VECTORIZED.
+IO_bin/wrfgcon.f(48): (col. 7) remark: LOOP WAS VECTORIZED.
+OSAT/wfconsa.f(60): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate6.f(33): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate6.f(330): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate5.f(33): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate5.f(502): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate4.f(33): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate4.f(240): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate3.f(33): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate3.f(225): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate1.f(33): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/lsrate1.f(261): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow6.f(28): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow6.f(160): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac6.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac6.f(413): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ierate6.f(39): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ierate6.f(255): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow5.f(28): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow5.f(242): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac5.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac5.f(673): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ierate5.f(39): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ierate5.f(341): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow4.f(28): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow4.f(117): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac4.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac4.f(310): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ierate4.f(39): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ierate4.f(206): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow3.f(28): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow3.f(116): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac3.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac3.f(285): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ierate3.f(39): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ierate3.f(187): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow1.f(28): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ieslow1.f(137): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac1.f(40): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/iejac1.f(320): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ierate1.f(39): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ierate1.f(225): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ddmjac6.f(827): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/rateslo6.f(26): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/rateslo6.f(158): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac6.f(31): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac6.f(164): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ratejac6.f(170): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/radslvr6.f(481): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr6.f(482): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr6.f(482): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr6.f(588): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ddmjac5.f(1368): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/rateslo5.f(26): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/rateslo5.f(259): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac5.f(31): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac5.f(199): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ratejac5.f(205): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/radslvr5.f(710): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr5.f(711): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr5.f(711): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr5.f(834): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ddmjac4.f(560): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/rateslo4.f(26): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/rateslo4.f(113): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac4.f(31): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac4.f(147): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ratejac4.f(153): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/radslvr4.f(363): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr4.f(364): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr4.f(364): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr4.f(459): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ddmjac3.f(519): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/rateslo3.f(26): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/rateslo3.f(112): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac3.f(31): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac3.f(143): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ratejac3.f(149): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/radslvr3.f(327): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr3.f(328): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr3.f(328): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr3.f(423): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ddmjac1.f(598): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/rateslo1.f(26): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/rateslo1.f(133): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac1.f(31): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/ratejac1.f(144): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/ratejac1.f(150): (col. 7) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(88): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(148): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(149): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(149): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(201): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(312): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(313): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(313): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(365): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(592): (col. 9) remark: LOOP WAS VECTORIZED.
+CMC/radslvr1.f(593): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(593): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CMC/radslvr1.f(688): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqfex1.f(9): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/values.f(83): (col. 8) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqrates2.f(62): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(103): (col. 7) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqrates2.f(121): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(173): (col. 7) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqrates2.f(196): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(224): (col. 12) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqrates2.f(309): (col. 12) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/aqrates2.f(325): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(325): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(325): (col. 12) remark: LOOP WAS VECTORIZED.
+CMU_AERO/aqrates2.f(401): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/mass.f(17): (col. 7) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/mass.f(53): (col. 10) remark: LOOP WAS VECTORIZED.
+CMU_AERO/fullequil.f(11): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/fullequil.f(15): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/fullequil.f(20): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/fullequil.f(24): (col. 8) remark: LOOP WAS VECTORIZED.
+CMU_AERO/fullequil.f(38): (col. 13) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/fullequil.f(62): (col. 13) remark: BLOCK WAS VECTORIZED.
+CMU_AERO/electro.f(31): (col. 8) remark: BLOCK WAS VECTORIZED.
+CAMx/linpac.f(886): (col. 18) remark: LOOP WAS VECTORIZED.
+CAMx/linpac.f(896): (col. 18) remark: LOOP WAS VECTORIZED.
+DDM/specddm.f(186): (col. 10) remark: LOOP WAS VECTORIZED.
+OSAT/specsa.f(84): (col. 7) remark: BLOCK WAS VECTORIZED.
+OSAT/specsa.f(361): (col. 10) remark: LOOP WAS VECTORIZED.
+OSAT/stabsa.f(184): (col. 7) remark: LOOP WAS VECTORIZED.
+PiG/virtdump.f(63): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/virtdump.f(109): (col. 9) remark: LOOP WAS VECTORIZED.
+PiG/virtdump.f(116): (col. 9) remark: PARTIAL LOOP WAS VECTORIZED.
+PiG/virtdump.f(130): (col. 9) remark: LOOP WAS VECTORIZED.
+OSAT/pigdumpsa.f(137): (col. 14) remark: PARTIAL LOOP WAS VECTORIZED.
+CMU_AERO/dropinit.f(14): (col. 9) remark: LOOP WAS VECTORIZED.
+CMU_AERO/dropinit.f(21): (col. 7) remark: LOOP WAS VECTORIZED.
+CMU_AERO/dropinit.f(83): (col. 8) remark: BLOCK WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(820): (col. 7) remark: BLOCK WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(831): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(835): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(915): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(923): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(927): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(932): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1105): (col. 7) remark: BLOCK WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1116): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1120): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1271): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1279): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1283): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(1288): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(553): (col. 7) remark: BLOCK WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(564): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(568): (col. 13) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(633): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(641): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(645): (col. 10) remark: LOOP WAS VECTORIZED.
+CF_AERO/isocom_v1.6.f(650): (col. 10) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(78): (col. 45) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(137): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(156): (col. 26) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(156): (col. 26) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(169): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(196): (col. 44) remark: LOOP WAS VECTORIZED.
+IO_bin/metinit.f(223): (col. 44) remark: LOOP WAS VECTORIZED.
+PiG/piginit.f(279): (col. 13) remark: LOOP WAS VECTORIZED.
+PiG/piginit.f(286): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(107): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(120): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(179): (col. 29) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(179): (col. 29) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(179): (col. 29) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(225): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(232): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(262): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(285): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/trap.f(309): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/trap.f(309): (col. 7) remark: PARTIAL LOOP WAS VECTORIZED.
+CAMx/trap.f(335): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(339): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(366): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(368): (col. 14) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(386): (col. 7) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(393): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(416): (col. 13) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(432): (col. 9) remark: LOOP WAS VECTORIZED.
+CAMx/trap.f(317): (col. 9) remark: LOOP WAS VECTORIZED.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/CAMx/4.51/src/CAMx'
