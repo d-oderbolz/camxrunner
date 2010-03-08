@@ -504,10 +504,10 @@ function main.doCleanup()
 		fi
 		
 		# Remove all tempfiles
-		cxr_common_remove_tempfiles
+		common.runner.removeTempFiles
 		
 		# Release Locks
-		cxr_common_release_all_locks
+		common.runner.releaseAllLocks
 		
 		# Delete the instance files
 		common.state.deleteInstanceData

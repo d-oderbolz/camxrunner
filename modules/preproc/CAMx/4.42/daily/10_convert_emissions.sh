@@ -132,11 +132,11 @@ function set_variables()
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# Emission Source Files
-		CXR_EMISSION_INPUT_ARR_FILES[${i}]="$(cxr_common_evaluate_rule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)"
+		CXR_EMISSION_INPUT_ARR_FILES[${i}]="$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)"
 		
 		# Emission Target files
 		# Output files must not be decompressed!
-		CXR_EMISSION_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
+		CXR_EMISSION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
 	
 		# Update Lists of files to be checked
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_EMISSION_INPUT_ARR_FILES[${i}]}"

@@ -81,13 +81,13 @@ exit 1
 
 
 ################################################################################
-# Function: cxr_common_load_test_data
+# Function: common.test.loadData
 #	
 # Loads testdata for a testcase from a compressed file if the file is available.
 # Reads CXR_TEST_DATA_INPUT_FILE and CXR_TEST_DATA_OUTPUT_DIR
 #
 ################################################################################
-function cxr_common_load_test_data()
+function common.test.loadData()
 ################################################################################
 {
 	local filetype
@@ -128,7 +128,7 @@ function cxr_common_load_test_data()
 
 
 ################################################################################
-# Function: cxr_common_test_all_modules
+# Function: common.test.all
 #	
 # Test all testable modules, generates a .tap file that contains the output of the tests.
 #
@@ -136,7 +136,7 @@ function cxr_common_load_test_data()
 # [$1] - The Model Version to use
 # [$2] - The Modelname to use
 ################################################################################
-function cxr_common_test_all_modules()
+function common.test.all()
 ################################################################################
 {
 	local iput_model="${1:-}"
@@ -155,7 +155,7 @@ function cxr_common_test_all_modules()
 
 	message="Do you want to run the test suite of CAMxRunner?"
 	
-	while [ "$(cxr_common_get_consent "$message" )" == true ]
+	while [ "$(common.user.getOK "$message" )" == true ]
 	do
 	
 		# Fix the message
@@ -168,12 +168,12 @@ function cxr_common_test_all_modules()
 		if [[ ! "${iput_model}"  ]]
 		then
 			# Model was not passed
-			model=$(cxr_common_get_menu_choice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
+			model=$(common.user.getMenuChoice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
 		else
 			model=$iput_model
 		fi
 		
-		model_id=$(cxr_common_get_model_id "$model") || main.die_gracefully "Model $model is not known."
+		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "Model $model is not known."
 		
 		
 		if [[ ! "${input_version}"  ]]
@@ -198,7 +198,7 @@ function cxr_common_test_all_modules()
 			default_version=${array[0]}
 		
 			#Generate a menu automatically
-			version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
+			version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
 		else
 			version=$input_version
 		fi

@@ -42,7 +42,7 @@ function usage()
 	
 	$progname - a support program for developers of CAMxRunner. 
 	Extracts names of variables from the template-file to create
-	a legal new-ask-file to be used with the cxr_common_get_answers function.
+	a legal new-ask-file to be used with the common.user.getAnswers function.
 	If the ask file already exists, the only new entries will be added 
 	(no duplicates will be created)
 	

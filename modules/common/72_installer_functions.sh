@@ -85,14 +85,14 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_install
+# Function: common.install.do
 #	
 # * Interactively installs the CAMxRunner, CAMx and the testcase.
 # * TODO: Use the state DB to keep track of what is installed already.
-# * Uses <cxr_common_module_run_type> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
+# * Uses <common.module.runType> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
 #   and executes them in order
 ################################################################################
-function cxr_common_install()
+function common.install.do()
 ################################################################################
 {
 	# What we do here is similar to the pre- or postprocessors:
@@ -113,14 +113,14 @@ function cxr_common_install()
 	
 	message="Do you want to run the installer for the CAMxRunner, some converters, model and the testcase?"
 
-	while [ "$(cxr_common_get_consent "$message" )" == true ]
+	while [ "$(common.user.getOK "$message" )" == true ]
 	do
 		# Fix the message
 		message="Do you want to further run the installer for the CAMxRunner, some converters, model and the testcase (for other models/versions)?"
 		
-		model=$(cxr_common_get_menu_choice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
+		model=$(common.user.getMenuChoice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		model_id=$(cxr_common_get_model_id "$model") || main.die_gracefully "model $model is not known."
+		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
 		
 		# Extract the list of supported versions
 		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -140,7 +140,7 @@ function cxr_common_install()
 		DEFAULT_VERSION=${array[0]}
 	
 		#Generate a menu automatically
-		version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
+		version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
 		common.check.isVersionSupported? $version $model
 		
@@ -150,14 +150,14 @@ function cxr_common_install()
 		main.readConfig "installer" "$version" "$model" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
-		cxr_common_module_run_type ${CXR_TYPE_INSTALLER}
+		common.module.runType ${CXR_TYPE_INSTALLER}
 	
 		main.log -a -b  "All installation actions finished."
 	done
 }
 
 ################################################################################
-# Function: cxr_common_determine_patch_target
+# Function: common.install.getPatchTarget
 #	
 # Parses a Patch file and finds out the target file base name.
 # This allows us to name the patches arbitrarily.
@@ -165,7 +165,7 @@ function cxr_common_install()
 # Parameters:
 # $1 - Full Path to the patch in question
 ################################################################################
-function cxr_common_determine_patch_target()
+function common.install.getPatchTarget()
 ################################################################################
 {
 	local patch=${1:-}
@@ -191,7 +191,7 @@ function cxr_common_determine_patch_target()
 }
 
 ################################################################################
-# Function: cxr_common_apply_patches
+# Function: common.install.applyPatch
 #	
 # Recursively patches a number of files in a directory by applying patches in another directory.
 # Refer to CAMxRunner Developers Handbook on patch naming convention.
@@ -204,7 +204,7 @@ function cxr_common_determine_patch_target()
 # $3 - an optional filename to report actions (other than the normal log)
 # $4 - ask_user, if false do not prompt user for consent, default true
 ################################################################################
-function cxr_common_apply_patches()
+function common.install.applyPatch()
 ################################################################################
 {
 	local patch_dir="$1"
@@ -228,7 +228,7 @@ function cxr_common_apply_patches()
 	main.log  "Applying patches in $patch_dir to $src_dir..."
 	
 	# Create a list of all patches in all Subdirectories of $patch_dir
-	patchlist=$(cxr_common_create_tempfile $FUNCNAME)
+	patchlist=$(common.runner.createTempFile $FUNCNAME)
 	
 	# Prepare the files containing all patches and no .svn stuff
 	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" | sort > $patchlist
@@ -252,7 +252,7 @@ function cxr_common_apply_patches()
 		patch_file=$(head -n $curline $patchlist | tail -n 1)
 		
 		# Test status
-		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
 			main.die_gracefully "could not read name of file to be patched."
 		fi
@@ -270,7 +270,7 @@ function cxr_common_apply_patches()
 		fi
 		
 		# Which file do we need to patch?
-		file=$(cxr_common_determine_patch_target $patch_file)
+		file=$(common.install.getPatchTarget $patch_file)
 		
 		##########
 		# Get the relative path of the current patch
@@ -297,7 +297,7 @@ function cxr_common_apply_patches()
 				
 				main.log -a   "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
 				
-				if [[ "$(cxr_common_get_consent "Do you want to apply the patch $(basename $patch_file) to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
+				if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file) to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 				then
 					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 					patch $real_file < $patch_file
@@ -384,7 +384,7 @@ function test_module()
 	
 	# Create a broken patch
 	# According to spec, we consider only the first one
-	a=$(cxr_common_create_tempfile)
+	a=$(common.runner.createTempFile)
 	echo "+++ /path/to/new" > $a
 	echo "+++ /path/to/newer" >> $a
 	
@@ -392,7 +392,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_determine_patch_target $a) new "cxr_common_determine_patch_target of a broken patch"
+	is $(common.install.getPatchTarget $a) new "common.install.getPatchTarget of a broken patch"
 
 	########################################
 	# teardown tests if needed

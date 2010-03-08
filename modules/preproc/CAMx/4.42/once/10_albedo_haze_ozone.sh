@@ -137,7 +137,7 @@ function set_variables()
 	
 	# Evaluate some rules
 	# Output files must not be decompressed!
-	CXR_AHOMAP_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE false)"
+	CXR_AHOMAP_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE false)"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_AHOMAP_OUTPUT_FILE"
@@ -146,7 +146,7 @@ function set_variables()
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# Landuse Files
-		CXR_LANDUSE_INPUT_ARR_FILES[${i}]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
+		CXR_LANDUSE_INPUT_ARR_FILES[${i}]="$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
 	
 		#Check
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}"
@@ -304,8 +304,8 @@ function create_ahomap_control_file()
 		common.date.setVars "$CXR_START_DATE" "$day_offset"
 
 		# expand rule
-		CXR_AHOMAP_OZONE_COLUMN_FILE="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
-		CURRENT_URL="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_URL_RULE" false CXR_AHOMAP_OZONE_COLUMN_URL_RULE)"
+		CXR_AHOMAP_OZONE_COLUMN_FILE="$(common.runner.evaluateRule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
+		CURRENT_URL="$(common.runner.evaluateRule "$CXR_AHOMAP_OZONE_COLUMN_URL_RULE" false CXR_AHOMAP_OZONE_COLUMN_URL_RULE)"
 		
 		if [[ ! -s $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}  ]]
 		then
@@ -476,7 +476,7 @@ function albedo_haze_ozone()
 				# weird, better produce a file
 				# This function (I know, one should avoid side effects!) 
 				# also downloads/caches satellite data
-				ahomap_control_file=$(cxr_common_create_tempfile $FUNCNAME)
+				ahomap_control_file=$(common.runner.createTempFile $FUNCNAME)
 				
 				if [[ "$CXR_DRY" == false  ]]
 				then

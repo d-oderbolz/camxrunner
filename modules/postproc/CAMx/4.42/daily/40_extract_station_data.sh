@@ -132,11 +132,11 @@ function set_variables()
 	# IDL-based extraction of NABEL data needs just the 
 	# data from this specific grid in ASCII data
 	i=${CXR_STATION_DOMAIN}
-	CXR_STATION_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
+	CXR_STATION_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
 
 	# the MM5 file to use
 	# only used for ARPA stuff
-	CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
+	CXR_METEO_INPUT_FILE="$(common.runner.evaluateRule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_METEO_INPUT_FILE"
@@ -148,7 +148,7 @@ function set_variables()
 		station=${CXR_STATION[${i}]}
 		
 		# Output files must not be decompressed!
-		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE false)
+		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE false)
 		
 		# Checks
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"
@@ -198,17 +198,17 @@ function extract_station_data
 		fi
 		
 		# Generate Temp file name
-		exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
+		exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
 		
 		# Calculate extension of grid to extract
-		xdim=$(cxr_common_get_x_dim $CXR_STATION_DOMAIN)
-		ydim=$(cxr_common_get_y_dim $CXR_STATION_DOMAIN)
+		xdim=$(common.runner.getX $CXR_STATION_DOMAIN)
+		ydim=$(common.runner.getY $CXR_STATION_DOMAIN)
 		
 		# The Z dim depends on wether we use 3D output
 		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true  ]]
 		then
 			# 3D
-			zdim=$(cxr_common_get_z_dim $CXR_STATION_DOMAIN)
+			zdim=$(common.runner.getZ $CXR_STATION_DOMAIN)
 		else
 			# Only 1 layer
 			zdim=1
@@ -233,7 +233,7 @@ function extract_station_data
 			# In case of a dry-run, create a dummy file
 			if [[ "$CXR_DRY" == true  ]]
 			then
-				cxr_common_create_dummyfile ${CXR_STATION_OUTPUT_DIR}/${station_file}
+				common.runner.createDummyFile ${CXR_STATION_OUTPUT_DIR}/${station_file}
 			fi
 			
 			# The position of this station

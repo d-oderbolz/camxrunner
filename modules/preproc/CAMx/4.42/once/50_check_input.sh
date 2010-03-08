@@ -130,7 +130,7 @@ function set_variables()
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# The binary landuse files
-		CXR_LANDUSE_FILES[$i]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
+		CXR_LANDUSE_FILES[$i]="$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
 		
 		#Add checks
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_LANDUSE_FILES[$i]}"
@@ -170,12 +170,12 @@ function check_input()
 		do
 			
 			# Put call into this file
-			EXEC_TMP_FILE=$(cxr_common_create_tempfile $FUNCNAME)
+			EXEC_TMP_FILE=$(common.runner.createTempFile $FUNCNAME)
 			
 			# Build tempfile
 			# The 3rd argument is just the filename without extension
 			cat <<-EOF > $EXEC_TMP_FILE
-			$(cxr_common_get_x_dim $i),$(cxr_common_get_y_dim $i),$(cxr_common_get_z_dim $i),${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD}
+			$(common.runner.getX $i),$(common.runner.getY $i),$(common.runner.getZ $i),${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD}
 			${CXR_LANDUSE_FILES[$i]}
 			${CXR_LANDUSE_FILES[$i]%\.*}
 			EOF

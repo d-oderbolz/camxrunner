@@ -79,7 +79,7 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_module_get_meta_field
+# Function: common.module.getMetaField
 # 
 # For a given module name, returns the given meta-data item.
 #
@@ -87,7 +87,7 @@ exit 1
 # $1 - name of a module
 # $2 - the name of the item
 ################################################################################
-function cxr_common_module_get_meta_field()
+function common.module.getMetaField()
 ################################################################################
 {
 	local module="$1"
@@ -96,9 +96,9 @@ function cxr_common_module_get_meta_field()
 	local value
 
 	
-	if [[ "$(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
+	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
 	then
-		module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
+		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 	else
 		main.die_gracefully "cannot find path of $module"
 	fi
@@ -125,7 +125,7 @@ function cxr_common_module_get_meta_field()
 }
 
 ################################################################################
-# Function: cxr_common_module_get_raw_dependencies
+# Function: common.module.getRawDependencies
 # 
 # For a given module name, returns the raw dependency string that is
 # in the header (CXR_META_MODULE_DEPENDS_ON)
@@ -133,19 +133,19 @@ function cxr_common_module_get_meta_field()
 # Parameters:
 # $1 - name of a module
 ################################################################################
-function cxr_common_module_get_raw_dependencies()
+function common.module.getRawDependencies()
 ################################################################################
 {
 	local module="$1"
 	local raw_dependencies
 	
-	raw_dependencies=$(cxr_common_module_get_meta_field "$module" "CXR_META_MODULE_DEPENDS_ON")
+	raw_dependencies=$(common.module.getMetaField "$module" "CXR_META_MODULE_DEPENDS_ON")
 
 	echo "${raw_dependencies}"
 }
 
 ################################################################################
-# Function: cxr_common_module_get_exlusive
+# Function: common.module.getExclusive
 # 
 # For a given module name, returns the exclusive string that is
 # in the header (CXR_META_MODULE_RUN_EXCLUSIVELY)
@@ -153,19 +153,19 @@ function cxr_common_module_get_raw_dependencies()
 # Parameters:
 # $1 - name of a module
 ################################################################################
-function cxr_common_module_get_exlusive()
+function common.module.getExclusive()
 ################################################################################
 {
 	local module="$1"
 	local exclusive
 	
-	exclusive=$(cxr_common_module_get_meta_field "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
+	exclusive=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
 
 	echo "${exclusive}"
 }
 
 ################################################################################
-# Function: cxr_common_module_resolve_single_dependency
+# Function: common.module.resolveSingleDependency
 # 
 # resolves a single dependenency string (containig just one dependency), depending 
 # on the day offset.
@@ -184,7 +184,7 @@ function cxr_common_module_get_exlusive()
 # $1 - name of the dependency like "create_emissions" or a special dependency like "all_model")
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
 ################################################################################
-function cxr_common_module_resolve_single_dependency()
+function common.module.resolveSingleDependency()
 ################################################################################
 {
 	if [[ $# -lt 1 && $# -gt 2 ]]
@@ -259,7 +259,7 @@ function cxr_common_module_resolve_single_dependency()
 		*) # A boring standard case
 		
 			# Is the dependency disabled?
-			if [[ $(cxr_common_hash_has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_UNIVERSAL "$dependency") == false  ]]
+			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_UNIVERSAL "$dependency") == false  ]]
 			then
 				# Do we care?
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
@@ -289,7 +289,7 @@ function cxr_common_module_resolve_single_dependency()
 	main.log -v  "We resolve the special dependency ${dependency}..."
 	
 	# Create list of active modules
-	active_modules="$(cxr_common_hash_keys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+	active_modules="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 	
 	for module in $active_modules
 	do
@@ -313,7 +313,7 @@ function cxr_common_module_resolve_single_dependency()
 }
 
 ################################################################################
-# Function: cxr_common_module_resolve_all_dependencies
+# Function: common.module.resolveAllDependencies
 # 
 # resolves a complete dependenency string (containig more than one dependency), depending 
 # on the day offset.
@@ -322,7 +322,7 @@ function cxr_common_module_resolve_single_dependency()
 # $1 - a list of dependencies "create_emissions all_module-"
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
 ################################################################################
-function cxr_common_module_resolve_all_dependencies()
+function common.module.resolveAllDependencies()
 ################################################################################
 {
 	local dependencies="$1"
@@ -335,7 +335,7 @@ function cxr_common_module_resolve_all_dependencies()
 	#Loop through dependencies
 	for dependency in $dependencies
 	do
-		resolved_dependency="$(cxr_common_module_resolve_single_dependency "$dependency" "$day_offset")"
+		resolved_dependency="$(common.module.resolveSingleDependency "$dependency" "$day_offset")"
 		if [[ "$first" == true ]]
 		then
 			# First iteration
@@ -351,7 +351,7 @@ function cxr_common_module_resolve_all_dependencies()
 }
 
 ################################################################################
-# Function: cxr_common_module_dependencies_ok?
+# Function: common.module.areDependenciesOk?
 #
 # Checks if all given raw dependencies are fullfilled. If any dependency has failed,
 # the run is destroyed, if the depdendency was not yet started, false is returned,
@@ -369,7 +369,7 @@ function cxr_common_module_resolve_all_dependencies()
 # $1 - a list of raw dependencies
 # $2 - a day offset used as reference
 ################################################################################
-function cxr_common_module_dependencies_ok?()
+function common.module.areDependenciesOk?()
 ################################################################################
 {
 	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
@@ -388,7 +388,7 @@ function cxr_common_module_dependencies_ok?()
 	local day_offset="${2:-}"
 	local dep_day_offset
 	local dep_module_name
-	local dependencies="$(cxr_common_module_resolve_all_dependencies "$raw_dependencies" "$day_offset" )"
+	local dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
 	local dependency
 	local my_stage
 	
@@ -403,7 +403,7 @@ function cxr_common_module_dependencies_ok?()
 		dep_day_offset=$(expr match "$dependency" '.*\([0-9]\{1,\}\>\)')
 		
 		# Determine type
-		module_type="$(cxr_common_module_get_type "$dep_module_name")"
+		module_type="$(common.module.getType "$dep_module_name")"
 		
 		# Convert date
 		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
@@ -444,7 +444,7 @@ function cxr_common_module_dependencies_ok?()
 }
 
 ################################################################################
-# Function: cxr_common_module_update_info
+# Function: common.module.updateInfo
 #
 # Goes through all available modules for the current model and version, and collects 
 # vital information in various hashes.
@@ -461,7 +461,7 @@ function cxr_common_module_dependencies_ok?()
 # CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
 # CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
 ################################################################################
-function cxr_common_module_update_info()
+function common.module.updateInfo()
 ################################################################################
 {
 	# Its possible that this is called more than once (e. g. during testing).
@@ -509,22 +509,22 @@ function cxr_common_module_update_info()
 			main.log -v  "Adding module $module_name in $file"
 			
 			# Is there a new entry of this name? (this would indicate non-uniqueness!)
-			if [[ $(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(cxr_common_hash_new? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
+			if [[ $(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 			then
 				main.die_gracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 			fi
 			
 			# Path 
-			cxr_common_hash_put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
+			common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
 			
 			# Type
-			cxr_common_hash_put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
+			common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
 			
 			# All Hash (value is dummy)
-			cxr_common_hash_put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+			common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
 		
 			# The current types active hash
-			cxr_common_hash_put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+			common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
 		
 		done # Loop over files
 	done # loop over type-index
@@ -536,14 +536,14 @@ function cxr_common_module_update_info()
 }
 
 ################################################################################
-# Function: cxr_common_module_get_type
+# Function: common.module.getType
 #
 # Gets its information directly from the CXR_MODULE_TYPE_HASH
 # 
 # Parameters:
 # $1 - name of module (without prefix or suffix, just something like "convert output"
 ################################################################################
-function cxr_common_module_get_type()
+function common.module.getType()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -554,9 +554,9 @@ function cxr_common_module_get_type()
 	local name="${1}"
 	local module_type
 
-	if [[ "$(cxr_common_hash_has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )" == true ]]
+	if [[ "$(common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )" == true ]]
 	then
-		module_type="$(cxr_common_hash_get "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )"
+		module_type="$(common.hash.get "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )"
 		
 		if [[ "$module_type" ]]
 		then
@@ -571,7 +571,7 @@ function cxr_common_module_get_type()
 }
 
 ################################################################################
-# Function: cxr_common_module_run_type
+# Function: common.module.runType
 #	
 # Calls all or just one single module (adressed by their module name) at a specific 
 # point in time (or One-Time)
@@ -584,7 +584,7 @@ function cxr_common_module_get_type()
 # $1 - Type of modules to run
 # [$2] - Single Step (number)
 ################################################################################
-function cxr_common_module_run_type()
+function common.module.runType()
 ################################################################################
 {
 	local module_type="$1"
@@ -791,15 +791,15 @@ function cxr_common_module_run_type()
 }
 
 ################################################################################
-# Function: cxr_common_module_process_sequentially
+# Function: common.module.processSequentially
 #	
 # Executes all (needed) modules in sequential order (non-parallel version of the task_functions)
 # If only one process is used, this is faster because there is less overhead.
 # For each part of the processing, we check if we need to run it and pass any limitations
-# on to <cxr_common_module_run_type>.
+# on to <common.module.runType>.
 #
 ################################################################################
-function cxr_common_module_process_sequentially
+function common.module.processSequentially
 ################################################################################
 {
 	# Set up return value
@@ -812,7 +812,7 @@ function cxr_common_module_process_sequentially
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
-		cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		common.module.runType ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		main.log -w "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
@@ -841,21 +841,21 @@ function cxr_common_module_process_sequentially
 			
 			if [[ ${CXR_RUN_PRE_DAILY} == true  ]]
 			then
-				cxr_common_module_run_type ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
-				cxr_common_module_run_type ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
-				cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
@@ -873,7 +873,7 @@ function cxr_common_module_process_sequentially
 	
 	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
-		cxr_common_module_run_type ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		common.module.runType ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
 	else
 		main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
@@ -938,8 +938,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_module_get_type boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "cxr_common_module_get_type boundary_conditions"
-	is $(cxr_common_module_get_exlusive model) true "cxr_common_module_get_exlusive model"
+	is $(common.module.getType boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "common.module.getType boundary_conditions"
+	is $(common.module.getExclusive model) true "common.module.getExclusive model"
 
 
 

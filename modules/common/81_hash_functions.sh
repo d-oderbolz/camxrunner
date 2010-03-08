@@ -88,14 +88,14 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_hash_get_dir
+# Function: _common.hash.getDir
 #
 # Returns the hash_dir to use depending on the type.
 #
 # Parameters:
 # $1 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 ################################################################################
-function cxr_common_hash_get_dir ()
+function _common.hash.getDir()
 ################################################################################
 {
 	local type="${1}"
@@ -112,7 +112,7 @@ function cxr_common_hash_get_dir ()
 	
 }
 ################################################################################
-# Function: cxr_common_hash_init
+# Function: common.hash.init
 #
 # Creates a hash with a given name. Hash names must be unique per run.
 # Basically creates a directory into which we store files.
@@ -124,7 +124,7 @@ function cxr_common_hash_get_dir ()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 ################################################################################
-function cxr_common_hash_init ()
+function common.hash.init()
 ################################################################################
 {
 	local hash="$1"
@@ -132,7 +132,7 @@ function cxr_common_hash_init ()
 	local hash_dir
 	
 	# Work out the directory
-	hash_dir="$(cxr_common_hash_get_dir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"
 	
 	# Create the hash directory
 	mkdir -p "${hash_dir}/${hash}"
@@ -142,7 +142,7 @@ function cxr_common_hash_init ()
 }
 
 ################################################################################
-# Function: cxr_common_hash_destroy
+# Function: common.hash.destroy
 #
 # Destroys a hash with a given name by deleting its directory.
 #
@@ -150,7 +150,7 @@ function cxr_common_hash_init ()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
-function cxr_common_hash_destroy ()
+function common.hash.destroy()
 ################################################################################
 {
 	local hash="$1"
@@ -158,25 +158,25 @@ function cxr_common_hash_destroy ()
 	local hash_dir
 	
 	# Work out the directory
-	hash_dir="$(cxr_common_hash_get_dir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"
 	
 	main.log -i "Deleting the Hash ${hash}"
 	rm -rf "${hash_dir}/${hash}"
 }
 
 ################################################################################
-# Function: _hash_fn
+# Function: _common.hash.getFileName
 #
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
-# Trims the key of leading or trailing double quotes because <cxr_common_hash_keys> adds them.
-# Tries to remedy missing directories (if <cxr_common_hash_init> was not called!)
+# Trims the key of leading or trailing double quotes because <common.hash.getKeys> adds them.
+# Tries to remedy missing directories (if <common.hash.init> was not called!)
 #
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function _hash_fn ()
+function _common.hash.getFileName()
 ################################################################################
 {
 	local hash="$1"
@@ -187,7 +187,7 @@ function _hash_fn ()
 	local fn
 	
 	# Work out the directory
-	hash_dir="$(cxr_common_hash_get_dir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"
 	
 	# Remove leading or trailing quotes
 	key="$(common.string.trim "${key}" '\"')"
@@ -207,7 +207,7 @@ function _hash_fn ()
 }
 
 ################################################################################
-# Function: cxr_common_hash_put
+# Function: common.hash.put
 #
 # Puts a value into a key of a given hash. First the key is urlencoded using perl
 # then we use this value as a filename to store the value in.
@@ -219,7 +219,7 @@ function _hash_fn ()
 # $3 - key
 # $4 - value
 ################################################################################
-function cxr_common_hash_put ()
+function common.hash.put()
 ################################################################################
 {
 	local hash="$1"
@@ -230,14 +230,14 @@ function cxr_common_hash_put ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$type" "$key")"
+	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
 	# Write the value
 	echo "${value}" > "${fn}"
 }
 
 ################################################################################
-# Function: cxr_common_hash_get
+# Function: common.hash.get
 #
 # Gets a certain value from a hash
 #
@@ -246,7 +246,7 @@ function cxr_common_hash_put ()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function cxr_common_hash_get ()
+function common.hash.get()
 ################################################################################
 {
 	local hash="$1"
@@ -256,14 +256,14 @@ function cxr_common_hash_get ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$type" "$key")"
+	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
 	# Get the value
 	cat "${fn}"
 }
 
 ################################################################################
-# Function: cxr_common_hash_delete
+# Function: common.hash.delete
 #
 # Deletes a certain value for a hash
 #
@@ -272,7 +272,7 @@ function cxr_common_hash_get ()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function cxr_common_hash_delete ()
+function common.hash.delete()
 ################################################################################
 {
 	local hash="$1"
@@ -281,10 +281,10 @@ function cxr_common_hash_delete ()
 	
 	local fn
 	
-	if [[ $(cxr_common_hash_has? "$hash" "$type" "$key") == true ]]
+	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
 	then
 		# Generate the filename
-		fn="$(_hash_fn "$hash" "$type" "$key")"
+		fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 		
 		# remove the value
 		rm -f "${fn}"
@@ -294,7 +294,7 @@ function cxr_common_hash_delete ()
 }
 
 ################################################################################
-# Function: cxr_common_hash_mtime
+# Function: common.hash.getMtime
 #
 # Gets the modification time (Unix Epoch) for a given value
 #
@@ -303,7 +303,7 @@ function cxr_common_hash_delete ()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function cxr_common_hash_mtime ()
+function common.hash.getMtime()
 ################################################################################
 {
 	local hash="$1"
@@ -313,14 +313,14 @@ function cxr_common_hash_mtime ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$type" "$key")"
+	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
 	# Get the mtime
 	echo "$(common.fs.getMtime "$fn")"
 }
 
 ################################################################################
-# Function: cxr_common_hash_has?
+# Function: common.hash.has?
 #
 # Returns true if the given key is contained in the hash
 #
@@ -329,7 +329,7 @@ function cxr_common_hash_mtime ()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function cxr_common_hash_has? ()
+function common.hash.has?()
 ################################################################################
 {
 	local hash="$1"
@@ -339,7 +339,7 @@ function cxr_common_hash_has? ()
 	local fn
 	
 	# Generate the filename
-	fn="$(_hash_fn "$hash" "$type" "$key")"
+	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
 	if [[ -f "${fn}"  ]]
 	then
@@ -350,7 +350,7 @@ function cxr_common_hash_has? ()
 }
 
 ################################################################################
-# Function: cxr_common_hash_new?
+# Function: common.hash.isNew?
 #
 # Returns true if the given key is contained in the hash and its update time is 
 # newer than this runs start time (meaning that we do not need to update such a hash
@@ -361,7 +361,7 @@ function cxr_common_hash_has? ()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function cxr_common_hash_new? ()
+function common.hash.isNew?()
 ################################################################################
 {
 	local hash="$1"
@@ -371,11 +371,11 @@ function cxr_common_hash_new? ()
 	local res
 	
 	# Is it in the hash?
-	if [[ $(cxr_common_hash_has? "$hash" "$type" "$key") == true ]]
+	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(cxr_common_hash_mtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(common.hash.getMtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -390,7 +390,7 @@ function cxr_common_hash_new? ()
 }
 
 ################################################################################
-# Function: cxr_common_hash_keys
+# Function: common.hash.getKeys
 #
 # Returns a list of keys of the given hash as a quoted space separated list.
 # Do not assume any particular order, it depends on the order ls imposes on the
@@ -400,7 +400,7 @@ function cxr_common_hash_new? ()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
-function cxr_common_hash_keys ()
+function common.hash.getKeys()
 ################################################################################
 {
 	local hash="$1"
@@ -411,7 +411,7 @@ function cxr_common_hash_keys ()
 	local list=""
 	
 	# Work out the directory
-	hash_dir="$(cxr_common_hash_get_dir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"
 	
 	for fn in $(ls ${hash_dir}/${hash})
 	do
@@ -478,55 +478,55 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	# Instance hash
-	cxr_common_hash_init test_instance $CXR_HASH_TYPE_INSTANCE
-	cxr_common_hash_put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
-	cxr_common_hash_put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
+	common.hash.init test_instance $CXR_HASH_TYPE_INSTANCE
+	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
+	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
 
 	
 	# Glabal Hash with strange keys
-	cxr_common_hash_init test_global $CXR_HASH_TYPE_GLOBAL
-	cxr_common_hash_put test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces" "a value"
-	cxr_common_hash_put test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces" "another value"
+	common.hash.init test_global $CXR_HASH_TYPE_GLOBAL
+	common.hash.put test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces" "a value"
+	common.hash.put test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces" "another value"
 	
 	# Universal Hash
-	cxr_common_hash_init test_universal $CXR_HASH_TYPE_UNIVERSAL
-	cxr_common_hash_put test_universal $CXR_HASH_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
-	cxr_common_hash_put test_universal  $CXR_HASH_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
+	common.hash.init test_universal $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.put test_universal $CXR_HASH_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
+	common.hash.put test_universal  $CXR_HASH_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(cxr_common_hash_get test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_instance with path as key"
-	is "$(cxr_common_hash_has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" true "cxr_common_hash_has? test_instance with path as key"
-	is "$(cxr_common_hash_keys test_instance $CXR_HASH_TYPE_INSTANCE)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_instance with path as key"
+	is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
+	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
+	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" '"/hallo/gugs" "/hallo/velo"' "common.hash.getKeys test_instance with path as key"
 	
 	# Now lets iterate over keys
-	for key in $(cxr_common_hash_keys test_instance $CXR_HASH_TYPE_INSTANCE)
+	for key in $(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)
 	do
-		is "$(cxr_common_hash_get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going trough keys in an interator"
+		is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going trough keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
-	is "$(cxr_common_hash_get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "cxr_common_hash_get test_instance - key with spaces"
+	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "common.hash.get test_instance - key with spaces"
 	
-	cxr_common_hash_delete test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
-	is "$(cxr_common_hash_has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" false "cxr_common_hash_delete test_instance with path as key"
+	common.hash.delete test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
+	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
 
 	
-	is "$(cxr_common_hash_get test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "cxr_common_hash_get test_universal with path as key"
-	is "$(cxr_common_hash_has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" true "cxr_common_hash_has? test_universal with path as key"
-	is "$(cxr_common_hash_keys test_universal $CXR_HASH_TYPE_UNIVERSAL)" '"/hallo/gugs" "/hallo/velo"' "cxr_common_hash_keys test_universal with path as key"
+	is "$(common.hash.get test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
+	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
+	is "$(common.hash.getKeys test_universal $CXR_HASH_TYPE_UNIVERSAL)" '"/hallo/gugs" "/hallo/velo"' "common.hash.getKeys test_universal with path as key"
 	
-	cxr_common_hash_delete test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo" 
-	is "$(cxr_common_hash_has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" false "cxr_common_hash_delete test_universal with path as key"
+	common.hash.delete test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo" 
+	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
 
 	########################################
 	# teardown tests if needed
 	########################################
-	cxr_common_hash_destroy test_instance $CXR_HASH_TYPE_INSTANCE
-	cxr_common_hash_destroy test_global $CXR_HASH_TYPE_GLOBAL
-	cxr_common_hash_destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.destroy test_instance $CXR_HASH_TYPE_INSTANCE
+	common.hash.destroy test_global $CXR_HASH_TYPE_GLOBAL
+	common.hash.destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
 }
 
 ################################################################################

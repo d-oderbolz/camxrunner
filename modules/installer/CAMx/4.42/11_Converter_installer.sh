@@ -86,7 +86,7 @@ exit 1
 function Converter_installer() 
 ################################################################################
 {
-	if [[ "$(cxr_common_get_consent "Do you want to compile the converters?" Y )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to compile the converters?" Y )" == true  ]]
 	then
 	
 		# Is the compiler there?
@@ -108,7 +108,7 @@ function Converter_installer()
 		
 		esac
 		
-		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
+		CXR_CURRENT_PLATFORM=$(common.user.getMenuChoice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
 		
 		########################################
 		# Now compile all converters
@@ -117,7 +117,7 @@ function Converter_installer()
 		# Loop through the source-directories
 		for SRC_DIR in $CXR_CONVERTER_SCR_ARR
 		do
-			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
+			if [[ "$(common.user.getOK "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
 			
 				main.log -b  "Compiling source in $SRC_DIR..."

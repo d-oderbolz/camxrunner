@@ -141,7 +141,7 @@ function set_variables()
 	
 	# Final output files
 	# Output files must not be decompressed!
-	CXR_BC_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE false)"
+	CXR_BC_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE false)"
 	
 	# The processor creates this intermediate file (must not be checked)
 	CXR_BC_ASC_OUTPUT_FILE="${CXR_BC_OUTPUT_FILE}.${CXR_ASC_EXT}"
@@ -155,21 +155,21 @@ function set_variables()
 		# All MOZART-flavors need Input
 		
 		# We need a MOZART file as input
-		CXR_MOZART_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
+		CXR_MOZART_INPUT_FILE="$(common.runner.evaluateRule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
 	
 		# Also, we need a domain 1 meteo file
 		i=1
-		CXR_METEO_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
+		CXR_METEO_INPUT_FILE="$(common.runner.evaluateRule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 		
 		# And finally the ZP file
-		CXR_ZP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+		CXR_ZP_INPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
 	
 		# a space separated list of input files to check
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MOZART_INPUT_FILE $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE"
 	else
 	
 		# ICBCPREP needs to know the filename of the first BC file
-		CXR_FIRST_BC_FILE="$(cxr_common_evaluate_rule_at_offset "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" 0 false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
+		CXR_FIRST_BC_FILE="$(common.runner.evaluateRuleAtDayOffset "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" 0 false CXR_BOUNDARY_CONDITIONS_FILE_RULE)"
 		
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_FIRST_BC_FILE"
 	fi
@@ -294,7 +294,7 @@ function boundary_conditions()
 					fi
 				
 					# We will write the IDL call into a temporary file
-					exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
+					exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
 					
 					# Go there
 					cd $(dirname ${CXR_BC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR

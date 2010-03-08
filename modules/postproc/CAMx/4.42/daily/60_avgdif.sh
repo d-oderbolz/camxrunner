@@ -128,7 +128,7 @@ function set_variables()
 	########################################################################
 	
 	# Output files must not be decompressed!
-	CXR_AVGDIF_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_AVGDIF_OUTPUT_FILE_RULE" false CXR_AVGDIF_OUTPUT_FILE_RULE false)
+	CXR_AVGDIF_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_AVGDIF_OUTPUT_FILE_RULE" false CXR_AVGDIF_OUTPUT_FILE_RULE false)
 	
 	#Checks
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_AVGDIF_OUTPUT_FILE"
@@ -137,10 +137,10 @@ function set_variables()
 	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# The files produced in this run
-		CXR_TEST_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+		CXR_TEST_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 		
 		# The reference files
-		CXR_REFERENCE_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_REFERENCE_FILE_RULE" false CXR_REFERENCE_FILE_RULE)
+		CXR_REFERENCE_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_REFERENCE_FILE_RULE" false CXR_REFERENCE_FILE_RULE)
 	
 		#Checks
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TEST_INPUT_ARR_FILES[${i}]} ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}"
@@ -183,7 +183,7 @@ function avgdif
 			main.log  "Comparing ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]} and ${CXR_TEST_INPUT_ARR_FILES[${i}]}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
 			
 			# Put call into this file
-			exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
+			exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
 			
 			# Build tempfile
 			cat <<-EOF > $exec_tmp_file

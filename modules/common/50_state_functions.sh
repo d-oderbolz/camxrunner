@@ -302,13 +302,13 @@ function common.state.init()
 	# Init a few Hashes
 	##################
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
-	cxr_common_hash_init MD5 $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.init MD5 $CXR_HASH_TYPE_UNIVERSAL
 	
 	# Contains the paths of all detected modules for this model and version
-	cxr_common_hash_init $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.init $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL
 
 	# Contains the module types of given modules
-	cxr_common_hash_init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
 	
 	# Creating .continue file
 	main.log -n -i  "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
@@ -333,7 +333,7 @@ function common.state.init()
 	chmod 600 "$CXR_INSTANCE_FILE_OUTPUT_LIST"
 	
 	# Update the module path hash and form the lists of active modules
-	cxr_common_module_update_info
+	common.module.updateInfo
 }
 
 ################################################################################
@@ -574,13 +574,13 @@ function common.state.cleanup()
 	
 	message="Do you want to change the state database?"
 	
-	while [ "$(cxr_common_get_consent "$message" )" == true ]
+	while [ "$(common.user.getOK "$message" )" == true ]
 	do
 		# Fix the message
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
 		
 		case "$what" in 
 		
@@ -590,7 +590,7 @@ function common.state.cleanup()
 					find ${CXR_STATE_DIR} -noleaf -type f -maxdepth 1 | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						main.log -i   "Will not delete any state information"
@@ -611,7 +611,7 @@ function common.state.cleanup()
 					find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						main.log -i   "Will not delete any state information"
@@ -631,7 +631,7 @@ function common.state.cleanup()
 				# one step
 				# Both
 				
-				what_detail="$(cxr_common_get_menu_choice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
+				what_detail="$(common.user.getMenuChoice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
 				
 				case "$what_detail" in
 				
@@ -640,7 +640,7 @@ function common.state.cleanup()
 						# The basename is needed to strip off the path, because the pattern starts with ^
 						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
-						which_day="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
+						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
 						
 						case "$which_day" in
 						
@@ -654,7 +654,7 @@ function common.state.cleanup()
 						
 								ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 								
-								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+								if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
 									main.log -w   "Will not delete any state information"
@@ -680,7 +680,7 @@ function common.state.cleanup()
 						
 						steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
 						
-						which_step="$(cxr_common_get_menu_choice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
+						which_step="$(common.user.getMenuChoice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
 						
 						case "$which_step" in
 						
@@ -695,7 +695,7 @@ function common.state.cleanup()
 								
 								ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 								
-								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+								if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
 									main.log -w   "Will not delete any state information"
@@ -716,7 +716,7 @@ function common.state.cleanup()
 						# The basename is needed to strip off the path, because the pattern starts with ^
 						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
-						which_day="$(cxr_common_get_menu_choice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
+						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
 					
 						case "$which_day" in
 				
@@ -731,7 +731,7 @@ function common.state.cleanup()
 								
 								steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${which_day}'@.*@.*\.' - | sort | uniq) all none"
 								
-								which_step="$(cxr_common_get_menu_choice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
+								which_step="$(common.user.getMenuChoice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
 								
 								case "$which_step" in
 								
@@ -744,7 +744,7 @@ function common.state.cleanup()
 										main.log -w  "The following files will be deleted:"
 										ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 										
-										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+										if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
 											main.log -w   "Will not delete any state information"
@@ -760,7 +760,7 @@ function common.state.cleanup()
 								
 										ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 										
-										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+										if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
 											main.log -w   "Will not delete any state information"
@@ -790,7 +790,7 @@ function common.state.cleanup()
 					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* ${CXR_LOCK_DIR}/* | xargs -i basename \{\}
 			
 					# Do we do this?
-					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
+					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
 						main.log -w   "Will not delete any state information"

@@ -79,14 +79,14 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_array_zero
+# Function: common.array.allElementsZero?
 #	
 # Checks if the values in a given array are all zero and returns true if its ok (all 0),
 # false otherwise.
 #
 # Example:
 # > a=$(ls | wc -k 2>/dev/null )
-# >if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+# >if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 # >then
 #	>	main.log -e "Pipe at $LINENO:failed"
 # >fi
@@ -94,7 +94,7 @@ exit 1
 # Parameters:
 # $1 - The array to test, pass it as "${array[@]}" (including quotes!)
 ################################################################################
-function cxr_common_array_zero() 
+function common.array.allElementsZero?() 
 ################################################################################
 {
 	# Here we store our status, default is OK
@@ -162,12 +162,12 @@ function cxr_common_count_delimited_elements ()
 }
 
 ################################################################################
-# Function: cxr_common_export_array
+# Function: common.array.exportArray
 #
 # Exports / Serialises an array to the environment.
 #
 # Bash does not support exporting arrays easily, they must be
-# serialised to a string, which is done here and then can be deserialised using <cxr_common_import_arrays>
+# serialised to a string, which is done here and then can be deserialised using <common.array.importArrays>
 #
 # The name of the serialised array is the original name with _ARR_X at the end
 #
@@ -177,7 +177,7 @@ function cxr_common_count_delimited_elements ()
 # Parameters:
 # $1 - Name of the array to serialise
 ################################################################################
-function cxr_common_export_array ()
+function common.array.exportArray()
 ################################################################################
 {
 	# Example of idea:
@@ -187,14 +187,14 @@ function cxr_common_export_array ()
 }
 
 ################################################################################
-# Function: cxr_common_import_arrays
+# Function: common.array.importArrays
 #	
 # Imports arrays into the current scope
 # Was needed because we used env to reflect about arrays
 # and bash cannot really export arrays... (now with set that is no longer an issue)
-# Partner function of <cxr_common_export_array>
+# Partner function of <common.array.exportArray>
 ################################################################################
-function cxr_common_import_arrays()
+function common.array.importArrays()
 ################################################################################
 {
 	# Bash does not support exporting arrays easily, they must be
@@ -277,9 +277,9 @@ function test_module()
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
-	is $(cxr_common_array_zero "${a[@]}") false "cxr_common_array_zero all 1"
-	is $(cxr_common_array_zero "${b[@]}") true "cxr_common_array_zero all 0"
-	is $(cxr_common_array_zero "${c[@]}") false "cxr_common_array_zero all cancelling out"
+	is $(common.array.allElementsZero? "${a[@]}") false "common.array.allElementsZero? all 1"
+	is $(common.array.allElementsZero? "${b[@]}") true "common.array.allElementsZero? all 0"
+	is $(common.array.allElementsZero? "${c[@]}") false "common.array.allElementsZero? all cancelling out"
 	is $(cxr_common_count_delimited_elements "one${CXR_DELIMITER}two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
 	is $(cxr_common_count_delimited_elements "one two" " ") 2 "cxr_common_count_delimited_elements with 2 elements, space"
 	is $(cxr_common_count_delimited_elements "one two " " ") 2 "cxr_common_count_delimited_elements with 2 elements, space at end"

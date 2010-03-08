@@ -161,7 +161,7 @@ function common.parallel.createDependencyList()
 	for active_hash in $active_hashes
 	do
 		# Get all active modules of the current type
-		local active_modules="$(cxr_common_hash_keys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+		local active_modules="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 		
 			# Loop through days
 			for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
@@ -170,13 +170,13 @@ function common.parallel.createDependencyList()
 				do
 					
 					# get type (its not efficient here - will fix this later WIHT)
-					module_type=$(cxr_common_hash_get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
+					module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
 					
 					# Get the raw dependencies
-					raw_dependencies=$(cxr_common_module_get_raw_dependencies $module)
+					raw_dependencies=$(common.module.getRawDependencies $module)
 					
 					# resolve them
-					resolved_dependencies=$(cxr_common_module_resolve_all_dependencies $module )
+					resolved_dependencies=$(common.module.resolveAllDependencies $module )
 					
 					# Are there any?
 					if [[ "$resolved_dependencies" ]]
@@ -216,7 +216,7 @@ function common.parallel.drawDependencyGraph()
 {
 	local input_file="$1"
 	local output_file="${2:-$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf}"
-	local dot_file=$(cxr_common_create_tempfile $FUNCNAME)
+	local dot_file=$(common.runner.createTempFile $FUNCNAME)
 	local elements
 	
 	echo "digraph dependencies" > "$dot_file"
@@ -247,7 +247,7 @@ function common.parallel.drawDependencyGraph()
 	# Now call dot
 	${CXR_DOT_EXEC} -Tpdf "${dot_file}" -o "${output_file}" 2>&1 | tee -a $CXR_LOG
 	
-	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
 		main.log -e  "Could not visualize the dependencies."
 	else	
@@ -304,7 +304,7 @@ function common.parallel.getNextTask()
 	fi 
 
 	# Entering critical section...
-	cxr_common_get_lock common.parallel.getNextTask
+	common.runner.getLock common.parallel.getNextTask
 	
 	task_count=$(common.parallel.countOpenTasks)
 	
@@ -317,7 +317,7 @@ function common.parallel.getNextTask()
 		echo ""
 		
 		# Release lock
-		cxr_common_release_lock common.parallel.getNextTask
+		common.runner.releaseLock common.parallel.getNextTask
 		return $CXR_RET_OK
 	else
 		main.log -v   "There are $task_count unfinished tasks - we choose the top one."
@@ -327,7 +327,7 @@ function common.parallel.getNextTask()
 	potential_task="$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | head -n1)"
 	
 	# Check status
-	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
 		main.die_gracefully "could not find next task!"
 	fi
@@ -340,7 +340,7 @@ function common.parallel.getNextTask()
 		echo ""
 		
 		# Release lock
-		cxr_common_release_lock common.parallel.getNextTask
+		common.runner.releaseLock common.parallel.getNextTask
 		
 		return $CXR_RET_OK
 	else
@@ -350,7 +350,7 @@ function common.parallel.getNextTask()
 		mv $potential_task $new_descriptor_name
 		
 		# Release lock
-		cxr_common_release_lock common.parallel.getNextTask
+		common.runner.releaseLock common.parallel.getNextTask
 		
 		main.log -v   "New descriptor is $new_descriptor_name"
 		
@@ -530,7 +530,7 @@ function common.parallel.Worker()
 	local raw_dependencies
 	
 	#Getting the pid is not easy, we do not want to many processes...
-	tmp=$(cxr_common_create_tempfile $FUNCNAME)
+	tmp=$(common.runner.createTempFile $FUNCNAME)
 	
 	# The pid is the parent of the awk process
 	# and the 4th field of /proc/self/stat is the PPID
@@ -583,15 +583,15 @@ function common.parallel.Worker()
 			day_offset=$(expr match "$line" '.*\([0-9]\{1,\}\>\)')
 	
 	
-			if [[ "$(cxr_common_hash_has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
+			if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
 			then
-				module_path="$(cxr_common_hash_get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
+				module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
 			else
 				main.die_gracefully "cannot find path of $module"
 			fi
 			
-			exclusive="$(cxr_common_module_get_exlusive $module_name)"
-			raw_dependencies="$(cxr_common_module_get_raw_dependencies $module_name)"
+			exclusive="$(common.module.getExclusive $module_name)"
+			raw_dependencies="$(common.module.getRawDependencies $module_name)"
 			
 			# We need to wait until all dependencies are ok
 			cxr_common_parallel_worker_waiting $task_pid
@@ -753,8 +753,8 @@ function common.parallel.init()
 	fi
 	
 	# Some tempfiles we need
-	local dep_file="$(cxr_common_create_tempfile dependencies)"
-	local sorted_file="$(cxr_common_create_tempfile tsort-out)"
+	local dep_file="$(common.runner.createTempFile dependencies)"
+	local sorted_file="$(common.runner.createTempFile tsort-out)"
 	
 	# Reset the ID counter
 	local current_id=1
@@ -859,7 +859,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	# Fake a dep file
-	local dep_file=$(cxr_common_create_tempfile $FUNCNAME)
+	local dep_file=$(common.runner.createTempFile $FUNCNAME)
 	
 	# This is just to play
 	echo "create_emissions_0 model_0" >> "${dep_file}"

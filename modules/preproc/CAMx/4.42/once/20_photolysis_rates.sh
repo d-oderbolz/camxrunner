@@ -131,9 +131,9 @@ function set_variables()
 	########################################################################
 	
 	# Evaluate some rules
-	CXR_AHOMAP_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)"
+	CXR_AHOMAP_INPUT_FILE="$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)"
 	# Output files must not be decompressed!
-	CXR_TUV_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE false)"
+	CXR_TUV_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE false)"
 	
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_AHOMAP_INPUT_FILE"
@@ -160,7 +160,7 @@ function create_tuv_control_file ()
 ################################################################################
 {
 	# Create a file name
-	local tuv_control_file=$(cxr_common_create_tempfile $FUNCNAME)
+	local tuv_control_file=$(common.runner.createTempFile $FUNCNAME)
 
 	# Here, we need only > (overwrite)
 	echo "output file name   |$CXR_TUV_OUTPUT_FILE" > $tuv_control_file
@@ -311,7 +311,7 @@ function photolysis_rates()
 		
 				else
 					# Dryrun, create dummy
-					tuv_control_file=$(cxr_common_create_tempfile $FUNCNAME)
+					tuv_control_file=$(common.runner.createTempFile $FUNCNAME)
 					
 					main.log  "Dryrun - TUV not performed"
 				fi

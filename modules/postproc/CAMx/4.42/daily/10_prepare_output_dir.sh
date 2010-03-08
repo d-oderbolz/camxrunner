@@ -127,7 +127,7 @@ function set_variables()
 	
 	# File names here are generated using file name rules (strings containig variables)
 	# which are expanded run time. See http://people.web.psi.ch/oderbolz/CAMxRunner#FileRules
-	# The expansion is done using $(cxr_common_evaluate_rule "$VAR")
+	# The expansion is done using $(common.runner.evaluateRule "$VAR")
 
 	########################################################################
 	# Per-day settings
@@ -143,38 +143,38 @@ function set_variables()
 	do
 		# Because the input might be compressed, we use two sets af arrays,
 		# the second one contains just the real basenames (these are the link-names)
-		# Note the last argument (false) in every even call to <cxr_common_evaluate_rule>
+		# Note the last argument (false) in every even call to <common.runner.evaluateRule>
 	
 		# Terrain
-		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
-		CXR_TERRAIN_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE false))
+		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
+		CXR_TERRAIN_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE false))
 		
 		# Pressure
-		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
-		CXR_ZP_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+		CXR_ZP_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
 		
 		# Wind
-		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
-		CXR_WIND_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+		CXR_WIND_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
 		
 		# Temperature
-		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
-		CXR_TEMP_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+		CXR_TEMP_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
 		
 		# Vapor
-		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
-		CXR_VAPOR_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+		CXR_VAPOR_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
 		
 		# Vertical K
-		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
-		CXR_KV_GRID_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
+		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+		CXR_KV_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 		
 		# Emissions done in run_emifad 
 		
 		# These are used for <convert_output>
 		# Despite the name an input here
-		CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
-		CXR_AVG_OUTPUT_NAME[${i}]=$(basename $(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
+		CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+		CXR_AVG_OUTPUT_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 	
 		#Checks
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_AVG_OUTPUT_ARR_FILES[${i}]}"

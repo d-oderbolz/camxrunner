@@ -143,9 +143,9 @@ function common.check.PredictModelOutputMb()
 
 	# Determine size of output field
 	if [[ ${CXR_AVERAGE_OUTPUT_3D} == true  ]]; then
-		cells=$(cxr_common_get_num_cells_3d)
+		cells=$(common.runner.countCells3D)
 	else
-		cells=$(cxr_common_get_num_cells_2d)
+		cells=$(common.runner.countCells2D)
 	fi
 	
 	# Our constant is designed for 10^5 cells
@@ -321,9 +321,9 @@ function common.check.ModelLimits()
 			for var in COL ROW LAY
 			do
 				case "${var}" in
-					COL) cxr_value=$(cxr_common_get_x_dim ${i}) ;;
-					ROW) cxr_value=$(cxr_common_get_y_dim ${i}) ;;
-					LAY) cxr_value=$(cxr_common_get_z_dim ${i}) ;;
+					COL) cxr_value=$(common.runner.getX ${i}) ;;
+					ROW) cxr_value=$(common.runner.getY ${i}) ;;
+					LAY) cxr_value=$(common.runner.getZ ${i}) ;;
 				esac
 				
 				# e. g. MXCOL1
@@ -386,9 +386,6 @@ function common.check.RunnerExecutables ()
 	# We use a bash 3.x structure, the so-called "here-variable"
 	while read file
 	do
-		# Show that we are alive
-		cxr_common_show_progress
-	
 		if [[ ! -x $file ]]
 		then
 			main.log -w  "File $file is not executable,I try to correct this"
@@ -521,20 +518,20 @@ function common.check.reportMD5()
 		local old_mtime
 		
 		# Is this file already in the cache?
-		if [[ "$(cxr_common_hash_has? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )" == true ]]
+		if [[ "$(common.hash.has? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )" == true ]]
 		then
 		
 			# Did we encounter it recently?
-			if [[ "$(cxr_common_hash_new? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")" == false ]]
+			if [[ "$(common.hash.isNew? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
 				new_hash="$(common.check.getMD5 "$file")"
-				old_hash="$(cxr_common_hash_get MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")"
+				old_hash="$(common.hash.get MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
 				then
 					# Get the old mtime
-					old_mtime="$(cxr_common_hash_mtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )"
+					old_mtime="$(common.hash.getMtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
 					main.log -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
 				fi
@@ -546,7 +543,7 @@ function common.check.reportMD5()
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
-			cxr_common_hash_put MD5 $CXR_HASH_TYPE_UNIVERSAL "$file" "$hash"
+			common.hash.put MD5 $CXR_HASH_TYPE_UNIVERSAL "$file" "$hash"
 		fi
 		
 	
@@ -1139,7 +1136,7 @@ function common.check.postconditions()
 			# does it not exist?
 			if [[ ! -f "${output_file}"  ]]
 			then
-				cxr_common_create_dummyfile ${output_file}
+				common.runner.createDummyFile ${output_file}
 			else
 				main.log -w  "File ${output_file} seems to exist, we do not touch it."
 			fi
@@ -1214,7 +1211,7 @@ function common.check.isVersionSupported?()
 	
 	local version=$1
 	local model=$2
-	local model_id="$(cxr_common_get_model_id "$model")" || main.die_gracefully "Model $model is not known."
+	local model_id="$(common.runner.getModelId "$model")" || main.die_gracefully "Model $model is not known."
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
@@ -1228,6 +1225,125 @@ function common.check.isVersionSupported?()
 		main.log -e   "Version $1 of $2 is not supported by CAMxRunner. Adjust CXR_SUPPORTED_MODEL_VERSIONS\n(Currently $supported)"    
 		return 1
 	fi
+}
+
+################################################################################
+# Function: cxr_common_check_runner_consistency
+#	
+# A Quick check to see if the CAMxRunner installation is OK
+# and consistent with config (can be extended...)
+################################################################################
+function cxr_common_check_runner_consistency() 
+################################################################################
+{
+	# Each directory in $CXR_RUN_SUBDIRS must exist
+	local dir
+	local subdir
+	
+	# Increase global indent level
+	main.increaseLogIndent
+
+	main.log   "Checking if subdirectories exist..."
+	
+	for SUBIDR in $CXR_RUN_SUBDIRS
+	do
+		# Increase global indent level
+		main.increaseLogIndent
+
+		if [[ ! -d $CXR_RUN_DIR/$SUBIDR  ]]
+		then
+			# Oh Oh!
+			mkdir -p $CXR_RUN_DIR/$SUBIDR
+			main.log  "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
+			
+		else 
+
+			main.log -v   "The directory $CXR_RUN_DIR/$SUBIDR exists"
+
+		fi
+		
+		# Decrease global indent level
+		main.decreaseLogIndent
+	done
+	
+	# Check executables
+	
+	############################################################################
+	main.log   "Checking if all executables are present and executable..."
+	
+	# Increase global indent level
+	main.increaseLogIndent
+	
+	########################################
+	main.log   "Checking external files..."
+	########################################
+	
+	# Increase global indent level
+	main.increaseLogIndent
+	
+	common.check.Vars
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
+	############################################################################
+	
+	# Each directory in $CXR_RUN_VERSION_SUBDIRS must have 
+	# one subdir for each model and each version 
+	
+	main.log   "Checking if version sub-subdirectories exist..."
+	
+	for subdir in $CXR_RUN_VERSION_SUBDIRS
+	do
+		
+		# Increase global indent level
+		main.increaseLogIndent
+		
+		main.log -v   "Checking subdirs of $subdir..."
+		
+		for model in $CXR_SUPPORTED_MODELS
+		do
+		
+			main.log -v   "Checking model $model..."
+		
+			# Get id of the current model
+			model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
+	
+			# Extract the list of supported versions
+			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
+	
+			for version in $supported
+			do
+				
+				main.log -v   "Checking version $version..."
+				
+				dir=$CXR_RUN_DIR/$subdir/$model/$version
+			
+				if [[ ! -d $dir  ]]
+				then
+					# Oh Oh!
+					mkdir -p $dir
+					main.log  "The directory $dir did not exist. All directories stored in CXR_RUN_VERSION_SUBDIRS need a subdirectory for each supported version of model and each supported version  (stored in CXR_SUPPORTED_MODEL_VERSIONS).\n I created this one now, but if you want to use model $model $version you need to fill it with sensible stuff!"
+				else
+	
+					main.log -v   "The directory $CXR_RUN_DIR/$subdir/$version exists"
+	
+				fi
+			done # Versions
+			
+		done # model
+		
+		# Decrease global indent level
+		main.decreaseLogIndent
+	done # Directory
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
 }
 
 ################################################################################
@@ -1347,7 +1463,7 @@ function test_module()
 	########################################
 	
 	# Create dummy file to hash
-	x=$(cxr_common_create_tempfile test)
+	x=$(common.runner.createTempFile test)
 	echo  "Franz jagt im komplett verwahrlosten Taxi quer durch Bayern" > $x
 	
 	########################################

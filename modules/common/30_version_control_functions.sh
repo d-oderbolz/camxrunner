@@ -119,7 +119,7 @@ function common.version_control.getRevision()
 		# We expect 7 fields:
 		# "$Id$"
 		
-		if [[ $(cxr_common_count_delimited_elements "${version_string}" " ") -eq 7  ]]
+		if [[ $(common.array.countDelimitedElements "${version_string}" " ") -eq 7  ]]
 		then
 			# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
 			revision=$( echo "${version_string}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
@@ -195,23 +195,23 @@ function test_module()
 	# Therefore, we write the first $ separately
 	
 	# Create a file with one revision
-	test_file1=$(cxr_common_create_tempfile $FUNCNAME)
+	test_file1=$(common.runner.createTempFile $FUNCNAME)
 	echo -n '$' > "$test_file1"
 	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file1"
 	
 	# Create a file with 2 revisions (must find the first)
-	test_file2=$(cxr_common_create_tempfile $FUNCNAME)
+	test_file2=$(common.runner.createTempFile $FUNCNAME)
 	echo -n '$' > "$test_file2"
 	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
 	echo 'Id: 30_version_control_functions.sh 2600 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
 	
 	# Create a file with no revisions
-	test_file3=$(cxr_common_create_tempfile $FUNCNAME)
+	test_file3=$(common.runner.createTempFile $FUNCNAME)
 	echo -n '$' > "$test_file3"
 	echo 'Id: 30_version_control_functions.sh 2010-02-14 13:14:29Z oderbolz $' >> "$test_file3"
 	
 	# Create a file with garbage afterwards
-	test_file4=$(cxr_common_create_tempfile $FUNCNAME)
+	test_file4=$(common.runner.createTempFile $FUNCNAME)
 	echo -n '$' > "$test_file4"
 	echo 'Id: 30_version_control_functions.sh 12345 2010-02-14 13:14:29Z oderbolz $ andhereisgarbage' >> "$test_file4"
 	

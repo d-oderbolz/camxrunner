@@ -94,7 +94,7 @@ function testcase_installer()
 {
 	
 	
-	if [[ "$(cxr_common_get_consent "Do you want to install the ${CXR_MODEL_VERSION} testcase to $TESTCASE_DIR?\n\nRequires about $CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to install the ${CXR_MODEL_VERSION} testcase to $TESTCASE_DIR?\n\nRequires about $CXR_CAMX_TESTCASE_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
 		mkdir -p $TESTCASE_DIR || main.die_gracefully "Could not create $TESTCASE_DIR"
 		
@@ -124,7 +124,7 @@ function testcase_installer()
 		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_IN} || main.die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_IN"
 		tar xzvf ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.die_gracefully "could not untar $CXR_CAMX_TESTCASE_TGZ_OUT"
 		
-		if [[ "$(cxr_common_get_consent "Do you want to remove the tar files?\nRecommended, they are large and unneeded." Y )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to remove the tar files?\nRecommended, they are large and unneeded." Y )" == true  ]]
 		then
 			rm ${CXR_CAMX_TESTCASE_TGZ_MET}
 			rm ${CXR_CAMX_TESTCASE_TGZ_IN}

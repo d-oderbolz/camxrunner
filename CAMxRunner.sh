@@ -464,7 +464,7 @@ main.increaseLogIndent
 common.check.BashVersion
 
 # XX_camx_runner_functions.sh
-cxr_common_check_runner_consistency
+common.check.runner
 
 # Decrease global indent level
 main.decreaseLogIndent
@@ -513,22 +513,22 @@ then
 	elif [[ "${CXR_CREATE_NEW_RUN}" == true  ]]
 	then
 		# Create a new run
-		cxr_common_create_new_run
+		common.runner.createNewRun
 	elif [[ "${CXR_STOP_RUN}" == true  ]]
 	then
 		#Delete .CONTINUE files of all instances
-		if [[ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
+		if [[ "$(common.user.getOK "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
 		then
 			common.state.deleteContinueFiles
 		fi
 	elif [[ "${CXR_INSTALL}" == true  ]]
 	then
 		# Run the installation
-		cxr_common_install
+		common.install.do
 	elif [[ "${CXR_RUN_TESTS}" == true  ]]
 	then
 		# Run the tests
-		cxr_common_test_all_modules
+		common.test.all
 	fi
 	
 	# Do cleanup
@@ -615,7 +615,7 @@ then
 fi
 
 # Show grid dimensions
-cxr_common_report_dimensions
+common.runner.reportDimensions
 
 main.log -B "CAMxRunner.sh" "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
 
@@ -655,9 +655,9 @@ fi
 
 if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
 then
-	cxr_common_list_cxr_variables
+	common.variables.list
 	
-	cxr_common_list_system_variables
+	common.variables.listSystemVars
 	
 	main.log -v -b "CAMxRunner.sh"  "Bash stack size: $(ulimit -s)" 
 fi
@@ -751,7 +751,7 @@ then
 		CXR_STATUS=$CXR_STATUS_SUCCESS
 	
 		# Sequential processing (module_functions)
-		cxr_common_module_process_sequentially || CXR_STATUS=$CXR_STATUS_FAILURE
+		common.module.processSequentially || CXR_STATUS=$CXR_STATUS_FAILURE
 	fi
 fi
 
@@ -759,7 +759,7 @@ fi
 common.fs.CompressOutput
 
 # Echo the "Finish message"
-main.log -i "CAMxRunner.sh" "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
+main.log -i "CAMxRunner.sh" "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 
 
 ################################################################################

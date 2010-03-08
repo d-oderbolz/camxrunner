@@ -80,57 +80,7 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_show_progress
-#
-# Very simple fnction you can call in any long-runnig loop to show the user 
-# that we are still alive. Just echoes a dot on stderr.
-#
-################################################################################
-function cxr_common_show_progress()
-################################################################################
-{
-	echo -n "." 1>&2
-}
-
-################################################################################
-# Function: cxr_common_countdown
-#
-# Most of the Time, CAMxRunner is run non-interactively. Sometimes, the Runner might take decisions
-# to which the user objects (e. g. the repetiton of one-time preprocessing in case
-# a a prolonged rerun). To implement this, we give the user some time.
-#
-#
-# Parameters:
-# $1 - message to show
-# $2 - Time in s from which to cxr_common_countdown (default 30)
-# $3 - Interval in s when to show remaining time (default 5)
-################################################################################
-function cxr_common_countdown()
-################################################################################
-{
-	if [[ $# -lt 1  ]]
-	then
-		main.log -e  "Need at least a message to show"
-	fi
-	
-	local message="${1}"
-	
-	# Start must be positive!
-	local start_sec="$(common.math.abs ${2:-30})"
-	local mod_sec="${3:-5}"
-	local i
-	
-	for i in $(seq $start_sec -1 0)
-	do
-		if [[ $(expr $i % $mod_sec) -eq 0  ]]
-		then
-			main.log -w -B  "$i seconds left."
-		fi
-	done
-}
-
-################################################################################
-# Function: cxr_common_get_consent
+# Function: common.user.getOK
 #	
 # Asks te user if he/she agrees (Y) to a question or not (N).
 # Automatically adds [Y/N] to the question.
@@ -142,7 +92,7 @@ function cxr_common_countdown()
 # false - user says N
 #
 # Example (Note the double quotes around the call):
-#> if [[ "$(cxr_common_get_consent "Do you want to run the installer for the CAMxRunner, CAMx and the testcase \n (you can select the steps you want later)?" )" == false  ]]
+#> if [[ "$(common.user.getOK "Do you want to run the installer for the CAMxRunner, CAMx and the testcase \n (you can select the steps you want later)?" )" == false  ]]
 #> then
 #>	exit
 #> fi
@@ -157,7 +107,7 @@ function cxr_common_countdown()
 # $1 - question
 # [$2] - Optional default value (either Y or N)
 ################################################################################
-function cxr_common_get_consent()
+function common.user.getOK()
 ################################################################################
 {
 	local message
@@ -177,13 +127,13 @@ function cxr_common_get_consent()
 		
 		message="$1 [Y/N/D], D=$default"
 		
-		answer=$(cxr_common_get_user_input "$message")
+		answer=$(common.user.getInput "$message")
 	
 		until [[  "$answer" == Y || "$answer" == y \
 							|| "$answer" == N || "$answer" == n \
 							|| "$answer" == D || "$answer" == d ]]
 		do
-			answer=$(cxr_common_get_user_input "$message\nAnswer with either Y, N or D")
+			answer=$(common.user.getInput "$message\nAnswer with either Y, N or D")
 		done
 		
 		if [[  "$answer" == d || "$answer" == D   ]]
@@ -199,12 +149,12 @@ function cxr_common_get_consent()
 
 		message="$1 [Y/N]"
 		
-		answer=$(cxr_common_get_user_input "$message")
+		answer=$(common.user.getInput "$message")
 	
 		until [[  "$answer" == Y || "$answer" == y \
 							|| "$answer" == N || "$answer" == n ]]
 		do
-			answer=$(cxr_common_get_user_input "$message\nAnswer with either Y or N.")
+			answer=$(common.user.getInput "$message\nAnswer with either Y or N.")
 		done
 		
 	fi
@@ -218,7 +168,7 @@ function cxr_common_get_consent()
 }
 
 ################################################################################
-# Function: cxr_common_get_user_input
+# Function: common.user.getInput
 #	
 # Poses a question to the user and returns the answer.
 # Optionally, the lenght of the input can be restricted.
@@ -227,7 +177,7 @@ function cxr_common_get_consent()
 # the value the user enters.
 #
 # Example:
-#> MEAL=$(cxr_common_get_user_input "Whats you favourite meal?")
+#> MEAL=$(common.user.getInput "Whats you favourite meal?")
 #
 # Cannot be used in a loop like (because read is used internally): 
 #
@@ -239,7 +189,7 @@ function cxr_common_get_consent()
 # $1 - Question
 # [$2] - Expected lenght (Optional)
 ################################################################################
-function cxr_common_get_user_input() 
+function common.user.getInput() 
 ################################################################################
 {
 	local message=$1
@@ -260,7 +210,7 @@ function cxr_common_get_user_input()
 }
 
 ################################################################################
-# Function: cxr_common_pause
+# Function: common.user.pause
 #	
 # Waits until the user presses a button
 #
@@ -274,7 +224,7 @@ function cxr_common_get_user_input()
 #>done
 #
 ################################################################################
-function cxr_common_pause() 
+function common.user.pause() 
 ################################################################################
 {
 	local dummy
@@ -285,7 +235,7 @@ function cxr_common_pause()
 }
 
 ################################################################################
-# Function: cxr_common_get_menu_choice
+# Function: common.user.getMenuChoice
 #	
 # Poses a question to the user and presents a menu of choices.
 # The choices are either given using a pattern (ls-like) for filenames
@@ -304,14 +254,14 @@ function cxr_common_pause()
 #>done
 #
 # Example:
-#> MEAL=$(cxr_common_get_menu_choice "Whats you favourite meal?" "hot-dog hamburger pizza organic" "pizza")
+#> MEAL=$(common.user.getMenuChoice "Whats you favourite meal?" "hot-dog hamburger pizza organic" "pizza")
 # In the next 2 examples, the quotes around the second parameter are vital!
-#> File=$(cxr_common_get_menu_choice "Select a file" "*" )
-#> Version=$(cxr_common_get_menu_choice "Select a Version" "$CXR_SUPPORTED_MODEL_VERSIONS" )
+#> File=$(common.user.getMenuChoice "Select a file" "*" )
+#> Version=$(common.user.getMenuChoice "Select a Version" "$CXR_SUPPORTED_MODEL_VERSIONS" )
 #
 # Can be nicley used in conjuntion with the case statement:
 # 
-#>WHAT=$(cxr_common_get_menu_choice "Which part of the state database do you want to clean?" "all none" "none")
+#>WHAT=$(common.user.getMenuChoice "Which part of the state database do you want to clean?" "all none" "none")
 #>
 #>case "$WHAT" in 
 #> all) 
@@ -325,7 +275,7 @@ function cxr_common_pause()
 # $2 - Option list (eiter a pattern or a string)
 # [$3] - Optional default value
 ################################################################################
-function cxr_common_get_menu_choice()
+function common.user.getMenuChoice()
 ################################################################################
 {
 	
@@ -369,7 +319,7 @@ function cxr_common_get_menu_choice()
 }
 
 ################################################################################
-# Function: cxr_common_get_answers
+# Function: common.user.getAnswers
 #	
 # Poses questions given in a so called ask-file to the user.
 # Creates a so-called play-file that contains the answer of the user 
@@ -417,13 +367,13 @@ function cxr_common_get_menu_choice()
 # void - aborts program on failure.
 #
 # Example:
-# cxr_common_get_answers $askfile $playfile
+# common.user.getAnswers $askfile $playfile
 #
 # Parameters:
 # $1 - askfile (with full path)
 # $2 - playfile to store answers in (with full path - WILL BE OVERWRITTEN!)
 ################################################################################
-function cxr_common_get_answers()
+function common.user.getAnswers()
 ################################################################################
 {
 	local askfile="$1"
@@ -593,7 +543,7 @@ function cxr_common_get_answers()
 			# default - might contain an expandable rule
 			# It does not matter if the rule does not expand (are we?)
 			# We call the rule DEFAULT
-			default=$(cxr_common_evaluate_rule "$default" true DEFAULT)
+			default=$(common.runner.evaluateRule "$default" true DEFAULT)
 			
 			# Do we have a list of values?
 			if [[ -z "$lov"  ]]
@@ -602,7 +552,7 @@ function cxr_common_get_answers()
 				# Add Default to question
 				question="$question\n(default: $default)"
 
-				VALUE=$(cxr_common_get_user_input "$question\n[D] for default")
+				VALUE=$(common.user.getInput "$question\n[D] for default")
 
 				if [[  "$VALUE" == D || "$VALUE" == d   ]]
 				then
@@ -612,7 +562,7 @@ function cxr_common_get_answers()
 
 			else
 				# Yes
-				VALUE=$(cxr_common_get_menu_choice "$question" "$lov")
+				VALUE=$(common.user.getMenuChoice "$question" "$lov")
 			fi
 
 			if [[ "$(common.check.DataType "$VALUE" "$datatype")" == false  ]]
@@ -625,7 +575,7 @@ function cxr_common_get_answers()
 			# If the user does not want to write this 
 			# value, we will ask the same question again (by not increasing curline)
 			# Thats actually an advantage of this form of loop.
-			if [[ "$(cxr_common_get_consent "Is the value $VALUE for variable $variable correct?" Y )" == true  ]]
+			if [[ "$(common.user.getOK "Is the value $VALUE for variable $variable correct?" Y )" == true  ]]
 			then
 			
 				# Write data to play-file
@@ -639,9 +589,9 @@ function cxr_common_get_answers()
 
 
 ################################################################################
-# Function: cxr_common_apply_playfile
+# Function: common.user.applyPlayfile
 #	
-# Complementary function of <cxr_common_get_answers>. Loops trough a playfile and 
+# Complementary function of <common.user.getAnswers>. Loops trough a playfile and 
 # uses its information to search for variables in all listed files and
 # replaces them by the repective value.
 #
@@ -653,13 +603,13 @@ function cxr_common_get_answers()
 # void - aborts program on failure.
 #
 # Example:
-# cxr_common_apply_playfile $playfile "file1 file2"
+# common.user.applyPlayfile $playfile "file1 file2"
 #
 # Parameters:
 # $1 - playfile (with full path)
 # $2 - A list of files to operate on (search & replace) - they WILL BE OVERRIDDEN!
 ################################################################################
-function cxr_common_apply_playfile()
+function common.user.applyPlayfile()
 ################################################################################
 {
 	# The delimiter in use here (might change below if file has a different format)
@@ -696,7 +646,7 @@ function cxr_common_apply_playfile()
 	fi
 	
 	# This one will be re-used
-	sed_tmp=$(cxr_common_create_tempfile sed)
+	sed_tmp=$(common.runner.createTempFile sed)
 	
 	# Start at line 1
 	curline=1
@@ -771,7 +721,7 @@ function cxr_common_apply_playfile()
 
 		done # Loop trough playfile
 
-		if [[ "$(cxr_common_get_consent "Do you want to have a look at the new files?" N )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to have a look at the new files?" N )" == true  ]]
 		then
 			for current_file in $files
 			do
@@ -786,7 +736,7 @@ function cxr_common_apply_playfile()
 				echo -e "${CXR_BOX_HUGE}\n\n"
 				echo "(That was file ${current_file})"
 			
-				cxr_common_pause
+				common.user.pause
 			done
 		fi
 

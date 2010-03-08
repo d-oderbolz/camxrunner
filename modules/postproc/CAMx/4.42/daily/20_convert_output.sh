@@ -152,48 +152,48 @@ function set_variables()
 		# Here, we ASSUME that we work on a directory prepared by <prepare_output_dir>
 		# in particular, we assume that the linknames are proper, that is, they have
 		# no temporary names
-		# Note the last argument (false) in every call to <cxr_common_evaluate_rule>
+		# Note the last argument (false) in every call to <common.runner.evaluateRule>
 		
 		
 		# The ASC Filenames are the output
 		# Output files must not be decompressed!
-		CXR_AVG_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE false)
+		CXR_AVG_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE false)
 		
 		# TERRAIN must not be converted
 		
 		# Pressure - convert_input should have done the first grid
-		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)
+		CXR_ZP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)
 		
 		# Wind
-		CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE false)
+		CXR_WIND_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE false)
 		# Temperature
-		CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE false)
+		CXR_TEMP_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE false)
 		# Vapor
-		CXR_VAPOR_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE false)
+		CXR_VAPOR_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE false)
 		# No Cloud
 		# Vertical K
-		CXR_KV_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE false)
+		CXR_KV_GRID_ASC_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE false)
 		# NO Emissions
 	
 	
 		# These files are INPUT Files - we need to modify them, becaus we read links in the 
 		# ascii dir instead of the real file
 		# TODO Make this solution more general (specific rules!)
-		CXR_AVG_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
+		CXR_AVG_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 
 		# TERRAIN must not be converted, it is already there.
 		
 		# Pressure. 
-		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
 		# Wind
-		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
 		# Temperature
-		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
 		# Vapor
-		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
 		# No Cloud
 		# Vertical K
-		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
+		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 		# NO Emissions
 		
 		# Checks for the input
@@ -268,9 +268,9 @@ function convert_output()
 			# 	We provide these no matter what program we are running (the logfile is 0=Stdout)
 			
 			# Determine dimensions
-			xdim=$(cxr_common_get_x_dim ${i})
-			ydim=$(cxr_common_get_y_dim ${i})
-			zdim=$(cxr_common_get_z_dim ${i})
+			xdim=$(common.runner.getX ${i})
+			ydim=$(common.runner.getY ${i})
+			zdim=$(common.runner.getZ ${i})
 			
 			main.log -v  "Grid $i\nXDIM: $xdim\nYDIM: $ydim\nZDIM: $zdim"
 

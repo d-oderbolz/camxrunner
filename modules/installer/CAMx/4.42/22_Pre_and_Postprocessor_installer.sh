@@ -87,7 +87,7 @@ exit 1
 function Pre_and_Postprocessor_installer() 
 ################################################################################
 {
-	if [[ "$(cxr_common_get_consent "Do you want to compile the pre- and postprocessors?" Y )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to compile the pre- and postprocessors?" Y )" == true  ]]
 	then
 	
 		# Is the compiler there?
@@ -109,7 +109,7 @@ function Pre_and_Postprocessor_installer()
 		
 		esac
 		
-		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
+		CXR_CURRENT_PLATFORM=$(common.user.getMenuChoice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
 		
 		########################################
 		# Now compile all converters
@@ -118,7 +118,7 @@ function Pre_and_Postprocessor_installer()
 		# Loop through the source-directories
 		for SRC_DIR in $CXR_PRE_AND_POST_PROG_SCR_ARR
 		do
-			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
+			if [[ "$(common.user.getOK "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
 				main.log -a  "****Compiling source in $SRC_DIR...\n"
 				

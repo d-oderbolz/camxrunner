@@ -88,13 +88,13 @@ function CAMxRunner_installer()
 {
 	
 	# This function asks automatically
-	cxr_common_test_all_modules "${CXR_MODEL}" "${CXR_MODEL_VERSION}"
+	common.test.all "${CXR_MODEL}" "${CXR_MODEL_VERSION}"
 
-	if [[ "$(cxr_common_get_consent "Do you want to generate a new base.conf file?" N )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
 	then
 		# Yes
 		
-		if [[ "$(cxr_common_get_consent "Do you want to have a look at the existing base.conf file?" )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to have a look at the existing base.conf file?" )" == true  ]]
 		then
 			echo -e "********************************************************************************"
 			cat ${CXR_BASECONFIG}
@@ -105,7 +105,7 @@ function CAMxRunner_installer()
 		TEMPLATE=${CXR_TEMPLATES_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/base.tpl
 
 		# This is the unfinished file
-		DRAFTFILE=$(cxr_common_create_tempfile $FUNCNAME)
+		DRAFTFILE=$(common.runner.createTempFile $FUNCNAME)
 
 		########################################
 		# Prepare draft file
@@ -122,35 +122,35 @@ function CAMxRunner_installer()
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [[ "$(cxr_common_get_consent "CAMxRunner was already installed. Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\nThere is a chance that in the meatime otehr features are available that are not yet reflected in this older file." Y )" == true  ]]
+			if [[ "$(common.user.getOK "CAMxRunner was already installed. Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\nThere is a chance that in the meatime otehr features are available that are not yet reflected in this older file." Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
 				
-				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
+				if [[ "$(common.user.getOK "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
 				else
 					# Redo
-					cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+					common.user.getAnswers "$ASKFILE" "$PLAYFILE"
 				fi
 			else
 				# Redo
-				cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+				common.user.getAnswers "$ASKFILE" "$PLAYFILE"
 			fi
 		else
 	 	# From scratch
-			cxr_common_get_answers "$ASKFILE" "$PLAYFILE"
+			common.user.getAnswers "$ASKFILE" "$PLAYFILE"
 		fi
 
-		cxr_common_apply_playfile $PLAYFILE $DRAFTFILE
+		common.user.applyPlayfile $PLAYFILE $DRAFTFILE
 
 		########################################
 		# We have all values, we can copy the file
 		########################################
 		
-		if [[ "$(cxr_common_get_consent "Do you want to install the new file ?" Y )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to install the new file ?" Y )" == true  ]]
 		then
 			cp $DRAFTFILE $CXR_BASECONFIG || main.die_gracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
 		fi
@@ -160,7 +160,7 @@ function CAMxRunner_installer()
 	fi
 	
 	##############################################################################
-	if [[ "$(cxr_common_get_consent "Do you want to regenerate the API documentation?" N )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to regenerate the API documentation?" N )" == true  ]]
 	then
 		main.log  "Regenerating API documentation..."
 		$CXR_API_DOC_EXEC

@@ -214,7 +214,7 @@ function common.fs.getFileType()
 	
 	filetype=$(file "${file}" | cut -f2 -d' ')
 	
-	if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
 		# Something went wrong
 		main.log -e  "the file command reported an error for $file"
@@ -462,7 +462,7 @@ function common.fs.CompressOutput()
 #
 # If the decompression fails, we return the input string.
 #
-# This function is directly used by <cxr_common_evaluate_rule>
+# This function is directly used by <common.runner.evaluateRule>
 #
 # Parameters:
 # $1 - path to test
@@ -513,7 +513,7 @@ function common.fs.TryDecompressingFile()
 				main.log -v  "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
 				
 				# First remove that line via sed
-				sed_tmp=$(cxr_common_create_tempfile sed)
+				sed_tmp=$(common.runner.createTempFile sed)
 				sed '/$line/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
 				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			fi	
@@ -540,7 +540,7 @@ function common.fs.TryDecompressingFile()
 				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false  ]]
 				then
 					# Use a tempfile and give it a recogisable name. It will not be added to the templist (managed here)
-					tempfile=$(cxr_common_create_tempfile decomp_$(basename ${input_file}) false)
+					tempfile=$(common.runner.createTempFile decomp_$(basename ${input_file}) false)
 				else
 					# The target is the "original" file name
 					tempfile=${input_file}
@@ -788,8 +788,8 @@ function test_module()
 	########################################
 	
 	# We need a few tempfiles
-	a=$(cxr_common_create_tempfile $FUNCNAME)
-	b=$(cxr_common_create_tempfile $FUNCNAME)
+	a=$(common.runner.createTempFile $FUNCNAME)
+	b=$(common.runner.createTempFile $FUNCNAME)
 	
 	echo "Hallo" > $a
 	echo "Velo" >> $a

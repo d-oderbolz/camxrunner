@@ -108,13 +108,13 @@ function set_variables()
 	########################################################################
 	
 	# Evaluate some rules
-	CXR_SPLIT_EMISSIONS_INPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE)"
+	CXR_SPLIT_EMISSIONS_INPUT_FILE="$(common.runner.evaluateRule "$CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE)"
 
 	# CXR_CHECK_THESE_INPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_SPLIT_EMISSIONS_INPUT_FILE"
 
 	# Output files must not be decompressed!
-	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(cxr_common_evaluate_rule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE false)"
+	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE false)"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"

@@ -79,7 +79,7 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_get_x_dim
+# Function: common.runner.getX
 # 
 # Returns the x dimension  of a given grid (in grid cells of this grid)
 # Hides the fact that the configuration is different for master and non-master grids.
@@ -89,7 +89,7 @@ exit 1
 #
 # $1 - A integer denoting the domain for which we need the dim (in the range 1..CXR_NUMBER_OF_GRIDS)
 ################################################################################
-function cxr_common_get_x_dim()
+function common.runner.getX()
 ################################################################################
 {
 	local domain=${1}
@@ -116,7 +116,7 @@ function cxr_common_get_x_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_y_dim
+# Function: common.runner.getY
 # 
 # Returns the y dimension  of a given grid (in grid cells of this grid)
 # Hides the fact that the configuration is different for master and non-master grids
@@ -126,7 +126,7 @@ function cxr_common_get_x_dim()
 #
 # $1 - A integer denoting the domain for which we need the dim (in the range 1..CXR_NUMBER_OF_GRIDS)
 ################################################################################
-function cxr_common_get_y_dim()
+function common.runner.getY()
 ################################################################################
 {
 	local domain=${1:-0}
@@ -154,7 +154,7 @@ function cxr_common_get_y_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_z_dim
+# Function: common.runner.getZ
 # 
 # Returns the z dimension  of a given grid (in grid cells of this grid)
 # Hides the fact that the configuration is different for master and non-master grids
@@ -163,7 +163,7 @@ function cxr_common_get_y_dim()
 #
 # $1 - A integer denoting the domain for which we need the dim (in the range 1..CXR_NUMBER_OF_GRIDS)
 ################################################################################
-function cxr_common_get_z_dim()
+function common.runner.getZ()
 ################################################################################
 {
 	domain=${1:-0}
@@ -178,13 +178,13 @@ function cxr_common_get_z_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_max_x_dim
+# Function: common.runner.getMaxX
 # 
 # Returns the maximum x dimension of all grids 
 # Useful for compiling CAMx
 #
 ################################################################################
-function cxr_common_get_max_x_dim()
+function common.runner.getMaxX()
 ################################################################################
 {
 	local new
@@ -192,7 +192,7 @@ function cxr_common_get_max_x_dim()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(cxr_common_get_x_dim $i)"
+		new="$(common.runner.getX $i)"
 		
 		if [[ "$new" -gt "$max_xdim"  ]]
 		then
@@ -204,13 +204,13 @@ function cxr_common_get_max_x_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_max_y_dim
+# Function: common.runner.getMaxY
 # 
 # Returns the maximum y dimension of all grids 
 # Useful for compiling CAMx
 #
 ################################################################################
-function cxr_common_get_max_y_dim()
+function common.runner.getMaxY()
 ################################################################################
 {
 	local new
@@ -218,7 +218,7 @@ function cxr_common_get_max_y_dim()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(cxr_common_get_y_dim $i)"
+		new="$(common.runner.getY $i)"
 		
 		if [[ "$new" -gt "$max_ydim"  ]]
 		then
@@ -230,13 +230,13 @@ function cxr_common_get_max_y_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_max_z_dim
+# Function: common.runner.getMaxZ
 # 
 # Returns the maximum z dimension of all grids 
 # Useful for compiling CAMx
 #
 ################################################################################
-function cxr_common_get_max_z_dim()
+function common.runner.getMaxZ()
 ################################################################################
 {
 	local new
@@ -244,7 +244,7 @@ function cxr_common_get_max_z_dim()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(cxr_common_get_z_dim $i)"
+		new="$(common.runner.getZ $i)"
 		
 		if [[ "$new" -gt "$max_zdim"  ]]
 		then
@@ -256,13 +256,13 @@ function cxr_common_get_max_z_dim()
 }
 
 ################################################################################
-# Function: cxr_common_get_num_cells_3d
+# Function: common.runner.countCells3D
 # 
 # Returns the sum of the number of cells in all grids (3D)
 # Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
-function cxr_common_get_num_cells_3d()
+function common.runner.countCells3D()
 ################################################################################
 {
 	local new
@@ -270,9 +270,9 @@ function cxr_common_get_num_cells_3d()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(cxr_common_get_z_dim $i)"
+		new="$(common.runner.getZ $i)"
 		
-		sum=$(( $sum + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) * $(cxr_common_get_z_dim $i) ) ))
+		sum=$(( $sum + ( $(common.runner.getX $i) * $(common.runner.getY $i) * $(common.runner.getZ $i) ) ))
 		
 	done
 	
@@ -280,13 +280,13 @@ function cxr_common_get_num_cells_3d()
 }
 
 ################################################################################
-# Function: cxr_common_get_num_cells_2d
+# Function: common.runner.countCells2D
 # 
 # Returns the sum of the number of cells in all grids (Just lowest layer)
 # Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
-function cxr_common_get_num_cells_2d()
+function common.runner.countCells2D()
 ################################################################################
 {
 	local new
@@ -294,9 +294,9 @@ function cxr_common_get_num_cells_2d()
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(cxr_common_get_z_dim $i)"
+		new="$(common.runner.getZ $i)"
 		
-		sum = $(( $sum + ( $(cxr_common_get_x_dim $i) * $(cxr_common_get_y_dim $i) ) ))
+		sum = $(( $sum + ( $(common.runner.getX $i) * $(common.runner.getY $i) ) ))
 		
 	done
 	
@@ -304,27 +304,27 @@ function cxr_common_get_num_cells_2d()
 }
 
 ################################################################################
-# Function: cxr_common_report_dimensions
+# Function: common.runner.reportDimensions
 # 
 # Prints the dimensions of all the defined grids.
 #
 ################################################################################
-function cxr_common_report_dimensions()
+function common.runner.reportDimensions()
 ################################################################################
 {
 	local i
 	
 	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		main.log -B "Grid dimensions domain ${i}:\nX: $(cxr_common_get_x_dim ${i})\nY: $(cxr_common_get_y_dim ${i})\nZ: $(cxr_common_get_z_dim ${i})"
+		main.log -B "Grid dimensions domain ${i}:\nX: $(common.runner.getX ${i})\nY: $(common.runner.getY ${i})\nZ: $(common.runner.getZ ${i})"
 	done
 	
-	main.log -B "Total number of cells: $(cxr_common_get_num_cells_3d)"
+	main.log -B "Total number of cells: $(common.runner.countCells3D)"
 	
 }
 
 ################################################################################
-# Function: cxr_common_evaluate_rule
+# Function: common.runner.evaluateRule
 # 
 # Evaluates a filerule and returns its expansion. Removes syntactical fluff unknown
 # to non-bashers.
@@ -340,16 +340,16 @@ function cxr_common_report_dimensions()
 #
 # Examples:
 # This code does not if the rule expands to the empty string:
-# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" false "$rule_name")"
+# >MY_DIR="$(common.runner.evaluateRule "$RULE" false "$rule_name")"
 # >These  ^                                                ^
 # >Ensure that the code does not fail if the string returned contains
 # >spaces.
 #
 # This code accepts an empty string:
-# >MY_DIR="$(cxr_common_evaluate_rule "$RULE" true "$rule_name")" 
+# >MY_DIR="$(common.runner.evaluateRule "$RULE" true "$rule_name")" 
 #
 # This code is also valid and will not fail on empty expansion:
-# >MY_DIR="$(cxr_common_evaluate_rule "$RULE")"
+# >MY_DIR="$(common.runner.evaluateRule "$RULE")"
 #
 # You can use it to generate any string that is made up by variables,
 # but make sure that control sequences like \n are double-escaped (\\n)
@@ -357,7 +357,7 @@ function cxr_common_report_dimensions()
 #
 # >CXR_FINISH_MESSAGE_RULE='Please copy this into https://wiki.intranet.psi.ch/twiki/LAC/CAMxRuns \\n \| $(date +"%Y/%M/%D") \| ${USER} \| ${CXR_STATUS} \| ${CXR_RUN} \| ${CXR_START_DATE} \| ${CXR_STOP_DATE} \| http://people.web.psi.ch/oderbolz/CAMx/conf/$(basename $CXR_CONFIG) \| http://people.web.psi.ch/oderbolz/CAMx/log/$(basename $CXR_LOG) \| \\n'
 # ...
-# >main.log  "$(cxr_common_evaluate_rule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
+# >main.log  "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 #
 # Parameters:
 # $1 - The rule to be evaluated (a string, not a variable)
@@ -365,7 +365,7 @@ function cxr_common_report_dimensions()
 # [$3] - optional name of the rule
 # [$4] - try_decompression if false, will not attempt compression (and consequenital renaming)
 ################################################################################
-function cxr_common_evaluate_rule()
+function common.runner.evaluateRule()
 ################################################################################
 {
 	if [[  $# -lt 1 && $# -gt 4 ]]
@@ -427,7 +427,7 @@ function cxr_common_evaluate_rule()
 }
 
 ################################################################################
-# Function: cxr_common_evaluate_rule
+# Function: common.runner.evaluateRule
 # 
 # Evaluates a filerule for a given simulation day offset (0..NUMBER_OF_SIM_DAYS-1).
 # This is especially useful to determine how certain things where at the first day of 
@@ -440,7 +440,7 @@ function cxr_common_evaluate_rule()
 # [$3] - allow_empty if false, a rule must expand to a non-empty string
 # [$4] - optional name of the rule
 ################################################################################
-function cxr_common_evaluate_rule_at_offset()
+function common.runner.evaluateRuleAtDayOffset()
 ################################################################################
 {
 	if [[  $# -lt 2 && $# -gt 4 ]]
@@ -464,7 +464,7 @@ function cxr_common_evaluate_rule_at_offset()
 	common.date.setVars "${CXR_START_DATE}" "${day_offset}"
 	
 	# Evaluate the rule
-	expansion=$(cxr_common_evaluate_rule "${rule}" "${3:-}" "${4:-}")
+	expansion=$(common.runner.evaluateRule "${rule}" "${3:-}" "${4:-}")
 	
 	# Reset Current offset
 	CXR_DAY_OFFSET=${current_offset}
@@ -476,7 +476,7 @@ function cxr_common_evaluate_rule_at_offset()
 }
 
 ################################################################################
-# Function: cxr_common_evaluate_these_scalar_rules
+# Function: common.runner.evaluateScalarRules
 # 
 # Evaluates all CXR_*_RULE environment variables in the given list.
 #
@@ -485,7 +485,7 @@ function cxr_common_evaluate_rule_at_offset()
 # $1 - The list of rules to be evaluated (a space-separated string, not a variable)
 # [$2] - allow_empty if false, *all* rules in the must expand to a non-empty string
 ################################################################################
-function cxr_common_evaluate_these_scalar_rules()
+function common.runner.evaluateScalarRules()
 ################################################################################
 {
 	if [[  $# -lt 1 && $# -gt 2   ]]
@@ -510,28 +510,40 @@ function cxr_common_evaluate_these_scalar_rules()
 		variable=${current_rule%_RULE}
 		
 		# Set variable to its evaluated form
-		export $variable="$(cxr_common_evaluate_rule "${current_rule}" "$allow_empty" $current_rule)"
+		export $variable="$(common.runner.evaluateRule "${current_rule}" "$allow_empty" $current_rule)"
 	done
 }
 
 
 ################################################################################
-# Function: cxr_common_create_dummyfile
+# Function: common.runner.createDummyFile
 #
 # Creates a dummy file, shows a message and adds the file
-# to the dummy file list. 
+# to the dummy file list. The size can be chosen if 
 #
 # Parameters:
 # $1 - Filename
+# [$2] - size in MB (Default 1)
 ################################################################################
-function cxr_common_create_dummyfile()
+function common.runner.createDummyFile()
 ################################################################################
 {
 	local filename="$1"
-	main.log  "Creating Dummy $filename"
+	local size="${2:-1}"
 	
-	# Add to dummy list 
-	echo "This is a Dummy output file generated by a dry-run of CAMxRunner" > "$filename"
+	main.log "Creating Dummy $filename of size $size"
+	
+	if [[ $(main.isNumeric? $size) == false ]]
+	then
+		main.log -w "You must supply a numeric size in MB. Using 1 MB now."
+		size=1
+	fi
+	
+	# Create file
+	if [[ ! -f "$filename" ]]
+	then
+		dd bs=${size}M if=/dev/zero of=$filename count=1
+	fi
 	
 	# Store Dummy file in the file list
 	echo "$filename" >> "$CXR_INSTANCE_FILE_DUMMY_LIST"
@@ -545,7 +557,7 @@ function cxr_common_create_dummyfile()
 # Returns the name of a temporary file with random name, shows a message and adds the file
 # to the temp file list if this is needed. 
 # Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
-# <cxr_common_remove_tempfiles>
+# <common.runner.removeTempFiles>
 #
 # Recommended call:
 # >TMPFILE=$(cxr_common_create_tempfile $FUNCNAME)
@@ -564,7 +576,7 @@ function cxr_common_create_tempfile()
 	fi
 	
 	# Check if that worked!
-	if [[ ! -d "${CXR_TMP_DIR}"  ]]
+	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
 		main.die_gracefully "could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
@@ -593,13 +605,13 @@ function cxr_common_create_tempfile()
 }
 
 ################################################################################
-# Function: cxr_common_remove_tempfiles
+# Function: common.runner.removeTempFiles
 #
 # Removes all files from the temp file list if CXR_REMOVE_TEMP_FILES is true.
 # Also removes decompressed files if requested.
 #
 ################################################################################
-function cxr_common_remove_tempfiles()
+function common.runner.removeTempFiles()
 ################################################################################
 {
 	local line
@@ -662,19 +674,19 @@ function cxr_common_remove_tempfiles()
 }
 
 ################################################################################
-# Function: cxr_common_get_lock
+# Function: common.runner.getLock
 #
 # Blocking call to the lockmanager. If we get the lock, it will be added to the 
 # CXR_INSTANCE_FILE_LOCK_LIST. This allows to release the locks later when we exit from the program
 # When the lock is not free, this call waits forever.
 #
 # Recommended call:
-# > cxr_common_get_lock lockname
+# > common.runner.getLock lockname
 #
 # Parameters:
 # $1 - the name of the lock to get
 ################################################################################
-function cxr_common_get_lock()
+function common.runner.getLock()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -705,17 +717,17 @@ function cxr_common_get_lock()
 }
 
 ################################################################################
-# Function: cxr_common_release_lock
+# Function: common.runner.releaseLock
 #
 # Releases a lock and removes it from CXR_INSTANCE_FILE_LOCK_LIST.
 #
 # Recommended call:
-# > cxr_common_release_lock lockname
+# > common.runner.releaseLock lockname
 #
 # Parameters:
 # $1 - the name of the lock to release
 ################################################################################
-function cxr_common_release_lock()
+function common.runner.releaseLock()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -743,7 +755,7 @@ function cxr_common_release_lock()
 }
 
 ################################################################################
-# Function: cxr_common_release_all_locks
+# Function: common.runner.releaseAllLocks
 #
 # Releases all locks held by iterating over CXR_INSTANCE_FILE_LOCK_LIST.
 #
@@ -751,7 +763,7 @@ function cxr_common_release_lock()
 # Parameters:
 # None.
 ################################################################################
-function cxr_common_release_all_locks()
+function common.runner.releaseAllLocks()
 ################################################################################
 {
 	local lock
@@ -762,13 +774,13 @@ function cxr_common_release_all_locks()
 	
 		for lock in $(cat $CXR_INSTANCE_FILE_LOCK_LIST)
 		do
-			cxr_common_release_lock $lock
+			common.runner.releaseLock $lock
 		done
 	fi
 }
 
 ################################################################################
-# Function: cxr_common_create_config_file
+# Function: common.runner.createConfigFile
 #
 # Interactively creates a new configuration file for a run. 
 #
@@ -778,7 +790,7 @@ function cxr_common_release_all_locks()
 # Parameters:
 # $1 - Run-name
 ################################################################################	
-function cxr_common_create_config_file() 
+function common.runner.createConfigFile() 
 ################################################################################
 {
 	local run="$1"
@@ -789,11 +801,11 @@ function cxr_common_create_config_file()
 	local playfile
 	local tmpfile
 	
-	if [[ $(cxr_common_get_consent "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
+	if [[ $(common.user.getOK "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
 	then
 
 		# Show a list of existing files to choose from
-		if [[ $(cxr_common_get_consent "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false  ]]
+		if [[ $(common.user.getOK "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false  ]]
 		then
 			#No, use base.conf
 			basefile=${CXR_BASECONFIG}
@@ -803,7 +815,7 @@ function cxr_common_create_config_file()
 			# To keep the list compact, we go into the conf dir and back out again
 			cd "${CXR_CONF_DIR}" || main.die_gracefully "Could not change to ${CXR_CONF_DIR}!"
 			
-			basefile=${CXR_CONF_DIR}/$(cxr_common_get_menu_choice "Choose a file I should use:" "*.conf" )
+			basefile=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose a file I should use:" "*.conf" )
 			
 			cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
 		fi
@@ -816,14 +828,14 @@ function cxr_common_create_config_file()
 		# For the moment, I romoved the option to expand a config
 		# Tell user if expand is on and let the user decide
 		
-#		if [ $(cxr_common_get_consent "Do you want to expand the new configuration?\n \
+#		if [ $(common.user.getOK "Do you want to expand the new configuration?\n \
 #This means that any variable in $basefile that is not protected by \
 #single quotes will be expanded to its value and then be written to the new configuration file. \
 #This makes everything in it static, allowing you to preserve the actual settings used. \
 #However, this can also be a disadvantage!" N ) == true ]
 #		then
 #			# Yes, expand.
-#			cxr_common_expand_config ${CXR_BASECONFIG} ${CXR_EXPANDED_CONFIG}
+#			common.runner.expandConfigFile ${CXR_BASECONFIG} ${CXR_EXPANDED_CONFIG}
 #		else
 			#No expansion, just copy.
 		
@@ -831,7 +843,7 @@ function cxr_common_create_config_file()
 			if [[ -f ${CXR_CONFIG}  ]]
 			then
 				# Continue even if file is there?
-				if [[ $(cxr_common_get_consent "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false  ]]
+				if [[ $(common.user.getOK "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false  ]]
 				then
 					exit
 				fi
@@ -859,7 +871,7 @@ function cxr_common_create_config_file()
 		if [[ -f "$destination"  ]]
 		then
 			# Continue even if file is there?
-			if [[ $(cxr_common_get_consent "$destination already exists. Do you want to overwrite this file?" N ) == false  ]]
+			if [[ $(common.user.getOK "$destination already exists. Do you want to overwrite this file?" N ) == false  ]]
 			then
 				exit
 			fi
@@ -878,29 +890,29 @@ function cxr_common_create_config_file()
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [[ "$(cxr_common_get_consent "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
+			if [[ "$(common.user.getOK "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$playfile"
 				
-				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
+				if [[ "$(common.user.getOK "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
 				else
 					# Redo
-					cxr_common_get_answers "$askfile" "$playfile"
+					common.user.getAnswers "$askfile" "$playfile"
 				fi
 			else
 				# Redo
-				cxr_common_get_answers "$askfile" "$playfile"
+				common.user.getAnswers "$askfile" "$playfile"
 			fi
 		else
 			# Start from scratch
-			cxr_common_get_answers "$askfile" "$playfile"
+			common.user.getAnswers "$askfile" "$playfile"
 		fi
 
-		cxr_common_apply_playfile $playfile 
+		common.user.applyPlayfile $playfile 
 		
 		# We need this set later
 		CXR_CONFIG=$destination
@@ -913,7 +925,7 @@ function cxr_common_create_config_file()
 }
 
 ################################################################################
-# Function: cxr_common_expand_config
+# Function: common.runner.expandConfigFile
 #
 # Replaces and non-single quoted variable in a config file by its value.
 # This allows to preserve a config file (it is then independent of base.conf).
@@ -923,7 +935,7 @@ function cxr_common_create_config_file()
 # $1 - File to expand
 # $2 - resulting output file
 ################################################################################
-function cxr_common_expand_config() 
+function common.runner.expandConfigFile() 
 ################################################################################
 {
 	local basefile=$1
@@ -933,7 +945,7 @@ function cxr_common_expand_config()
 	if [[ -f ${expanded_config}  ]]
 	then
 		# Continue even if file is there?
-		if [[ $(cxr_common_get_consent "${expanded_config} already exists. Do you want to overwrite this file?" N ) == false  ]]
+		if [[ $(common.user.getOK "${expanded_config} already exists. Do you want to overwrite this file?" N ) == false  ]]
 		then
 			exit
 		fi
@@ -960,14 +972,14 @@ function cxr_common_expand_config()
 }
 
 ################################################################################
-# Function: cxr_common_get_model_id
+# Function: common.runner.getModelId
 #
 # Each model has a 0-based id (used for example to index CXR_SUPPORTED_MODEL_VERSIONS)
 #
 # Parameters:
 # $1 - Exact name of model to use
 ################################################################################	
-function cxr_common_get_model_id() 
+function common.runner.getModelId() 
 ################################################################################
 {
 	local needle="$1"
@@ -994,26 +1006,26 @@ function cxr_common_get_model_id()
 
 
 ################################################################################
-# Function: cxr_common_create_new_run
+# Function: common.runner.createNewRun
 #
-# Creates a new run by creating an appropriate link and calling <cxr_common_create_config_file>
+# Creates a new run by creating an appropriate link and calling <common.runner.createConfigFile>
 #
 # Tolerates runs that already exist (asks user).
 #
 ################################################################################	
-function cxr_common_create_new_run() 
+function common.runner.createNewRun() 
 ################################################################################
 {
 
-	local model=$(cxr_common_get_menu_choice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
+	local model=$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
 	
-	local model_id=$(cxr_common_get_model_id "$model") || main.die_gracefully "model $model is not known."
+	local model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
 	
 	# Extract the list of supported versions
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	#Generate a menu automatically
-	local version=$(cxr_common_get_menu_choice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
+	local version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
 	
 	common.check.isVersionSupported? $version $model || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
@@ -1049,7 +1061,7 @@ function cxr_common_create_new_run()
 		
 	else
 		# run already existists, OK? ###############################################
-		if [[ $(cxr_common_get_consent "$run already exists. Do you want to continue \n (Makes sense if you regenerate the configuration)?" N ) == false  ]]
+		if [[ $(common.user.getOK "$run already exists. Do you want to continue \n (Makes sense if you regenerate the configuration)?" N ) == false  ]]
 		then
 			# No
 			exit
@@ -1057,7 +1069,7 @@ function cxr_common_create_new_run()
 	fi
 		
 	# Create a configuration #####################################################
-	cxr_common_create_config_file $run
+	common.runner.createConfigFile $run
 	
 	# Messages & Good wishes #####################################################
 	main.log  "New run was created, start it with \n\t \$ $run -d"
@@ -1065,12 +1077,12 @@ function cxr_common_create_new_run()
 }
 
 ################################################################################
-# Function: cxr_common_check_runner_consistency
+# Function: common.check.runner
 #	
 # A Quick check to see if the CAMxRunner installation is OK
 # and consistent with config (can be extended...)
 ################################################################################
-function cxr_common_check_runner_consistency() 
+function common.check.runner() 
 ################################################################################
 {
 	# Each directory in $CXR_RUN_SUBDIRS must exist
@@ -1149,7 +1161,7 @@ function cxr_common_check_runner_consistency()
 			main.log -v   "Checking model $model..."
 		
 			# Get id of the current model
-			model_id=$(cxr_common_get_model_id "$model") || main.die_gracefully "model $model is not known."
+			model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
 	
 			# Extract the list of supported versions
 			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -1241,10 +1253,10 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
-	is $(cxr_common_evaluate_rule "$(common.math.abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
-	is $(cxr_common_evaluate_rule "domain$(common.string.leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
-	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
+	is $(common.runner.evaluateRule a) a "common.runner.evaluateRule constant"
+	is $(common.runner.evaluateRule "$(common.math.abs -100)") 100 "common.runner.evaluateRule a function of CAMxRunner"
+	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $i 3)") domain001 "common.runner.evaluateRule with formatting"
+	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
 	
 	########################################
 	# teardown tests if needed

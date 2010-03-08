@@ -128,16 +128,16 @@ function set_variables()
 	# Empty expansion is not allowed
 	
 	# Name of the CAMx.in file
-	CXR_MODEL_CTRL_FILE=$(cxr_common_evaluate_rule "$CXR_MODEL_CTRL_FILE_RULE" false CXR_MODEL_CTRL_FILE_RULE)
+	CXR_MODEL_CTRL_FILE=$(common.runner.evaluateRule "$CXR_MODEL_CTRL_FILE_RULE" false CXR_MODEL_CTRL_FILE_RULE)
 	
 	# Not directly checkable, Start of all output file names without extension
-	CXR_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
+	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
 	
 	# This is not a file (hence no _FILE at the end of the name)
-	CXR_RT_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
+	CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
 	
 	# This is not a file (hence no _FILE at the end of the name)
-	CXR_SA_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
+	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 	
 	########################################################################
 	# Dry and real need the same variables set
@@ -153,11 +153,11 @@ function set_variables()
 		# Set variables
 		########################################################################
 		
-		CXR_PHOTOLYIS_RATES_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)
-		CXR_INITIAL_CONDITIONS_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)
-		CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)
-		CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
-		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
+		CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)
+		CXR_INITIAL_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)
+		CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)
+		CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
+		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
 
 		
 		if [[ "$(common.date.isFirstDayOfSimulation?)" == true  ]]
@@ -166,8 +166,8 @@ function set_variables()
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
 		else
 			## Only needed after the first day
-			CXR_MASTER_GRID_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
-			CXR_NESTED_GRID_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
+			CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
+			CXR_NESTED_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
 		
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
@@ -180,8 +180,8 @@ function set_variables()
 		# PiG
 		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 		then
-			CXR_POINT_SOURCES_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
-			CXR_PIG_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
+			CXR_POINT_SOURCES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
+			CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
 		
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
@@ -196,13 +196,13 @@ function set_variables()
 		################################################################
 		if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
 		then
-			CXR_SA_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
-			CXR_SA_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
+			CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
+			CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
 		
 			#Grid specific
 			for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 			do
-				CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
+				CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
 			
 				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}"
@@ -211,7 +211,7 @@ function set_variables()
 			# Source group specific
  			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 			do
- 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]=$(cxr_common_evaluate_rule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
+ 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
  				
  				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}"
@@ -225,15 +225,15 @@ function set_variables()
 		elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
 		then
 			# This is not a file (hence no _FILE at the end of the name)
-			CXR_DDM_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
+			CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
 			
-			CXR_DDM_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
-			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
+			CXR_DDM_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
+			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
 		
 			#Grid specific
 			for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 			do
-				CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
+				CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
 			
 				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}"
@@ -242,7 +242,7 @@ function set_variables()
 			#By soure group
 			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
  			do
- 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
+ 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
  			
  				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${i}]}"
@@ -258,7 +258,7 @@ function set_variables()
 				do
  					# This is not elegant, but it simulates a 2D Array
  					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_FILE_RULE
- 					CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE=$(cxr_common_evaluate_rule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
+ 					CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE=$(common.runner.evaluateRule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
  				
  					#Checks
 					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE"
@@ -271,8 +271,8 @@ function set_variables()
 		################################################################
 		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 		then
-			CXR_RT_MASTER_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
-			CXR_RT_NESTED_RESTART_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+			CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
+			CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
 		fi
 		
 		################################################################
@@ -281,22 +281,22 @@ function set_variables()
 		if [[ "$CXR_PROBING_TOOL" != "None"  ]]
 		then
 			# This is not a file (hence no _FILE at the end of the name)
-			CXR_PA_ROOT_OUTPUT=$(cxr_common_evaluate_rule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
+			CXR_PA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
 		fi
 		
 		# These are used to prevent overwriting of existing files
 		# Output files must not be decompressed!
-		CXR_DIAG_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
-		CXR_FINST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
-		CXR_INST_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
-		CXR_MASS_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
-		CXR_OUT_OUTPUT_FILE=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
+		CXR_DIAG_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
+		CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		CXR_INST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
+		CXR_MASS_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
+		CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
 
 		#Checks (this time output)
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_FINST_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
 
 		# THIS IS A WORKAROUND!
-		CXR_POINT_SOURCES_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
+		CXR_POINT_SOURCES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
 
 
 		########################################################################
@@ -308,29 +308,29 @@ function set_variables()
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Landuse
-			CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
+			CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
 			# Pressure
-			CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+			CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
 			# Wind
-			CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+			CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
 			# Temperature
-			CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+			CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
 			# Vapor
-			CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+			CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
 			# Cloud
-			CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
+			CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
 			# Vertical K
-			CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+			CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
 			# Emissions
-			CXR_EMISS_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
+			CXR_EMISS_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
 			
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_EMISS_INPUT_ARR_FILES[${i}]}"
 
 			# These are used to prevent overwriting of existing files 
 			# Output files must not be decompressed!
-			CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
-			CXR_DEPN_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
+			CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
+			CXR_DEPN_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
 
 			#Checks (this time output)
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${i}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${i}]}"
@@ -612,7 +612,7 @@ function execute_model()
 	
 	retval=$?
 
-	outfile=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE")
+	outfile=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE")
 	
 	main.log  "This is the content of the outfile:"
 	

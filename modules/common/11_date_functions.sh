@@ -963,7 +963,7 @@ function common.date.setVars()
 		# any yesterday vars are undefined
 		CXR_YESTERDAY=""
 		# The initial meteo files are called .._s
-		CXR_DAY_METEO="$(cxr_common_evaluate_rule "$CXR_DAY_METEO_FIRST_DAY_RULE" false CXR_DAY_METEO_FIRST_DAY_RULE)"
+		CXR_DAY_METEO="$(common.runner.evaluateRule "$CXR_DAY_METEO_FIRST_DAY_RULE" false CXR_DAY_METEO_FIRST_DAY_RULE)"
 	else
 		# this variable is different the first day
 		CXR_DAY_METEO=${CXR_DAY}

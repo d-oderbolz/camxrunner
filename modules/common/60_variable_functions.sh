@@ -86,7 +86,7 @@ exit 1
 function cxr_common_list_cxr_variables()
 ################################################################################
 {
-	main.log -B   "The current Environment looks like this:"    
+	main.log -B "The current Environment looks like this:"
 	
 	# Increase global indent level
 	main.increaseLogIndent
@@ -103,11 +103,11 @@ function cxr_common_list_cxr_variables()
 }
  
 ################################################################################
-# Function: cxr_common_list_system_variables
+# Function: common.variables.listSystemVars
 #	
 # Writes important system variables out
 ################################################################################	
-function cxr_common_list_system_variables()
+function common.variables.listSystemVars()
 ################################################################################
 {
 	local var

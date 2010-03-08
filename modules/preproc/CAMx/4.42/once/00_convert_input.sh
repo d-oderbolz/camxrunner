@@ -146,14 +146,14 @@ function set_variables()
 		CXR_CONVERTERS[$k]="${CXR_UAMVBINR_EXEC}"
 		
 		# Add options - SURFACE X-DIM Y-DIM Z-DIM
-		CXR_OPTIONS[$k]="SURFACE  $(cxr_common_get_x_dim ${i}) $(cxr_common_get_y_dim ${i}) $(cxr_common_get_z_dim ${i})"
+		CXR_OPTIONS[$k]="SURFACE  $(common.runner.getX ${i}) $(common.runner.getY ${i}) $(common.runner.getZ ${i})"
 		
 		# The input (ascii)
-		CXR_INPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_ASC_FILE_RULE" false CXR_LANDUSE_ASC_FILE_RULE)"
+		CXR_INPUT_FILES[$k]="$(common.runner.evaluateRule "$CXR_LANDUSE_ASC_FILE_RULE" false CXR_LANDUSE_ASC_FILE_RULE)"
 		
 		# The output (binary)
 		# Output files must not be decompressed!
-		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE false)"
+		CXR_OUTPUT_FILES[$k]="$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE false)"
 		
 		#Add checks
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$k]}"
@@ -179,13 +179,13 @@ function set_variables()
 		CXR_CONVERTERS[$k]="${CXR_UAMVASCII_EXEC} "
 		
 		# Add options - HEIGHT X-DIM Y-DIM Z-DIM
-		CXR_OPTIONS[$k]="HEIGHT $(cxr_common_get_x_dim ${i}) $(cxr_common_get_y_dim ${i}) $(cxr_common_get_z_dim ${i})"
+		CXR_OPTIONS[$k]="HEIGHT $(common.runner.getX ${i}) $(common.runner.getY ${i}) $(common.runner.getZ ${i})"
 		
 		# The input (binary)
-		CXR_INPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
+		CXR_INPUT_FILES[$k]="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
 		
 		# The output (ascii)
-		CXR_OUTPUT_FILES[$k]="$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)"
+		CXR_OUTPUT_FILES[$k]="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)"
 		
 		#Add checks
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$k]}"

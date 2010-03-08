@@ -132,10 +132,10 @@ function set_variables()
 		# Needed to expand the file rule
 		station=${CXR_STATION[${i}]}
 		
-		CXR_STATION_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE)
+		CXR_STATION_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE)
 		
 		# Output files must not be decompressed!
-		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
+		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
 	
 		#Checks
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_STATION_INPUT_ARR_FILES[${i}]}"

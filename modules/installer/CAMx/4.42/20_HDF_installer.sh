@@ -93,7 +93,7 @@ exit 1
 function HDF_installer() 
 ################################################################################
 {
-	if [[ "$(cxr_common_get_consent "Do you want to complile the zlib, HDF, netCDF and IOAPI libraries (needed for HDF and IOAPI support)?\nRequires about $CXR_LIB_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to complile the zlib, HDF, netCDF and IOAPI libraries (needed for HDF and IOAPI support)?\nRequires about $CXR_LIB_MEGABYTES_REQUIRED MB of space." Y )" == true  ]]
 	then
 	
 		local patch_all_dir
@@ -102,7 +102,7 @@ function HDF_installer()
 		########################################
 		# Setup
 		########################################
-		export MYLIBDIR=$(cxr_common_evaluate_rule "$MYLIBDIR_RULE" false MYLIBDIR_RULE)
+		export MYLIBDIR=$(common.runner.evaluateRule "$MYLIBDIR_RULE" false MYLIBDIR_RULE)
 
 		########################################
 		# Check space
@@ -123,7 +123,7 @@ function HDF_installer()
 		
 		esac
 		
-		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
+		CXR_CURRENT_PLATFORM=$(common.user.getMenuChoice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
 		
 
 		########################################
@@ -261,8 +261,8 @@ function HDF_installer()
 		CXR_CURRENT_BINARY=ioapi
 		
 		# These directories might not exist!
-		patch_all_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
-		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
+		patch_all_dir=$(common.runner.evaluateRule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
+		patch_platform_dir=$(common.runner.evaluateRule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 		
 		########################################
 		main.log -a  "Applying patches..."
@@ -270,12 +270,12 @@ function HDF_installer()
 		
 		if [[ -d "$patch_all_dir"  ]]
 		then
-			cxr_common_apply_patches "$patch_all_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
+			common.install.applyPatch "$patch_all_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
 		if [[ -d "$patch_platform_dir"  ]]
 		then
-			cxr_common_apply_patches "$patch_platform_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
+			common.install.applyPatch "$patch_platform_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
 		cd ${CXR_IOAPI_TAR_DIR} || main.die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"
@@ -287,7 +287,7 @@ function HDF_installer()
 		rm ${CXR_IOAPI_TAR}
 		
 		# Those directories are no longer needed
-		if [[ "$(cxr_common_get_consent "Do you want to remove the directories ${CXR_HDF_TAR_DIR}, ${CXR_ZLIB_TAR_DIR}, ${CXR_NETCDF_TAR_DIR} and ${CXR_IOAPI_TAR_DIR} (they are not needed anymore)?" )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to remove the directories ${CXR_HDF_TAR_DIR}, ${CXR_ZLIB_TAR_DIR}, ${CXR_NETCDF_TAR_DIR} and ${CXR_IOAPI_TAR_DIR} (they are not needed anymore)?" )" == true  ]]
 		then
 			rm -r ${MYLIBDIR}/hdf/${CXR_HDF_TAR_DIR}
 			rm -r ${MYLIBDIR}/zlib/${CXR_ZLIB_TAR_DIR}

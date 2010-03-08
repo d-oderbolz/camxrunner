@@ -94,7 +94,7 @@ exit 1
 function CAMx_installer() 
 ################################################################################
 {
-	if [[ "$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true  ]]
+	if [[ "$(common.user.getOK "Do you want to compile ${CXR_MODEL} ${CXR_MODEL_VERSION}?\nRequires about $CXR_CAMX_MEGABYTES_REQUIRED MB of space.\nPlease register here: http://camx.com/down/\nalso consider joining the CAMx mailinglist <camxusers@environ.org>" Y )" == true  ]]
 	then
 	
 		local input_dir
@@ -123,7 +123,7 @@ function CAMx_installer()
 		########################################
 		
 		# Where to find hdf
-		export MYLIBDIR=$(cxr_common_evaluate_rule "$MYLIBDIR_RULE" false MYLIBDIR_RULE)
+		export MYLIBDIR=$(common.runner.evaluateRule "$MYLIBDIR_RULE" false MYLIBDIR_RULE)
 		
 		########################################
 		# Check space
@@ -144,7 +144,7 @@ function CAMx_installer()
 		if [[ -s ${CXR_CAMX_TAR}  ]]
 		then
 			# Does the user still want to download?
-			if [[ "$(cxr_common_get_consent "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true  ]]
+			if [[ "$(common.user.getOK "We seem to have a local copy of $(basename $CXR_CAMX_TAR). Do you want to repeat the download?" N )" == true  ]]
 			then
 				########################################
 				main.log -a  "Downloading ..."
@@ -185,8 +185,8 @@ function CAMx_installer()
 		
 		#	${CXR_MODEL}-${parallel_paradigm}-${probing_tool}-${HOSTTYPE}
 		
-		parallel_paradigm=$(cxr_common_get_menu_choice "What kind of parallel paradigm do you want to use?" "$CXR_SUPPORTED_PARALLEL_PARADIGMS" "$CXR_PARALLEL_PARADIGM")
-		probing_tool=$(cxr_common_get_menu_choice "What kind of probing tool do you want to enable?\n(A CAMx/PMCAMx binary is optimized for one tool, we will also use this in the name of the binary)" "$CXR_SUPPORTED_CAMX_PROBING_TOOLS" "$CXR_PROBING_TOOL")
+		parallel_paradigm=$(common.user.getMenuChoice "What kind of parallel paradigm do you want to use?" "$CXR_SUPPORTED_PARALLEL_PARADIGMS" "$CXR_PARALLEL_PARADIGM")
+		probing_tool=$(common.user.getMenuChoice "What kind of probing tool do you want to enable?\n(A CAMx/PMCAMx binary is optimized for one tool, we will also use this in the name of the binary)" "$CXR_SUPPORTED_CAMX_PROBING_TOOLS" "$CXR_PROBING_TOOL")
 		
 		# This is an argument to the make process
 		# and deterimes the name of the .play file
@@ -209,18 +209,18 @@ function CAMx_installer()
 		# Now we can add a machine name,
 		# specify a run name for the binary
 		# or give a completely different name
-		if [[ "$(cxr_common_get_consent "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to add the machine name $(uname -n) to the name of the binary?\nUse this option if you use different machines with the same architecture but incompatible libraries on the same filesystem (normally not the case)" N )" == true  ]]
 		then
 			binary_name=${binary_name}-$(uname -n)
-		elif [[ "$(cxr_common_get_consent "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
+		elif [[ "$(common.user.getOK "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
 		then
 			# Now we need to choose a run name. Look for links in the CAMx dir
-			run="$(basename $(cxr_common_get_menu_choice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
+			run="$(basename $(common.user.getMenuChoice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
 			binary_name=${CXR_MODEL_BIN_DIR}/${run}-${HOSTTYPE}
-		elif [[ "$(cxr_common_get_consent "Do you want to provide your own name for the binary?" N )" == true  ]]
+		elif [[ "$(common.user.getOK "Do you want to provide your own name for the binary?" N )" == true  ]]
 		then
-			binary_name=${CXR_MODEL_BIN_DIR}/$(cxr_common_get_user_input "What should be the name of the new binary?")
+			binary_name=${CXR_MODEL_BIN_DIR}/$(common.user.getInput "What should be the name of the new binary?")
 		fi
 		
 		main.log  "The new binary will be called $binary_name"
@@ -239,7 +239,7 @@ function CAMx_installer()
 		echo "Output Binary name: $binary_name" >> "${logfile}"
 		
 		# hdf? (Not reflected in name)
-		hdf=$(cxr_common_get_consent "Do you want to compile ${CXR_MODEL} with hdf support?\nthis requires the hdf library (see previous step of installation)" Y )
+		hdf=$(common.user.getOK "Do you want to compile ${CXR_MODEL} with hdf support?\nthis requires the hdf library (see previous step of installation)" Y )
 		
 		# Logging
 		echo "HDF: $hdf" >> "${logfile}"
@@ -265,7 +265,7 @@ function CAMx_installer()
 		# Logging
 		echo "PARALELL PARADIGM: $parallel_paradigm" >> "${logfile}"
 		
-		CXR_CURRENT_PLATFORM=$(cxr_common_get_menu_choice "What platform should be used to compile ${CXR_MODEL}?\n(Should be consistent with the parallel paradigm chosen earlier)" "$CXR_SUPPORTED_PLATFORMS" "$default_platform")
+		CXR_CURRENT_PLATFORM=$(common.user.getMenuChoice "What platform should be used to compile ${CXR_MODEL}?\n(Should be consistent with the parallel paradigm chosen earlier)" "$CXR_SUPPORTED_PLATFORMS" "$default_platform")
 		
 		# Logging
 		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
@@ -281,9 +281,9 @@ function CAMx_installer()
 		CXR_CURRENT_BINARY=${CXR_MODEL}
 		
 		# These directories might not exist!
-		patch_all_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
+		patch_all_dir=$(common.runner.evaluateRule "$CXR_PATCH_ALL_DIR_RULE" false CXR_PATCH_ALL_DIR_RULE) 
 		
-		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
+		patch_platform_dir=$(common.runner.evaluateRule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 
 		########################################
 		# Ask user for more settings
@@ -318,29 +318,29 @@ function CAMx_installer()
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [[ "$(cxr_common_get_consent "${CXR_MODEL} was already installed using ${parallel_paradigm}, ${probing_tool} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\n\nThere is a chance that in the meantime other features are available that are not yet reflected in this older file." Y )" == true  ]]
+			if [[ "$(common.user.getOK "${CXR_MODEL} was already installed using ${parallel_paradigm}, ${probing_tool} on ${HOSTTYPE}.\n Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\n\nThere is a chance that in the meantime other features are available that are not yet reflected in this older file." Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$playfile"
 				
-				if [[ "$(cxr_common_get_consent "Should this installation be repeated with the existing settings?" N )" == true  ]]
+				if [[ "$(common.user.getOK "Should this installation be repeated with the existing settings?" N )" == true  ]]
 				then
 					# Playback, do nothing
 					:
 				else
 					# Redo
-					cxr_common_get_answers "$askfile" "$playfile"
+					common.user.getAnswers "$askfile" "$playfile"
 				fi
 			else
 				# Redo
-				cxr_common_get_answers "$askfile" "$playfile"
+				common.user.getAnswers "$askfile" "$playfile"
 			fi
 		else
 	 		# Start from scratch
-			cxr_common_get_answers "$askfile" "$playfile"
+			common.user.getAnswers "$askfile" "$playfile"
 		fi
 		
-		cxr_common_apply_playfile "$playfile" "$( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
+		common.user.applyPlayfile "$playfile" "$( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
 		########################################
 		main.log -a  "Installing the changed files..."
@@ -367,14 +367,14 @@ function CAMx_installer()
 		
 		if [[ -d "$patch_all_dir"  ]]
 		then
-			cxr_common_apply_patches "$patch_all_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
+			common.install.applyPatch "$patch_all_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
 			main.log -w  "Did not find general patch dir $patch_all_dir"
 		fi
 		
 		if [[ -d "$patch_platform_dir"  ]]
 		then
-			cxr_common_apply_patches "$patch_platform_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
+			common.install.applyPatch "$patch_platform_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
 			main.log -w  "Did not find specific patch dir $patch_platform_dir"
 		fi
@@ -389,7 +389,7 @@ function CAMx_installer()
 		make clean 2>&1 | tee -a ${logfile} 
 		
 		# Test status
-		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
 			main.die_gracefully "make clean for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
@@ -398,7 +398,7 @@ function CAMx_installer()
 		make $CXR_CURRENT_PLATFORM  DOMAIN=$domain HDF=$hdf MPI=$mpi 2>&1 | tee -a ${logfile}
 		
 		# Test status
-		if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
+		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
 			main.die_gracefully "make for ${CXR_MODEL} ${CXR_MODEL_VERSION} failed"
 		fi
@@ -426,7 +426,7 @@ function CAMx_installer()
 		rm -rf $draft_dir
 		
 		
-		if [[ "$(cxr_common_get_consent "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true  ]]
+		if [[ "$(common.user.getOK "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true  ]]
 		then
 			# Remove tar file
 			rm $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR}

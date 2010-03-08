@@ -134,21 +134,21 @@ function set_variables()
 	do
 		#aqmfad needs ASCII Input
 		
-		CXR_AVG_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
+		CXR_AVG_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
 		
 		# TERRAIN
-		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
+		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
 		# Pressure
-		CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)
+		CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)
 		# Wind
-		CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE)
+		CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE)
 		# Temperature
-		CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)
+		CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)
 		# Vapor
-		CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE)
+		CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE)
 		# No Cloud
 		# Vertical K
-		CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]=$(cxr_common_evaluate_rule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE)
+		CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE)
 		# NO Emissions
 		
 		#Checks
