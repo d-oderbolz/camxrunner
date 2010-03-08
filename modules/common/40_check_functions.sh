@@ -378,7 +378,7 @@ function common.check.ModelLimits()
 # Loop through all *.sh scripts in the ${CXR_RUN_DIR} and check if they are executable
 #
 ################################################################################
-function common.check.RunnerExecutables ()
+function common.check.RunnerExecutables()
 ################################################################################
 {
 	local file

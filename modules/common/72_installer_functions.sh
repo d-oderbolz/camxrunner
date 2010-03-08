@@ -118,7 +118,7 @@ function common.install.do()
 		
 		CXR_MODEL=$(common.user.getMenuChoice "Which model should be installed?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS) - of course the installer needs to be extended too!" "$CXR_SUPPORTED_MODELS" "CAMx")
 		
-		model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
+		model_id=$(common.runner.getModelId "$CXR_MODEL") || main.die_gracefully "model $CXR_MODEL is not known."
 		
 		# Extract the list of supported versions
 		supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
@@ -140,12 +140,12 @@ function common.install.do()
 		#Generate a menu automatically
 		CXR_MODEL_VERSION=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
-		common.check.isVersionSupported? $version $model
+		common.check.isVersionSupported? $CXR_MODEL_VERSION $CXR_MODEL
 		
-		main.log  "Installing system for $model $version..."
+		main.log  "Installing system for $CXR_MODEL $CXR_MODEL_VERSION..."
 		
 		# reload config for this version (the run is called "installer")
-		main.readConfig "installer" "$version" "$model" "$CXR_RUN_DIR"
+		main.readConfig "installer" "$CXR_MODEL_VERSION" "$CXR_MODEL" "$CXR_RUN_DIR"
 		
 		# Run the required modules (we could even select them!)
 		common.module.runType ${CXR_TYPE_INSTALLER}
