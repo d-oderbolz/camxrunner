@@ -508,7 +508,7 @@ function common.check.reportMD5()
 	
 		if [[ $# -ne 1 ]]
 		then
-			echo -e  "Programming error: no filename passed!"
+			main.log -e  "Programming error: no filename passed!"
 		fi
 		
 		local file="$1"
@@ -545,13 +545,6 @@ function common.check.reportMD5()
 			# Store in Cache
 			common.hash.put MD5 $CXR_HASH_TYPE_UNIVERSAL "$file" "$hash"
 		fi
-		
-	
-			
-		
-			
-		
-
 	fi
 }
 
