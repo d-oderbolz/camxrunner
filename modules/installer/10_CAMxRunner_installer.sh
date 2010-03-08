@@ -155,14 +155,14 @@ function CAMxRunner_installer()
 			cp $DRAFTFILE $CXR_BASECONFIG || main.die_gracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
 		fi
 		
-		main.log "${FUNCNAME}" "You must manually adjust the ${CXR_CONF_DIR}/site.conf file - add any site specific settings there\nAlso, you might need to change CAMx Version specific settings in ${CXR_CONFIG_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf"
+		main.log  "You must manually adjust the ${CXR_CONF_DIR}/site.conf file - add any site specific settings there\nAlso, you might need to change CAMx Version specific settings in ${CXR_CONFIG_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf"
 		
 	fi
 	
 	##############################################################################
 	if [[ "$(cxr_common_get_consent "Do you want to regenerate the API documentation?" N )" == true  ]]
 	then
-		main.log "${FUNCNAME}" "Regenerating API documentation..."
+		main.log  "Regenerating API documentation..."
 		$CXR_API_DOC_EXEC
 	fi
 

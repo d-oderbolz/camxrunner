@@ -231,7 +231,7 @@ function convert_output()
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -247,7 +247,7 @@ function convert_output()
 		
 		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
 
-		main.log "${FUNCNAME}" "Working in $CXR_AQMFAD_OUTPUT_DIR"
+		main.log  "Working in $CXR_AQMFAD_OUTPUT_DIR"
 
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
@@ -272,7 +272,7 @@ function convert_output()
 			ydim=$(cxr_common_get_y_dim ${i})
 			zdim=$(cxr_common_get_z_dim ${i})
 			
-			main.log -v "${FUNCNAME}" "Grid $i\nXDIM: $xdim\nYDIM: $ydim\nZDIM: $zdim"
+			main.log -v  "Grid $i\nXDIM: $xdim\nYDIM: $ydim\nZDIM: $zdim"
 
 			### Go trough all input arrays
 			for j in $( seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1)) )
@@ -285,7 +285,7 @@ function convert_output()
 				converter=${CXR_CONVERTERS[${j}]}
 				options=${CXR_CONVERTER_OPTIONS[${j}]}
 				
-				main.log "${FUNCNAME}" "Converting ${input_file} to ${output_file} using ${converter}..."
+				main.log  "Converting ${input_file} to ${output_file} using ${converter}..."
 				
 				# Any existing file will be skipped (see comment in header)
 				if [[ -s "$output_file"  ]]
@@ -293,25 +293,25 @@ function convert_output()
 					if [[ "${CXR_FORCE}" == true  ]] 
 					then
 						# Delete it
-						main.log "${FUNCNAME}"  "File ${output_file} exists - since you run with the -f option, if will be deleted now"
+						main.log   "File ${output_file} exists - since you run with the -f option, if will be deleted now"
 						rm -f "$output_file"
 					else
 						# Skip it
-						main.log "${FUNCNAME}"  "File ${output_file} exists - file will skipped."
+						main.log   "File ${output_file} exists - file will skipped."
 						continue
 					fi
 				fi
 				
-				main.log "${FUNCNAME}"  "Converting ${input_file} to ${output_file} ..."
+				main.log   "Converting ${input_file} to ${output_file} ..."
 			
-				main.log -v "${FUNCNAME}" "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 "
+				main.log -v  "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 "
 
 				if [[ "$CXR_DRY" == false  ]]
 				then
 					#Call the converter, collect sterr and stout
 					${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 2>&1 | tee -a $CXR_LOG
 				else
-						main.log "${FUNCNAME}"  "Dryrun, no conversion performed"
+						main.log   "Dryrun, no conversion performed"
 				fi
 			done
 		done 
@@ -320,7 +320,7 @@ function convert_output()
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -328,7 +328,7 @@ function convert_output()
 		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

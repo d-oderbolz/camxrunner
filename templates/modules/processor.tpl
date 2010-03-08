@@ -179,12 +179,12 @@ function name()
 		# this failed one - otherwise we can go on!
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		main.log "$FUNCNAME"  "Running NAME..."
+		main.log   "Running NAME..."
 		
 		# Normally the actual work is done in a loop for all grids
 		# But this depends!
@@ -199,14 +199,14 @@ function name()
 			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
 			then
 				# Skip it
-				main.log "$FUNCNAME"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main.log   "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
 				continue
 			fi
 	
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log "$FUNCNAME" "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+			main.log  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
 	
 			if [[ "$CXR_DRY" == false  ]]
 			then
@@ -216,7 +216,7 @@ function name()
 				# Call an exec stored in a variable and redirect output and error to file and stdout.
 	
 			else
-				main.log -w "$FUNCNAME"  "Dryrun - no action performed"
+				main.log -w   "Dryrun - no action performed"
 			fi
 	
 			# Decrease global indent level
@@ -228,14 +228,14 @@ function name()
 			# this failed one - otherwise we can go on!
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				main.log "$FUNCNAME" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
 			
 			
 			# -v option shows message only if the log level is high enough
-			main.log -v "$FUNCNAME"  "Some verbose message here"
+			main.log -v   "Some verbose message here"
 	
 		done
 	

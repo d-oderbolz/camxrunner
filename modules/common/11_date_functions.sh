@@ -174,7 +174,7 @@ function date_toRaw()
 	
 	if [[  $# -ne 1 || $(date_isYYYYMMDD? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
+		main.log -e  "needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -199,7 +199,7 @@ function date_toISO()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs 1 date as input"
+		main.log -e  "needs 1 date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -207,7 +207,7 @@ function date_toISO()
 	# If we got the empty string, return the empty string
 	if [[ ! "$1"  ]]
 	then
-		main.log -w "$FUNCNAME" "Got the empty string and will return it"
+		main.log -w  "Got the empty string and will return it"
 	else
 		# Convert
 		date +%Y-%m-%d -d $1
@@ -334,7 +334,7 @@ function cxr_common_julian2date()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main.log -e  "needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -372,7 +372,7 @@ function cxr_common_epoch2date()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main.log -e  "needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -398,7 +398,7 @@ function cxr_common_epoch2datetime()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one number as input"
+		main.log -e  "needs one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -424,7 +424,7 @@ function cxr_common_week_of_year()
 
 	if [[ $# -lt 1   ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
+		main.log -e   "needs a date of the form YYYY-MM-DD as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -454,7 +454,7 @@ function cxr_common_day_of_year()
 	
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date of the form YYYY-MM-DD as input"
+		main.log -e   "needs a date of the form YYYY-MM-DD as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -493,7 +493,7 @@ function cxr_common_days_in_month
 	
 	if [[ $# -lt 2  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a month and a year as input"
+		main.log -e   "needs a month and a year as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -523,7 +523,7 @@ function cxr_common_days_left_in_week
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a date as input"
+		main.log -e  "needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -555,7 +555,7 @@ function cxr_common_days_left_in_month
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a date as input"
+		main.log -e   "needs a date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -587,7 +587,7 @@ function cxr_common_is_leap_year
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}"  "${FUNCNAME}:${LINENO} - needs a year as input"
+		main.log -e   "needs a year as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -644,7 +644,7 @@ function cxr_common_date2offset()
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
+		main.log -e  "needs one YYYY-MM-DD date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -656,12 +656,12 @@ function cxr_common_date2offset()
 	
 	if [[ ${offset} -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	else
@@ -696,7 +696,7 @@ function cxr_common_offset2date()
 	# Check input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
+		main.log -e  "needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -732,7 +732,7 @@ function cxr_common_offset2_raw_date()
 	# Check input
 	if [[ $# -ne 1 ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs a number as input"
+		main.log -e  "needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -772,7 +772,7 @@ function cxr_common_modelling_hour()
 	# Check for numeric input
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one YYYY-MM-DD date as input"
+		main.log -e  "needs one YYYY-MM-DD date as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -781,12 +781,12 @@ function cxr_common_modelling_hour()
 	
 	if [[ ${offset} -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e "${FUNCNAME}" "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
 		echo false
 		return $CXR_RET_ERROR
 	else
@@ -815,7 +815,7 @@ function cxr_common_days_between()
 	
 	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(date_isYYYYMMDD? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "needs 2 dates as input"
+		main.log -e  "needs 2 dates as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -828,7 +828,7 @@ function cxr_common_days_between()
 	
 	if [[ $diff -lt 0  ]]
 	then
-		main.log -e "${FUNCNAME}" "Date2 is smaller than Date1"
+		main.log -e  "Date2 is smaller than Date1"
 		echo 0
 		return $CXR_RET_ERROR
 	fi
@@ -858,7 +858,7 @@ function date_addDays()
 	
 	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main.log -e  "needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -892,7 +892,7 @@ function date_subtractDays()
 	
 	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main.log -e  "needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -927,7 +927,7 @@ function date_setVars()
 
 	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
-		main.log -e "${FUNCNAME}" "${FUNCNAME}:${LINENO} - needs one date and one number as input"
+		main.log -e  "needs one date and one number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi

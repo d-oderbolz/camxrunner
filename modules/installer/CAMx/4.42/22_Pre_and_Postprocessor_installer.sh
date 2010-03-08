@@ -120,7 +120,7 @@ function Pre_and_Postprocessor_installer()
 		do
 			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
-				main.log -a "${FUNCNAME}" "****Compiling source in $SRC_DIR...\n"
+				main.log -a  "****Compiling source in $SRC_DIR...\n"
 				
 				cd $SRC_DIR || main.die_gracefully "Could not change to $SRC_DIR"
 				
@@ -134,7 +134,7 @@ function Pre_and_Postprocessor_installer()
 		
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
 		
-		main.log -a "${FUNCNAME}" "Converters compiled."
+		main.log -a  "Converters compiled."
 
 	fi
 }

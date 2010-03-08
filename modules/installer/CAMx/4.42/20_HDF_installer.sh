@@ -130,7 +130,7 @@ function HDF_installer()
 		# Create the target directories
 		########################################
 		
-		main.log -a "${FUNCNAME}" "Starting installation - feel free to grab a cup of coffee or tea..."
+		main.log -a  "Starting installation - feel free to grab a cup of coffee or tea..."
 		sleep 2
 		
 		mkdir -p $MYLIBDIR/zlib || main.die_gracefully "could not create $MYLIBDIR/zlib"
@@ -144,7 +144,7 @@ function HDF_installer()
 		# Zlib
 		########################################
 		
-		main.log -a -b "${FUNCNAME}" "zlib"
+		main.log -a -b  "zlib"
 	
 		# Go to location
 		cd $MYLIBDIR/zlib || main.die_gracefully "could not change to $MYLIBDIR/zlib"
@@ -174,7 +174,7 @@ function HDF_installer()
 		# HDF
 		########################################	
 
-		main.log -a -b "${FUNCNAME}" "HDF5"
+		main.log -a -b  "HDF5"
 	
 		# Go to location
 		cd $MYLIBDIR/hdf || main.die_gracefully "could not change to $MYLIBDIR/hdf"
@@ -204,7 +204,7 @@ function HDF_installer()
 		# netcdf
 		########################################
 		
-		main.log -a -b "${FUNCNAME}" "NetCDF"
+		main.log -a -b  "NetCDF"
 		
 		# Go to location
 		cd $MYLIBDIR/netcdf || main.die_gracefully "could not change to $MYLIBDIR/netcdf"
@@ -232,7 +232,7 @@ function HDF_installer()
 		# IOAPI
 		########################################
 		
-		main.log -a -b "${FUNCNAME}" "IOAPI"
+		main.log -a -b  "IOAPI"
 		
 		# Set needed variable
 		BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
@@ -254,7 +254,7 @@ function HDF_installer()
 		
 		
 		########################################
-		main.log  -a "${FUNCNAME}" "Setup Input directories containing patches..."
+		main.log  -a  "Setup Input directories containing patches..."
 		########################################
 		
 		# We compile CAMx
@@ -265,7 +265,7 @@ function HDF_installer()
 		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 		
 		########################################
-		main.log -a "${FUNCNAME}" "Applying patches..."
+		main.log -a  "Applying patches..."
 		########################################
 		
 		if [[ -d "$patch_all_dir"  ]]
@@ -298,7 +298,7 @@ function HDF_installer()
 		# Change to run dir
 		cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
 		
-		main.log -a "${FUNCNAME}" "Done. Libraries should now be ready for the compilation of CAMx."
+		main.log -a  "Done. Libraries should now be ready for the compilation of CAMx."
 		
 	fi
 	

@@ -98,7 +98,7 @@ function common.math.abs()
 {
 	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false   ]]
 	then
-		main.log -e "$FUNCNAME" "$FUNCNAME:$LINENO - needs a number as input"
+		main.log -e  "needs a number as input"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -136,7 +136,7 @@ function common.math.FloatOperation()
 {
 	if [[ $# -lt 1 ]]
 	then
-		main.die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
+		main.die_gracefully  "needs at least an expression as input"
 	fi
 	
 	# Define & Initialize local vars

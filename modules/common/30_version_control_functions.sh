@@ -125,7 +125,7 @@ function cxr_common_get_svn_revision()
 			revision=$( echo "${version_string}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)
 		else
 			# We do not have 6 fields, cannot garantee anything!
-			main.log -w "${FUNCNAME}" "Version string of file $filename is broken. Fix using svn!"
+			main.log -w  "Version string of file $filename is broken. Fix using svn!"
 			revision=0
 		fi
 		
@@ -222,7 +222,7 @@ function test_module()
 	is $(cxr_common_get_svn_revision "$test_file1") 2605 "cxr_common_get_svn_revision normal"
 	is $(cxr_common_get_svn_revision "$test_file2") 2605 "cxr_common_get_svn_revision double-contradiction"
 	
-	main.log -a "$FUNCNAME" "We provoke an error mesage here - you can ignore this..."
+	main.log -a  "We provoke an error mesage here - you can ignore this..."
 	is $(cxr_common_get_svn_revision "$test_file3") 0 "cxr_common_get_svn_revision missing revision"
 	is $(cxr_common_get_svn_revision "$test_file4") 12345 "cxr_common_get_svn_revision with garbage at end"
 	

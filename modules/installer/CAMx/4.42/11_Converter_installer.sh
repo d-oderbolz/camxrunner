@@ -120,7 +120,7 @@ function Converter_installer()
 			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
 			
-				main.log -b "${FUNCNAME}" "Compiling source in $SRC_DIR..."
+				main.log -b  "Compiling source in $SRC_DIR..."
 				
 				cd $SRC_DIR || main.die_gracefully "Could not change to $SRC_DIR"
 				
@@ -134,7 +134,7 @@ function Converter_installer()
 		
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
 		
-		main.log "${FUNCNAME}" "Converters compiled."
+		main.log  "Converters compiled."
 
 	fi
 }

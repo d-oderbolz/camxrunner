@@ -92,7 +92,7 @@ function cxr_common_is_repeated_run()
 	
 	count=$(find ${CXR_STATE_DIR} -maxdepth 1 -noleaf -type f 2>/dev/null | wc -l)
 	
-	main.log -v "$FUNCNAME" "File count in state directory: $count"
+	main.log -v  "File count in state directory: $count"
 	
 	if [[ "$count" -gt 0  ]]
 	then
@@ -226,7 +226,7 @@ function cxr_common_get_stage_name()
 		${CXR_TYPE_INSTALLER}) 
 			echo ${module_type}@${module_name} ;;
 			
-	 *) main.die_gracefully "${FUNCNAME}:${LINENO} - Unknown module type ${module_type}";;
+	 *) main.die_gracefully "Unknown module type ${module_type}";;
 	esac
 }
 
@@ -238,7 +238,7 @@ function cxr_common_get_stage_name()
 function cxr_common_delete_continue_files()
 ################################################################################
 {
-	main.log -w "${FUNCNAME}" "The continue files of all instances of this run will be deleted now!"
+	main.log -w  "The continue files of all instances of this run will be deleted now!"
 	
 	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \;
 }
@@ -251,7 +251,7 @@ function cxr_common_delete_continue_files()
 function cxr_common_delete_instance_data()
 ################################################################################
 {
-	main.log -w "${FUNCNAME}" "The instance data in  ${CXR_INSTANCE_DIR} will be deleted now!"
+	main.log -w  "The instance data in  ${CXR_INSTANCE_DIR} will be deleted now!"
 	rm -rf ${CXR_INSTANCE_DIR} >/dev/null 2>&1
 }
 
@@ -268,7 +268,7 @@ function cxr_common_initialize_state_db()
 	
 	if [[ -z "${CXR_STATE_DIR}"  ]]
 	then
-		main.log -e "${FUNCNAME}" "CXR_STATE_DIR not set!"
+		main.log -e  "CXR_STATE_DIR not set!"
 		return 1
 	fi
 	
@@ -311,7 +311,7 @@ function cxr_common_initialize_state_db()
 	cxr_common_hash_init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
 	
 	# Creating .continue file
-	main.log -n -i "${FUNCNAME}" "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
+	main.log -n -i  "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	# Create the instance files and secure them
@@ -364,7 +364,7 @@ function cxr_common_store_state()
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - needs a state like $CXR_STATE_ERROR as Input"   
+		main.die_gracefully "needs a state like $CXR_STATE_ERROR as Input"   
 	fi
 	
 	local state=$1
@@ -375,7 +375,7 @@ function cxr_common_store_state()
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
 	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
 	then
-		main.log -v "${FUNCNAME}"  "You disabled the state DB (CXR_ENABLE_STATE_DB=false), new state will not be stored."
+		main.log -v   "You disabled the state DB (CXR_ENABLE_STATE_DB=false), new state will not be stored."
 		echo true
 		return $CXR_RET_OK
 	fi
@@ -390,11 +390,11 @@ function cxr_common_store_state()
 				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true  ]]
 				then
 					# Ran already, but user wants to run specifically this
-					main.log -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - stage $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
+					main.log -w  "stage $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
 					echo true
 				else
 					# Oops, this stage was already started	
-					main.log -w "${FUNCNAME}" "${FUNCNAME}:${LINENO} - stage $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+					main.log -w  "stage $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 					
 					# false means already run
 					echo false
@@ -406,7 +406,7 @@ function cxr_common_store_state()
 			;;
 	
 			"$CXR_STATE_STOP")
-				main.log -i "${FUNCNAME}" "stage $stage successfully completed."
+				main.log -i  "stage $stage successfully completed."
 				echo true
 				;;
 	
@@ -443,7 +443,7 @@ function cxr_common_get_state_file_name()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main.die_gracefully "needs a state and a stage as Input" 
 	fi
 	
 	local state=$1
@@ -466,13 +466,13 @@ function cxr_common_detect_running_instances()
 	if [[  ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false   ]]
 	then
 		# There are other processes running and this is not allowed
-		main.log -e "${FUNCNAME}"  "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
+		main.log -e   "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
 		
 		ls -la ${CXR_STATE_DIR}/*${CXR_STATE_CONTINUE} | tee -a ${CXR_LOG}
 		
-		main.log -e "${FUNCNAME}"  "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
+		main.log -e   "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
-		main.die_gracefully "${FUNCNAME}:${LINENO} - Process stopped"
+		main.die_gracefully "Process stopped"
 	fi
 }
 
@@ -489,7 +489,7 @@ function cxr_common_has_finished()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main.die_gracefully "needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -502,7 +502,7 @@ function cxr_common_has_finished()
 	
 		if [[ -f "$start_file"  ]]
 		then
-			main.log -v "${FUNCNAME}" "Found a START file for ${stage}"
+			main.log -v  "Found a START file for ${stage}"
 		fi
 		
 		echo true
@@ -511,7 +511,7 @@ function cxr_common_has_finished()
 		# There is no stop file. Still there might be a start file:
 		if [[ -f "$start_file"  ]]
 		then
-			main.log -w "${FUNCNAME}" "The stage ${stage} was started, but did not (yet) finish."
+			main.log -w  "The stage ${stage} was started, but did not (yet) finish."
 		fi
 	
 		echo false
@@ -532,7 +532,7 @@ function cxr_common_has_failed()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - needs a state and a stage as Input" 
+		main.die_gracefully "needs a state and a stage as Input" 
 		echo false
 	fi
 	
@@ -585,7 +585,7 @@ function cxr_common_cleanup_state()
 		case "$what" in 
 		
 			all)
-					main.log -w "${FUNCNAME}" "The following files will be deleted:"
+					main.log -w  "The following files will be deleted:"
 						
 					find ${CXR_STATE_DIR} -noleaf -type f -maxdepth 1 | xargs -i basename \{\}
 			
@@ -593,12 +593,12 @@ function cxr_common_cleanup_state()
 					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
-						main.log -i "${FUNCNAME}"  "Will not delete any state information"
+						main.log -i   "Will not delete any state information"
 						return 0
 					else
 						# Yes
 						rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
-						main.log -i "${FUNCNAME}"  "Done."
+						main.log -i   "Done."
 						# When all is cleared, we do not need to go further
 						break
 					fi
@@ -606,7 +606,7 @@ function cxr_common_cleanup_state()
 			
 			existing-instances)
 			
-					main.log -w "${FUNCNAME}" "The following directories and files therein will be deleted:"
+					main.log -w  "The following directories and files therein will be deleted:"
 						
 					find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
 			
@@ -614,12 +614,12 @@ function cxr_common_cleanup_state()
 					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
-						main.log -i "${FUNCNAME}"  "Will not delete any state information"
+						main.log -i   "Will not delete any state information"
 						return 0
 					else
 						# Yes
 						rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
-						main.log -i "${FUNCNAME}"  "Done."
+						main.log -i   "Done."
 					fi
 			
 			;;
@@ -645,24 +645,24 @@ function cxr_common_cleanup_state()
 						case "$which_day" in
 						
 							none) 
-								main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+								main.log -w   "Will not delete any state information" 
 								return 0
 							;;
 								
 							*)
-								main.log -w "${FUNCNAME}" "The following files will be deleted:"
+								main.log -w  "The following files will be deleted:"
 						
 								ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 								
 								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
-									main.log -w "${FUNCNAME}"  "Will not delete any state information"
+									main.log -w   "Will not delete any state information"
 									return 0
 								else
 									#Yes
 									rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-									main.log -i "${FUNCNAME}"  "Done."
+									main.log -i   "Done."
 								fi
 							;;
 							
@@ -685,25 +685,25 @@ function cxr_common_cleanup_state()
 						case "$which_step" in
 						
 							none) 
-								main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+								main.log -w   "Will not delete any state information" 
 								return 0
 							;;
 								
 							*)
 							
-								main.log -w "${FUNCNAME}" "The following files will be deleted:"
+								main.log -w  "The following files will be deleted:"
 								
 								ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 								
 								if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 								then
 									# No 
-									main.log -w "${FUNCNAME}"  "Will not delete any state information"
+									main.log -w   "Will not delete any state information"
 									return 0
 								else
 									#Yes
 									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-									main.log -i "${FUNCNAME}"  "Done."
+									main.log -i   "Done."
 								fi
 							;;
 						esac
@@ -721,7 +721,7 @@ function cxr_common_cleanup_state()
 						case "$which_day" in
 				
 							none) 
-								main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+								main.log -w   "Will not delete any state information" 
 								return 0
 							;;
 								
@@ -736,39 +736,39 @@ function cxr_common_cleanup_state()
 								case "$which_step" in
 								
 									none) 
-										main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+										main.log -w   "Will not delete any state information" 
 										return 0
 									;;
 									
 									all) 
-										main.log -w "${FUNCNAME}" "The following files will be deleted:"
+										main.log -w  "The following files will be deleted:"
 										ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 										
 										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
-											main.log -w "${FUNCNAME}"  "Will not delete any state information"
+											main.log -w   "Will not delete any state information"
 											return 0
 										else
 											#Yes
 											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-											main.log -i "${FUNCNAME}"  "Done."
+											main.log -i   "Done."
 										fi
 									;;
 									
-									*)	main.log -w "${FUNCNAME}" "The following files will be deleted:"
+									*)	main.log -w  "The following files will be deleted:"
 								
 										ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
 										
 										if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
-											main.log -w "${FUNCNAME}"  "Will not delete any state information"
+											main.log -w   "Will not delete any state information"
 											return 0
 										else
 											#Yes
 											rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-											main.log -i "${FUNCNAME}"  "Done."
+											main.log -i   "Done."
 										fi
 									;;
 									
@@ -778,14 +778,14 @@ function cxr_common_cleanup_state()
 					;;
 				
 					none) 
-						main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+						main.log -w   "Will not delete any state information" 
 						return 0
 					;;
 				esac
 				;;
 				
 			tasks)
-					main.log -w "${FUNCNAME}" "The following files will be deleted:"
+					main.log -w  "The following files will be deleted:"
 						
 					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* ${CXR_LOCK_DIR}/* | xargs -i basename \{\}
 			
@@ -793,7 +793,7 @@ function cxr_common_cleanup_state()
 					if [[ "$(cxr_common_get_consent "Do you really want to delete these files?" )" == false  ]]
 					then
 						# No 
-						main.log -w "${FUNCNAME}"  "Will not delete any state information"
+						main.log -w   "Will not delete any state information"
 						return 0
 					else
 	
@@ -801,12 +801,12 @@ function cxr_common_cleanup_state()
 						rm -rf ${CXR_TASK_POOL_DIR}/* 2>/dev/null
 						rm -rf ${CXR_WORKER_DIR}/* 2>/dev/null
 						rm -rf ${CXR_LOCK_DIR}/* 2>/dev/null
-						main.log -i "${FUNCNAME}"  "Done."
+						main.log -i   "Done."
 					fi
 			;;
 			
 			none)
-				main.log -w "${FUNCNAME}"  "Will not delete any state information" 
+				main.log -w   "Will not delete any state information" 
 				return 0
 			;;
 		
@@ -828,20 +828,20 @@ function cxr_common_do_we_continue()
 	local error_count=$(main.countErrors)
 	
 	# Report error count
-	main.log -v -b "${FUNCNAME}"  "Current Error Count: $error_count"
+	main.log -v -b   "Current Error Count: $error_count"
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
 	if [[  ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		main.die_gracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 	
 	# Do we care at all?
 	# Set this in tests etc.
 	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
 	then
-		main.log -v "${FUNCNAME}"  "You disabled the state DB, cannot determine presence of the continue file!"
+		main.log -v   "You disabled the state DB, cannot determine presence of the continue file!"
 		return $CXR_RET_OK
 	fi
 	
@@ -850,7 +850,7 @@ function cxr_common_do_we_continue()
 	then
 		if [[ ! -f ${CXR_CONTINUE_FILE}  ]]
 		then
-			main.log -w "${FUNCNAME}" "The Continue file no longer exists, exiting."
+			main.log -w  "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING
 		else
 			# We touch the continue file
@@ -911,7 +911,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	main.log -a "$FUNCNAME" "Initialising state DB in ${CXR_STATE_DIR}"
+	main.log -a  "Initialising state DB in ${CXR_STATE_DIR}"
 	cxr_common_initialize_state_db
 	
 	########################################

@@ -158,7 +158,7 @@ function check_input()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -180,7 +180,7 @@ function check_input()
 			${CXR_LANDUSE_FILES[$i]%\.*}
 			EOF
 			
-			main.log ${FUNCNAME} "Checking Landuse files using this script..."
+			main.log "Checking Landuse files using this script..."
 			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 			
 			# Run SRFLND
@@ -188,13 +188,13 @@ function check_input()
 			then
 				${CXR_SRFLND_EXEC} < $EXEC_TMP_FILE
 			else
-				main.log "${FUNCNAME}"  "This is a dry-run, no action required"    
+				main.log   "This is a dry-run, no action required"    
 			fi
 		
 			# Check the return value (0 means OK)
 			if [[ $? -ne 0  ]]
 			then
-				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -207,7 +207,7 @@ function check_input()
 		# Check if all went well
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -215,7 +215,7 @@ function check_input()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

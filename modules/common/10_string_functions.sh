@@ -87,7 +87,7 @@ function common.string.isSubstringPresent?()
 	
 	if [[ $found -gt 0  ]]
 	then
-		main.log -v "${FUNCNAME}"  "Substring $2 matches (partially) with $1"
+		main.log -v   "Substring $2 matches (partially) with $1"
 		echo true
 	else
 		echo false
@@ -150,7 +150,7 @@ function string_trim()
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.log -e "$FUNCNAME" "Programming error: wrong call."
+		main.log -e  "Programming error: wrong call."
 		echo ""
 	else
 		# trim in front
@@ -218,7 +218,7 @@ function string_leftPadZero
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "$FUNCNAME:$LINENO - We need 2 digits as input: the number to pad and the number of digits to pad to"
+		main.die_gracefully "We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
 	local number="$1"

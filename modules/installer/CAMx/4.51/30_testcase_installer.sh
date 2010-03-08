@@ -106,7 +106,7 @@ function testcase_installer()
 		cd $TESTCASE_DIR || main.die_gracefully "Could change to $TESTCASE_DIR"
 		
 		########################################
-		main.log "${FUNCNAME}" "Downloading three files - might take a while..."
+		main.log  "Downloading three files - might take a while..."
 		sleep 2
 		########################################
 		
@@ -116,7 +116,7 @@ function testcase_installer()
 		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.die_gracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
 		
 		########################################
-		main.log "${FUNCNAME}" "Unpacking tar files..."
+		main.log  "Unpacking tar files..."
 		########################################
 		
 		# Untar
@@ -132,13 +132,13 @@ function testcase_installer()
 		fi
 		
 		########################################
-		main.log "${FUNCNAME}" "Renaming testcase files for use with CAMxRunner run CAMx-v${CXR_MODEL_VERSION}.ENVIRON_testcase"
+		main.log  "Renaming testcase files for use with CAMxRunner run CAMx-v${CXR_MODEL_VERSION}.ENVIRON_testcase"
 		########################################	
 		
 		# Run renamer
 		${CXR_RUN_DIR}/testcase/${CXR_MODEL}/${CXR_MODEL_VERSION}/rename_inputs4CAMxRunner.sh
 		
-		main.log "${FUNCNAME}" "Done. You should now have a working testcase for CAMx ${CXR_MODEL_VERSION}.\nStart if with the run CAMx.v${CXR_MODEL_VERSION}.ENVIRON_testcase\nThe expected output is in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION} and the new model output will be in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION}/outputs after the run."
+		main.log  "Done. You should now have a working testcase for CAMx ${CXR_MODEL_VERSION}.\nStart if with the run CAMx.v${CXR_MODEL_VERSION}.ENVIRON_testcase\nThe expected output is in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION} and the new model output will be in ${CXR_RUN_DIR}/testcase/${CXR_MODEL_VERSION}/outputs after the run."
 			
 	
 	fi

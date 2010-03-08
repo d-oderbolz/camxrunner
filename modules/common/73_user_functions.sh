@@ -110,7 +110,7 @@ function cxr_common_countdown()
 {
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e "$FUNCNAME" "Need at least a message to show"
+		main.log -e  "Need at least a message to show"
 	fi
 	
 	local message="${1}"
@@ -124,7 +124,7 @@ function cxr_common_countdown()
 	do
 		if [[ $(expr $i % $mod_sec) -eq 0  ]]
 		then
-			main.log -w -B "$FUNCNAME" "$i seconds left."
+			main.log -w -B  "$i seconds left."
 		fi
 	done
 }
@@ -317,7 +317,7 @@ function cxr_common_pause()
 #> all) 
 #>	delete_all ;;
 #>none)
-#>	main.log "${FUNCNAME}"  "Will not delete any state information" ;;
+#>	main.log   "Will not delete any state information" ;;
 #>esac
 #
 # Parameters:
@@ -441,7 +441,7 @@ function cxr_common_get_answers()
 	local default
 	
 	
-	main.log -a "${FUNCNAME}" "Using ask-file ${playfile}"
+	main.log -a  "Using ask-file ${playfile}"
 	
 	# Write a comment to the file
 	echo -e "#This is a machine-generated file. Generated on $(date) by user $USER\n#It can be used to replay an installation." > $playfile
@@ -565,11 +565,11 @@ function cxr_common_get_answers()
 			done
 		fi
 
-		main.log -v "${FUNCNAME}"  "variable: $variable"
-		main.log -v "${FUNCNAME}"  "question: $question"
-		main.log -v "${FUNCNAME}"  "default: $default"
-		main.log -v "${FUNCNAME}"  "datatype: $datatype"
-		main.log -v "${FUNCNAME}"  "lov: $lov"
+		main.log -v   "variable: $variable"
+		main.log -v   "question: $question"
+		main.log -v   "default: $default"
+		main.log -v   "datatype: $datatype"
+		main.log -v   "lov: $lov"
 
 
 		if [[ -z "$(string_trim "${variable}")"  ]]
@@ -617,7 +617,7 @@ function cxr_common_get_answers()
 
 			if [[ "$(cxr_common_check_datataype "$VALUE" "$datatype")" == false  ]]
 			then
-				main.log "${FUNCNAME}" "Datatpe of $VALUE is not $datatype! I use the default instead."
+				main.log  "Datatpe of $VALUE is not $datatype! I use the default instead."
 				# Use default
 				VALUE="$default"
 			fi
@@ -667,7 +667,7 @@ function cxr_common_apply_playfile()
 
 	if [[ $# -ne 2  ]]
 	then
-		main.die_gracefully "${FUNCNAME}:${LINENO} - needs a playfile and a list of input files as input"
+		main.die_gracefully "needs a playfile and a list of input files as input"
 	fi
 
 	local playfile="$1"
@@ -681,7 +681,7 @@ function cxr_common_apply_playfile()
 	local curline
 
 	########################################
-	main.log "${FUNCNAME}" "Playback of $playfile..."
+	main.log  "Playback of $playfile..."
 	########################################
 	
 	# Quickly check if is old-style
@@ -690,7 +690,7 @@ function cxr_common_apply_playfile()
 	if [[ "$(grep -c : "$playfile")" -gt 1  ]]
 	then	
 		# More than 1 line contains :
-		main.log -w $FUNCNAME "More than one line of the file $playfile contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
+		main.log -w "More than one line of the file $playfile contains colons (the former delimiter used for .play files). I will now assume : as delimiter, but please replace : by | in the file manually, thanks!"
 		# Use old delimiter
 		delimiter=":"
 	fi
@@ -701,7 +701,7 @@ function cxr_common_apply_playfile()
 	# Start at line 1
 	curline=1
 	
-	main.log -a "${FUNCNAME}" "Applying changes to the template files..."
+	main.log -a  "Applying changes to the template files..."
 		
 	# Loop trough playfile, curline is the line index 1..n
 	while [ $curline -le $(wc -l < $playfile) ]
@@ -746,12 +746,12 @@ function cxr_common_apply_playfile()
 				continue
 			fi
 
-			main.log -v "${FUNCNAME}" "For each variable, we go through all files now."
+			main.log -v  "For each variable, we go through all files now."
 
 			# Replace the current variable in all files listed
 			for current_file in $files
 			do
-				main.log -v "${FUNCNAME}" "current_file: $current_file"
+				main.log -v  "current_file: $current_file"
 				
 				# replace the @variable@ with the value (globally) 
 				# send the output to $sed_tmp (sed cannot work on the same file as the input)

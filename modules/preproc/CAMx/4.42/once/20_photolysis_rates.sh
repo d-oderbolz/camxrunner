@@ -224,12 +224,12 @@ function photolysis_rates()
 			case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
 			
 				once )
-					main.log -b ${FUNCNAME} "Running TUV for whole period..."
+					main.log -b "Running TUV for whole period..."
 					substage=once
 					;;
 					
 				daily )
-					main.log -b ${FUNCNAME} "Running TUV for $CXR_DATE..."
+					main.log -b "Running TUV for $CXR_DATE..."
 					substage=$CXR_DATE
 					;;
 					
@@ -237,7 +237,7 @@ function photolysis_rates()
 					# Are we in a new week?
 					if [[ "$last_week" != "$CXR_WOY"  ]]
 					then
-						main.log -b ${FUNCNAME} "Running TUV for week $CXR_WOY..."
+						main.log -b "Running TUV for week $CXR_WOY..."
 						substage=$CXR_WOY
 					else
 						# No new week, next iteration
@@ -249,7 +249,7 @@ function photolysis_rates()
 					# Are we in a new month?
 					if [[ "$last_month" != "$CXR_MONTH"  ]]
 					then
-						main.log -b ${FUNCNAME} "Running TUV for month $CXR_MONTH..."
+						main.log -b "Running TUV for month $CXR_MONTH..."
 						substage=$CXR_MONTH
 					else
 						# No new month
@@ -267,7 +267,7 @@ function photolysis_rates()
 			#  --- Check Settings
 			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
-				main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
@@ -298,14 +298,14 @@ function photolysis_rates()
 						rm -f tuv.inp
 						ln -s "$tuv_control_file" tuv.inp
 						
-						main.log "${FUNCNAME}" "Calling TUV - using this jobfile (be patient)...\n"
+						main.log  "Calling TUV - using this jobfile (be patient)...\n"
 						cat tuv.inp | tee -a ${CXR_LOG}
 		
 						# Call TUV
 						${CXR_TUV_EXEC}  2>&1 | tee -a $CXR_LOG
 		
 					else
-						main.log "${FUNCNAME}" "Could not create TUV control file - module failed."
+						main.log  "Could not create TUV control file - module failed."
 						return $CXR_RET_ERROR
 					fi
 		
@@ -313,7 +313,7 @@ function photolysis_rates()
 					# Dryrun, create dummy
 					tuv_control_file=$(cxr_common_create_tempfile $FUNCNAME)
 					
-					main.log "${FUNCNAME}" "Dryrun - TUV not performed"
+					main.log  "Dryrun - TUV not performed"
 				fi
 		
 				# Decrease global indent level
@@ -322,7 +322,7 @@ function photolysis_rates()
 				# Check if all went well
 				if [[ $(cxr_common_check_result) == false  ]]
 				then
-					main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+					main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
 					return $CXR_RET_ERR_POSTCONDITIONS
 				fi
@@ -336,12 +336,12 @@ function photolysis_rates()
 				if [[ "$CXR_SKIP_EXISTING" == true  ]]
 				then
 					# Skip it
-					main.log -w "${FUNCNAME}"  "File $CXR_TUV_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
+					main.log -w   "File $CXR_TUV_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
 					
 					# next iteration
 				else
 					# Fail!
-					main.log -e "${FUNCNAME}" "File $CXR_TUV_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+					main.log -e  "File $CXR_TUV_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 					return $CXR_RET_ERROR
 				fi
 			fi
@@ -371,7 +371,7 @@ function photolysis_rates()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

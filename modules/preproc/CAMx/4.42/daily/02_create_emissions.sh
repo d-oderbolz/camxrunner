@@ -167,7 +167,7 @@ function create_emissions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -179,12 +179,12 @@ function create_emissions()
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log "${FUNCNAME}"  "Preparing current emission file..."
+			main.log   "Preparing current emission file..."
 			
 			# We will write the IDL call into a temporary file
 			exec_tmp_file=$(cxr_common_create_tempfile $FUNCNAME)
 			
-			main.log "${FUNCNAME}" "Creating a temporary IDL command file in $exec_tmp_file"
+			main.log  "Creating a temporary IDL command file in $exec_tmp_file"
 			
 			# Go there
 			cd $(dirname ${CXR_IDL_EMISSION_GENERATOR}) || return $CXR_RET_ERROR
@@ -192,7 +192,7 @@ function create_emissions()
 			# We create the emissions for each grid
 			for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 			do
-				main.log "${FUNCNAME}" "Creating Emissions for grid $i..."
+				main.log  "Creating Emissions for grid $i..."
 				
 				# Create the file to run IDL
 				# Emissions stop at 23, while the model stops at 24
@@ -221,7 +221,7 @@ function create_emissions()
 					# Then we run it, while preserving the output
 					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 				else
-					main.log "${FUNCNAME}"  "This is a dry-run, no action required"
+					main.log   "This is a dry-run, no action required"
 				fi
 			done
 
@@ -234,7 +234,7 @@ function create_emissions()
 			# Check if all went well
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -245,11 +245,11 @@ function create_emissions()
 			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
-				main.log -w "${FUNCNAME}"  "File $CXR_EMISSION_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
+				main.log -w   "File $CXR_EMISSION_OUTPUT_FILE exists - because -S option was supplied, file will skipped."
 				return 0
 			else
 				# Fail!
-				main.log -e "${FUNCNAME}" "File $CXR_EMISSION_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				main.log -e  "File $CXR_EMISSION_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -257,7 +257,7 @@ function create_emissions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

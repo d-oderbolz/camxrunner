@@ -166,24 +166,24 @@ function concatenate_station_data
 			#  --- Check Settings
 			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
-				main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 			
-			main.log -a -b "${FUNCNAME}" "Concatenating files for $CXR_DATE..."
+			main.log -a -b  "Concatenating files for $CXR_DATE..."
 			
 			# Station dependent data
 			for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 			do
-				main.log -v "${FUNCNAME}" "${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"    
+				main.log -v  "${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"    
 				
 				#Dry?
 				if [[ "$CXR_DRY" == false  ]]
 				then
 					cat ${CXR_STATION_INPUT_ARR_FILES[${i}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}
 				else
-					main.log "${FUNCNAME}"  "This is a dry-run, no action required"    
+					main.log   "This is a dry-run, no action required"    
 				fi
 			done
 		done
@@ -192,14 +192,14 @@ function concatenate_station_data
 		# Postprocessor: we only terminate the module
 		if [[ "$(cxr_common_check_result)" == false  ]]
 		then
-			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 		
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 
