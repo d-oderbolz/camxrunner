@@ -168,7 +168,7 @@ function common.test.all()
 		if [[ ! "${iput_model}"  ]]
 		then
 			# Model was not passed
-			model=$(common.user.getMenuChoice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")
+			model="$(common.user.getMenuChoice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")"
 		else
 			model=$iput_model
 		fi
@@ -198,12 +198,12 @@ function common.test.all()
 			default_version=${array[0]}
 		
 			#Generate a menu automatically
-			version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")
+			version="$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$default_version")"
 		else
 			version=$input_version
 		fi
 		
-		common.check.isVersionSupported? $version $model
+		common.check.isVersionSupported? "$version" "$model"
 		
 		main.log  "Testing system using modules for $model $version..."
 		

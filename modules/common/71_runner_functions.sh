@@ -1017,7 +1017,7 @@ function common.runner.createNewRun()
 ################################################################################
 {
 
-	local model=$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )
+	local model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
 	
 	local model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
 	
@@ -1025,9 +1025,9 @@ function common.runner.createNewRun()
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	#Generate a menu automatically
-	local version=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )
+	local version="$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )"
 	
-	common.check.isVersionSupported? $version $model || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
+	common.check.isVersionSupported? "$version" "$model" || main.die_gracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
 	local run=${model}-v${version}
 	

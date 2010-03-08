@@ -648,7 +648,7 @@ function common.check.preconditions()
 				# Test length
 				if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 				then
-					if [[ $(string_len "${!output_dir}") -gt "${CXR_MAX_PATH}"  ]]
+					if [[ $(common.string.len "${!output_dir}") -gt "${CXR_MAX_PATH}"  ]]
 					then
 						main.log -e  "Path to $output_dir longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					fi
@@ -759,7 +759,7 @@ function common.check.preconditions()
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
-				if [[ $(string_len "${input_file}") -gt "${CXR_MAX_PATH}"  ]]
+				if [[ $(common.string.len "${input_file}") -gt "${CXR_MAX_PATH}"  ]]
 				then
 					main.log -e  "Path to $input_file longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					errors_found=true
@@ -837,7 +837,7 @@ function common.check.preconditions()
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
-				if [[ $(string_len "${output_file}") -gt "${CXR_MAX_PATH}"  ]]
+				if [[ $(common.string.len "${output_file}") -gt "${CXR_MAX_PATH}"  ]]
 				then
 					main.log -e  "Path to $output_file longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					errors_found=true
@@ -1381,7 +1381,7 @@ function common.check.RunName()
 	
 	# Length must not exceed 60 because we use it as
 	# "note" field in all files
-	if [[ $(string_len $1) -gt 60  ]]
+	if [[ $(common.string.len $1) -gt 60  ]]
 	then
 		echo 0
 		main.log -e   "A run name must not be longer than 60 characters!"
