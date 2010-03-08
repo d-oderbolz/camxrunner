@@ -361,7 +361,7 @@ function common.parallel.getNextTask()
 }
 
 ################################################################################
-# Function: cxr_common_task_change_status
+# Function: common.parallel.changeTaskStatus
 #
 # Just moves the task descriptor (used only for the users reference).
 # As a precaution, we also notify the state DB on error (all modules should do this!)
@@ -370,7 +370,7 @@ function common.parallel.getNextTask()
 # $1 - descriptor file of task
 # $2 - status (SUCCESS/FAILURE)
 ################################################################################
-function cxr_common_task_change_status()
+function common.parallel.changeTaskStatus()
 ################################################################################
 {
 	local task_descriptor_path
@@ -407,7 +407,7 @@ function cxr_common_task_change_status()
 }
 
 ################################################################################
-# Function: cxr_common_parallel_worker_waiting
+# Function: common.parallel.waitingWorker
 #
 # Add a task_pid file in the CXR_WAITING_WORKER_DIR
 # Remove it from CXR_RUNNING_WORKER_DIR
@@ -415,7 +415,7 @@ function cxr_common_task_change_status()
 # Parameters:
 # $1 - task_pid of common.parallel.Worker
 ################################################################################
-function cxr_common_parallel_worker_waiting()
+function common.parallel.waitingWorker()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -554,7 +554,7 @@ function common.parallel.Worker()
 	fi
 
 	# We are not yet busy
-	cxr_common_parallel_worker_waiting $task_pid
+	common.parallel.waitingWorker $task_pid
 
 	# We stay in this loop as long as the continue file exists
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
@@ -594,7 +594,7 @@ function common.parallel.Worker()
 			raw_dependencies="$(common.module.getRawDependencies $module_name)"
 			
 			# We need to wait until all dependencies are ok
-			cxr_common_parallel_worker_waiting $task_pid
+			common.parallel.waitingWorker $task_pid
 			
 			until [[ "$(cxr_common_parallel_raw_dependencies_ok? "$raw_dependencies" "$day_offset" )" == true ]]
 			do
@@ -636,10 +636,10 @@ function common.parallel.Worker()
 			if [[ $? -eq 0 ]]
 			then
 				# success
-				cxr_common_task_change_status $new_task_descriptor $CXR_STATUS_SUCCESS
+				common.parallel.changeTaskStatus $new_task_descriptor $CXR_STATUS_SUCCESS
 			else
 				# failure
-				cxr_common_task_change_status $new_task_descriptor $CXR_STATUS_FAILURE
+				common.parallel.changeTaskStatus $new_task_descriptor $CXR_STATUS_FAILURE
 			fi
 
 			#Release resources if needed
@@ -657,7 +657,7 @@ function common.parallel.Worker()
 			fi
 		
 			# This means that someone wants exclusive access, so we sleep
-			cxr_common_parallel_worker_waiting $task_pid
+			common.parallel.waitingWorker $task_pid
 			# Sleep a bit
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		fi
@@ -705,12 +705,12 @@ function common.parallel.removeAllWorkers()
 }
 
 ################################################################################
-# Function: common.parallel.WaitForWorkers
+# Function: common.parallel.waitForWorkers
 #
 # Basically a sleep function: we loop and check if the continue file is there.
 #
 ################################################################################
-function common.parallel.WaitForWorkers()
+function common.parallel.waitForWorkers()
 ################################################################################
 {
 		main.log  "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"

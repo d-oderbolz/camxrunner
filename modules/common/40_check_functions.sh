@@ -1228,12 +1228,12 @@ function common.check.isVersionSupported?()
 }
 
 ################################################################################
-# Function: cxr_common_check_runner_consistency
+# Function: common.check.runner
 #	
 # A Quick check to see if the CAMxRunner installation is OK
 # and consistent with config (can be extended...)
 ################################################################################
-function cxr_common_check_runner_consistency() 
+function common.check.runner() 
 ################################################################################
 {
 	# Each directory in $CXR_RUN_SUBDIRS must exist
@@ -1345,6 +1345,7 @@ function cxr_common_check_runner_consistency()
 	# Decrease global indent level
 	main.decreaseLogIndent
 }
+
 
 ################################################################################
 # Function: common.check.RunName

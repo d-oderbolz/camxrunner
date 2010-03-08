@@ -791,8 +791,8 @@ function test_module()
 	a=$(common.runner.createTempFile $FUNCNAME)
 	b=$(common.runner.createTempFile $FUNCNAME)
 	
-	echo "Hallo" > $a
-	echo "Velo" >> $a
+	echo "Hallo" > "$a"
+	echo "Velo" >> "$a"
 	
 	# Set settings
 	CXR_COMPRESS_OUTPUT=true

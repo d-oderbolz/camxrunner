@@ -384,7 +384,7 @@ function common.state.storeState()
 	
 		"$CXR_STATE_START") 
 			# Check if this was already started
-			if [[ $(cxr_common_has_finished "$stage") == true  ]]
+			if [[ $(common.state.hasFinished? "$stage") == true  ]]
 			then
 				
 				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true  ]]
@@ -477,14 +477,14 @@ function common.state.detectInstances()
 }
 
 ################################################################################
-# Function: cxr_common_has_finished
+# Function: common.state.hasFinished?
 #	
 # Check if a specific stage has finished.
 #
 # Parameters:	
 # $1 - stage to test
 ################################################################################
-function cxr_common_has_finished()
+function common.state.hasFinished?()
 ################################################################################
 {
 	if [[ $# -ne 1 ]]

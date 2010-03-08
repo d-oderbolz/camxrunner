@@ -728,7 +728,7 @@ then
 		# Make sure that all subprocesses are done!
 		################################################################################
 		# XX_task_functions.sh
-		common.parallel.WaitForWorkers
+		common.parallel.waitForWorkers
 		
 		# If we arrive here, we should be done.
 		# We can add a good check later.

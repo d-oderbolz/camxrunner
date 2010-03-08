@@ -79,11 +79,11 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_list_cxr_variables
+# Function: common.variables.list
 #	
 # Writes all CXR_* variables out
 ################################################################################
-function cxr_common_list_cxr_variables()
+function common.variables.list()
 ################################################################################
 {
 	main.log -B "The current Environment looks like this:"

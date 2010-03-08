@@ -552,7 +552,7 @@ function common.runner.createDummyFile()
 }
 
 ################################################################################
-# Function: cxr_common_create_tempfile
+# Function: common.runner.createTempFile
 #
 # Returns the name of a temporary file with random name, shows a message and adds the file
 # to the temp file list if this is needed. 
@@ -560,17 +560,17 @@ function common.runner.createDummyFile()
 # <common.runner.removeTempFiles>
 #
 # Recommended call:
-# >TMPFILE=$(cxr_common_create_tempfile $FUNCNAME)
+# >TMPFILE=$(common.runner.createTempFile $FUNCNAME)
 #
 # Parameters:
 # [$1] - identifier of tempfile, recommended to use $FUNCNAME
 # [$2] - store, if false, we do not add the file to list. This is useful if we keep track of the files ourselves (e. g. when decompressing files)
 ################################################################################
-function cxr_common_create_tempfile()
+function common.runner.createTempFile()
 ################################################################################
 {
 	
-	if [[ ! -d "${CXR_TMP_DIR}"  ]]
+	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
@@ -638,7 +638,7 @@ function common.runner.removeTempFiles()
 				rm -f "${filename}"
 				
 				# remove that line via sed
-				sed_tmp=$(cxr_common_create_tempfile sed false) # Tempfile is not added to list (we move it away)
+				sed_tmp=$(common.runner.createTempFile sed false) # Tempfile is not added to list (we move it away)
 				sed '/$line/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
 				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			done < "$CXR_DECOMPRESSED_LIST"
@@ -735,7 +735,7 @@ function common.runner.releaseLock()
 		main.die_gracefully "needs the name of a lock as input"
 	fi
 	
-	local sed_tmp=$(cxr_common_create_tempfile $FUNCNAME)
+	local sed_tmp=$(common.runner.createTempFile $FUNCNAME)
 	
 	lock="$1"
 	
@@ -1074,125 +1074,6 @@ function common.runner.createNewRun()
 	# Messages & Good wishes #####################################################
 	main.log  "New run was created, start it with \n\t \$ $run -d"
 
-}
-
-################################################################################
-# Function: common.check.runner
-#	
-# A Quick check to see if the CAMxRunner installation is OK
-# and consistent with config (can be extended...)
-################################################################################
-function common.check.runner() 
-################################################################################
-{
-	# Each directory in $CXR_RUN_SUBDIRS must exist
-	local dir
-	local subdir
-	
-	# Increase global indent level
-	main.increaseLogIndent
-
-	main.log   "Checking if subdirectories exist..."
-	
-	for SUBIDR in $CXR_RUN_SUBDIRS
-	do
-		# Increase global indent level
-		main.increaseLogIndent
-
-		if [[ ! -d $CXR_RUN_DIR/$SUBIDR  ]]
-		then
-			# Oh Oh!
-			mkdir -p $CXR_RUN_DIR/$SUBIDR
-			main.log  "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
-			
-		else 
-
-			main.log -v   "The directory $CXR_RUN_DIR/$SUBIDR exists"
-
-		fi
-		
-		# Decrease global indent level
-		main.decreaseLogIndent
-	done
-	
-	# Check executables
-	
-	############################################################################
-	main.log   "Checking if all executables are present and executable..."
-	
-	# Increase global indent level
-	main.increaseLogIndent
-	
-	########################################
-	main.log   "Checking external files..."
-	########################################
-	
-	# Increase global indent level
-	main.increaseLogIndent
-	
-	common.check.Vars
-	
-	# Decrease global indent level
-	main.decreaseLogIndent
-	
-	# Decrease global indent level
-	main.decreaseLogIndent
-	
-	# Decrease global indent level
-	main.decreaseLogIndent
-	############################################################################
-	
-	# Each directory in $CXR_RUN_VERSION_SUBDIRS must have 
-	# one subdir for each model and each version 
-	
-	main.log   "Checking if version sub-subdirectories exist..."
-	
-	for subdir in $CXR_RUN_VERSION_SUBDIRS
-	do
-		
-		# Increase global indent level
-		main.increaseLogIndent
-		
-		main.log -v   "Checking subdirs of $subdir..."
-		
-		for model in $CXR_SUPPORTED_MODELS
-		do
-		
-			main.log -v   "Checking model $model..."
-		
-			# Get id of the current model
-			model_id=$(common.runner.getModelId "$model") || main.die_gracefully "model $model is not known."
-	
-			# Extract the list of supported versions
-			supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
-	
-			for version in $supported
-			do
-				
-				main.log -v   "Checking version $version..."
-				
-				dir=$CXR_RUN_DIR/$subdir/$model/$version
-			
-				if [[ ! -d $dir  ]]
-				then
-					# Oh Oh!
-					mkdir -p $dir
-					main.log  "The directory $dir did not exist. All directories stored in CXR_RUN_VERSION_SUBDIRS need a subdirectory for each supported version of model and each supported version  (stored in CXR_SUPPORTED_MODEL_VERSIONS).\n I created this one now, but if you want to use model $model $version you need to fill it with sensible stuff!"
-				else
-	
-					main.log -v   "The directory $CXR_RUN_DIR/$subdir/$version exists"
-	
-				fi
-			done # Versions
-			
-		done # model
-		
-		# Decrease global indent level
-		main.decreaseLogIndent
-	done # Directory
-	
-	# Decrease global indent level
-	main.decreaseLogIndent
 }
 
 ################################################################################
