@@ -20,11 +20,9 @@ source $CXR_RUN_DIR/inc/main_functions.inc
 # We need to know our version prior to loading modules
 main.setModelAndVersion ${CXR_RUN}
 
-# Source Defaults if needed
-if [[ "${CXR_DEFAULTS_LOADED:-false}" != true  ]]
-then
-	source $CXR_RUN_DIR/inc/defaults.inc
-fi
+# Source Defaults
+source $CXR_RUN_DIR/inc/defaults.inc
+
 
 # For the time being, we turn off errexit
 # Because tap-functions uses non-0 returns

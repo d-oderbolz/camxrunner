@@ -1,6 +1,5 @@
 #
-# This file contains defaults for CAMxRunner. Some values are readonly,
-# to avoid them being overwritten later.
+# This file contains defaults for CAMxRunner. 
 # 
 # Leave the next line intact, it is used for change detection
 # Version: $Id$ 
@@ -53,17 +52,17 @@ progname=CAMxRunner.sh
 
 # Define Statusses
 CXR_STATUS_SUCCESS=SUCCESS
-readonly CXR_STATUS_SUCCESS
+
 
 CXR_STATUS_FAILURE=FAILURE
-readonly CXR_STATUS_FAILURE
+
 
 # If we exit unexpectedly, we will indicate failure
 CXR_STATUS=$CXR_STATUS_FAILURE
 
 # Special key
 CXR_SKIP_ALL=skip_all
-readonly CXR_SKIP_ALL
+
 
 # The indentation of the logging (improves readability)
 CXR_LOG_INDENT=0
@@ -111,25 +110,12 @@ CXR_INSTALLER=installer
 
 # Internal type constants for module handlers
 CXR_TYPE_COMMON=common
-readonly CXR_TYPE_COMMON
-
 CXR_TYPE_PREPROCESS_ONCE=preprocess_once
-readonly CXR_TYPE_PREPROCESS_ONCE
-
 CXR_TYPE_PREPROCESS_DAILY=preprocess_daily
-readonly CXR_TYPE_PREPROCESS_DAILY
-
 CXR_TYPE_MODEL=model
-readonly CXR_TYPE_MODEL
-
 CXR_TYPE_POSTPROCESS_DAILY=postprocess_daily
-readonly CXR_TYPE_POSTPROCESS_DAILY
-
 CXR_TYPE_POSTPROCESS_ONCE=postprocess_once
-readonly CXR_TYPE_POSTPROCESS_ONCE
-
 CXR_TYPE_INSTALLER=${CXR_INSTALLER}
-readonly CXR_TYPE_INSTALLER
 
 # Exit codes (implemented as bitmap, but not used as such yet)
 # You could add those to signal more than one condition
@@ -140,29 +126,18 @@ CXR_RET_ERROR=4
 CXR_RET_ALREADY_RUN=8
 CXR_RET_PARAM_ERROR=16
 CXR_RET_CONTINUE_MISSING=32
+
 # These are used to signal an issue in the modules
 CXR_RET_ERR_PRECONDITIONS=64
 CXR_RET_ERR_POSTCONDITIONS=128
 
-
 # Definitions of the log levels
 CXR_LOG_LEVEL_DBG=16
-readonly CXR_LOG_LEVEL_DBG
-
 CXR_LOG_LEVEL_VRB=8
-readonly CXR_LOG_LEVEL_VRB
-
 CXR_LOG_LEVEL_INF=4
-readonly CXR_LOG_LEVEL_INF
-
 CXR_LOG_LEVEL_WRN=2
-readonly CXR_LOG_LEVEL_WRN
-
 CXR_LOG_LEVEL_ERR=1
-readonly CXR_LOG_LEVEL_ERR
-
 CXR_LOG_LEVEL_ALW=0
-readonly CXR_LOG_LEVEL_ALW
 
 # Here we set the default filter for screen and file messages
 CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_WRN}
@@ -192,48 +167,48 @@ CXR_SEND_TWITTER=false
 
 # Delimiter for ask and playfiles and other "DB-like" files
 CXR_DELIMITER="|"
-readonly CXR_DELIMITER
+
 
 # A space used to delimit list elements
 CXR_SPACE=" "
-readonly CXR_SPACE
+
 
 # This refix is added te all tempfiles
 CXR_TMP_PREFIX=cxr_
-readonly CXR_TMP_PREFIX
+
 
 #Normally, the state DB is in use
 CXR_ENABLE_STATE_DB=true
 
 # Define the prefix for disabled scripts (no dot please)
 CXR_DISABLED_EXT=disabled
-readonly CXR_DISABLED_EXT
+
 
 
 # Stages that the stage controller knows
 CXR_STATE_CONTINUE=CONTINUE
-readonly CXR_STATE_CONTINUE
+
 
 CXR_STATE_START=START
-readonly CXR_STATE_START
+
 
 CXR_STATE_STOP=STOP
-readonly CXR_STATE_STOP
+
 
 CXR_STATE_ERROR=ERROR
-readonly CXR_STATE_ERROR
+
 
 # Change this in case the name of the runner script changes
 CXR_RUNNER_NAME=CAMxRunner.sh
-readonly CXR_RUNNER_NAME
+
 
 # This is a special value that is used in many contexts
 CXR_ALL=all
-readonly CXR_ALL
+
 
 # Used to tell a single step from all steps
 CXR_RUN_ALL=${CXR_ALL}
-readonly CXR_RUN_ALL
+
 
 
 ################################################################################
@@ -460,35 +435,35 @@ CXR_TMP_DIR=~/tmp
 
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
-readonly CXR_BIN_DIR
+
 
 # The directory where the libraries lie
 CXR_LIB_DIR=${CXR_RUN_DIR}/lib
-readonly CXR_LIB_DIR
+
 
 #Base path to find the CAMx executable
 CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
-readonly CXR_MODEL_BIN_DIR
+
 
 # Here is the config
 CXR_CONF_DIR=${CXR_RUN_DIR}/conf
-readonly CXR_CONF_DIR
+
 
 # Here are the templates
 CXR_TEMPLATES_DIR=${CXR_RUN_DIR}/templates
-readonly CXR_TEMPLATES_DIR
+
 
 # Here are the modules
 CXR_MODULES_DIR=${CXR_RUN_DIR}/modules
-readonly CXR_MODULES_DIR
+
 
 # External functions are loaded from here
 CXR_COMMON_INPUT_DIR=${CXR_MODULES_DIR}/common
-readonly CXR_COMMON_INPUT_DIR
+
 
 # Common installers are here
 CXR_INSTALLER_INPUT_DIR=${CXR_MODULES_DIR}/${CXR_INSTALLER}
-readonly CXR_INSTALLER_INPUT_DIR
+
 
 #######################################
 # Model/Version specific Directories 
@@ -496,11 +471,11 @@ readonly CXR_INSTALLER_INPUT_DIR
 
 # These are Model specific common modules, CAMx is the default model
 CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
-readonly CXR_COMMON_MODEL_INPUT_DIR
+
 
 # And these Version specific common modules
 CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL_VERSION}
-readonly CXR_COMMON_VERSION_INPUT_DIR
+
 
 #######################################
 # Directories where to find installer modules
@@ -508,11 +483,11 @@ readonly CXR_COMMON_VERSION_INPUT_DIR
 
 # These are Model specific ones, CAMx is the default model
 CXR_INSTALLER_MODEL_INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}
-readonly CXR_INSTALLER_MODEL_INPUT_DIR
+
 
 # And these Version specific
 CXR_INSTALLER_VERSION_INPUT_DIR=${CXR_INSTALLER_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
-readonly CXR_INSTALLER_VERSION_INPUT_DIR
+
 
 #######################################
 # Directories where to find processors
@@ -521,24 +496,24 @@ readonly CXR_INSTALLER_VERSION_INPUT_DIR
 #Pre- Processors
 # These are run for each simulation day
 CXR_PREPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-readonly CXR_PREPROCESSOR_DAILY_INPUT_DIR
+
 
 #These are run before the simulation starts
 CXR_PREPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-readonly CXR_PREPROCESSOR_ONCE_INPUT_DIR
+
 
 # Post- Processors
 # These are run for each simulation day
 CXR_POSTPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-readonly CXR_POSTPROCESSOR_DAILY_INPUT_DIR
+
 
 #These are run once the whole simulation has finished
 CXR_POSTPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-readonly CXR_POSTPROCESSOR_ONCE_INPUT_DIR
+
 
 # Model
 CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
-readonly CXR_MODEL_INPUT_DIR
+
 
 ################################################################################
 # Parameters to estimate space needed
@@ -589,11 +564,11 @@ CXR_RUN_MODEL=true
 
 # Logs go here
 CXR_LOG_OUTPUT_DIR=${CXR_RUN_DIR}/log
-readonly CXR_LOG_OUTPUT_DIR
+
 
 #State information is stored here
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
-readonly CXR_STATE_DIR
+
 
 # Supported Types of Hashes
 CXR_HASH_TYPE_UNIVERSAL=universal
@@ -602,19 +577,19 @@ CXR_HASH_TYPE_INSTANCE=instance
 
 # Some state data is global to all runs (e. g. the hash used for change detection)
 CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
-readonly CXR_STATE_UNIVERSAL_DIR
+
 
 # Universal Hashes (e. g. MD5 database) go here
 CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
-readonly CXR_UNIVERSAL_HASH_DIR
+
 
 # The name of the hash that will hold the directories of the modules
 CXR_MODULE_PATH_HASH=module_paths_${CXR_MODEL}_${CXR_MODEL_VERSION}
-readonly CXR_MODULE_PATH_HASH
+
 
 # The name of the hash that will hold the types of the modules
 CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
-readonly CXR_MODULE_TYPE_HASH
+
 
 ########################################
 # Data that is global to all instances of a given run
@@ -623,11 +598,11 @@ readonly CXR_MODULE_TYPE_HASH
 # Directory where the global stuff goes
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
-readonly CXR_GLOBAL_DIR
+
 
 # Global Hashes (e. g. MD5 database) go here
 CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
-readonly CXR_GLOBAL_DIR
+
 
 ########################################
 # Parallel Task execution. 
@@ -636,65 +611,65 @@ readonly CXR_GLOBAL_DIR
 
 # Task directories
 CXR_TASK_POOL_DIR=$CXR_GLOBAL_DIR/tasks
-readonly CXR_TASK_POOL_DIR
+
 
 # Contains links to the tasks that need to be done still
 # The links have the form 0001
 CXR_TASK_TODO_DIR=$CXR_TASK_POOL_DIR/todo
-readonly CXR_TASK_TODO_DIR
+
 
 # Contains links to tasks that are currently running
 CXR_TASK_RUNNING_DIR=$CXR_TASK_POOL_DIR/running
-readonly CXR_TASK_RUNNING_DIR
+
 
 # Contains links to the successfully terminated tasks
 # name is the day offset and the module name (like 1_convert_emissions)
 CXR_TASK_SUCCESSFUL_DIR=$CXR_TASK_POOL_DIR/successful
-readonly CXR_TASK_SUCCESSFUL_DIR
+
 
 # Contains tasks that failed
 # name is the day_offset and the module name (like 1_convert_emissions)
 # if a subsequent module depends on a failed module, it will stop the run, otherwise it will continue
 CXR_TASK_FAILED_DIR=$CXR_TASK_POOL_DIR/failed
-readonly CXR_TASK_FAILED_DIR
+
 
 # Workers
 CXR_WORKER_DIR=$CXR_GLOBAL_DIR/workers
-readonly CXR_WORKER_DIR
+
 
 CXR_RUNNING_WORKER_DIR=$CXR_WORKER_DIR/running
-readonly CXR_RUNNING_WORKER_DIR
+
 
 CXR_WAITING_WORKER_DIR=$CXR_WORKER_DIR/waiting
-readonly CXR_WAITING_WORKER_DIR
+
 
 # Hashes to store currently active modules (to resolve dependecies)
 CXR_ACTIVE_ALL_HASH=active_all_hash
-readonly CXR_ACTIVE_ALL_HASH
+
 
 CXR_ACTIVE_ONCE_PRE_HASH=active_once_pre_hash
-readonly CXR_ACTIVE_ONCE_PRE_HASH
+
 
 CXR_ACTIVE_DAILY_PRE_HASH=active_daily_pre_hash
-readonly CXR_ACTIVE_DAILY_PRE_HASH
+
 
 CXR_ACTIVE_DAILY_POST_HASH=active_daily_post_hash
-readonly CXR_ACTIVE_DAILY_POST_HASH
+
 
 CXR_ACTIVE_ONCE_POST_HASH=active_once_post_hash
-readonly CXR_ACTIVE_ONCE_POST_HASH
+
 
 CXR_ACTIVE_MODEL_HASH=active_model_hash
-readonly CXR_ACTIVE_MODEL_HASH
+
 
 # This is where the locks go
 # must be exported because lock manager reads from environment
 export CXR_LOCK_DIR=$CXR_GLOBAL_DIR/locks
-readonly CXR_LOCK_DIR
+
 
 # In this file, we store files that where decompressed
 CXR_DECOMPRESSED_LIST=${CXR_GLOBAL_DIR}/decompressed.files
-readonly CXR_DECOMPRESSED_LIST
+
 
 ########################################
 # Logging
@@ -721,7 +696,7 @@ CXR_MACHINE="$(uname -n)"
 #  Instance name PID@HOST
 ########################################
 CXR_INSTANCE=${$}@${CXR_MACHINE}
-readonly CXR_INSTANCE
+
 
 ########################################
 # This directory holds the instance-information
@@ -734,11 +709,11 @@ readonly CXR_INSTANCE
 CXR_ALL_INSTANCES_DIR=${CXR_STATE_DIR}/instances
 
 CXR_INSTANCE_DIR=${CXR_ALL_INSTANCES_DIR}/${CXR_INSTANCE}
-readonly CXR_INSTANCE_DIR
+
 
 # Instance Hashes are stored here
 CXR_INSTANCE_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
-readonly CXR_INSTANCE_HASH_DIR
+
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
@@ -747,15 +722,15 @@ CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
 # The whole file name -if it is deleted, this instance stops
 # This file is created explictly in common.state.init
 CXR_CONTINUE_FILE=${CXR_INSTANCE_DIR}/${CXR_CONTINUE}
-readonly CXR_CONTINUE_FILE
+
 
 # In this file, we store the error stack
 CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
-readonly CXR_INSTANCE_FILE_ERROR_STACK
+
 
 # In this file, we store the days where issues where detected
 CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
-readonly CXR_INSTANCE_FILE_FAILED_DAYS
+
 
 ########################################
 # The next few files are SECURITY RELEVANT.
@@ -766,22 +741,22 @@ readonly CXR_INSTANCE_FILE_FAILED_DAYS
 # In this file, we store all output files that have been generated
 # This is used to compress output if needed or to delete output.
 CXR_INSTANCE_FILE_OUTPUT_LIST=${CXR_INSTANCE_DIR}/output_files
-readonly CXR_INSTANCE_FILE_OUTPUT_LIST
+
 
 # In this file, we store dummy files of a dry run.
 # These will be deleted after the dry run
 CXR_INSTANCE_FILE_DUMMY_LIST=${CXR_INSTANCE_DIR}/dry_dummy_files.${RANDOM}
-readonly CXR_INSTANCE_FILE_DUMMY_LIST
+
 
 # In this file, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
 # These will be deleted after the run
 CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp_files.${RANDOM}
-readonly CXR_INSTANCE_FILE_TEMP_LIST
+
 
 # In this file, we store the locks this instance holds
 CXR_INSTANCE_FILE_LOCK_LIST=${CXR_INSTANCE_DIR}/lock_list.${RANDOM}
-readonly CXR_INSTANCE_FILE_LOCK_LIST
+
 
 ################################################################################
 # Supported model names.
@@ -797,11 +772,11 @@ CXR_SUPPORTED_MODEL_VERSIONS[1]="2008"
 
 # Comma separated list of subdirectories which must be in $CXR_RUN_DIR
 CXR_RUN_SUBDIRS="bin conf doc log modules state templates"
-readonly CXR_RUN_SUBDIRS
+
 
 # Comma separated list of subdirectories containig version-specific driectories
 CXR_RUN_VERSION_SUBDIRS="bin modules/common modules/installer modules/model modules/preproc modules/postproc"
-readonly CXR_RUN_VERSION_SUBDIRS
+
 
 ################################################################################
 # Information relevant for compilation
@@ -816,7 +791,7 @@ CXR_FORTRAN_PLATFORMS="amd64 amd64e athlon athlonxp barcelona barcelona-64 core2
 ################################################################################
 #No leading dot please
 CXR_ASC_EXT=asc
-readonly CXR_ASC_EXT
+
 
 ################################################################################
 # Executables
@@ -1064,11 +1039,4 @@ CXR_OUTPUT_DIR_PERMISSIONS=0755
 
 ################################################################################
 # END OF FILE
-################################################################################
-
-# This flag indicates that we already loaded the defaults
-# this is needed bc. of the readonly stuff
-
-CXR_DEFAULTS_LOADED=true
-
 ################################################################################
