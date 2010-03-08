@@ -164,15 +164,15 @@ function convert_emissions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
 		# Increase global indent level
-		main_increaseLogIndent
+		main.increaseLogIndent
 
-		main_log "${FUNCNAME}"  "Preparing Emission data..."    
+		main.log "${FUNCNAME}"  "Preparing Emission data..."    
 		
 		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
@@ -182,34 +182,34 @@ function convert_emissions()
 			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
 			then
 				# Skip it
-				main_log "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main.log "${FUNCNAME}"  "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
 				continue
 			fi
 			
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
 
-			main_log "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+			main.log "${FUNCNAME}"  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
 
 			if [[ "$CXR_DRY" == false  ]]
 			then
 				# Call Converter
 				${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
 			else
-				main_log "${FUNCNAME}"  "Dryrun - no conversion performed"
+				main.log "${FUNCNAME}"  "Dryrun - no conversion performed"
 			fi
 
 			# Decrease global indent level
-			main_decreaseLogIndent
+			main.decreaseLogIndent
 		done
 
 		# Decrease global indent level
-		main_decreaseLogIndent
+		main.decreaseLogIndent
 
 		# Check if all went well
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -217,7 +217,7 @@ function convert_emissions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

@@ -660,7 +660,7 @@ function diag()
 	local msg="${1:?}"
 
 	if [[ -n "$msg" ]] ; then
-		main_log -a "TAP" "# $msg"
+		main.log -a "TAP" "# $msg"
 	fi
 	
 	return 1
@@ -680,7 +680,7 @@ function _die()
 	local reason="${1:-'<unspecified error>'}"
 
 	# Call our logger
-	main_log -e "TAP" "$reason"
+	main.log -e "TAP" "$reason"
 	
 	_test_died=1
 	_exit 255

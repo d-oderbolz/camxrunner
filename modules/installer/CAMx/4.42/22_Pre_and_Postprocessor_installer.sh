@@ -93,7 +93,7 @@ function Pre_and_Postprocessor_installer()
 		# Is the compiler there?
 		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC}  ]]
 		then
-			main_die_gracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
+			main.die_gracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
 		fi
 		
 		########################################
@@ -120,21 +120,21 @@ function Pre_and_Postprocessor_installer()
 		do
 			if [[ "$(cxr_common_get_consent "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
 			then
-				main_log -a "${FUNCNAME}" "****Compiling source in $SRC_DIR...\n"
+				main.log -a "${FUNCNAME}" "****Compiling source in $SRC_DIR...\n"
 				
-				cd $SRC_DIR || main_die_gracefully "Could not change to $SRC_DIR"
+				cd $SRC_DIR || main.die_gracefully "Could not change to $SRC_DIR"
 				
 				# Clean up whatever there was
 				make clean DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				
 				# Make it!
-				make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}" || main_die_gracefully "The compilation did not complete successfully"
+				make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}" || main.die_gracefully "The compilation did not complete successfully"
 			fi
 		done
 		
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
 		
-		main_log -a "${FUNCNAME}" "Converters compiled."
+		main.log -a "${FUNCNAME}" "Converters compiled."
 
 	fi
 }

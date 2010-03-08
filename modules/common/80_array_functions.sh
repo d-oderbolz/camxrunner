@@ -88,7 +88,7 @@ exit 1
 # > a=$(ls | wc -k 2>/dev/null )
 # >if [[ $(cxr_common_array_zero "${PIPESTATUS[@]}") == false ]]
 # >then
-#	>	main_log -e "Pipe at $LINENO:$FUNCNAME failed"
+#	>	main.log -e "Pipe at $LINENO:$FUNCNAME failed"
 # >fi
 #
 # Parameters:

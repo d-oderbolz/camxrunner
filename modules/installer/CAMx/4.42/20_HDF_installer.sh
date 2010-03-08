@@ -130,43 +130,43 @@ function HDF_installer()
 		# Create the target directories
 		########################################
 		
-		main_log -a "${FUNCNAME}" "Starting installation - feel free to grab a cup of coffee or tea..."
+		main.log -a "${FUNCNAME}" "Starting installation - feel free to grab a cup of coffee or tea..."
 		sleep 2
 		
-		mkdir -p $MYLIBDIR/zlib || main_die_gracefully "could not create $MYLIBDIR/zlib"
-		mkdir -p $MYLIBDIR/hdf || main_die_gracefully "could not create to $MYLIBDIR/hdf"
+		mkdir -p $MYLIBDIR/zlib || main.die_gracefully "could not create $MYLIBDIR/zlib"
+		mkdir -p $MYLIBDIR/hdf || main.die_gracefully "could not create to $MYLIBDIR/hdf"
 		
-		mkdir -p $MYLIBDIR/netcdf || main_die_gracefully "could not create $MYLIBDIR/netcdf"
-		mkdir -p $MYLIBDIR/ioapi || main_die_gracefully "could not create $MYLIBDIR/ioapi"
+		mkdir -p $MYLIBDIR/netcdf || main.die_gracefully "could not create $MYLIBDIR/netcdf"
+		mkdir -p $MYLIBDIR/ioapi || main.die_gracefully "could not create $MYLIBDIR/ioapi"
 		
 		
 		########################################
 		# Zlib
 		########################################
 		
-		main_log -a -b "${FUNCNAME}" "zlib"
+		main.log -a -b "${FUNCNAME}" "zlib"
 	
 		# Go to location
-		cd $MYLIBDIR/zlib || main_die_gracefully "could not change to $MYLIBDIR/zlib"
+		cd $MYLIBDIR/zlib || main.die_gracefully "could not change to $MYLIBDIR/zlib"
 	
 		# Download
-		${CXR_WGET_EXEC} ${CXR_ZLIB_TAR_LOC} -O ${CXR_ZLIB_TAR} || main_die_gracefully "could not download ${CXR_ZLIB_TAR_LOC}"
+		${CXR_WGET_EXEC} ${CXR_ZLIB_TAR_LOC} -O ${CXR_ZLIB_TAR} || main.die_gracefully "could not download ${CXR_ZLIB_TAR_LOC}"
 		
 		# Untar 
 		tar xvzf ${CXR_ZLIB_TAR}
 		
 		# Go to directory
-		cd ${CXR_ZLIB_TAR_DIR} || main_die_gracefully "could not change to $CXR_ZLIB_TAR_DIR"
+		cd ${CXR_ZLIB_TAR_DIR} || main.die_gracefully "could not change to $CXR_ZLIB_TAR_DIR"
 		
 		# Configure
-		./configure --shared --prefix=$MYLIBDIR/zlib || main_die_gracefully "Configure for zlib failed"
+		./configure --shared --prefix=$MYLIBDIR/zlib || main.die_gracefully "Configure for zlib failed"
 		
 		# Compile
 		make clean
-		make && make install || main_die_gracefully "make for zlib failed"
+		make && make install || main.die_gracefully "make for zlib failed"
 		
 		# Clean up
-		cd $MYLIBDIR/zlib || main_die_gracefully "Could not move up"
+		cd $MYLIBDIR/zlib || main.die_gracefully "Could not move up"
 		rm ${CXR_ZLIB_TAR}
 
 		
@@ -174,29 +174,29 @@ function HDF_installer()
 		# HDF
 		########################################	
 
-		main_log -a -b "${FUNCNAME}" "HDF5"
+		main.log -a -b "${FUNCNAME}" "HDF5"
 	
 		# Go to location
-		cd $MYLIBDIR/hdf || main_die_gracefully "could not change to $MYLIBDIR/hdf"
+		cd $MYLIBDIR/hdf || main.die_gracefully "could not change to $MYLIBDIR/hdf"
 	
 		# Download
-		${CXR_WGET_EXEC} ${CXR_HDF_TAR_LOC} -O ${CXR_HDF_TAR} || main_die_gracefully "could not download ${CXR_HDF_TAR_LOC}"
+		${CXR_WGET_EXEC} ${CXR_HDF_TAR_LOC} -O ${CXR_HDF_TAR} || main.die_gracefully "could not download ${CXR_HDF_TAR_LOC}"
 		
 		# Untar 
 		tar xvzf ${CXR_HDF_TAR}
 		
 		# Go to directory
-		cd ${CXR_HDF_TAR_DIR} || main_die_gracefully "could not change to $CXR_HDF_TAR_DIR"
+		cd ${CXR_HDF_TAR_DIR} || main.die_gracefully "could not change to $CXR_HDF_TAR_DIR"
 		
 		# Configure
-		./configure --with-zlib=$MYLIBDIR/zlib --prefix=$MYLIBDIR/hdf || main_die_gracefully "Configure for hdf failed"
+		./configure --with-zlib=$MYLIBDIR/zlib --prefix=$MYLIBDIR/hdf || main.die_gracefully "Configure for hdf failed"
 		
 		# Compile
 		make clean
-		make && make install || main_die_gracefully "make for hdf failed"
+		make && make install || main.die_gracefully "make for hdf failed"
 		
 		# Clean up
-		cd $MYLIBDIR/hdf || main_die_gracefully "Could not move up"
+		cd $MYLIBDIR/hdf || main.die_gracefully "Could not move up"
 		rm ${CXR_HDF_TAR}
 	
 				
@@ -204,57 +204,57 @@ function HDF_installer()
 		# netcdf
 		########################################
 		
-		main_log -a -b "${FUNCNAME}" "NetCDF"
+		main.log -a -b "${FUNCNAME}" "NetCDF"
 		
 		# Go to location
-		cd $MYLIBDIR/netcdf || main_die_gracefully "could not change to $MYLIBDIR/netcdf"
+		cd $MYLIBDIR/netcdf || main.die_gracefully "could not change to $MYLIBDIR/netcdf"
 		
 		# Download
-		${CXR_WGET_EXEC} ${CXR_NETCDF_TAR_LOC} -O ${CXR_NETCDF_TAR} || main_die_gracefully "could not download ${CXR_NETCDF_TAR_LOC}"
+		${CXR_WGET_EXEC} ${CXR_NETCDF_TAR_LOC} -O ${CXR_NETCDF_TAR} || main.die_gracefully "could not download ${CXR_NETCDF_TAR_LOC}"
 
 		# Untar 
 		tar xvzf ${CXR_NETCDF_TAR}
 		
 		# Go to directory
-		cd ${CXR_NETCDF_TAR_DIR} || main_die_gracefully "could not change to $CXR_NETCDF_TAR_DIR"
+		cd ${CXR_NETCDF_TAR_DIR} || main.die_gracefully "could not change to $CXR_NETCDF_TAR_DIR"
 		
 		./configure --enable-netcdf-4 --with-hdf5=$MYLIBDIR/hdf  --with-zlib=$MYLIBDIR/zlib --prefix=$MYLIBDIR/netcdf
 
 		# Compile
 		make clean
-		make  && make install && make check || main_die_gracefully "make for netcdf failed"
+		make  && make install && make check || main.die_gracefully "make for netcdf failed"
 		
 		# Clean up
-		cd $MYLIBDIR/netcdf || main_die_gracefully "Could not move up"
+		cd $MYLIBDIR/netcdf || main.die_gracefully "Could not move up"
 		rm ${CXR_NETCDF_TAR}
 			
 		########################################
 		# IOAPI
 		########################################
 		
-		main_log -a -b "${FUNCNAME}" "IOAPI"
+		main.log -a -b "${FUNCNAME}" "IOAPI"
 		
 		# Set needed variable
 		BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
 		
 		# Go to location
-		cd $MYLIBDIR/ioapi || main_die_gracefully "could not change to $MYLIBDIR/ioapi"
+		cd $MYLIBDIR/ioapi || main.die_gracefully "could not change to $MYLIBDIR/ioapi"
 		
 		# Download
-		${CXR_WGET_EXEC} ${CXR_IOAPI_TAR_LOC} -O ${CXR_IOAPI_TAR} || main_die_gracefully "could not download ${CXR_IOAPI_TAR_LOC}"
+		${CXR_WGET_EXEC} ${CXR_IOAPI_TAR_LOC} -O ${CXR_IOAPI_TAR} || main.die_gracefully "could not download ${CXR_IOAPI_TAR_LOC}"
 
 		# Untar 
 		tar xvzf ${CXR_IOAPI_TAR}
 		
 		# Go to directory
-		cd ${CXR_IOAPI_TAR_DIR} || main_die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"
+		cd ${CXR_IOAPI_TAR_DIR} || main.die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"
 		
 		# Disable PVM
 		cp Makefile.nocpl Makefile
 		
 		
 		########################################
-		main_log  -a "${FUNCNAME}" "Setup Input directories containing patches..."
+		main.log  -a "${FUNCNAME}" "Setup Input directories containing patches..."
 		########################################
 		
 		# We compile CAMx
@@ -265,7 +265,7 @@ function HDF_installer()
 		patch_platform_dir=$(cxr_common_evaluate_rule "$CXR_PATCH_PLATFORM_DIR_RULE" false CXR_PATCH_PLATFORM_DIR_RULE)
 		
 		########################################
-		main_log -a "${FUNCNAME}" "Applying patches..."
+		main.log -a "${FUNCNAME}" "Applying patches..."
 		########################################
 		
 		if [[ -d "$patch_all_dir"  ]]
@@ -278,12 +278,12 @@ function HDF_installer()
 			cxr_common_apply_patches "$patch_platform_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
-		cd ${CXR_IOAPI_TAR_DIR} || main_die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"
+		cd ${CXR_IOAPI_TAR_DIR} || main.die_gracefully "could not change to $CXR_IOAPI_TAR_DIR"
 		
-		make clean && make all && make install || main_die_gracefully "make for ioapi failed"
+		make clean && make all && make install || main.die_gracefully "make for ioapi failed"
 		
 		# Clean up
-		cd $MYLIBDIR/ioapi || main_die_gracefully "Could not move up"
+		cd $MYLIBDIR/ioapi || main.die_gracefully "Could not move up"
 		rm ${CXR_IOAPI_TAR}
 		
 		# Those directories are no longer needed
@@ -296,9 +296,9 @@ function HDF_installer()
 		fi
 		
 		# Change to run dir
-		cd "$CXR_RUN_DIR" || main_die_gracefully "Could not change to $CXR_RUN_DIR"
+		cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
 		
-		main_log -a "${FUNCNAME}" "Done. Libraries should now be ready for the compilation of CAMx."
+		main.log -a "${FUNCNAME}" "Done. Libraries should now be ready for the compilation of CAMx."
 		
 	fi
 	

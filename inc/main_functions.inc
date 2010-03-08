@@ -37,12 +37,12 @@ function main.isNumeric?()
 }
 
 ################################################################################
-# Function: main_countCores
+# Function: main.countCores
 #
 # Counts the number of logical cores in a box. 
 #
 ################################################################################
-function main_countCores()
+function main.countCores()
 ################################################################################
 {
 	local num_cores
@@ -62,13 +62,13 @@ function main_countCores()
 }
 
 ################################################################################
-# Function: main_increaseLogIndent
+# Function: main.increaseLogIndent
 #
 # Increases the intedation of the logfile. Can be used to structure 
 # the log inte logical units.
 # DO NOT CALL IN a $() construct (creates new process with new environment)
 ################################################################################
-function main_increaseLogIndent()
+function main.increaseLogIndent()
 ################################################################################
 {
 	#Make sure it is set
@@ -88,13 +88,13 @@ function main_increaseLogIndent()
 }
 
 ################################################################################
-# Function: main_decreaseLogIndent
+# Function: main.decreaseLogIndent
 #
 # Decreases the intedation of the logfile. Can be used to structure 
 # the log inte logical units.
 # DO NOT CALL IN a $() construct (creates new process with new environment)
 ################################################################################
-function main_decreaseLogIndent()
+function main.decreaseLogIndent()
 ################################################################################
 {
 	#Make sure it is set
@@ -112,7 +112,7 @@ function main_decreaseLogIndent()
 }
 
 ################################################################################
-# Function: main_addError
+# Function: main.addError
 #
 # Adds an error to the ${CXR_INSTANCE_FILE_ERROR_STACK}. Each Message must only be one 
 # line long (number of lines = number of errors)
@@ -120,7 +120,7 @@ function main_decreaseLogIndent()
 # Parameters:
 # $1 - Message for the error-stack file
 ################################################################################
-function main_addError()
+function main.addError()
 ################################################################################
 {
 
@@ -146,16 +146,16 @@ function main_addError()
 	fi
 	
 	# Also show error to the user
-	main_log -a "${FUNCNAME}" "${1:-}"
+	main.log -a "${FUNCNAME}" "${1:-}"
 }
 
 ################################################################################
-# Function: main_countErrors
+# Function: main.countErrors
 #	
 # Returns the current error count 
 # by counting lines in  the ${CXR_INSTANCE_FILE_ERROR_STACK}).
 ################################################################################
-function main_countErrors()
+function main.countErrors()
 ################################################################################
 {
 	local number
@@ -168,7 +168,7 @@ function main_countErrors()
 }
 
 ################################################################################
-# Function: main_log
+# Function: main.log
 #
 # Writes a message to the Log-file (if defined) and STDERR.
 #
@@ -197,7 +197,7 @@ function main_countErrors()
 # For efficiency reasons (it's inefficient already...), call the function only once for multi-line messages
 # use \n to separate lines.
 # The use of continuation characters like
-#> main_log "$FUNCNAME" "This is \
+#> main.log "$FUNCNAME" "This is \
 #>                              a message"
 # is not recommended because the whitespace before the second part of the string will 
 # be output "as is".
@@ -215,7 +215,7 @@ function main_countErrors()
 # [-H] - surround with huge box of stars
 # $1 - Message
 ################################################################################	
-function main_log()
+function main.log()
 ################################################################################
 {
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
@@ -284,7 +284,7 @@ function main_log()
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
 		
-		main_addError "${function_name}:${line_no} - ${blank_message}"
+		main.addError "${function_name}:${line_no} - ${blank_message}"
 	fi
 	
 	# We have to look at several things separately: 
@@ -360,14 +360,14 @@ function main_log()
 	# -a does not go there
 	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}"   ]]
 	then
-		main_sendMessage "Log" "$blank_message"
+		main.sendMessage "Log" "$blank_message"
 	fi
 	
 	return $CXR_RET_OK
 }
 
 ################################################################################
-# Function: main_sendMessage
+# Function: main.sendMessage
 #	
 # Sends out a notification to $CXR_MAILADDR, 
 # $CXR_SMSADDR and to a Twitter account if needed
@@ -376,7 +376,7 @@ function main_log()
 # $1 - Subject
 # $2 - Body
 ################################################################################
-function main_sendMessage()
+function main.sendMessage()
 ################################################################################
 {
 	local adresses=
@@ -406,7 +406,7 @@ function main_sendMessage()
 		if [[ ! -r ~/.twitterrc  ]]
 		then
 			# no .twitterrc
-			main_log -e "$FUNCNAME" "To use Twitter, you need to create a ~/.twitterrc file, in there set ACCOUNT= and PASS=."
+			main.log -e "$FUNCNAME" "To use Twitter, you need to create a ~/.twitterrc file, in there set ACCOUNT= and PASS=."
 		else
 			# .twitterrc there
 			source ~/.twitterrc
@@ -422,18 +422,18 @@ function main_sendMessage()
 }
 
 ################################################################################
-# Function: main_doCleanup
+# Function: main.doCleanup
 #
 # Cleans the state DB/Locks etc.
 #
 ################################################################################
-function main_doCleanup()
+function main.doCleanup()
 ################################################################################
 {
 	local error_count
 	local dummy_file
 	
-	main_log "$FUNCNAME" "Cleaning up - note that it can take more than $CXR_WAITING_SLEEP_SECONDS seconds until all processes are down!"
+	main.log "$FUNCNAME" "Cleaning up - note that it can take more than $CXR_WAITING_SLEEP_SECONDS seconds until all processes are down!"
 	
 	# Remove any traps once called
 	trap - INT TERM EXIT
@@ -446,34 +446,34 @@ function main_doCleanup()
 	then
 		
 		# All the non-hollow stuff goes here
-		error_count=$(main_countErrors)
+		error_count=$(main.countErrors)
 		
-		main_log -B "$FUNCNAME"  "Error Report (may be repeated)"
+		main.log -B "$FUNCNAME"  "Error Report (may be repeated)"
 		
 		if [[ "${error_count:-0}" -ne 0  ]]
 		then
-			main_log "$FUNCNAME"  "The system detected at least $error_count errors, fix them!\n\nHere is the error stack:\n"
+			main.log "$FUNCNAME"  "The system detected at least $error_count errors, fix them!\n\nHere is the error stack:\n"
 			
 			if [[ "${CXR_LOG:-}"  ]]
 			then
 				# Write to logfile
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
 				
-				main_log -a "$FUNCNAME" "In these days, errors where detected:"
+				main.log -a "$FUNCNAME" "In these days, errors where detected:"
 				# This file might contain dupes
 				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq | tee -a ${CXR_LOG}
 			else
 				# There is no log
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK"
 				
-				main_log -a "$FUNCNAME" "In these days, errors where detected:"
+				main.log -a "$FUNCNAME" "In these days, errors where detected:"
 				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq 
 			fi
 			
 		else	
-			main_log "$FUNCNAME"  "No errors where detected in this subprocess - exit status is $CXR_STATUS"
+			main.log "$FUNCNAME"  "No errors where detected in this subprocess - exit status is $CXR_STATUS"
 		fi
-		main_log "$FUNCNAME"  "**********************************************************"
+		main.log "$FUNCNAME"  "**********************************************************"
 	
 		########################################
 		# Do cleanup stuff - Run always when not hollow
@@ -481,7 +481,7 @@ function main_doCleanup()
 		
 		if [[ "$CXR_DRY" == true  ]]
 		then
-			main_log "$FUNCNAME" "Dryrun: removing the dummy files..."
+			main.log "$FUNCNAME" "Dryrun: removing the dummy files..."
 			
 			# At least touch it
 			touch "$CXR_INSTANCE_FILE_DUMMY_LIST" 2>/dev/null
@@ -489,7 +489,7 @@ function main_doCleanup()
 			# Clean dummy files away
 			for dummy_file in $(cat "$CXR_INSTANCE_FILE_DUMMY_LIST")
 			do
-				main_log -v "$FUNCNAME"  "Deleting $dummy_file"
+				main.log -v "$FUNCNAME"  "Deleting $dummy_file"
 				
 				rm -f "$dummy_file"
 			done
@@ -514,22 +514,22 @@ function main_doCleanup()
 		if [[ "$CXR_DRY" == true  ]]
 		then
 		
-			main_log -H "$FUNCNAME" "Before you can run the simulation, you must clean the state database\nbecause a dryrun makes the same entries as a normal run.\nDo this using this command:\n \t ${CXR_CALL} -c \nIf you have adjusted the configuration in ${CXR_CONFIG}\nand are happy with the log, run the simulation like this (assuming an AFS/Kerberos environment):\n"     
+			main.log -H "$FUNCNAME" "Before you can run the simulation, you must clean the state database\nbecause a dryrun makes the same entries as a normal run.\nDo this using this command:\n \t ${CXR_CALL} -c \nIf you have adjusted the configuration in ${CXR_CONFIG}\nand are happy with the log, run the simulation like this (assuming an AFS/Kerberos environment):\n"     
 			
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
   	
-			main_log -b "$FUNCNAME" "\t \$ k5run -b ${0}"
+			main.log -b "$FUNCNAME" "\t \$ k5run -b ${0}"
 			
 			# Decrease global indent level
-			main_decreaseLogIndent
+			main.decreaseLogIndent
 		
 		else
 			if [[ "$CXR_HOLLOW" == false ]]
 			then
 				# print some infos if we are not hollow 
-				main_log "$FUNCNAME" "Ending ${CXR_RUN}, its now $(date)"
-				main_sendMessage "${CXR_RUN} finished on $CXR_MACHINE" "That is it, folks."
+				main.log "$FUNCNAME" "Ending ${CXR_RUN}, its now $(date)"
+				main.sendMessage "${CXR_RUN} finished on $CXR_MACHINE" "That is it, folks."
 			fi
 		fi
 	fi
@@ -539,10 +539,10 @@ function main_doCleanup()
 }
 
 # Set the trap (needs function first)
-trap "main_doCleanup; exit" INT TERM EXIT
+trap "main.doCleanup; exit" INT TERM EXIT
 
 ################################################################################
-# Function: main_die_gracefully
+# Function: main.die_gracefully
 #
 # Prints a message and exits with value $2. must be in here because its important
 # 
@@ -551,7 +551,7 @@ trap "main_doCleanup; exit" INT TERM EXIT
 # [$2] - Run cleanup (if false, no cleanup is done)
 # [$3] - Return code
 ################################################################################
-function main_die_gracefully()
+function main.die_gracefully()
 ################################################################################
 {
 	# Release any traps
@@ -565,20 +565,20 @@ function main_die_gracefully()
 		rm -f ${CXR_STATE_DIR}/*.${CXR_STATE_CONTINUE} 2>/dev/null
 	fi
 	
-	main_log -a "### CAMxRunner Crashes because of this reason:############"
+	main.log -a "### CAMxRunner Crashes because of this reason:############"
 	# This function also echoes the message
-	main_addError "${1:-Unknown error.}"
+	main.addError "${1:-Unknown error.}"
 	
-	main_log -a "Call Stack:"
+	main.log -a "Call Stack:"
 	
 	for i in $(seq 1 $(( ${#FUNCNAME[@]:-0} - 1 )) )
 	do
 		echo ${FUNCNAME[$i]:-}:${BASH_LINENO[$i]:-0}
 	done
 	
-	main_log -a  "##########################################################"
+	main.log -a  "##########################################################"
 	
-	main_doCleanup
+	main.doCleanup
 	
 	# We cannot use exit here, since we might live in a subprocess
 	# What we do is kill the CAMxRunner process
@@ -586,7 +586,7 @@ function main_die_gracefully()
 }
 
 ################################################################################
-# Function: main_getBinaryName
+# Function: main.getBinaryName
 #
 # Returns the name and path of a binary name other than CAMx.
 # The name depends on:
@@ -603,18 +603,18 @@ function main_die_gracefully()
 # > ${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/$1-${HOSTTYPE}[-$(uname -n)] (e. g. ~/CAMxRunner/bin/4.51/airascii-x86_64-linux)
 #
 # Example:
-# > CXR_BIN2ASC_EXEC=$(main_getBinaryName bin2asc)
+# > CXR_BIN2ASC_EXEC=$(main.getBinaryName bin2asc)
 #
 #
 # Parameters:
 # $1 - name (without path!) of the binary in question
 ################################################################################
-function main_getBinaryName()
+function main.getBinaryName()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
 	then
-		main_die_gracefully "$FUNCNAME:$LINENO - needs the name of a binary as input"
+		main.die_gracefully "$FUNCNAME:$LINENO - needs the name of a binary as input"
 	fi
 	
 	#Determine possible names
@@ -625,12 +625,12 @@ function main_getBinaryName()
 	if [[ -x ${machine_exec}  ]]
 	then
 		# Machine dependent exists
-		main_log "$FUNCNAME"  "Binary $1 is actually called ${machine_exec}"
+		main.log "$FUNCNAME"  "Binary $1 is actually called ${machine_exec}"
 		echo "${machine_exec}"
 	elif [[ -x ${general_exec}  ]]
 	then
 		# general exists
-		main_log "$FUNCNAME"  "Binary $1 is actually called ${general_exec}"
+		main.log "$FUNCNAME"  "Binary $1 is actually called ${general_exec}"
 		echo "${general_exec}"
 	else
 		#None exists
@@ -641,7 +641,7 @@ function main_getBinaryName()
 			echo "$general_exec" 
 		else
 			# NOK-just issue a warning (if we are compiling e.g.)
-			main_log -w "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			main.log -w "$FUNCNAME" "$FUNCNAME:$LINENO Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
 	
@@ -649,7 +649,7 @@ function main_getBinaryName()
 }
 
 ################################################################################
-# Function: main_setModelAndVersion
+# Function: main.setModelAndVersion
 #
 # Extracts the Version of CAMx from the link name.
 # We need this in order to load the common functions and defaults.inc, 
@@ -658,7 +658,7 @@ function main_getBinaryName()
 # Parameters:
 # $1 - Run name of the form Model-vVersion-Whatever (e. g. CAMx-v4.51-ENVIRON_testcase)
 ################################################################################
-function main_setModelAndVersion()
+function main.setModelAndVersion()
 ################################################################################
 {
 	local model
@@ -689,7 +689,7 @@ function main_setModelAndVersion()
 }
 
 ################################################################################
-# Function: main_readConfig
+# Function: main.readConfig
 #
 # Determine relevant config files and load them, also report their names and versions.
 # There are currently these:
@@ -711,7 +711,7 @@ function main_setModelAndVersion()
 # $3 - The Modelname to use
 # $4 - The Rundir to use
 ################################################################################
-function main_readConfig()
+function main.readConfig()
 ################################################################################
 {
 	export CXR_RUN="${1}"
@@ -725,22 +725,22 @@ function main_readConfig()
 	
 	if [[ -z "$CXR_MODEL_VERSION"  ]]
 	then
-		main_die_gracefully "$FUNCNAME:$LINENO - Could not determine Model Version when loading config!"
+		main.die_gracefully "$FUNCNAME:$LINENO - Could not determine Model Version when loading config!"
 	fi
 	
 	if [[ -z "$CXR_RUN_DIR"  ]]
 	then
-		main_die_gracefully "$FUNCNAME:$LINENO - Could not determine run dir when loading config!"
+		main.die_gracefully "$FUNCNAME:$LINENO - Could not determine run dir when loading config!"
 	fi
 	
 	# Change to run dir
-	cd "$CXR_RUN_DIR" || main_die_gracefully "Could not change to $CXR_RUN_DIR"
+	cd "$CXR_RUN_DIR" || main.die_gracefully "Could not change to $CXR_RUN_DIR"
 
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
 
-	main_log -v "$FUNCNAME"  "CXR_RUN_DIR of ${CXR_RUN} is $CXR_RUN_DIR"
-	main_log "$FUNCNAME" "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
+	main.log -v "$FUNCNAME"  "CXR_RUN_DIR of ${CXR_RUN} is $CXR_RUN_DIR"
+	main.log "$FUNCNAME" "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 
 	########################################
 	# Locations of configuration
@@ -778,11 +778,11 @@ function main_readConfig()
 	# No drama if it does not exist
 	if [[ -f "${CXR_SITECONFIG}"  ]]
 	then
-		main_log -a "$FUNCNAME"  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
+		main.log -a "$FUNCNAME"  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
 	
 		source "${CXR_SITECONFIG}"
 	else
-		main_log "$FUNCNAME" "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
+		main.log "$FUNCNAME" "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
 	fi
 
 	########################################
@@ -791,10 +791,10 @@ function main_readConfig()
 	
 	if [[ -f "${CXR_BASECONFIG}"  ]]
 	then
-		main_log -a "$FUNCNAME"  "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
+		main.log -a "$FUNCNAME"  "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
 		source "${CXR_BASECONFIG}"
 	else
-		main_die_gracefully "$FUNCNAME:$LINENO - The base configuration ${CXR_BASECONFIG} is not available - exiting"
+		main.die_gracefully "$FUNCNAME:$LINENO - The base configuration ${CXR_BASECONFIG} is not available - exiting"
 	fi
 	
 	########################################
@@ -803,10 +803,10 @@ function main_readConfig()
 	
 	if [[ -f "$CXR_VERSIONCONFIG"  ]]
 	then
-		main_log -a "$FUNCNAME"  "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
+		main.log -a "$FUNCNAME"  "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
 		source "${CXR_VERSIONCONFIG}"
 	else
-		main_log "$FUNCNAME" "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want load special settings based no model version."
+		main.log "$FUNCNAME" "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want load special settings based no model version."
 	fi
 	
 	########################################
@@ -817,7 +817,7 @@ function main_readConfig()
 	if [[ -f "${CXR_EXPANDED_CONFIG}"  ]]
 	then
 		# Found an expanded configuration (priority)
-		main_log -a "$FUNCNAME" "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
+		main.log -a "$FUNCNAME" "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
 		source "${CXR_EXPANDED_CONFIG}"
 		
 		# This makes sure all following code looks at the right file
@@ -828,14 +828,14 @@ function main_readConfig()
 		# Does it exist?
 		if [[ -f "${CXR_CONFIG}"  ]]
 		then
-			main_log -a "$FUNCNAME"  "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
+			main.log -a "$FUNCNAME"  "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
 			# Source it
 			source "${CXR_CONFIG}"
 		else
 			# If the user types CAMxRunner.sh -h we land here
 			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
 			then
-				main_die_gracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
+				main.die_gracefully "$FUNCNAME:$LINENO - found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
 			fi
 		fi
 	fi
@@ -851,24 +851,24 @@ function main_readConfig()
 		
 		if [[ -f "${INSTALLER_CONF}"  ]]
 		then
-			main_log -a "$FUNCNAME"  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
+			main.log -a "$FUNCNAME"  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
 			source "${INSTALLER_CONF}"
 		else
-			main_log -w "$FUNCNAME" "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
+			main.log -w "$FUNCNAME" "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
 		fi
 	fi
 	
 }
 
 ################################################################################
-# Function: main_getModuleName
+# Function: main.getModuleName
 #
 # Extracts the module name from a path, removes the leading number and the trailing extension
 #
 # Parameters:
 # $1 - Module name with or without path
 ################################################################################
-function main_getModuleName()
+function main.getModuleName()
 ################################################################################
 {
 	local full_name
@@ -877,7 +877,7 @@ function main_getModuleName()
 	
 	if [[ $# -ne 1   ]]
 	then
-		main_die_gracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
+		main.die_gracefully "$FUNCNAME:$LINENO - needs a string (the long module name) as input."
 	fi	
 	
 	full_name=$1
@@ -897,7 +897,7 @@ function main_getModuleName()
 }
 
 ################################################################################
-# Function: main_listModuleType
+# Function: main.listModuleType
 #	
 # Shows a list of recognised modules of the given type and displays how they can
 # be called individually.
@@ -905,7 +905,7 @@ function main_getModuleName()
 # Parameters:
 # $1 - Type of modules to be shown
 ################################################################################
-function main_listModuleType()
+function main.listModuleType()
 ################################################################################
 {
 	# TODO: How do model and installer modules fit in here?
@@ -919,7 +919,7 @@ function main_listModuleType()
 	case "$module_type" in
 	
 		"${CXR_TYPE_COMMON}" ) 
-		main_die_gracefully "Common modules cannot be run this way!" ;;
+		main.die_gracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 			CALL="-p"
@@ -942,12 +942,12 @@ function main_listModuleType()
 			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
-			main_die_gracefully "Unknown module type $module_type" ;;
+			main.die_gracefully "Unknown module type $module_type" ;;
 
 	esac
 	
 	# Increase global indent level
-	main_increaseLogIndent
+	main.increaseLogIndent
 	
 	# Loop through available input dirs
 	for MODULE_DIRECTORY in $MODULE_DIRECTORIES
@@ -960,33 +960,33 @@ function main_listModuleType()
 		
 		if [[ "$NUM_MODULES" -gt 0  ]]
 		then
-			main_log -v "${FUNCNAME}" "  $(printf %-32s%-75s Name Call)"
+			main.log -v "${FUNCNAME}" "  $(printf %-32s%-75s Name Call)"
 			
 			# Active Processors
 			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
 			do
 				FILE_NAME=$(basename $FUNCTION_FILE)
-				TOTAL_CALL="${CXR_CALL} ${CALL}$(main_getModuleName $FUNCTION_FILE)"
+				TOTAL_CALL="${CXR_CALL} ${CALL}$(main.getModuleName $FUNCTION_FILE)"
 				
-				main_log -v "${FUNCNAME}" "  $(printf %-32s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"
+				main.log -v "${FUNCNAME}" "  $(printf %-32s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"
 				FOUND=true
 			done
 		else
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
 	
-			main_log "${FUNCNAME}"  "No enabled modules of type $module_type where found. Is this intended?\n"
+			main.log "${FUNCNAME}"  "No enabled modules of type $module_type where found. Is this intended?\n"
 			
 			# Decrease global indent level
-			main_decreaseLogIndent
+			main.decreaseLogIndent
 		fi
 	
 		if [[ "$DISABLED_MODULES" ]]
 		then
-			main_log -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
+			main.log -w "${FUNCNAME}" "You disabled these modules in the configuration: $DISABLED_MODULES"
 		fi
 	
-		main_log -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
+		main.log -i "${FUNCNAME}"  "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
 		
 		# How do disabled modules look like?
 		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
@@ -1000,53 +1000,53 @@ function main_listModuleType()
 			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
 			do
 				FILE_NAME=$(basename $FUNCTION_FILE)
-				main_log -w "${FUNCNAME}"  "$FILE_NAME"
+				main.log -w "${FUNCNAME}"  "$FILE_NAME"
 			done
 		else
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
 	
-			main_log -v "${FUNCNAME}"  "  No disabled modules of type $module_type where found.\n"
+			main.log -v "${FUNCNAME}"  "  No disabled modules of type $module_type where found.\n"
 			
 			# Decrease global indent level
-			main_decreaseLogIndent
+			main.decreaseLogIndent
 		fi
 		
 	done # Loop through directories
 	
 	# Decrease global indent level
-	main_decreaseLogIndent
+	main.decreaseLogIndent
 }
 
 ################################################################################
-# Function: main_listAllModules
+# Function: main.listAllModules
 #	
 # Shows a list of all recognised modules that can
 # be called individually.
 #
 ################################################################################
-function main_listAllModules
+function main.listAllModules
 ################################################################################
 {
-		main_log -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
+		main.log -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
 		
 		# XX_module_functions.sh
-		main_listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
+		main.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
 		
-		main_log -v "CAMxRunner.sh" "  These are the possible values for daily pre processing steps:\n"
-		
-		# XX_module_functions.sh
-		main_listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
-		
-		main_log -v "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
+		main.log -v "CAMxRunner.sh" "  These are the possible values for daily pre processing steps:\n"
 		
 		# XX_module_functions.sh
-		main_listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
+		main.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
 		
-		main_log -v "CAMxRunner.sh" "  These are the possible values for One-Time post processing steps:\n"
+		main.log -v "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
 		
 		# XX_module_functions.sh
-		main_listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
+		main.listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
 		
-		main_log -i "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
+		main.log -v "CAMxRunner.sh" "  These are the possible values for One-Time post processing steps:\n"
+		
+		# XX_module_functions.sh
+		main.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
+		
+		main.log -i "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
 }

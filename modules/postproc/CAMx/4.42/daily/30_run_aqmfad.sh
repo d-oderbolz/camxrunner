@@ -181,7 +181,7 @@ function run_aqmfad()
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -193,13 +193,13 @@ function run_aqmfad()
 		do
 			if [[ "$CXR_DRY" == false  ]]
 			then
-				main_log "${FUNCNAME}"  "Running aqmfad on grid ${i}..."
-				main_log "${FUNCNAME}"  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]})"    
+				main.log "${FUNCNAME}"  "Running aqmfad on grid ${i}..."
+				main.log "${FUNCNAME}"  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]})"    
 
 				# Call aqmfad while collecting stderr only
 				${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_ARR_FILES[${i}]}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_ARR_FILES[${i}]}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_ARR_FILES[${i}]}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_ARR_FILES[${i}]}) 2>> $CXR_LOG
 			else
-				main_log "${FUNCNAME}"  "This is a dryrun, no action required"
+				main.log "${FUNCNAME}"  "This is a dryrun, no action required"
 			fi
 		done
 		
@@ -209,14 +209,14 @@ function run_aqmfad()
 		# Postprocessor: we only terminate the module
 		if [[ $(cxr_common_check_result) == false  ]]
 		then
-			main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 		
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

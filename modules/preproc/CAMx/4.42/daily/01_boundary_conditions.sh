@@ -209,7 +209,7 @@ function boundary_conditions()
 		#  --- Check Settings
 		if [[ $(cxr_common_check_preconditions) == false  ]]
 		then
-			main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -219,9 +219,9 @@ function boundary_conditions()
 			# File does not exist
 		
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
 	
-			main_log "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data..."
+			main.log "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data..."
 			
 			# What method is wanted?
 			case "${CXR_IC_BC_TC_METHOD}" in
@@ -364,20 +364,20 @@ function boundary_conditions()
 						"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG
 						
 					else
-						main_log "${FUNCNAME}"  "This is a dry-run, will not run program"
+						main.log "${FUNCNAME}"  "This is a dry-run, will not run program"
 					fi
 			
 					# Get back
 					cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 			
 					# Decrease global indent level
-					main_decreaseLogIndent
+					main.decreaseLogIndent
 			
 				;;
 				
 				ICBCPREP )
 				
-					main_log -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
+					main.log -w "${FUNCNAME}"  "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
 					# We use the topconc file that was created by initial_conditions
 					# And we link to the BC file that was created there.
 				
@@ -390,7 +390,7 @@ function boundary_conditions()
 							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
 						fi
 					else
-						main_log "${FUNCNAME}"  "This is a dry-run, no action required"
+						main.log "${FUNCNAME}"  "This is a dry-run, no action required"
 					fi
 				;;
 				
@@ -399,7 +399,7 @@ function boundary_conditions()
 			# Check if all went well
 			if [[ "$(cxr_common_check_result)" == false  ]]
 			then
-				main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -410,11 +410,11 @@ function boundary_conditions()
 			if [[ "$CXR_SKIP_EXISTING" == true  ]]
 			then
 				# Skip it
-				main_log -w "${FUNCNAME}"  "File $CXR_BC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+				main.log -w "${FUNCNAME}"  "File $CXR_BC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
 				return 0
 			else
 				# Fail!
-				main_log -e "${FUNCNAME}" "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				main.log -e "${FUNCNAME}" "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -422,7 +422,7 @@ function boundary_conditions()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

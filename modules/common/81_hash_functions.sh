@@ -105,7 +105,7 @@ function cxr_common_hash_get_dir ()
 		$CXR_HASH_TYPE_INSTANCE) hash_dir="${CXR_INSTANCE_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_GLOBAL) hash_dir="${CXR_GLOBAL_HASH_DIR}" ;;
 		$CXR_HASH_TYPE_UNIVERSAL) hash_dir="${CXR_UNIVERSAL_HASH_DIR}" ;;
-		*) main_die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
+		*) main.die_gracefully "$FUNCNAME:$LINENO - Unknown Hashtype $type" ;;
 	esac
 	
 	echo "$hash_dir"
@@ -160,7 +160,7 @@ function cxr_common_hash_destroy ()
 	# Work out the directory
 	hash_dir="$(cxr_common_hash_get_dir "$type")"
 	
-	main_log -i "Deleting the Hash ${hash}"
+	main.log -i "Deleting the Hash ${hash}"
 	rm -rf "${hash_dir}/${hash}"
 }
 
@@ -194,7 +194,7 @@ function _hash_fn ()
 	
 	if [[ ! "$key" ]]
 	then
-		main_log -w "Detected empty key!"
+		main.log -w "Detected empty key!"
 	fi
 	
 	# Generate the filename
@@ -289,7 +289,7 @@ function cxr_common_hash_delete ()
 		# remove the value
 		rm -f "${fn}"
 	else
-		main_log -v "$FUNCNAME" "Key "$key" not found in "$type" hash "$hash""
+		main.log -v "$FUNCNAME" "Key "$key" not found in "$type" hash "$hash""
 	fi
 }
 

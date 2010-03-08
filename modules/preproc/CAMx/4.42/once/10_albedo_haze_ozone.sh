@@ -248,15 +248,15 @@ function create_ahomap_control_file()
 			echo "xorg,yorg,clon,clat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_LAMBERT_CENTER_LONGITUDE,$CXR_LAMBERT_CENTER_LATITUDE,$CXR_LAMBERT_TRUE_LATITUDE1,$CXR_LAMBERT_TRUE_LATITUDE2" >> ${ahomap_file}
 			;;
 		POLAR)
-			main_log "${FUNCNAME}" "Note that POLAR support of CAMxRunner is limited, be careful!"
+			main.log "${FUNCNAME}" "Note that POLAR support of CAMxRunner is limited, be careful!"
 			echo "xorg,yorg,plon,plat|$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_POLAR_LONGITUDE_POLE,$CXR_POLAR_LATITUDE_POLE" >> ${ahomap_file}
 			;;
 		UTM)
-			main_log "${FUNCNAME}" "Note that UTM support of CAMxRunner is limited, be careful!"
+			main.log "${FUNCNAME}" "Note that UTM support of CAMxRunner is limited, be careful!"
 			echo "xorg,yorg,izone    |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$CXR_UTM_ZONE" >> ${ahomap_file}
 			;;
 		LATLON)
-			main_log "${FUNCNAME}" "Note that LATLON support of CAMxRunner is limited, be careful!"
+			main.log "${FUNCNAME}" "Note that LATLON support of CAMxRunner is limited, be careful!"
 			echo "xorg,yorg          |$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD" >> ${ahomap_file}
 			;;
 	
@@ -316,10 +316,10 @@ function create_ahomap_control_file()
 				# Download
 				${CXR_WGET_EXEC} ${CURRENT_URL} -O $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE} || return $CXR_RET_ERROR
 			else
-				main_log "${FUNCNAME}" "Dryrun, file ${CXR_AHOMAP_OZONE_COLUMN_FILE} not downloaded"
+				main.log "${FUNCNAME}" "Dryrun, file ${CXR_AHOMAP_OZONE_COLUMN_FILE} not downloaded"
 			fi
 		else
-			main_log "${FUNCNAME}" "File ${CXR_AHOMAP_OZONE_COLUMN_FILE} is already in the cache."
+			main.log "${FUNCNAME}" "File ${CXR_AHOMAP_OZONE_COLUMN_FILE} is already in the cache."
 		fi
 		
 		# Write data to file
@@ -330,7 +330,7 @@ function create_ahomap_control_file()
 	# Reset date variables for first day
 	date_setVars "$CXR_START_DATE" "0"
 	
-	main_log "${FUNCNAME}" "I just wrote a control file for AHOMAP to ${ahomap_file}."
+	main.log "${FUNCNAME}" "I just wrote a control file for AHOMAP to ${ahomap_file}."
 
 	# Return the file name
 	echo ${ahomap_file}
@@ -379,7 +379,7 @@ function albedo_haze_ozone()
 					start_offset=0
 					num_days=${CXR_NUMBER_OF_SIM_DAYS}
 					
-					main_log -b ${FUNCNAME} "Running AHOMAP for whole period..."
+					main.log -b ${FUNCNAME} "Running AHOMAP for whole period..."
 					substage=once
 					;;
 					
@@ -387,7 +387,7 @@ function albedo_haze_ozone()
 				
 					start_offset=$day_offset
 					num_days=1
-					main_log -b ${FUNCNAME} "Running AHOMAP for $CXR_DATE..."
+					main.log -b ${FUNCNAME} "Running AHOMAP for $CXR_DATE..."
 					substage=$CXR_DATE
 					;;
 					
@@ -411,7 +411,7 @@ function albedo_haze_ozone()
 							num_days=${days_left}
 						fi
 						
-						main_log -b ${FUNCNAME} "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $start_offset )..."
+						main.log -b ${FUNCNAME} "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $start_offset )..."
 						substage=$CXR_WOY
 						
 					else
@@ -439,7 +439,7 @@ function albedo_haze_ozone()
 							num_days=${days_left}
 						fi
 						
-						main_log -b ${FUNCNAME} "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $start_offset )..."
+						main.log -b ${FUNCNAME} "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $start_offset )..."
 						substage=$CXR_MONTH
 						
 					else
@@ -448,7 +448,7 @@ function albedo_haze_ozone()
 					;;
 			
 				*)
-					main_die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
+					main.die_gracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
 			esac
 
 			#  --- Setup the Environment
@@ -457,15 +457,15 @@ function albedo_haze_ozone()
 			#  --- Check Settings
 			if [[ "$(cxr_common_check_preconditions)" == false  ]]
 			then
-				main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 			
 			# Increase global indent level
-			main_increaseLogIndent
+			main.increaseLogIndent
 	
-			main_log "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
+			main.log "${FUNCNAME}" "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
 			
 			# Is the output there?
 			if [[ ! -f "$CXR_AHOMAP_OUTPUT_FILE"  ]]
@@ -487,28 +487,28 @@ function albedo_haze_ozone()
 					if [[ -s "${ahomap_control_file}"  ]]
 					then
 					
-						main_log "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
+						main.log "${FUNCNAME}" "Calling AHOMAP - using this jobfile (be patient)...\n"
 				
 						# Call AHOMAP 
 						cat ${ahomap_control_file} | tee -a ${CXR_LOG}
 						
 						${CXR_AHOMAP_EXEC} < ${ahomap_control_file} 2>&1 | tee -a $CXR_LOG
 					else
-						main_log "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
+						main.log "${FUNCNAME}" "Could not create AHOMAP control file - exiting."
 						return $CXR_RET_ERROR
 					fi
 		
 				else
-					main_log "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
+					main.log "${FUNCNAME}"  "Dryrun - AHOMAP not performed"
 				fi
 		
 				# Decrease global indent level
-				main_decreaseLogIndent
+				main.decreaseLogIndent
 		
 				# Check if all went well
 				if [[ $(cxr_common_check_result) == false  ]]
 				then
-					main_log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+					main.log "${FUNCNAME}" "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
 					return $CXR_RET_ERR_POSTCONDITIONS
 				fi
@@ -518,12 +518,12 @@ function albedo_haze_ozone()
 				if [[ "$CXR_SKIP_EXISTING" == true  ]]
 				then
 					# Skip it
-					main_log -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+					main.log -w "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
 					
 					# next iteration
 				else
 					# Fail!
-					main_log -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+					main.log -e "${FUNCNAME}" "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
 					return $CXR_RET_ERROR
 				fi
 			fi
@@ -542,7 +542,7 @@ function albedo_haze_ozone()
 		# Store the state
 		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 	else
-		main_log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "${FUNCNAME}" "${FUNCNAME}:${LINENO} - Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

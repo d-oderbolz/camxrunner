@@ -906,13 +906,13 @@ function execute_model()
 	
 	outfile=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE")
 	
-	main_log "$FUNCNAME" "This is the content of the outfile:"
+	main.log "$FUNCNAME" "This is the content of the outfile:"
 	
 	cat $outfile 2>&1 | tee -a $CXR_LOG
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main_die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
+		main.die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back
@@ -934,7 +934,7 @@ function model()
 		# cxr_common_store_state checks if we have finished this and if we need to continue
 		if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
 		then
-			main_log -B "$FUNCNAME" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
+			main.log -B "$FUNCNAME" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			
 			# If we do not run the first day, its a restart
 			if [[ "$(date_isFirstDayOfSimulation?)" == false  ]]
@@ -951,7 +951,7 @@ function model()
 			
 			if [[ "$CXR_DRY" == true ]]
 			then
-				main_log "$FUNCNAME" "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode"
+				main.log "$FUNCNAME" "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode"
 				CXR_DIAGNOSTIC_ERROR_CHECK=true
 			fi
 			
@@ -968,7 +968,7 @@ function model()
 			
 			if [[ $(cxr_common_check_preconditions) == false  ]]
 			then
-				main_log "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+				main.log "$FUNCNAME" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
@@ -980,7 +980,7 @@ function model()
 			# Did we run properly?
 			if [[ $(cxr_common_check_result) == false  ]]
 			then
-				main_log "$FUNCNAME" "$CXR_MODEL Run was not successful!"
+				main.log "$FUNCNAME" "$CXR_MODEL Run was not successful!"
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -989,11 +989,11 @@ function model()
 			cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 			
 		else
-			main_log "$FUNCNAME" "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
+			main.log "$FUNCNAME" "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
 		fi
 		
 		else
-		main_log "$FUNCNAME" "Model disabled (either in the config using CXR_RUN_MODEL=false or with the option -N)"
+		main.log "$FUNCNAME" "Model disabled (either in the config using CXR_RUN_MODEL=false or with the option -N)"
 	fi
 }
 

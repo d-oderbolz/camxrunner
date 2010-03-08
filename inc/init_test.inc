@@ -18,7 +18,7 @@ source $CXR_RUN_DIR/inc/tap-functions.inc
 source $CXR_RUN_DIR/inc/main_functions.inc
 
 # We need to know our version prior to loading modules
-main_setModelAndVersion ${CXR_RUN}
+main.setModelAndVersion ${CXR_RUN}
 
 # Source Defaults if needed
 if [[ "${CXR_DEFAULTS_LOADED:-false}" != true  ]]
@@ -48,7 +48,7 @@ done
 source ${CXR_RUN_DIR}/inc/load_common_modules.inc
 
 # Determine our name
-CXR_META_MODULE_NAME=$(main_getModuleName $0)
+CXR_META_MODULE_NAME=$(main.getModuleName $0)
 
 #Disable state DB
 CXR_ENABLE_STATE_DB=false
@@ -57,7 +57,7 @@ CXR_ENABLE_STATE_DB=false
 CXR_HOLLOW=true
 
 # load configuration data.
-main_readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "."
+main.readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "."
 
 # count simulation days
 CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "$CXR_START_DATE" "$CXR_STOP_DATE")

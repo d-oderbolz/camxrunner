@@ -460,13 +460,13 @@ case "${CXR_AEROSOL_MECHANISM}" in
 				CXR_OUTPUT_SPECIES_NAMES[36]=CCRS
 				;;
 			
-			*)	main_die_gracefully "The chemical mechanism ${CXR_CHEMICAL_MECHANISM} is not supported by this configuration file"
+			*)	main.die_gracefully "The chemical mechanism ${CXR_CHEMICAL_MECHANISM} is not supported by this configuration file"
 				;;
 			
 		esac # Chemical Mechanism
 		;;
 		
-	*) main_die_gracefully "The aerosol mechanism ${CXR_AEROSOL_MECHANISM} is not supported by this configuration file!"
+	*) main.die_gracefully "The aerosol mechanism ${CXR_AEROSOL_MECHANISM} is not supported by this configuration file!"
 	   ;;
 		
 		
@@ -721,23 +721,23 @@ CXR_LOCK_MAN_EXEC=${CXR_BIN_DIR}/lock.sh
 #### into binaries that carry the machine type in their name
 #### CAMxRunner -I can do this for you.
 #### 
-#### Also the function main_getBinaryName then selects the most appropriate one.
+#### Also the function main.getBinaryName then selects the most appropriate one.
 #### replace with literal for your own choice
 
 # The binary to convert bin2asc
-CXR_BIN2ASC_EXEC=$(main_getBinaryName bin2asc)
+CXR_BIN2ASC_EXEC=$(main.getBinaryName bin2asc)
 
 # The binary to convert asc2bin
-CXR_ASC2IBN_EXEC=$(main_getBinaryName asc2bin)
+CXR_ASC2IBN_EXEC=$(main.getBinaryName asc2bin)
 
 # The binary to convert Emission ascii to Bin
-CXR_AIRCONV_EXEC=$(main_getBinaryName airconv)
+CXR_AIRCONV_EXEC=$(main.getBinaryName airconv)
 
 # The binary to convert MM5 Input
-CXR_UAMVASCII_EXEC=$(main_getBinaryName uamvascii)
+CXR_UAMVASCII_EXEC=$(main.getBinaryName uamvascii)
 
 # Yet another binary to convert MM5 Input
-CXR_AIRASCII_EXEC=$(main_getBinaryName airascii)
+CXR_AIRASCII_EXEC=$(main.getBinaryName airascii)
 
 ################################################################################
 # bin2asc conversion
@@ -749,7 +749,7 @@ CXR_ASC_EXT=asc
 # The OPM and EXEC Settings are machine-dependent.
 ################################################################################ 
 # Are we on a multicore system?
-CXR_NUM_CORES=$(main_countCores)
+CXR_NUM_CORES=$(main.countCores)
 
 # Maximal number of parallel processes in the CAMxRunner
 if [[ "$CXR_PARALLEL_PROCESSING" == true  ]]

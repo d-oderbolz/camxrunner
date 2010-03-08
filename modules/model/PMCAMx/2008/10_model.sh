@@ -377,7 +377,7 @@ function write_model_control_file()
 		LATLON)  echo "long,lat,dx,dy     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} " >> ${CXR_MODEL_CTRL_FILE} ;;
 		UTM)     echo "x,y,dx,dy,zone     |${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_UTM_ZONE} " >> ${CXR_MODEL_CTRL_FILE} ;;
 		POLAR)   echo "x,y,dx,dy,lo_p,la_p|${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}  ${CXR_MASTER_CELL_XSIZE}  ${CXR_MASTER_CELL_YSIZE} ${CXR_POLAR_LONGITUDE_POLE} ${CXR_POLAR_LATITUDE_POLE}" >> ${CXR_MODEL_CTRL_FILE} ;;
-		*) main_die_gracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
+		*) main.die_gracefully "Map projection ${CXR_MAP_PROJECTION} currently not supported!"
 	
 	esac
 	
@@ -409,11 +409,11 @@ function write_model_control_file()
 		# Correct if we chopped all away
 		if [[ $num_spaces -lt 0  ]]
 		then
-			main_log "${FUNCNAME}" "Attention: Either your species names are to long or the column spacing is to small!"
+			main.log "${FUNCNAME}" "Attention: Either your species names are to long or the column spacing is to small!"
 			num_spaces=0
 		fi
 		
-		# Generate that many spaces (the printf approach in main_log does not work with spaces!!)
+		# Generate that many spaces (the printf approach in main.log does not work with spaces!!)
 		y=0 
 		SPACES=
 		while [ "$y" -lt $num_spaces ]; do
@@ -614,13 +614,13 @@ function execute_model()
 
 	outfile=$(cxr_common_evaluate_rule "$CXR_OUT_FILE_RULE")
 	
-	main_log "${FUNCNAME}" "This is the content of the outfile:"
+	main.log "${FUNCNAME}" "This is the content of the outfile:"
 	
 	cat $outfile 2>&1 | tee -a $CXR_LOG
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main_die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
+		main.die_gracefully "$FUNCNAME - CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back
@@ -653,7 +653,7 @@ function model()
 					CXR_RESTART=false
 				fi
 			
-				main_log -B "${FUNCNAME}" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
+				main.log -B "${FUNCNAME}" "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 				
 				#  --- Execute the model and write stderr and stdout to CXR_LOG ---
 				set_variables
@@ -664,7 +664,7 @@ function model()
 				
 				if [[ $(cxr_common_check_preconditions) == false  ]]
 				then
-					main_log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+					main.log "${FUNCNAME}" "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 					# We notify the caller of the problem
 					return $CXR_RET_ERR_PRECONDITIONS
 				fi
@@ -673,13 +673,13 @@ function model()
 				then
 					execute_model
 				else
-					main_log "${FUNCNAME}" "This is a dry run, $CXR_MODEL is not run"
+					main.log "${FUNCNAME}" "This is a dry run, $CXR_MODEL is not run"
 				fi
 			
 				# Did we run properly?
 				if [[ $(cxr_common_check_result) == false  ]]
 				then
-					main_log "${FUNCNAME}" "$CXR_MODEL Run was not successful!"
+					main.log "${FUNCNAME}" "$CXR_MODEL Run was not successful!"
 					# We notify the caller of the problem
 					return $CXR_RET_ERR_POSTCONDITIONS
 				fi
@@ -688,11 +688,11 @@ function model()
 				cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
 				
 			else
-				main_log "${FUNCNAME}" "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
+				main.log "${FUNCNAME}" "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
 			fi
 			
 			else
-			main_log "${FUNCNAME}" "Model disabled (either in the config using CXR_RUN_MODEL=false or with the option -N)"
+			main.log "${FUNCNAME}" "Model disabled (either in the config using CXR_RUN_MODEL=false or with the option -N)"
 		fi
 }
 
