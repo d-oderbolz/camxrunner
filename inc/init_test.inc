@@ -23,10 +23,11 @@ main.setModelAndVersion ${CXR_RUN}
 # Source Defaults
 source $CXR_RUN_DIR/inc/defaults.inc
 
+# load configuration data.
+main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
 
-# For the time being, we turn off errexit
-# Because tap-functions uses non-0 returns
-set +e
+# Load common modules 
+source ${CXR_RUN_DIR}/inc/load_common_modules.inc
 
 # Correct with user-supplied stuff
 # Turn any CXR_USER_TEMP_ into a CXR_ variable
@@ -42,9 +43,6 @@ do
 	export ${NEW_NAME}="$VALUE"
 done
 
-# Load common modules 
-source ${CXR_RUN_DIR}/inc/load_common_modules.inc
-
 # Determine our name
 CXR_META_MODULE_NAME=$(main.getModuleName $0)
 
@@ -53,9 +51,6 @@ CXR_ENABLE_STATE_DB=false
 
 # No Notification etc.
 CXR_HOLLOW=true
-
-# load configuration data.
-main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
 
 # count simulation days
 CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")
