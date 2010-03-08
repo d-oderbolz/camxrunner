@@ -716,6 +716,8 @@ function main.setModelAndVersion()
 # - installer.conf
 # - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf (if available)
 #
+# Also here, we set all variables that depend on model & version
+#
 # Parameters:
 # $1 - The name of the run to use
 # $2 - The Modelname to use
@@ -757,9 +759,6 @@ function main.readConfig()
 	# Locations of configuration
 	########################################
 	
-	# Defaults
-	defaults="$CXR_RUN_DIR/inc/defaults.inc"
-
 	# Site config
 	CXR_SITECONFIG=${CXR_CONF_DIR}/site.conf
 	
@@ -779,7 +778,6 @@ function main.readConfig()
 	# Revisions
 	########################################
 	
-	CXR_DEFAULTS_REV="$(common.version_control.getRevision $defaults)"
 	CXR_SITECONFIG_REV="$(common.version_control.getRevision $CXR_SITECONFIG)"
 	CXR_BASECONFIG_REV="$(common.version_control.getRevision $CXR_BASECONFIG)"
 	CXR_VERSIONCONFIG_REV="$(common.version_control.getRevision $CXR_VERSIONCONFIG)"
@@ -788,29 +786,67 @@ function main.readConfig()
 	
 	
 	########################################
-	# Loading defaults
+	# Setting some specific variables
 	########################################
+	main.log -a -b "Setting variables specific for ${CXR_MODEL} ${CXR_MODEL_VERSION}..."
 	
-	if [[ -f "${defaults}" ]]
-	then
-		main.log -a "Loading ${defaults} revision ${CXR_DEFAULTS_REV}"
-		source "${defaults}"
-	else
-		main.die_gracefully "The default include file ${defaults} is not available - exiting"
-	fi
+	#Base path to find the CAMx executable
+	CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
 	
+	# These are Model specific common modules, CAMx is the default model
+	CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
+	
+	# And these Version specific common modules
+	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL_VERSION}
+	
+	
+	# Directories where to find installer modules
+	
+	# These are Model specific ones, CAMx is the default model
+	CXR_INSTALLER_MODEL_INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}
+	
+	# And these Version specific
+	CXR_INSTALLER_VERSION_INPUT_DIR=${CXR_INSTALLER_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
+	
+	# Directories where to find processors
+	
+	#Pre- Processors
+	# These are run for each simulation day
+	CXR_PREPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
+	
+	#These are run before the simulation starts
+	CXR_PREPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
+	
+	# Post- Processors
+	# These are run for each simulation day
+	CXR_POSTPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
+	
+	#These are run once the whole simulation has finished
+	CXR_POSTPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
+	
+	# Model
+	CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
+	
+	# Hashes
+	# The name of the hash that will hold the directories of the modules
+	CXR_MODULE_PATH_HASH=module_paths_${CXR_MODEL}_${CXR_MODEL_VERSION}
+
+
+	# The name of the hash that will hold the types of the modules
+	CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
+
 	########################################
 	# Try to load the site config
 	########################################
 	
 	# No drama if it does not exist
-	if [[ -f "${CXR_SITECONFIG}"  ]]
+	if [[ -f "${CXR_SITECONFIG}" ]]
 	then
 		main.log -a   "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
 	
 		source "${CXR_SITECONFIG}"
 	else
-		main.log  "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
+		main.log "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
 	fi
 
 	########################################
@@ -885,7 +921,6 @@ function main.readConfig()
 			main.log -w  "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
 		fi
 	fi
-	
 }
 
 ################################################################################

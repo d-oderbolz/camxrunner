@@ -579,7 +579,7 @@ function common.fs.TryDecompressingFile()
 					new_file=$tempfile
 					break
 				else
-					main.log -e "File ${comp_file} could not be decompressed by $DECOMP"
+					main.log -e "File ${comp_file} could not be decompressed!"
 				fi
 
 			fi # File readable?

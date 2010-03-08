@@ -426,6 +426,7 @@ CXR_ENABLED_INSTALLER=""
 # Directories 
 # Attention: Put no variables in directory names that are not yet set here!
 # E. g. any variable containing dates (like simulation year) will fail to expand!
+# All Model/Version specific dirs are set in main.readConfig
 ################################################################################
 
 # This is the directory where tempfiles go.
@@ -436,84 +437,23 @@ CXR_TMP_DIR=~/tmp
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
 
-
 # The directory where the libraries lie
 CXR_LIB_DIR=${CXR_RUN_DIR}/lib
-
-
-#Base path to find the CAMx executable
-CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
-
 
 # Here is the config
 CXR_CONF_DIR=${CXR_RUN_DIR}/conf
 
-
 # Here are the templates
 CXR_TEMPLATES_DIR=${CXR_RUN_DIR}/templates
-
 
 # Here are the modules
 CXR_MODULES_DIR=${CXR_RUN_DIR}/modules
 
-
 # External functions are loaded from here
 CXR_COMMON_INPUT_DIR=${CXR_MODULES_DIR}/common
 
-
 # Common installers are here
 CXR_INSTALLER_INPUT_DIR=${CXR_MODULES_DIR}/${CXR_INSTALLER}
-
-
-#######################################
-# Model/Version specific Directories 
-#######################################
-
-# These are Model specific common modules, CAMx is the default model
-CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
-
-
-# And these Version specific common modules
-CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL_VERSION}
-
-
-#######################################
-# Directories where to find installer modules
-#######################################
-
-# These are Model specific ones, CAMx is the default model
-CXR_INSTALLER_MODEL_INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}
-
-
-# And these Version specific
-CXR_INSTALLER_VERSION_INPUT_DIR=${CXR_INSTALLER_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
-
-
-#######################################
-# Directories where to find processors
-#######################################
-
-#Pre- Processors
-# These are run for each simulation day
-CXR_PREPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-
-
-#These are run before the simulation starts
-CXR_PREPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-
-
-# Post- Processors
-# These are run for each simulation day
-CXR_POSTPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-
-
-#These are run once the whole simulation has finished
-CXR_POSTPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-
-
-# Model
-CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
-
 
 ################################################################################
 # Parameters to estimate space needed
@@ -581,15 +521,6 @@ CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
 
 # Universal Hashes (e. g. MD5 database) go here
 CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
-
-
-# The name of the hash that will hold the directories of the modules
-CXR_MODULE_PATH_HASH=module_paths_${CXR_MODEL}_${CXR_MODEL_VERSION}
-
-
-# The name of the hash that will hold the types of the modules
-CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
-
 
 ########################################
 # Data that is global to all instances of a given run
