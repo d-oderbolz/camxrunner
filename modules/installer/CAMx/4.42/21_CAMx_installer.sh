@@ -271,7 +271,7 @@ function CAMx_installer()
 		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
 		
 		#File resulting from compilation due to CAMx defaults
-		resulting_binary=$CXR_CAMX_SRC_DIR/CAMx.$domain_$CXR_CURRENT_PLATFORM
+		resulting_binary=${CXR_CAMX_SRC_DIR}/CAMx.${domain}_${CXR_CURRENT_PLATFORM}
 		
 		########################################
 		main.log -a  "Setup Input directories containing patches..."
