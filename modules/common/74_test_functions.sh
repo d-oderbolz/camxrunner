@@ -207,14 +207,14 @@ function common.test.all()
 		
 		main.log  "Testing system using modules for $model $version..."
 		
-		# This is a marker that tells the modules they do not need init anymore
-		CXR_TESTING_FROM_HARNESS=true
-		
 		# Pre-load testing interface
 		CXR_RUN=base
 	
 		source inc/init_test.inc
-	
+		
+		# This is a marker that tells the modules they do not need init anymore
+		CXR_TESTING_FROM_HARNESS=true
+		
 		########################################
 		#  Count all tests
 		########################################
