@@ -70,7 +70,7 @@ exit 1
 
 
 ################################################################################
-# Function: string_isSubstringPresent?
+# Function: common.string.isSubstringPresent?
 #
 # Returns true if a substring needle was found within haystack, false otherwise.
 # TODO: most calls of thsi function are better replaced by a hash (has?) operation.
@@ -79,7 +79,7 @@ exit 1
 # $1 - haystack, the string in which we search
 # $2 - needle, the substring to be found
 ################################################################################
-function string_isSubstringPresent?() 
+function common.string.isSubstringPresent?() 
 ################################################################################
 {
 	local found=$(expr match " $1" ".*$2.*")
@@ -95,14 +95,14 @@ function string_isSubstringPresent?()
 }
 
 ################################################################################
-# Function: string_toLower
+# Function: common.string.toLower
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function string_toLower() 
+function common.string.toLower() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -314,11 +314,11 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(string_isSubstringPresent? abc a)" true "string_isSubstringPresent? is a in abc?"
+	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
 	
-	is "$(string_toLower QUERTY)" querty "string_toLower QUERTY"
-	is "$(string_toLower querty)" querty "string_toLower querty"
-	is "$(string_toLower '')" "" "string_toLower empty string"
+	is "$(common.string.toLower QUERTY)" querty "common.string.toLower QUERTY"
+	is "$(common.string.toLower querty)" querty "common.string.toLower querty"
+	is "$(common.string.toLower '')" "" "common.string.toLower empty string"
 	
 	is "$(string_toUpper QUERTY)" QUERTY "string_toUpper QUERTY"
 	is "$(string_toUpper querty)" QUERTY "string_toUpper querty"

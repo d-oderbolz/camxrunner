@@ -33,7 +33,7 @@
 # TODO: Remove XX_ digits
 # TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
 # TODO: Enable the execution of more than one specific module
-# TODO: Replace all string_isSubstringPresent? calls with hashes
+# TODO: Replace all common.string.isSubstringPresent? calls with hashes
 # TODO: selective module data update (none if limited processing)
 # TODO: Logger/die no FUNCNAME anymore
 # TODO: change naming convention of all functions
@@ -607,7 +607,7 @@ then
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(math_FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
+			cxr_common_check_mb_needed "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
 		fi
 	else
 		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"

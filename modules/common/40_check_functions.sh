@@ -149,11 +149,11 @@ function cxr_common_predict_model_output_megabytes ()
 	fi
 	
 	# Our constant is designed for 10^5 cells
-	cells=$(math_FloatOperation "$cells / 100000")
+	cells=$(common.math.FloatOperation "$cells / 100000")
 	
-	time_steps=$(math_FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIM_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" "0" )
+	time_steps=$(common.math.FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIM_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" "0" )
 	
-	size=$(math_FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "0" false)
+	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "0" false)
 	
 	echo "$size"
 }
@@ -929,7 +929,7 @@ function cxr_common_check_module_requirements()
 ################################################################################
 {
 	# Test if Module was already announced (for efficiency and log-file size reasons)
-	local found=$(string_isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
+	local found=$(common.string.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
 	local requirement
 	local elements
 	local n_elements
@@ -1218,7 +1218,7 @@ function cxr_common_is_version_supported()
 	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
-	local found=$(string_isSubstringPresent? "$supported" "$version")
+	local found=$(common.string.isSubstringPresent? "$supported" "$version")
 	
 	if [[ $found == true ]]
 	then

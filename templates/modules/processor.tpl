@@ -303,7 +303,7 @@ function test_module()
 	########################################
 	
 	# Example test
-	is $(math_abs 0) 0 "math_abs of 0"
+	is $(common.math.abs 0) 0 "common.math.abs of 0"
 
 	########################################
 	# teardown tests if needed

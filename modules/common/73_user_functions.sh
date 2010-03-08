@@ -116,7 +116,7 @@ function cxr_common_countdown()
 	local message="${1}"
 	
 	# Start must be positive!
-	local start_sec="$(math_abs ${2:-30})"
+	local start_sec="$(common.math.abs ${2:-30})"
 	local mod_sec="${3:-5}"
 	local i
 	

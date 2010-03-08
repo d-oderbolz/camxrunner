@@ -86,14 +86,14 @@ exit 1
 }
 
 ################################################################################
-# Function: math_abs
+# Function: common.math.abs
 #
 # Calculates the absolute value of a number
 #
 # Parameters:
 # $1 - number to be treated
 ################################################################################
-function math_abs()
+function common.math.abs()
 ################################################################################
 {
 	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false   ]]
@@ -121,7 +121,7 @@ function math_abs()
 
 
 ################################################################################
-# Function: math_FloatOperation
+# Function: common.math.FloatOperation
 #
 # Performs FP arithmetic (other than $(()) )
 # If the result is a whole number, a . is appended at the end (FORTRAN compatibility)
@@ -131,10 +131,10 @@ function math_abs()
 # $2 - an optional scale parameter (default CXR_NUM_DIGITS). 0 Means truncate
 # $3 - an optional boolean parameter indicating if a trailing decimal should be added (default: true)
 ################################################################################
-function math_FloatOperation()
+function common.math.FloatOperation()
 ################################################################################
 {
-	if [[ $# -lt 1  ]]
+	if [[ $# -lt 1 ]]
 	then
 		main.die_gracefully "$FUNCNAME" "$FUNCNAME:$LINENO - needs at least an expression as input"
 	fi
@@ -221,16 +221,16 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(math_abs 0) 0 "math_abs of 0"
-	is $(math_abs -0) 0 "math_abs of -0"
-	is $(math_abs 1) 1 "math_abs of 1"
-	is $(math_abs -1) 1 "math_abs of -1"
-	is $(math_abs -1000000) 1000000 "math_abs of -1000000"
-	is $(math_FloatOperation "-1000000 * -1" )  1000000. "math_FloatOperation -1000000 * -1"
-	is $(math_FloatOperation "12.43 * 2" ) 24.86 "math_FloatOperation 12.43 * 2"
-	is $(math_FloatOperation "5" )  5. "math_FloatOperation 5 (trailing .)"
-	is $(math_FloatOperation "5" "" false )  5 "math_FloatOperation 5 false (no trailing .)"
-	is $(math_FloatOperation "0.0000224784 * 300000" 0 false) 6 "math_FloatOperation Rounding"
+	is $(common.math.abs 0) 0 "common.math.abs of 0"
+	is $(common.math.abs -0) 0 "common.math.abs of -0"
+	is $(common.math.abs 1) 1 "common.math.abs of 1"
+	is $(common.math.abs -1) 1 "common.math.abs of -1"
+	is $(common.math.abs -1000000) 1000000 "common.math.abs of -1000000"
+	is $(common.math.FloatOperation "-1000000 * -1" )  1000000. "common.math.FloatOperation -1000000 * -1"
+	is $(common.math.FloatOperation "12.43 * 2" ) 24.86 "common.math.FloatOperation 12.43 * 2"
+	is $(common.math.FloatOperation "5" )  5. "common.math.FloatOperation 5 (trailing .)"
+	is $(common.math.FloatOperation "5" "" false )  5 "common.math.FloatOperation 5 false (no trailing .)"
+	is $(common.math.FloatOperation "0.0000224784 * 300000" 0 false) 6 "common.math.FloatOperation Rounding"
 
 	########################################
 	# teardown tests if needed

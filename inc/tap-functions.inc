@@ -370,7 +370,7 @@ function _is_diag()
 # Tests for equality, the most important test function.
 #
 # Example:
-# > is $(math_abs 0) 0 "math_abs of 0 is 0"
+# > is $(common.math.abs 0) 0 "common.math.abs of 0 is 0"
 #
 # Parameters:
 # $1 - actual result
@@ -531,7 +531,7 @@ function differs_less_or_equal()
 	local limit="${3:-}"
 	local name="${4:-''}"
 	
-	local diff=$(math_abs $(( $result - $expected )) )
+	local diff=$(common.math.abs $(( $result - $expected )) )
 
 	_less_than_or_equal "$diff" "$limit"
 	(( $? == 0 ))

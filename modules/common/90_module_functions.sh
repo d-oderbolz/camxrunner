@@ -736,11 +736,11 @@ function cxr_common_module_run_type()
 					
 					# Check if we must run this
 					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(string_isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
+					if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
 					then
 						# Module was explicitly enabled
 						run_it=true
-					elif [[  "$(string_isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+					elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
 					then
 						# Module was not explicitly disabled and we did not disable all
 						run_it=true

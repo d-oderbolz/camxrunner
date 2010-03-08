@@ -401,7 +401,7 @@ function cxr_common_evaluate_rule()
 	# Does the name of the rule end in _FILE_RULE ?
 	if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
 	#                 ¦
-	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/math_abs/html/string-manipulation.html)
+	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 	then
 		if [[ "${try_decompression}" == true  ]]
 		then
@@ -1242,7 +1242,7 @@ function test_module()
 	########################################
 	
 	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
-	is $(cxr_common_evaluate_rule "$(math_abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
+	is $(cxr_common_evaluate_rule "$(common.math.abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
 	is $(cxr_common_evaluate_rule "domain$(string_leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
 	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
 	
