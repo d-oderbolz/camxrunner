@@ -118,11 +118,11 @@ function common.array.allElementsZero?()
 }
 
 ################################################################################
-# Function: cxr_common_count_delimited_elements
+# Function: common.array.countDelimitedElements
 #
 # Counts the number of elements in a delimited string.
 # Caution: Does not yet work well with newline as delimiter 
-# NUM_MODULE_TYPES=$(cxr_common_count_delimited_elements "$MODULE_TYPES" "$'\n'")
+# NUM_MODULE_TYPES=$(common.array.countDelimitedElements "$MODULE_TYPES" "$'\n'")
 # Yields a number that is off by one! 
 # Use $(echo $String | wc -l) or something similar in these cases
 #
@@ -130,7 +130,7 @@ function common.array.allElementsZero?()
 # $1 - String to parse
 # [$2] - Optional Delimiter (Default $CXR_DELIMITER)
 ################################################################################
-function cxr_common_count_delimited_elements ()
+function common.array.countDelimitedElements ()
 ################################################################################
 {
 	local string
@@ -280,10 +280,10 @@ function test_module()
 	is $(common.array.allElementsZero? "${a[@]}") false "common.array.allElementsZero? all 1"
 	is $(common.array.allElementsZero? "${b[@]}") true "common.array.allElementsZero? all 0"
 	is $(common.array.allElementsZero? "${c[@]}") false "common.array.allElementsZero? all cancelling out"
-	is $(cxr_common_count_delimited_elements "one${CXR_DELIMITER}two") 2 "cxr_common_count_delimited_elements with 2 elements, default delimiter"
-	is $(cxr_common_count_delimited_elements "one two" " ") 2 "cxr_common_count_delimited_elements with 2 elements, space"
-	is $(cxr_common_count_delimited_elements "one two " " ") 2 "cxr_common_count_delimited_elements with 2 elements, space at end"
-	is $(cxr_common_count_delimited_elements "") 0 "cxr_common_count_delimited_elements with 0 elements"
+	is $(common.array.countDelimitedElements "one${CXR_DELIMITER}two") 2 "common.array.countDelimitedElements with 2 elements, default delimiter"
+	is $(common.array.countDelimitedElements "one two" " ") 2 "common.array.countDelimitedElements with 2 elements, space"
+	is $(common.array.countDelimitedElements "one two " " ") 2 "common.array.countDelimitedElements with 2 elements, space at end"
+	is $(common.array.countDelimitedElements "") 0 "common.array.countDelimitedElements with 0 elements"
 
 	########################################
 	# teardown tests if needed
