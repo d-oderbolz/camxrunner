@@ -727,7 +727,7 @@ readonly CXR_INSTANCE
 # This directory holds the instance-information
 # The whole directory is removed after a run
 # All files named CXR_INSTANCE_FILE_* are
-# Created automatically in <cxr_common_initialize_state_db>
+# Created automatically in <common.state.init>
 # The directories must be created explicitly there
 ########################################
 
@@ -745,7 +745,7 @@ readonly CXR_INSTANCE_HASH_DIR
 CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
 
 # The whole file name -if it is deleted, this instance stops
-# This file is created explictly in cxr_common_initialize_state_db
+# This file is created explictly in common.state.init
 CXR_CONTINUE_FILE=${CXR_INSTANCE_DIR}/${CXR_CONTINUE}
 readonly CXR_CONTINUE_FILE
 
@@ -760,7 +760,7 @@ readonly CXR_INSTANCE_FILE_FAILED_DAYS
 ########################################
 # The next few files are SECURITY RELEVANT.
 # 1. Use a random number in the name
-# 2. Use chmod to deny access (done by cxr_common_initialize_state_db)
+# 2. Use chmod to deny access (done by common.state.init)
 ########################################
 
 # In this file, we store all output files that have been generated

@@ -391,7 +391,7 @@ fi
 # Ok, now less than 2 processes is not parallel
 if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1   ]]
 then
-	main.log -w "CAMxRunner.sh" "You chose to use less than 1 cxr_common_parallel_worker, this will literally not work. I will use 1".
+	main.log -w "CAMxRunner.sh" "You chose to use less than 1 common.parallel.Worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
 	CXR_PARALLEL_PROCESSING=false
 fi
@@ -504,12 +504,12 @@ fi
 if [[ "${CXR_HOLLOW}" == true  ]]
 then
 	#Hollow functions neeed init too
-	cxr_common_initialize_state_db
+	common.state.init
 
 	if [[ "${CXR_CLEANUP}" == true  ]]
 	then
 		# Delete info in the state DB
-		cxr_common_cleanup_state
+		common.state.cleanup
 	elif [[ "${CXR_CREATE_NEW_RUN}" == true  ]]
 	then
 		# Create a new run
@@ -519,7 +519,7 @@ then
 		#Delete .CONTINUE files of all instances
 		if [[ "$(cxr_common_get_consent "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
 		then
-			cxr_common_delete_continue_files
+			common.state.deleteContinueFiles
 		fi
 	elif [[ "${CXR_INSTALL}" == true  ]]
 	then
@@ -563,11 +563,11 @@ fi
 CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
 # Is this a repetition of an earlier run?
-if [[ $(cxr_common_is_repeated_run) == true ]]
+if [[ $(common.state.isRepeatedRun?) == true ]]
 then
 	main.log -i "CAMxRunner.sh" "This run has already been started earlier."
 	
-	last="$(cxr_common_get_last_day_modelled)"
+	last="$(common.state.getLastDayModelled)"
 	
 	# last could be empty
 	if [[ "$last" ]]
@@ -579,7 +579,7 @@ then
 	fi
 	
 	# Its dangerous if a run has been extended at the beginning
-	first="$(cxr_common_get_first_day_modelled)"
+	first="$(common.state.getFirstDayModelled)"
 	
 	# first could be empty
 	if [[ "$first" ]]
@@ -673,7 +673,7 @@ then
 
 	main.log -v -B "CAMxRunner.sh" "Checking if another instance is running on this run..." 
 	 
-	cxr_common_detect_running_instances
+	common.state.detectInstances
 	
 	main.log -v -B "CAMxRunner.sh" "No other instance found." 
 
@@ -682,7 +682,7 @@ then
 	# Create a Continue File. If it is gone, the worker thread(s) will stop
 	################################################################################
 
-	cxr_common_initialize_state_db || main.die_gracefully "Could not initialize state DB"
+	common.state.init || main.die_gracefully "Could not initialize state DB"
 	
 	# If we do a dry run, we want to show the detected pre- and postprocessors
 	if [[ "$CXR_DRY" == true  ]]
@@ -718,17 +718,17 @@ then
 	then
 		# Creates a process dependency tree
 		# XX_task_functions.sh
-		cxr_common_parallel_init
+		common.parallel.init
 	
-		# Creates CXR_MAX_PARALLEL_PROCS cxr_common_parallel_worker processes
+		# Creates CXR_MAX_PARALLEL_PROCS common.parallel.Worker processes
 		# The workers then carry out the tasks in parallel
-		cxr_common_spawn_workers $CXR_MAX_PARALLEL_PROCS
+		common.parallel.spawnWorkers $CXR_MAX_PARALLEL_PROCS
 	
 		################################################################################
 		# Make sure that all subprocesses are done!
 		################################################################################
 		# XX_task_functions.sh
-		cxr_common_wait_for_workers
+		common.parallel.WaitForWorkers
 		
 		# If we arrive here, we should be done.
 		# We can add a good check later.

@@ -931,8 +931,8 @@ function model()
 	if [[ "$CXR_RUN_MODEL" == true  ]]
 	then
 	
-		# cxr_common_store_state checks if we have finished this and if we need to continue
-		if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
+		# common.state.storeState checks if we have finished this and if we need to continue
+		if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 		then
 			main.log -B  "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			
@@ -986,7 +986,7 @@ function model()
 			fi
 			
 			# We store the fact model run was completed
-			cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+			common.state.storeState ${CXR_STATE_STOP} > /dev/null
 			
 		else
 			main.log  "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"

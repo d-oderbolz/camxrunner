@@ -201,7 +201,7 @@ function boundary_conditions()
 	local deleteps=$(( "${CXR_IC_BC_TC_RM_PS:-false}" == true  ? 1 : 0 ))
 	
 	#Was this stage already completed?
-	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
@@ -420,9 +420,9 @@ function boundary_conditions()
 		fi
 
 		# Store the state
-		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+		common.state.storeState ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

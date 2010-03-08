@@ -66,5 +66,5 @@ CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DA
 common.date.setVars "$CXR_START_DATE" "0"
 
 # Init state DB
-cxr_common_initialize_state_db
+common.state.init
 

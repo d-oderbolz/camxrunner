@@ -79,13 +79,13 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_is_repeated_run
+# Function: common.state.isRepeatedRun?
 #
 # Returns true, if this run was already started earlier (basically a check if the 
 # state directory is empty)
 # 
 ################################################################################
-function cxr_common_is_repeated_run()
+function common.state.isRepeatedRun?()
 ################################################################################
 {
 	local count
@@ -103,21 +103,21 @@ function cxr_common_is_repeated_run()
 }
 
 ################################################################################
-# Function: cxr_common_get_last_day_modelled
+# Function: common.state.getLastDayModelled
 #
 # If the run was already done, returns the last day done in ISO Format. If it was not done, 
 # returns the empty string.
 # 
 ################################################################################
-function cxr_common_get_last_day_modelled()
+function common.state.getLastDayModelled()
 ################################################################################
 {
 	local max_day
 	local date
 	
-	if [[ $(cxr_common_is_repeated_run) == true  ]]
+	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
-		# A similar expression is used in cxr_common_cleanup_state
+		# A similar expression is used in common.state.cleanup
 		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
 		
 		if [[ "$max_day" ]]
@@ -137,21 +137,21 @@ function cxr_common_get_last_day_modelled()
 }
 
 ################################################################################
-# Function: cxr_common_get_first_day_modelled
+# Function: common.state.getFirstDayModelled
 #
 # If the run was already done, returns the first day done in ISO Format. If it was not done, 
 # returns the empty string.
 # 
 ################################################################################
-function cxr_common_get_first_day_modelled()
+function common.state.getFirstDayModelled()
 ################################################################################
 {
 	local min_day
 	local date
 	
-	if [[ $(cxr_common_is_repeated_run) == true  ]]
+	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
-		# A similar expression is used in cxr_common_cleanup_state
+		# A similar expression is used in common.state.cleanup
 		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | head -n1)
 		
 		if [[ "$min_day" ]]
@@ -171,7 +171,7 @@ function cxr_common_get_first_day_modelled()
 }
 
 ################################################################################
-# Function: cxr_common_get_stage_name
+# Function: common.state.getStageName
 #
 # Generates the name of the current stage from the parameters or the environment (if no parameters are given) 
 # Takes the CXR_META_MODULE_  and the date variables into account.
@@ -187,7 +187,7 @@ function cxr_common_get_first_day_modelled()
 # [$2] - module name
 # [$3] - raw date
 ################################################################################
-function cxr_common_get_stage_name()
+function common.state.getStageName()
 ################################################################################
 {
 	if [[ $# -lt 3  ]]
@@ -231,11 +231,11 @@ function cxr_common_get_stage_name()
 }
 
 ################################################################################
-# Function: cxr_common_delete_continue_files
+# Function: common.state.deleteContinueFiles
 #
 # Deletes the continue files of all instances
 ################################################################################
-function cxr_common_delete_continue_files()
+function common.state.deleteContinueFiles()
 ################################################################################
 {
 	main.log -w  "The continue files of all instances of this run will be deleted now!"
@@ -244,11 +244,11 @@ function cxr_common_delete_continue_files()
 }
 
 ################################################################################
-# Function: cxr_common_delete_instance_data
+# Function: common.state.deleteInstanceData
 #
 # Deletes this instances runtime-data including CONTINUE File. Used at the end of a run.
 ################################################################################
-function cxr_common_delete_instance_data()
+function common.state.deleteInstanceData()
 ################################################################################
 {
 	main.log -w  "The instance data in  ${CXR_INSTANCE_DIR} will be deleted now!"
@@ -256,11 +256,11 @@ function cxr_common_delete_instance_data()
 }
 
 ################################################################################
-# Function: cxr_common_initialize_state_db
+# Function: common.state.init
 #
 # Creates the state DB directories for the current run
 ################################################################################
-function cxr_common_initialize_state_db()
+function common.state.init()
 ################################################################################
 {
 	local var
@@ -337,13 +337,13 @@ function cxr_common_initialize_state_db()
 }
 
 ################################################################################
-# Function: cxr_common_store_state
+# Function: common.state.storeState
 #
 # Stores the current state of a run, can be either $CXR_STATE_START, $CXR_STATE_STOP or $CXR_STATE_ERROR.
 # In the case of ERROR, we will take note of the fact.
 #
 # If a stage starts, checks if this stage was already executed.
-# The name of the stage is determined via <cxr_common_get_stage_name> if it is not passed in.
+# The name of the stage is determined via <common.state.getStageName> if it is not passed in.
 # The ability to pass a stage name is used by installers and tests alike, they use a slightly different approach.
 #
 # If the user wants to run a specific module (CXR_RUN_LIMITED_PROCESSING=true), we will disregard the fact that
@@ -358,7 +358,7 @@ function cxr_common_initialize_state_db()
 # [$2] - an optional name of a state, currently used by installation. 
 #        Installation prefix the names with the model name and version.
 ################################################################################
-function cxr_common_store_state()
+function common.state.storeState()
 ################################################################################
 {
 	
@@ -368,8 +368,8 @@ function cxr_common_store_state()
 	fi
 	
 	local state=$1
-	# stage is either passed or set using cxr_common_get_stage_name
-	local stage="${2:-$(cxr_common_get_stage_name)}"
+	# stage is either passed or set using common.state.getStageName
+	local stage="${2:-$(common.state.getStageName)}"
 	
 	# Do we care at all?
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
@@ -424,12 +424,12 @@ function cxr_common_store_state()
 	esac
 	
 	# Touch your state file
-	touch "$(cxr_common_get_state_file_name "$state" "$stage")" 
+	touch "$(_common.state.getStateFileName "$state" "$stage")" 
 	return $CXR_RET_OK
 }
 
 ################################################################################
-# Function: cxr_common_get_state_file_name
+# Function: _common.state.getStateFileName
 #
 # Returns:
 # The start/stop/error filename of a stage
@@ -438,7 +438,7 @@ function cxr_common_store_state()
 # $1 - state
 # $2 - stage 
 ################################################################################
-function cxr_common_get_state_file_name()
+function _common.state.getStateFileName()
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -453,12 +453,12 @@ function cxr_common_get_state_file_name()
 }
 
 ################################################################################
-# Function: cxr_common_detect_running_instances
+# Function: common.state.detectInstances
 #
 # Check if there are still living processes by checking the continue files
 #
 ################################################################################
-function cxr_common_detect_running_instances()
+function common.state.detectInstances()
 ################################################################################
 {
 	local process_count=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
@@ -487,15 +487,15 @@ function cxr_common_detect_running_instances()
 function cxr_common_has_finished()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
 		main.die_gracefully "needs a state and a stage as Input" 
 		echo false
 	fi
 	
 	local stage="$1"
-	local start_file=$(cxr_common_get_state_file_name "${CXR_STATE_START}" "${stage}")
-	local stop_file=$(cxr_common_get_state_file_name "${CXR_STATE_STOP}" "${stage}")
+	local start_file=$(_common.state.getStateFileName "${CXR_STATE_START}" "${stage}")
+	local stop_file=$(_common.state.getStateFileName "${CXR_STATE_STOP}" "${stage}")
 	
 	if [[ -f "$stop_file"  ]]
 	then
@@ -519,7 +519,7 @@ function cxr_common_has_finished()
 }
 
 ################################################################################
-# Function: cxr_common_has_failed
+# Function: common.state.hasFailed?
 #	
 # Check if a specific stage has failed. We do not consider if we have a start file,
 # we check if we have an error file.
@@ -527,7 +527,7 @@ function cxr_common_has_finished()
 # Parameters:	
 # $1 - stage to test
 ################################################################################
-function cxr_common_has_failed()
+function common.state.hasFailed?()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -537,7 +537,7 @@ function cxr_common_has_failed()
 	fi
 	
 	local stage="$1"
-	local error_file=$(cxr_common_get_state_file_name "${CXR_STATE_ERROR}" "${stage}")
+	local error_file=$(_common.state.getStateFileName "${CXR_STATE_ERROR}" "${stage}")
 	
 	if [[ -f "$error_file"  ]]
 	then
@@ -548,7 +548,7 @@ function cxr_common_has_failed()
 }
 
 ################################################################################
-# Function: cxr_common_cleanup_state
+# Function: common.state.cleanup
 #	
 # Depending on user selection:
 # - Deletes all state information
@@ -559,7 +559,7 @@ function cxr_common_has_failed()
 # There is a lot of redundant code here, must be refactored if time permits
 # 
 ################################################################################
-function cxr_common_cleanup_state()
+function common.state.cleanup()
 ################################################################################
 {
 	local what
@@ -816,13 +816,13 @@ function cxr_common_cleanup_state()
 }
 
 ################################################################################
-# Function: cxr_common_do_we_continue
+# Function: common.state.doContinue?
 #	
 # Checks if the .continue file still exists,
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
 # ends run if we are too high and toches the alive file
 ################################################################################
-function cxr_common_do_we_continue()
+function common.state.doContinue?()
 ################################################################################
 {
 	local error_count=$(main.countErrors)
@@ -912,13 +912,13 @@ function test_module()
 	########################################
 	
 	main.log -a  "Initialising state DB in ${CXR_STATE_DIR}"
-	cxr_common_initialize_state_db
+	common.state.init
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(cxr_common_is_repeated_run) false "cxr_common_is_repeated_run"
+	is $(common.state.isRepeatedRun?) false "common.state.isRepeatedRun?"
 
 	########################################
 	# teardown tests if needed

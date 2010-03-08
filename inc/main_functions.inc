@@ -510,7 +510,7 @@ function main.doCleanup()
 		cxr_common_release_all_locks
 		
 		# Delete the instance files
-		cxr_common_delete_instance_data
+		common.state.deleteInstanceData
 
 	fi
 	

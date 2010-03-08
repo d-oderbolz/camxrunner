@@ -8,7 +8,7 @@
 # Contains the Functions to manage parallel execution of modules.
 # The most important aspect of this is the management of the varius dependencies between modules.
 #
-# Prepares a pool of tasks, which are then harvested by cxr_common_parallel_worker threads. 
+# Prepares a pool of tasks, which are then harvested by common.parallel.Worker threads. 
 # These threads can run parallel - even on different machines.
 #
 # First, a list of tasks is generated (this may pre-exist, then we leave this step out).
@@ -98,7 +98,7 @@ exit 1
 }
 
 ################################################################################
-# Function: cxr_common_parallel_create_dep_list
+# Function: common.parallel.createDependencyList
 # 
 # Collects all dependencies of the modules to be executed in a file of the form
 # independent_module dependent_module
@@ -119,7 +119,7 @@ exit 1
 # Parameters:
 # $1 - output_file will contain a list of dependencies for tsort to sort
 ################################################################################
-function cxr_common_parallel_create_dep_list()
+function common.parallel.createDependencyList()
 ################################################################################
 {
 	local output_file="$1"
@@ -203,7 +203,7 @@ function cxr_common_parallel_create_dep_list()
 }
 
 ################################################################################
-# Function: cxr_common_parallel_draw_dependency_graph
+# Function: common.parallel.drawDependencyGraph
 # 
 # Creates an image of the dependency graphy using dot (graphviz)
 # 
@@ -211,7 +211,7 @@ function cxr_common_parallel_create_dep_list()
 # $1 - a file describing the dependencies in tsort format
 # [$2] - an output file (PDF)
 ################################################################################
-function cxr_common_parallel_draw_dependency_graph()
+function common.parallel.drawDependencyGraph()
 ################################################################################
 {
 	local input_file="$1"
@@ -256,7 +256,7 @@ function cxr_common_parallel_draw_dependency_graph()
 }
 
 ################################################################################
-# Function: cxr_common_count_open_tasks
+# Function: common.parallel.countOpenTasks
 #
 # Returns the number of open tasks. 
 # Make sure you call this in a critical section (lock acquired), otherwise 
@@ -264,7 +264,7 @@ function cxr_common_parallel_draw_dependency_graph()
 # 
 #
 ################################################################################
-function cxr_common_count_open_tasks()
+function common.parallel.countOpenTasks()
 ################################################################################
 {
 	# Find all links below CXR_TASK_TODO_DIR
@@ -277,14 +277,14 @@ function cxr_common_count_open_tasks()
 
 
 ################################################################################
-# Function: cxr_common_parallel_get_next_task
+# Function: common.parallel.getNextTask
 #
 # Returns the content of the task descriptor for the next task to execute.
 # If there are no more tasks or a module runs exclusively, the empty string is returned.
 # If all tasks are executed, deletes the continue file.
 #
 ################################################################################
-function cxr_common_parallel_get_next_task()
+function common.parallel.getNextTask()
 ################################################################################
 {
 	local task_count
@@ -304,20 +304,20 @@ function cxr_common_parallel_get_next_task()
 	fi 
 
 	# Entering critical section...
-	cxr_common_get_lock cxr_common_parallel_get_next_task
+	cxr_common_get_lock common.parallel.getNextTask
 	
-	task_count=$(cxr_common_count_open_tasks)
+	task_count=$(common.parallel.countOpenTasks)
 	
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0  ]]
 	then
 		main.log  "All tasks have been processed, notifing system..."
 		# there are no more tasks, remove all continue file
-		cxr_common_delete_continue_files
+		common.state.deleteContinueFiles
 		echo ""
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_parallel_get_next_task
+		cxr_common_release_lock common.parallel.getNextTask
 		return $CXR_RET_OK
 	else
 		main.log -v   "There are $task_count unfinished tasks - we choose the top one."
@@ -340,7 +340,7 @@ function cxr_common_parallel_get_next_task()
 		echo ""
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_parallel_get_next_task
+		cxr_common_release_lock common.parallel.getNextTask
 		
 		return $CXR_RET_OK
 	else
@@ -350,7 +350,7 @@ function cxr_common_parallel_get_next_task()
 		mv $potential_task $new_descriptor_name
 		
 		# Release lock
-		cxr_common_release_lock cxr_common_parallel_get_next_task
+		cxr_common_release_lock common.parallel.getNextTask
 		
 		main.log -v   "New descriptor is $new_descriptor_name"
 		
@@ -395,7 +395,7 @@ function cxr_common_task_change_status()
 			DIRECTORY="$CXR_TASK_FAILED_DIR"
 			
 			# Notify state DB
-			cxr_common_store_state ${CXR_STATE_ERROR}
+			common.state.storeState ${CXR_STATE_ERROR}
 			;;
 			
 		*)
@@ -413,9 +413,9 @@ function cxr_common_task_change_status()
 # Remove it from CXR_RUNNING_WORKER_DIR
 #
 # Parameters:
-# $1 - task_pid of cxr_common_parallel_worker
+# $1 - task_pid of common.parallel.Worker
 ################################################################################
-function cxr_common_parallel_worker_waiting ()
+function cxr_common_parallel_worker_waiting()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -429,21 +429,21 @@ function cxr_common_parallel_worker_waiting ()
 	
 	touch $CXR_WAITING_WORKER_DIR/$task_pid
 	
-	main.log -v   "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to waiting"
+	main.log -v   "common.parallel.Worker (task_pid: $task_pid) changed its state to waiting"
 	
 	
 }
 
 ################################################################################
-# Function: cxr_common_parallel_worker_working
+# Function: common.parallel.workingWorker
 #
 # Add a task_pid file in the CXR_RUNNING_WORKER_DIR
 # Remove it from CXR_WAITING_WORKER_DIR
 #
 # Parameters:
-# $1 - task_pid of cxr_common_parallel_worker
+# $1 - task_pid of common.parallel.Worker
 ################################################################################
-function cxr_common_parallel_worker_working ()
+function common.parallel.workingWorker()
 ################################################################################
 {
 	
@@ -459,18 +459,18 @@ function cxr_common_parallel_worker_working ()
 	
 	touch $CXR_RUNNING_WORKER_DIR/$task_pid
 	
-	main.log -v   "cxr_common_parallel_worker (task_pid: $task_pid) changed its state to working"
+	main.log -v   "common.parallel.Worker (task_pid: $task_pid) changed its state to working"
 	
 	
 }
 
 ################################################################################
-# Function: cxr_common_parallel_remove_worker
+# Function: common.parallel.removeWorker
 #
-# kills the cxr_common_parallel_worker of the given task_pid and alse removes it from the process list.
+# kills the common.parallel.Worker of the given task_pid and alse removes it from the process list.
 # For this the task_pid is parsed
 ################################################################################
-function cxr_common_parallel_remove_worker()
+function common.parallel.removeWorker()
 ################################################################################
 {
 	
@@ -507,17 +507,17 @@ function cxr_common_parallel_remove_worker()
 }
 
 ################################################################################
-# Function: cxr_common_parallel_worker
+# Function: common.parallel.Worker
 #
 # This function is the workhorse of the parallel CAMxRunner. The Runner spawns one 
 # or more of this functions to operate on the existing tasks.
 # This can even be done from more than one machine.
 #
-# The worker gets a new task via <cxr_common_parallel_get_next_task>
+# The worker gets a new task via <common.parallel.getNextTask>
 # then waits (using <cxr_common_parallel_raw_dependencies_ok?>)
 # until the dependencies of this task are fullfilled. 
 ################################################################################
-function cxr_common_parallel_worker()
+function common.parallel.Worker()
 ################################################################################
 {
 	local tmp
@@ -538,7 +538,7 @@ function cxr_common_parallel_worker()
 	# We add the machine name so that it is unique among all machines
 	task_pid=$(cat $tmp)_$(uname -n)
 	
-	# Create a file identifying the cxr_common_parallel_worker in the cxr_common_parallel_worker dir
+	# Create a file identifying the common.parallel.Worker in the common.parallel.Worker dir
 	touch $CXR_WORKER_DIR/$task_pid
 	
 	main.log -a -B  "parallel worker (task_pid $task_pid) starts..."
@@ -550,7 +550,7 @@ function cxr_common_parallel_worker()
 		# Set task_pid-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${task_pid}.log
 		
-		main.log  "This cxr_common_parallel_worker will use its own logfile: ${CXR_LOG}"
+		main.log  "This common.parallel.Worker will use its own logfile: ${CXR_LOG}"
 	fi
 
 	# We are not yet busy
@@ -560,12 +560,12 @@ function cxr_common_parallel_worker()
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
-		cxr_common_do_we_continue || main.die_gracefully "Continue file no longer present."
+		common.state.doContinue? || main.die_gracefully "Continue file no longer present."
 	
-		# cxr_common_parallel_get_next_task must provide tasks in an atomic fashion (locking needed)
+		# common.parallel.getNextTask must provide tasks in an atomic fashion (locking needed)
 		# already moves the task descriptor into "running" position
 		# we get something like "create_emissions0"
-		new_task="$(cxr_common_parallel_get_next_task)"
+		new_task="$(common.parallel.getNextTask)"
 		
 		# If we are on wait state, we get the empty string back
 		if [[ "$new_task_descriptor" ]]
@@ -602,7 +602,7 @@ function cxr_common_parallel_worker()
 			done
 			
 			# Time to work
-			cxr_common_parallel_worker_working $task_pid
+			common.parallel.workingWorker $task_pid
 			
 			main.log -v   "task: $task\nDAY_OFFSET: $day_offset\nEXCLUSIVE: $exclusive"
 			
@@ -616,7 +616,7 @@ function cxr_common_parallel_worker()
 			# Setup environment
 			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
-			main.log -B   "cxr_common_parallel_worker $task_pid assigned to $task for $CXR_DATE"
+			main.log -B   "common.parallel.Worker $task_pid assigned to $task for $CXR_DATE"
 			
 			# Before loading a new module, remove old meta variables
 			unset ${!CXR_META_MODULE*}
@@ -652,8 +652,8 @@ function cxr_common_parallel_worker()
 			# If we don't get anything, but we should, we terminate
 			if [[ $CXR_BLOCK_ASSIGNMENTS == false ]]
 			then
-				main.log -v  "cxr_common_parallel_worker $task_pid did not receive an assignment - there seem to be too many workers (starvation)"
-				cxr_common_parallel_remove_worker "$task_pid"
+				main.log -v  "common.parallel.Worker $task_pid did not receive an assignment - there seem to be too many workers (starvation)"
+				common.parallel.removeWorker "$task_pid"
 			fi
 		
 			# This means that someone wants exclusive access, so we sleep
@@ -664,53 +664,53 @@ function cxr_common_parallel_worker()
 	done
 	
 	# We have done our duty
-	cxr_common_parallel_remove_worker $task_pid
+	common.parallel.removeWorker $task_pid
 
 	exit $CXR_RET_OK
 }
 
 ################################################################################
-# Function: cxr_common_spawn_workers
+# Function: common.parallel.spawnWorkers
 #
 # Parameters:
 # $1 - number of workers to spawn
 ################################################################################
-function cxr_common_spawn_workers()
+function common.parallel.spawnWorkers()
 ################################################################################
 {
-	main.log  "We create now $1 cxr_common_parallel_worker threads"
+	main.log  "We create now $1 common.parallel.Worker threads"
 	
 	for i in $(seq 1 $1)
 	do
-		# Create a cxr_common_parallel_worker and send it to background		
-		cxr_common_parallel_worker &
+		# Create a common.parallel.Worker and send it to background		
+		common.parallel.Worker &
 	done
 }
 
 ################################################################################
-# Function: cxr_common_remove_all_workers
+# Function: common.parallel.removeAllWorkers
 # 
 # Removes all workers
 # 
 ################################################################################
-function cxr_common_remove_all_workers()
+function common.parallel.removeAllWorkers()
 ################################################################################
 {
 	main.log  "We remove all workers now."
 	
 	for task_pid in $(find "$CXR_WORKER_DIR" -noleaf -name \*_$(uname -n) )
 	do
-		cxr_common_parallel_remove_worker "$(basename $task_pid)"
+		common.parallel.removeWorker "$(basename $task_pid)"
 	done
 }
 
 ################################################################################
-# Function: cxr_common_wait_for_workers
+# Function: common.parallel.WaitForWorkers
 #
 # Basically a sleep function: we loop and check if the continue file is there.
 #
 ################################################################################
-function cxr_common_wait_for_workers()
+function common.parallel.WaitForWorkers()
 ################################################################################
 {
 		main.log  "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
@@ -723,11 +723,11 @@ function cxr_common_wait_for_workers()
 		main.log -B   "The Continue file is gone, all workers will stop asap."
 		
 		# OK, remove the workers now
-		cxr_common_remove_all_workers
+		common.parallel.removeAllWorkers
 }
 
 ################################################################################
-# Function: cxr_common_parallel_init
+# Function: common.parallel.init
 # 
 # Creates a sorted lists of files in the CXR_TASK_POOL_DIR directory and
 # links to these in the CXR_TASK_TODO_DIR.
@@ -736,7 +736,7 @@ function cxr_common_wait_for_workers()
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
 # 
 ################################################################################
-function cxr_common_parallel_init()
+function common.parallel.init()
 ################################################################################
 {
 	# Check if we already have tasks - fail if this is the case
@@ -762,7 +762,7 @@ function cxr_common_parallel_init()
 	
 	main.log -a  "Creating a list of dependencies..."
 		
-	cxr_common_parallel_create_dep_list "$dep_file"
+	common.parallel.createDependencyList "$dep_file"
 	
 	main.log -a  "Ordering tasks..."
 	
@@ -869,13 +869,13 @@ function test_module()
 	echo "boundary_conditions_0 model_0" >> "${dep_file}"
 	
 	pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
-	cxr_common_parallel_draw_dependency_graph "$dep_file" "$pdf_file"
+	common.parallel.drawDependencyGraph "$dep_file" "$pdf_file"
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.fs.isNotEmpty? "$pdf_file")" true "cxr_common_parallel_draw_dependency_graph simple existence check. Look at $pdf_file "
+	is "$(common.fs.isNotEmpty? "$pdf_file")" true "common.parallel.drawDependencyGraph simple existence check. Look at $pdf_file "
 
 	########################################
 	# teardown tests if needed

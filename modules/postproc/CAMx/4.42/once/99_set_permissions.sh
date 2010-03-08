@@ -133,7 +133,7 @@ function set_permissions
 ################################################################################
 {
 	#Was this stage already completed?
-	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
 	
 		#  --- Setup the Environment 
@@ -175,9 +175,9 @@ function set_permissions
 		fi
 		
 		# OK, done
-		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null
+		common.state.storeState ${CXR_STATE_STOP} > /dev/null
 	else
-		main.log  "Stage $(cxr_common_get_stage_name) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

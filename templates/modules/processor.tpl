@@ -166,7 +166,7 @@ function name()
 ################################################################################
 {
 	# We check if this stage was already excuted before
-	if [[ $(cxr_common_store_state ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
 	
 		#  --- Setup the Environment of the current day
@@ -240,7 +240,7 @@ function name()
 		done
 	
 		# Store the state
-		cxr_common_store_state ${CXR_STATE_STOP} > /dev/null ${STAGE}
+		common.state.storeState ${CXR_STATE_STOP} > /dev/null ${STAGE}
 		
 	fi
 

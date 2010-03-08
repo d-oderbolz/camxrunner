@@ -363,7 +363,7 @@ function cxr_common_module_resolve_all_dependencies()
 #
 # If this is a dryrun, we go on even if a dependency failed.
 # 
-# We access the state DB using <cxr_common_has_finished> to test if stuff has finished.
+# We access the state DB using <common.state.hasFinished?> to test if stuff has finished.
 #
 # Parameters:
 # $1 - a list of raw dependencies
@@ -408,17 +408,17 @@ function cxr_common_module_dependencies_ok?()
 		# Convert date
 		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
 		
-		my_stage="$(cxr_common_get_stage_name "$module_type" "$dependency" "$raw_date" )"
+		my_stage="$(common.state.getStageName "$module_type" "$dependency" "$raw_date" )"
 		
 		# Is this known to have worked?
-		if [[ "$(cxr_common_has_finished "$my_stage")" == true ]]
+		if [[ "$(common.state.hasFinished? "$my_stage")" == true ]]
 		then
 			main.log -v   "dependency ${dependency} fullfilled"
 		else
 			# dependency NOK, Find out why
 			
 			# Find out if dependency failed - if so, we crash
-			if [[ "$(cxr_common_has_failed "$my_stage")" == true  ]]
+			if [[ "$(common.state.hasFailed? "$my_stage")" == true  ]]
 			then
 				# It failed
 				# Destroy run 
@@ -678,7 +678,7 @@ function cxr_common_module_run_type()
 				# Check if we are still happy if needed
 				if [[ "${check_continue}" == true  ]]
 				then
-					cxr_common_do_we_continue || main.die_gracefully "Continue file no longer present."
+					common.state.doContinue? || main.die_gracefully "Continue file no longer present."
 				fi
 				
 				FILE_NAME=$(basename "$function_file")
