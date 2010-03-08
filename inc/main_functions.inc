@@ -700,6 +700,50 @@ function main.setModelAndVersion()
 }
 
 ################################################################################
+# Function: main.countDelimitedElements
+#
+# Counts the number of elements in a delimited string.
+# Caution: Does not yet work well with newline as delimiter 
+# NUM_MODULE_TYPES=$(main.countDelimitedElements "$MODULE_TYPES" "$'\n'")
+# Yields a number that is off by one! 
+# Use $(echo $String | wc -l) or something similar in these cases
+#
+# Parameters:
+# $1 - String to parse
+# [$2] - Optional Delimiter (Default $CXR_DELIMITER)
+################################################################################
+function main.countDelimitedElements ()
+################################################################################
+{
+	local string
+	local delimiter
+	local array
+	
+	if [[ $# -ne 2  ]]
+	then
+		string="$1"
+		delimiter="$CXR_DELIMITER"
+	else
+		string="$1"
+		delimiter="$2"
+	fi
+	
+	# Save old IFS
+	oIFS="$IFS"
+
+	IFS="$delimiter"
+	
+	# Suck line into array
+	array=($string)
+	
+	# Reset IFS
+	IFS="$oIFS"
+
+	# Echo the count
+	echo ${#array[@]}
+}
+
+################################################################################
 # Function: main.getRevision
 #
 # Extracts the svn version of a file. 
@@ -740,7 +784,7 @@ function main.getRevision()
 		# We expect 7 fields:
 		# "$Id$"
 		
-		if [[ $(common.array.countDelimitedElements "${version_string}" " ") -eq 7  ]]
+		if [[ $(main.countDelimitedElements "${version_string}" " ") -eq 7  ]]
 		then
 			# Get the lines with $Id, cut away $, get the 3rd field and make sure we get only one line
 			revision=$( echo "${version_string}" | cut -d $ -f 2 | cut -d" " -f3 | head -n1)

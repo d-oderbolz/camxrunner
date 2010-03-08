@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=7
+CXR_META_MODULE_NUM_TESTS=3
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -115,50 +115,6 @@ function common.array.allElementsZero?()
 	done
 	
 	echo $status
-}
-
-################################################################################
-# Function: common.array.countDelimitedElements
-#
-# Counts the number of elements in a delimited string.
-# Caution: Does not yet work well with newline as delimiter 
-# NUM_MODULE_TYPES=$(common.array.countDelimitedElements "$MODULE_TYPES" "$'\n'")
-# Yields a number that is off by one! 
-# Use $(echo $String | wc -l) or something similar in these cases
-#
-# Parameters:
-# $1 - String to parse
-# [$2] - Optional Delimiter (Default $CXR_DELIMITER)
-################################################################################
-function common.array.countDelimitedElements ()
-################################################################################
-{
-	local string
-	local delimiter
-	local array
-	
-	if [[ $# -ne 2  ]]
-	then
-		string="$1"
-		delimiter="$CXR_DELIMITER"
-	else
-		string="$1"
-		delimiter="$2"
-	fi
-	
-	# Save old IFS
-	oIFS="$IFS"
-
-	IFS="$delimiter"
-	
-	# Suck line into array
-	array=($string)
-	
-	# Reset IFS
-	IFS="$oIFS"
-
-	# Echo the count
-	echo ${#array[@]}
 }
 
 ################################################################################
@@ -280,11 +236,7 @@ function test_module()
 	is $(common.array.allElementsZero? "${a[@]}") false "common.array.allElementsZero? all 1"
 	is $(common.array.allElementsZero? "${b[@]}") true "common.array.allElementsZero? all 0"
 	is $(common.array.allElementsZero? "${c[@]}") false "common.array.allElementsZero? all cancelling out"
-	is $(common.array.countDelimitedElements "one${CXR_DELIMITER}two") 2 "common.array.countDelimitedElements with 2 elements, default delimiter"
-	is $(common.array.countDelimitedElements "one two" " ") 2 "common.array.countDelimitedElements with 2 elements, space"
-	is $(common.array.countDelimitedElements "one two " " ") 2 "common.array.countDelimitedElements with 2 elements, space at end"
-	is $(common.array.countDelimitedElements "") 0 "common.array.countDelimitedElements with 0 elements"
-
+	
 	########################################
 	# teardown tests if needed
 	########################################

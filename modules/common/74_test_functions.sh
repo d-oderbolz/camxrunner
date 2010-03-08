@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=4
+CXR_META_MODULE_NUM_TESTS=13
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -407,15 +407,52 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
+	# Create a file with one revision
+	test_file1=$(common.runner.createTempFile $FUNCNAME)
+	echo -n '$' > "$test_file1"
+	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file1"
+	
+	# Create a file with 2 revisions (must find the first)
+	test_file2=$(common.runner.createTempFile $FUNCNAME)
+	echo -n '$' > "$test_file2"
+	echo 'Id: 30_version_control_functions.sh 2605 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
+	echo 'Id: 30_version_control_functions.sh 2600 2010-02-14 13:14:29Z oderbolz $' >> "$test_file2"
+	
+	# Create a file with no revisions
+	test_file3=$(common.runner.createTempFile $FUNCNAME)
+	echo -n '$' > "$test_file3"
+	echo 'Id: 30_version_control_functions.sh 2010-02-14 13:14:29Z oderbolz $' >> "$test_file3"
+	
+	# Create a file with garbage afterwards
+	test_file4=$(common.runner.createTempFile $FUNCNAME)
+	echo -n '$' > "$test_file4"
+	echo 'Id: 30_version_control_functions.sh 12345 2010-02-14 13:14:29Z oderbolz $ andhereisgarbage' >> "$test_file4"
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
 	#Here, we test some main functions
+	
+	is $(main.countDelimitedElements "one${CXR_DELIMITER}two") 2 "main.countDelimitedElements with 2 elements, default delimiter"
+	is $(main.countDelimitedElements "one two" " ") 2 "main.countDelimitedElements with 2 elements, space"
+	is $(main.countDelimitedElements "one two " " ") 2 "main.countDelimitedElements with 2 elements, space at end"
+	is $(main.countDelimitedElements "") 0 "main.countDelimitedElements with 0 elements"
+
+	
 	is $(main.isNumeric? 0) true "main.isNumeric? 0"
 	is $(main.isNumeric? -1000) true "main.isNumeric? -1000"
 	is $(main.isNumeric? "") false "main.isNumeric? empty string"
 	is $(main.isNumeric? "A100") false "main.isNumeric? A100"
+	
+	is $(main.getRevision "$test_file1") 2605 "main.getRevision normal"
+	is $(main.getRevision "$test_file2") 2605 "main.getRevision double-contradiction"
+	
+	main.log -a  "We provoke an error mesage here - you can ignore this..."
+	is $(main.getRevision "$test_file3") 0 "main.getRevision missing revision"
+	is $(main.getRevision "$test_file4") 12345 "main.getRevision with garbage at end"
+	
+	is $(main.getRevision /some/nonexisting/file) 0 "main.getRevision missing file"
 	
 	########################################
 	# teardown tests if needed
