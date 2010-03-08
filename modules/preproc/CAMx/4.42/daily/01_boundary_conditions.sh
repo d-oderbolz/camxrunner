@@ -196,9 +196,9 @@ function boundary_conditions()
 	local camx_spec=
 	
 	# These we set with the ternary (or conditional) operator
-	local doplots=$(( "${CXR_IC_BC_TC_DO_PLOT:-false}" == true  ? 1 : 0 ))
-	local dopng=$(( "${CXR_IC_BC_TC_DO_PNG:-false}" == true  ? 1 : 0 ))
-	local deleteps=$(( "${CXR_IC_BC_TC_RM_PS:-false}" == true  ? 1 : 0 ))
+	local doplots=$(( ${CXR_IC_BC_TC_DO_PLOT:-false} == true ? 1 : 0 ))
+	local dopng=$(( ${CXR_IC_BC_TC_DO_PNG:-false} == true ? 1 : 0 ))
+	local deleteps=$(( ${CXR_IC_BC_TC_RM_PS:-false} == true ? 1 : 0 ))
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
