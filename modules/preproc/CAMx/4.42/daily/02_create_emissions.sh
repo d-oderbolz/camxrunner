@@ -209,7 +209,7 @@ function create_emissions()
 				
 				start_h=${CXR_START_HOUR:0:2}
 				
-				cat <<-EOF > $EXEC_TMP_FILE
+				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
 				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
 				echo "exit" >> ${exec_tmp_file}
