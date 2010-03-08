@@ -387,7 +387,7 @@ function common.fs.CompressOutput()
 				filename=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
 				module=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				if [[ -s "${filename}"  ]]
+				if [[ -s "${filename}" ]]
 				then
 					# OK file is not empty
 					
@@ -402,7 +402,7 @@ function common.fs.CompressOutput()
 						################
 						found=$(expr match "${filename}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 						
-						if [[ $found -gt 0  ]]
+						if [[ $found -gt 0 ]]
 						then
 							# Do it
 							do_this=true
@@ -445,7 +445,7 @@ function common.fs.CompressOutput()
 			main.log -w  "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
 		fi
 	else
-		main.log  "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
+		main.log -a "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
 	fi
 }
 
@@ -832,6 +832,7 @@ function test_module()
 	
 	${CXR_DOS2UNIX_EXEC} "$a"
 	is $(common.fs.isDos? "$a") false "common.fs.isDos? on unix-file"
+	
 	# compress
 	common.fs.CompressOutput
 	
