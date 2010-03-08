@@ -160,7 +160,7 @@ function set_variables()
 		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(cxr_common_evaluate_rule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
 
 		
-		if [[ "$(date_isFirstDayOfSimulation?)" == true  ]]
+		if [[ "$(common.date.isFirstDayOfSimulation?)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -644,7 +644,7 @@ function model()
 			then
 			
 				# If we do not run the first day, its a restart
-				if [[ "$(date_isFirstDayOfSimulation?)" == false  ]]
+				if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
 				then
 					# This must be a restart!
 					CXR_RESTART=true
@@ -736,7 +736,7 @@ function test_module()
 	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Initialise the date variables 
-		date_setVars "$CXR_START_DATE" "$DAY_OFFSET"
+		common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
 		
 		set_variables
 		
@@ -744,7 +744,7 @@ function test_module()
 	done
 	
 	# Reset date variables for first day
-	date_setVars "$CXR_START_DATE" "0"
+	common.date.setVars "$CXR_START_DATE" "0"
 	
 	exit 0
 }

@@ -360,7 +360,7 @@ function cxr_common_get_menu_choice()
 	
 	# default handling. If the user presses d (or any non-numeric character),
 	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [[  "${default:-}" && -z "$(string_trim "$chosen")"   ]]
+	if [[  "${default:-}" && -z "$(common.string.trim "$chosen")"   ]]
 	then
 		chosen="$default"
 	fi
@@ -472,7 +472,7 @@ function cxr_common_get_answers()
 		fi
 		
 		# Ignore empty lines
-		if [[ -z "$(string_trim "$line")"  ]]
+		if [[ -z "$(common.string.trim "$line")"  ]]
 		then
 			curline=$(( $curline + 1 ))
 			continue
@@ -572,7 +572,7 @@ function cxr_common_get_answers()
 		main.log -v   "lov: $lov"
 
 
-		if [[ -z "$(string_trim "${variable}")"  ]]
+		if [[ -z "$(common.string.trim "${variable}")"  ]]
 		then
 			# No variable - skip
 			curline=$(( $curline + 1 ))
@@ -585,7 +585,7 @@ function cxr_common_get_answers()
 			# Some optimizations
 
 			# If the question is empty, supply your own
-			if [[ -z "$(string_trim "$question")"  ]]
+			if [[ -z "$(common.string.trim "$question")"  ]]
 			then
 				question="What should be the value of $variable?"
 			fi
@@ -719,7 +719,7 @@ function cxr_common_apply_playfile()
 			fi
 			
 			# Ignore empty lines
-			if [[ -z "$(string_trim "$line")"  ]]
+			if [[ -z "$(common.string.trim "$line")"  ]]
 			then
 				curline=$(( $curline + 1 ))
 				continue

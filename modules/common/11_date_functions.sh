@@ -86,7 +86,7 @@ exit 1
 }
 
 ################################################################################
-# Function: date_decompose
+# Function: common.date.decompose
 # 
 # Put date components into multiple variables
 #
@@ -97,7 +97,7 @@ exit 1
 # Parameters:
 # $1 - date
 ################################################################################
-function date_decompose()
+function common.date.decompose()
 ################################################################################
 {
 	eval "$(date ${1:+"$@"} "+
@@ -122,7 +122,7 @@ function date_decompose()
 }
 
 ################################################################################
-# Function: date_isYYYYMMDD?
+# Function: common.date.isYYYYMMDD?
 #
 # Checks if a date is really in YYYY-MM-DD form.
 # Relatively basic check.
@@ -131,7 +131,7 @@ function date_decompose()
 # Parameters:
 # $1 - date in YYYY-MM-DD form
 ################################################################################
-function date_isYYYYMMDD?()
+function common.date.isYYYYMMDD?()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -158,7 +158,7 @@ function date_isYYYYMMDD?()
 }
 
 ################################################################################
-# Function: date_toRaw
+# Function: common.date.toRaw
 #
 # Converts a YYYY-MM-DD into YYYYMMDD
 # 
@@ -166,13 +166,13 @@ function date_isYYYYMMDD?()
 # Parameters:
 # $1 - date in YYYY-MM-DD form
 ################################################################################
-function date_toRaw()
+function common.date.toRaw()
 ################################################################################
 {
 	# Define & Initialize local vars
 	local new_date
 	
-	if [[  $# -ne 1 || $(date_isYYYYMMDD? "$1") == false   ]]
+	if [[ $# -ne 1 || $(common.date.isYYYYMMDD? "$1") == false ]]
 	then
 		main.log -e  "needs a date as input"
 		echo false
@@ -187,14 +187,14 @@ function date_toRaw()
 }
 
 ################################################################################
-# Function: date_toISO
+# Function: common.date.toISO
 #
 # Converts a date to  YYYY-MM-DD. If the empty string is passed, it is also returned.
 # 
 # Parameters:
 # $1 - date 
 ################################################################################
-function date_toISO()
+function common.date.toISO()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -218,7 +218,7 @@ function date_toISO()
 }
 
 ################################################################################
-# Function: date_split
+# Function: common.date.split
 # 
 # Splits a date into constituents
 #
@@ -226,7 +226,7 @@ function date_toISO()
 # Taken from <http://it.toolbox.com/wiki/index.php/Split_a_date_into_its_parts>
 # 
 # Example:
-# > $ date_split 04-12-07 month day year
+# > $ common.date.split 04-12-07 month day year
 # > $ echo "year=$year month=$month day=$day"
 # > year=7 month=4 day=12
 #
@@ -234,7 +234,7 @@ function date_toISO()
 # $1 - date in YYYY-MM-DD form (or almost any other form)
 # Further - parts needed
 ################################################################################
-function date_split()
+function common.date.split()
 ################################################################################
 {
 	sd_1=${2:-SD_YEAR}
@@ -247,7 +247,7 @@ function date_split()
 	case $1 in
 	.|"")
 		shift
-		date_decompose
+		common.date.decompose
 		set "$datestamp" "$@"
 		;;
 	esac
@@ -270,7 +270,7 @@ function date_split()
 }
 
 ################################################################################
-# Function: cxr_common_date2julian
+# Function: common.date.toJulian
 # 
 # Calculates the Julinan day number from a date in YYYY-MM-DD format
 # 
@@ -284,13 +284,13 @@ function date_split()
 # Wednesday September 24 2008 has a JDN of 2454734. (Which this function properly returns)
 #
 # Example:
-# > $ cxr_common_date2julian 2008-12-01 # year-month-day
+# > $ common.date.toJulian 2008-12-01 # year-month-day
 # > 2454802
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
 ################################################################################
-function cxr_common_date2julian() 
+function common.date.toJulian() 
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -298,11 +298,11 @@ function cxr_common_date2julian()
 	local d2j_tmpyear
 	
 	case $1 in "")
-		date_decompose
+		common.date.decompose
 		set -- $TODAY ;; 
 	esac
 	
-	date_split $1 d2j_year d2j_month d2j_day || return 2
+	common.date.split $1 d2j_year d2j_month d2j_day || return 2
 
 	## Calculate number of months from March
 	d2j_tmpmonth=$((12 * $d2j_year + $d2j_month - 3))
@@ -313,7 +313,7 @@ function cxr_common_date2julian()
 
 
 ################################################################################
-# Function: cxr_common_julian2date
+# Function: common.date.JulianToDate
 # 
 # Calculates the date in YYYY-MM-DD format from a julian date
 # 
@@ -322,13 +322,13 @@ function cxr_common_date2julian()
 #
 #
 # Example:
-# > $ cxr_common_date2julian 2454802
+# > $ common.date.toJulian 2454802
 # > 2008-12-01
 #
 # Parameters:
 # $1 - integer julian date (numeric)
 ################################################################################
-function cxr_common_julian2date()
+function common.date.JulianToDate()
 ################################################################################
 {
 	# Check for numeric input
@@ -357,7 +357,7 @@ function cxr_common_julian2date()
 }
 
 ################################################################################
-# Function: cxr_common_epoch2date
+# Function: common.date.EpochToDate
 # 
 # Calculates the date in YYYY-MM-DD format from a Unix Epoch time,
 # Unix Epoch is defined as (http://en.wikipedia.org/wiki/Unix_time)
@@ -366,7 +366,7 @@ function cxr_common_julian2date()
 # Parameters:
 # $1 - integer epoch date (numeric)
 ################################################################################
-function cxr_common_epoch2date()
+function common.date.EpochToDate()
 ################################################################################
 {
 	# Check for numeric input
@@ -383,7 +383,7 @@ function cxr_common_epoch2date()
 }
 
 ################################################################################
-# Function: cxr_common_epoch2datetime
+# Function: common.date.EpochToDateTime
 # 
 # Calculates the date in YYYY-MM-DD HH:MM:SS UTC format from a Unix Epoch time.
 # Unix Epoch is defined as (http://en.wikipedia.org/wiki/Unix_time)
@@ -392,7 +392,7 @@ function cxr_common_epoch2date()
 # Parameters:
 # $1 - integer epoch date (numeric)
 ################################################################################
-function cxr_common_epoch2datetime()
+function common.date.EpochToDateTime()
 ################################################################################
 {
 	# Check for numeric input
@@ -411,14 +411,14 @@ function cxr_common_epoch2datetime()
 
 
 ################################################################################
-# Function: cxr_common_week_of_year
+# Function: common.date.WeekOfYear
 # 
 # Returns the one-based week of year (2 digits)
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
 ################################################################################
-function cxr_common_week_of_year() 
+function common.date.WeekOfYear() 
 ################################################################################
 {
 
@@ -433,7 +433,7 @@ function cxr_common_week_of_year()
 }
 
 ################################################################################
-# Function: cxr_common_day_of_year
+# Function: common.date.DayOfYear
 # 
 # Calculates the number of the day in the year form a date in YYYY-MM-DD format
 # Jan 01 is day number 1. (This is called the "ordinal date" in ISO terminology)
@@ -442,7 +442,7 @@ function cxr_common_week_of_year()
 # $1 - date in YYYY-MM-DD format
 # [$2] - length of resulting string (0 padded)
 ################################################################################
-function cxr_common_day_of_year() 
+function common.date.DayOfYear() 
 ################################################################################
 {
 
@@ -462,8 +462,8 @@ function cxr_common_day_of_year()
 	year=${1:0:4}
 	len=${2:-0}
 	
-	julend=$(cxr_common_date2julian $1)
-	julstart=$(cxr_common_date2julian ${year}-01-01)
+	julend=$(common.date.toJulian $1)
+	julstart=$(common.date.toJulian ${year}-01-01)
 	
 	if [[ "${len}" -gt 0 ]]
 	then
@@ -476,7 +476,7 @@ function cxr_common_day_of_year()
 }
 
 ################################################################################
-# Function: cxr_common_days_in_month
+# Function: common.date.DaysInMonth
 # 
 # Returns the number of days in a month of a given year (needs GNU date)
 #
@@ -484,7 +484,7 @@ function cxr_common_day_of_year()
 # $1 - month
 # $2 - year
 ################################################################################
-function cxr_common_days_in_month
+function common.date.DaysInMonth()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -506,7 +506,7 @@ function cxr_common_days_in_month
 
 
 ################################################################################
-# Function: cxr_common_days_left_in_week
+# Function: common.date.DaysLeftInWeek
 # 
 # Returns the number of days left in a week including the given day
 # Returns 7 on Monday and 1 on Sunday
@@ -514,7 +514,7 @@ function cxr_common_days_in_month
 # Parameters:
 # $1 - date
 ################################################################################
-function cxr_common_days_left_in_week
+function common.date.DaysLeftInWeek()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -537,14 +537,14 @@ function cxr_common_days_left_in_week
 
 
 ################################################################################
-# Function: cxr_common_days_left_in_month
+# Function: common.date.DaysLeftInMonth
 # 
 # Returns the number of days left in a month (including the given day)
 #
 # Parameters:
 # $1 - date
 ################################################################################
-function cxr_common_days_left_in_month
+function common.date.DaysLeftInMonth()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -565,21 +565,21 @@ function cxr_common_days_left_in_month
 	dom=$(date -d "$dim_d" +%e)
 	month=$(date -d "$dim_d" +%m)
 	year=$(date -d "$dim_d" +%Y)
-	ndom=$(cxr_common_days_in_month $month $year)
+	ndom=$(common.date.DaysInMonth $month $year)
 	
 	echo $(( $ndom - $dom + 1))
 }
 
 
 ################################################################################
-# Function: cxr_common_is_leap_year
+# Function: common.date.isLeapYear?
 # 
 # Returns "true" if the year YYYY is a leap year
 #
 # Parameters:
 # $1 - Year in YYYY form
 ################################################################################
-function cxr_common_is_leap_year
+function common.date.isLeapYear?
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -619,20 +619,20 @@ function cxr_common_is_leap_year
 ################################################################################
 
 ################################################################################
-# Function: cxr_common_date2offset
+# Function: common.date.toOffset
 # 
 # Takes a valid date (YYYY-MM-DD) as input and converts it to a simulation day offset.
 # It does so by calculating the difference of the julian dates.
 #
 #
 # Example (assuming the simulation starts 2007-01-01):
-# > $ cxr_common_date2offset 2007-01-02
+# > $ common.date.toOffset 2007-01-02
 # > 1
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
 ################################################################################
-function cxr_common_date2offset()
+function common.date.toOffset()
 ################################################################################
 {
 	
@@ -649,8 +649,8 @@ function cxr_common_date2offset()
 		return $CXR_RET_ERROR
 	fi
 	
-	start=$(cxr_common_date2julian ${CXR_START_DATE})
-	wanted=$(cxr_common_date2julian ${1})
+	start=$(common.date.toJulian ${CXR_START_DATE})
+	wanted=$(common.date.toJulian ${1})
 	
 	offset=$(( ${wanted} - ${start} ))
 	
@@ -672,20 +672,20 @@ function cxr_common_date2offset()
 }
 
 ################################################################################
-# Function: cxr_common_offset2date
+# Function: common.date.OffsetToDate
 # 
 # Takes a day offset as input and converts it to a raw date (YYYY-MM-DD)
 # It does so by calculating the difference of the julian dates.
 #
 #
 # Example (assuming the simulation starts 2007-01-01):
-# > $ cxr_common_offset2date 1
+# > $ common.date.OffsetToDate 1
 # > 2007-01-02
 #
 # Parameters:
 # $1 - offset
 ################################################################################
-function cxr_common_offset2date()
+function common.date.OffsetToDate()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -702,68 +702,28 @@ function cxr_common_offset2date()
 	fi
 	
 	offset="$1"
-	start=$(cxr_common_date2julian ${CXR_START_DATE})
+	start=$(common.date.toJulian ${CXR_START_DATE})
 	end=$(( $start + $offset ))
 	
-	echo $(cxr_common_julian2date "$end")
+	echo $(common.date.JulianToDate "$end")
 	
 }
 
 ################################################################################
-# Function: cxr_common_offset2_raw_date
-# 
-# Takes a day offset as input and converts it to a raw date (YYYYMMDD)
-# It does so by calculating the difference of the julian dates.
-# Returns the empty string on the empty string
-#
-# Example (assuming the simulation starts 2007-01-01):
-# > $ cxr_common_offset2_raw_date 1
-# > 20070102
-#
-# Parameters:
-# $1 - day offset
-################################################################################
-function cxr_common_offset2_raw_date()
-################################################################################
-{
-	# Define & Initialize local vars
-	local date
-	
-	# Check input
-	if [[ $# -ne 1 ]]
-	then
-		main.log -e  "needs a number as input"
-		echo false
-		return $CXR_RET_ERROR
-	fi
-	
-	local day_offset="${1}"
-	
-	if [[ "$day_offset" ]]
-	then
-		# Day offset is set
-		date=$(cxr_common_offset2date "$day_offset")
-		echo $(date_toRaw "$date")
-	else
-		echo ""
-	fi
-}
-
-################################################################################
-# Function: cxr_common_modelling_hour
+# Function: common.date.getModelHour
 # 
 # Calculates the number of hours since model start (the current day does not count, since
 # we are at the very beginning of it. Considers CXR_START_HOUR.
 #
 #
 # Example (assuming the simulation starts 2007-01-01):
-# > $ cxr_common_modelling_hour 2007-01-02
+# > $ common.date.getModelHour 2007-01-02
 # > 24
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
 ################################################################################
-function cxr_common_modelling_hour()
+function common.date.getModelHour()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -777,7 +737,7 @@ function cxr_common_modelling_hour()
 		return $CXR_RET_ERROR
 	fi
 
-	offset=$(cxr_common_date2offset $1)
+	offset=$(common.date.toOffset $1)
 	
 	if [[ ${offset} -lt 0  ]]
 	then
@@ -797,7 +757,7 @@ function cxr_common_modelling_hour()
 }
 
 ################################################################################
-# Function: cxr_common_days_between
+# Function: common.date.DaysBetween
 #
 # Returns the number of days between two dates (Date2 - Date1)
 # 
@@ -805,7 +765,7 @@ function cxr_common_modelling_hour()
 # $1 - Date 1 in YYYY-MM-DD form
 # $2 - Date 2 in YYYY-MM-DD form
 ################################################################################	
-function cxr_common_days_between()
+function common.date.DaysBetween()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -813,7 +773,7 @@ function cxr_common_days_between()
 	local julend
 	local julstart
 	
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(date_isYYYYMMDD? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
 		main.log -e  "needs 2 dates as input"
 		echo false
@@ -821,8 +781,8 @@ function cxr_common_days_between()
 	fi
 
 	# we convert the dates to julian dates and then subtract.
-	julstart=$(cxr_common_date2julian $1)
-	julend=$(cxr_common_date2julian $2)
+	julstart=$(common.date.toJulian $1)
+	julend=$(common.date.toJulian $2)
 	
 	diff="$(( $julend - $julstart ))"
 	
@@ -840,7 +800,7 @@ function cxr_common_days_between()
 }
 
 ################################################################################
-# Function: date_addDays
+# Function: common.date.addDays
 #
 # Adds a number of days to a date and returns result
 # 
@@ -848,7 +808,7 @@ function cxr_common_days_between()
 # $1 - Date in YYYY-MM-DD form
 # $2 - number of days to add (integer!)
 ################################################################################	
-function date_addDays()
+function common.date.addDays()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -856,7 +816,7 @@ function date_addDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main.log -e  "needs one date and one number as input"
 		echo false
@@ -864,17 +824,17 @@ function date_addDays()
 	fi
 
 	# Convert to julian and add, convert back
-	julstart=$(cxr_common_date2julian $1)
+	julstart=$(common.date.toJulian $1)
 
 	julresult=$(( $julstart + $2 ))
 	
-	dateresult=$(cxr_common_julian2date $julresult)
+	dateresult=$(common.date.JulianToDate $julresult)
 	
 	echo "$dateresult"
 }
 
 ################################################################################
-# Function: date_subtractDays
+# Function: common.date.subtractDays
 #
 # Subtracts a number of days from a date and returns result
 # 
@@ -882,7 +842,7 @@ function date_addDays()
 # $1 - Date in YYYY-MM-DD form
 # $2 - number of days to subtract (integer!)
 ################################################################################	
-function date_subtractDays()
+function common.date.subtractDays()
 ################################################################################
 {
 	# Define & Initialize local vars
@@ -890,7 +850,7 @@ function date_subtractDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main.log -e  "needs one date and one number as input"
 		echo false
@@ -898,34 +858,34 @@ function date_subtractDays()
 	fi
 
 	# Convert to julian and add, convert back
-	julstart=$(cxr_common_date2julian $1)
+	julstart=$(common.date.toJulian $1)
 
 	julresult=$(( $julstart - $2 ))
 	
-	dateresult=$(cxr_common_julian2date $julresult)
+	dateresult=$(common.date.JulianToDate $julresult)
 	
 	echo "$dateresult"
 }
 
 ################################################################################
-# Function: date_setVars
+# Function: common.date.setVars
 #
 # Exports a number of date variables from a simulation day offset
 # Maybe this can be done more efficiently by using date directly
 # (see http://ss64.com/bash/date.html)
 #
 # Example:
-# > date_setVars "$CXR_START_DATE" "0"
+# > common.date.setVars "$CXR_START_DATE" "0"
 # 
 # Parameters:
 # $1 - Start day in YYYY-MM-DD notation
 # $2 - Simulation day offset
 ################################################################################	
-function date_setVars()
+function common.date.setVars()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(date_isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
 		main.log -e  "needs one date and one number as input"
 		echo false
@@ -935,11 +895,11 @@ function date_setVars()
 	START_DATE=$1
 	
 	# Export the offset so that we can save and restore settings
-	# Alos we need it for certain date functions like date_isFirstDayOfSimulation?
+	# Alos we need it for certain date functions like common.date.isFirstDayOfSimulation?
 	CXR_DAY_OFFSET=$2
 	
 	# Set start and stop hour correctly
-	if [[ $(date_isFirstDayOfSimulation?) == "true" ]]
+	if [[ $(common.date.isFirstDayOfSimulation?) == "true" ]]
 	then
 		CXR_START_HOUR=${CXR_START_HOUR_FIRST_DAY}
 		main.log -v "We are at the first day, simulation time starts at ${CXR_START_HOUR}"
@@ -948,7 +908,7 @@ function date_setVars()
 		main.log -v "We are at a normal day, simulation time starts at ${CXR_START_HOUR}"
 	fi
 	
-	if [[ $(date_isLastDayOfSimulation?) == "true" ]]
+	if [[ $(common.date.isLastDayOfSimulation?) == "true" ]]
 	then
 		CXR_STOP_HOUR=${CXR_STOP_HOUR_LAST_DAY}
 		main.log -v "We are at the last day, simulation time stops at ${CXR_STOP_HOUR}"
@@ -962,19 +922,19 @@ function date_setVars()
 	# Calculate the julian day of the start
 	# then add the offset - we calculate all in "julian space"
 	
-	JULSTART=$(cxr_common_date2julian "$START_DATE")
+	JULSTART=$(common.date.toJulian "$START_DATE")
 	
 	# Julian date
 	CXR_JUL=$(( $JULSTART + $CXR_DAY_OFFSET ))
 	
 	# Convert to real date in YYYY-MM-DD form
-	CXR_DATE=$(cxr_common_julian2date $CXR_JUL)
+	CXR_DATE=$(common.date.JulianToDate $CXR_JUL)
 	
 	# Date without separators (YYYYMMDD)
-	CXR_DATE_RAW=$(date_toRaw $CXR_DATE)
+	CXR_DATE_RAW=$(common.date.toRaw $CXR_DATE)
 	
 	#Split it
-	date_split $CXR_DATE year month day
+	common.date.split $CXR_DATE year month day
 	
 	# YYYY year
 	CXR_YEAR=$year
@@ -983,19 +943,19 @@ function date_setVars()
 	CXR_YEAR_S=${CXR_YEAR:2:2}
 	
 	# MM month
-	CXR_MONTH=$(string_leftPadZero $month 2)
+	CXR_MONTH=$(common.string.leftPadZero $month 2)
 	
 	# DD day
-	CXR_DAY=$(string_leftPadZero $day 2)
+	CXR_DAY=$(common.string.leftPadZero $day 2)
 	
 	# Modelling hour
-	CXR_MODEL_HOUR=$(cxr_common_modelling_hour $CXR_DATE)
+	CXR_MODEL_HOUR=$(common.date.getModelHour $CXR_DATE)
 	
 	# Day of year
-	CXR_DOY=$(cxr_common_day_of_year $CXR_DATE)
+	CXR_DOY=$(common.date.DayOfYear $CXR_DATE)
 	
 	# Week of year
-	CXR_WOY=$(cxr_common_week_of_year $CXR_DATE)
+	CXR_WOY=$(common.date.WeekOfYear $CXR_DATE)
 	
 	# if offset is 0, we are at the initial day
 	if [[ "$CXR_DAY_OFFSET" -eq 0  ]]
@@ -1012,12 +972,12 @@ function date_setVars()
 		# Calculate it all for yesterday (mainly for inst files)
 		########################################	
 		CXR_JUL_YESTERDAY=$(( $CXR_JUL - 1 ))
-		CXR_DATE_YESTERDAY=$(cxr_common_julian2date $CXR_JUL_YESTERDAY)
+		CXR_DATE_YESTERDAY=$(common.date.JulianToDate $CXR_JUL_YESTERDAY)
 		
-		CXR_DATE_RAW_YESTERDAY=$(date_toRaw $CXR_DATE_YESTERDAY)
+		CXR_DATE_RAW_YESTERDAY=$(common.date.toRaw $CXR_DATE_YESTERDAY)
 		
 		#Split it
-		date_split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
+		common.date.split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
 		
 	
 		# YYYY year
@@ -1027,32 +987,32 @@ function date_setVars()
 		CXR_YEAR_S_YESTERDAY=${CXR_YEAR:2:2}
 		
 		# MM month
-		CXR_MONTH_YESTERDAY=$(string_leftPadZero $month_yesterday 2)
+		CXR_MONTH_YESTERDAY=$(common.string.leftPadZero $month_yesterday 2)
 		
 		# DD day
-		CXR_DAY_YESTERDAY=$(string_leftPadZero $day_yesterday 2)
+		CXR_DAY_YESTERDAY=$(common.string.leftPadZero $day_yesterday 2)
 		
 		# Day of year
-		CXR_DOY_YESTERDAY=$(cxr_common_day_of_year $CXR_DATE)
+		CXR_DOY_YESTERDAY=$(common.date.DayOfYear $CXR_DATE)
 		
 		# week of year
-		CXR_WOY_YESTERDAY=$(cxr_common_week_of_year $CXR_DATE)
+		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE)
 	fi
 }
 
 ################################################################################
-# Function: date_isFirstDayOfWeek?
+# Function: common.date.isFirstDayOfWeek?
 #
 # Returns true if the day currently processed is the first of a week (Monday).
 #
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
-################################################################################	
-function date_isFirstDayOfWeek? ()
+################################################################################
+function common.date.isFirstDayOfWeek? ()
 ################################################################################
 {
 	local date=$1
-	local days_left=$(cxr_common_days_left_in_week $date)
+	local days_left=$(common.date.DaysLeftInWeek $date)
 	
 	if [[ "$days_left" -eq 7 ]]
 	then
@@ -1070,7 +1030,7 @@ function date_isFirstDayOfWeek? ()
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
 ################################################################################	
-function date_isFirstDayOfMonth? ()
+function date_isFirstDayOfMonth?()
 ################################################################################
 {
 	local date=$1
@@ -1084,14 +1044,14 @@ function date_isFirstDayOfMonth? ()
 }
 
 ################################################################################
-# Function: date_isFirstDayOfYear?
+# Function: common.date.isFirstDayOfYear?
 #
 # Returns true if the day currently processed is the first of a month (01).
 #
 # Parameters:
 # $1 - day in YYYY-MM-DD notation
 ################################################################################	
-function date_isFirstDayOfYear? ()
+function common.date.isFirstDayOfYear?()
 ################################################################################
 {
 	local date=$1
@@ -1108,7 +1068,7 @@ function date_isFirstDayOfYear? ()
 }
 
 ################################################################################
-# Function: date_isFirstDayOfSimulation?
+# Function: common.date.isFirstDayOfSimulation?
 #
 # Returns true if the day currently processed is the first simulated.
 #
@@ -1116,7 +1076,7 @@ function date_isFirstDayOfYear? ()
 # CXR_DAY_OFFSET - the current day offset
 # 
 ################################################################################	
-function date_isFirstDayOfSimulation? ()
+function common.date.isFirstDayOfSimulation? ()
 ################################################################################
 {
 	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
@@ -1128,7 +1088,7 @@ function date_isFirstDayOfSimulation? ()
 }
 
 ################################################################################
-# Function: date_isLastDayOfSimulation?
+# Function: common.date.isLastDayOfSimulation?
 #
 # Returns true if the day currently processed is the last simulated
 #
@@ -1136,7 +1096,7 @@ function date_isFirstDayOfSimulation? ()
 # CXR_DAY_OFFSET - the current day offset
 # 
 ################################################################################	
-function date_isLastDayOfSimulation? ()
+function common.date.isLastDayOfSimulation? ()
 ################################################################################
 {
 	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
@@ -1202,36 +1162,36 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(date_isYYYYMMDD? 1999-06-12) true "date_isYYYYMMDD?"
-	is $(date_isYYYYMMDD? 1999-6-12)  false "date_isYYYYMMDD?"
-	is $(date_toRaw 2009-01-12) 20090112 "date_toRaw"
-	is $(date_toISO 20090112) 2009-01-12 "date_toISO"
-	is $(cxr_common_date2julian 2009-01-27) 2454859 "cxr_common_date2julian"
-	is $(cxr_common_julian2date 2454859) 2009-01-27 "cxr_common_julian2date"
-	is $(cxr_common_epoch2date 1266874169) 2010-02-22 "cxr_common_epoch2date normal"
-	is $(cxr_common_epoch2date 0) 1970-01-01 "cxr_common_epoch2date base"
-	is $(cxr_common_day_of_year 2009-01-01) 1 "DOY"
-	is $(cxr_common_day_of_year 2009-01-01 4) 0001 "DOY trailing 0"
-	is $(cxr_common_day_of_year 2003-04-12) 102 "DOY"
-	is $(cxr_common_day_of_year 2009-12-31) 365 "DOY"
-	is $(cxr_common_week_of_year 2009-12-31) 53 "WOY"
-	is $(cxr_common_days_in_month 01 2008) 31 "cxr_common_days_in_month normal"
-	is $(cxr_common_days_in_month 02 2008) 29 "cxr_common_days_in_month feb leap year"
-	is $(cxr_common_days_in_month 02 2000) 29 "cxr_common_days_in_month feb leap year"
-	is $(cxr_common_days_in_month 02 2001) 28 "cxr_common_days_in_month normal"
-	is $(cxr_common_days_in_month 02 2000) 29 "cxr_common_days_in_month feb 2000 (leap year)"
-	is $(cxr_common_days_left_in_week 2004-01-04) 1 "cxr_common_days_left_in_week"
-	is $(cxr_common_days_left_in_month 2004-01-30) 2 "cxr_common_days_left_in_month"
-	is $(cxr_common_days_between 2009-01-01 2009-01-01) 1 "cxr_common_days_between same day"
-	is $(cxr_common_days_between 2009-01-01 2009-12-31) 365 "cxr_common_days_between one year (non-leap)"
-	is $(cxr_common_days_between 2004-01-01 2004-12-31) 366 "cxr_common_days_between one year (leap)"
-	is $(cxr_common_days_between 2009-01-01 2009-02-28) 59 "cxr_common_days_between"
-	is $(date_addDays 2009-02-28 1) 2009-03-01 "date_addDays"
-	is $(date_addDays 2004-02-28 1) 2004-02-29 "date_addDays"
-	is $(date_subtractDays 2004-02-29 1) 2004-02-28 "date_subtractDays"
-	is $(date_isFirstDayOfYear? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
-	is $(date_isFirstDayOfWeek? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
-	is $(date_isFirstDayOfWeek? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
+	is $(common.date.isYYYYMMDD? 1999-06-12) true "common.date.isYYYYMMDD?"
+	is $(common.date.isYYYYMMDD? 1999-6-12)  false "common.date.isYYYYMMDD?"
+	is $(common.date.toRaw 2009-01-12) 20090112 "common.date.toRaw"
+	is $(common.date.toISO 20090112) 2009-01-12 "common.date.toISO"
+	is $(common.date.toJulian 2009-01-27) 2454859 "common.date.toJulian"
+	is $(common.date.JulianToDate 2454859) 2009-01-27 "common.date.JulianToDate"
+	is $(common.date.EpochToDate 1266874169) 2010-02-22 "common.date.EpochToDate normal"
+	is $(common.date.EpochToDate 0) 1970-01-01 "common.date.EpochToDate base"
+	is $(common.date.DayOfYear 2009-01-01) 1 "DOY"
+	is $(common.date.DayOfYear 2009-01-01 4) 0001 "DOY trailing 0"
+	is $(common.date.DayOfYear 2003-04-12) 102 "DOY"
+	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
+	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY"
+	is $(common.date.DaysInMonth 01 2008) 31 "common.date.DaysInMonth normal"
+	is $(common.date.DaysInMonth 02 2008) 29 "common.date.DaysInMonth feb leap year"
+	is $(common.date.DaysInMonth 02 2000) 29 "common.date.DaysInMonth feb leap year"
+	is $(common.date.DaysInMonth 02 2001) 28 "common.date.DaysInMonth normal"
+	is $(common.date.DaysInMonth 02 2000) 29 "common.date.DaysInMonth feb 2000 (leap year)"
+	is $(common.date.DaysLeftInWeek 2004-01-04) 1 "common.date.DaysLeftInWeek"
+	is $(common.date.DaysLeftInMonth 2004-01-30) 2 "common.date.DaysLeftInMonth"
+	is $(common.date.DaysBetween 2009-01-01 2009-01-01) 1 "common.date.DaysBetween same day"
+	is $(common.date.DaysBetween 2009-01-01 2009-12-31) 365 "common.date.DaysBetween one year (non-leap)"
+	is $(common.date.DaysBetween 2004-01-01 2004-12-31) 366 "common.date.DaysBetween one year (leap)"
+	is $(common.date.DaysBetween 2009-01-01 2009-02-28) 59 "common.date.DaysBetween"
+	is $(common.date.addDays 2009-02-28 1) 2009-03-01 "common.date.addDays"
+	is $(common.date.addDays 2004-02-28 1) 2004-02-29 "common.date.addDays"
+	is $(common.date.subtractDays 2004-02-29 1) 2004-02-28 "common.date.subtractDays"
+	is $(common.date.isFirstDayOfYear? 1900-01-01) true "cxr_common_is_first_day_of_year 1900-01-01"
+	is $(common.date.isFirstDayOfWeek? 2010-03-01) true "cxr_common_is_first_day_of_week 2010-03-01"
+	is $(common.date.isFirstDayOfWeek? 1996-10-01) false "cxr_common_is_first_day_of_week 1996-10-01"
 	is $(date_isFirstDayOfMonth? 2010-10-01) true "cxr_common_is_first_day_of_month 2010-10-01"
 	is "$(cxr_common_offset2_raw_date "")" '' "cxr_common_offset2_raw_date empty string"
 	

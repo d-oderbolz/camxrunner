@@ -546,7 +546,7 @@ main.log -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules
 if [[ "${CXR_ONE_DAY}"  ]]
 then
 
-	if [[ "$(date_isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
+	if [[ "$(common.date.isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
 	then
 		main.log -b "CAMxRunner.sh" "We run only day ${CXR_ONE_DAY}!"
 	else
@@ -560,7 +560,7 @@ fi
 ################################################################################
 
 # count simulation days
-CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "${CXR_START_DATE}" "${CXR_STOP_DATE}")
+CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
 # Is this a repetition of an earlier run?
 if [[ $(cxr_common_is_repeated_run) == true ]]

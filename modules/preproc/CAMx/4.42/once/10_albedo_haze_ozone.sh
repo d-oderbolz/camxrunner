@@ -301,7 +301,7 @@ function create_ahomap_control_file()
 
 		# Exports all relevant date variables
 		# like CXR_YEAR, CXR_MONTH...
-		date_setVars "$CXR_START_DATE" "$day_offset"
+		common.date.setVars "$CXR_START_DATE" "$day_offset"
 
 		# expand rule
 		CXR_AHOMAP_OZONE_COLUMN_FILE="$(cxr_common_evaluate_rule "$CXR_AHOMAP_OZONE_COLUMN_FILE_RULE" false CXR_AHOMAP_OZONE_COLUMN_FILE_RULE)"
@@ -328,7 +328,7 @@ function create_ahomap_control_file()
 	done
 	
 	# Reset date variables for first day
-	date_setVars "$CXR_START_DATE" "0"
+	common.date.setVars "$CXR_START_DATE" "0"
 	
 	main.log  "I just wrote a control file for AHOMAP to ${ahomap_file}."
 
@@ -368,7 +368,7 @@ function albedo_haze_ozone()
 	
 		for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
-			date_setVars "$CXR_START_DATE" "$day_offset"
+			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
 			# Check if we need another file
 			# We need to know how long a week or month still lasts
@@ -399,7 +399,7 @@ function albedo_haze_ozone()
 						# Today is the first day (either of the week or the simulation)
 						start_offset=$day_offset
 						
-						days_left=$(cxr_common_days_left_in_week $CXR_DATE)
+						days_left=$(common.date.DaysLeftInWeek $CXR_DATE)
 						
 						# The number of days depends on the number of days left in the simulation
 						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]
@@ -424,11 +424,11 @@ function albedo_haze_ozone()
 					# Are we in a new month?
 					if [[ "$last_month" != "$CXR_MONTH"  ]]
 					then
-						month_length=$(cxr_common_days_in_month $CXR_MONTH $CXR_YEAR)
+						month_length=$(common.date.DaysInMonth $CXR_MONTH $CXR_YEAR)
 					
 						start_offset=$day_offset
 						
-						days_left=$(cxr_common_days_left_in_month $CXR_DATE)
+						days_left=$(common.date.DaysLeftInMonth $CXR_DATE)
 						
 						# The number of days depends on the number of days left
 						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]

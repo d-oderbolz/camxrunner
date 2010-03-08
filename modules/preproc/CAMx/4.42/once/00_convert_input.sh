@@ -170,7 +170,7 @@ function set_variables()
 	for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Setup environment
-		date_setVars "$CXR_START_DATE" "$DAY_OFFSET"
+		common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
 		
 		# Set i to one, we only want the outermost domain
 		i=1
@@ -196,7 +196,7 @@ function set_variables()
 	done
 	
 	# Reset date variables for first day
-	date_setVars "$CXR_START_DATE" "0"
+	common.date.setVars "$CXR_START_DATE" "0"
 	
 }
 

@@ -136,7 +136,7 @@ function set_variables()
 	
 	# The date needed by this function is a bit strange
 	# It needs a 2-digit yoer and a 3-digit DOY
-	IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_START_DATE} 3 )"
+	IBDATE="${CXR_YEAR_S}$(common.date.DayOfYear ${CXR_START_DATE} 3 )"
 	
 	# Evaluate some rules
 	
@@ -204,7 +204,7 @@ function create_topconc_file()
 		if [[ "$spec_line"  ]]
 		then
 			# Make sure its uppercase
-			species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
+			species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
 			conc=$(echo $spec_line | cut -d: -f2)
 			
 			# Format should be (a10,f10.7), e. g. 
@@ -283,7 +283,7 @@ function initial_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -314,7 +314,7 @@ function initial_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra

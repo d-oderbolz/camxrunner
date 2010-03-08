@@ -190,7 +190,7 @@ function _hash_fn ()
 	hash_dir="$(cxr_common_hash_get_dir "$type")"
 	
 	# Remove leading or trailing quotes
-	key="$(string_trim "${key}" '\"')"
+	key="$(common.string.trim "${key}" '\"')"
 	
 	if [[ ! "$key" ]]
 	then

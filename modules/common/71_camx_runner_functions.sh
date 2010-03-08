@@ -461,7 +461,7 @@ function cxr_common_evaluate_rule_at_offset()
 	current_offset=${CXR_DAY_OFFSET}
 	
 	# Re-evaluate the date variables
-	date_setVars "${CXR_START_DATE}" "${day_offset}"
+	common.date.setVars "${CXR_START_DATE}" "${day_offset}"
 	
 	# Evaluate the rule
 	expansion=$(cxr_common_evaluate_rule "${rule}" "${3:-}" "${4:-}")
@@ -470,7 +470,7 @@ function cxr_common_evaluate_rule_at_offset()
 	CXR_DAY_OFFSET=${current_offset}
 	
 	# Reset the date vars
-	date_setVars "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
+	common.date.setVars "${CXR_START_DATE}" "${CXR_DAY_OFFSET}"
 	
 	echo "$expansion"
 }
@@ -1243,7 +1243,7 @@ function test_module()
 	
 	is $(cxr_common_evaluate_rule a) a "cxr_common_evaluate_rule constant"
 	is $(cxr_common_evaluate_rule "$(common.math.abs -100)") 100 "cxr_common_evaluate_rule a function of CAMxRunner"
-	is $(cxr_common_evaluate_rule "domain$(string_leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
+	is $(cxr_common_evaluate_rule "domain$(common.string.leftPadZero $i 3)") domain001 "cxr_common_evaluate_rule with formatting"
 	is $(cxr_common_evaluate_rule "$(uname -n)") $(uname -n) "cxr_common_evaluate_rule with uname"
 	
 	########################################

@@ -60,10 +60,10 @@ CXR_HOLLOW=true
 main.readConfig "${CXR_RUN}" "${CXR_MODEL_VERSION}" "${CXR_MODEL}" "."
 
 # count simulation days
-CXR_NUMBER_OF_SIM_DAYS=$(cxr_common_days_between "$CXR_START_DATE" "$CXR_STOP_DATE")
+CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")
 
 # Let's just initialise the date variables for day 0
-date_setVars "$CXR_START_DATE" "0"
+common.date.setVars "$CXR_START_DATE" "0"
 
 # Init state DB
 cxr_common_initialize_state_db

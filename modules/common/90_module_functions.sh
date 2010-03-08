@@ -406,7 +406,7 @@ function cxr_common_module_dependencies_ok?()
 		module_type="$(cxr_common_module_get_type "$dep_module_name")"
 		
 		# Convert date
-		raw_date="$(cxr_common_offset2_raw_date "${dep_day_offset}")"
+		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
 		
 		my_stage="$(cxr_common_get_stage_name "$module_type" "$dependency" "$raw_date" )"
 		
@@ -808,7 +808,7 @@ function cxr_common_module_process_sequentially
 	
 
 	# Setup environment
-	date_setVars "$CXR_START_DATE" 0
+	common.date.setVars "$CXR_START_DATE" 0
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
@@ -828,12 +828,12 @@ function cxr_common_module_process_sequentially
 			# if we run only 1 day, do it
 			if [[ "${CXR_ONE_DAY}"  ]]
 			then
-				day_offset="$(cxr_common_date2offset ${CXR_ONE_DAY})"
+				day_offset="$(common.date.toOffset ${CXR_ONE_DAY})"
 				main.log  "${CXR_ONE_DAY} corresponds to offset ${day_offset}."
 			fi
 		
 			# Setup environment
-			date_setVars "$CXR_START_DATE" "$day_offset"
+			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
 			main.log -B "Processing ${CXR_DATE:-now}"
 			

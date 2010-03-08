@@ -114,14 +114,14 @@ function common.string.toLower()
 } 
 
 ################################################################################
-# Function: string_toUpper
+# Function: common.string.toUpper
 #
 # Converts the given argument into an all lower case string.
 #
 # Parameters:
 # $1 - string to be converted
 ################################################################################
-function string_toUpper() 
+function common.string.toUpper() 
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -133,7 +133,7 @@ function string_toUpper()
 }
 
 ################################################################################
-# Function: string_trim
+# Function: common.string.trim
 #
 # Trims spaces or other characters on both ends of a string.
 #
@@ -141,7 +141,7 @@ function string_toUpper()
 # $1 - the string to be trimmed
 # [$2] - the character that should be removed (default: space-trims tabs, too)
 ################################################################################
-function string_trim() 
+function common.string.trim() 
 ################################################################################
 {
 	local string="${1}"
@@ -163,14 +163,14 @@ function string_trim()
 }
 
 ################################################################################
-# Function: cxr_common_len
+# Function: common.string.len
 #
 # Returns the lenght of a string
 #
 # Parameters:
 # $1 - string that should be measured
 ################################################################################
-function cxr_common_len() 
+function common.string.len() 
 ################################################################################
 {
 	if [[ $# -ne 1 ]]
@@ -182,7 +182,7 @@ function cxr_common_len()
 }
 
 ################################################################################
-# Function: string_getCharacters
+# Function: common.string.getCharacters
 #
 # Extracts a number of characters from the start of a string
 #
@@ -190,7 +190,7 @@ function cxr_common_len()
 # $1 - string from which the chars should be extracted
 # $2 - number of chars to return
 ################################################################################
-function string_getCharacters() 
+function common.string.getCharacters() 
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -204,7 +204,7 @@ function string_getCharacters()
 
 
 ################################################################################
-# Function: string_leftPadZero
+# Function: common.string.leftPadZero
 #
 # Makes sure a number has n digits (left padded with 0). Can be used in File rules to make sure
 # you get something like my_file0001.dat or something.
@@ -213,7 +213,7 @@ function string_getCharacters()
 # $1 - a number to be padded
 # $2 - number of digits to be used
 ################################################################################
-function string_leftPadZero
+function common.string.leftPadZero
 ################################################################################
 {
 	if [[ $# -ne 2  ]]
@@ -228,21 +228,21 @@ function string_leftPadZero
 }
 
 ################################################################################
-# Function: string_getPrefixNumber
+# Function: common.string.getPrefixNumber
 #
 # Extracts a 2-digit number from the beginning of a string
 #
 # Parameters:
 # $1 - string from which the numbers should be extracted
 ################################################################################
-function string_getPrefixNumber
+function common.string.getPrefixNumber
 ################################################################################
 {
 	# Define & Initialize local vars
 	local string
 	local numbers
 	
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
 		echo 0
 	else
@@ -252,9 +252,9 @@ function string_getPrefixNumber
 		numbers=$(expr match $string '\([0-9]*\)')
 		
 		# Extract 2 Digits
-		numbers=$(string_getCharacters "${numbers}" 2)
+		numbers=$(common.string.getCharacters "${numbers}" 2)
 		
-		echo $(string_leftPadZero "${numbers}" 2)
+		echo $(common.string.leftPadZero "${numbers}" 2)
 	fi
 }
 
@@ -320,27 +320,27 @@ function test_module()
 	is "$(common.string.toLower querty)" querty "common.string.toLower querty"
 	is "$(common.string.toLower '')" "" "common.string.toLower empty string"
 	
-	is "$(string_toUpper QUERTY)" QUERTY "string_toUpper QUERTY"
-	is "$(string_toUpper querty)" QUERTY "string_toUpper querty"
-	is "$(string_toUpper "")" '' "string_toUpper empty string"
+	is "$(common.string.toUpper QUERTY)" QUERTY "common.string.toUpper QUERTY"
+	is "$(common.string.toUpper querty)" QUERTY "common.string.toUpper querty"
+	is "$(common.string.toUpper "")" '' "common.string.toUpper empty string"
 	
-	is "$(string_trim "")" '' "string_trim empty string (implicit)"
-	is "$(string_trim "    ")" '' "string_trim spaces (implicit)"
-	is "$(string_trim "		")" '' "string_trim tabs (implicit)"
-	is "$(string_trim " hallo")" "hallo" "string_trim front (implicit)"
-	is "$(string_trim "hallo ")" "hallo" "string_trim back (implicit)"
-	is "$(string_trim " hallo ")" "hallo" "string_trim both (implicit)"
-	is "$(string_trim "aba" "a" )" 'b' "string_trim remove all a (explicit)"
-	is "$(string_trim " b " " " )" 'b' "string_trim remove spaces (explicit)"
-	is "$(string_trim "guaggc" "guagg" )" 'c' "string_trim remove a whole string (explicit)"
+	is "$(common.string.trim "")" '' "common.string.trim empty string (implicit)"
+	is "$(common.string.trim "    ")" '' "common.string.trim spaces (implicit)"
+	is "$(common.string.trim "		")" '' "common.string.trim tabs (implicit)"
+	is "$(common.string.trim " hallo")" "hallo" "common.string.trim front (implicit)"
+	is "$(common.string.trim "hallo ")" "hallo" "common.string.trim back (implicit)"
+	is "$(common.string.trim " hallo ")" "hallo" "common.string.trim both (implicit)"
+	is "$(common.string.trim "aba" "a" )" 'b' "common.string.trim remove all a (explicit)"
+	is "$(common.string.trim " b " " " )" 'b' "common.string.trim remove spaces (explicit)"
+	is "$(common.string.trim "guaggc" "guagg" )" 'c' "common.string.trim remove a whole string (explicit)"
 	
-	is "$(string_getCharacters 1234 2)" 12 "string_getCharacters"
+	is "$(common.string.getCharacters 1234 2)" 12 "common.string.getCharacters"
 	
-	is "$(string_leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
-	is "$(string_leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
-	is "$(string_leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
+	is "$(common.string.leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
+	is "$(common.string.leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
+	is "$(common.string.leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
 	
-	is "$(string_getPrefixNumber 00_ )" 00 "string_getPrefixNumber not at beginning"
+	is "$(common.string.getPrefixNumber 00_ )" 00 "common.string.getPrefixNumber not at beginning"
 	
 	########################################
 	# teardown tests if needed

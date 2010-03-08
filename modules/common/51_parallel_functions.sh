@@ -614,7 +614,7 @@ function cxr_common_parallel_worker()
 			fi
 		
 			# Setup environment
-			date_setVars "$CXR_START_DATE" "$day_offset"
+			common.date.setVars "$CXR_START_DATE" "$day_offset"
 			
 			main.log -B   "cxr_common_parallel_worker $task_pid assigned to $task for $CXR_DATE"
 			

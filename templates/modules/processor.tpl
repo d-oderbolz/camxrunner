@@ -128,7 +128,7 @@ function set_variables()
 	########################################################################
 	
 	# If you need special checks on the first or last day,
-	# use the functions date_isFirstDayOfSimulation? and date_isLastDayOfSimulation?
+	# use the functions common.date.isFirstDayOfSimulation? and common.date.isLastDayOfSimulation?
 	
 	########################################################################
 	# Set variables

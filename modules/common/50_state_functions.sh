@@ -123,7 +123,7 @@ function cxr_common_get_last_day_modelled()
 		if [[ "$max_day" ]]
 		then
 			# Convert to ISO
-			date=$(date_toISO "$max_day")
+			date=$(common.date.toISO "$max_day")
 		
 			echo "$date"
 		else
@@ -157,7 +157,7 @@ function cxr_common_get_first_day_modelled()
 		if [[ "$min_day" ]]
 		then
 			# Convert to ISO
-			date=$(date_toISO "$min_day")
+			date=$(common.date.toISO "$min_day")
 		
 			echo "$date"
 		else

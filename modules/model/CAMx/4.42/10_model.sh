@@ -165,7 +165,7 @@ function set_variables()
 		########################################################################
 		
 		
-		if [[ "$(date_isFirstDayOfSimulation?)" == true  ]]
+		if [[ "$(common.date.isFirstDayOfSimulation?)" == true  ]]
 		then
 			# Stuff that we need only the first day
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
@@ -937,7 +937,7 @@ function model()
 			main.log -B  "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			
 			# If we do not run the first day, its a restart
-			if [[ "$(date_isFirstDayOfSimulation?)" == false  ]]
+			if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
 			then
 				# This must be a restart!
 				CXR_RESTART=true
@@ -1040,7 +1040,7 @@ function test_module()
 	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		# Initialise the date variables 
-		date_setVars "$CXR_START_DATE" "$day_offset"
+		common.date.setVars "$CXR_START_DATE" "$day_offset"
 		
 		set_variables
 		
@@ -1048,7 +1048,7 @@ function test_module()
 	done
 	
 	# Reset date variables for first day
-	date_setVars "$CXR_START_DATE" "0"
+	common.date.setVars "$CXR_START_DATE" "0"
 	
 	exit 0
 }

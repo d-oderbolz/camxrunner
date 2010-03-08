@@ -135,7 +135,7 @@ function set_variables()
 	
 	# The date needed by this function is a bit strange
 	# It needs a 2-digit yoer and a 3-digit DOY
-	IBDATE="${CXR_YEAR_S}$(cxr_common_day_of_year ${CXR_DATE} 3 )"
+	IBDATE="${CXR_YEAR_S}$(common.date.DayOfYear ${CXR_DATE} 3 )"
 	
 	# Evaluate some rules
 	
@@ -243,7 +243,7 @@ function boundary_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -274,7 +274,7 @@ function boundary_conditions()
 							if [[ "$spec_line"  ]]
 							then
 								# Make sure its uppercase
-								species=$(string_toUpper $(echo $spec_line | cut -d: -f1))
+								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
 								conc=$(echo $spec_line | cut -d: -f2)
 								
 								#Add to extra
@@ -384,7 +384,7 @@ function boundary_conditions()
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We only create a file the first day, all others we link
-						if [[ "$(date_isFirstDayOfSimulation?)" == false  ]]
+						if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
 						then
 							# Not the first day, just link
 							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"

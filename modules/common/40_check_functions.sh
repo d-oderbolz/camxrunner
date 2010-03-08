@@ -535,7 +535,7 @@ function cxr_common_report_md5()
 				then
 					# Get the old mtime
 					old_mtime="$(cxr_common_hash_mtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )"
-					old_datetime="$(cxr_common_epoch2datetime $old_mtime)"
+					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
 					cxr_logger -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
 				fi
 			fi
@@ -1050,16 +1050,16 @@ function cxr_common_check_module_requirements()
 			if [[ ${n_elements} -eq 2 ]]
 			then
 				# only stl. "exec|dot"
-				kind=$(string_trim ${elements[0]})
-				what=$(string_trim ${elements[1]})
+				kind=$(common.string.trim ${elements[0]})
+				what=$(common.string.trim ${elements[1]})
 				# The default is that we need it really
 				need=mandatory
 			elif [[ ${n_elements} -eq 3 ]]
 			then
 				# only stl. "exec|dot|optional"
-				kind=$(string_trim ${elements[0]})
-				what=$(string_trim ${elements[1]})
-				need=$(string_trim ${elements[2]})
+				kind=$(common.string.trim ${elements[0]})
+				what=$(common.string.trim ${elements[1]})
+				need=$(common.string.trim ${elements[2]})
 			else
 				# this is wrong!
 				main.log -e  "Requirement string $requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"

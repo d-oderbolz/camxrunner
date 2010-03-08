@@ -158,7 +158,7 @@ function concatenate_station_data
 	
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
-			date_setVars "$CXR_START_DATE" "$DAY_OFFSET"
+			common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
 	
 			#  --- Setup the Environment of the current day
 			set_variables 
