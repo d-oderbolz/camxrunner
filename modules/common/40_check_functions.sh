@@ -473,7 +473,7 @@ function common.check.getMD5()
 {
 		if [[ $# -ne 1  ]]
 		then
-			echo -e  "Programming error: no filename passed!"
+			main.log -e  "Programming error: no filename passed!"
 		fi
 		
 		local file="$1"
@@ -483,7 +483,7 @@ function common.check.getMD5()
 			"${CXR_MD5_EXEC}" "${file}" | cut -d" " -f1
 		else
 			# Return the empty string
-			echo -w  "File $file not readable."
+			main.log -e  "File $file not readable."
 			echo ""
 		fi
 }
