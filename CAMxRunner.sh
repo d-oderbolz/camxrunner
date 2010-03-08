@@ -325,8 +325,13 @@ do
 	export ${new_name}="$value"
 done
 
-#  correct LOG if needed
+# If user feels verbose, make it so
+if [[ "$CXR_LOG_LEVEL_SCREEN" -ge "$CXR_LOG_LEVEL_DBG" ]]
+then
+	set -x
+fi
 
+#  correct LOG if needed
 # Force wins
 if [[ "${CXR_FORCE_LOG}" == true  ]]
 then

@@ -354,6 +354,9 @@ function common.test.all()
 		summarize_tests
 
 	done
+	
+	# Reset strict return checks
+	set -e
 }
 
 ################################################################################

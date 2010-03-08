@@ -11,6 +11,10 @@
 
 CXR_RUN_DIR="$(pwd)"
 
+# For the time being, we turn off errexit
+# Because tap-functions uses non-0 returns
+set +e
+
 # Source the stuff we need to produce TAP messages (test anything protocol)
 source $CXR_RUN_DIR/inc/tap-functions.inc
 
