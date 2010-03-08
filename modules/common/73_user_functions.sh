@@ -114,9 +114,8 @@ function common.user.getOK()
 	local default
 	local answer
 	
-	# Code repeated for clarity
 	# default only accepted if either Y or N
-	if [[ ( -s "${2:-}" ) && ( "${2:-}" == Y || "${2:-}" == N ) ]]
+	if [[ "${2:-}" == Y || "${2:-}" == N ]]
 	then
 			
 		########################################
@@ -136,7 +135,7 @@ function common.user.getOK()
 			answer=$(common.user.getInput "$message\nAnswer with either Y, N or D")
 		done
 		
-		if [[  "$answer" == d || "$answer" == D   ]]
+		if [[  "$answer" == d || "$answer" == D ]]
 		then
 			answer=$default
 		fi
@@ -159,7 +158,7 @@ function common.user.getOK()
 		
 	fi
 	
-	if [[  "$answer" == Y || "$answer" == y   ]]
+	if [[ "$answer" == Y || "$answer" == y ]]
 	then
 		echo true
 	else
