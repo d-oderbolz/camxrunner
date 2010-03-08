@@ -47,7 +47,7 @@ CXR_PID=$$
 # Dangerous, especially in parallel mode; should only be used when debugging
 CXR_NO_LOCKING=false
 
-# Just for main_usage
+# Just for main.usage
 progname=CAMxRunner.sh
 
 # Define Statusses

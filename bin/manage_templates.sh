@@ -81,9 +81,9 @@ exit 0
 	while getopts ":dlvVFmct:sP:Ixi:o:CNp:f:h" opt
 	do
 		case "${opt}" in
-			h) CXR_HOLLOW=true; main_usage ;;
-			\?) CXR_HOLLOW=true; main_usage ;; 
-			*) CXR_HOLLOW=true; main_usage ;;  # Show usage also for unrecognised options
+			h) CXR_HOLLOW=true; usage ;;
+			\?) CXR_HOLLOW=true; usage ;; 
+			*) CXR_HOLLOW=true; usage ;;  # Show usage also for unrecognised options
 		esac
 	done
 	

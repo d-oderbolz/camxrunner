@@ -49,13 +49,13 @@ unset ${!CXR_*}
 CXR_ARGUMENTS="${@}"
 
 ################################################################################
-# Function: main_usage
+# Function: main.usage
 #
 # Shows the proper usage of CAMxRunner. 
-# The rest of the main_* functions is defined in inc/main_functions.inc
+# The rest of the main.* functions is defined in inc/main_functions.inc
 #
 ################################################################################
-function main_usage()
+function main.usage()
 ################################################################################
 {
 	# That we see the modules, we need at least verbose level
@@ -281,9 +281,9 @@ do
 		
 		x) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
 		
-		h) CXR_HOLLOW=true; main_usage ;;
-		\?) CXR_HOLLOW=true; main_usage ;; 
-		*) CXR_HOLLOW=true; main_usage ;;  # Show usage also for unrecognised options
+		h) CXR_HOLLOW=true; main.usage ;;
+		\?) CXR_HOLLOW=true; main.usage ;; 
+		*) CXR_HOLLOW=true; main.usage ;;  # Show usage also for unrecognised options
 	esac
 done
 
