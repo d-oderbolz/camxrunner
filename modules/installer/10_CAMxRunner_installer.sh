@@ -118,7 +118,7 @@ function CAMxRunner_installer()
 		PLAYFILE=${CXR_INSTALLER_VERSION_INPUT_DIR}/CAMxRunner.play
 		
 		# Might be simplified later
-		if [[ -s "$PLAYFILE"  ]]
+		if [[ -s "$PLAYFILE" ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
