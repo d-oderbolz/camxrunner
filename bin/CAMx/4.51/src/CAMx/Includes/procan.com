@@ -95,7 +95,7 @@ c
       integer   IPR_VOL
 
       parameter ( MXPADOM     =    4   )
-      parameter ( MXPACEL     =  106000 )
+      parameter ( MXPACEL     =  31200 )
       parameter ( NPAPRC      =   26   )
       parameter ( MXCPA       =   99   )
 c
