@@ -302,6 +302,12 @@ unset OPTIND
 # The run determines the files to use
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
+# Set the model exec if not user-supplied
+if [[ -z "${CXR_MODEL_EXEC:-}" ]]
+then
+	CXR_MODEL_EXEC="$(get_model_exec)"
+fi
+
 ################################################################################
 # Include all external functions. We do this here to reduce clutter ############
 ################################################################################
@@ -594,7 +600,6 @@ then
 	
 fi
 
-
 mb_needed=$(common.check.PredictModelOutputMb)
 
 main.log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
@@ -623,12 +628,6 @@ main.log -B "CAMxRunner.sh" "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
 
 # Check if the selected binary supports our settings
 common.check.ModelLimits
-
-# Set the model exec if not user-supplied
-if [[ -z "${CXR_MODEL_EXEC:-}" ]]
-then
-	CXR_MODEL_EXEC="$(get_model_exec)"
-fi
 
 ################################################################################
 # Print out the variables and their settings
