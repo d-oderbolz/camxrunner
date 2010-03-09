@@ -183,36 +183,36 @@ function get_model_exec()
 ################################################################################
 {
 	#Determine possible names
-	GENERAL_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
-	MACHINE_EXEC=${GENERAL_EXEC}-$(uname -n)
-	RUN_EXEC=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
+	local general_exec=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
+	local machine_exec=${general_exec}-$(uname -n)
+	local run_exec=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
-	if [[ -x ${RUN_EXEC}  ]]
+	if [[ -x ${run_exec}  ]]
 	then
 		# Run dependent exists
-		main.log -v   "CAMx Binary is actually called ${RUN_EXEC}"
-		echo "${RUN_EXEC}"
-	elif [[ -x ${MACHINE_EXEC}  ]]
+		main.log -v   "CAMx Binary is actually called ${run_exec}"
+		echo "${run_exec}"
+	elif [[ -x ${machine_exec}  ]]
 	then
 		# Machine dependent exists
-		main.log -v   "CAMx Binary is actually called ${MACHINE_EXEC}"
-		echo "${MACHINE_EXEC}"
-	elif [[ -x ${GENERAL_EXEC}  ]]
+		main.log -v   "CAMx Binary is actually called ${machine_exec}"
+		echo "${machine_exec}"
+	elif [[ -x ${general_exec}  ]]
 	then
 		# general exists
-		main.log -v   "CAMx Binary is actually called ${GENERAL_EXEC}"
-		echo "${GENERAL_EXEC}"
+		main.log -v   "CAMx Binary is actually called ${general_exec}"
+		echo "${general_exec}"
 	else
 		#None exists
 		if [[  "${1:-true}" == false || ${CXR_RUN_MODEL} == false   ]]
 		then
 			# optional paratemeter is false, or we do not run the model
-			# We do not care and return CXR_GENERAL_EXEC
-			echo "${GENERAL_EXEC}" 
+			# We do not care and return general_exec
+			echo "${general_exec}" 
 		else
 			# NOK - just issue a warning (if we are compiling e.g.)
-			main.log -w  "Could not find a suitable CAMx executable, neither ${MACHINE_EXEC} nor ${GENERAL_EXEC} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
+			main.log -w  "Could not find a suitable CAMx executable, neither ${machine_exec} nor ${general_exec} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
 }

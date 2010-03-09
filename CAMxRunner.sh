@@ -215,7 +215,6 @@ CXR_RUN_DIR="$(dirname $0)"
 cd ${CXR_RUN_DIR} || ( echo "Could not change to $CXR_RUN_DIR" ; exit 1 )
 CXR_RUN_DIR="$(pwd)"
 
-
 ################################################################################
 # Source most important functions (rest is done later dynamically and version dependent)
 ################################################################################

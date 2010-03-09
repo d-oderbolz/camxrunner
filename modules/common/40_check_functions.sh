@@ -286,18 +286,18 @@ function common.check.DataType()
 # Function: common.check.ModelLimits
 #
 # Checks if the current model supports our current settings by inspecting the 
-# relevant .play file.
+# relevant .conf file.
 # If these checks change with the model version, put the definition of this function
 # in a module under modules/common/model/version directory
 #
 ################################################################################
-function common.check.ModelLimits() 
+function common.check.ModelLimits()
 ################################################################################
 {
 	main.log -a -B  "Checking model limits for ${CXR_MODEL_EXEC}..."
 	
 	# We must find the play file
-	local playfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/$(basename ${CXR_MODEL_EXEC}).play
+	local conffile=${CXR_MODEL_BIN_DIR}/$(basename ${CXR_MODEL_EXEC}).conf
 	local i
 	local var
 	local curr_var
@@ -305,12 +305,12 @@ function common.check.ModelLimits()
 	local f_nspec
 	local cxr_value
 	
-	if [[ -f "${playfile}"  ]]
+	if [[ -f "${conffile}"  ]]
 	then
-		# playfile is present
+		# conffile is present
 		
 		main.log -a  "This was the configuration used to compile ${CXR_MODEL_EXEC}:"
-		cat "${playfile}" | tee -a "${CXR_LOG}"
+		cat "${conffile}" | tee -a "${CXR_LOG}"
 		
 		# Check geometry
 		
@@ -332,7 +332,7 @@ function common.check.ModelLimits()
 				main.log -v  "Checking ${curr_var}..."
 				
 				# Read value
-				f_val="$(grep "${curr_var}${CXR_DELIMITER}" "${playfile}" | cut -d${CXR_DELIMITER} -f2)"
+				f_val="$(grep "${curr_var}${CXR_DELIMITER}" "${conffile}" | cut -d${CXR_DELIMITER} -f2)"
 				
 				if [[ "${f_val}"  ]]
 				then
@@ -344,13 +344,13 @@ function common.check.ModelLimits()
 						main.log -v  "${curr_var} setting OK"
 					fi
 				else
-					main.log -v  "There is no entry ${curr_var} in the playfile ${playfile}"
+					main.log -v  "There is no entry ${curr_var} in the conffile ${conffile}"
 				fi
 			done
 		done
 
 		# Check #of species
-		f_nspec="$(grep "MXSPEC${CXR_DELIMITER}" "${playfile}" | cut -d${CXR_DELIMITER} -f2)"
+		f_nspec="$(grep "MXSPEC${CXR_DELIMITER}" "${conffile}" | cut -d${CXR_DELIMITER} -f2)"
 		
 		if [[ "${f_nspec}"  ]]
 		then
@@ -362,10 +362,10 @@ function common.check.ModelLimits()
 				main.log -v  "Number of species is OK."
 			fi
 		else
-			main.log -v  "There is no entry MXSPEC in the playfile ${playfile}."
+			main.log -v  "There is no entry MXSPEC in the conffile ${conffile}."
 		fi
 	else
-		main.log -a  "Found no playfile called ${playfile}.\nSo probably CAMx was not compiled using CAMxRunner, cannot check the capabilities of your executable."
+		main.log -a  "Found no conffile called ${conffile}.\nSo probably CAMx was not compiled using CAMxRunner, cannot check the capabilities of your executable."
 	fi
 	
 	main.log -a  "Model limits checked."
