@@ -111,7 +111,7 @@ exit 1
 # Function: set_variables
 #	
 # Sets the appropriate variables needed for <convert_emissions>.
-# Its the first module to use the decmopression feature
+# Its the first module to use the decmopression capability
 #
 ################################################################################	
 function set_variables() 

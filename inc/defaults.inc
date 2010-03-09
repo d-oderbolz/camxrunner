@@ -827,7 +827,7 @@ CXR_DETECT_COMPRESSED_INPUT_FILES=true
 # If it is false, make sure that the directory CXR_TMP_DIR has enough space free...
 CXR_DECOMPRESS_IN_PLACE=false
 
-# These extensions are searched with the automatic feature
+# These extensions are searched with the automatic capability
 # CAMxRunner does not determine the compression type from the suffix,
 # this is done using "file"
 CXR_COMPRESSED_EXT=".gz .bz2 .zip"

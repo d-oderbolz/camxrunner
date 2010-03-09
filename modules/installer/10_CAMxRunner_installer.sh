@@ -122,7 +122,7 @@ function CAMxRunner_installer()
 		then
 			# We already have a playfile
 			# Do you want to replay?
-			if [[ "$(common.user.getOK "CAMxRunner was already installed. Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\nThere is a chance that in the meatime otehr features are available that are not yet reflected in this older file." Y )" == true  ]]
+			if [[ "$(common.user.getOK "CAMxRunner was already installed. Do you want to look at the settings that where used then?\n(You will then be asked if you want to reinstall using those values)\nThere is a chance that in the meatime other capabilities are available that are not yet reflected in this older file." Y )" == true  ]]
 			then
 				# Yes, show me
 				cat "$PLAYFILE"
