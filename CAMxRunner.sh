@@ -302,17 +302,22 @@ unset OPTIND
 # The run determines the files to use
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
-# Set the model exec if not user-supplied
-if [[ -z "${CXR_MODEL_EXEC:-}" ]]
-then
-	CXR_MODEL_EXEC="$(get_model_exec)"
-fi
-
 ################################################################################
 # Include all external functions. We do this here to reduce clutter ############
 ################################################################################
 
 source $CXR_RUN_DIR/inc/load_common_modules.inc
+
+################################################################################
+# Determine name of model exec                                      ############
+################################################################################
+
+# Set the model exec if not user-supplied
+if [[ -z "${CXR_MODEL_EXEC:-}" ]]
+then
+	main.log -a "CXR_MODEL_EXEC was not set by the user, determining name..."
+	CXR_MODEL_EXEC="$(get_model_exec)"
+fi
 
 ################################################################################
 # Correct user-supplied variables ##############################################
