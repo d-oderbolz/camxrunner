@@ -771,7 +771,7 @@ CXR_UNIX2DOS_EXEC=$(which unix2dos)
 CXR_TSORT_EXEC=$(which tsort)
 
 # this can be used to draw graphs
-CXR_DOT_EXEC=$(which dot)
+#CXR_DOT_EXEC=$(which dot)
 
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name
