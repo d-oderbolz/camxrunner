@@ -103,6 +103,9 @@ function common.module.getMetaField()
 		main.dieGracefully "cannot find path of $module"
 	fi
 	
+	# Before sourcing, set this Meta var
+	CXR_META_MODULE_NAME=$module
+	
 	# source module
 	source "$module_path"
 	
@@ -119,6 +122,7 @@ function common.module.getMetaField()
 		# variable not known!
 		main.dieGracefully "variable $item not found!"
 	else
+		main.log -v "${item}: ${!item}"
 		# Return value (indirect)
 		echo ${!item}
 	fi
@@ -165,6 +169,26 @@ function common.module.getExclusive()
 }
 
 ################################################################################
+# Function: common.module.getExclusive
+# 
+# For a given module name, returns the exclusive string that is
+# in the header (CXR_META_MODULE_NUM_TESTS)
+#
+# Parameters:
+# $1 - name of a module
+################################################################################
+function common.module.getNumTests()
+################################################################################
+{
+	local module="$1"
+	local num_tests
+	
+	num_tests=$(common.module.getMetaField "$module" "CXR_META_MODULE_NUM_TESTS")
+
+	echo "${num_tests}"
+}
+
+################################################################################
 # Function: common.module.resolveSingleDependency
 # 
 # resolves a single dependenency string (containig just one dependency), depending 
@@ -189,7 +213,7 @@ function common.module.resolveSingleDependency()
 {
 	if [[ $# -lt 1 && $# -gt 2 ]]
 	then
-		main.dieGracefully "Programming error @ needs at least a depdendency and an optional day_offset as input"
+		main.dieGracefully "Programming error - we need at least a depdendency and an optional day_offset as input"
 	fi
 
 	local dependency="$1"
@@ -237,6 +261,7 @@ function common.module.resolveSingleDependency()
 					return $CXR_RET_OK
 				fi
 			else
+				# No offset
 				echo ""
 				return $CXR_RET_OK
 			fi # day_offset present?
