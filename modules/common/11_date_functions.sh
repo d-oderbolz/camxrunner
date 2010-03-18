@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=31
+CXR_META_MODULE_NUM_TESTS=32
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -504,6 +504,35 @@ function common.date.DaysInMonth()
 	date -d "$dim_m/01/$dim_y +1month -1day" +%d
 }
 
+################################################################################
+# Function: common.date.DayOfWeek
+# 
+# Returns the day of the week
+# Returns 1 on Monday and 7 on Sunday
+#
+# Parameters:
+# $1 - date
+################################################################################
+function common.date.DayOfWeek()
+################################################################################
+{
+	# Define & Initialize local vars
+	local dim_d
+	local dow
+	
+	if [[ $# -lt 1  ]]
+	then
+		main.log -e  "needs a date as input"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	dim_d=${1}
+
+	dow="$(date -d "$dim_d" +%u)"
+	
+	echo "$dow"
+}
 
 ################################################################################
 # Function: common.date.DaysLeftInWeek
@@ -530,7 +559,7 @@ function common.date.DaysLeftInWeek()
 	
 	dim_d=${1}
 
-	dow=$(date -d "$dim_d" +%u)
+	dow="$(common.date.DayOfWeek  "$dim_d")"
 	
 	echo $(( 7 - $dow + 1))
 }
@@ -895,7 +924,7 @@ function common.date.setVars()
 	START_DATE=$1
 	
 	# Export the offset so that we can save and restore settings
-	# Alos we need it for certain date functions like common.date.isFirstDayOfSimulation?
+	# Also we need it for certain date functions like common.date.isFirstDayOfSimulation?
 	CXR_DAY_OFFSET=$2
 	
 	# Set start and stop hour correctly
@@ -954,6 +983,9 @@ function common.date.setVars()
 	# Day of year
 	CXR_DOY=$(common.date.DayOfYear $CXR_DATE)
 	
+	# Day of week
+	CXR_DOW=$(common.date.DayOfWeek $CXR_DATE)
+	
 	# Week of year
 	CXR_WOY=$(common.date.WeekOfYear $CXR_DATE)
 	
@@ -984,7 +1016,7 @@ function common.date.setVars()
 		CXR_YEAR_YESTERDAY=$year_yesterday
 		
 		# YY year
-		CXR_YEAR_S_YESTERDAY=${CXR_YEAR:2:2}
+		CXR_YEAR_S_YESTERDAY=${CXR_YEAR_YESTERDAY:2:2}
 		
 		# MM month
 		CXR_MONTH_YESTERDAY=$(common.string.leftPadZero $month_yesterday 2)
@@ -993,10 +1025,13 @@ function common.date.setVars()
 		CXR_DAY_YESTERDAY=$(common.string.leftPadZero $day_yesterday 2)
 		
 		# Day of year
-		CXR_DOY_YESTERDAY=$(common.date.DayOfYear $CXR_DATE)
+		CXR_DOY_YESTERDAY=$(common.date.DayOfYear $CXR_DATE_YESTERDAY)
+		
+		# Day of week
+		CXR_DOW_YESTERDAY=$(common.date.DayOfWeek $CXR_DATE_YESTERDAY)
 		
 		# week of year
-		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE)
+		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE_YESTERDAY)
 	fi
 }
 
@@ -1174,6 +1209,9 @@ function test_module()
 	is $(common.date.DayOfYear 2009-01-01 4) 0001 "DOY trailing 0"
 	is $(common.date.DayOfYear 2003-04-12) 102 "DOY"
 	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
+	
+	is $(common.date.DayOfWeek 2009-12-31) 4 "DOW"
+	
 	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY"
 	is $(common.date.DaysInMonth 01 2008) 31 "common.date.DaysInMonth normal"
 	is $(common.date.DaysInMonth 02 2008) 29 "common.date.DaysInMonth feb leap year"
@@ -1193,6 +1231,7 @@ function test_module()
 	is $(common.date.isFirstDayOfWeek? 2010-03-01) true "common.date.isFirstDayOfWeek? 2010-03-01"
 	is $(common.date.isFirstDayOfWeek? 1996-10-01) false "common.date.isFirstDayOfWeek? 1996-10-01"
 	is $(common.date.isFirstDayOfMonth? 2010-10-01) true "common.date.isFirstDayOfMonth? 2010-10-01"
+	
 
 	########################################
 	# teardown tests if needed
