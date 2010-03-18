@@ -83,8 +83,13 @@ exit 1
 ################################################################################
 # Function: common.test.loadData
 #	
-# Loads testdata for a testcase from a compressed file if the file is available.
-# Reads CXR_TEST_DATA_INPUT_FILE and CXR_TEST_DATA_OUTPUT_DIR
+# Loads testdata for a testrun into CXR_TMP_DIR/CXR_RUN. Data comes from
+# tesctcase/CAMxRunner/Model/Version and goes to CXR_TMP_DIR/CXR_RUN. 
+# There may be more than one tarball present, just make sure to structure them using these 
+# three directories:
+# inputs/
+# expected_outputs/
+# outputs/ (Normally empty)
 #
 ################################################################################
 function common.test.loadData()
@@ -147,6 +152,8 @@ function common.test.all()
 	local default_version
 	local total_tests
 	local message
+	local function_file
+	local extended=false
 	
 	# This function runs all tests that are availabe (asking the user before each new test if wanted).
 	# For this, all modules are enumerated and then tested if marked as testable.
@@ -154,7 +161,7 @@ function common.test.all()
 
 	message="Do you want to run the test suite of CAMxRunner?"
 	
-	while [ "$(common.user.getOK "$message" )" == true ]
+	while [[ "$(common.user.getOK "$message" )" == true ]]
 	do
 	
 		# Fix the message
@@ -164,7 +171,7 @@ function common.test.all()
 		# Determine model and version
 		################################################################################	
 		
-		if [[ ! "${iput_model}"  ]]
+		if [[ ! "${iput_model}" ]]
 		then
 			# Model was not passed
 			model="$(common.user.getMenuChoice "Which model should the tests be run for?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" "CAMx")"
@@ -204,7 +211,14 @@ function common.test.all()
 		
 		common.check.isVersionSupported? "$version" "$model"
 		
-		main.log  "Testing system using modules for $model $version..."
+		main.log "Testing system using modules for $model $version..."
+		
+		if [[ "$(common.user.getOK "Do you want to run the extended tests (can run up to 30 minutes)?" )" == true ]]
+		then
+			extended=true
+		else
+			extended=false
+		fi
 		
 		# Pre-load testing interface
 		CXR_RUN=base
@@ -215,27 +229,42 @@ function common.test.all()
 		CXR_TESTING_FROM_HARNESS=true
 		
 		########################################
-		#  Count all tests
+		#  Count all tests (Harness needs to know the count)
 		########################################
 		
 		total_tests=0
 		
-		# save stdin and redirect it from an in-line file
-		exec 9<&0 <<-EOF
-		# Here we list all directories and a comment on each
-		# The order might need to change later
-		$CXR_COMMON_INPUT_DIR                 "Common Modules"
-		$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
-		$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
-		$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
-		$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
-		$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
-		$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
-		$CXR_MODEL_INPUT_DIR                  "Model Modules"
-		$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
-		$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
-		$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
-		EOF
+		if [[ "$extended" == true ]]
+		then
+			# Do the long list
+			
+			# save stdin and redirect it from an in-line file
+			exec 9<&0 <<-EOF
+			# Here we list all directories and a comment on each
+			# The order might need to change later
+			$CXR_COMMON_INPUT_DIR                 "Common Modules"
+			$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+			$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
+			$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
+			$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
+			$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
+			$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
+			$CXR_MODEL_INPUT_DIR                  "Model Modules"
+			$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
+			$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
+			$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
+			EOF
+		else
+			# Do the short list
+			# save stdin and redirect it from an in-line file
+			exec 9<&0 <<-EOF
+			# Here we list all directories and a comment on each
+			# The order might need to change later
+			$CXR_COMMON_INPUT_DIR                 "Common Modules"
+			$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+			$CXR_COMMON_VERSION_INPUT_DIR         "Version specific common Modules"
+			EOF
+		fi
 		while read CURRENT_DIR COMMENT
 		do
 			# ignore comment and blank lines
@@ -243,25 +272,14 @@ function common.test.all()
 	
 			main.log  -a "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
-			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			for function_file in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 			do
-				# Create the "bare" name (analogous to extract_module_name, but hen&egg)
-				BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
-				RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
+				module="$(main.getModuleName "$function_file")"
+				num_tests="$(common.module.getNumTests "$module")"
 				
-				# Remove XX_
-				INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
-				RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
+				main.log -v  "Found $num_tests in $module"
 				
-				# Load it
-				CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
-					
-				source $FUNCTION_FILE
-				
-				main.log -v  "Found $CXR_META_MODULE_NUM_TESTS in $CXR_META_MODULE_NAME"
-				
-				total_tests=$(( $total_tests + $CXR_META_MODULE_NUM_TESTS ))
-				
+				total_tests=$(( $total_tests + $num_tests ))
 			done
 		done
 		# Restore stdin and close fd 9
@@ -282,22 +300,37 @@ function common.test.all()
 		# This is to remember the last loaded config
 		LAST_LOADED_CONFIG=base
 		
-		# save stdin and redirect it from an in-line file
-		exec 9<&0 <<-EOF
-		# Here we list all directories and a comment on each
-		# The order might need to change later
-		$CXR_COMMON_INPUT_DIR                 "Common Modules"
-		$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
-		$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
-		$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
-		$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
-		$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
-		$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
-		$CXR_MODEL_INPUT_DIR                  "Model Modules"
-		$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
-		$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
-		$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
-		EOF
+		if [[ "$extended" == true ]]
+		then
+			# Do the long list
+			
+			# save stdin and redirect it from an in-line file
+			exec 9<&0 <<-EOF
+			# Here we list all directories and a comment on each
+			# The order might need to change later
+			$CXR_COMMON_INPUT_DIR                 "Common Modules"
+			$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+			$CXR_COMMON_VERSION_INPUT_DIR         "Version specific  common Modules"
+			$CXR_PREPROCESSOR_DAILY_INPUT_DIR     "Daily preprocessor Modules"
+			$CXR_PREPROCESSOR_ONCE_INPUT_DIR      "One-Time preprocessor Modules"
+			$CXR_POSTPROCESSOR_DAILY_INPUT_DIR    "Daily postprocessor Modules"
+			$CXR_POSTPROCESSOR_ONCE_INPUT_DIR     "One-Time postprocessor Modules"
+			$CXR_MODEL_INPUT_DIR                  "Model Modules"
+			$CXR_INSTALLER_INPUT_DIR              "Common installer Modules"
+			$CXR_INSTALLER_MODEL_INPUT_DIR        "Model specific installer Modules"
+			$CXR_INSTALLER_VERSION_INPUT_DIR      "Version specific installer Modules"
+			EOF
+		else
+			# Do the short list
+			# save stdin and redirect it from an in-line file
+			exec 9<&0 <<-EOF
+			# Here we list all directories and a comment on each
+			# The order might need to change later
+			$CXR_COMMON_INPUT_DIR                 "Common Modules"
+			$CXR_COMMON_MODEL_INPUT_DIR           "Model specific common Modules"
+			$CXR_COMMON_VERSION_INPUT_DIR         "Version specific common Modules"
+			EOF
+		fi
 		while read CURRENT_DIR COMMENT
 		do
 			# ignore comment and blank lines
@@ -305,25 +338,19 @@ function common.test.all()
 	
 			main.log  "Executing ${COMMENT} tests..."
 			
-			for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			for function_file in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
 			do
-				# Create the "bare" name (analogous to extract_module_name, but hen&egg)
-				BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
-				RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
-				
-				# Remove XX_
-				INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
-				RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
+				module="$(main.getModuleName $function_file)"
 				
 				# Load it
-				CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
+				CXR_META_MODULE_NAME=$module
 					
-				source $FUNCTION_FILE
+				source $function_file
 				
 				if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
 				then
 					
-					# We must state the run name properly
+					# We must set the run name properly
 					CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
 					
 					# If we did not just load this config, do it now
