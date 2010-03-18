@@ -536,8 +536,6 @@ function common.module.updateInfo()
 	
 			for file in $files
 			do
-				echo Pip
-				
 				module_name="$(main.getModuleName $file)"
 				main.log -a "Adding module $module_name in $file"
 				
@@ -545,22 +543,30 @@ function common.module.updateInfo()
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 				then
 					main.dieGracefully "There seems to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				else
+					main.log -a "$module_name is no duplicate."
 				fi
 				
 				# Path 
+				main.log -a "$module_name in path"
 				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
 				
 				# Type
+				main.log -a "$module_name in type"
 				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
 				
 				# All Hash (value is dummy)
+				main.log -a "$module_name in all"
 				common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
 				
 				if [[ "$active_hash" != - ]]
 				then
 					# The current types active hash
+					main.log -a "$module_name in $active_hash"
 					common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
 				fi
+				
+				main.log -a "Next file"
 			
 			done # Loop over files
 			
