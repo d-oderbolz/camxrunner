@@ -244,6 +244,23 @@ function common.hash.put()
 }
 
 ################################################################################
+# Function: common.hash.add
+#
+# Alias for <common.hash.put> for your convenience.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - key
+# $4 - value
+################################################################################
+function common.hash.put()
+################################################################################
+{
+	common.hash.put $@
+}
+
+################################################################################
 # Function: common.hash.get
 #
 # Gets a certain value from a hash
