@@ -559,9 +559,6 @@ function common.module.updateInfo()
 					# The current types active hash
 					common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
 				fi
-				
-				main.log -a "Next file"
-			
 			done # Loop over files
 			
 		else
