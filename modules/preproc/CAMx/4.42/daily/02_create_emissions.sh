@@ -162,7 +162,7 @@ function create_emissions()
 	local start_h
 	
 	# This flag controls if only bio must be calculated (after 1 week)
-	local bio_only = 0
+	local bio_only=0
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
