@@ -496,7 +496,7 @@ function common.module.updateInfo()
 		return $CXR_RET_OK
 	fi
 
-	main.log -v  "Updating module information..."
+	main.log -a  "Updating module information, might take a while..."
 	
 	# Increase global indent level
 	main.increaseLogIndent
@@ -513,9 +513,12 @@ function common.module.updateInfo()
 	local module_name
 	
 	# Create a few working arrays we will go through
-	types=($CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_PREPROCESS_DAILY  $CXR_TYPE_MODEL $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE)
-	dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_MODEL_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
-	hashes=($CXR_ACTIVE_ONCE_PRE_HASH $CXR_ACTIVE_DAILY_PRE_HASH $CXR_ACTIVE_MODEL_HASH $CXR_ACTIVE_DAILY_POST_HASH $CXR_ACTIVE_ONCE_POST_HASH)
+	# Note that there are three kinds of common modules: general ones, model specific and version specific ones
+	# The same is true for installers
+	types=($CXR_TYPE_INSTALLER $CXR_TYPE_INSTALLER $CXR_TYPE_INSTALLER $CXR_TYPE_COMMON $CXR_TYPE_COMMON $CXR_TYPE_COMMON $CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_PREPROCESS_DAILY  $CXR_TYPE_MODEL $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE)
+	dirs=($CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR $CXR_COMMON_INPUT_DIR $CXR_COMMON_MODEL_INPUT_DIR $CXR_COMMON_VERSION_INPUT_DIR $CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_MODEL_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+	# we ignore a hash called "-"
+	hashes=(- - - - - - $CXR_ACTIVE_ONCE_PRE_HASH $CXR_ACTIVE_DAILY_PRE_HASH $CXR_ACTIVE_MODEL_HASH $CXR_ACTIVE_DAILY_POST_HASH $CXR_ACTIVE_ONCE_POST_HASH)
 	
 	for i in $(seq 0 $(( ${#dirs[@]} - 1 )) )
 	do
@@ -525,33 +528,43 @@ function common.module.updateInfo()
 		
 		main.log -v  "Adding $type modules..."
 		
-		# Find all of them
-		files="$(find $dir -noleaf -maxdepth 1 -name '*.sh')"
-
-		for file in $files
-		do
-			module_name="$(main.getModuleName $file)"
-			main.log -v  "Adding module $module_name in $file"
-			
-			# Is there a new entry of this name? (this would indicate non-uniqueness!)
-			if [[ $(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
-			then
-				main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
-			fi
-			
-			# Path 
-			common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
-			
-			# Type
-			common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
-			
-			# All Hash (value is dummy)
-			common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+		if [[ -d "$dir" ]]
+		then
 		
-			# The current types active hash
-			common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
-		
-		done # Loop over files
+			# Find all of them
+			files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
+	
+			for file in $files
+			do
+				module_name="$(main.getModuleName $file)"
+				main.log -v  "Adding module $module_name in $file"
+				
+				# Is there a new entry of this name? (this would indicate non-uniqueness!)
+				if [[ $(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true && $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
+				then
+					main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				fi
+				
+				# Path 
+				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
+				
+				# Type
+				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
+				
+				# All Hash (value is dummy)
+				common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+				
+				if [[ "$active_hash" != - ]]
+				then
+					# The current types active hash
+					common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+				fi
+			
+			done # Loop over files
+			
+		else
+			main.log -w "Tried to add modules in $dir - directory not found. (May not be relevant)"
+		fi # Directory exists?
 	done # loop over type-index
 	
 	# decrease global indent level
