@@ -186,7 +186,6 @@ function create_emissions()
 			# TODO: This is global, but must be cleaned after run!!
 			common.hash.init create_emission_weekdays $CXR_HASH_TYPE_GLOBAL
 			
-			
 			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_WOY)" == true ]] 
 			then
 				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
@@ -239,18 +238,13 @@ function create_emissions()
 				# Only run if we are not in a dry run
 				if [[ "$CXR_DRY" == false  ]]
 				then
-					# Then we run it in the background, while preserving the output
-					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a ${CXR_LOG}_create_emissions_${CXR_DATE}_${i} &
+					# Then we run it, while preserving the output
+					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a ${CXR_LOG}
 				else
 					main.log "This is a dry-run, no action required"
 				fi
 			done
-			
-			# we need to wait for the processes
-			# TODO: Check interaction wint parallel implementation!
-			main.log -a "Waiting for ${CXR_NUMBER_OF_GRIDS} background processes..."
-			wait
-
+		
 			# Get back
 			cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 	
