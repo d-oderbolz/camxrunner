@@ -130,15 +130,21 @@ function common.hash.init()
 	local hash="$1"
 	local type="$2"
 	local hash_dir
+	local complete_dir
 	
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
+	complete_dir="${hash_dir}/${hash}"
 	
 	# Create the hash directory
-	mkdir -p "${hash_dir}/${hash}"
-	
-	# Nobody else must modify this directory
-	chmod 700 "${hash_dir}/${hash}"
+	if [[ ! -d "${complete_dir}" ]]
+	then
+		mkdir -p "${complete_dir}"
+		# Nobody else must modify this directory
+		chmod 700 "${complete_dir}"
+	else
+		touch "${complete_dir}"
+	fi
 }
 
 ################################################################################
