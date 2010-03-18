@@ -526,8 +526,6 @@ function common.module.updateInfo()
 		dir=${dirs[$i]}
 		active_hash=${hashes[$i]}
 		
-		echo -n .
-		
 		if [[ -d "$dir" ]]
 		then
 		
@@ -537,7 +535,7 @@ function common.module.updateInfo()
 			for file in $files
 			do
 				module_name="$(main.getModuleName $file)"
-				main.log -a "Adding module $module_name in $file"
+				echo -n .
 				
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
