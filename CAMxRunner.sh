@@ -234,6 +234,14 @@ main.setModelAndVersion ${CXR_RUN}
 source $CXR_RUN_DIR/inc/defaults.inc
 
 ################################################################################
+# Read Config ##################################################################
+################################################################################
+
+# The run determines the files to use
+main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
+
+
+################################################################################
 # Handle options ###############################################################
 ################################################################################
 # Get the users input here (done this early to avoid loading of stuff we do not need -
@@ -294,12 +302,6 @@ shift $((${OPTIND} - 1))
 unset OPTSTRING
 unset OPTIND
 
-################################################################################
-# Read Config ##################################################################
-################################################################################
-
-# The run determines the files to use
-main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
 ################################################################################
 # Include all external functions. We do this here to reduce clutter ############
