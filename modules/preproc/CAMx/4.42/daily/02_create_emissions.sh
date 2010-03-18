@@ -187,7 +187,8 @@ function create_emissions()
 			common.hash.init create_emission_weekdays $CXR_HASH_TYPE_INSTANCE
 			
 			
-			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY)" == true ]] then
+			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY)" == true ]] 
+			then
 				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
 				bio_only=2
 			else
