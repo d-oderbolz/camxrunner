@@ -536,6 +536,8 @@ function common.module.updateInfo()
 	
 			for file in $files
 			do
+				echo Pip
+				
 				module_name="$(main.getModuleName $file)"
 				main.log -a "Adding module $module_name in $file"
 				
