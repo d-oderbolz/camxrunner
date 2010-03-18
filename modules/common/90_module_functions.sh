@@ -526,7 +526,7 @@ function common.module.updateInfo()
 		dir=${dirs[$i]}
 		active_hash=${hashes[$i]}
 		
-		main.log -v  "Adding $type modules..."
+		main.log -a "Adding modules in $dir ..."
 		
 		if [[ -d "$dir" ]]
 		then
