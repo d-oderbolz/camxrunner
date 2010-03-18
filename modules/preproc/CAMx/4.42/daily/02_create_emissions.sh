@@ -191,7 +191,6 @@ function create_emissions()
 				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
 				bio_only=2
 			else
-				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_DOW true
 				main.log -v "Weekday $CXR_WOY not yet calculated. We will calculate biogenic and anthropogenic emissions"
 				bio_only=0
 			fi
@@ -276,6 +275,9 @@ function create_emissions()
 
 		# Store the state
 		common.state.storeState ${CXR_STATE_STOP} > /dev/null
+		
+		# Store the weekday
+		common.hash.add create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_DOW true
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
