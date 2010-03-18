@@ -161,6 +161,9 @@ function create_emissions()
 	local stop_h
 	local start_h
 	
+	# This flag controls if only bio must be calculated (after 1 week)
+	local bio_only = 0
+	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
@@ -168,21 +171,35 @@ function create_emissions()
 		set_variables 
 		
 		#  --- Check Settings
-		if [[ $(common.check.preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [[ ! -f "${CXR_EMISSION_OUTPUT_FILE}"  ]]
+		if [[ ! -f "${CXR_EMISSION_OUTPUT_FILE}" ]]
 		then
 			#File does not exist
-		
+			
+			# We need a hash that contains the weekdays already processed
+			# TODO: This should be global, but must be cleaned after run!!
+			common.hash.init create_emission_weekdays $CXR_HASH_TYPE_INSTANCE
+			
+			
+			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY)" == true ]] then
+				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
+				bio_only=2
+			else
+				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY
+				main.log -v "Weekday $CXR_WOY not yet calculated. We will calculate biogenic and anthropogenic emissions"
+				bio_only=0
+			fi
+			
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log   "Preparing current emission file..."
+			main.log "Preparing current emission file..."
 			
 			# We will write the IDL call into a temporary file
 			exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
@@ -211,7 +228,7 @@ function create_emissions()
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
-				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
+				$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${i},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bio_only},'${CXR_EMISSION_SOURCE_DIR}'
 				exit
 				EOF
 				
@@ -221,12 +238,17 @@ function create_emissions()
 				# Only run if we are not in a dry run
 				if [[ "$CXR_DRY" == false  ]]
 				then
-					# Then we run it, while preserving the output
-					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
+					# Then we run it in the background, while preserving the output
+					${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a ${CXR_LOG}_create_emissions_${CXR_DATE}_${i} &
 				else
-					main.log   "This is a dry-run, no action required"
+					main.log "This is a dry-run, no action required"
 				fi
 			done
+			
+			# we need to wait for the processes
+			# TODO: Check interaction wint parallel implementation!
+			main.log -a "Waiting for ${CXR_NUMBER_OF_GRIDS} background processes..."
+			wait
 
 			# Get back
 			cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
