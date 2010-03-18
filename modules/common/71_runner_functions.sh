@@ -639,7 +639,7 @@ function common.runner.removeTempFiles()
 				
 				# remove that line via sed
 				sed_tmp=$(common.runner.createTempFile sed false) # Tempfile is not added to list (we move it away)
-				sed '/$line/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
+				sed "/$line/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
 				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			done < "$CXR_DECOMPRESSED_LIST"
 		fi

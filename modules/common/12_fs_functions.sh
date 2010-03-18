@@ -514,7 +514,7 @@ function common.fs.TryDecompressingFile()
 				
 				# First remove that line via sed
 				sed_tmp=$(common.runner.createTempFile sed)
-				sed '/$line/d' "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
+				sed "/$line/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
 				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			fi	
 		fi # Entry found in compressed list?
