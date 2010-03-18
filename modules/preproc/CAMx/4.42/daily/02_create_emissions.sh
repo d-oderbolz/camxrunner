@@ -183,16 +183,16 @@ function create_emissions()
 			#File does not exist
 			
 			# We need a hash that contains the weekdays already processed
-			# TODO: This should be global, but must be cleaned after run!!
-			common.hash.init create_emission_weekdays $CXR_HASH_TYPE_INSTANCE
+			# TODO: This is global, but must be cleaned after run!!
+			common.hash.init create_emission_weekdays $CXR_HASH_TYPE_GLOBAL
 			
 			
-			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY)" == true ]] 
+			if [[ "$(common.hash.has? create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_WOY)" == true ]] 
 			then
 				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
 				bio_only=2
 			else
-				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_INSTANCE $CXR_WOY
+				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_WOY
 				main.log -v "Weekday $CXR_WOY not yet calculated. We will calculate biogenic and anthropogenic emissions"
 				bio_only=0
 			fi
