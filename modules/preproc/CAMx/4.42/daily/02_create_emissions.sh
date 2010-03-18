@@ -192,7 +192,7 @@ function create_emissions()
 				main.log -v "Weekday $CXR_WOY was already calculated. We will only re-calculate biogenic emissions"
 				bio_only=2
 			else
-				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_WOY
+				common.hash.add create_emission_weekdays $CXR_HASH_TYPE_GLOBAL $CXR_WOY true
 				main.log -v "Weekday $CXR_WOY not yet calculated. We will calculate biogenic and anthropogenic emissions"
 				bio_only=0
 			fi
