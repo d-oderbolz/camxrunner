@@ -1,9 +1,9 @@
-pro extract_stations,input_file,output_dir,mmout_file,day,month,year,extract_species,chemistry_mechanism,aerosol_mechanism,write_header,interpolation_method,file_format,output_number_format,is_latlon,x_dim,y_dim,num_levels,stations,do_normalization,normalize_temperature_k,normalize_pressure_pa,is_master_domain
+pro extract_stations,input_file,output_dir,write_header,mmout_file,day,month,year,extract_species,chemistry_mechanism,aerosol_mechanism,interpolation_method,file_format,output_number_format,is_latlon,x_dim,y_dim,num_levels,stations,do_normalization,normalize_temperature_k,normalize_pressure_pa,is_master_domain
 ;
 ; Function: extract_stations
 ;
 ;*******************************************************************************************************
-;            IDL Program to extract data from a camx average file 
+;            IDL Program to extract data from a camx average file . UNDER DEVELOPMENT.
 ;
 ;            based on a script by Sebnem Andreani-Aksoyoglu, 11.1.2007
 ;
@@ -29,13 +29,13 @@ pro extract_stations,input_file,output_dir,mmout_file,day,month,year,extract_spe
 ;
 ; input_file - input file to operate on
 ; output_dir - directory where to store output (no trailing /)
+; write_header - boolean flag to indicate if a header is needed (usually for first day)
 ; mmout_file - file of the mmout file to use for ground level pressure
 ; model_hour - the number of hours already modelled. Used as an offset for time calculations. The first dataset gets this time (model_hour+0)
 ; extract_day - Day to be extracted in YYYY-MM-DD Format
 ; extract_species - string array of species names to extract
 ; chemistry_mechanism - chemistry mechanism (CBMIV, CBM05 or SAPRC99)
 ; aerosol_mechanism - aerosol mechanism (currently, only CF is supported)
-; write_header - boolean flag, if true, a header will be written
 ; interpolation_method - currently only NONE and BILINEAR are supported
 ; file_format - either 'CSV' or 'IDL'
 ; time_format - either 'HOUR' or an IDL date string

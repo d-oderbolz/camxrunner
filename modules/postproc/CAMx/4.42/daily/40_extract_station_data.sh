@@ -297,8 +297,9 @@ function extract_station_data
 				# Here, we also need an MM5 file for the pressure (for ppb conversion and potential coordinate conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
 				# We set this fag to 0 because currently we only run on the innermost domain
+				# This method is currently under development.
 				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
 				echo "exit" >> ${exec_tmp_file}
 				;;
 				
@@ -313,7 +314,7 @@ function extract_station_data
 			extract_nabel_stations)
 
 				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}" >> ${exec_tmp_file}
 				echo "exit" >> ${exec_tmp_file}
 				;;
 			*) 
