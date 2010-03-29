@@ -928,7 +928,7 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main.dieGracefully "CAMx has returned a non-zero status for $CXR_DATE"
+		main.log -e "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back

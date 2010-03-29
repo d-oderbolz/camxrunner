@@ -255,7 +255,7 @@ function extract_station_data
 		# Open brackets
 		species_array="["
 		
-		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}"  ]]
+		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}" ]]
 		then
 			# Loop through the general list
 			for i in $( seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES )
