@@ -634,12 +634,12 @@ function common.runner.removeTempFiles()
 				# The line has the format compressed_file|decompressed_file
 				filename=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
 				
-				main.log -v   "Deleting $filename"
+				main.log -v "Deleting $filename"
 				rm -f "${filename}"
 				
 				# remove that line via sed
 				sed_tmp=$(common.runner.createTempFile sed false) # Tempfile is not added to list (we move it away)
-				sed "/$line/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
+				sed "/"$line"/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
 				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
 			done < "$CXR_DECOMPRESSED_LIST"
 		fi
