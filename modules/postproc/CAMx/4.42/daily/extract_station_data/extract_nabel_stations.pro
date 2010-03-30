@@ -150,7 +150,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 				sColumns = StrTrim(columnHeaders, 2)
 	
 				; Write the headers to the file.
-				PrintF, station_luns[i], sColumns, format = '(A,' + strtrim((num_species + 1),2) + ')'
+				PrintF, station_luns[i], sColumns
 		endif
 		
 	endfor
