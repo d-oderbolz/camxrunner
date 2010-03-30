@@ -862,11 +862,19 @@ function test_module()
 	local dep_file=$(common.runner.createTempFile $FUNCNAME)
 	
 	# This is just to play
+	#     independent        dependent
+	echo "ahomap tuv" >> "${dep_file}"
+	echo "tuv model_0" >> "${dep_file}"
 	echo "create_emissions_0 model_0" >> "${dep_file}"
 	echo "convert_emissions_0 model_0" >> "${dep_file}"
-	echo "convert_input_0 model_0" >> "${dep_file}"
 	echo "initial_conditions model_0" >> "${dep_file}"
 	echo "boundary_conditions_0 model_0" >> "${dep_file}"
+	echo "model_0 model_1" >> "${dep_file}"
+	echo "tuv model_1" >> "${dep_file}"
+	echo "create_emissions_1 model_1" >> "${dep_file}"
+	echo "convert_emissions_1 model_1" >> "${dep_file}"
+	echo "initial_conditions model_1" >> "${dep_file}"
+	echo "boundary_conditions_1 model_1" >> "${dep_file}"
 	
 	pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
 	common.parallel.drawDependencyGraph "$dep_file" "$pdf_file"
