@@ -865,6 +865,7 @@ function test_module()
 	#     independent        dependent
 	echo "ahomap tuv" >> "${dep_file}"
 	echo "tuv model_1" >> "${dep_file}"
+	echo "ahomap model_1" >> "${dep_file}"
 	echo "create_emissions_1 model_1" >> "${dep_file}"
 	echo "convert_emissions_1 model_1" >> "${dep_file}"
 	echo "initial_conditions model_1" >> "${dep_file}"
@@ -872,6 +873,7 @@ function test_module()
 	echo "model_1 model_2" >> "${dep_file}"
 	echo "initial_conditions model_2" >> "${dep_file}"
 	echo "tuv model_2" >> "${dep_file}"
+	echo "ahomap model_2" >> "${dep_file}"
 	echo "create_emissions_2 model_2" >> "${dep_file}"
 	echo "convert_emissions_2 model_2" >> "${dep_file}"
 	echo "boundary_conditions_2 model_2" >> "${dep_file}"
