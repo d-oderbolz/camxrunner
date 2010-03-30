@@ -155,6 +155,16 @@ function concatenate_station_data
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 	then
+		# Init date vars
+		common.date.setVars "$CXR_START_DATE" 0
+		
+		#  --- Check Settings (just once)
+		if [[ $(common.check.preconditions) == false  ]]
+		then
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			# We notify the caller of the problem
+			return $CXR_RET_ERR_PRECONDITIONS
+		fi
 	
 		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 		do
@@ -162,14 +172,6 @@ function concatenate_station_data
 	
 			#  --- Setup the Environment of the current day
 			set_variables 
-			
-			#  --- Check Settings
-			if [[ $(common.check.preconditions) == false  ]]
-			then
-				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				# We notify the caller of the problem
-				return $CXR_RET_ERR_PRECONDITIONS
-			fi
 			
 			main.log -a -b  "Concatenating files for $CXR_DATE..."
 			
