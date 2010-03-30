@@ -150,7 +150,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 				sColumns = StrTrim(columnHeaders, 2)
 	
 				; Write the headers to the file.
-				PrintF, station_luns[i], sColumns
+				PrintF, station_luns[i], sColumns, format='(' + strtrim((num_species + 1),2) + 'A15)'
 		endif
 		
 	endfor
@@ -226,7 +226,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 			
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
-			printf,station_luns[station],i+model_hour,z[0,*,i,station],format = '(' + strtrim((num_species + 1),2) + 'A15)'
+			printf,station_luns[station],i+model_hour,z[0,*,i,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
 			
 		endfor
 	endfor
