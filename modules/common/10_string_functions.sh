@@ -336,9 +336,9 @@ function test_module()
 	
 	is "$(common.string.getCharacters 1234 2)" 12 "common.string.getCharacters"
 	
-	is "$(common.string.leftPadZero 1 2)" 01 "cxr_common_two_digits 1"
-	is "$(common.string.leftPadZero 01 2)" 01 "cxr_common_two_digits 01"
-	is "$(common.string.leftPadZero 001 2)" 01 "cxr_common_two_digits too long"
+	is "$(common.string.leftPadZero 1 2)" 01 "common.string.leftPadZero 1"
+	is "$(common.string.leftPadZero 01 2)" 01 "common.string.leftPadZero 01"
+	is "$(common.string.leftPadZero 001 2)" 01 "common.string.leftPadZero too long"
 	
 	is "$(common.string.getPrefixNumber 00_ )" 00 "common.string.getPrefixNumber not at beginning"
 	

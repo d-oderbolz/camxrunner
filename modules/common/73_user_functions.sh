@@ -80,6 +80,18 @@ exit 1
 }
 
 ################################################################################
+# Function: common.user.showProgress
+#
+# Very simple function to show the user a simple feedback during long-running operations.
+#	
+################################################################################
+function common.user.showProgress()
+################################################################################
+{
+	echo -n .
+}
+
+################################################################################
 # Function: common.user.getOK
 #	
 # Asks te user if he/she agrees (Y) to a question or not (N).

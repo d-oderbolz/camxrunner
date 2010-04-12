@@ -823,8 +823,8 @@ function test_module()
 	is $(common.fs.isAbsolutePath? /) true "common.fs.isAbsolutePath? /"
 	is $(common.fs.FileSizeMb $a) 1 "common.fs.FileSizeMb of small file"
 	is $(common.fs.FileSizeMb $b) 100 "common.fs.FileSizeMb of 100MB file"
-	is $(common.fs.sameDevice? . .) true "cxr_common_same_fs with twice the current path"
-	is $(common.fs.sameDevice? /proc .) false "cxr_common_same_fs with proc and current path"
+	is $(common.fs.sameDevice? . .) true "common.fs.sameDevice? with twice the current path"
+	is $(common.fs.sameDevice? /proc .) false "common.fs.sameDevice? with proc and current path"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a"

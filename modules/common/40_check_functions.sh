@@ -386,6 +386,9 @@ function common.check.RunnerExecutables()
 	# We use a bash 3.x structure, the so-called "here-variable"
 	while read file
 	do
+		# We are still alive...
+		common.user.showProgress
+		
 		if [[ ! -x $file ]]
 		then
 			main.log -w  "File $file is not executable,I try to correct this"

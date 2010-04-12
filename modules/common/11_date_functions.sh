@@ -559,7 +559,7 @@ function common.date.DaysLeftInWeek()
 	
 	dim_d=${1}
 
-	dow="$(common.date.DayOfWeek  "$dim_d")"
+	dow=$(date -d "$dim_d" +%u)
 	
 	echo $(( 7 - $dow + 1))
 }

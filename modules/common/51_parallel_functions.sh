@@ -514,7 +514,7 @@ function common.parallel.removeWorker()
 # This can even be done from more than one machine.
 #
 # The worker gets a new task via <common.parallel.getNextTask>
-# then waits (using <cxr_common_parallel_raw_dependencies_ok?>)
+# then waits (using <common.module.areDependenciesOk?>)
 # until the dependencies of this task are fullfilled. 
 ################################################################################
 function common.parallel.Worker()
@@ -596,7 +596,7 @@ function common.parallel.Worker()
 			# We need to wait until all dependencies are ok
 			common.parallel.waitingWorker $task_pid
 			
-			until [[ "$(cxr_common_parallel_raw_dependencies_ok? "$raw_dependencies" "$day_offset" )" == true ]]
+			until [[ "$(common.module.areDependenciesOk? "$raw_dependencies" "$day_offset" )" == true ]]
 			do
 				sleep $CXR_WAITING_SLEEP_SECONDS
 			done
