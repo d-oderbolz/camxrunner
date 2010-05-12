@@ -140,7 +140,7 @@ CXR_LOG_LEVEL_ERR=1
 CXR_LOG_LEVEL_ALW=0
 
 # Here we set the default filter for screen and file messages
-CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_WRN}
+CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_ERR}
 CXR_LOG_LEVEL_FILE=${CXR_LOG_LEVEL_INF}
 
 # This is used for twitter, SMS and Mail
