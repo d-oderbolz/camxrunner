@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,species,x_dim,y_dim,num_levels,stations,mmout_file,is_master_domain,format=fmt
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,species,x_dim,y_dim,num_levels,stations,mmout_file,meteo_model,is_master_domain,format=fmt
 	;
 	; Function: extract_arpa_stations
 	;
@@ -32,6 +32,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; num_levels - the number of levels of the grid in question
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 	; mmout_file - file of the mmout file to use for ground level pressure
+	; meteo_model - contains the name of the meteo model used (currently either "MM5" or "WRF")
 	; is_master_domain - 1 for the master domain, 0 otherwise. For domains other than master, we need to shift the coordinates.
 	; format - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
 	;
@@ -99,6 +100,14 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; Check settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
+	; Check Meteo model
+	meteo_model=strupcase(strtrim(meteo_model))
+	
+	case meteo_model OF
+		'WRF' : print,'We use WRF to determine T and p'
+		'MM5' : print,'We use WRF to determine T and p'
+		ELSE: mesage,'Meteo Model ' + meteo_model + ' not supported!'
+	endcase
 	
 	num_species = n_elements(species)
 	
@@ -285,7 +294,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 					;ix=44.62
 					;jy=73.26
 					;z1(iver,ispec,i)=bilinear(c1,ix,jy)
-				
+					; bilinear allows us to retrieve decimal indices
 					z[iver,ispec,i,station]=bilinear(c1,station_pos[0,station],station_pos[1,station])
 					
 				endfor
