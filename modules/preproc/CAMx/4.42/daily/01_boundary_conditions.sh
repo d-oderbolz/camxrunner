@@ -397,6 +397,9 @@ function boundary_conditions()
 					main.log -w   "Preparing BOUNDARY CONDITIONS data using CONSTANT data..."
 					# We use the topconc file that was created by initial_conditions
 					# And we link to the BC file that was created there.
+					
+					# First cd there
+					cd "$(dirname "${CXR_FIRST_BC_FILE}")" || return $CXR_RET_ERROR
 				
 					if [[ "$CXR_DRY" == false  ]]
 					then
@@ -404,11 +407,15 @@ function boundary_conditions()
 						if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
 						then
 							# Not the first day, just link
-							ln -s "${CXR_FIRST_BC_FILE}" "${CXR_BC_OUTPUT_FILE}"
+							ln -s "$(basename "${CXR_FIRST_BC_FILE}")" "$(basename "${CXR_BC_OUTPUT_FILE}")"
 						fi
 					else
 						main.log   "This is a dry-run, no action required"
 					fi
+					
+					# Get back
+					cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
+					
 				;;
 				
 			esac
