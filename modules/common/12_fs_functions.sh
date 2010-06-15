@@ -489,7 +489,7 @@ function common.fs.TryDecompressingFile()
 	
 		# Check first if we already have decompressed this file
 		# Look for an entry like
-		#  /afs/psi.ch/intranet/LAC/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|Some_Temp_File
+		# /afs/psi.ch/intranet/LAC/jkeller/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|Some_Temp_File
 		# In $CXR_DECOMPRESSED_LIST
 		touch "$CXR_DECOMPRESSED_LIST"
 		

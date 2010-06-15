@@ -4,7 +4,7 @@
 #
 # Define base directories
 RUNDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner
-OUTDIR= /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs
+OUTDIR=/afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs
 
 # Names of runs
 RUNS="CAMx-v4.51-bafu3-june-2006-s147-sem045-ni CAMx-v4.51-bafu3-june-2006-s147-sem045-nb CAMx-v4.51-bafu3-june-2006-s147-sem045-nt"
@@ -22,12 +22,12 @@ do
 	echo "Size after compression:"
 	du -hs $OUTDIR/$RUN
 	
-	echo "Compressing files in  /afs/psi.ch/intranet/LAC/oderbolz/@direct"
+	echo "Compressing files in /afs/psi.ch/intranet/LAC/oderbolz/@direct"
 	echo "Size before compression:"
-	du -hs  /afs/psi.ch/intranet/LAC/oderbolz/@direct
-	find  /afs/psi.ch/intranet/LAC/oderbolz/@direct -wholename './@direct/camx-v*.grd0?.asc_??' -exec /afs/psi.ch/user/o/oderbolz/bin/pbzip2 {} \;
+	du -hs /afs/psi.ch/intranet/LAC/oderbolz/@direct
+	find /afs/psi.ch/intranet/LAC/oderbolz/@direct -wholename './@direct/camx-v*.grd0?.asc_??' -exec /afs/psi.ch/user/o/oderbolz/bin/pbzip2 {} \;
 	echo "Size after compression:"
-	du -hs  /afs/psi.ch/intranet/LAC/oderbolz/@direct
+	du -hs /afs/psi.ch/intranet/LAC/oderbolz/@direct
 
 done
 
