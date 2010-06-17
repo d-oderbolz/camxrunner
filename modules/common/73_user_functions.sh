@@ -320,10 +320,19 @@ function common.user.getMenuChoice()
 	done
 	
 	# default handling. If the user presses d (or any non-numeric character),
-	# Value is empty (are we depending on implementation-specific bevaviour here?)
-	if [[  "${default:-}" && -z "$(common.string.trim "$chosen")"   ]]
+	# Value is empty
+	if [[ -z "$(common.string.trim "$chosen")" ]]
 	then
-		chosen="$default"
+		# User pressed non-numeric character
+		if [[ "${default:-}"  ]]
+		then
+			# There is a default
+			chosen="$default"
+		else
+			# There is no default. Do it again
+			echo "Please type in a number!" 1>&2
+			chosen="$(common.user.getMenuChoice "$1" "$2")"
+		fi
 	fi
 	
 	echo "$chosen"
