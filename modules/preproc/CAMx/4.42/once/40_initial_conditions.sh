@@ -402,6 +402,10 @@ function initial_conditions()
 						# We need a topconc file First
 						create_topconc_file
 						
+						# We need the grid resolution in m
+						local master_cell_dx_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
+						local master_cell_dy_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
+						
 						# Is topconc non-empty?
 						if [[ -s "${CXR_TOPCONC_OUTPUT_FILE}"  ]]
 						then
@@ -415,7 +419,7 @@ function initial_conditions()
 							bc file  |${CXR_BC_OUTPUT_FILE}
 							bc messag|${CXR_RUN}-CONSTANT
 							nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
-							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${CXR_MASTER_CELL_XSIZE},${CXR_MASTER_CELL_YSIZE}
+							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${master_cell_dx_m},${master_cell_dy_m}
 							iutm     |${CXR_UTM_ZONE}
 							st date  |${CXR_YEAR_S}${CXR_DOY},0
 							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24
