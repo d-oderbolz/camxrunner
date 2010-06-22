@@ -29,6 +29,9 @@ main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
 # Load common modules 
 source ${CXR_RUN_DIR}/inc/load_common_modules.inc
 
+# Update info
+common.module.updateInfo
+
 # For the time being, we turn off errexit
 # Because tap-functions uses non-0 returns
 set +e

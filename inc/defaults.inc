@@ -20,6 +20,8 @@ CXR_CALL="\$ ${0}"
 # Exit if any command returns non-zero 
 # (means that $? cannot be checked anymore. Instead use 
 # command || return $CXR_RET_ERROR)
+# If you want to ignore failure (e. g. when calling expr) 
+# use command || :
 set -o errexit
 
 # Never use an undefined variable.
@@ -41,7 +43,7 @@ CXR_PID=$$
 ################################################################################
 
 # Uncomment this for REALLY Verbose messages (directly from bash)
-#set -x
+#set -xv
 
 # Set this to true to disable locking.
 # Dangerous, especially in parallel mode; should only be used when debugging
@@ -209,11 +211,13 @@ CXR_ALL=all
 # Used to tell a single step from all steps
 CXR_RUN_ALL=${CXR_ALL}
 
-
-
 ################################################################################
 # Set inital values of features ################################################
 ################################################################################
+
+
+# Percentage of Memory that should be free upon starting a new task
+CXR_MEM_FREE_PERCENT=20
 
 # Parametes that control waiting
 # Minutes we wait on a single event (file)
@@ -226,15 +230,24 @@ CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
 # also used in the task functions, number of secods an idle task sleeps
 CXR_WAITING_SLEEP_SECONDS=60
 
+# After this amount of seconds, we should stop to lock
+# We use this lock to keep two processes from getting the same task,
+# but also to keep exclusive, often long running modules alone.
+# This must be at least as long as a single model task takes
+CXR_LOCK_TIMEOUT_SEC=7200
+
+# After this amount of seconds, a arallel worker gives up if
+# dependencies are not satisfied
+CXR_DEPENDECY_TIMEOUT_SEC=7200
+
+# This is the max number of times all werkers can be idle
+# (consecutively)
+# This mechanism allows to detect a locked up run faster than aboves timeouts
+CXR_MAX_LOCKUP_COUNT=10
+
 
 # Variables:  Parallel Task control
 #
-
-
-# If this is true, no new assignments will be made
-# Normally set programatically - dangerous because
-# no progress is possible when this is false
-CXR_BLOCK_ASSIGNMENTS=false
 
 # If this is false, modules that depend on disabled modules
 # will never be able to run. 
@@ -375,12 +388,6 @@ CXR_CHECKED_ONCE=false
 # is set according to the options set
 CXR_LOG_EXT=""
 
-### Settings for testing
-
-# If this is true, modules will not initialize the testing 
-# environment
-CXR_TESTING_FROM_HARNESS=false
-
 ################################################################################
 ################################################################################
 # Now follows a default set of options that might be copied to a configuration file.
@@ -432,6 +439,9 @@ CXR_ENABLED_INSTALLER=""
 # This is the directory where tempfiles go.
 # We do not recommed to use /tmp because the space requirements
 # might be significant (e. g. when decompressing files, we need a few GB per file)
+# If you plan to use more than one machine in parallel, all need to use the same
+# directory (hence it must be on a network FS)
+# This is for efficiency reasons (to avoid decompressing the same files more than once)
 CXR_TMP_DIR=~/tmp
 
 # The directory where the executables lie
@@ -471,6 +481,28 @@ CXR_F_MARGIN=1.1
 
 # Fraction of space (of total run) we need in the tmp dir
 CXR_TMP_SPACE_FACTOR=0.05
+
+################################################################################
+# Parameters to estimate time needed
+################################################################################
+
+# We normalize the time per this number of cells
+# when storing times.
+# Increase when normalized times are too small - but changing this
+# setting invalidates all data in the state/universal/hashes/Timing Hash!
+CXR_TIME_PER_CELLS=100000
+
+# This factor is re-calculated later
+CXR_TIME_NORM_FACTOR=1
+
+# We do not store more than this number of timing infos per module
+CXR_TIME_MAX_ENTRIES=1000
+
+# This variable will hold the estimated total time
+CXR_TIME_TOTAL_ESTIMATED=0
+
+# This is graphical - the max with of the progress bar
+CXR_MAX_BAR_WIDTH=80
 
 ################################################################################
 # Installer - specific settings (find more in the CAMx version specific .conf files)
