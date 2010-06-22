@@ -136,10 +136,11 @@ function set_variables()
 
 	# the MM5 file to use
 	# only used for ARPA stuff
-	CXR_METEO_INPUT_FILE="$(common.runner.evaluateRule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
-
+	CXR_ZP_GRID_ASC_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+	CXR_TEMP_GRID_ASC_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)"
+	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_METEO_INPUT_FILE"
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
 
 	# Station dependent data
 	for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
@@ -304,11 +305,9 @@ function extract_station_data
 				;;
 				
 			extract_arpa_stations)
-				# Here, we also need an MM5 file for the pressure (for ppb conversion), 
-				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
-				# We set this fag to 0 because currently we only run on the innermost domain
+				# Here, we also need the pressure and the temperature file for the pressure (for ppb conversion), 
 				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}',0" >> ${exec_tmp_file}
+				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_ZP_GRID_ASC_FILE}','${CXR_TEMP_GRID_ASC_FILE}'" >> ${exec_tmp_file}
 				echo "exit" >> ${exec_tmp_file}
 				;;
 			extract_nabel_stations)

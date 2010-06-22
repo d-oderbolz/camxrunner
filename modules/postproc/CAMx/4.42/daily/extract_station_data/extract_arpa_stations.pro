@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,species,x_dim,y_dim,num_levels,stations,mmout_file,meteo_model,is_master_domain,format=fmt
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,species,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
 	;
 	; Function: extract_arpa_stations
 	;
@@ -31,9 +31,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; y_dim - the y dimension of the grid in grid cells of the grid in question
 	; num_levels - the number of levels of the grid in question
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
-	; mmout_file - file of the mmout file to use for ground level pressure
-	; meteo_model - contains the name of the meteo model used (currently either "MM5" or "WRF")
-	; is_master_domain - 1 for the master domain, 0 otherwise. For domains other than master, we need to shift the coordinates.
+	; zp_file - pressure/height ASCII file
+	; temp_file - temperature ASCII file
 	; format - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
 	;
 	; Output format (comma-separated):
@@ -100,15 +99,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; Check settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
-	; Check Meteo model
-	meteo_model=strupcase(strtrim(meteo_model))
-	
-	case meteo_model OF
-		'WRF' : print,'We use WRF to determine T and p'
-		'MM5' : print,'We use WRF to determine T and p'
-		ELSE: mesage,'Meteo Model ' + meteo_model + ' not supported!'
-	endcase
-	
 	num_species = n_elements(species)
 	
 	; stations are multidimensional
@@ -153,54 +143,60 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	M_SO2 = 0.064
 	M_NH3 = 0.017
 	
-	;; If this is not a master array, we need to correct the MM5 coordinates
-	;; (Just for temperature and pressure)
+	;;;;;;;;;;;;;;;;;;;; Read Pressure and Temperature data
 	
-	IF (is_master_domain EQ 0) THEN BEGIN
-		; no master - add this to CAMx coordinates, subtract it from MM5 coordinates
-		; Because of CAMx Buffer cells, MM5 starts one outer grid box earlier
-		; which results in a offset of 2 (Buffer cell must be added - it is present in the output!)
-		mm5coord_offset=2
-	ENDIF ELSE BEGIN
-		; master - no offset
-		mm5coord_offset=0
-	ENDELSE
+	; We create 2 arrays
+	; pressure[col,row,hour]
+	; t[col,row,hour]
 	
-	;;;;;;;;;;;;;;;;;;;; Prepare pressure/temp
+	pressure=fltarr(x_dim, y_dim, 24)
+	t=fltarr(x_dim, y_dim, 24)
 	
-	pressure = FLTARR(151,106,31,49)
+	; to read, we need the slices
+	pressure_slice=fltarr(x_dim, y_dim)
+	; This is a dumy
+	height_slice=fltarr(x_dim, y_dim)
+	t_slice=fltarr(x_dim, y_dim)
 	
-	; Pressure at MM5 Top in Pa
-	ptop = 10000
 	
-	; Some spawn command.
-	cmd = 'rm -f SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr T T.hdr'
-	spawn, cmd
+	; Open the input
+	openr,input_t,temp_file, /GET_LUN
+	openr,input_zp,zp_file, /GET_LUN
 	
-	rv3, mmout_file, 'sigmah', sigmah, bhi, bhr
-	rv3, mmout_file, 'pstarcrs', pstarcrs, bhi_pstarcrs, bhr_pstarcrs
-	rv3, mmout_file, 'pp', pp, bhi_pp, bhr_pp
-	rv3, mmout_file, 't', t, bhi_t, bhr_t
+	;do loop for time
+	for i=0L,23 do begin
 	
-	; Some spawn command.
-	cmd = 'rm -f SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr T T.hdr'
-	spawn, cmd
+		;do loop for layers
+		for iver=0L,num_levels-1 do begin
+
+			; skip one line (timestamp)
+			skip_lun,input_t,1
+			skip_lun,input_zp,1
+			
+				; a dummy for the height
+				readf,input_zp,height_slice
+				; skip another line (timestamp) of the pressure file
+				skip_lun,input_zp,1
+			
+			; read one slice
+			readf,input_t,pressure_slice
+			readf,input_zp,t_slice
+		
+			; we only keep layer 0
+			if (iver EQ 0) then begin
+				pressure[0,0,i] = pressure_slice
+				t[0,0,i] = t_slice
+			endif
+		
+		end for ; layer
 	
-	pp = TRANSPOSE(pp, [1, 0, 2, 3])
-	pstarcrs = TRANSPOSE(pstarcrs, [1, 0, 2, 3])
-	t = TRANSPOSE(t, [1, 0, 2, 3])
+	end for ; time
 	
-	; Estimation of pressure
-	FOR time = 1, 24 DO BEGIN
-		FOR level = 0, 30 DO BEGIN
-			pressure[*,*,level,time] = sigmah[level,0,0,time] * pstarcrs[*,*,0,time] + ptop + pp[*,*,level,time]
-		ENDFOR
-	ENDFOR
+	; Close files
+	free_lun,input_t
+	free_lun,input_zp
 	
-	t_ts = FLTARR(24)
-	p_ts = FLTARR(24)
-	sigmah_prof = FLTARR(31)
-	sigmah_prof[0:30] = sigmah[*, 0, 0, 1]
+	
 	
 	;;;;;;;;;;;;;;;;;;;; End pressure/temp preparation
 	
@@ -280,27 +276,26 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		
 			;do loop for layers
 			for iver=0L,num_levels-1 do begin
-			
-			skip_lun, input_lun,1, /LINES 
-			
-			; We let IDL work out the format
-			readf,input_lun,c1,format=fmt
 				
-				c[0,0,iver,ispec,i]=c1
+				skip_lun, input_lun,1, /LINES 
 				
-				; loop through the stations and do the interpolation
-				for station=0L,num_stations-1 do begin
-				
-					;ix=44.62
-					;jy=73.26
-					;z1(iver,ispec,i)=bilinear(c1,ix,jy)
-					; bilinear allows us to retrieve decimal indices
-					z[iver,ispec,i,station]=bilinear(c1,station_pos[0,station],station_pos[1,station])
+				; We let IDL work out the format
+				readf,input_lun,c1,format=fmt
 					
-				endfor
-				
-			endfor
-		endfor
+					c[0,0,iver,ispec,i]=c1
+					
+					; loop through the stations and do the interpolation
+					for station=0L,num_stations-1 do begin
+					
+						;ix=44.62
+						;jy=73.26
+						;z1(iver,ispec,i)=bilinear(c1,ix,jy)
+						; bilinear allows us to retrieve decimal indices
+						z[iver,ispec,i,station]=bilinear(c1,station_pos[0,station],station_pos[1,station])
+						
+					endfor ; stations
+			endfor ; layers
+		endfor ; species
 		
 		; loop through the stations
 		for station=0L,num_stations-1 do begin
@@ -316,25 +311,15 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		 ; We do it for all gasses, even if we need only 3 of them for future reference
 		 ; Aerosols are corrected for norm concentrations
 		 
-		 ; Where do we look (in the MM5 world)
-		 col = station_pos[0,station] + mm5coord_offset
-		 row = station_pos[1,station] + mm5coord_offset
+		 ; Where do we look
+		 col = station_pos[0,station]
+		 row = station_pos[1,station]
 		 
 		 ;print,'Extracting meteo data for file ' + station_files(station) + ' at MM5 col ' + string(col) + ' row ' + string(row)
 		 
-		 ; Linear in sigma extrapolation of pressure in order to obtain a surface value
-		 p_colts = pressure[col,row,*,1:24]
-		 p_colts = REFORM(p_colts)
+		 p =  pressure[col,row,i]
+		 Temp = t[col,row,i]
 		 
-		 t_colts = t[col,row,*,1:24]
-		 t_colts = REFORM(t_colts)
-		 
-		 ; Determine pressure at station for given time by extrapolation
-		 p = p_colts[29,i] + ((1 - sigmah_prof[29]) * (p_colts[30,i] - p_colts[29,i]) / (sigmah_prof[30] - sigmah_prof[29]) )
-		 
-		 ; Determine temperature at station for given time by extrapolation
-		 Temp = t_colts[29,i] + ((1 - sigmah_prof[29]) * (t_colts[30,i] - t_colts[29,i]) / (sigmah_prof[30] - sigmah_prof[29]) )
-
 		 V_n = ( R * Temp ) / p
 		 V_0 = ( R * T0 ) / p0
 		 
@@ -398,8 +383,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 			
 			printf,station_luns[station],strtrim(string(day),2),strtrim(string(month),2),strtrim(string(year),2),strtrim(string(i),2),pm,no2,no,o3,format = ofmt
 			
-		endfor
-	endfor
+		endfor ; stations
+		
+	endfor ; time
 	
 	; close all output files
 	for i=0L,num_stations-1 do begin
