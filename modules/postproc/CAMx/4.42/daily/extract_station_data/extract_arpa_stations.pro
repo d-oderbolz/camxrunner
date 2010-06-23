@@ -149,15 +149,19 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; pressure[col,row,hour]
 	; t[col,row,hour]
 	
+	; The Target arrays
 	pressure=fltarr(x_dim, y_dim, 24)
 	t=fltarr(x_dim, y_dim, 24)
 	
+	; we need the next arrays becase we need to interolate to the ground
+	total_pressure=fltarr(x_dim, y_dim, num_levels)
+	total_temperature=fltarr(x_dim, y_dim, num_levels)
+	total_height=fltarr(x_dim, y_dim, num_levels)
+	
 	; to read, we need the slices
 	pressure_slice=fltarr(x_dim, y_dim)
-	; This is a dumy
 	height_slice=fltarr(x_dim, y_dim)
 	t_slice=fltarr(x_dim, y_dim)
-	
 	
 	; Open the input
 	openr,input_t,temp_file, /GET_LUN
@@ -173,22 +177,46 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 			skip_lun,input_t,1
 			skip_lun,input_zp,1
 			
-				; a dummy for the height
-				readf,input_zp,height_slice
-				; skip another line (timestamp) of the pressure file
-				skip_lun,input_zp,1
+			; Read height data first
+			readf,input_zp,height_slice
+			; skip another line (timestamp) of the pressure file
+			skip_lun,input_zp,1
 			
 			; read one slice
 			readf,input_t,pressure_slice
 			readf,input_zp,t_slice
-		
-			; we only keep layer 0
-			if (iver EQ 0) then begin
-				pressure[0,0,i] = pressure_slice
-				t[0,0,i] = t_slice
-			endif
-		
+			
+			; Fill the "Total" Arrays
+			total_pressure[0,0,iver] = pressure_slice
+			total_height[0,0,iver] = height_slice
+			total_temperature[0,0,iver] = temperature_slice
+			
+
 		end for ; layer
+
+		; Interpolate ground pressure
+		; we have the pressure (that is our function of h)
+		; in total_pressure[i,j,k]
+		; the height are the interfarce heights. 
+		; We calculate the center height of the two lowest level (our x values)
+		; (Assuming that these height correspond to the average pressure of each level)
+		x0 = (0 -total_height[*,*,0])/2
+		x1 = total_height[*,*,0] + ((total_height[*,*,1] - total_height[*,*,0])/2)
+		
+		; These are the corresponding pressures
+		y0 = total_pressure[*,*,0]
+		y1 = total_pressure[*,*,1]
+
+		; We want to get the value for a height of 0
+		x=replicate(0,x_dim, y_dim)
+		
+		pressure[0,0,i] = y0 + (x - x0)*((y1 - y0)/(x1 - x0))
+		
+		; Lets do the same for temperature
+		y0 = total_temperature[*,*,0]
+		y1 = total_temperature[*,*,1]
+		
+		t[0,0,i] = y0 + (x - x0)*((y1 - y0)/(x1 - x0))
 	
 	end for ; time
 	
