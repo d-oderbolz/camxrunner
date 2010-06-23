@@ -129,9 +129,6 @@ function main.addError()
 	then
 		mkdir -p ${CXR_STATE_DIR}
 	fi
-
-	# Show message to user
-	main.log -a "${1:-No message}"
 	
 	# Make sure we have such a variable
 	if [[ "${CXR_INSTANCE_FILE_ERROR_STACK:-}"  ]]
@@ -142,10 +139,13 @@ function main.addError()
 		# Could be that the state db is not yet initialized
 		if [[ -f "${CXR_INSTANCE_FILE_ERROR_STACK}"  ]]
 		then
-			echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
+			echo "${1:-"No message"}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
 		fi	
 	
 	fi
+	
+	# Also show error to the user
+	main.log -a  "${1:-}"
 }
 
 ################################################################################
@@ -184,7 +184,7 @@ function main.countErrors()
 # -v VERBOSE (VRB) [8] : Messages that may help to solve problems or understand how CAMxRunner works
 # -i INFO (INF) [4] - Default : Purely informational statements (like how many grid cells there are in a simulation)
 # -w WARN (WRN) [2] : Indicates that something might be wrong
-# -e ERROR (ERR) [1] : Something has failed (will always be shown, presents call-stack)
+# -e ERROR (ERR) [1] : Something has failed (will always be shown)
 #
 # The user can manipulate Separate Loglevels for screen (CXR_LOG_LEVEL_SCREEN) and file (CXR_LOG_LEVEL_FILE),
 # Usually the screen shows less and the file shows more.
@@ -230,10 +230,6 @@ function main.log()
 	local blank_message
 	local stderr_message
 	local message
-	local call_stack
-	local iFct
-	local maxNests
-	local do_log=${CXR_DO_FILE_LOGGING:-true}
 	
 	while getopts ":ndviweabBH" opt
 	do
@@ -241,7 +237,7 @@ function main.log()
 		b) stars="${CXR_BOX_SMALL}";;
 		B) stars="${CXR_BOX_LARGE}";;
 		H) stars="${CXR_BOX_HUGE}";;
-		n) local do_log=false;; #Local only!
+		n) local CXR_DO_FILE_LOGGING=false;; #Local only!
 		d) log_level=$CXR_LOG_LEVEL_DBG ; prefix=DBG: ;;
 		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix= ;;
 		i) log_level=$CXR_LOG_LEVEL_INF ; prefix= ;;
@@ -259,11 +255,9 @@ function main.log()
 	unset OPTSTRING
 	unset OPTIND
 	
-	# max index of the call-stack
-	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
-	
-	# Often the case the first parameter is forgotten,
+	# Its actually ofen the case that the first parameter is forgotten,
 	# which leads to a lost message
+	
 	if [[ $# -eq 2 ]]
 	then
 		# Non-Standard case
@@ -271,7 +265,7 @@ function main.log()
 		blank_message="${prefix}${2:-}"
 	else
 		# The caller is in ${FUNCNAME[1]}
-		if [[ ${maxNests} -ge 1 ]]
+		if [[ ${#FUNCNAME[@]} -ge 2 ]]
 		then
 			function_name="${FUNCNAME[1]}"
 		else
@@ -281,17 +275,16 @@ function main.log()
 		blank_message="${prefix}${1:-}"
 	fi
 	
-	# If set, we display the worker ID on screen
-	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
+	if [[ ${#FUNCNAME[@]} -ge 2 ]]
 	then
-		stderr_message="${CXR_WORKER_ID}: $blank_message"
-	else
-		stderr_message="$blank_message"
+		line_no="${BASH_LINENO[1]}"
 	fi
+	
+	stderr_message="$blank_message"
 	
 	### In case of error, write current day to failed days file
 	### and increase error count
-	if [[ "${log_level}" -eq "${CXR_LOG_LEVEL_ERR}" ]]
+	if [[ "${log_level}" == "${CXR_LOG_LEVEL_ERR}"  ]]
 	then
 		# Could be that the state db is not yet initialized
 		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}"  ]]
@@ -299,19 +292,7 @@ function main.log()
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
 		
-		# Create callstack
-		if [[ ${maxNests} -ge 1 ]]
-		then
-			call_stack="Call Stack:"
-			for iFct in $(seq 1 ${maxNests})
-			do
-				# Index of last fct
-				local last=$(( $iFct - 1 ))
-				call_stack="${call_stack} ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]}"
-			done
-		fi # Callstack available?
-		
-		main.addError "${blank_message} - ${call_stack:-}"
+		main.addError "${function_name}:${line_no} - ${blank_message}"
 	fi
 	
 	# We have to look at several things separately: 
@@ -323,40 +304,34 @@ function main.log()
 	# Here we add no indentation
 	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}"  ]]
 	then
-		# stderr not needed in case of error (already done)
-		if [[ "${log_level}" != "${CXR_LOG_LEVEL_ERR}" ]]
+	
+		# If stars are set, we add a line of stars at the beginning and end
+		if [[ "${stars}"  ]]
 		then
+			stderr_message="${stars}\n${stderr_message}\n${stars}\n"
+		fi
+		
+		# Write a unformatted copy to sterr
+		echo -e "${stderr_message}" 1>&2
+		
+	else
+	
+		# There is a second chance: the user might have added the function in question to 
+		# CXR_LOG_FUNCTION_VERBOSE_LIST
+		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
+		
+		if [[ "${FOUND}" -ne 0 ]]
+		then
+			# Function was added by user
+			
 			# If stars are set, we add a line of stars at the beginning and end
 			if [[ "${stars}" ]]
 			then
-				stderr_message="${stars}\n${stderr_message}\n${stars}\n"
+				stderr_message"${stars}\n${stderr_message}\n${stars}\n"
 			fi
 			
-			# Write a unformatted copy to sterr. 
+			# Write a unformatted copy to sterr
 			echo -e "${stderr_message}" 1>&2
-		fi
-	else
-	
-		if [[ $CXR_EVALUATE_FUNCTION_VERBOSE_LIST == true ]]
-		then
-			# There is a second chance: the user might have added the function in question to 
-			# CXR_LOG_FUNCTION_VERBOSE_LIST
-			local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
-			
-			if [[ "${FOUND}" -ne 0 ]]
-			then
-				# Function was added by user
-				
-				# If stars are set, we add a line of stars at the beginning and end
-				if [[ "${stars}" ]]
-				then
-					stderr_message="${stars}\n${stderr_message}\n${stars}\n"
-				fi
-				
-				# Write a unformatted copy to sterr
-				echo -e "${stderr_message}" 1>&2
-			fi
-		
 		fi
 		
 	fi
@@ -364,7 +339,7 @@ function main.log()
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$do_log" == true    ]]
+	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$CXR_DO_FILE_LOGGING" == true    ]]
 	then
 		# Logfile is defined
 
@@ -393,7 +368,7 @@ function main.log()
 	# -a does not go there
 	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}"   ]]
 	then
-		main.sendMessage "Log" "${blank_message} - ${call_stack}"
+		main.sendMessage "Log" "$blank_message"
 	fi
 	
 	return $CXR_RET_OK
@@ -589,8 +564,6 @@ function main.dieGracefully()
 {
 	# Release any traps
 	trap - INT TERM EXIT
-	local iFct
-	local maxNests
 	
 	# Stop this run
 	# Delete any .CONTINUE FILES
@@ -604,24 +577,23 @@ function main.dieGracefully()
 	# This function also echoes the message
 	main.addError "${1:-Unknown error.}"
 	
-	# max index of the call-stack
-	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
-	
-	if [[ ${maxNests} -ge 1 ]]
+	if [[ ${#FUNCNAME[@]} -ge 2 ]]
 	then
 		main.log -a "Call Stack:"
 		
-		for iFct in $(seq 1 ${maxNests})
+		for i in $(seq 1 $(( ${#FUNCNAME[@]} - 1 )) )
 		do
-			local last=$(( $iFct - 1 ))
-			echo ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]} 1>&2
+			echo ${FUNCNAME[$i]}:${BASH_LINENO[$i]}
 		done
-	fi # Callstack available?
-
+	fi
+	
 	main.log -a  "##########################################################"
 	
-	# Cleanup kills the processes
 	main.doCleanup
+	
+	# We cannot use exit here, since we might live in a subprocess
+	# What we do is kill the CAMxRunner process
+	kill $CXR_PID
 }
 
 ################################################################################
@@ -1055,25 +1027,6 @@ function main.readConfig()
 		fi
 	fi
 }
-
-################################################################################
-# Function: main.HandleHup
-#
-# Handles the HUP signal (sent to reread the configuration)
-#
-################################################################################
-function main.HandleHup()
-################################################################################
-{
-	main.log -a "Rereading Configuration of ${CXR_RUN}..."
-	
-	# Do it
-	main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
-}
-
-# Set the trap (needs function first)
-trap "main.HandleHup" HUP
-
 
 ################################################################################
 # Function: main.getModuleName
