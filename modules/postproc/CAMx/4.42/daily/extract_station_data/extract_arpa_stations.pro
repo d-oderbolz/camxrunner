@@ -194,13 +194,13 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 
 		end for ; layer
 
-		; Interpolate ground pressure
+		; Interpolate ground pressure and temperature
 		; we have the pressure (that is our function of h)
 		; in total_pressure[i,j,k]
 		; the height are the interfarce heights. 
-		; We calculate the center height of the two lowest level (our x values)
+		; We calculate the center height of the two lowest levels (our x values)
 		; (Assuming that these height correspond to the average pressure of each level)
-		x0 = (0 -total_height[*,*,0])/2
+		x0 = total_height[*,*,0]/2
 		x1 = total_height[*,*,0] + ((total_height[*,*,1] - total_height[*,*,0])/2)
 		
 		; These are the corresponding pressures
