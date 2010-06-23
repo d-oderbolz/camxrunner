@@ -192,7 +192,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 			total_temperature[0,0,iver] = temperature_slice
 			
 
-		end for ; layer
+		endfor ; layer
 
 		; Interpolate ground pressure and temperature
 		; we have the pressure (that is our function of h)
@@ -218,7 +218,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		
 		t[0,0,i] = y0 + (x - x0)*((y1 - y0)/(x1 - x0))
 	
-	end for ; time
+	endfor ; time
 	
 	; Close files
 	free_lun,input_t
