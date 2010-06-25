@@ -539,7 +539,7 @@ pro header_parser::cleanup
   
   OBJ_DESTROY, self.scalars
   OBJ_DESTROY, self.species
-  OBJ_DESTROY, self.reverse_species
+  OBJ_DESTROY, self.reversed_species
   
   return
 end
@@ -555,7 +555,7 @@ pro header_parser__define
 	struct = {header_parser, $
 			scalars: obj_new(), $		;; Hash of scalars
 			species: obj_new(), $		;; Hash of the species we have (species->index)
-			reverse_species: obj_new(), $	;; Reverted species hash (index->species)
+			reversed_species: obj_new(), $	;; Reverted species hash (index->species)
 			file_types: obj_new(), $	;; Hash of the supported filetypes
 			filename: "", $				;; The file we are looking at
 			arspec: ptr_new(), $ 		;; the string array that holds the species
