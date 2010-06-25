@@ -108,6 +108,7 @@ function header_parser::init, filename, is_binary
 	; Instatiate Hashmaps
 	self.scalars = obj_new('hashtable')
 	self.species = obj_new('hashtable')
+	self.reversed_species = obj_new('hashtable')
 	
 	; This one contains the suported filetypes
 	self.file_types = obj_new('hashtable')
