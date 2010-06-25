@@ -33,6 +33,7 @@
 ;       HEADER_PARSER::PARSE		does the actual parsing
 ;       HEADER_PARSER::IS_OK		returns false if header is inconsistent or incomplete
 ;       HEADER_PARSER::GET_SPECIES	Returns the species as a hashtable
+;       HEADER_PARSER::GET_REVERTED_SPECIES	Returns the species as a reverted hashtable
 ;       HEADER_PARSER::GET_SCALARS	Returns the scalars as a hashtable
 ;       HEADER_PARSER::GET_SPECIES_ARR  Returns the species as an array (for reverse indexing)
 ;       HEADER_PARSER::GET_HEADER_LENGTH	Returns the number of header lines
@@ -278,6 +279,8 @@ pro header_parser::parse
 	; Value is the index.
 	for i=0L, n_elements(arspec) -1 do begin
 		self.species->add,strtrim(arspec[i],2),i
+		; The same, but reversed
+		self.reversed_species->add,i,strtrim(arspec[i],2)
 	endfor
 	
 	; Sanity check here!
@@ -363,6 +366,38 @@ function header_parser::get_species
 	return,self.species
 end
 
+;+
+; =============================================================
+;
+; METHODNAME:
+;       HEADER_PARSER::GET_REVERSED_SPECIES
+;
+; PURPOSE:
+;       Returns the species as a reverted hashtable
+;
+; CALLING SEQUENCE:
+;
+;       species_table = hp->get_reverted_species()
+;       
+; DESCRIPTION:
+;
+;      Just returns an internal object
+;
+; OPTIONAL INPUTS:
+;       None.
+;       
+;
+; KEYWORD PARAMETERS:
+;       None.
+;       
+;     
+;-
+; =============================================================
+function header_parser::get_reversed_species
+; =============================================================
+
+	return,self.reversed_species
+end
 ;+
 ; =============================================================
 ;
@@ -502,11 +537,9 @@ pro header_parser::cleanup
 ; =============================================================
   COMPILE_OPT IDL2
   
-  md = self.scalars
-  OBJ_DESTROY, md
-  
-  sd = self.species
-  OBJ_DESTROY, sd
+  OBJ_DESTROY, self.scalars
+  OBJ_DESTROY, self.species
+  OBJ_DESTROY, self.reverse_species
   
   return
 end
@@ -521,7 +554,8 @@ pro header_parser__define
 	
 	struct = {header_parser, $
 			scalars: obj_new(), $		;; Hash of scalars
-			species: obj_new(), $		;; Hash of the species we have
+			species: obj_new(), $		;; Hash of the species we have (species->index)
+			reverse_species: obj_new(), $	;; Reverted species hash (index->species)
 			file_types: obj_new(), $	;; Hash of the supported filetypes
 			filename: "", $				;; The file we are looking at
 			arspec: ptr_new(), $ 		;; the string array that holds the species
