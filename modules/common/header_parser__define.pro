@@ -280,8 +280,8 @@ pro header_parser::parse
 	; Value is the index.
 	for i=0L, n_elements(arspec) -1 do begin
 		self.species->add,strtrim(arspec[i],2),i
-		; The same, but reversed
-		self.reversed_species->add,i,strtrim(arspec[i],2)
+		; The same, but reversed (attention: key must be a string)
+		self.reversed_species->add,strtrim(i,2),strtrim(arspec[i],2)
 	endfor
 	
 	; Sanity check here!
