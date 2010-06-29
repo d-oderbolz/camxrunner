@@ -201,7 +201,7 @@ pro header_parser::parse
 	; The thrid line is hard to read. Sometimes, 2 values "stick together"
 	; We use Michels criterion: if the length of the 3rd line is LE 100, we use the
 	; Format string, otherwise, we parse using strtrim
-	line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)
+	line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
 	line4 = '(4I5)'
 	
 	; Now parse each line
@@ -290,9 +290,9 @@ pro header_parser::parse
 		self.scalars->add,'nspec',LONG(n_elements(arspec))
 	endif
 	
-	if (nx LT 1 ) then print,"WRN: nx less than 1 (' + strtrim(nx,2) + ')!"
-	if (ny LT 1 ) then print,"WRN: ny less than 1 (' + strtrim(ny,2) + ')!"
-	if (nz LT 1 ) then print,"WRN: nz less than 1 (' + strtrim(nz,2) + ')!"
+	if (nx LT 1 ) then print,'WRN: nx less than 1 (' + strtrim(nx,2) + ')!'
+	if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
+	if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
 	
 	; Set the header length
 	; The header length does not include any time or height dependent stuff
@@ -323,13 +323,13 @@ pro header_parser::parse
 	ENDCASE
 	
 	; Free the LUN (closes unit)
-	if (n_elements(parser_lun) NE 0) then free_lun(parser_lun)
+	IF N_Elements(parser_lun) NE 0 THEN Free_Lun, parser_lun
 	
 	return
 	
 	IO_Error: 
 	Print,'header_parser encountered an IO Error:' + !Error_State.Msg
-	free_lun,parser_lun
+	IF N_Elements(parser_lun) NE 0 THEN Free_Lun, parser_lun
 	
 end
 
