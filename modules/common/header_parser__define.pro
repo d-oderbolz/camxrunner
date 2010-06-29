@@ -325,12 +325,15 @@ pro header_parser::parse
 
 	ENDCASE
 	
+	; Free the LUN
+	if n_elements(parser_lun) NE 0 then free_lun(parser_lun)
+	
 	
 	return
 	
 	IO_Error: 
 	Print,'header_parser encountered an IO Error:' + !Error_State.Msg
-	close,parser_lun
+	free_lun,parser_lun
 	
 end
 
