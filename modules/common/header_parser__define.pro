@@ -294,9 +294,6 @@ pro header_parser::parse
 	if (ny LT 1 ) then print,"WRN: ny less than 1 (' + strtrim(ny,2) + ')!"
 	if (nz LT 1 ) then print,"WRN: nz less than 1 (' + strtrim(nz,2) + ')!"
 	
-	; Close again (frees LUN)
-	close,parser_lun
-	
 	; Set the header length
 	; The header length does not include any time or height dependent stuff
 	CASE name OF
@@ -325,9 +322,8 @@ pro header_parser::parse
 
 	ENDCASE
 	
-	; Free the LUN
-	if n_elements(parser_lun) NE 0 then free_lun(parser_lun)
-	
+	; Free the LUN (closes unit)
+	if (n_elements(parser_lun) NE 0) then free_lun(parser_lun)
 	
 	return
 	
