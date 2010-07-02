@@ -161,13 +161,19 @@ function common.check.MbNeeded()
 	fi
 	
 	available="$(common.fs.getFreeMb "$dir")"
-	main.log -v "Found $available Mb in $dir"
 	
-	if [[ "$available" -ge "$mb" ]]
+	if [[ "$available" -eq -1 ]]
 	then
-		main.log -i  "Space in $dir is sufficient."
+		main.log -i  "I cannot tell if space in $dir is sufficient."
 	else
-		main.dieGracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
+		main.log -v "Found $available Mb in $dir"
+		
+		if [[ "$available" -ge "$mb" ]]
+		then
+			main.log -i  "Space in $dir is sufficient."
+		else
+			main.dieGracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
+		fi
 	fi
 	
 }

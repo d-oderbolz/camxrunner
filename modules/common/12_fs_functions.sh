@@ -792,9 +792,10 @@ function common.fs.getType()
 #
 # returns the number of megabytes free in given path (floored?)
 # This might actually fail on non Linux-systems...
+# Returns -1 if free space cannot be determined.
 #
 #
-# Internally determines the FS type; supports quota on afs only
+# Internally determines the FS type; AFS support works only if quotas are in place.
 #
 # Parameters:
 # $1 - path to test
@@ -827,9 +828,9 @@ function common.fs.getFreeMb()
 			
 			if [[ "$(common.string.isSubstringPresent? "$last_line" "no limit" )" == true ]]
 			then
-				main.log -v  "There seems to be no quota on $1, using df"
+				main.log -v  "There seems to be no quota on $1, cannot determine free space"
 				
-				df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
+				echo -1
 			else
 				# Quota must be taken into account
 			
@@ -853,7 +854,7 @@ function common.fs.getFreeMb()
 			;;
 	*) 
 			# Default
-			df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
+			df --block-size=1M $1 | tail -n1 | awk '{ print $3 }'
 			;;
 	esac
 }
