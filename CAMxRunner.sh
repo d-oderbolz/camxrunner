@@ -111,7 +111,7 @@ function main.usage()
 	  
 	  -DYYYY-MM-DD execute a specific simulation day given in the form YYYY-MM-DD
 	  
-	  -L    Leaves tempfiles where they are. Useful for partial runs on compressed input.
+	  -n    No removal of tempfiles. Useful for partial runs on compressed input.
 
 	  -Pn   activates parallel execution of pre/postprocessing with 
 	        max. n concurrent procs. n must be given!
@@ -135,13 +135,8 @@ function main.usage()
 	  Or one can run a list of specific modules (the order is unimportant):
 	
 	  -r"list of modules"
-
 	  
-	  Available modules for ${CXR_MODEL} ${CXR_MODEL_VERSION}:
-	  ----------------------------------------------------------------------------
-	  
-	  $(main.listAllModules 2>&1) 
-	  
+	  -l   List all available modules. (this command is sensitive to the run name)
 	  ----------------------------------------------------------------------------
 	  Examples:
 	  
@@ -249,41 +244,42 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dlvVFwmct:sD:LP:ITr:xioCRpfh" opt
+while getopts ":dlvVFwmct:sD:nP:ITr:xioCRpflh" opt
 do
 	case "${opt}" in
-		d|-dry) 						CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-		l|-log) 						CXR_USER_TEMP_FORCE_LOG=true ;;
-		v|-verbose-screen) 	CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
-		V|-verbose-file) 		CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
-		F|-force) 					CXR_USER_TEMP_FORCE=true ;;
-		w|-wait) 						CXR_USER_TEMP_WAIT_4_INPUT=true ;;
-		m|-multiple) 				CXR_USER_TEMP_ALLOW_MULTIPLE=true ;;
-		c|-clear) 					CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		t|-error-threshold) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;
-		s|-stop) 						CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		D|-day) 						CXR_USER_TEMP_ONE_DAY=${OPTARG} ;;
-		L|-leave-temp)			CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
-		P|-parallel)				CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG} ;;
+		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
+		l) 	CXR_USER_TEMP_FORCE_LOG=true ;;
+		v) 	CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
+		V) 	CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
+		F) 	CXR_USER_TEMP_FORCE=true ;;
+		w) 	CXR_USER_TEMP_WAIT_4_INPUT=true ;;
+		m) 	CXR_USER_TEMP_ALLOW_MULTIPLE=true ;;
+		c) 	CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;
+		s) 	CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		D) 	CXR_USER_TEMP_ONE_DAY=${OPTARG} ;;
+		n)	CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
+		P)	CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG} ;;
 	
 		# Installer: We need to manipulate the CXR_RUN variable for now
-		I|-install) 				CXR_RUN=${CXR_INSTALLER}; CXR_HOLLOW=true; CXR_USER_TEMP_INSTALL=true; CXR_DO_FILE_LOGGING=false ;;
+		I) 	CXR_RUN=${CXR_INSTALLER}; CXR_HOLLOW=true; CXR_USER_TEMP_INSTALL=true; CXR_DO_FILE_LOGGING=false ;;
 		
 		# Testing
-		T|-test) 						CXR_HOLLOW=true; CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_INF} ; CXR_USER_TEMP_RUN_TESTS=true ;;
+		T) 	CXR_HOLLOW=true; CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_INF} ; CXR_USER_TEMP_RUN_TESTS=true ;;
 	
 		# Creation or re-creation of configuration
-		C|-create) 					CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		R|-repeat) 					CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG}; CXR_HOLLOW=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		C) 	CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		R) 	CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG}; CXR_HOLLOW=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
-		r|-run) 						CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_LIST="${OPTARG}" ;;
-		p|-pre-once) 				CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=true; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		i|-pre-daily) 			CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=true; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		o|-post-daily) 			CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		f|-post-once) 			CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true ;;
-		x|-model) 					CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
+		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_LIST="${OPTARG}" ;;
+		p) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=true; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		i) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=true; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		o) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		f) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true ;;
+		x) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
+		l) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
-		h|-help) CXR_HOLLOW=true; main.usage ;;
+		h) CXR_HOLLOW=true; main.usage ;;
 		\?) CXR_HOLLOW=true; main.usage ;; 
 		*) CXR_HOLLOW=true; main.usage ;;  # Show usage also for unrecognised options
 	esac
@@ -540,6 +536,10 @@ then
 	then
 		# Run the installation
 		common.install.do
+	elif [[ "${CXR_LIST_MODULES}" == true  ]]
+	then
+		# Show possible modules
+		main.listAllModules
 	elif [[ "${CXR_RUN_TESTS}" == true  ]]
 	then
 		# Run the tests
