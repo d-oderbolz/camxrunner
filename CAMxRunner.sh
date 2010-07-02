@@ -263,7 +263,7 @@ do
 		t|-error-threshold) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG} ;;
 		s|-stop) 						CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		D|-day) 						CXR_USER_TEMP_ONE_DAY=${OPTARG} ;;
-		L|-leave-temp				CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
+		L|-leave-temp)			CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
 		P|-parallel)				CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG} ;;
 	
 		# Installer: We need to manipulate the CXR_RUN variable for now
