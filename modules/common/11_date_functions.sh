@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=32
+CXR_META_MODULE_NUM_TESTS=42
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -47,43 +48,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
-	
-	You can, however, call it like this:
-	
-	$ $progname -T
-	
-	this starts the self-test of the module.
-
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
 
 ################################################################################
 # Function: common.date.decompose
@@ -174,9 +138,7 @@ function common.date.toRaw()
 	
 	if [[ $# -ne 1 || $(common.date.isYYYYMMDD? "$1") == false ]]
 	then
-		main.log -e  "needs a date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a date as input"
 	fi
 	
 	# Replace - by nothing
@@ -199,9 +161,7 @@ function common.date.toISO()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e  "needs 1 date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs 1 date as input"
 	fi
 	
 	# If we got the empty string, return the empty string
@@ -216,6 +176,73 @@ function common.date.toISO()
 	return $CXR_RET_OK
 	
 }
+
+################################################################################
+# Function: common.date.humanSeconds
+#
+# Converts a number of seconds to days, hours, minutes and seconds.
+# Mostly used for rumtime estimation (totally seconds-based)
+# 
+# Parameters:
+# $1 - time interval in seconds 
+################################################################################
+function common.date.humanSeconds()
+################################################################################
+{
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully "Programming error: needs 1 time interval in seconds as input"
+	fi
+	
+	local secondsLeft=${1}
+	local SecPerMin=60
+	local SecPerHour=$(( 60 * $SecPerMin ))
+	local SecPerDay=$(( 24 * $SecPerHour ))
+	local days
+	local hours
+	local minutes
+	local seconds
+	local result
+	
+	days=$(( $secondsLeft / $SecPerDay ))
+	secondsLeft=$(( $secondsLeft % $SecPerDay ))
+	
+	hours=$(( $secondsLeft / $SecPerHour ))
+	secondsLeft=$(( $secondsLeft % $SecPerHour ))
+	
+	minutes=$(( $secondsLeft / $SecPerMin ))
+	
+	seconds=$(( $secondsLeft % $SecPerMin ))
+	
+	if [[ $days -gt 0 ]]
+	then
+		result="$days d,"
+	fi
+	
+	if [[ $hours -gt 0 ]]
+	then
+		result="$result $hours hr,"
+	fi
+	
+	if [[ $minutes -gt 0 ]]
+	then
+		result="$result $minutes min,"
+	fi
+	
+	if [[ $seconds -gt 0 ]]
+	then
+		result="$result $seconds sec"
+	fi
+	
+	# Remove trailing , if any
+	result=${result%,}
+	
+	echo $result
+	
+	return $CXR_RET_OK
+	
+}
+
 
 ################################################################################
 # Function: common.date.split
@@ -334,9 +361,7 @@ function common.date.JulianToDate()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e  "needs one number as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs one number as input"
 	fi
 	
 	j2d_tmpday=$(( $1 - 1721119 ))
@@ -372,9 +397,7 @@ function common.date.EpochToDate()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e  "needs one number as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully  "needs one number as input"
 	fi
 	
 	local epoch_seconds=$1
@@ -398,9 +421,7 @@ function common.date.EpochToDateTime()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.log -e  "needs one number as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs one number as input"
 	fi
 	
 	local epoch_seconds=$1
@@ -424,12 +445,30 @@ function common.date.WeekOfYear()
 
 	if [[ $# -lt 1   ]]
 	then
-		main.log -e   "needs a date of the form YYYY-MM-DD as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
 	fi
 
 	date +%V -d $1
+}
+
+################################################################################
+# Function: common.date.MonthOfYear
+# 
+# Returns the one-based month of year (2 digits)
+#
+# Parameters:
+# $1 - date in YYYY-MM-DD format
+################################################################################
+function common.date.MonthOfYear() 
+################################################################################
+{
+
+	if [[ $# -lt 1   ]]
+	then
+		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
+	fi
+
+	date +%m -d $1
 }
 
 ################################################################################
@@ -452,11 +491,9 @@ function common.date.DayOfYear()
 	local julend
 	local julstart
 	
-	if [[ $# -lt 1 && $# -gt 2 ]]
+	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.log -e   "needs a date of the form YYYY-MM-DD as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
 	fi
 
 	year=${1:0:4}
@@ -493,9 +530,7 @@ function common.date.DaysInMonth()
 	
 	if [[ $# -lt 2  ]]
 	then
-		main.log -e   "needs a month and a year as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a month and a year as input"
 	fi
 	
 	dim_m=${1}
@@ -522,9 +557,7 @@ function common.date.DayOfWeek()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e  "needs a date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully  "needs a date as input"
 	fi
 	
 	dim_d=${1}
@@ -552,9 +585,7 @@ function common.date.DaysLeftInWeek()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e  "needs a date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a date as input"
 	fi
 	
 	dim_d=${1}
@@ -584,9 +615,7 @@ function common.date.DaysLeftInMonth()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.log -e   "needs a date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs a date as input"
 	fi
 	
 	dim_d=${1}
@@ -616,9 +645,7 @@ function common.date.isLeapYear?
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.log -e   "needs a year as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully  "needs a year as input"
 	fi
 	
 	year=$1
@@ -671,11 +698,9 @@ function common.date.toOffset()
 	local offset
 	
 	# Check input
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.log -e  "needs one YYYY-MM-DD date as input"
-		echo false
-		return $CXR_RET_ERROR
+		main.dieGracefully "needs one YYYY-MM-DD date as input"
 	fi
 	
 	start=$(common.date.toJulian ${CXR_START_DATE})
@@ -829,6 +854,142 @@ function common.date.DaysBetween()
 }
 
 ################################################################################
+# Function: common.date.WeeksBetween
+#
+# Returns the number of distinct weeks between two dates (inclusive). 
+# This number is at least 1 (if the days are in the same week)
+#
+# TODO: Improve efficiency
+# 
+# Parameters:
+# $1 - Date 1 in YYYY-MM-DD form
+# $2 - Date 2 in YYYY-MM-DD form
+################################################################################	
+function common.date.WeeksBetween()
+################################################################################
+{
+	# Define & Initialize local vars
+	local diff
+	local start
+	local end
+	local julend
+	local julstart
+	local oldweek
+	local iDay
+	# Even if in the same week it's one week
+	local nWeeks=1
+	
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
+	then
+		main.log -e  "needs 2 dates as input"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	start="$1"
+	end="$2"
+
+	# we convert the dates to julian dates and then loop
+	julstart=$(common.date.toJulian "$start" )
+	julend=$(common.date.toJulian "$end" )
+	
+	diff="$(( $julend - $julstart ))"
+	
+	if [[ $diff -lt 0 ]]
+	then
+		main.log -e  "Date2 is smaller than Date1"
+		echo 0
+		return $CXR_RET_ERROR
+	fi
+	
+	oldweek=$(common.date.WeekOfYear "$start")
+	
+	# Be careful - by default seq return engineering notation!
+	for iDay in $(seq -f"%.0f" $julstart $julend)
+	do
+		week=$(common.date.WeekOfYear "$(common.date.JulianToDate $iDay)")
+		
+		# Is it a different weex (not necessarily larger across years)?
+		if [[ $week -ne $oldweek ]]
+		then
+			nWeeks=$(( $nWeeks + 1 ))
+		fi
+		
+		oldweek=$week
+	done
+	
+	echo $nWeeks
+}
+
+################################################################################
+# Function: common.date.MonthsBetween
+#
+# Returns the number of months between two dates (inclusive).
+# This number is at least 1 (if the days are in the same week)
+#
+# TODO: Improve efficiency
+# 
+# Parameters:
+# $1 - Date 1 in YYYY-MM-DD form
+# $2 - Date 2 in YYYY-MM-DD form
+################################################################################	
+function common.date.MonthsBetween()
+################################################################################
+{
+	# Define & Initialize local vars
+	local diff
+	local start
+	local end
+	local julend
+	local julstart
+	local oldmonth
+	local iDay
+	# Even if in the same month it's one month
+	local nMonths=1
+	
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
+	then
+		main.log -e  "needs 2 dates as input"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	start="$1"
+	end="$2"
+
+	# we convert the dates to julian dates and then loop
+	julstart=$(common.date.toJulian $1)
+	julend=$(common.date.toJulian $2)
+	
+	diff="$(( $julend - $julstart ))"
+	
+	if [[ $diff -lt 0 ]]
+	then
+		main.log -e  "Date2 is smaller than Date1"
+		echo 0
+		return $CXR_RET_ERROR
+	fi
+	
+	oldmonth=$(common.date.MonthOfYear "$start")
+	
+	# Attn: by default, seq returns engineering notation
+	for iDay in $(seq -f"%.0f" $julstart $julend)
+	do
+		month=$(common.date.MonthOfYear "$(common.date.JulianToDate $iDay)")
+		
+		# Is it a different month (not necessarily larger across years)?
+		if [[ $month -ne $oldmonth ]]
+		then
+			nMonths=$(( $nMonths + 1 ))
+		fi
+		
+		oldmonth=$month
+	done
+	
+	echo $nMonths
+}
+
+################################################################################
 # Function: common.date.addDays
 #
 # Adds a number of days to a date and returns result
@@ -902,6 +1063,9 @@ function common.date.subtractDays()
 # Exports a number of date variables from a simulation day offset
 # Maybe this can be done more efficiently by using date directly
 # (see http://ss64.com/bash/date.html)
+#
+# Also directly expands a couplo of inmportant variables
+# TODO: Check if place is apropriate
 #
 # Example:
 # > common.date.setVars "$CXR_START_DATE" "0"
@@ -1033,6 +1197,16 @@ function common.date.setVars()
 		# week of year
 		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE_YESTERDAY)
 	fi
+	
+	# Set a couple of basic variables which cannot be set earlier
+	# Not directly checkable, Start of all output file names without extension
+	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
+	
+	# This is not a file (hence no _FILE at the end of the name)
+	CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
+	
+	# This is not a file (hence no _FILE at the end of the name)
+	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 }
 
 ################################################################################
@@ -1151,44 +1325,6 @@ function common.date.isLastDayOfSimulation? ()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -1211,8 +1347,14 @@ function test_module()
 	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
 	
 	is $(common.date.DayOfWeek 2009-12-31) 4 "DOW"
-	
 	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY"
+	is $(common.date.MonthOfYear 2009-12-31) 12 "MOY"
+	
+	is "$(common.date.humanSeconds 60)" '1 min' "common.date.humanSeconds One minute"
+	is "$(common.date.humanSeconds 61)" '1 min, 1 sec' "common.date.humanSeconds one minute, one second"
+	is "$(common.date.humanSeconds 3661)" '1 hr, 1 min, 1 sec' "common.date.humanSeconds one hour, one minute, one second"
+	
+	
 	is $(common.date.DaysInMonth 01 2008) 31 "common.date.DaysInMonth normal"
 	is $(common.date.DaysInMonth 02 2008) 29 "common.date.DaysInMonth feb leap year"
 	is $(common.date.DaysInMonth 02 2000) 29 "common.date.DaysInMonth feb leap year"
@@ -1224,6 +1366,15 @@ function test_module()
 	is $(common.date.DaysBetween 2009-01-01 2009-12-31) 365 "common.date.DaysBetween one year (non-leap)"
 	is $(common.date.DaysBetween 2004-01-01 2004-12-31) 366 "common.date.DaysBetween one year (leap)"
 	is $(common.date.DaysBetween 2009-01-01 2009-02-28) 59 "common.date.DaysBetween"
+	
+	is $(common.date.WeeksBetween 2009-01-01 2009-01-01) 1 "common.date.WeeksBetween same day"
+	is $(common.date.WeeksBetween 2009-01-01 2009-01-02) 1 "common.date.WeeksBetween same week"
+	is $(common.date.WeeksBetween 2009-01-01 2009-01-31) 5 "common.date.WeeksBetween longer period"
+	
+	is $(common.date.MonthsBetween 2009-01-01 2009-01-01) 1 "common.date.MonthsBetween same day"
+	is $(common.date.MonthsBetween 2009-01-01 2009-01-12) 1 "common.date.MonthsBetween same month"
+	is $(common.date.MonthsBetween 2009-01-01 2009-04-01) 4 "common.date.MonthsBetween longer period"
+	
 	is $(common.date.addDays 2009-02-28 1) 2009-03-01 "common.date.addDays"
 	is $(common.date.addDays 2004-02-28 1) 2004-02-29 "common.date.addDays"
 	is $(common.date.subtractDays 2004-02-29 1) 2004-02-28 "common.date.subtractDays"
@@ -1231,61 +1382,11 @@ function test_module()
 	is $(common.date.isFirstDayOfWeek? 2010-03-01) true "common.date.isFirstDayOfWeek? 2010-03-01"
 	is $(common.date.isFirstDayOfWeek? 1996-10-01) false "common.date.isFirstDayOfWeek? 1996-10-01"
 	is $(common.date.isFirstDayOfMonth? 2010-10-01) true "common.date.isFirstDayOfMonth? 2010-10-01"
-	
 
 	########################################
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
 	
 }
 
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-	
-fi

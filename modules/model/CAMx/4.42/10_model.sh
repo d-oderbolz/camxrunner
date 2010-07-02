@@ -1,11 +1,12 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
 # Version: $Id$ 
 #
-# Contains the Date functions
+# This module runs the model.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -23,15 +24,15 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
-CXR_META_MODULE_DEPENDS_ON="all_model- all_once_preprocessors all_daily_preprocessors"
+CXR_META_MODULE_DEPENDS_ON="${CXR_DEP_ALL_MODEL}- ${CXR_DEP_ALL_ONCE_PRE} ${CXR_DEP_ALL_DAILY_PRE}"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -69,43 +70,21 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
-	
-	You can, however, call it like this:
-	
-	$ $progname -T
-	
-	this starts the self-test of the module.
-
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	# This module needs one invocation per step
+	echo 1
 }
-
 
 ################################################################################
 # Function: set_variables
@@ -141,17 +120,7 @@ function set_variables()
 	# Name of the CAMx.in file
 	CXR_MODEL_CTRL_FILE=$(common.runner.evaluateRule "$CXR_MODEL_CTRL_FILE_RULE" false CXR_MODEL_CTRL_FILE_RULE)
 	
-	# Not directly checkable, Start of all output file names without extension
-	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
-	
-	# This is not a file (hence no _FILE at the end of the name)
-	CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
-	
-	# This is not a file (hence no _FILE at the end of the name)
-	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
-	
-	# This is not a file (hence no _FILE at the end of the name)
-	CXR_SA_RECEPTORIN=$(common.runner.evaluateRule "$CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE" false CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE) # could be named better! sorry... might do it later...
+	CXR_SA_RECEPTORIN=$(common.runner.evaluateRule "$CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE" false CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE)
 	
 	########################################################################
 	# Dry and real need the same variables set
@@ -224,26 +193,26 @@ function set_variables()
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(common.runner.evaluateRule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
 	
 			#Source area specific
-			for k in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
+			for CXR_ISRCREGION in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
 			do
 				##Source Area
-				CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${k}]=$(common.runner.evaluateRule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
+				CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]=$(common.runner.evaluateRule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
 			
 				##Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${k}]}"
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]}"
 			done
 			
-			for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);	
+			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);	
 			do
 				# expected output files (grid specific)
 				# We only want to check them, otherwise we dont need these values
 				CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_AVG_FILE_RULE" false CXR_SA_AVG_FILE_RULE false)"
 				
 				##Source Group
-				for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+				for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 				do
-					eval CXR_SA_EMISS_GROUP_GRID_INPUT_${i}_${j}=$(common.runner.evaluateRule "$CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE" false CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE)
-					dummyvar="CXR_SA_EMISS_GROUP_GRID_INPUT_${i}_${j}"
+					eval CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}=$(common.runner.evaluateRule "$CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE" false CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE)
+					dummyvar="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}"
 					##Checks
 					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${!dummyvar}"
 				done
@@ -252,12 +221,12 @@ function set_variables()
 			# Source group specific
 			if [[ $CXR_POINT_EMISSIONS == true  ]]
 			then
-				for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+				for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 				do
-					CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
+					CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
 
 					#Checks
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}"
+					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]}"
 				done
 			fi
 			
@@ -281,37 +250,37 @@ function set_variables()
 			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
 		
 			#Grid specific
-			for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 			do
-				CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
+				CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
 			
 				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}"
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]}"
 			done
 			
 			#By soure group
-			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
+			for CXR_IGRID in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
  			do
- 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
+ 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
  			
  				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${i}]}"
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]}"
  			done
 			
 			
 			# By source group, by grid
- 			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
+ 			for CXR_ISRCGROUP in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
  			do
  				
  				# and grid
-				for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+				for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 				do
  					# This is not elegant, but it simulates a 2D Array
- 					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_FILE_RULE
- 					CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE=$(common.runner.evaluateRule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
+ 					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_FILE_RULE
+ 					CXR_DDM_EMISS_GROUP_GRID_${j}_${CXR_IGRID}_INPUT_FILE=$(common.runner.evaluateRule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
  				
  					#Checks
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE"
+					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_INPUT_FILE"
  				done
  			done
 		
@@ -351,35 +320,35 @@ function set_variables()
 		#	expand the file name rule
 		#	then export the name and the value
 		########################################################################
-		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+		for CXR_IGRID in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Landuse
-			CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
+			CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
 			# Pressure
-			CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+			CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
 			# Wind
-			CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+			CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
 			# Temperature
-			CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+			CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
 			# Vapor
-			CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+			CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
 			# Cloud
-			CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
+			CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
 			# Vertical K
-			CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+			CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
 			# Emissions
-			CXR_EMISS_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
+			CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
 			
 			#Checks
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_EMISS_INPUT_ARR_FILES[${i}]}"
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]}"
 
 			# These are used to prevent overwriting of existing files
 			# Output files must not be decompressed! 
-			CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
-			CXR_DEPN_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
+			CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
+			CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
 
 			#Checks (this time output)
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${i}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${i}]}"
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]}"
 		done
 
 	fi
@@ -394,11 +363,17 @@ function set_variables()
 function write_sa_receptor_definitions_file() 
 ################################################################################
 {
+	local iPointReceptor
+	local iCellReceptor
+	local iAverageReceptor
+	local iWallReceptor
+	local iDummy
+	
 	: # dummy command
 	# the sa_receptor_definitions_file is created here...
 	
 	# If we start this and no directories are yet created, we are in trouble,
-	# so let us create it (workaround)
+	# so let us create it (workaround. TODO: Incluse in normal preparation)
 	
 	mkdir -p $(dirname ${CXR_SA_RECEPTORIN})
 	
@@ -407,45 +382,45 @@ function write_sa_receptor_definitions_file()
 	
 	if [[ "$SA_POINT_RECEPTOR" == "true"  ]]
 	then
-		for i in $(seq 1 $SA_POINT_NUMBER);
+		for iPointReceptor in $(seq 1 $SA_POINT_NUMBER);
 		do
 			printf %-15s 'POINT' >> ${CXR_SA_RECEPTORIN}
 			printf %5s >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_POINT_RECEPTOR_NAMES[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_POINT_X_COORD[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_POINT_Y_COORD[$i]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_POINT_RECEPTOR_NAMES[$iPointReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_POINT_X_COORD[$iPointReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_POINT_Y_COORD[$iPointReceptor]} >> ${CXR_SA_RECEPTORIN}
 			echo "" >> ${CXR_SA_RECEPTORIN}
 		done
 	fi
 	
 	if [[ "$SA_SINGLE_CELL_RECEPTOR" == "true"  ]]
 	then
-		for i in $(seq 1 $SA_SCELL_NUMBER);
+		for iCellReceptor in $(seq 1 $SA_SCELL_NUMBER);
 		do
 			printf %-15s 'SINGLE CELL' >> ${CXR_SA_RECEPTORIN}
 			printf %5s >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_SCELL_RECEPTOR_NAMES[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_SCELL_GRID_NUMBER[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_SCELL_XNUMBER[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_SCELL_YNUMBER[$i]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_SCELL_RECEPTOR_NAMES[$iCellReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_SCELL_GRID_NUMBER[$iCellReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_SCELL_XNUMBER[$iCellReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_SCELL_YNUMBER[$iCellReceptor]} >> ${CXR_SA_RECEPTORIN}
 			echo "" >> ${CXR_SA_RECEPTORIN}
 		done
 	fi
 	
 	if [[ "$SA_CELL_AVERAGE_RECEPTOR" == "true"  ]]
 	then
-			for i in $(seq 1 $SA_CELLAVG_NUMBER);
+			for iAverageReceptor in $(seq 1 $SA_CELLAVG_NUMBER);
 			do
 				printf %-15s 'CELL AVERAGE' >> ${CXR_SA_RECEPTORIN}
 				printf %5s >> ${CXR_SA_RECEPTORIN}
-				printf %-10s ${SA_CELLAVG_RECEPTOR_NAMES[$i]} >> ${CXR_SA_RECEPTORIN}
-				printf %-10s ${SA_CELLAVG_GRID_NUMBER[$i]} >> ${CXR_SA_RECEPTORIN}
-				printf %-10s ${SA_CELLAVG_NUMBER_OF_CELLS[$i]} >> ${CXR_SA_RECEPTORIN}
+				printf %-10s ${SA_CELLAVG_RECEPTOR_NAMES[$iAverageReceptor]} >> ${CXR_SA_RECEPTORIN}
+				printf %-10s ${SA_CELLAVG_GRID_NUMBER[$iAverageReceptor]} >> ${CXR_SA_RECEPTORIN}
+				printf %-10s ${SA_CELLAVG_NUMBER_OF_CELLS[$iAverageReceptor]} >> ${CXR_SA_RECEPTORIN}
 				echo "" >> ${CXR_SA_RECEPTORIN}
-				for h in $(seq $(( ${SA_CELLAVG_DUMMIES[$(( $i - 1 ))]} + 1 )) $(( ${SA_CELLAVG_NUMBER_OF_CELLS[$i]} + ${SA_CELLAVG_DUMMIES[$(( $i - 1 ))]} )))
+				for iDummy in $(seq $(( ${SA_CELLAVG_DUMMIES[$(( $iAverageReceptor - 1 ))]} + 1 )) $(( ${SA_CELLAVG_NUMBER_OF_CELLS[$iAverageReceptor]} + ${SA_CELLAVG_DUMMIES[$(( $iAverageReceptor - 1 ))]} )))
 				do
-					printf %-10s ${SA_CELLAVG_XNUMBER[$h]} >> ${CXR_SA_RECEPTORIN}
-					printf %-10s ${SA_CELLAVG_YNUMBER[$h]} >> ${CXR_SA_RECEPTORIN}
+					printf %-10s ${SA_CELLAVG_XNUMBER[$iDummy]} >> ${CXR_SA_RECEPTORIN}
+					printf %-10s ${SA_CELLAVG_YNUMBER[$iDummy]} >> ${CXR_SA_RECEPTORIN}
 					echo "" >> ${CXR_SA_RECEPTORIN}
 				done
 			done
@@ -453,22 +428,22 @@ function write_sa_receptor_definitions_file()
 	
 	if [[ "$SA_WALL_OF_CELLS_RECEPTOR" == "true"  ]]
 	then
-		for i in $(seq 1 $SA_CELLWALL_NUMBER);
+		for iWallReceptor in $(seq 1 $SA_CELLWALL_NUMBER);
 		do
 			printf %-15s 'WALL OF CELLS' >> ${CXR_SA_RECEPTORIN}
 			printf %5s >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_RECEPTOR_NAMES[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_GRID_NUMBER[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_XSTART[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_XEND[$i]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_RECEPTOR_NAMES[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_GRID_NUMBER[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_XSTART[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_XEND[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
 			echo "" >> ${CXR_SA_RECEPTORIN}
 			printf %40s >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_YSTART[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_YEND[$i]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_YSTART[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_YEND[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
 			echo "" >> ${CXR_SA_RECEPTORIN}
 			printf %40s >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_ZSTART[$i]} >> ${CXR_SA_RECEPTORIN}
-			printf %-10s ${SA_CELLWALL_ZEND[$i]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_ZSTART[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
+			printf %-10s ${SA_CELLWALL_ZEND[$iWallReceptor]} >> ${CXR_SA_RECEPTORIN}
 			echo "" >> ${CXR_SA_RECEPTORIN}
 		done
 		
@@ -486,9 +461,9 @@ function write_model_control_file()
 ################################################################################
 {
 	# Define & Initialize local vars
-	local i
-	local j
-	local k
+	local iGrid
+	local iSourceGroup
+	local iSourceRegion
 	local a
 	local b
 	local c
@@ -545,17 +520,17 @@ function write_model_control_file()
 	
 	# Here we loop through the remaining grids
 	
-	for i in $(seq 2 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 2 $CXR_NUMBER_OF_GRIDS);
 	do
  		echo "" >> ${CXR_MODEL_CTRL_FILE}
- 		echo "!--- Parameters for grid ${i} ---" >> ${CXR_MODEL_CTRL_FILE}  
+ 		echo "!--- Parameters for grid ${iGrid} ---" >> ${CXR_MODEL_CTRL_FILE}  
  			
- 		echo " Nest_Meshing_Factor(${i}) = ${CXR_NEST_MESHING_FACTOR[${i}]}, ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
-		echo " Nest_Beg_I_Index(${i})    = ${CXR_NEST_BEG_I_INDEX[${i}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
-		echo " Nest_End_I_Index(${i})    = ${CXR_NEST_END_I_INDEX[${i}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
-		echo " Nest_Beg_J_Index(${i})    = ${CXR_NEST_BEG_J_INDEX[${i}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
-		echo " Nest_End_J_Index(${i})    = ${CXR_NEST_END_J_INDEX[${i}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
-		echo " Number_of_Layers(${i})    = ${CXR_NUMBER_OF_LAYERS[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
+ 		echo " Nest_Meshing_Factor(${iGrid}) = ${CXR_NEST_MESHING_FACTOR[${iGrid}]}, ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Nest_Beg_I_Index(${iGrid})    = ${CXR_NEST_BEG_I_INDEX[${iGrid}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Nest_End_I_Index(${iGrid})    = ${CXR_NEST_END_I_INDEX[${iGrid}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Nest_Beg_J_Index(${iGrid})    = ${CXR_NEST_BEG_J_INDEX[${iGrid}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Nest_End_J_Index(${iGrid})    = ${CXR_NEST_END_J_INDEX[${iGrid}]},    ! Relative to master grid" >> ${CXR_MODEL_CTRL_FILE} 
+		echo " Number_of_Layers(${iGrid})    = ${CXR_NUMBER_OF_LAYERS[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
 	done    
 	
 	echo "!--- Model options ---" >> ${CXR_MODEL_CTRL_FILE} 
@@ -592,9 +567,9 @@ function write_model_control_file()
 	
 	
 	# Here we loop through the species
-	for i in $(seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES);
 	do
-		echo " Output_Species_Names(${i})   = '${CXR_OUTPUT_SPECIES_NAMES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE}
+		echo " Output_Species_Names(${iGrid})   = '${CXR_OUTPUT_SPECIES_NAMES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE}
 	done
 	
 	echo "" >> ${CXR_MODEL_CTRL_FILE} 
@@ -640,16 +615,16 @@ function write_model_control_file()
 	# Here, we loop through all grids
 	# These variables get defined in the set_variables function
 	# and not in the configuration
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
- 			echo " Landuse_Grid(${i}) = '${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " ZP_Grid(${i})      = '${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Wind_Grid(${i})    = '${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Temp_Grid(${i})    = '${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Vapor_Grid(${i})   = '${CXR_VAPOR_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Cloud_Grid(${i})   = '${CXR_CLOUD_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Kv_Grid(${i})      = '${CXR_KV_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE} 
- 			echo " Emiss_Grid(${i})   = '${CXR_EMISS_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE}
+ 			echo " Landuse_Grid(${iGrid}) = '${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " ZP_Grid(${iGrid})      = '${CXR_ZP_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Wind_Grid(${iGrid})    = '${CXR_WIND_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Temp_Grid(${iGrid})    = '${CXR_TEMP_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Vapor_Grid(${iGrid})   = '${CXR_VAPOR_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Cloud_Grid(${iGrid})   = '${CXR_CLOUD_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Kv_Grid(${iGrid})      = '${CXR_KV_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+ 			echo " Emiss_Grid(${iGrid})   = '${CXR_EMISS_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE}
 	done
 	
 	echo "" >> ${CXR_MODEL_CTRL_FILE} 
@@ -695,18 +670,18 @@ function write_model_control_file()
 		fi
 		
 		# By grid
-		for k in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
+		for iSourceRegion in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
 		do
-			echo " SA_Source_Area_Map(${SA_REGIONS_DOMAIN_NUMBERS[$k]})    = '${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${k}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " SA_Source_Area_Map(${SA_REGIONS_DOMAIN_NUMBERS[${iSourceRegion}]})    = '${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${iSourceRegion}]}'," >> ${CXR_MODEL_CTRL_FILE} 
 		done
 		
 		
 		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 		then
 			# By source group
-			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+			for iSourceGroup in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 			do
-				echo " SA_Points_Group(${j})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+				echo " SA_Points_Group(${iSourceGroup})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${iSourceGroup}]}'," >> ${CXR_MODEL_CTRL_FILE} 
 			done
 		fi
 		
@@ -714,14 +689,14 @@ function write_model_control_file()
 		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 		then
 			# By source group
-			for j in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+			for iSourceGroup in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
 			do
 				# and grid
-				for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+				for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 				do
 					# This is not elegant, but it simulates a 2D Array
-					ELEMENT_NAME="CXR_SA_EMISS_GROUP_GRID_INPUT_${i}_${j}"
-					echo " SA_Emiss_Group_Grid(${j},${i}) = '${!ELEMENT_NAME}'," >> ${CXR_MODEL_CTRL_FILE} 
+					ELEMENT_NAME="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${iSourceGroup}"
+					echo " SA_Emiss_Group_Grid(${iSourceGroup},${CXR_IGRID}) = '${!ELEMENT_NAME}'," >> ${CXR_MODEL_CTRL_FILE} 
 			
 				done
 			done
@@ -781,17 +756,17 @@ function write_model_control_file()
 		done
 		
 		# By grid
-		for i in $(seq 1 "$CXR_NUMBER_OF_GRIDS");
+		for iGrid in $(seq 1 "$CXR_NUMBER_OF_GRIDS");
 		do
-			echo " DDM_Source_Area_Map(${i})    = '${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE}
+			echo " DDM_Source_Area_Map(${iGrid})    = '${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE}
 		done 
 		
 		if [[ "${CXR_POINT_EMISSIONS}" == true  ]]
 		then
 			# By source group
-			for j in $(seq 1 "$CXR_DDM_NUMBER_OF_SOURCE_GROUPS");
+			for iSourceGroup in $(seq 1 "$CXR_DDM_NUMBER_OF_SOURCE_GROUPS");
 			do
-				echo " DDM_Points_Group(${j})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${j}]}'," >> ${CXR_MODEL_CTRL_FILE} 
+				echo " DDM_Points_Group(${iSourceGroup})       = '${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${iSourceGroup}]}'," >> ${CXR_MODEL_CTRL_FILE} 
 			done
 		fi
 		 
@@ -799,15 +774,15 @@ function write_model_control_file()
 		if [[ "${CXR_GRIDDED_EMISSIONS}" == true  ]]
 		then
 			# By source group
-			for j in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
+			for iSourceGroup in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
 			do
 				
 				# and grid
-				for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+				for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 				do
 					# This is not elegant, but it simulates a 2D Array
-					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${j}_${i}_INPUT_FILE
-					echo " DDM_Emiss_Group_Grid(${j},${i}) = '${!ELEMENT_NAME}'," >> ${CXR_MODEL_CTRL_FILE} 
+					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${iSourceGroup}_${iGrid}_INPUT_FILE
+					echo " DDM_Emiss_Group_Grid(${iSourceGroup},${iGrid}) = '${!ELEMENT_NAME}'," >> ${CXR_MODEL_CTRL_FILE} 
 				done
 			done
 		fi 
@@ -843,9 +818,9 @@ function write_model_control_file()
 		fi
 		
 		# By grid
-		for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+		for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 		do
-			echo " RT_Emiss_Grid(${i})    = '${CXR_RT_EMISS_GRID_INPUT_ARR_FILES[${i}]}'," >> ${CXR_MODEL_CTRL_FILE}
+			echo " RT_Emiss_Grid(${iGrid})    = '${CXR_RT_EMISS_GRID_INPUT_ARR_FILES[${iGrid}]}'," >> ${CXR_MODEL_CTRL_FILE}
 		done
 
 		
@@ -867,15 +842,15 @@ function write_model_control_file()
 		echo " Number_of_PA_Domains = ${CXR_NUMBER_OF_PA_DOMAINS}," >> ${CXR_MODEL_CTRL_FILE} 
 		
 		# Here we loop through the PA domains
-		for i in $(seq 1 $CXR_NUMBER_OF_PA_DOMAINS);
+		for iGrid in $(seq 1 $CXR_NUMBER_OF_PA_DOMAINS);
 		do
-			echo " Within_CAMx_Grid(${i})  = ${CXR_WITHIN_CAMX_GRID[${i}]},  ! Specify which CAMx grid that this PA domain is in" >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_Beg_I_Index(${i})    = ${CXR_PA_BEG_I_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_End_I_Index(${i})    = ${CXR_PA_END_I_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_Beg_J_Index(${i})    = ${CXR_PA_BEG_J_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_End_J_Index(${i})    = ${CXR_PA_END_J_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_Beg_K_Index(${i})    = ${CXR_PA_BEG_K_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
-			echo " PA_End_K_Index(${i})    = ${CXR_PA_END_K_INDEX[${i}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " Within_CAMx_Grid(${iGrid})  = ${CXR_WITHIN_CAMX_GRID[${iGrid}]},  ! Specify which CAMx grid that this PA domain is in" >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_Beg_I_Index(${iGrid})    = ${CXR_PA_BEG_I_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_End_I_Index(${iGrid})    = ${CXR_PA_END_I_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_Beg_J_Index(${iGrid})    = ${CXR_PA_BEG_J_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_End_J_Index(${iGrid})    = ${CXR_PA_END_J_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_Beg_K_Index(${iGrid})    = ${CXR_PA_BEG_K_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
+			echo " PA_End_K_Index(${iGrid})    = ${CXR_PA_END_K_INDEX[${iGrid}]}," >> ${CXR_MODEL_CTRL_FILE} 
 			echo "" >> ${CXR_MODEL_CTRL_FILE} 
 		done
 		
@@ -918,7 +893,15 @@ function execute_model()
 	# Call the executable while collecting stderr and stdout
 	$CXR_MODEL_EXEC 2>&1 | tee -a $CXR_LOG
 	
-	retval=$?
+	# Checking pipestatus...
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+	then
+		# Failed.
+		retval=1
+	else
+		# OK
+		retval=0
+	fi
 	
 	outfile=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE")
 	
@@ -928,7 +911,8 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main.log -w "CAMx has returned a non-zero status for $CXR_DATE"
+		common.state.storeState ${CXR_STATE_ERROR}
+		main.dieGracefully "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
 	# go back
@@ -943,6 +927,9 @@ function execute_model()
 function model()
 ################################################################################
 {
+	# We do not need this variable here (exept implicit for the stage name)
+	CXR_INVOCATION=${1:-1}
+	
 	# Do we run the model?
 	if [[ "$CXR_RUN_MODEL" == true  ]]
 	then
@@ -975,6 +962,8 @@ function model()
 			if [[ $(common.check.preconditions) == false  ]]
 			then
 				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+				common.state.storeState ${CXR_STATE_ERROR}
+				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
@@ -982,11 +971,12 @@ function model()
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
 			
-		
 			# Did we run properly?
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "$CXR_MODEL Run was not successful!"
+				common.state.storeState ${CXR_STATE_ERROR}
+				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -1013,44 +1003,7 @@ function model()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
+
 	########################################
 	# Setup tests if needed
 	########################################
@@ -1075,64 +1028,7 @@ function test_module()
 	# Reset date variables for first day
 	common.date.setVars "$CXR_START_DATE" "0"
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
 
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is a subset of the progname,
-# somebody started this script alone
-# Normlly this is not allowed, exept to test using -t
-if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	fi
-	
-	usage
-	
-fi
-
-
-
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
 
 

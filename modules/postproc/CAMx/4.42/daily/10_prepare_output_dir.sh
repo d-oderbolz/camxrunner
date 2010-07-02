@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Postprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -24,15 +25,14 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
-
-CXR_META_MODULE_DEPENDS_ON="all_model"
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
+CXR_META_MODULE_DEPENDS_ON="${CXR_DEP_ALL_MODEL}"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -70,40 +70,21 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
 
 ################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	# This module needs one invocation per step
+	echo 1
 }
 
 ################################################################################
@@ -139,45 +120,45 @@ function set_variables()
 	#	expand the file name rule
 	#	then export the name and the value
 	########################################################################
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+	for CXR_IGRID in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# Because the input might be compressed, we use two sets af arrays,
 		# the second one contains just the real basenames (these are the link-names)
 		# Note the last argument (false) in every even call to <common.runner.evaluateRule>
 	
 		# Terrain
-		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
-		CXR_TERRAIN_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE false))
+		CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
+		CXR_TERRAIN_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE false))
 		
 		# Pressure
-		CXR_ZP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
-		CXR_ZP_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+		CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+		CXR_ZP_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
 		
 		# Wind
-		CXR_WIND_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
-		CXR_WIND_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+		CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+		CXR_WIND_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
 		
 		# Temperature
-		CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
-		CXR_TEMP_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+		CXR_TEMP_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
 		
 		# Vapor
-		CXR_VAPOR_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
-		CXR_VAPOR_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+		CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+		CXR_VAPOR_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
 		
 		# Vertical K
-		CXR_KV_GRID_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
-		CXR_KV_GRID_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
+		CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+		CXR_KV_GRID_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 		
 		# Emissions done in run_emifad 
 		
 		# These are used for <convert_output>
 		# Despite the name an input here
-		CXR_AVG_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
-		CXR_AVG_OUTPUT_NAME[${i}]=$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
+		CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+		CXR_AVG_OUTPUT_NAME[${CXR_IGRID}]=$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 	
 		#Checks
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${i}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${i}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${i}]} ${CXR_VAPOR_INPUT_ARR_FILES[${i}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${i}]} ${CXR_AVG_OUTPUT_ARR_FILES[${i}]}"
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TERRAIN_GRID_ASC_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}"
 	
 	done
 	
@@ -196,8 +177,11 @@ function set_variables()
 function prepare_output_dir() 
 ################################################################################
 {
+	# We do not need this variable here (exept implicit for the stage name)
+	CXR_INVOCATION=${1:-1}
+	
 	# Define & Initialize local vars
-	local i
+	local iGrid
 	local i_input_arr
 	local var
 	local var_name
@@ -220,6 +204,8 @@ function prepare_output_dir()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -228,7 +214,7 @@ function prepare_output_dir()
 		
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
-		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+		for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			# Loop through the name of all the input arrays
 			for i_input_arr in $(seq 0 $(( ${#CXR_INPUT_ARRAYS[@]} - 1 )))
@@ -237,20 +223,35 @@ function prepare_output_dir()
 				var_name=${CXR_NAME_ARRAYS[$i_input_arr]}
 			
 				# Only if the link is not there, create a new one
-				current_file=$(eval "echo \${${var}[${i}]}")
-				current_base=$(eval "echo \${${var_name}[${i}]}")
+				current_file=$(eval "echo \${${var}[${iGrid}]}")
+				current_base=$(eval "echo \${${var_name}[${iGrid}]}")
 				
-				# If the Link or file does not yet exist
-				if [[  ! ( -L ${current_base} || -f ${current_base} )   ]]
+				if [[ "$CXR_DRY" == "false"  ]]
 				then
-					if [[ "$CXR_DRY" == "false"  ]]
+					
+					main.log "Linking ${current_base} to ${current_file}..."
+					
+					# Test if there is already a link, f so force recreation
+					# This must be done because of compressed files (temporary destinations change)
+					if [[ -L ${current_base} ]]
 					then
-						main.log   "Linking ${current_base} to ${current_file}..."
-						ln -s ${current_file} ${current_base}
+						# Link exists - force new link
+						ln -s -f ${current_file} ${current_base}
 					else
-						main.log   "This is a dry run, do not create a link for output processing"
+						# There is is no link yet, but there might already be a file
+						if [[ ! -f ${current_base} ]]
+						then
+							# no file - go ahead
+							ln -s ${current_file} ${current_base}
+						else
+							# There was a file, log it
+							main.log -v "Will not create a link to ${current_base} - its a file"
+						fi
 					fi
+				else
+					main.log   "This is a dry run, do not create a link for output processing"
 				fi
+
 			done
 		done
 		
@@ -263,20 +264,29 @@ function prepare_output_dir()
 }
 
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
+{
 
-# If the CXR_META_MODULE_NAME  is not set,
-# somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
-then
-	usage
-fi
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	# None yet.
+	:
 
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-
-
+	########################################
+	# teardown tests if needed
+	########################################
+	
+}

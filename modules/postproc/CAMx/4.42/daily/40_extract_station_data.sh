@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Postprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -23,15 +24,15 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
-CXR_META_MODULE_DEPENDS_ON="all_model"
+CXR_META_MODULE_DEPENDS_ON="convert_output"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -74,40 +75,24 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
 
 ################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	# This module needs one invocation per step
+	# TODO: We want to run this on any grid later (similar to aqmfad)
+	# One approach would be to convert the IDs of the fine domain to the others
+	# (otherwise we again need to specify the coordinates for each domain)
+	echo 1
 }
 
 ################################################################################
@@ -125,13 +110,15 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	local iStation
+	
 	########################################################################
 	# Set variables
 	########################################################################
 	
 	# IDL-based extraction of NABEL data needs just the 
 	# data from this specific grid in ASCII data
-	i=${CXR_STATION_DOMAIN}
+	CXR_IGRID=${CXR_STATION_DOMAIN}
 	CXR_STATION_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
 
 	# the MM5 file to use
@@ -143,16 +130,16 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
 
 	# Station dependent data
-	for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
+	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
 		# Needed to expand the file rule
-		station=${CXR_STATION[${i}]}
+		station=${CXR_STATION[${iStation}]}
 		
 		# Output files must not be decompressed!
-		CXR_STATION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE false)
+		CXR_STATION_OUTPUT_ARR_FILES[${iStation}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE false)
 		
 		# Checks
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${i}]}"
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
 	done
 
 }
@@ -168,12 +155,15 @@ function set_variables()
 function extract_station_data
 ################################################################################
 {
+	# We do not need this variable here (exept implicit for the stage name)
+	CXR_INVOCATION=${1:-1}
+	
 	local exec_tmp_file
 	local xdim
 	local ydim
 	local zdim
 	local stations_array
-	local i
+	local iStation
 	local station_file
 	local x
 	local y
@@ -181,6 +171,7 @@ function extract_station_data
 	local species_array
 	local species
 	local write_header
+	local iSpec
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -194,6 +185,8 @@ function extract_station_data
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -223,13 +216,13 @@ function extract_station_data
 		# Open brackets
 		stations_array="["
 		
-		for i in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) )
+		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) )
 		do
 			
 			# The output file of a given station
 			# We remove the path from it to save space in the call
 			# (easier to read)
-			station_file="$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${i}]})"
+			station_file="$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})"
 			
 			# In case of a dry-run, create a dummy file
 			if [[ "$CXR_DRY" == true  ]]
@@ -238,8 +231,8 @@ function extract_station_data
 			fi
 			
 			# The position of this station
-			x=${CXR_STATION_X[${i}]}
-			y=${CXR_STATION_Y[${i}]}
+			x=${CXR_STATION_X[${iStation}]}
+			y=${CXR_STATION_Y[${iStation}]}
 			
 			# We pass all in a string array, IDL then does the conversion
 			station="['${x}','${y}','${station_file}']"
@@ -256,12 +249,12 @@ function extract_station_data
 		# Open brackets
 		species_array="["
 		
-		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}" ]]
+		if [[ "${CXR_STATION_SPECIES}" == "${CXR_ALL}"  ]]
 		then
 			# Loop through the general list
-			for i in $( seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES )
+			for iSpec in $( seq 1 $CXR_NUMBER_OF_OUTPUT_SPECIES )
 			do
-				species=${CXR_OUTPUT_SPECIES_NAMES[${i}]}
+				species=${CXR_OUTPUT_SPECIES_NAMES[${iSpec}]}
 			
 				species_array="${species_array}'${species}',"
 			done
@@ -298,23 +291,30 @@ function extract_station_data
 				# Here, we also need an MM5 file for the pressure (for ppb conversion and potential coordinate conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
 				# We set this fag to 0 because currently we only run on the innermost domain
-				# This method is currently under development.
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0" >> ${exec_tmp_file}
-				echo "exit" >> ${exec_tmp_file}
+				cat <<-EOF > $exec_tmp_file
+				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0
+				exit
+				EOF
 				;;
 				
 			extract_arpa_stations)
-				# Here, we also need the pressure and the temperature file for the pressure (for ppb conversion), 
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_ZP_GRID_ASC_FILE}','${CXR_TEMP_GRID_ASC_FILE}'" >> ${exec_tmp_file}
-				echo "exit" >> ${exec_tmp_file}
+				# Here, we also need an MM5 file for the pressure (for ppb conversion), 
+				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
+				# We set this fag to 0 because currently we only run on the innermost domain
+				cat <<-EOF > $exec_tmp_file
+				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_ZP_GRID_ASC_FILE}','${CXR_TEMP_GRID_ASC_FILE}'
+				exit
+				EOF
 				;;
 			extract_nabel_stations)
-
-				echo ".run $(basename ${CXR_STATION_PROC_INPUT_FILE})" >> ${exec_tmp_file}
-				echo "$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}" >> ${exec_tmp_file}
-				echo "exit" >> ${exec_tmp_file}
+				
+				cat <<-EOF > $exec_tmp_file
+				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}
+				exit
+				EOF
 				;;
 			*) 
 				;;
@@ -339,6 +339,8 @@ function extract_station_data
 		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -353,19 +355,29 @@ function extract_station_data
 }
 
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
+{
 
-# If the CXR_META_MODULE_NAME  is not set,
-# somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
-then
-	usage
-fi
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	# None yet.
+	:
 
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-
+	########################################
+	# teardown tests if needed
+	########################################
+	
+}

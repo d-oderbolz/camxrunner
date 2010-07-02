@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=0
+CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -48,48 +49,54 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
-
 ################################################################################
 # Function: common.user.showProgress
 #
 # Very simple function to show the user a simple feedback during long-running operations.
-#	
+# Writes to stderr.
+# 
+#
 ################################################################################
 function common.user.showProgress()
 ################################################################################
 {
-	echo -n .
+	echo -n .  1>&2
 }
+
+################################################################################
+# Function: common.user.showProgressBar
+#
+# Given a number in percent, produces a progress bar on stout.
+# 
+# Parameters:
+# $1 - a number in percent
+################################################################################
+function common.user.showProgressBar()
+################################################################################
+{
+	local percent=${1:-0}
+	local string
+	local spaces
+	local nSpaces
+	local nElements
+	local progress=$(common.math.FloatOperation "($percent * $CXR_MAX_BAR_WIDTH) / 100" -1 false)
+
+	nElements=$(( $progress - 1 ))
+	
+	if [[ $nElements -lt 1 ]]
+	then
+		nElements=0
+		string=""
+	else
+		string="$(common.string.repeat "=" $nElements)"
+	fi
+	
+	nSpaces=$(( $CXR_MAX_BAR_WIDTH - $progress ))
+	spaces="$(common.string.repeat "." $nSpaces)"
+	
+	echo -n "|${string}>${spaces}|"
+}
+
 
 ################################################################################
 # Function: common.user.getOK
@@ -289,7 +296,6 @@ function common.user.pause()
 function common.user.getMenuChoice()
 ################################################################################
 {
-	
 	echo "${CXR_SINGLE_LINE}" 1>&2
 	local message="$1\nEnter the *number* of your choice:"
 	local options=$2
@@ -773,44 +779,6 @@ function common.user.applyPlayfile()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -819,61 +787,11 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# None yet.
+	is "$(common.user.showProgressBar 10)" '|=======>........................................................................|' "common.user.showProgressBar"
 
 	########################################
 	# teardown tests if needed
 	########################################
-	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
+
 	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi

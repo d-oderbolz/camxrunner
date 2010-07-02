@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Preprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -24,13 +25,13 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
 CXR_META_MODULE_DEPENDS_ON="create_emissions"
 
@@ -70,41 +71,21 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	# By default, this function returns 1 
+	# this module needs one invocation per grid per step
+	echo $CXR_NUMBER_OF_GRIDS
 }
 
 ################################################################################
@@ -128,21 +109,21 @@ function set_variables()
 	# Set variables
 	########################################################################
 	
+	# Grid specific - we need to define CXR_IGRID
+	CXR_IGRID=$CXR_INVOCATION
+	
 	# Grid specific
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-	do
-		# Emission Source Files
-		CXR_EMISSION_INPUT_ARR_FILES[${i}]="$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)"
-		
-		# Emission Target files
-		# Output files must not be decompressed!
-		CXR_EMISSION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
+
+	# Emission Source Files
+	CXR_EMISSION_INPUT_FILE="$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)"
 	
-		# Update Lists of files to be checked
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_EMISSION_INPUT_ARR_FILES[${i}]}"
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}"
-	done
-	
+	# Emission Target files
+	# Output files must not be decompressed!
+	CXR_EMISSION_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
+
+	# Update Lists of files to be checked
+	CXR_CHECK_THESE_INPUT_FILES="${CXR_EMISSION_INPUT_FILE}"
+	CXR_CHECK_THESE_OUTPUT_FILES="${CXR_EMISSION_OUTPUT_FILE}"
 }
 
 ################################################################################
@@ -153,7 +134,9 @@ function set_variables()
 function convert_emissions() 
 ################################################################################
 {
-	local i
+	# In this module, CXR_INVOCATION corresponds to the grid number.
+	# We die if this parameter is missing
+	CXR_INVOCATION=${1}
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -165,6 +148,8 @@ function convert_emissions()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -172,36 +157,43 @@ function convert_emissions()
 		# Increase global indent level
 		main.increaseLogIndent
 
-		main.log   "Preparing Emission data..."    
+		main.log   "Converting Emission data for domain $CXR_INVOCATION..."
 		
-		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-		do
-			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
-			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
-		
-			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
+
+		INPUT_FILE=${CXR_EMISSION_INPUT_FILE}
+		OUTPUT_FILE=${CXR_EMISSION_OUTPUT_FILE}
+	
+		if [[ -f "$OUTPUT_FILE" ]]
+		then
+			if [[ "$CXR_SKIP_EXISTING" == true ]]
 			then
 				# Skip it
 				main.log   "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
-				continue
-			fi
-			
-			# Increase global indent level
-			main.increaseLogIndent
-
-			main.log   "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
-
-			if [[ "$CXR_DRY" == false  ]]
-			then
-				# Call Converter
-				${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
+				common.state.storeState ${CXR_STATE_STOP} > /dev/null
+				return $CXR_RET_OK
 			else
-				main.log   "Dryrun - no conversion performed"
+				# Fail
+				main.log -e  "File ${OUTPUT_FILE} exists - to force the re-creation run ${CXR_CALL} -F"
+				common.state.storeState ${CXR_STATE_ERROR}
+				return $CXR_RET_ERROR
 			fi
+		fi
+		
+		# Increase global indent level
+		main.increaseLogIndent
 
-			# Decrease global indent level
-			main.decreaseLogIndent
-		done
+		main.log   "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+
+		if [[ "$CXR_DRY" == false  ]]
+		then
+			# Call Converter
+			${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
+		else
+			main.log   "Dryrun - no conversion performed"
+		fi
+
+		# Decrease global indent level
+		main.decreaseLogIndent	
 
 		# Decrease global indent level
 		main.decreaseLogIndent
@@ -210,6 +202,8 @@ function convert_emissions()
 		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -222,19 +216,29 @@ function convert_emissions()
 }
 
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
+{
 
-# If the CXR_META_MODULE_NAME  is not set,
-# somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
-then
-	usage
-fi
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	# None yet.
+	:
 
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-
+	########################################
+	# teardown tests if needed
+	########################################
+	
+}

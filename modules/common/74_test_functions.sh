@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -6,6 +7,9 @@
 # Version: $Id$ 
 #
 # Contains the test harness of CAMxRunner. Also contains tests for some inc functions.
+# There is one test-configuration for each Model Version, called something like
+# CAMx-v4.51-test.conf or CAMx-v4.42-test.conf. 
+#
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -47,38 +51,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
-
 
 ################################################################################
 # Function: common.test.loadData
@@ -225,9 +197,6 @@ function common.test.all()
 	
 		source inc/init_test.inc
 		
-		# This is a marker that tells the modules they do not need init anymore
-		CXR_TESTING_FROM_HARNESS=true
-		
 		########################################
 		#  Count all tests (Harness needs to know the count)
 		########################################
@@ -358,6 +327,8 @@ function common.test.all()
 					then
 						# We load the config
 						main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
+						common.module.updateInfo
+						
 						
 						LAST_LOADED_CONFIG=$CXR_RUN
 					fi
@@ -379,6 +350,19 @@ function common.test.all()
 		#  Get stats
 		########################################
 		summarize_tests
+		
+		########################################
+		# Do Basic cleanup
+		########################################
+		
+		# Remove all tempfiles
+		common.runner.removeTempFiles
+		
+		# Release Locks
+		common.runner.releaseAllLocks
+		
+		# Delete the instance files
+		common.state.deleteInstanceData
 
 	done
 	
@@ -395,44 +379,6 @@ function common.test.all()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -488,55 +434,4 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-	
-fi

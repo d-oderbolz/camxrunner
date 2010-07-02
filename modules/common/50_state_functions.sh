@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=2
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -47,36 +48,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
 
 ################################################################################
 # Function: common.state.isRepeatedRun?
@@ -173,58 +144,58 @@ function common.state.getFirstDayModelled()
 ################################################################################
 # Function: common.state.getStageName
 #
-# Generates the name of the current stage from the parameters or the environment (if no parameters are given) 
-# Takes the CXR_META_MODULE_  and the date variables into account.
+# Generates the name of the current stage from the parameters.
 # Names are dependent on the type of module.
 # Names have the form
-# ${CXR_DATE_RAW}@${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}
+# ${CXR_DATE_RAW}@${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@${CXR_INVOCATION}
 # We choose names that sort more or less nicely.
-#
-# Note that the first 3 parameters are semi-optional: if one of them is given, all of them must be present!
 # 
 # Parameters:
-# [$1] - module type
-# [$2] - module name
-# [$3] - raw date
+# $1 - module type
+# $2 - module name
+# $3 - raw date (may be empty, depending on module type)
+# $4 - invocation (may be empty)
 ################################################################################
 function common.state.getStageName()
 ################################################################################
 {
-	if [[ $# -lt 3  ]]
+	if [[ $# -lt 3 ]]
 	then
 		# Use the environment
 		local module_type="${CXR_META_MODULE_TYPE}"
 		local module_name="${CXR_META_MODULE_NAME}"
-		local date=${CXR_DATE_RAW:-date_not_set}
+		local date="${CXR_DATE_RAW:-date_not_set}"
+		local invocation="${CXR_INVOCATION:-1}"
 	else
 		# Use parameters
 		local module_type="${1}"
 		local module_name="${2}"
 		local date="${3}"
+		local invocation="${4:-1}"
 	fi
-
+	
 	case "${module_type}" in
 		${CXR_TYPE_COMMON}) 
 			# A common module normally does not need this, but who knows?
-			echo ${date}@${module_type}@${module_name} ;; 
+			echo ${date}@${module_type}@${module_name}@${invocation} ;; 
 		
 		${CXR_TYPE_PREPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module_name} ;;
+			echo ${date}@${module_type}@${module_name}@${invocation} ;;
 			
 		${CXR_TYPE_PREPROCESS_ONCE}) 
-			echo _@${module_type}@${module_name} ;;
+			echo _@${module_type}@${module_name}@${invocation} ;;
 			
 		${CXR_TYPE_POSTPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module_name} ;;
+			echo ${date}@${module_type}@${module_name}@${invocation} ;;
 		
 		${CXR_TYPE_POSTPROCESS_ONCE}) 
-			echo ZZ_@${module_type}@${module_name} ;;
+			echo ZZ_@${module_type}@${module_name}@${invocation} ;;
 			
 		${CXR_TYPE_MODEL} ) 
-			echo ${date}@${module_type}@${module_name} ;;
+			echo ${date}@${module_type}@${module_name}@${invocation} ;;
 			
 		${CXR_TYPE_INSTALLER}) 
-			echo ${module_type}@${module_name} ;;
+			echo ${module_type}@${module_name}@${invocation} ;;
 			
 	 *) main.dieGracefully "Unknown module type ${module_type}";;
 	esac
@@ -273,10 +244,9 @@ function common.state.init()
 	fi
 	
 	# Not started yet - create state dir first
-	if [[ ! -d "${CXR_STATE_DIR}"  ]]
+	if [[ ! -d "${CXR_STATE_DIR}" ]]
 	then
 		mkdir -p "${CXR_STATE_DIR}"
-		
 	fi
 	
 	# Create the global dirs
@@ -304,33 +274,30 @@ function common.state.init()
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
 	common.hash.init MD5 $CXR_HASH_TYPE_UNIVERSAL
 	
+	# Stores Timing information
+	common.hash.init Timing $CXR_HASH_TYPE_UNIVERSAL
+	
 	# Contains the paths of all detected modules for this model and version
 	common.hash.init $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL
 
 	# Contains the module types of given modules
 	common.hash.init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
 	
+	# In this hash, we store files that where decompressed (for all instances)
+	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL
+	
+	# In this hash, we store all output files that have been generated
+	common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE
+	
+	# In this hash, we store dummy files of a dry run.
+	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE
+	
+	# In this hash, we store temporay files of a run. 
+	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE
+	
 	# Creating .continue file
 	main.log -n -i  "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
-	
-	# Create the instance files and secure them
-	for var in $(set | sort | grep ^CXR_INSTANCE_FILE_.*= )
-	do
-		# Now Var contains a VAR=Value string
-		# Extract the value
-		file="$(echo "${var}" | cut -d= -f2)"
-	
-		# Empty file
-		:> "$file"
-		
-		# Secure file
-		chmod 600 "$file"
-	done
-	
-	# This file should not be deleted
-	touch "$CXR_INSTANCE_FILE_OUTPUT_LIST"
-	chmod 600 "$CXR_INSTANCE_FILE_OUTPUT_LIST"
 	
 	# Update the module path hash and form the lists of active modules
 	common.module.updateInfo
@@ -453,22 +420,38 @@ function _common.state.getStateFileName()
 }
 
 ################################################################################
+# Function: common.state.countInstances
+#
+# Counts living CAMxRunners by checking the continue files
+# TODO: Local - check ps, Remote - check .continue files (mtime)
+#
+################################################################################
+function common.state.countInstances()
+################################################################################
+{
+	local process_count=$(find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l) 
+	
+	echo $process_count
+}
+
+################################################################################
 # Function: common.state.detectInstances
 #
 # Check if there are still living processes by checking the continue files
+# TODO: Local - check ps, Remote - check .continue files (mtime)
 #
 ################################################################################
 function common.state.detectInstances()
 ################################################################################
 {
-	local process_count=$(ls ${CXR_ALL_INSTANCES_DIR}/*${CXR_STATE_CONTINUE} 2> /dev/null | wc -l ) 
+	local process_count=$(common.state.countInstances) 
 	
-	if [[  ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false   ]]
+	if [[ ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false ]]
 	then
 		# There are other processes running and this is not allowed
 		main.log -e   "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
 		
-		ls -la ${CXR_STATE_DIR}/*${CXR_STATE_CONTINUE} | tee -a ${CXR_LOG}
+		find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | tee -a ${CXR_LOG}
 		
 		main.log -e   "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
@@ -496,6 +479,8 @@ function common.state.hasFinished?()
 	local stage="$1"
 	local start_file=$(_common.state.getStateFileName "${CXR_STATE_START}" "${stage}")
 	local stop_file=$(_common.state.getStateFileName "${CXR_STATE_STOP}" "${stage}")
+	
+	main.log -v "Testing stage ${stage}, looking for ${start_file} and ${stop_file}"
 	
 	if [[ -f "$stop_file"  ]]
 	then
@@ -580,14 +565,14 @@ function common.state.cleanup()
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all existing-instances specific tasks none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all-non-tasks existing-instances specific tasks none" "none")
 		
 		case "$what" in 
 		
-			all)
+			all-non-tasks)
 					main.log -w  "The following files will be deleted:"
 						
-					find ${CXR_STATE_DIR} -noleaf -type f -maxdepth 1 | xargs -i basename \{\}
+					find ${CXR_STATE_DIR} -noleaf -maxdepth 1 -type f | xargs -i basename \{\}
 			
 					# Do we do this?
 					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
@@ -599,8 +584,6 @@ function common.state.cleanup()
 						# Yes
 						rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
 						main.log -i   "Done."
-						# When all is cleared, we do not need to go further
-						break
 					fi
 			;;
 			
@@ -787,7 +770,7 @@ function common.state.cleanup()
 			tasks)
 					main.log -w  "The following files will be deleted:"
 						
-					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* ${CXR_LOCK_DIR}/* | xargs -i basename \{\}
+					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* | xargs -i basename \{\}
 			
 					# Do we do this?
 					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
@@ -798,9 +781,8 @@ function common.state.cleanup()
 					else
 	
 						# Yes
-						rm -rf ${CXR_TASK_POOL_DIR}/* 2>/dev/null
-						rm -rf ${CXR_WORKER_DIR}/* 2>/dev/null
-						rm -rf ${CXR_LOCK_DIR}/* 2>/dev/null
+						common.parallel.cleanTasks
+
 						main.log -i   "Done."
 					fi
 			;;
@@ -828,7 +810,7 @@ function common.state.doContinue?()
 	local error_count=$(main.countErrors)
 	
 	# Report error count
-	main.log -v -b   "Current Error Count: $error_count"
+	main.log -v -b "Current Error Count: $error_count"
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
@@ -860,6 +842,23 @@ function common.state.doContinue?()
 }
 
 ################################################################################
+# Function: common.state.reportEta
+# 
+#  Reports the estimated time of arrival.
+################################################################################
+function common.state.reportEta()
+################################################################################
+{
+	local percentDone=$(common.math.FloatOperation "($CXR_TASKS_DONE / $CXR_TASKS_TOTAL) * 100" -1 false )
+	
+	local estimatedTimeSecods=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	
+	# Only goes to stderr
+	main.log -n "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSecods)"
+	main.log -n $(common.user.showProgressBar $percentDone)
+}
+
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please
@@ -869,44 +868,7 @@ function common.state.doContinue?()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
+
 	########################################
 	# Setup tests if needed
 	########################################
@@ -919,63 +881,10 @@ function test_module()
 	########################################
 	
 	is $(common.state.isRepeatedRun?) false "common.state.isRepeatedRun?"
+	is "$(common.state.countInstances)" 1 "common.state.countInstances"
 
 	########################################
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi
-
-
-

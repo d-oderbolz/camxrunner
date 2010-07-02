@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner
@@ -25,7 +26,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=11
+CXR_META_MODULE_NUM_TESTS=13
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -57,36 +58,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
-
 ################################################################################
 # Function: _common.hash.getDir
 #
@@ -98,6 +69,11 @@ exit 1
 function _common.hash.getDir()
 ################################################################################
 {
+	if [[ $# -ne 1  ]]
+	then
+		main.dieGracefully "needs a hash-type as input"
+	fi
+
 	local type="${1}"
 	
 	# Work out the directory
@@ -127,24 +103,23 @@ function _common.hash.getDir()
 function common.hash.init()
 ################################################################################
 {
+	if [[ $# -ne 2 ]]
+	then
+		main.dieGracefully "needs a hash and a valid hash-type as input"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local hash_dir
-	local complete_dir
 	
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
-	complete_dir="${hash_dir}/${hash}"
 	
 	# Create the hash directory
-	if [[ ! -d "${complete_dir}" ]]
-	then
-		mkdir -p "${complete_dir}"
-		# Nobody else must modify this directory
-		chmod 700 "${complete_dir}"
-	else
-		touch "${complete_dir}"
-	fi
+	mkdir -p "${hash_dir}/${hash}"
+	
+	# Nobody else must modify this directory
+	chmod 700 "${hash_dir}/${hash}"
 }
 
 ################################################################################
@@ -159,6 +134,12 @@ function common.hash.init()
 function common.hash.destroy()
 ################################################################################
 {
+	if [[ $# -ne 2 ]]
+	then
+		main.dieGracefully "needs a hash and a valid hash-type as input"
+	fi
+	
+	
 	local hash="$1"
 	local type="$2"
 	local hash_dir
@@ -174,7 +155,6 @@ function common.hash.destroy()
 # Function: _common.hash.getFileName
 #
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
-# Trims the key of leading or trailing double quotes because <common.hash.getKeys> adds them.
 # Tries to remedy missing directories (if <common.hash.init> was not called!)
 #
 # Parameters:
@@ -185,6 +165,11 @@ function common.hash.destroy()
 function _common.hash.getFileName()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
@@ -194,9 +179,6 @@ function _common.hash.getFileName()
 	
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
-	
-	# Remove leading or trailing quotes
-	key="$(common.string.trim "${key}" '\"')"
 	
 	if [[ ! "$key" ]]
 	then
@@ -218,6 +200,8 @@ function _common.hash.getFileName()
 #
 # Puts a value into a key of a given hash. First the key is urlencoded using perl
 # then we use this value as a filename to store the value in.
+# Also touches to directory of the hash (can be used for "last update time").
+# We keep the data in a cache, justin case somebody wants it right away again.
 # 
 #
 # Parameters:
@@ -229,41 +213,129 @@ function _common.hash.getFileName()
 function common.hash.put()
 ################################################################################
 {
+	if [[ $# -lt 4 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type, a key and a value as input. Got $@"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
 	local value="$4"
+	local hashdir
 
 	local fn
 	
 	# Generate the filename
 	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
+	hashdir="$(dirname $fn)"
+	
+	if [[ ! -d "$hashdir" ]]
+	then
+		main.dieGracefully "Hash dir $hashdir not found!"
+	else
+		# Change the update time
+		touch "$hashdir"
+	fi	
+	
 	# Write the value
 	echo "${value}" > "${fn}"
+	
+	# Fill cache
+	CXR_CACHE_H_HASH="$hash"
+	CXR_CACHE_H_TYPE="$type"
+	CXR_CACHE_H_KEY="$key"
+	CXR_CACHE_H_VALUE="$value"
 }
 
 ################################################################################
-# Function: common.hash.add
+# Function: common.hash.increment
 #
-# Alias for <common.hash.put> for your convenience.
+# Increments the numeric value in a hash by a value (default 1).
+# If the increment is negative, we do not go below 0.
+# 
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - key
+# [$4] - increment (default 1)
+################################################################################
+function common.hash.increment()
+################################################################################
+{
+	if [[ $# -lt 3 || $# -gt 4 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type, a key and a optional increment as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	local key="$3"
+	local increment="${4:1}"
+	
+	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
+	then
+		# The number we want to increment is there
+		currentValue=$(common.hash.get "$hash" "$type")
+	else
+		# No value, start with 0
+		currentValue=0
+	fi
+	
+	# Test if we would go below 0
+	if [[ $currentValue -eq 0 && $increment -lt 0 ]]
+	then
+		newValue=0
+	else
+		# Do the increment
+		newValue=$(common.math.FloatOperation "$currentValue + $increment" 0 false )
+	fi
+	
+	# Store
+	common.hash.put Locks "$hash" "$type" "$key" "$newValue"
+}
+
+################################################################################
+# Function: common.hash.decrement
+#
+# decrements the numeric value in a hash by a value (default 1)
+# (Convenience wrapper of <common.hash.increment>).
 #
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - value
+# [$4] - decrement (default 1)
 ################################################################################
-function common.hash.add()
+function common.hash.decrement()
 ################################################################################
 {
-	common.hash.put $@
+	if [[ $# -lt 3 || $# -gt 4 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type, a key and a optional decrement as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	local key="$3"
+	local decrement="${4:1}"
+	
+	# Invert the decrement
+	local increment=$(common.math.FloatOperation "$decrement * -1" 0 false )
+	common.hash.increment "$hash" "$type" "$key" "$increment"
 }
 
 ################################################################################
 # Function: common.hash.get
 #
-# Gets a certain value from a hash
+# Gets a certain value from a hash.
+# Be careful, values might contain spaces and other nasties. Use like this:
+# > value="$(common.hash.get "$hash" "$type" "$key")"
+# Returns the empty string on error or if this key does not exist.
+#
+# Often, the same items are accessed several times in a row. For this reason,
+# we cache the last value.
 #
 # Parameters:
 # $1 - name of the hash
@@ -273,23 +345,56 @@ function common.hash.add()
 function common.hash.get()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
-
+	local value
+	
 	local fn
 	
-	# Generate the filename
-	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
-	
-	# Get the value
-	cat "${fn}"
+	if [[ "$hash" == "${CXR_CACHE_H_HASH:-}" &&\
+	      "$type" == "${CXR_CACHE_H_TYPE:-}" &&\
+	      "$key" == "${CXR_CACHE_H_KEY:-}" ]]
+	then
+		# Match in Cache
+		echo "$CXR_CACHE_H_VALUE"
+	else
+		# Lookup needed
+		main.log -v "Getting $key out of hash $hash $type"
+		
+		# Generate the filename
+		fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
+		
+		if [[ -f "${fn}" ]]
+		then
+			# file there
+			value="$(cat "${fn}")"
+		else
+			# no file - return the empty string
+			value=""
+		fi
+		
+		# Fill cache
+		CXR_CACHE_H_HASH="$hash"
+		CXR_CACHE_H_TYPE="$type"
+		CXR_CACHE_H_KEY="$key"
+		CXR_CACHE_H_VALUE="$value"
+		
+		# Return the value
+		echo $value
+	fi
 }
+
 
 ################################################################################
 # Function: common.hash.delete
 #
-# Deletes a certain value for a hash
+# Deletes a certain value for a hash without returning its value.
 #
 # Parameters:
 # $1 - name of the hash
@@ -299,6 +404,11 @@ function common.hash.get()
 function common.hash.delete()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
@@ -317,8 +427,66 @@ function common.hash.delete()
 	fi
 }
 
+
+################################################################################
+# Function: common.hash.remove
+#
+# Returns a value from a hash and then deletes it.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - key
+################################################################################
+function common.hash.remove()
+################################################################################
+{
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	local key="$3"
+	
+	common.hash.get "$hash" "$type" "$key"
+	common.hash.delete "$hash" "$type" "$key"
+}
+
 ################################################################################
 # Function: common.hash.getMtime
+#
+# Gets the modification time (Unix Epoch) for a given hash (the mtime of the hashdir)
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+################################################################################
+function common.hash.getMtime()
+################################################################################
+{
+	if [[ $# -ne 2 ]]
+	then
+		main.dieGracefully "needs a hash and a valid hash-type as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	
+	local basedir
+	local hashdir
+	
+	# Generate the hashdir
+	basedir="$(_common.hash.getDir "$type")"
+	hashdir=${basedir}/${hash}
+
+	# Get the mtime
+	echo "$(common.fs.getMtime "$hashdir")"
+}
+
+################################################################################
+# Function: common.hash.getValueMtime
 #
 # Gets the modification time (Unix Epoch) for a given value
 #
@@ -327,9 +495,15 @@ function common.hash.delete()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 ################################################################################
-function common.hash.getMtime()
+function common.hash.getValueMtime()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
@@ -356,6 +530,11 @@ function common.hash.getMtime()
 function common.hash.has?()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
@@ -388,6 +567,12 @@ function common.hash.has?()
 function common.hash.isNew?()
 ################################################################################
 {
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+	fi
+	
+	
 	local hash="$1"
 	local type="$2"
 	local key="$3"
@@ -399,7 +584,7 @@ function common.hash.isNew?()
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(common.hash.getMtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(common.hash.getValueMtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -416,10 +601,26 @@ function common.hash.isNew?()
 ################################################################################
 # Function: common.hash.getKeys
 #
-# Returns a list of keys of the given hash as a quoted space separated list.
+# Returns a list of keys of the given hash as a quoted CXR_DELIMITER separated list.
 # Do not assume any particular order, it depends on the order ls imposes on the
-# encoded keys.
-#
+# encoded keys. See <common.hash.toFile> for an example on how to use this safely.
+# 
+# Recommended use:
+# > oIFS="$IFS"
+# > local keyString="$(common.hash.getKeys $hash $CXR_HASH_TYPE_GLOBAL)"
+# > IFS="$CXR_DELIMITER"
+# > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+# > local arrKeys=( $keyString )
+# > # Reset Internal Field separator
+# > IFS="$oIFS"
+# > 
+# > # looping through keys (safest approach)
+# > for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+# > do
+# > 	key=${arrKeys[$iKey]}
+# > 	# Whatever more
+# > done
+# 
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
@@ -427,8 +628,15 @@ function common.hash.isNew?()
 function common.hash.getKeys()
 ################################################################################
 {
+	if [[ $# -ne 2 ]]
+	then
+		main.dieGracefully "needs a hash and a valid hash-type as input"
+	fi
+	
+	
 	local hash="$1"
 	local type="$2"
+	
 	local hash_dir
 	local fn
 	local key
@@ -440,15 +648,135 @@ function common.hash.getKeys()
 	for fn in $(ls ${hash_dir}/${hash})
 	do
 		key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
-		list="${list}\"$key\" "
+		list="${list}${key}$CXR_DELIMITER"
 	done
 	
-	# Remove last space
-	list=${list%\ }
+	# Remove last delimiter
+	list="${list/%${CXR_DELIMITER}/}"
 	
-	echo "$list"
+	echo $list
 }
 
+################################################################################
+# Function: common.hash.toFile
+#
+# Serialises a Hash to a file (CXR_DELIMITER separated), which can later be read in via
+# <common.hash.fromFile>.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - file to write to
+################################################################################
+function common.hash.toFile()
+################################################################################
+{
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a filename to write to as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	local file="$3"
+	
+	local key
+	local value
+	local iKey
+	
+	if [[ -s "$file" ]]
+	then
+		main.log -w "Output file $file already exists. Hash data will be added."
+	fi
+	
+	oIFS="$IFS"
+	local keyString="$(common.hash.getKeys "$hash" "$type")"
+	IFS="$CXR_DELIMITER"
+	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+	local arrKeys=( $keyString )
+	# Reset Internal Field separator
+	IFS="$oIFS"
+	
+	# looping through keys (safest approach)
+	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+	do
+		key="${arrKeys[$iKey]}"
+		value="$(common.hash.get "$hash" "$type" "$key")"
+		echo "${key}${CXR_DELIMITER}${value}" >> "$file"
+	done
+
+	main.log -i "Data of ${hash} written to ${file}."
+}
+
+################################################################################
+# Function: common.hash.fromFile
+#
+# Deserialises a Hash from a file (Pipe separated), which usually is prepared via
+# <common.hash.ToFile>.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - file to read from
+# [$4] - mode:
+#     'APPEND' - just add non-existing keys (default)
+#     'UPDATE' - updates existing keys and adds non-existing ones
+################################################################################
+function common.hash.fromFile()
+################################################################################
+{
+	if [[ $# -lt 3 || $# -gt 4 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type and a filename read from, and optionally a mode as input"
+	fi
+	
+	local hash="$1"
+	local type="$2"
+	local file="$3"
+	local mode="${4:-APPEND}"
+	
+	local oIFS
+	local key
+	local value
+	
+	if [[ ! -f "$file" ]]
+	then
+		main.log -e "Input file $file does not exist, cannot load hash"
+		return 1
+	fi
+	
+	# Save IFS
+	oIFS="$IFS"
+	IFS="$CXR_DELIMITER"
+	
+	case $(common.string.toUpper "$mode") in
+	
+		APPEND)		main.log -v "Data of ${file} will be added to ${hash}."
+		
+					while read key value
+					do
+						if [[ $(common.hash.has? "$hash" "$type" "$key") == false ]]
+						then
+							common.hash.put "$hash" "$type" "$key" "$value"
+						fi
+					done < "$file"
+					
+					;;
+					
+		UPDATE)		main.log -v "Data of ${file} will be added to ${hash}." 
+					while read key value
+					do
+						common.hash.put "$hash" "$type" "$key" "$value"
+					done < "$file"
+					;;
+					
+		*) 			main.log -e "Programming error: unknown mode ${mode} to add data to a hash"
+					;;
+		
+	esac
+	
+	IFS="$oIFS"
+}
 
 ################################################################################
 # Function: test_module
@@ -460,44 +788,8 @@ function common.hash.getKeys()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
+	local iKey
+
 	########################################
 	# Setup tests if needed
 	########################################
@@ -505,7 +797,13 @@ function test_module()
 	common.hash.init test_instance $CXR_HASH_TYPE_INSTANCE
 	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
 	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
-
+	
+	# Hash of arrays
+	common.hash.init test_array $CXR_HASH_TYPE_INSTANCE
+	common.hash.put test_array $CXR_HASH_TYPE_INSTANCE array1 "1 2 3 4 5"
+	
+	# Read again
+	a=( $(common.hash.get test_array $CXR_HASH_TYPE_INSTANCE array1) )
 	
 	# Glabal Hash with strange keys
 	common.hash.init test_global $CXR_HASH_TYPE_GLOBAL
@@ -523,11 +821,21 @@ function test_module()
 	
 	is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
 	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
-	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" '"/hallo/gugs" "/hallo/velo"' "common.hash.getKeys test_instance with path as key"
+	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
+	is ${#a[@]} 5 "Hash of arrays"
 	
-	# Now lets iterate over keys
-	for key in $(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)
+	oIFS="$IFS"
+	local keyString="$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)"
+	IFS="$CXR_DELIMITER"
+	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+	local arrKeys=( $keyString )
+	# Reset Internal Field separator
+	IFS="$oIFS"
+	
+	# looping through keys (safest approach)
+	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 	do
+		key="${arrKeys[$iKey]}"
 		is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going trough keys in an interator"
 	done
 	
@@ -537,71 +845,33 @@ function test_module()
 	common.hash.delete test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
 	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
 
-	
 	is "$(common.hash.get test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
 	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
-	is "$(common.hash.getKeys test_universal $CXR_HASH_TYPE_UNIVERSAL)" '"/hallo/gugs" "/hallo/velo"' "common.hash.getKeys test_universal with path as key"
 	
 	common.hash.delete test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo" 
 	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
 
+	# Some serialisation/deserialisation
+	hashfile=$(common.runner.createTempFile hash)
+	
+	# Save to file
+	common.hash.toFile test_global $CXR_HASH_TYPE_GLOBAL $hashfile
+	
+	#destroy it
+	common.hash.destroy test_global $CXR_HASH_TYPE_GLOBAL
+	
+	# load from file
+	common.hash.fromFile test_global $CXR_HASH_TYPE_GLOBAL $hashfile
+	
+	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "testing common.hash.toFile and .fromFile"
+	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces")" "another value" "testing common.hash.toFile and .fromFile"
+	
 	########################################
 	# teardown tests if needed
 	########################################
 	common.hash.destroy test_instance $CXR_HASH_TYPE_INSTANCE
+	common.hash.destroy test_array $CXR_HASH_TYPE_INSTANCE
 	common.hash.destroy test_global $CXR_HASH_TYPE_GLOBAL
 	common.hash.destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
-	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
+
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi
-
-

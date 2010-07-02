@@ -1,7 +1,8 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Processor module for the CAMxRunner 
-# See http://people.web.psi.ch/oderbolz/CAMxRunner 
+# See http://people.web.psi.ch/oderbolz/CAMxRunner
 #
 # Version: $Id$ 
 ################################################################################
@@ -16,13 +17,13 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
 CXR_META_MODULE_DEPENDS_ON=""
 
@@ -62,53 +63,33 @@ CXR_META_MODULE_LICENSE=-
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" NAME" 
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
+	# By default, this function returns 1 
+	# (If this module needs only one invocation per step)
+	# echo 1
 	
-	You can, however, call it like this:
+	# as an example, we now return the number of grids.
+	# (If this module needs one invocation per grid per step)
+	# This makes only sense if one invocation takes substantial time to execute.
 	
-	$ $progname -T
-	
-	this starts the self-test of the module.
-
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	echo $CXR_NUMBER_OF_GRIDS
 }
 
 ################################################################################
 # Function: set_variables
 #
-# Sets the appropriate variables
+# Sets the appropriate variables. Check inhowfar this depends on CXR_INVOCATION.
 #
 # Parameters:
 # $1 - ...
@@ -134,21 +115,19 @@ function set_variables()
 	# Set variables
 	########################################################################
 	
-	# Grid specific
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-	do
-		# Emission Source Files
-		CXR_EMISSION_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)
+	# Grid specific - we need to define CXR_IGRID
+	CXR_IGRID=$CXR_INVOCATION
+	
+	# Emission Source File
+	INPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)
 
-		# Emission Target files
-		# Output files must not be decompressed!
-		CXR_EMISSION_OUTPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
-	
-		# Update Lists of files to be checked
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES CXR_EMISSION_INPUT_ARR_FILES[${i}]"
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES CXR_EMISSION_OUTPUT_ARR_FILES[${i}]"
-	
-	done
+	# Emission Target file
+	# Output files must not be decompressed!
+	OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_BIN_FILE_RULE" false CXR_EMISSION_BIN_FILE_RULE false)
+
+	# Update Lists of files to be checked
+	CXR_CHECK_THESE_INPUT_FILES="$INPUT_FILE"
+	CXR_CHECK_THESE_OUTPUT_FILES="$OUTPUT_FILE"
 
 }
 
@@ -157,14 +136,22 @@ function set_variables()
 #
 # Does the actual work. This function gets called from autside and its name must
 # be the same as the name of the module file without number and extension.
-# So if this file i called 10_my_module.sh this function MUST be called my_module
+# So if this file i called 10_my_module.sh this function MUST be called my_module.
+#
+# The parameter $1 allows the module to infer which part of the work must be done.
+# If the module is atomic, this parameter can be ignored.
 #
 # Parameters:
-# $1 - ...
+# $1 - the invocation (1..n) - here directly used as grid number
 ################################################################################
 function name() 
 ################################################################################
 {
+	# We set the invocation (default 1)
+	# In this module, CXR_INVOCATION corresponds to the grid number.
+	# We die, if this parameter is missing
+	CXR_INVOCATION=${1}
+	
 	# We check if this stage was already excuted before
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
@@ -180,70 +167,74 @@ function name()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		main.log   "Running NAME..."
+		main.log   "Running ${FUNCNAME}..."
 		
-		# Normally the actual work is done in a loop for all grids
-		# But this depends!
+		# Often, the actual work is done once for each grid.
+		# as an example, the grid number is the invocation.
+		# In a more complicated example, you might need to determine
+		# the value of some variables as a function of CXR_INVOCATION
 		
-		for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-		do
-	
-			# Determine the file names
-			INPUT_FILE=${CXR_EMISSION_INPUT_ARR_FILES[${i}]}
-			OUTPUT_FILE=${CXR_EMISSION_OUTPUT_ARR_FILES[${i}]}
-			
-			if [[  -f "$OUTPUT_FILE" && "$CXR_SKIP_EXISTING" == true   ]]
+		if [[ -f "$OUTPUT_FILE" ]]
+		then
+			if [[ "$CXR_SKIP_EXISTING" == true ]]
 			then
 				# Skip it
 				main.log   "File ${OUTPUT_FILE} exists - because of CXR_SKIP_EXISTING, file will skipped."
-				continue
-			fi
-	
-			# Increase global indent level
-			main.increaseLogIndent
-	
-			main.log  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
-	
-			if [[ "$CXR_DRY" == false  ]]
-			then
-				# Do what needs to be done
-				# Normally, there is a call of this form
-				# ${CXR_SOME_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} 2>&1 | tee -a $CXR_LOG
-				# Call an exec stored in a variable and redirect output and error to file and stdout.
-	
+				common.state.storeState ${CXR_STATE_STOP} > /dev/null
+				return $CXR_RET_OK
 			else
-				main.log -w   "Dryrun - no action performed"
+				# Fail
+				main.log -e  "File ${OUTPUT_FILE} exists - to force the re-creation run ${CXR_CALL} -F"
+				common.state.storeState ${CXR_STATE_ERROR}
+				return $CXR_RET_ERROR
 			fi
-	
-			# Decrease global indent level
-			main.decreaseLogIndent
-	
-			# Check if all went well
-			# We do not stop the run here if the module failed, this is decided by the 
-			# task management. We only stop the run, if a task depends on
-			# this failed one - otherwise we can go on!
-			if [[ $(common.check.postconditions) == false  ]]
-			then
-				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-				# We notify the caller of the problem
-				return $CXR_RET_ERR_POSTCONDITIONS
-			fi
-			
-			
-			# -v option shows message only if the log level is high enough
-			main.log -v   "Some verbose message here"
-	
-		done
+		fi
+
+		# Increase global indent level
+		main.increaseLogIndent
+
+		main.log  "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"
+
+		if [[ "$CXR_DRY" == false  ]]
+		then
+			# Do what needs to be done
+			# Normally, there is a call of this form
+			# ${CXR_SOME_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} 2>&1 | tee -a $CXR_LOG
+			# Call an exec stored in a variable and redirect output and error to file and stdout.
+
+		else
+			main.log -w   "Dryrun - no action performed"
+		fi
+
+		# Decrease global indent level
+		main.decreaseLogIndent
+
+		# Check if all went well
+		# We do not stop the run here if the module failed, this is decided by the 
+		# task management. We only stop the run, if a task depends on
+		# this failed one - otherwise we can go on!
+		if [[ $(common.check.postconditions) == false  ]]
+		then
+			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+		
+			# We notify the caller of the problem
+			return $CXR_RET_ERR_POSTCONDITIONS
+		fi
+		
+		
+		# -v option shows message only if the log level is high enough
+		main.log -v   "Some verbose message here"
 	
 		# Store the state
 		common.state.storeState ${CXR_STATE_STOP} > /dev/null ${STAGE}
-		
 	fi
-
 }
 
 ################################################################################
@@ -256,44 +247,6 @@ function name()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -308,61 +261,10 @@ function test_module()
 	########################################
 	
 	# Example test
-	# is $(common.fs.isNotEmpty? ${CXR_OUTPUT_FILES[0]}) true "simple existence check, inspect ${CXR_OUTPUT_FILES[0]}"
+	# is $(common.fs.isNotEmpty? ${OUTPUT_FILE}) true "simple existence check, inspect ${OUTPUT_FILE}"
 
 	########################################
 	# teardown tests if needed
 	########################################
-	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
+
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi

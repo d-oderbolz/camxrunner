@@ -20,6 +20,8 @@ CXR_CALL="\$ ${0}"
 # Exit if any command returns non-zero 
 # (means that $? cannot be checked anymore. Instead use 
 # command || return $CXR_RET_ERROR)
+# If you want to ignore failure (e. g. when calling expr) 
+# use command || :
 set -o errexit
 
 # Never use an undefined variable.
@@ -41,7 +43,7 @@ CXR_PID=$$
 ################################################################################
 
 # Uncomment this for REALLY Verbose messages (directly from bash)
-#set -x
+#set -xv
 
 # Set this to true to disable locking.
 # Dangerous, especially in parallel mode; should only be used when debugging
@@ -209,11 +211,13 @@ CXR_ALL=all
 # Used to tell a single step from all steps
 CXR_RUN_ALL=${CXR_ALL}
 
-
-
 ################################################################################
 # Set inital values of features ################################################
 ################################################################################
+
+
+# Percentage of Memory that should be free upon starting a new task
+CXR_MEM_FREE_PERCENT=20
 
 # Parametes that control waiting
 # Minutes we wait on a single event (file)
@@ -226,15 +230,24 @@ CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
 # also used in the task functions, number of secods an idle task sleeps
 CXR_WAITING_SLEEP_SECONDS=60
 
+# After this amount of seconds, we should stop to lock
+# We use this lock to keep two processes from getting the same task,
+# but also to keep exclusive, often long running modules alone.
+# This must be at least as long as a single model task takes
+CXR_LOCK_TIMEOUT_SEC=7200
+
+# After this amount of seconds, a arallel worker gives up if
+# dependencies are not satisfied
+CXR_DEPENDECY_TIMEOUT_SEC=7200
+
+# This is the max number of times all werkers can be idle
+# (consecutively)
+# This mechanism allows to detect a locked up run faster than aboves timeouts
+CXR_MAX_LOCKUP_COUNT=10
+
 
 # Variables:  Parallel Task control
 #
-
-
-# If this is true, no new assignments will be made
-# Normally set programatically - dangerous because
-# no progress is possible when this is false
-CXR_BLOCK_ASSIGNMENTS=false
 
 # If this is false, modules that depend on disabled modules
 # will never be able to run. 
@@ -375,12 +388,6 @@ CXR_CHECKED_ONCE=false
 # is set according to the options set
 CXR_LOG_EXT=""
 
-### Settings for testing
-
-# If this is true, modules will not initialize the testing 
-# environment
-CXR_TESTING_FROM_HARNESS=false
-
 ################################################################################
 ################################################################################
 # Now follows a default set of options that might be copied to a configuration file.
@@ -432,6 +439,9 @@ CXR_ENABLED_INSTALLER=""
 # This is the directory where tempfiles go.
 # We do not recommed to use /tmp because the space requirements
 # might be significant (e. g. when decompressing files, we need a few GB per file)
+# If you plan to use more than one machine in parallel, all need to use the same
+# directory (hence it must be on a network FS)
+# This is for efficiency reasons (to avoid decompressing the same files more than once)
 CXR_TMP_DIR=~/tmp
 
 # The directory where the executables lie
@@ -471,6 +481,28 @@ CXR_F_MARGIN=1.1
 
 # Fraction of space (of total run) we need in the tmp dir
 CXR_TMP_SPACE_FACTOR=0.05
+
+################################################################################
+# Parameters to estimate time needed
+################################################################################
+
+# We normalize the time per this number of cells
+# when storing times.
+# Increase when normalized times are too small - but changing this
+# setting invalidates all data in the state/universal/hashes/Timing Hash!
+CXR_TIME_PER_CELLS=100000
+
+# This factor is re-calculated later
+CXR_TIME_NORM_FACTOR=1
+
+# We do not store more than this number of timing infos per module
+CXR_TIME_MAX_ENTRIES=1000
+
+# This variable will hold the estimated total time
+CXR_TIME_TOTAL_ESTIMATED=0
+
+# This is graphical - the max with of the progress bar
+CXR_MAX_BAR_WIDTH=80
 
 ################################################################################
 # Installer - specific settings (find more in the CAMx version specific .conf files)
@@ -592,16 +624,6 @@ CXR_ACTIVE_ONCE_POST_HASH=active_once_post_hash
 
 CXR_ACTIVE_MODEL_HASH=active_model_hash
 
-
-# This is where the locks go
-# must be exported because lock manager reads from environment
-export CXR_LOCK_DIR=$CXR_GLOBAL_DIR/locks
-
-
-# In this file, we store files that where decompressed
-CXR_DECOMPRESSED_LIST=${CXR_GLOBAL_DIR}/decompressed.files
-
-
 ########################################
 # Logging
 ########################################
@@ -612,6 +634,9 @@ CXR_LOG=${CXR_LOG_OUTPUT_DIR}/${CXR_RUN}_$(date +"%Y_%m_%d_%H_%M")${CXR_LOG_EXT}
 # These functions will report verbosely, no matter what
 # Space separated list - for debugging only
 CXR_LOG_FUNCTION_VERBOSE_LIST=""
+
+# Here this feature can be disabled for performance reasons
+CXR_EVALUATE_FUNCTION_VERBOSE_LIST=false
 
 ################################################################################
 # Per-Instance Information
@@ -641,10 +666,14 @@ CXR_ALL_INSTANCES_DIR=${CXR_STATE_DIR}/instances
 
 CXR_INSTANCE_DIR=${CXR_ALL_INSTANCES_DIR}/${CXR_INSTANCE}
 
+# In this file, we store the error stack
+CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
+
+# In this file, we store the days where issues where detected
+CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
 # Instance Hashes are stored here
 CXR_INSTANCE_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
-
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
@@ -654,40 +683,27 @@ CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
 # This file is created explictly in common.state.init
 CXR_CONTINUE_FILE=${CXR_INSTANCE_DIR}/${CXR_CONTINUE}
 
+####################################
+# Hashes
+####################################
 
-# In this file, we store the error stack
-CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
+# In this hash, we store files that where decompressed (for all instances)
+CXR_GLOBAL_HASH_DECOMPRESSED_FILES=Decompressed_Files
 
-
-# In this file, we store the days where issues where detected
-CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
-
-
-########################################
-# The next few files are SECURITY RELEVANT.
-# 1. Use a random number in the name
-# 2. Use chmod to deny access (done by common.state.init)
-########################################
-
-# In this file, we store all output files that have been generated
+# In this hash, we store all output files that have been generated
 # This is used to compress output if needed or to delete output.
-CXR_INSTANCE_FILE_OUTPUT_LIST=${CXR_INSTANCE_DIR}/output_files
+CXR_INSTANCE_HASH_OUTPUT_FILES=Output_Files
 
 
-# In this file, we store dummy files of a dry run.
+# In this hash, we store dummy files of a dry run.
 # These will be deleted after the dry run
-CXR_INSTANCE_FILE_DUMMY_LIST=${CXR_INSTANCE_DIR}/dry_dummy_files.${RANDOM}
+CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
 
 
-# In this file, we store temporay files of a run. 
+# In this hash, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
 # These will be deleted after the run
-CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp_files.${RANDOM}
-
-
-# In this file, we store the locks this instance holds
-CXR_INSTANCE_FILE_LOCK_LIST=${CXR_INSTANCE_DIR}/lock_list.${RANDOM}
-
+CXR_INSTANCE_HASH_TEMP_FILES=Temp_Files
 
 ################################################################################
 # Supported model names.

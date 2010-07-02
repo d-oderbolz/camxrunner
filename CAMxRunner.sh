@@ -33,11 +33,8 @@
 # TODO: Remove XX_ digits
 # TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
 # TODO: Enable the execution of more than one specific module
-# TODO: Replace all common.string.isSubstringPresent? calls with hashes
 # TODO: selective module data update (none if limited processing)
-# TODO: Logger/die no FUNCNAME anymore
-# TODO: change naming convention of all functions
-# TODO: internally use modulename{day_offset} to identify a step (also in the state db)
+# TODO: Rewrite detectRunningInstances: local via ps, remote via time of CONTINUE
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.
@@ -120,6 +117,8 @@ function main.usage()
 	        max. n concurrent procs. n must be given!
 
 	  -C    Create a new run, you are guided through the process.
+	  
+	  -R[name]  Creates a configuration to repeat an existing run. If no rn is given, asks user.
 
 	  -N    do NOT run CAMx, only input and output prep
 
@@ -215,6 +214,7 @@ CXR_RUN_DIR="$(dirname $0)"
 cd ${CXR_RUN_DIR} || ( echo "Could not change to $CXR_RUN_DIR" ; exit 1 )
 CXR_RUN_DIR="$(pwd)"
 
+
 ################################################################################
 # Source most important functions (rest is done later dynamically and version dependent)
 ################################################################################
@@ -234,14 +234,6 @@ main.setModelAndVersion ${CXR_RUN}
 source $CXR_RUN_DIR/inc/defaults.inc
 
 ################################################################################
-# Read Config ##################################################################
-################################################################################
-
-# The run determines the files to use
-main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
-
-
-################################################################################
 # Handle options ###############################################################
 ################################################################################
 # Get the users input here (done this early to avoid loading of stuff we do not need -
@@ -254,7 +246,7 @@ main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DI
 
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parametres that come later
-while getopts ":dlvVFwmct:sD:LP:ITxi:o:CNp:f:h" opt
+while getopts ":dlvVFwmct:sD:LP:ITxi:o:CRNp:f:h" opt
 do
 	case "${opt}" in
 		d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -277,7 +269,9 @@ do
 		# Testing
 		T) CXR_HOLLOW=true; CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_INF} ; CXR_USER_TEMP_RUN_TESTS=true ;;
 	
+		# Creation or re-creation of configuration
 		C) CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		R) CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG}; CXR_HOLLOW=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		N) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false ;;
 		
@@ -302,6 +296,12 @@ shift $((${OPTIND} - 1))
 unset OPTSTRING
 unset OPTIND
 
+################################################################################
+# Read Config ##################################################################
+################################################################################
+
+# The run determines the files to use
+main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
 ################################################################################
 # Include all external functions. We do this here to reduce clutter ############
@@ -319,6 +319,7 @@ then
 	main.log -a "CXR_MODEL_EXEC was not set by the user, determining name..."
 	CXR_MODEL_EXEC="$(get_model_exec)"
 fi
+
 
 ################################################################################
 # Correct user-supplied variables ##############################################
@@ -340,7 +341,7 @@ done
 # If user feels verbose, make it so
 if [[ "$CXR_LOG_LEVEL_SCREEN" -ge "$CXR_LOG_LEVEL_DBG" ]]
 then
-	set -x
+	set -xv
 fi
 
 #  correct LOG if needed
@@ -354,7 +355,7 @@ if [[ "${CXR_DO_FILE_LOGGING}" == false ]]
 then
 	# No logging!
 	# Log to the null device
-	CXR_CXR_LOG=/dev/null
+	CXR_LOG=/dev/null
 fi
 
 # Adjust options to control pre- and postprocessors
@@ -363,13 +364,9 @@ then
 	#Run everything. This is needed because if no option is given, we want all.
 	CXR_RUN_PRE_ONCE=true
 	CXR_RUN_PRE_DAILY=true
-	CXR_USER_TEMP_RUN_MODEL=true
+	CXR_RUN_MODEL=true
 	CXR_RUN_POST_DAILY=true
 	CXR_RUN_POST_ONCE=true
-else
-	# Limited processing is not done in parallel
-	CXR_MAX_PARALLEL_PROCS=1
-	CXR_PARALLEL_PROCESSING=false
 fi
 
 
@@ -403,11 +400,10 @@ then
 fi
 
 # Ok, now less than 2 processes is not parallel
-if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1   ]]
+if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1 ]]
 then
 	main.log -w "CAMxRunner.sh" "You chose to use less than 1 common.parallel.Worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
-	CXR_PARALLEL_PROCESSING=false
 fi
 
 main.log -v -B "CAMxRunner.sh" "Selected options are valid." 
@@ -528,6 +524,10 @@ then
 	then
 		# Create a new run
 		common.runner.createNewRun
+	elif [[ ! -z "${CXR_REPEAT_THIS_RUN:-}"  ]]
+	then
+		# Re-create existing run
+		common.runner.recreateRun
 	elif [[ "${CXR_STOP_RUN}" == true  ]]
 	then
 		#Delete .CONTINUE files of all instances
@@ -620,7 +620,7 @@ then
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0 false)
+			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" -1 false)
 		fi
 	else
 		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
@@ -749,9 +749,9 @@ then
 		# We need a way to find out if all workers returned happily to
 		# manipulate CXR_STATUS if needed
 		
-		if [[ "$(cxr_common_parallel_count_open_tasks)" -ne 0  ]]
+		if [[ "$(common.parallel.countOpenTasks)" -ne 0  ]]
 		then
-			main.log "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(cxr_common_parallel_count_open_tasks) open tasks!"
+			main.log "CAMxRunner.sh" "The run $CXR_RUN stopped, but there are still $(common.parallel.countOpenTasks) open tasks!"
 			# We are not happy
 			CXR_STATUS=$CXR_STATUS_FAILURE
 		else

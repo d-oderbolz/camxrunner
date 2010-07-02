@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -57,37 +58,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
-
 
 ################################################################################
 # Function: common.check.BashVersion
@@ -151,9 +121,9 @@ function common.check.PredictModelOutputMb()
 	# Our constant is designed for 10^5 cells
 	cells=$(common.math.FloatOperation "$cells / 100000")
 	
-	time_steps=$(common.math.FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIM_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" "0" )
+	time_steps=$(common.math.FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIM_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" "-1" )
 	
-	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "0" false)
+	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "-1" false)
 	
 	echo "$size"
 }
@@ -190,7 +160,10 @@ function common.check.MbNeeded()
 		mkdir -p $dir
 	fi
 	
-	if [[ "$(common.fs.getFreeMb "$dir")" -ge "$mb"  ]]
+	available="$(common.fs.getFreeMb "$dir")"
+	main.log -v "Found $available Mb in $dir"
+	
+	if [[ "$available" -ge "$mb" ]]
 	then
 		main.log -i  "Space in $dir is sufficient."
 	else
@@ -298,7 +271,7 @@ function common.check.ModelLimits()
 	
 	# We must find the play file
 	local conffile=${CXR_MODEL_BIN_DIR}/$(basename ${CXR_MODEL_EXEC}).conf
-	local i
+	local iGrid
 	local var
 	local curr_var
 	local f_val
@@ -315,19 +288,19 @@ function common.check.ModelLimits()
 		# Check geometry
 		
 		#Test each grid
-		for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+		for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 		do
 			# For column, row, layer (CAMx internal variables are called like lis, eg MXROW1
 			for var in COL ROW LAY
 			do
 				case "${var}" in
-					COL) cxr_value=$(common.runner.getX ${i}) ;;
-					ROW) cxr_value=$(common.runner.getY ${i}) ;;
-					LAY) cxr_value=$(common.runner.getZ ${i}) ;;
+					COL) cxr_value=$(common.runner.getX ${iGrid}) ;;
+					ROW) cxr_value=$(common.runner.getY ${iGrid}) ;;
+					LAY) cxr_value=$(common.runner.getZ ${iGrid}) ;;
 				esac
 				
 				# e. g. MXCOL1
-				curr_var="MX${var}${i}"
+				curr_var="MX${var}${iGrid}"
 				
 				main.log -v  "Checking ${curr_var}..."
 				
@@ -375,7 +348,7 @@ function common.check.ModelLimits()
 ################################################################################
 # Function: common.check.RunnerExecutables
 #	
-# Loop through all *.sh scripts in the ${CXR_RUN_DIR} and check if they are executable
+# Loop through all *.sh scripts in the ${CXR_RUN_DIR} and check if they are Unix format
 #
 ################################################################################
 function common.check.RunnerExecutables()
@@ -389,24 +362,17 @@ function common.check.RunnerExecutables()
 		# We are still alive...
 		common.user.showProgress
 		
-		if [[ ! -x $file ]]
+		if [[ "$(common.fs.isDos? "$file")" == true ]]
 		then
-			main.log -w  "File $file is not executable,I try to correct this"
-			# File is not executable, try to correct
-			chmod +x $file || main.dieGracefully "Could not change permissions on file $file - exiting"
+			main.log -w  "$file is in dos format. I will correct this."
+			${CXR_DOS2UNIX_EXEC} $file
 			
-			if [[ "$(common.fs.isDos? "$file")" == true ]]
+			if [[ $? -ne 0 ]]
 			then
-				main.log -w  "$file is in dos format. I will correct this."
-				${CXR_DOS2UNIX_EXEC} $file
-				
-				if [[ $? -ne 0 ]]
-				then
-					main.dieGracefully "could not convert $file to Unix format!"
-				fi
+				main.dieGracefully "could not convert $file to Unix format!"
 			fi
-			
 		fi
+
 	# Make sure we exclude state dir
 	done<<<"$(find ${CXR_RUN_DIR} -noleaf -type f -name \*.sh | grep -v "^${CXR_RUN_DIR}/state/")"
 	
@@ -499,6 +465,8 @@ function common.check.getMD5()
 # Also stores this information in a global hash called MD5. If there is a current 
 # value in there (generated during this run), we do not report a new value, 
 # otherwise we do and compare the new with the old value.
+# If a file is on a local filesystem, we add the nodename as prefix to tell local files
+# of different machines apart.
 #
 # Parameters:
 # $1 - file to Hash
@@ -515,28 +483,40 @@ function common.check.reportMD5()
 		fi
 		
 		local file="$1"
+		local isLocal="$(common.fs.isLocal? "$file")"
 		local hash
 		local new_hash
 		local old_hash
 		local old_mtime
 		
+		if [[ "$isLocal" == true ]]
+		then
+			# add the hostname as prefix
+			hash_file=$(uname -n):${file}
+			main.log -v "Local file: $hash_file"
+		else
+			hash_file=$file
+		fi
+		
 		# Is this file already in the cache?
-		if [[ "$(common.hash.has? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )" == true ]]
+		if [[ "$(common.hash.has? MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}" )" == true ]]
 		then
 		
 			# Did we encounter it recently?
-			if [[ "$(common.hash.isNew? MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")" == false ]]
+			if [[ "$(common.hash.isNew? MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
 				new_hash="$(common.check.getMD5 "$file")"
-				old_hash="$(common.hash.get MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}")"
+				old_hash="$(common.hash.get MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
 				then
 					# Get the old mtime
-					old_mtime="$(common.hash.getMtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${file}" )"
+					old_mtime="$(common.hash.getValueMtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
 					main.log -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
+					# Currently, we do not store the new hash, so user will see this message
+					# more than once (wanted by design)
 				fi
 			fi
 		
@@ -546,7 +526,7 @@ function common.check.reportMD5()
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
-			common.hash.put MD5 $CXR_HASH_TYPE_UNIVERSAL "$file" "$hash"
+			common.hash.put MD5 $CXR_HASH_TYPE_UNIVERSAL "$hash_file" "$hash"
 		fi
 	fi
 }
@@ -738,7 +718,6 @@ function common.check.preconditions()
 	
 	main.log -v   "Performing per-day checks..."
 	
-	
 	########################################
 	# Input Check
 	########################################
@@ -841,10 +820,10 @@ function common.check.preconditions()
 			fi
 			
 			# is it present?
-			if [[ -f "${output_file}"  ]]
+			if [[ -f "${output_file}" ]]
 			then
 				#############################
-				# File Present!
+				# File Present 
 				#############################
 				
 				# is it empty or do we force?
@@ -931,6 +910,7 @@ function common.check.ModuleRequirements()
 	local need
 	local executable
 	local found=false
+	local version
 	
 	# We announce only if it was not found
 	if [[ "$found" == false  ]]
@@ -1109,7 +1089,7 @@ function common.check.ModuleRequirements()
 # old approach where we looped over an array of arrays of files).
 # This list is called CXR_CHECK_THESE_OUTPUT_FILES and must be set befor calling this function
 #
-# Additionally, each created file is added to the file CXR_INSTANCE_FILE_OUTPUT_LIST
+# Additionally, each created file is added to the hash CXR_INSTANCE_HASH_OUTPUT_FILES
 #
 # This function does not terminate the runner if errors are found,
 # but it returns false
@@ -1129,12 +1109,12 @@ function common.check.postconditions()
 		# generate dummy files if needed
 		for output_file in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
-			# does it not exist?
-			if [[ ! -f "${output_file}"  ]]
+			# does it exist?
+			if [[ -f "${output_file}" || "$(common.fs.isCompressed? "${output_file}")" == true ]]
 			then
+				main.log -w  "File ${output_file} seems to exist or is compressed, we do not touch it."
+			else	
 				common.runner.createDummyFile ${output_file}
-			else
-				main.log -w  "File ${output_file} seems to exist, we do not touch it."
 			fi
 		done
 		
@@ -1155,16 +1135,8 @@ function common.check.postconditions()
 		then
 			main.log -v  "Output File ${output_file} has non-zero size, OK."
 			
-			# Add the file to CXR_INSTANCE_FILE_OUTPUT_LIST if the file is not yet listed
-			grep "${output_file}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
-			
-			if [[ "$?" -ne 0  ]]
-			then
-				# File not yet listed, add 
-				# structure is 
-				# filename|module_that_created it
-				echo "${output_file}${CXR_DELIMITER}${CXR_META_MODULE_NAME}" >> "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
-			fi
+			# Add the file to CXR_INSTANCE_HASH_OUTPUT_FILES value is the module that created it
+			common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE  "${output_file}" "${CXR_META_MODULE_NAME}"
 			
 		else
 			main.log -e "File $(basename ${output_file}) was not created properly"
@@ -1427,44 +1399,6 @@ function common.check.RunName()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -1484,55 +1418,4 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi

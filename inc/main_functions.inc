@@ -129,6 +129,9 @@ function main.addError()
 	then
 		mkdir -p ${CXR_STATE_DIR}
 	fi
+
+	# Show message to user
+	main.log -a "${1:-No message}"
 	
 	# Make sure we have such a variable
 	if [[ "${CXR_INSTANCE_FILE_ERROR_STACK:-}"  ]]
@@ -139,13 +142,10 @@ function main.addError()
 		# Could be that the state db is not yet initialized
 		if [[ -f "${CXR_INSTANCE_FILE_ERROR_STACK}"  ]]
 		then
-			echo "${1:-"No message"}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
+			echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
 		fi	
 	
 	fi
-	
-	# Also show error to the user
-	main.log -a  "${1:-}"
 }
 
 ################################################################################
@@ -184,7 +184,7 @@ function main.countErrors()
 # -v VERBOSE (VRB) [8] : Messages that may help to solve problems or understand how CAMxRunner works
 # -i INFO (INF) [4] - Default : Purely informational statements (like how many grid cells there are in a simulation)
 # -w WARN (WRN) [2] : Indicates that something might be wrong
-# -e ERROR (ERR) [1] : Something has failed (will always be shown)
+# -e ERROR (ERR) [1] : Something has failed (will always be shown, presents call-stack)
 #
 # The user can manipulate Separate Loglevels for screen (CXR_LOG_LEVEL_SCREEN) and file (CXR_LOG_LEVEL_FILE),
 # Usually the screen shows less and the file shows more.
@@ -230,6 +230,10 @@ function main.log()
 	local blank_message
 	local stderr_message
 	local message
+	local call_stack
+	local iFct
+	local maxNests
+	local do_log=${CXR_DO_FILE_LOGGING:-true}
 	
 	while getopts ":ndviweabBH" opt
 	do
@@ -237,7 +241,7 @@ function main.log()
 		b) stars="${CXR_BOX_SMALL}";;
 		B) stars="${CXR_BOX_LARGE}";;
 		H) stars="${CXR_BOX_HUGE}";;
-		n) local CXR_DO_FILE_LOGGING=false;; #Local only!
+		n) local do_log=false;; #Local only!
 		d) log_level=$CXR_LOG_LEVEL_DBG ; prefix=DBG: ;;
 		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix= ;;
 		i) log_level=$CXR_LOG_LEVEL_INF ; prefix= ;;
@@ -255,9 +259,11 @@ function main.log()
 	unset OPTSTRING
 	unset OPTIND
 	
-	# Its actually ofen the case that the first parameter is forgotten,
-	# which leads to a lost message
+	# max index of the call-stack
+	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
 	
+	# Often the case the first parameter is forgotten,
+	# which leads to a lost message
 	if [[ $# -eq 2 ]]
 	then
 		# Non-Standard case
@@ -265,7 +271,7 @@ function main.log()
 		blank_message="${prefix}${2:-}"
 	else
 		# The caller is in ${FUNCNAME[1]}
-		if [[ ${#FUNCNAME[@]} -ge 2 ]]
+		if [[ ${maxNests} -ge 1 ]]
 		then
 			function_name="${FUNCNAME[1]}"
 		else
@@ -275,16 +281,17 @@ function main.log()
 		blank_message="${prefix}${1:-}"
 	fi
 	
-	if [[ ${#FUNCNAME[@]} -ge 2 ]]
+	# If set, we display the worker ID on screen
+	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
 	then
-		line_no="${BASH_LINENO[1]}"
+		stderr_message="${CXR_WORKER_ID}: $blank_message"
+	else
+		stderr_message="$blank_message"
 	fi
-	
-	stderr_message="$blank_message"
 	
 	### In case of error, write current day to failed days file
 	### and increase error count
-	if [[ "${log_level}" == "${CXR_LOG_LEVEL_ERR}"  ]]
+	if [[ "${log_level}" -eq "${CXR_LOG_LEVEL_ERR}" ]]
 	then
 		# Could be that the state db is not yet initialized
 		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}"  ]]
@@ -292,7 +299,19 @@ function main.log()
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
 		
-		main.addError "${function_name}:${line_no} - ${blank_message}"
+		# Create callstack
+		if [[ ${maxNests} -ge 1 ]]
+		then
+			call_stack="Call Stack:"
+			for iFct in $(seq 1 ${maxNests})
+			do
+				# Index of last fct
+				local last=$(( $iFct - 1 ))
+				call_stack="${call_stack} ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]}"
+			done
+		fi # Callstack available?
+		
+		main.addError "${blank_message} - ${call_stack:-}"
 	fi
 	
 	# We have to look at several things separately: 
@@ -304,34 +323,40 @@ function main.log()
 	# Here we add no indentation
 	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}"  ]]
 	then
-	
-		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${stars}"  ]]
+		# stderr not needed in case of error (already done)
+		if [[ "${log_level}" != "${CXR_LOG_LEVEL_ERR}" ]]
 		then
-			stderr_message="${stars}\n${stderr_message}\n${stars}\n"
-		fi
-		
-		# Write a unformatted copy to sterr
-		echo -e "${stderr_message}" 1>&2
-		
-	else
-	
-		# There is a second chance: the user might have added the function in question to 
-		# CXR_LOG_FUNCTION_VERBOSE_LIST
-		local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
-		
-		if [[ "${FOUND}" -ne 0 ]]
-		then
-			# Function was added by user
-			
 			# If stars are set, we add a line of stars at the beginning and end
 			if [[ "${stars}" ]]
 			then
-				stderr_message"${stars}\n${stderr_message}\n${stars}\n"
+				stderr_message="${stars}\n${stderr_message}\n${stars}\n"
 			fi
 			
-			# Write a unformatted copy to sterr
+			# Write a unformatted copy to sterr. 
 			echo -e "${stderr_message}" 1>&2
+		fi
+	else
+	
+		if [[ $CXR_EVALUATE_FUNCTION_VERBOSE_LIST == true ]]
+		then
+			# There is a second chance: the user might have added the function in question to 
+			# CXR_LOG_FUNCTION_VERBOSE_LIST
+			local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
+			
+			if [[ "${FOUND}" -ne 0 ]]
+			then
+				# Function was added by user
+				
+				# If stars are set, we add a line of stars at the beginning and end
+				if [[ "${stars}" ]]
+				then
+					stderr_message="${stars}\n${stderr_message}\n${stars}\n"
+				fi
+				
+				# Write a unformatted copy to sterr
+				echo -e "${stderr_message}" 1>&2
+			fi
+		
 		fi
 		
 	fi
@@ -339,7 +364,7 @@ function main.log()
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$CXR_DO_FILE_LOGGING" == true    ]]
+	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$do_log" == true    ]]
 	then
 		# Logfile is defined
 
@@ -368,7 +393,7 @@ function main.log()
 	# -a does not go there
 	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}"   ]]
 	then
-		main.sendMessage "Log" "$blank_message"
+		main.sendMessage "Log" "${blank_message} - ${call_stack}"
 	fi
 	
 	return $CXR_RET_OK
@@ -432,7 +457,7 @@ function main.sendMessage()
 ################################################################################
 # Function: main.doCleanup
 #
-# Cleans the state DB/Locks etc.
+# Cleans the state DB/Locks etc and kills all processes (master and workers)
 #
 ################################################################################
 function main.doCleanup()
@@ -441,7 +466,7 @@ function main.doCleanup()
 	local error_count
 	local dummy_file
 	
-	main.log  "Cleaning up - note that it can take more than $CXR_WAITING_SLEEP_SECONDS seconds until all processes are down!"
+	main.log -a -B "Cleaning up $CXR_RUN and Terminating processes..."
 	
 	# Remove any traps once called
 	trap - INT TERM EXIT
@@ -450,19 +475,19 @@ function main.doCleanup()
 	# Error report - do in any Non-hollow case
 	################################################################################	
 	
-	if [[ "$CXR_HOLLOW" == false   ]]
+	if [[ "$CXR_HOLLOW" == false ]]
 	then
 		
 		# All the non-hollow stuff goes here
 		error_count=$(main.countErrors)
 		
-		main.log -B   "Error Report (may be repeated)"
+		main.log -B "Error Report (may be repeated)"
 		
-		if [[ "${error_count:-0}" -ne 0  ]]
+		if [[ "${error_count:-0}" -ne 0 ]]
 		then
-			main.log   "The system detected at least $error_count errors, fix them!\n\nHere is the error stack:\n"
+			main.log -a "The system detected at least $error_count errors, fix them!\n\nHere is the error stack:\n"
 			
-			if [[ "${CXR_LOG:-}"  ]]
+			if [[ "${CXR_LOG:-}" ]]
 			then
 				# Write to logfile
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
@@ -489,18 +514,34 @@ function main.doCleanup()
 		
 		if [[ "$CXR_DRY" == true  ]]
 		then
-			main.log  "Dryrun: removing the dummy files..."
+			main.log "Dryrun: removing the dummy files..."
 			
-			# At least touch it
-			touch "$CXR_INSTANCE_FILE_DUMMY_LIST" 2>/dev/null
+			# common.hash.getKeys returns a CXR_DELIMITER delimited string
+			oIFS="$IFS"
+			local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE)"
+			IFS="$CXR_DELIMITER"
 			
-			# Clean dummy files away
-			for dummy_file in $(cat "$CXR_INSTANCE_FILE_DUMMY_LIST")
+			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+			local arrKeys=( $keyString )
+			
+			# Reset Internal Field separator
+			IFS="$oIFS"
+			
+			# Clean files away
+			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 			do
-				main.log -v   "Deleting $dummy_file"
+				dummy_file=${arrKeys[$iKey]}
+
+				main.log -v "Deleting $dummy_file"
 				
-				rm -f "$dummy_file"
+				rm -f "$dummy_file" >/dev/null 2>&1
+				
+				# Remove from hash
+				common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE "$dummy_file"
 			done
+			
+			IFS="$oIFS"
+			
 		fi
 		
 		# Remove all tempfiles
@@ -544,6 +585,14 @@ function main.doCleanup()
 	
 	# Change Back to rundir
 	cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
+	
+
+	# What we do is kill the CAMxRunner processes (whole process group by giving negative PID)
+	# See <http://stackoverflow.com/questions/392022/best-way-to-kill-all-child-processes>
+	# Any child process can do this (which is good), however this means that all childs will re-execute this handler
+	# because in their processes, the handler is still in place.
+	kill -- -${CXR_PID}
+	
 }
 
 # Set the trap (needs function first)
@@ -564,6 +613,8 @@ function main.dieGracefully()
 {
 	# Release any traps
 	trap - INT TERM EXIT
+	local iFct
+	local maxNests
 	
 	# Stop this run
 	# Delete any .CONTINUE FILES
@@ -577,23 +628,24 @@ function main.dieGracefully()
 	# This function also echoes the message
 	main.addError "${1:-Unknown error.}"
 	
-	if [[ ${#FUNCNAME[@]} -ge 2 ]]
+	# max index of the call-stack
+	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
+	
+	if [[ ${maxNests} -ge 1 ]]
 	then
 		main.log -a "Call Stack:"
 		
-		for i in $(seq 1 $(( ${#FUNCNAME[@]} - 1 )) )
+		for iFct in $(seq 1 ${maxNests})
 		do
-			echo ${FUNCNAME[$i]}:${BASH_LINENO[$i]}
+			local last=$(( $iFct - 1 ))
+			echo ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]} 1>&2
 		done
-	fi
-	
+	fi # Callstack available?
+
 	main.log -a  "##########################################################"
 	
+	# Cleanup kills the processes
 	main.doCleanup
-	
-	# We cannot use exit here, since we might live in a subprocess
-	# What we do is kill the CAMxRunner process
-	kill $CXR_PID
 }
 
 ################################################################################
@@ -823,6 +875,9 @@ function main.getRevision()
 #
 # Also here, we set all variables that depend on model & version
 #
+# TODO: Make all parameters, except run name optional. Write function called
+# pareseRunName or something.
+#
 # Parameters:
 # $1 - The name of the run to use
 # $2 - The Modelname to use
@@ -902,7 +957,7 @@ function main.readConfig()
 	CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
 	
 	# And these Version specific common modules
-	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL_VERSION}
+	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
 	
 	
 	# Directories where to find installer modules
@@ -1029,6 +1084,25 @@ function main.readConfig()
 }
 
 ################################################################################
+# Function: main.HandleHup
+#
+# Handles the HUP signal (sent to reread the configuration)
+#
+################################################################################
+function main.HandleHup()
+################################################################################
+{
+	main.log -a "Rereading Configuration of ${CXR_RUN}..."
+	
+	# Do it
+	main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
+}
+
+# Set the trap (needs function first)
+trap "main.HandleHup" HUP
+
+
+################################################################################
 # Function: main.getModuleName
 #
 # Extracts the module name from a path, removes the leading number and the trailing extension
@@ -1043,12 +1117,12 @@ function main.getModuleName()
 	local module_name
 	local index_us
 	
-	if [[ $# -ne 1   ]]
+	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a string (the long module name) as input."
 	fi	
 	
-	full_name=$1
+	full_name=${1}
 	
 	# We just want the filename
 	module_name=$(basename $full_name)
@@ -1079,10 +1153,21 @@ function main.listModuleType()
 	# TODO: How do model and installer modules fit in here?
 	
 	local module_type="$1"
+	local call
+	local module_directories
+	local disabled_modules
+	local module_directory
+	local pattern
+	local num_modules
+	local function_file
+	local file_name
+	local total_call
+	local found
+	
 	
 	# What kind of module?
 	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
-	# - DISABLED_MODULES is a list of disabled modules of the current type
+	# - disabled_modules is a list of disabled modules of the current type
 	
 	case "$module_type" in
 	
@@ -1090,24 +1175,24 @@ function main.listModuleType()
 		main.dieGracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-			CALL="-p"
-			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
-			DISABLED_MODULES="${CXR_DISABLED_ONCE_PREPROC:-}";;
+			call="-p"
+			module_directories="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_ONCE_PREPROC:-}";;
 			
 		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-			CALL="-i"
-			MODULE_DIRECTORIES="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
-			DISABLED_MODULES="${CXR_DISABLED_DAILY_PREPROC:-}";;
+			call="-i"
+			module_directories="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_PREPROC:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-			CALL="-o"
-			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
-			DISABLED_MODULES="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			call="-o"
+			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-			CALL="-f"
-			MODULE_DIRECTORIES="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
-			DISABLED_MODULES="${CXR_DISABLED_ONCE_POSTPROC:-}";;
+			call="-f"
+			module_directories="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
 		* ) 
 			main.dieGracefully "Unknown module type $module_type" ;;
@@ -1118,57 +1203,57 @@ function main.listModuleType()
 	main.increaseLogIndent
 	
 	# Loop through available input dirs
-	for MODULE_DIRECTORY in $MODULE_DIRECTORIES
+	for module_directory in $module_directories
 	do
 		# How do processors look like?
-		PATTERN="${MODULE_DIRECTORY}/??_*.sh"
+		pattern="${module_directory}/??_*.sh"
 		
 		#Count modules
-		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
+		num_modules=$(ls ${pattern} 2> /dev/null | wc -l)
 		
-		if [[ "$NUM_MODULES" -gt 0  ]]
+		if [[ "$num_modules" -gt 0  ]]
 		then
-			main.log -v  "  $(printf %-32s%-75s Name Call)"
+			main.log -v  "  $(printf %-32s%-75s Name call)"
 			
 			# Active Processors
-			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
+			for function_file in $(ls ${pattern} 2> /dev/null)
 			do
-				FILE_NAME=$(basename $FUNCTION_FILE)
-				TOTAL_CALL="${CXR_CALL} ${CALL}$(main.getModuleName $FUNCTION_FILE)"
+				file_name=$(basename $function_file)
+				total_call="${CXR_call} ${call}$(main.getModuleName $function_file)"
 				
-				main.log -v  "  $(printf %-32s%-75s "${FILE_NAME}" "${TOTAL_CALL}")"
-				FOUND=true
+				main.log -v  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
+				found=true
 			done
 		else
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log   "No enabled modules of type $module_type where found. Is this intended?\n"
+			main.log "No enabled modules of type $module_type where found. Is this intended?\n"
 			
 			# Decrease global indent level
 			main.decreaseLogIndent
 		fi
 	
-		if [[ "$DISABLED_MODULES" ]]
+		if [[ "$disabled_modules" ]]
 		then
-			main.log -w  "You disabled these modules in the configuration: $DISABLED_MODULES"
+			main.log -w  "You disabled these modules in the configuration: $disabled_modules"
 		fi
 	
-		main.log -i   "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
+		main.log -i "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
 		
 		# How do disabled modules look like?
-		PATTERN="${MODULE_DIRECTORY}/??_*.${CXR_DISABLED_EXT}"
+		pattern="${module_directory}/??_*.${CXR_DISABLED_EXT}"
 		
 		#Count processors
-		NUM_MODULES=$(ls ${PATTERN} 2> /dev/null | wc -l)
+		num_modules=$(ls ${pattern} 2> /dev/null | wc -l)
 		
-		if [[ "$NUM_MODULES" -gt 0 ]]
+		if [[ "$num_modules" -gt 0 ]]
 		then
 			# Disabled Processors
-			for FUNCTION_FILE in $(ls ${PATTERN} 2> /dev/null)
+			for function_file in $(ls ${pattern} 2> /dev/null)
 			do
-				FILE_NAME=$(basename $FUNCTION_FILE)
-				main.log -w   "$FILE_NAME"
+				file_name=$(basename $function_file)
+				main.log -w   "$file_name"
 			done
 		else
 			# Increase global indent level

@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Preprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,15 +22,15 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
-CXR_META_MODULE_DEPENDS_ON="convert_input"
+CXR_META_MODULE_DEPENDS_ON="convert_meteo"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -72,41 +73,20 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	# This module needs one invocation per step
+	echo 1
 }
 
 ################################################################################
@@ -160,7 +140,7 @@ function set_variables()
 		CXR_MOZART_INPUT_FILE="$(common.runner.evaluateRule "$CXR_GLOBAL_CTM_FILE_RULE" false CXR_GLOBAL_CTM_FILE_RULE)"
 	
 		# Also, we need a domain 1 meteo file
-		i=1
+		CXR_IGRID=1
 		CXR_METEO_INPUT_FILE="$(common.runner.evaluateRule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 		
 		# And finally the ZP file
@@ -226,6 +206,9 @@ function create_topconc_file()
 function initial_conditions() 
 ################################################################################
 {
+	# We do not need this variable here (exept implicit for the stage name)
+	CXR_INVOCATION=${1:-1}
+	
 	# Define & Initialize local vars
 	local extra
 	local spec_line
@@ -236,6 +219,7 @@ function initial_conditions()
 	local camx_array
 	local mozart_spec
 	local camx_spec
+	local iMapping
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -244,9 +228,11 @@ function initial_conditions()
 		set_variables 
 		
 		#  --- Check Settings
-		if [[ $(common.check.preconditions) == false  ]]
+		if [[ "$(common.check.preconditions)" == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -347,11 +333,11 @@ function initial_conditions()
 					mozart_array="["
 					camx_array="["
 					
-					for i in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
+					for iMapping in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
 					do
 						
-						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f2)
-						camx_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$i]} | cut -d: -f1)
+						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$iMapping]} | cut -d: -f2)
+						camx_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$iMapping]} | cut -d: -f1)
 						
 						mozart_array="${mozart_array}'${mozart_spec}',"
 						camx_array="${camx_array}'${camx_spec}',"
@@ -362,13 +348,18 @@ function initial_conditions()
 					mozart_array="${mozart_array%,}]"
 					camx_array="${camx_array%,}]"
 					
-					# Create the file to run IDL
-					echo ".run $(basename ${CXR_IC_PROC_INPUT_FILE})" >> ${exec_tmp_file}
 					# interface:
 					# fmoz,fln,mm5camxinfile,outfile_bc,nlevs,nspec,note,xorg,yorg,delx,dely,ibdate,extra
 					# we need to multiply the resolution by 1000 (metre) 
-					echo "$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra" >> ${exec_tmp_file}
-					echo "exit" >> ${exec_tmp_file}
+					
+					# Create the file to run IDL
+					
+					cat <<-EOF > $exec_tmp_file
+					.run $(basename ${CXR_IC_PROC_INPUT_FILE})
+			
+					$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra
+					exit
+					EOF
 					
 					# Get a copy of the call
 					cat ${exec_tmp_file} | tee -a $CXR_LOG
@@ -440,6 +431,8 @@ function initial_conditions()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				common.state.storeState ${CXR_STATE_ERROR}
+				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -451,10 +444,12 @@ function initial_conditions()
 			then
 				# Skip it
 				main.log -w   "File $CXR_IC_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
-				return 0
+				common.state.storeState ${CXR_STATE_STOP} > /dev/null
+				return $CXR_RET_OK
 			else
 				# Fail!
 				main.log -e  "File $CXR_IC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				common.state.storeState ${CXR_STATE_ERROR}
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -476,44 +471,6 @@ function initial_conditions()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -539,63 +496,6 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
 	
 }
-
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is a subset of the progname,
-# somebody started this script alone
-# Normlly this is not allowed, exept to test using -t
-if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	fi
-	
-	usage
-	
-fi
-
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
 

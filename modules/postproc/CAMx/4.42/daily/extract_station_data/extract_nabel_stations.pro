@@ -1,4 +1,4 @@
-pro extract_nabel_stations,input_file,output_dir,write_header,day,month,year,model_hour,species,x_dim,y_dim,num_levels,stations,format=fmt
+pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,x_dim,y_dim,num_levels,stations,format=fmt
 ;
 ; Function: extract_nabel_stations
 ;
@@ -19,7 +19,6 @@ pro extract_nabel_stations,input_file,output_dir,write_header,day,month,year,mod
 ; Parameters:
 ; input_file - input file to operate on
 ; output_dir - directory where to store output (no trailing /)
-; write_header - boolean flag to indicate if a header is needed (usually for first day)
 ; day - day to be extracted
 ; month - month  to be extracted
 ; year - year to be extracted
@@ -86,13 +85,6 @@ num_species = n_elements(species)
 s = size(stations,/DIMENSIONS)
 num_stations = s[1]
 
-
-; Define header (time plus species)
-columnHeaders = strarr(num_species + 1)
-columnHeaders[0]='TIME'
-columnHeaders[1:num_species] = species
-xsize = N_Elements(columnHeaders)
-
 if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
 if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 
@@ -135,23 +127,10 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	
 	; Open all the output files
 	; and store the luns
-	; write header if needed
 	for i=0L,num_stations-1 do begin
 
 		openw,current_output_lun,station_files[i], /GET_LUN, width=2400
 		station_luns[i]=current_output_lun
-		
-		; If we must, write the header
-		if (write_header and N_Elements(columnHeaders) NE 0) then begin
-			print,'Writing Header...'
-			
-				; This is Fanning code: http://www.dfanning.com/tip_examples/write_csv_data.pro
-				; Make sure these are strings.
-				sColumns = StrTrim(columnHeaders, 2)
-	
-				; Write the headers to the file.
-				PrintF, station_luns[i], sColumns, format='(A12,' + strtrim((num_species),2) + 'A15)'
-		endif
 		
 	endfor
 	

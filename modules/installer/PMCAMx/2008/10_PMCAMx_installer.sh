@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Installer for CAMx
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -52,37 +53,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Start the installation using the -I Option.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
 
 ################################################################################
 # Function: CAMx_installer
@@ -388,22 +358,30 @@ function PMCAMx_installer()
 	fi
 }
 
-
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
+{
 
-# If the CXR_META_MODULE_NAME  is not set,
-# somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
-then
-	usage
-fi
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	# None yet.
+	:
 
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-
-
+	########################################
+	# teardown tests if needed
+	########################################
+	
+}

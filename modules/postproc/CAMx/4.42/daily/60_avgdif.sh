@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Postprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -25,15 +26,15 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
-CXR_META_MODULE_DEPENDS_ON="all_model"
+CXR_META_MODULE_DEPENDS_ON="${CXR_DEP_ALL_MODEL}"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -71,40 +72,21 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
+	# this module needs one invocation per grid per step
 	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	echo $CXR_NUMBER_OF_GRIDS
 }
 
 ################################################################################
@@ -127,24 +109,24 @@ function set_variables()
 	# Set variables
 	########################################################################
 	
+	# Grid specific - we need to define CXR_IGRID
+	CXR_IGRID=$CXR_INVOCATION
+	
 	# Output files must not be decompressed!
 	CXR_AVGDIF_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_AVGDIF_OUTPUT_FILE_RULE" false CXR_AVGDIF_OUTPUT_FILE_RULE false)
 	
 	#Checks
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_AVGDIF_OUTPUT_FILE"
 	
-	# Station dependent data
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-	do
-		# The files produced in this run
-		CXR_TEST_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+	# The file produced in this run
+	CXR_TEST_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 		
-		# The reference files
-		CXR_REFERENCE_INPUT_ARR_FILES[${i}]=$(common.runner.evaluateRule "$CXR_REFERENCE_FILE_RULE" false CXR_REFERENCE_FILE_RULE)
+	# The reference files
+	CXR_REFERENCE_INPUT_FILE=$(common.runner.evaluateRule "$CXR_REFERENCE_FILE_RULE" false CXR_REFERENCE_FILE_RULE)
 	
-		#Checks
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TEST_INPUT_ARR_FILES[${i}]} ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}"
-	done
+	#Checks
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_TEST_INPUT_FILE} ${CXR_REFERENCE_INPUT_FILE}"
+
 	
 }
 
@@ -156,9 +138,11 @@ function set_variables()
 function avgdif
 ################################################################################
 {
+	# We do not need this variable here (exept implicit for the stage name)
+	CXR_INVOCATION=${1:-1}
+	
 	# Define & Initialize local vars
 	local exec_tmp_file
-	
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -171,48 +155,48 @@ function avgdif
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		main.log  "Comparing Model output to existing model data..."    
+		main.log  "Comparing Model output to existing model data on grid $CXR_INVOCATION ..."    
 		
 		# Loop over grids
-		for i in $(seq 1 $(($CXR_NUMBER_OF_GRIDS)) );
-		do
-			main.log  "Comparing ${CXR_REFERENCE_INPUT_ARR_FILES[${i}]} and ${CXR_TEST_INPUT_ARR_FILES[${i}]}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
+		main.log  "Comparing ${CXR_REFERENCE_INPUT_FILE} and ${CXR_TEST_INPUT_FILE}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
 			
-			# Put call into this file
-			exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
-			
-			# Build tempfile
-			cat <<-EOF > $exec_tmp_file
-			$CXR_AVGDIF_OUTPUT_FILE
-			${CXR_REFERENCE_INPUT_ARR_FILES[${i}]}
-			${CXR_TEST_INPUT_ARR_FILES[${i}]}
-			${CXR_AVGDIF_MIN_LAYER} ${CXR_AVGDIF_MAX_LAYER}
-			EOF
-			
-			# Get a copy of the call
-			main.log  "Calling AVGDIF - using this jobfile (be patient)...\n"
-			cat ${exec_tmp_file} | tee -a $CXR_LOG
-			
-			#Dry?
-			if [[ "$CXR_DRY" == false  ]]
-			then
-				# Call AVGDIF (never mind the strange calling convention...)
-				$CXR_AVGDIF_EXEC < $exec_tmp_file
-			else
-				main.log   "This is a dry-run, no action required"    
-			fi
+		# Put call into this file
+		exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
 		
-		done
+		# Build tempfile
+		cat <<-EOF > $exec_tmp_file
+		$CXR_AVGDIF_OUTPUT_FILE
+		${CXR_REFERENCE_INPUT_FILE}
+		${CXR_TEST_INPUT_FILE}
+		${CXR_AVGDIF_MIN_LAYER} ${CXR_AVGDIF_MAX_LAYER}
+		EOF
+		
+		# Get a copy of the call
+		main.log  "Calling AVGDIF - using this jobfile (be patient)...\n"
+		cat ${exec_tmp_file} | tee -a $CXR_LOG
+		
+		#Dry?
+		if [[ "$CXR_DRY" == false  ]]
+		then
+			# Call AVGDIF (never mind the strange calling convention...)
+			$CXR_AVGDIF_EXEC < $exec_tmp_file
+		else
+			main.log   "This is a dry-run, no action required"    
+		fi
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
 		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
@@ -224,20 +208,32 @@ function avgdif
 }
 
 ################################################################################
-# Are we running stand-alone? - Can only show help
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_MODULE_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
+{
 
-# If the CXR_META_MODULE_NAME  is not set,
-# somebody started this script alone
-if [[ -z "${CXR_META_MODULE_NAME:-}"   ]]
-then
-	usage
-fi
+	########################################
+	# Setup tests if needed
+	########################################
+	
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
+	
+	# None yet.
+	:
 
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
+	########################################
+	# teardown tests if needed
+	########################################
+	
+}
 
 
 

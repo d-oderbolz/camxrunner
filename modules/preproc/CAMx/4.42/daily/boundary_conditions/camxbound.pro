@@ -61,7 +61,7 @@ pro camxbound $
 ; Set default parameters if needed
 ; 13 parameters are mandatory
 if ( N_PARAMS() LT 14) then begin
-	doplots=1 
+	doplots=0
 	plot_base_dir='~/@plot' 
 	MOZtime=5 
 	run_name='test' 

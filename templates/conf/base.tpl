@@ -227,58 +227,58 @@ CXR_OUT_FILE_RULE='${CXR_ROOT_OUTPUT}.out'
 
 ################## Grid spcecific ##############################################
 
-# These NEED the variable ${i} somewhere (the grid number)
+# These NEED the variable ${CXR_IGRID} somewhere (the grid number)
 
 # Input Preparation ############################################################
 
-CXR_EMISSION_ASC_FILE_RULE='${CXR_EMISSION_SOURCE_DIR}/${CXR_DATE_RAW}/${CXR_EMMISS_SCENARIO}/camx_emiss_domain${i}_${CXR_MET_PROJECT}_${CXR_EMMISS_SCENARIO}_${CXR_DATE_RAW}.asc'
+CXR_EMISSION_ASC_FILE_RULE='${CXR_EMISSION_SOURCE_DIR}/${CXR_DATE_RAW}/${CXR_EMMISS_SCENARIO}/camx_emiss_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_EMMISS_SCENARIO}_${CXR_DATE_RAW}.asc'
 
 
 # Input ########################################################################
 
 #Landuse
-CXR_LANDUSE_FILE_RULE='${CXR_INPUT_DIR}/terrain_domain${i}_bx3_lucamx.bin'
+CXR_LANDUSE_FILE_RULE='${CXR_INPUT_DIR}/terrain_domain${CXR_IGRID}_bx3_lucamx.bin'
 
 # Pressure
-CXR_PRESSURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_zp_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_PRESSURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_zp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
 # Wind
-CXR_WIND_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_uv_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_WIND_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_uv_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
 # Temperature
-CXR_TEMPERATURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_tp_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_TEMPERATURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_tp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
 # Vapor
-CXR_VAPOR_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_qa_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_VAPOR_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_qa_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
 # Cloud
-CXR_CLOUD_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_cr_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_CLOUD_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_cr_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
 # Vertical K
-CXR_K_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_kv_CMAQ_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+CXR_K_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camx_kv_CMAQ_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
  
 # Emissions
-CXR_EMISSION_BIN_FILE_RULE='${CXR_EMISSION_DIR}/camx_emiss_domain${i}_${CXR_EMMISS_PROJECT}_${CXR_EMMISS_SCENARIO}_${CXR_DATE_RAW}.bin'
+CXR_EMISSION_BIN_FILE_RULE='${CXR_EMISSION_DIR}/camx_emiss_domain${CXR_IGRID}_${CXR_EMMISS_PROJECT}_${CXR_EMMISS_SCENARIO}_${CXR_DATE_RAW}.bin'
 
 # Output #######################################################################
 
 #Deposition file
-CXR_DEPN_FILE_RULE='${CXR_ROOT_OUTPUT}.depn.grd0${i}'
+CXR_DEPN_FILE_RULE='${CXR_ROOT_OUTPUT}.depn.grd0${CXR_IGRID}'
 
-CXR_AVG_FILE_RULE='${CXR_ROOT_OUTPUT}.avrg.grd0${i}'  
+CXR_AVG_FILE_RULE='${CXR_ROOT_OUTPUT}.avrg.grd0${CXR_IGRID}'  
 
 # We create the ASCII version of thefiles in the aqmfad directory      
 # All rules start with the CXR_AQMFAD_OUTPUT_DIR and end with ${CXR_ASC_EXT}
-CXR_AVG_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/${CXR_RUN}.${CXR_DATE_RAW}.avrg.grd0${i}.${CXR_ASC_EXT}'
+CXR_AVG_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/${CXR_RUN}.${CXR_DATE_RAW}.avrg.grd0${CXR_IGRID}.${CXR_ASC_EXT}'
 
 # Landuse ASCII File must not be created, it is used directly
-CXR_LANDUSE_ASC_FILE_RULE='${CXR_LANDUSE_DIR}/terrain_domain${i}_bx3_terrcamx.${CXR_ASC_EXT}'
-CXR_PRESSURE_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_zp_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
-CXR_WIND_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_uv_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
-CXR_TEMPERATURE_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_tp_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
-CXR_VAPOR_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_qa_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
-CXR_CLOUD_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_cr_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
-CXR_K_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_kv_CMAQ_domain${i}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'		
+CXR_LANDUSE_ASC_FILE_RULE='${CXR_LANDUSE_DIR}/terrain_domain${CXR_IGRID}_bx3_terrcamx.${CXR_ASC_EXT}'
+CXR_PRESSURE_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_zp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
+CXR_WIND_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_uv_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
+CXR_TEMPERATURE_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_tp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
+CXR_VAPOR_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_qa_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
+CXR_CLOUD_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_cr_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'
+CXR_K_ASC_FILE_RULE='${CXR_AQMFAD_OUTPUT_DIR}/camx_kv_CMAQ_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}${CXR_DAY_METEO}.${CXR_ASC_EXT}'		
 
 ################################################################################
 # END RULES
@@ -556,14 +556,14 @@ then
 	CXR_SA_NESTED_RESTART_FILE_RULE='${CXR_OUTPUT_DIR}/${CXR_RUN}.${CXR_DATE_RAW_YESTERDAY}.osat.finst'
 	
 	##################Grid spcecific########################################
-	# These NEED the variable ${i} somewhere  (the grid number)
+	# These NEED the variable ${CXR_IGRID} somewhere  (the grid number)
 	
-	CXR_SA_SOURCE_AREA_MAP_FILE_RULE='osat.src.area.map.g${i}'
+	CXR_SA_SOURCE_AREA_MAP_FILE_RULE='osat.src.area.map.g${CXR_IGRID}'
 	
 	##################Source group specific#################################
-	# These NEED the variable ${j} somewhere (the source group number)
+	# These NEED the variable ${CXR_ISRCGROUP} somewhere (the source group number)
 	
-	CXR_SA_POINTS_GROUP_FILE_RULE='ptsrc.${j}.${CXR_DATE_RAW}.bin'
+	CXR_SA_POINTS_GROUP_FILE_RULE='ptsrc.${CXR_ISRCGROUP}.${CXR_DATE_RAW}.bin'
 	
 
 ################################################################################
@@ -610,13 +610,13 @@ then
 	
 	
 	##################Grid spcecific########################################
-	# These NEED the variable ${i} somewhere  (the grid number)
+	# These NEED the variable ${CXR_IGRID} somewhere  (the grid number)
 	
-	CXR_DDM_SOURCE_AREA_MAP_FILE_RULE='ddm.src.area.map.g${i}'
+	CXR_DDM_SOURCE_AREA_MAP_FILE_RULE='ddm.src.area.map.g${CXR_IGRID}'
 	
 	##################Source group specific#################################
-	# These NEED the variable ${j} somewhere (the source group number)
-	CXR_SA_POINTS_GROUP_INPUT_FILE_RULE='ptsrc.${j}.${CXR_DATE_RAW}.bin' 
+	# These NEED the variable ${CXR_ISRCGROUP} somewhere (the source group number)
+	CXR_SA_POINTS_GROUP_INPUT_FILE_RULE='ptsrc.${CXR_ISRCGROUP}.${CXR_DATE_RAW}.bin' 
 
 ################################################################################
 # Probing settings:RTRAC
@@ -639,7 +639,7 @@ then
 	CXR_RT_NESTED_RESTART_FILE_RULE='${CXR_OUTPUT_DIR}/${CXR_RUN}.${CXR_DATE_RAW_YESTERDAY}.rtrac.finst'
 	
 	##################Grid spcecific########################################
-	# These NEED the variable ${i} somewhere  (the grid number)
+	# These NEED the variable ${CXR_IGRID} somewhere  (the grid number)
 	
 fi
 

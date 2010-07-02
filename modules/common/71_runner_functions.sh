@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -48,35 +49,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
 
 ################################################################################
 # Function: common.runner.getX
@@ -189,10 +161,11 @@ function common.runner.getMaxX()
 {
 	local new
 	local max_xdim=0
+	local iGrid
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(common.runner.getX $i)"
+		new="$(common.runner.getX $iGrid)"
 		
 		if [[ "$new" -gt "$max_xdim"  ]]
 		then
@@ -215,10 +188,11 @@ function common.runner.getMaxY()
 {
 	local new
 	local max_ydim=0
+	local iGrid
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(common.runner.getY $i)"
+		new="$(common.runner.getY $iGrid)"
 		
 		if [[ "$new" -gt "$max_ydim"  ]]
 		then
@@ -241,10 +215,11 @@ function common.runner.getMaxZ()
 {
 	local new
 	local max_zdim=0
+	local iGrid
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(common.runner.getZ $i)"
+		new="$(common.runner.getZ $iGrid)"
 		
 		if [[ "$new" -gt "$max_zdim"  ]]
 		then
@@ -267,13 +242,11 @@ function common.runner.countCells3D()
 {
 	local new
 	local sum=0
+	local iGrid
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(common.runner.getZ $i)"
-		
-		sum=$(( $sum + ( $(common.runner.getX $i) * $(common.runner.getY $i) * $(common.runner.getZ $i) ) ))
-		
+		sum=$(( $sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) * $(common.runner.getZ $iGrid) ) ))
 	done
 	
 	echo $sum
@@ -291,13 +264,11 @@ function common.runner.countCells2D()
 {
 	local new
 	local sum=0
+	local iGrid
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		new="$(common.runner.getZ $i)"
-		
-		sum = $(( $sum + ( $(common.runner.getX $i) * $(common.runner.getY $i) ) ))
-		
+		sum = $(( $sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) ) ))
 	done
 	
 	echo $sum
@@ -312,14 +283,28 @@ function common.runner.countCells2D()
 function common.runner.reportDimensions()
 ################################################################################
 {
-	local i
+	local iGrid
+	local nCells
 	
-	for i in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		main.log -B "Grid dimensions domain ${i}:\nX: $(common.runner.getX ${i})\nY: $(common.runner.getY ${i})\nZ: $(common.runner.getZ ${i})"
+		main.log -B "Grid dimensions domain ${iGrid}:\nX: $(common.runner.getX ${iGrid})\nY: $(common.runner.getY ${iGrid})\nZ: $(common.runner.getZ ${iGrid})"
 	done
 	
-	main.log -B "Total number of cells: $(common.runner.countCells3D)"
+	nCells="$(common.runner.countCells3D)"
+	
+	main.log -B "Total number of cells: $nCells"
+	
+	# Set factor to correct times (integer division)
+	CXR_TIME_NORM_FACTOR=$(( $nCells / $CXR_TIME_PER_CELLS ))
+	
+	# This factor must be >= 1
+	if [[ $CXR_TIME_NORM_FACTOR -lt 1 ]]
+	then
+		CXR_TIME_NORM_FACTOR=1
+	fi
+	
+	main.log -v "Time normalisation factor: $CXR_TIME_NORM_FACTOR"
 	
 }
 
@@ -335,6 +320,9 @@ function common.runner.reportDimensions()
 # use the fourth parameter.
 # ABSOLUTELY use this parameter for any OUTPUT_FILE because if the output would have been 
 # compressed, CAMxRunner would decompress it, wich makes no sense.
+#
+# The evaluator tests if the resulting dirname exists. This is needed if your rules
+# contain things like /${VAR}/... because we have no way of knowing this name in the checker.
 #
 # To be on the safe side, quote the call (double quotes!)
 #
@@ -368,7 +356,7 @@ function common.runner.reportDimensions()
 function common.runner.evaluateRule()
 ################################################################################
 {
-	if [[  $# -lt 1 && $# -gt 4 ]]
+	if [[  $# -lt 1 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
@@ -382,44 +370,55 @@ function common.runner.evaluateRule()
 	local try_decompression="${4:-true}"
 	local expansion
 	
-	if [[ -z "$rule"  ]]
+	if [[ -z "$rule" ]]
 	then
-		# If the rule is empty, we return empty
+		# If the rule is empty, we evaluate to empty
 		main.log -v   "rule $rule_name was empty..."
-		echo ""
-		return
-	fi
+		expansion=""
+	else
+		# Non-empty rule - do it
+		main.log -v   "Evaluating rule $rule_name $rule..."
 	
-	main.log -v   "Evaluating rule $rule_name $rule..."
-
-	# Original code: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
-	expansion="$(eval "echo $(echo "$rule")")"
-	
-	main.log -v  "Evaluated rule: $expansion"
-	
-	# *_FILE_RULE might be compressed
-	# Does the name of the rule end in _FILE_RULE ?
-	if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
-	#                 ¦
-	# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
-	then
-		if [[ "${try_decompression}" == true  ]]
+		# Original code example: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
+		expansion="$(eval "echo $(echo "$rule")")"
+		
+		main.log -v  "Evaluated rule: $expansion"
+		
+		# *_FILE_RULE might be compressed
+		# Does the name of the rule end in _FILE_RULE ?
+		if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
+		#                 ¦
+		# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
+			if [[ "${try_decompression}" == true  ]]
+			then
+		
+				# Try to decompress
+				expansion=$(common.fs.TryDecompressingFile $expansion)
+				
+			else
+				main.log -v  "No decompression attempted."
+			fi # try_decompression
+		fi
+		
+		main.log -v  "Evaluated rule: $expansion"
 	
-			# Try to decompress
-			expansion=$(common.fs.TryDecompressingFile $expansion)
-			
-		else
-			main.log -v  "No decompression attempted."
-		fi # try_decompression
 	fi
 	
-	main.log -v  "Evaluated rule: $expansion"
-	
-	if [[  -z "$expansion" && "$allow_empty" == false   ]]
+	# Test if expansion is empty but shouldn't
+	if [[  -z "$expansion" && "$allow_empty" == false ]]
 	then
 		# Empty not allowed
 		main.dieGracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+	else
+		# Empty allowed. Test if the dirname exists
+		expansion_dir="$(dirname "$expansion")"
+		if [[ ! -d "${expansion_dir}" ]]
+		then
+			# Dirname does not exists
+			main.log -w "Dir $expansion_dir does not exist - creating it..."
+			mkdir -p "$expansion_dir"
+		fi
 	fi
 	
 	echo "$expansion"
@@ -443,7 +442,7 @@ function common.runner.evaluateRule()
 function common.runner.evaluateRuleAtDayOffset()
 ################################################################################
 {
-	if [[  $# -lt 2 && $# -gt 4 ]]
+	if [[  $# -lt 2 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least one string (the rule) and one number (the day offset) as input!"
 	fi
@@ -488,7 +487,7 @@ function common.runner.evaluateRuleAtDayOffset()
 function common.runner.evaluateScalarRules()
 ################################################################################
 {
-	if [[  $# -lt 1 && $# -gt 2   ]]
+	if [[  $# -lt 1 || $# -gt 2   ]]
 	then
 		main.dieGracefully "needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
@@ -545,8 +544,8 @@ function common.runner.createDummyFile()
 		dd bs=${size}M if=/dev/zero of=$filename count=1
 	fi
 	
-	# Store Dummy file in the file list
-	echo "$filename" >> "$CXR_INSTANCE_FILE_DUMMY_LIST"
+	# Store Dummy file in the file hash (dummy value)
+	common.hash.put $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE $filename dummy
 
 	return 0
 }
@@ -596,8 +595,8 @@ function common.runner.createTempFile()
 	
 	if [[ "${store}" == true  ]]
 	then
-		# Add to dummy list
-		echo $filename >> "$CXR_INSTANCE_FILE_TEMP_LIST"
+		# Add to hash (value is a dummy)
+		common.hash.put $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE $filename dummy
 	fi
 	
 	echo $filename
@@ -616,148 +615,356 @@ function common.runner.removeTempFiles()
 {
 	local line
 	local filename
-	local sed_tmp
 	local temp_file
 	
 	# remove decompressed files, if wanted
 	# each removed file is also removed from the global list
 	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true  ]]
 	then
-		if [[ -s "$CXR_DECOMPRESSED_LIST"  ]]
-		then
-			# List file is non-empty
 			main.log  "Removing temporarily decompressed files..."
-		
-			# Loop trough all entries
-			while read line 
+			
+			# common.hash.getKeys returns a CXR_DELIMITER delimited string
+			oIFS="$IFS"
+			local keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL)"
+			IFS="$CXR_DELIMITER"
+			
+			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+			local arrKeys=( $keyString )
+			
+			# Reset Internal Field separator
+			IFS="$oIFS"
+			
+			# Clean files away
+			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 			do
-				# The line has the format compressed_file|decompressed_file
-				filename=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
+				compressed_filename=${arrKeys[$iKey]}
+				# the value is the name of the decompressed file
+				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "$compressed_filename")"
 				
 				main.log -v "Deleting $filename"
-				rm -f "${filename}"
-				
-				# remove that line via sed
-				sed_tmp=$(common.runner.createTempFile sed false) # Tempfile is not added to list (we move it away)
-				sed "/$line/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
-				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
-			done < "$CXR_DECOMPRESSED_LIST"
-		fi
+				rm -f "${filename}" >/dev/null 2>&1
+			done
+			
+			IFS="$oIFS"
 	else
-		main.log  "The temporarily decompressed files \n$(cat ${CXR_DECOMPRESSED_LIST} | cut -d${CXR_DELIMITER} -f 2 2>/dev/null )\n will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
+		main.log  "The temporarily decompressed files will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 
 	# remove temporary files, if wanted
 	if [[ "$CXR_REMOVE_TEMP_FILES" == true  ]]
 	then
-		# Does the list even exist?
-		if [[ -s "$CXR_INSTANCE_FILE_TEMP_LIST"  ]]
-		then
+
 			main.log  "Removing temporary files..."
 			
-			# Clean temp files away
-			for temp_file in $(cat "${CXR_INSTANCE_FILE_TEMP_LIST}")
+			# common.hash.getKeys returns a CXR_DELIMITER delimited string
+			oIFS="$IFS"
+			local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE)"
+			IFS="$CXR_DELIMITER"
+			
+			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+			local arrKeys=( $keyString )
+			
+			# Reset Internal Field separator
+			IFS="$oIFS"
+			
+			# Clean files away
+			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 			do
-				main.log -v   "Deleting $temp_file"
+				temp_file=${arrKeys[$iKey]}
+			
+				main.log -v "Deleting $temp_file"
 				
 				rm -f "$temp_file" >/dev/null 2>&1
+				
+				# Remove from hash
+				common.hash.delete $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE "$temp_file"
 			done
 			
-			# Empty the list of temp files just cleaned
-			: > ${CXR_INSTANCE_FILE_TEMP_LIST}
-		fi
+			IFS="$oIFS"
 	else
-		main.log  "The temporary files $(cat ${CXR_INSTANCE_FILE_TEMP_LIST} 2>/dev/null ) will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
+		main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 	fi
 	
 
+}
+
+################################################################################
+# Function: common.runner.waitForLock
+#
+# Waits until a lock is released without getting it. 
+# Locks can have three levels (like hashes) 
+# When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false in _retval
+#
+# Recommended call:
+# > common.runner.waitForLock NextTask "$CXR_HASH_TYPE_INSTANCE"
+# > if [[ $_retval == false ]]
+# > then
+# > 	main.dieGracefully "Waiting for NextTask lock took too long"
+# > fi
+#
+# Parameters:
+# $1 - the name of the lock to get
+# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# [$3] - wantsLock: boolean flag (default false), if true, we would like to have the lock later
+################################################################################
+function common.runner.waitForLock()
+################################################################################
+{
+	if [[ $# -lt 2 || $# -gt 3 ]]
+	then
+		main.dieGracefully "needs the name of a lock, a level and an optional intention as input"
+	fi
+	
+	local lock="$1"
+	local level="$2"
+	local wantsLock="${3:-false}"
+	local procsWaiting=0
+	local myId
+	local wait_array
+	local arr_string
+	_retval=true
+	
+	# how long did we wait?
+	local time=0
+	
+	########################################
+	# Notify system if we want the lock
+	########################################
+	if [[ "$wantsLock" == true ]]
+	then
+		# If the lock is not set, its our turn
+		_turn=1
+		
+		# should we add this one?
+		local add=true
+		local currPid
+	
+		# We use our pid as id
+		myId=$$
+		
+		wait_str="$(common.hash.get Locks "$level" "wait_${lock}")"
+		
+		if [[ "$wait_str" ]]
+		then 
+			
+			# Add this processes to the waiting queue if its not already there
+			wait_array=( $wait_str )
+			
+			# Search for this process
+			for currPid in ${wait_array[@]}
+			do 
+				if [[ $currPid == $myId ]]
+				then
+					add=false
+					break
+				fi
+			done
+			
+		else
+			add=true
+		fi
+		
+		if [[ $add == true ]]
+		then
+		
+			# Was there something?
+			if [[ "$wait_str" ]]
+			then 
+				# There was data already
+				# Get last index
+				last_index=${#wait_array[@]}
+				
+				wait_array[$last_index]=$myId
+				arr_string="${wait_array[@]}"
+			
+			else
+				# Start from scratch
+				wait_array[0]=$myId
+				arr_string="${wait_array[@]}"
+			fi
+			
+			# Store in Hash
+			common.hash.put Locks "$level" "wait_${lock}" "$arr_string"
+		fi
+	fi
+	
+	########################################
+	# We wait until lock is free or Continue file is gone.
+	########################################		
+	while [[ $(common.hash.has? Locks "$level" "$lock") == true && -f ${CXR_CONTINUE_FILE} ]]
+	do
+		main.log -v "Waiting for lock $lock."
+		
+		# We need to check if we are in position 1
+		if [[ "$wantsLock" == true ]]
+		then
+			wait_array=( $(common.hash.get Locks "$level" "wait_${lock}") )
+			
+			procsWaiting=${#wait_array[@]}
+			
+			if [[ $procsWaiting -eq 1 ]]
+			then
+				# Nobody else waits - we may proceed
+				_turn=1
+			else
+				# There are still others. Lets see if we where first.
+				# If the value added last is my id, we are in!
+				# since we add at the back, the oldest is in position 0
+				if [[ ${wait_array[0]} -eq $myId ]]
+				then
+					_turn=1
+				else
+					_turn=0
+				fi
+			fi
+		fi
+		
+		sleep 10
+		time=$(( $time + 10 ))
+		
+		if [[ $time -gt $CXR_LOCK_TIMEOUT_SEC ]]
+		then
+			main.log -w "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+			_retval=false
+			return $CXR_RET_ERROR
+		fi
+	done # is lock set?
+	
+	if [[ ! -f ${CXR_CONTINUE_FILE} ]]
+	then
+		main.dieGracefully "Continue file is gone."
+	else
+		_retval=true
+	fi
 }
 
 ################################################################################
 # Function: common.runner.getLock
 #
-# Blocking call to the lockmanager. If we get the lock, it will be added to the 
-# CXR_INSTANCE_FILE_LOCK_LIST. This allows to release the locks later when we exit from the program
-# When the lock is not free, this call waits forever.
+# Tries to get a lock. If we get the lock, it will be added to the 
+# gobal Lock Hash and returns true.
+# Locks can have three levels (like hashes) 
+# This allows to release the locks later when we exit from the program.
+# When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false.
 #
-# Recommended call:
-# > common.runner.getLock lockname
+# The problem is that here, locking is not atomic, so 2 processes could try
+# to get the same lock. We try to detect this situation.
+# (Even better would be an implementation of a general form of Peterson's or Dekkers algorithm...)
+#
+# Example:
+# > if [[ $(common.runner.getLock NextTask "$CXR_HASH_TYPE_INSTANCE") == false ]]
+# > then
+# > 	main.dieGracefully "Could not get NextTask lock"
+# > fi
 #
 # Parameters:
 # $1 - the name of the lock to get
+# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
 function common.runner.getLock()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs the name of a lock as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
 	local lock="$1"
+	local level="$2"
+	
+	# If turn is 1 we can get a lock.
+	local turn=0
+	local wait_array
+	local arr_string
 
 	# For debug reasons, locking can be turned off
-	if [[ $CXR_NO_LOCKING == false  ]]
+	if [[ $CXR_NO_LOCKING == false ]]
 	then
-		main.log -v   "Waiting to set lock $lock..."
-	
-		$CXR_LOCK_MAN_EXEC set "$lock" -1
 		
-		main.log -v   "Got lock $lock."
+		main.log -v "Waiting to set lock $lock..."
 		
-		if [[ $(grep -c -e "^$lock\$") -ne 0  ]]
-		then
-			# lock already in list (should not happen!)
-			main.log  "Weird: it seems as if the lock $lock was given out more than once!"
-		else
-			# Put the new lock on the list
-			echo "$lock" >> $CXR_INSTANCE_FILE_LOCK_LIST
-		fi
+		while [[ $turn -ne 1 ]]
+		do
+			
+			# Wait for the lock, _retval is false if we exceeded the timeout
+			common.runner.waitForLock "$lock" "$level" true
+			
+			if [[ $_retval == false ]]
+			then
+				# Took to long...
+				echo false
+				return $CXR_RET_ERROR
+			fi
+			
+			# common.runner.waitForLock decides if its our turn
+			turn=$_turn
+			
+			# We only get the lock if its our turn
+			if [[ $turn -eq 1 ]]
+			then
+				# Add lock to hash (value is a dummy)
+				common.hash.put Locks "$level" "$lock" dummy
+				
+				# Remove our id from the queue
+				wait_array=( $(common.hash.get Locks "$level" "wait_${lock}") )
+				
+				# Now lets cut off the 0th element (using a string operator thast works perfectly on 
+				# an array
+				arr_string="${wait_array[@]:1}"
+		
+				# Store in Hash
+				common.hash.put Locks "$level" "wait_${lock}" "$arr_string"
+				
+				main.log -v "Got lock $lock. (${level})"
+				break
+			else
+				# try again
+				continue
+			fi
+		done
+		
+	else
+		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
+	
+	echo true
 }
 
 ################################################################################
 # Function: common.runner.releaseLock
 #
-# Releases a lock and removes it from CXR_INSTANCE_FILE_LOCK_LIST.
+# Releases a lock by removing the relevant hash entry.
 #
 # Recommended call:
 # > common.runner.releaseLock lockname
 #
 # Parameters:
 # $1 - the name of the lock to release
+# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
 function common.runner.releaseLock()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "needs the name of a lock as input"
+		main.dieGracefully "needs the name of a lock  and a lock-level as input"
 	fi
 	
-	local sed_tmp=$(common.runner.createTempFile $FUNCNAME)
-	
-	lock="$1"
+	local lock="$1"
+	local level="$2"
 	
 	main.log -v   "Waiting to release lock $lock..."
 
 	# We even release locks if locking is turned off
-	$CXR_LOCK_MAN_EXEC unset "$lock"
+	common.hash.delete Locks "$level" "$lock"
 	
 	main.log -v   "lock $lock released."
-	
-	# Remove this line from the lock-list
-	sed "/^$lock\$/d" $CXR_INSTANCE_FILE_LOCK_LIST > $sed_tmp
-	
-	# Exchange tempfile and new file
-	mv $sed_tmp $CXR_INSTANCE_FILE_LOCK_LIST
-	
 }
 
 ################################################################################
 # Function: common.runner.releaseAllLocks
 #
-# Releases all locks held by iterating over CXR_INSTANCE_FILE_LOCK_LIST.
+# Releases all locks held by removing the relevant hash
 #
 #
 # Parameters:
@@ -766,17 +973,8 @@ function common.runner.releaseLock()
 function common.runner.releaseAllLocks()
 ################################################################################
 {
-	local lock
-	
-	if [[ -s "$CXR_INSTANCE_FILE_LOCK_LIST"  ]]
-	then
-		main.log  "Releasing all locks..."
-	
-		for lock in $(cat $CXR_INSTANCE_FILE_LOCK_LIST)
-		do
-			common.runner.releaseLock $lock
-		done
-	fi
+	# Just destroy the hash
+	common.hash.destroy Locks $CXR_HASH_TYPE_GLOBAL
 }
 
 ################################################################################
@@ -1077,6 +1275,216 @@ function common.runner.createNewRun()
 }
 
 ################################################################################
+# Function: common.runner.createMissingDirs
+#
+# Interactive function if called as such
+#
+# Reads the configuration of a run and creates all directories that are visible.
+# This function is not intended to be called during a run, just for preparation.
+# It is also no substitute for the checks, because of rules (see below)
+# Has a couple of drawbacks:
+# - it cannot forsee any rules that alter directories or add subdirectories
+# - the configuration must be up-to-date we pause to give user the chance to update it.
+#
+# Parameters:
+# $1 - Run-name for which to create directories
+# $2 - iteractive (boolean), if set and true, run interactively (IS THIS GOOD??)
+################################################################################	
+function common.runner.createMissingDirs() 
+################################################################################
+{
+
+	# TODO: Add input check
+	local runName=$1
+	local dir
+
+	# Load config
+	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
+	
+	# Get directories (create as needed)
+	for dir in $(set | grep -e ^CXR_*.*_DIR= | cut -d= -f1)
+	do
+			main.log -v   "Variable $dir has value: ${!dir}\n"
+
+			# is it set?
+			if [[ "${!dir}" ]]
+			then
+				# does it exist?
+				if [[ -d "${!dir}"  ]]
+				then
+					# is it executable (dir: means accessible)?
+					if [[ ! -x ${!dir}  ]]
+					then
+						main.log -e "Directory ${!dir}, \nParameter $dir not accessible!"
+					fi
+				else
+					# Does not exist, create it.
+					if [[ $(common.fs.isAbsolutePath? ${!dir}) == true  ]]
+					then
+						main.log -w   "Directory ${!dir}, \nParameter $dir does not exist - creating it"
+						mkdir -p ${!dir}
+					else
+						main.log -v  "${!dir} does not exist, but is a relative path - no action taken"
+					fi
+				fi
+				
+			else
+				main.log -w   "Variable $dir is not set (might not be a problem, though)"
+			fi
+		done 
+}
+
+################################################################################
+# Function: common.runner.getConfigItem
+#
+# This function loads a runs configuration (full hierarchy) and then
+# extracts the value of a given variable. If the variable is not found, the empty 
+# string is returned.
+# Its recommended to call this function in a subshell (see below), otherwise,
+# the current configuration is lost.
+#
+# Example:
+# > local oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
+#
+# Parameters:
+# $1 - item name (a variable name) 
+# $2 - Run-name
+################################################################################	
+function common.runner.getConfigItem() 
+################################################################################
+{
+	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
+	
+	
+}
+
+################################################################################
+# Function: common.runner.recreateInput
+#
+# Interactive function
+#
+# Asks the user which parts of an existing runs input data must by copied, moved or
+# linked to a new run.
+# TODO: Rewrite using a loop
+#
+# Parameters:
+# $1 - New Run-name 
+# $2 - Existing Run-name
+################################################################################	
+function common.runner.recreateInput() 
+################################################################################
+{
+	# How fine-grained should we be?
+	# Currently, we distinguish between two classes of Inputs: Emissions and all other Input data.
+	# Actually, we work only on directory level.
+	# In theory, we could ask for each file, but that would take ages...
+	# Just make sure that the two directories (Emissions/Other Input) are distinct.
+	
+	local newRun=$1
+	local oldRun=$2
+	
+	# get the relevant directories
+	local oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
+	local newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
+	
+	local oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
+	local newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
+	
+	if [[ "$(dirname "$oldEmissDir")" == "$(dirname "$oldInputDir")" || "$(dirname "$newEmissDir")" == "$(dirname "$newInputDir")" ]]
+	then
+		main.dieGracefully "Please use two separate directories for Emissions and all other Inputs if you want to use the recreate feature."
+	fi
+	
+	# also make sure they are not subdirs of each other
+	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
+	then
+		main.dieGracefully "To use the recreate feature, neither $oldEmissDir must be a subdirectory of $oldInputDir or vice versa."
+	fi
+	
+	# Emissions
+	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldRun?")" == true ]]
+	then
+		# Re-use Emissions
+		
+		# Do not take chances - only work on empty target directory
+		# we use the fact that rmdir crashes if the directory is non-empty
+		rmdir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a link or copy to $oldEmissDir! $newEmissDir must be empty"
+		
+		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
+		then
+			# copy
+			cp -r $oldEmissDir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
+		else
+			# link
+			ln -s $oldEmissDir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
+		fi
+	fi
+	
+	rmdir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
+	
+	# Other Inputs
+	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldRun?")" == true ]]
+	then
+		# Re-use Other stuff
+		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
+		then
+			# copy
+			cp -r $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
+		else
+			# link
+			ln -s $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a link to $oldInputDir!"
+		fi
+	fi
+}
+
+################################################################################
+# Function: common.runner.recreateRun
+#
+# Creates a copy of an existing config file and prepares everything to rerun.
+# Depending on the users choice, Input data can be linked or copied.
+# Automatically creates the needed directories. 
+#
+# Parameters:
+# [$1] - Run-name to re-create (optional)
+################################################################################	
+function common.runner.recreateRun() 
+################################################################################
+{
+	local oldRun
+	local newRun
+	
+	# Do we have the old run name?
+	if [[ -z "${1:-}" ]]
+	then
+		#no, ask
+		oldRun="$(common.runner.getExistingRunName)"
+	else
+		#yes
+		oldRun=${1}
+		# Verify
+		if [[ $(common.check.isCorrectRunName $oldRun) == false ]]
+		then
+			main.dieGracefully "The name of the run you want to repeat () is not correct. Make sure only characters allowed in filenames are included"
+		fi # Supplied run name correct?
+	fi # got run name?
+	
+	
+	# Get the new one
+	newRun="$(common.runner.getNewRunName)"
+	
+	# Create config (ATTN: IF changed)
+	common.runner.createConfigFile "$newRun" "$oldRun"
+	
+	# Create Directories
+	common.runner.createMissingDirs "$newRun"
+	
+	# Ask user if we need to copy/link input data 
+	common.runner.recreateInput "$newRun" "$oldRun"
+	
+	# Thats all.
+}
+
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please
@@ -1086,49 +1494,11 @@ function common.runner.createNewRun()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
 	
-	i=1
+	CXR_IGRID=1
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -1136,64 +1506,36 @@ function test_module()
 	
 	is $(common.runner.evaluateRule a) a "common.runner.evaluateRule constant"
 	is $(common.runner.evaluateRule "$(common.math.abs -100)") 100 "common.runner.evaluateRule a function of CAMxRunner"
-	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $i 3)") domain001 "common.runner.evaluateRule with formatting"
+	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $CXR_IGRID 3)") domain001 "common.runner.evaluateRule with formatting"
 	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
+	
+	# Test Locking
+	local lock=test
+	
+	## Adjust a few settings
+	CXR_LOG_FUNCTION_VERBOSE_LIST="$CXR_LOG_FUNCTION_VERBOSE_LIST common.runner.waitForLock"
+	
+	# save & lower timeout
+	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
+	CXR_LOCK_TIMEOUT_SEC=20
+	
+	# Get an instance lock
+	common.runner.getLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	
+	# Other processes want it
+	common.runner.waitForLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	common.runner.waitForLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	
+	# Restore old settings
+	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
+	
+	# Release it
+	common.runner.releaseLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	
 	
 	########################################
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
 	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi
-
-

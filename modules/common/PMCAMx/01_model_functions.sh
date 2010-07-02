@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -46,43 +47,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	${progname} - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
-	
-	You can, however, call it like this:
-	
-	$ ${progname} -t
-	
-	this starts the self-test of the module.
-
-	
-	Written by ${CXR_META_MODULE_AUTHOR}
-	License: ${CXR_META_MODULE_LICENSE}
-	
-	Find more info here:
-	${CXR_META_MODULE_DOC_URL}
-EOF
-exit 1
-}
 
 ################################################################################
 # Function: get_chemparam_file
@@ -195,37 +159,31 @@ function get_model_exec()
 	fi
 }
 
-
 ################################################################################
-# Are we running stand-alone? 
+# Function: test_module
+#
+# Runs the predefined tests for this module. If you add or remove tests, please
+# update CXR_META_module_NUM_TESTS in the header!
+# 
+################################################################################	
+function test_module()
 ################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is a subset of the progname,
-# somebody started this script alone
-# Normlly this is not allowed, exept to test using -t
-if [[ $(expr match "${progname}" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
-then
-
-	while getopts ":t" opt
-	do
-		case "${opt}" in
-		t) test_module;;
-		esac
-	done
+{
+	########################################
+	# Setup tests if needed
+	########################################
 	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
+	########################################
+	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
+	########################################
 	
-	usage
+	# None yet.
+	:
 	
-fi
+	########################################
+	# teardown tests if needed
+	########################################
+	
 
-################################################################################
-# Finalisation - not executed in stand-alone operation
-################################################################################
+	
+}

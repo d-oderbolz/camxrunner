@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # 
@@ -11,7 +12,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=21
+CXR_META_MODULE_NUM_TESTS=24
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -37,37 +38,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
-
 
 ################################################################################
 # Function: common.string.isSubstringPresent?
@@ -159,6 +129,36 @@ function common.string.trim()
 		out=${out%%$to_remove}
 		
 		echo $out
+	fi
+}
+
+################################################################################
+# Function: common.string.repeat
+#
+# Repeats a string n times. Does currently not support escape sequences like \t
+# Other ideas: <http://www.unix.com/shell-programming-scripting/46584-repeat-character-printf.html>
+# TODO: Make more efficient, accept escape sequences
+#
+# Parameters:
+# $1 - the string to be repeated
+# $2 - the number of repetitions
+################################################################################
+function common.string.repeat() 
+################################################################################
+{
+	local string="${1}"
+	local times="${2}"
+	local dummy
+	
+	if [[ $# -ne 2 ]]
+	then
+		main.log -e  "Programming error: wrong call, we need 2 arguments."
+		echo ""
+	else
+		# Create n spaces
+		dummy="$(printf "%${times}s" "")"
+		# Replace saces by string
+		echo "${dummy// /$string}"
 	fi
 }
 
@@ -268,44 +268,7 @@ function common.string.getPrefixNumber
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
+
 	########################################
 	# Setup tests if needed
 	########################################
@@ -315,6 +278,10 @@ function test_module()
 	########################################
 	
 	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
+	
+	is "$(common.string.repeat " " 3 )" "   " "common.string.repeat - three spaces"
+	is "$(common.string.repeat "|" 1 )" "|" "common.string.repeat - one pipe"
+	is "$(common.string.repeat "|" 1 )" "|" "common.string.repeat - one pipe"
 	
 	is "$(common.string.toLower QUERTY)" querty "common.string.toLower QUERTY"
 	is "$(common.string.toLower querty)" querty "common.string.toLower querty"
@@ -346,55 +313,4 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi

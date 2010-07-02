@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Preprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,15 +22,15 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# all_once_preprocessors - all pre_start_preprocessors must have finished
-# all_daily_preprocessors - all daily_preprocessors must have finished
-# all_model - all model modules must have finished
-# all_daily_postprocessors - all daily_postprocessors must have finished
-# all_once_postprocessors - all finish_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
+# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
+# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
+# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
+# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
-# the special predicate - refers to the previous model day, so all_model- means that all model modules of the previous day must be successful
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
 
-CXR_META_MODULE_DEPENDS_ON=""
+CXR_META_MODULE_DEPENDS_ON="convert_landuse"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -73,47 +74,48 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
+	# This depends on the interval
+	case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
 	
-	You can, however, call it like this:
+		once )
+			# Just once
+			echo 1
+			;;
+			
+		daily )
+			# One for each day
+			echo $CXR_NUMBER_OF_SIM_DAYS
+			;;
+			
+		weekly )
+			# One for each unique week
+			common.date.WeeksBetween $CXR_START_DATE $CXR_STOP_DATE
+			;;
+			
+		
+		monthly )
+			# One for each unique week
+			common.date.MonthsBetween $CXR_START_DATE $CXR_STOP_DATE
+			;;
 	
-	$ $progname -T
-	
-	this starts the self-test of the module.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+		*)
+			main.dieGracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." 
+			;;
+	esac
 }
+
 
 ################################################################################
 # Function: set_variables
@@ -143,13 +145,13 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_AHOMAP_OUTPUT_FILE"
 
 	# Grid specific
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+	for CXR_IGRID in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
 		# Landuse Files
-		CXR_LANDUSE_INPUT_ARR_FILES[${i}]="$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
+		CXR_LANDUSE_INPUT_ARR_FILES[${CXR_IGRID}]="$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)"
 	
 		#Check
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}"
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_INPUT_ARR_FILES[${CXR_IGRID}]}"
 	done
 }
 
@@ -234,6 +236,7 @@ function create_ahomap_control_file()
 	local ahomap_file="$1"
 	local start_offset="$2"
 	local num_days="$3"
+	local iGrid
 	
 	local day_offset
 	
@@ -268,37 +271,25 @@ function create_ahomap_control_file()
 	echo "Number of grids    |$CXR_NUMBER_OF_GRIDS" >> ${ahomap_file}
 	
 	# Loop through grids for landuse files
-	for i in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+	for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 	do
-		# Landuse Files
-		echo "Landuse filename   |${CXR_LANDUSE_INPUT_ARR_FILES[${i}]}" >> ${ahomap_file}
+		# Landuse File
+		echo "Landuse filename   |${CXR_LANDUSE_INPUT_ARR_FILES[${iGrid}]}" >> ${ahomap_file}
 		
 		#The corresponding cell dimensions
-		if [[ $i -eq 1  ]]
-		then
-			# Master Grid (Strange order!)
-			echo "nx,ny              |$CXR_MASTER_GRID_COLUMNS,$CXR_MASTER_GRID_ROWS" >> ${ahomap_file}
-		else
-			# Calculate other dimensions using scaling factor
-			# This code is also used in xx_convert_output.sh
-			
-			X_CURRENT=$(( (((${CXR_NEST_END_I_INDEX[$i]} - ${CXR_NEST_BEG_I_INDEX[$i]}) + 1) * ${CXR_NEST_MESHING_FACTOR[$i]}) + 2))
-			Y_CURRENT=$(( (((${CXR_NEST_END_J_INDEX[$i]} - ${CXR_NEST_BEG_J_INDEX[$i]}) + 1) * ${CXR_NEST_MESHING_FACTOR[$i]}) + 2))
+		X_CURRENT=$(common.runner.getX $iGrid)
+		Y_CURRENT=$(common.runner.getY $iGrid)
 
-			echo "nx,ny              |$X_CURRENT,$Y_CURRENT" >> ${ahomap_file}
-			
-		fi
-		
+		echo "nx,ny              |$X_CURRENT,$Y_CURRENT" >> ${ahomap_file}
 	done
 	
 	# We assume that we have always satellite data for all simulated days
-	# The spelling is taken literally from ENVIRON.
+	# The spelling is taken literally from ENVIRON (important because column length matters)
 	echo "Numbr of TOMS files|$num_days" >> ${ahomap_file}
 	
 	# Loop through the day offsets of the simulation (0=Start day)
 	for day_offset in $(seq ${start_offset} $(( ${start_offset} + ${num_days} -1 )) )
 	do
-
 		# Exports all relevant date variables
 		# like CXR_YEAR, CXR_MONTH...
 		common.date.setVars "$CXR_START_DATE" "$day_offset"
@@ -324,7 +315,6 @@ function create_ahomap_control_file()
 		
 		# Write data to file
 		echo "Bday,Eday,TOMS file|${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY},$CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}" >> ${ahomap_file}
-		
 	done
 	
 	# Reset date variables for first day
@@ -339,8 +329,8 @@ function create_ahomap_control_file()
 ################################################################################
 # Function: albedo_haze_ozone
 #	
-# Creates the AHOMAP input file(s). Loops through all modelling days, and determines if
-# a new file is needed. If so, creates one.
+# Creates the AHOMAP input file(s). Depending on the invocation number,
+# the correct amount of days are grouped and then AHOMAP is run over them.
 #
 # See:
 # <create_ahomap_control_file>
@@ -348,17 +338,17 @@ function create_ahomap_control_file()
 function albedo_haze_ozone() 
 ################################################################################
 {
+	# We set the invocation (we die if not passed)
+	# In this module, CXR_INVOCATION must be mapped to a part of the workload
+	CXR_INVOCATION=${1}
+	
 	# Define & Initialize local vars
-	local last_week
-	local last_month
 	local day_offset=0
 	
-	local substage
-	
-	local start_offset=0
 	local num_days=0
 	local days_left=0
 	local month_length=0
+	local iMonth
 	
 	local ahomap_control_file
 	
@@ -366,176 +356,183 @@ function albedo_haze_ozone()
 	if [[ "$(common.state.storeState ${CXR_STATE_START})" == true  ]]
 	then
 	
-		for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-		do
-			common.date.setVars "$CXR_START_DATE" "$day_offset"
-			
-			# Check if we need another file
-			# We need to know how long a week or month still lasts
-			# as we do not always begin at boundaries
-			case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
-			
-				once )
-					start_offset=0
-					num_days=${CXR_NUMBER_OF_SIM_DAYS}
-					
-					main.log -b "Running AHOMAP for whole period..."
-					;;
-					
-				daily )
+		# Check if we need another file
+		# We need to know how long a week or month still lasts
+		# as we do not always begin at boundaries
+		case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
+		
+			once )
+				# This is independent of the invocation
+				day_offset=0
+				common.date.setVars "$CXR_START_DATE" "$day_offset"
+				num_days=${CXR_NUMBER_OF_SIM_DAYS}
 				
-					start_offset=$day_offset
-					num_days=1
-					main.log -b "Running AHOMAP for $CXR_DATE..."
-					;;
-					
-				weekly )
-					# Are we in a new week?
-					if [[ "$last_week" != "$CXR_WOY"  ]]
-					then
-						# Yep, new week.
-						# Today is the first day (either of the week or the simulation)
-						start_offset=$day_offset
-						
-						days_left=$(common.date.DaysLeftInWeek $CXR_DATE)
-						
-						# The number of days depends on the number of days left in the simulation
-						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]
-						then
-							# less days left in simulation than in week
-							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
-						else
-							#Plenty of days left
-							num_days=${days_left}
-						fi
-						
-						main.log -b "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $start_offset )..."
-						
-					else
-						# No new week, next iteration
-						continue
-					fi
-					;;
+				main.log -b "Running AHOMAP for whole period..."
+				;;
 				
-				monthly )
-					# Are we in a new month?
-					if [[ "$last_month" != "$CXR_MONTH"  ]]
-					then
-						month_length=$(common.date.DaysInMonth $CXR_MONTH $CXR_YEAR)
-					
-						start_offset=$day_offset
-						
-						days_left=$(common.date.DaysLeftInMonth $CXR_DATE)
-						
-						# The number of days depends on the number of days left
-						if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left}  ]]
-						then
-							num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
-						else
-							#Plenty of days left
-							num_days=${days_left}
-						fi
-						
-						main.log -b "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $start_offset )..."
-						substage=$CXR_MONTH
-						
-					else
-						continue
-					fi
-					;;
-			
-				*)
-					main.dieGracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
-			esac
+			daily )
+				# In this case, the invocation is the day-offset plus 1
+				day_offset=$(( $CXR_INVOCATION - 1 ))
+				common.date.setVars "$CXR_START_DATE" "$day_offset"
+				num_days=1
+				main.log -b "Running AHOMAP for $CXR_DATE..."
+				;;
+				
+			weekly )
+				# Here, the invocation is the week offset since start
+				# We need to find the start (Monday) of the current offset week
+				if [[ $CXR_INVOCATION -eq 1 ]]
+				then
+					# we are at the first day
+					day_offset=0
+				else
+					# we are at some later day
+					day_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE) + 7 * ( $CXR_INVOCATION - 2 ) ))
+				fi
+				
+				common.date.setVars "$CXR_START_DATE" "$day_offset"
+				
+				# That many days remain in the current week
+				days_left=$(common.date.DaysLeftInWeek $CXR_DATE)
+				
+				# The number of days depends on the number of days left in the simulation
+				if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} )) -lt ${days_left}  ]]
+				then
+					# less days left in simulation than in week
+					num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} ))
+				else
+					#Plenty of days left
+					num_days=${days_left}
+				fi
+				
+				main.log -b "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $day_offset )..."
 
-			#  --- Setup the Environment
-			set_variables 
+				;;
 			
-			#  --- Check Settings
-			if [[ "$(common.check.preconditions)" == false  ]]
-			then
-				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				# We notify the caller of the problem
-				return $CXR_RET_ERR_PRECONDITIONS
-			fi
+			monthly )
 			
-			# Increase global indent level
-			main.increaseLogIndent
-	
-			main.log  "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
-			
-			# Is the output there?
-			if [[ ! -f "$CXR_AHOMAP_OUTPUT_FILE"  ]]
-			then
-				# File not yet there
-			
-				# The options of AHOMAP are a bit 
-				# weird, better produce a file
-				# This function (I know, one should avoid side effects!) 
-				# also downloads/caches satellite data
-				ahomap_control_file=$(common.runner.createTempFile $FUNCNAME)
-				
-				if [[ "$CXR_DRY" == false  ]]
+				# Here, the invocation is the month offset since start
+				# We need to find the 1st of the current offset month
+				if [[ $CXR_INVOCATION -eq 1 ]]
 				then
-				
-					create_ahomap_control_file "$ahomap_control_file" $start_offset $num_days
-						
-					# Is the file there and not empty?)
-					if [[ -s "${ahomap_control_file}"  ]]
-					then
-					
-						main.log  "Calling AHOMAP - using this jobfile (be patient)...\n"
-				
-						# Call AHOMAP 
-						cat ${ahomap_control_file} | tee -a ${CXR_LOG}
-						
-						${CXR_AHOMAP_EXEC} < ${ahomap_control_file} 2>&1 | tee -a $CXR_LOG
-					else
-						main.log  "Could not create AHOMAP control file - exiting."
-						return $CXR_RET_ERROR
-					fi
-		
+					# we are at the first day
+					day_offset=0
 				else
-					main.log   "Dryrun - AHOMAP not performed"
-				fi
-		
-				# Decrease global indent level
-				main.decreaseLogIndent
-		
-				# Check if all went well
-				if [[ $(common.check.postconditions) == false  ]]
-				then
-					main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-					# We notify the caller of the problem
-					return $CXR_RET_ERR_POSTCONDITIONS
-				fi
-			else
-				# File exists. That is generally bad,
-				# unless user wants to skip
-				if [[ "$CXR_SKIP_EXISTING" == true  ]]
-				then
-					# Skip it
-					main.log -w  "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+					# we are at some later day
+					# We must find the start in a loop
+					day_offset=$(common.date.DaysLeftInMonth $CXR_START_DATE)
 					
-					# next iteration
+					for iMonth in $(seq 2 $CXR_INVOCATION)
+					do
+						common.date.setVars "$CXR_START_DATE" "$day_offset"
+						day_offset=$(( $day_offset + $(common.date.DaysLeftInMonth $CXR_DATE) ))
+					done
+				fi
+				
+				common.date.setVars "$CXR_START_DATE" "$day_offset"
+				
+				month_length=$(common.date.DaysInMonth $CXR_MONTH $CXR_YEAR)
+				days_left=$(common.date.DaysLeftInMonth $CXR_DATE)
+				
+				# The number of days depends on the number of days left
+				if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]]
+				then
+					num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
 				else
-					# Fail!
-					main.log -e  "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+					#Plenty of days left
+					num_days=${days_left}
+				fi
+				
+				main.log -b "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $day_offset )..."
+				
+				;;
+		
+			*)
+				main.dieGracefully "Unknown interval for AHOMAP in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." ;;
+		esac
+
+		#  --- Setup the Environment
+		set_variables 
+		
+		#  --- Check Settings
+		if [[ "$(common.check.preconditions)" == false  ]]
+		then
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+		
+			# We notify the caller of the problem
+			return $CXR_RET_ERR_PRECONDITIONS
+		fi
+		
+		# Increase global indent level
+		main.increaseLogIndent
+
+		main.log  "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
+		
+		# Is the output there?
+		if [[ ! -f "$CXR_AHOMAP_OUTPUT_FILE"  ]]
+		then
+			# File not yet there
+		
+			# The options of AHOMAP are a bit 
+			# weird, better produce a file
+			# This function (I know, one should avoid side effects!) 
+			# also downloads/caches satellite data
+			ahomap_control_file=$(common.runner.createTempFile $FUNCNAME)
+			
+			if [[ "$CXR_DRY" == false  ]]
+			then
+			
+				create_ahomap_control_file "$ahomap_control_file" $day_offset $num_days
+					
+				# Is the file there and not empty?)
+				if [[ -s "${ahomap_control_file}"  ]]
+				then
+				
+					main.log  "Calling AHOMAP - using this jobfile (be patient)...\n"
+			
+					# Call AHOMAP 
+					cat ${ahomap_control_file} | tee -a ${CXR_LOG}
+					
+					${CXR_AHOMAP_EXEC} < ${ahomap_control_file} 2>&1 | tee -a $CXR_LOG
+				else
+					main.log  "Could not create AHOMAP control file - exiting."
 					return $CXR_RET_ERROR
 				fi
+	
+			else
+				main.log   "Dryrun - AHOMAP not performed"
 			fi
-				
-			# Do not repeat loop if we run it only once
-			if [[ "${CXR_RUN_AHOMAP_TUV_INTERVAL}" == once  ]]
+	
+			# Decrease global indent level
+			main.decreaseLogIndent
+	
+			# Check if all went well
+			if [[ $(common.check.postconditions) == false  ]]
 			then
-				break
+				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				common.state.storeState ${CXR_STATE_ERROR}
+		
+				# We notify the caller of the problem
+				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
-
-			last_week=$CXR_WOY
-			last_month=$CXR_MONTH
+		else
+			# File exists. That is generally bad,
+			# unless user wants to skip
+			if [[ "$CXR_SKIP_EXISTING" == true  ]]
+			then
+				# Skip it
+				main.log -w  "File $CXR_AHOMAP_OUTPUT_FILE exists - because of CXR_SKIP_EXISTING, file will skipped."
+				
+				# next iteration
+			else
+				# Fail!
+				main.log -e  "File $CXR_AHOMAP_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+				common.state.storeState ${CXR_STATE_ERROR}
+				return $CXR_RET_ERROR
+			fi
+		fi
 			
-		done
-
 		# Store the state
 		common.state.storeState ${CXR_STATE_STOP} > /dev/null
 	else
@@ -553,44 +550,6 @@ function albedo_haze_ozone()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -612,63 +571,4 @@ function test_module()
 	
 	is $(common.fs.isNotEmpty? ${CXR_AHOMAP_OUTPUT_FILE}) true "albedo_haze_ozone simple existence check, inspect ${CXR_AHOMAP_OUTPUT_FILE}"
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is a subset of the progname,
-# somebody started this script alone
-# Normlly this is not allowed, exept to test using -t
-if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	fi
-	
-	usage
-	
-fi
-
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-

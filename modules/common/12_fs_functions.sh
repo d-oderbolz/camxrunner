@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -21,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=12
+CXR_META_MODULE_NUM_TESTS=24
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -39,7 +40,7 @@ CXR_META_MODULE_REQ_RUNNER_VERSION=100
 CXR_META_MODULE_REQ_CONF_VERSION=100
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains filesystem functions for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains filesystem and memory functions for the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -52,36 +53,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
-
-################################################################################
-# Function: usage
-#
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
-################################################################################
-function usage() 
-################################################################################
-{
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
-}
 
 
 ################################################################################
@@ -141,6 +112,104 @@ function common.fs.isAbsolutePath?()
 	esac
 }
 
+################################################################################
+# Function: common.fs.isSubDirOf?
+# 
+# Returns true if argument1 is a subdir of argument2.
+# If they two directories are the same, they are defined to be subdirs of each other.
+#
+# Parameters:
+# $1 - path to test if it is a subdir
+# $2 - path suspected to be the root
+################################################################################
+function common.fs.isSubDirOf?()
+################################################################################
+{
+	# first, we need proper names
+	local path1="$1"
+	local path2="$2"
+	
+	# If they are the same, they are subdirs of each other
+	if [[ "$path1" == "$path2" ]]
+	then
+		echo true
+	else
+		# They are not the same
+		# We add a slash to the suspected root unless it is root
+		if [[ "$path2" != "/" ]]
+		then
+			path2="$path2"/
+		fi
+		
+		# If path1 is a subdir of path2,
+		# the string making up path1 must be the start of path2
+		if [[ "$(common.string.isSubstringPresent? "$path1" "$path2")" == true ]]
+		then
+			echo true
+		else
+			echo false
+		fi
+	fi
+	
+}
+################################################################################
+# Function: common.fs.getType
+# 
+# Gets the filesystem a file or directory resides on. Needs full path.
+# Returns the empty string on error.
+# Can translate a few ones that stat does not always know.
+# (See "man statfs" for more)
+#
+# Parameters:
+# $1 - path to test
+################################################################################
+function common.fs.getType()
+################################################################################
+{
+	local path=${1}
+	local dir="$(basename $path)"
+	
+	if [[ "$dir" && -d "$dir" ]]
+	then
+		result="$(stat -f -L -c %T "$dir")"
+		
+		if [[ "$result" == "UNKNOWN (0x5346414f)" ]]
+		then
+			result=afs
+		fi
+	
+		if [[ "$result" == "UNKNOWN (0xff534d42)" ]]
+		then
+			result=cifs
+		fi
+
+	else
+		echo ""
+	fi
+	
+}
+
+################################################################################
+# Function: common.fs.isLocal?
+# 
+# Returns true if a given path is on a local (non-networked) Filesystem, false otherwise.
+#
+# Parameters:
+# $1 - path to test
+################################################################################
+function common.fs.isLocal?()
+################################################################################
+{
+	local path=${1}
+	local type="$(common.fs.getType "$path")"
+
+	case "$type" in
+	
+		afs|nfs|cifs)	echo false ;;
+		*) echo true ;;
+	
+	esac
+}
 
 ################################################################################
 # Function: common.fs.sameDevice?
@@ -185,11 +254,11 @@ function common.fs.getMtime()
 	local file=$1
 	local mtime
 	
-	if [[ -f "${file}"  ]]
+	if [[ -e "${file}"  ]]
 	then
 		mtime="$(stat "${file}" -c"%Y")"
 	else
-		main.log -e  "No valid filename passed!"
+		main.log -e  "No valid filename passed: ${file} !"
 		mtime=0
 	fi
 	
@@ -365,8 +434,8 @@ function common.fs.WaitForStableSize()
 # $CXR_COMPRESSOR_EXEC - executable that we use
 # $CXR_COMPRESS_OUTPUT_PATTERN - Pattern we apply to both filenames and module names. If match - we compress
 #
-# Files:
-# $CXR_INSTANCE_FILE_OUTPUT_LIST - List of files to compress
+# Hashes:
+# $CXR_INSTANCE_HASH_OUTPUT_FILES - Hash of files to compress
 ################################################################################
 function common.fs.CompressOutput()
 ################################################################################
@@ -376,77 +445,128 @@ function common.fs.CompressOutput()
 	local do_this
 	local found
 	
-	if [[  "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
+	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
-		# Loop through CXR_INSTANCE_FILE_OUTPUT_LIST
-		if [[ -s "${CXR_INSTANCE_FILE_OUTPUT_LIST}"  ]]
-		then
-			while read line 
-			do
-				# Structure filename|module
-				filename=$(echo "$line" | cut -d${CXR_DELIMITER} -f1)
-				module=$(echo "$line" | cut -d${CXR_DELIMITER} -f2)
+
+		oIFS="$IFS"
+		local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)"
+		IFS="$CXR_DELIMITER"
+		# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+		local arrKeys=( $keyString )
+		# Reset Internal Field separator
+		IFS="$oIFS"
+		
+		# looping through keys (safest approach)
+		for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+		do
+			filename=${arrKeys[$iKey]}
+		
+			# the module is the value
+			module="$(common.hash.get $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE $filename)"
+			
+			main.log -v "Testing if we compress $filename (created by $module)..."
+			
+			if [[ -s "${filename}" ]]
+			then
+				# OK file is not empty
 				
-				if [[ -s "${filename}" ]]
+				# We do not yet know if we need to do it
+				do_this=false
+			
+				# Do we need to do pattern matching?
+				if [[ "${CXR_COMPRESS_OUTPUT_PATTERN:-}" ]]
 				then
-					# OK file is not empty
+					################
+					# Check filename
+					################
+					found=$(expr match "${filename}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
 					
-					# We do not yet know if we need to do it
-					do_this=false
-				
-					# Do we need to do pattern matching?
-					if [[ "${CXR_COMPRESS_OUTPUT_PATTERN:-}"  ]]
+					if [[ $found -gt 0 ]]
 					then
+						# Do it
+						do_this=true
+					else
 						################
-						# Check filename
+						# filename did not match - try module name
 						################
-						found=$(expr match "${filename}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
-						
-						if [[ $found -gt 0 ]]
+						found=$(expr match "${module}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
+				
+						if [[ $found -gt 0  ]]
 						then
 							# Do it
 							do_this=true
 						else
-							################
-							# filename did not match - try module name
-							################
-							found=$(expr match "${module}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
-					
-							if [[ $found -gt 0  ]]
-							then
-								# Do it
-								do_this=true
-							else
-								main.log -v  "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match $line, will not compress this file"
-							fi
-						fi
-					else
-						# No Pattern matching needed
-						do_this=true
-					fi
-					
-					# Do it if it is large enough
-					if [[ "$do_this" == true  ]]
-					then
-						if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
-						then
-							main.log -v  "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
-							"${CXR_COMPRESSOR_EXEC}" "${filename}"
-						else
-							main.log -v  "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB})."
+							main.log -v  "Pattern ${CXR_COMPRESS_OUTPUT_PATTERN} did not match ${filename} or ${module}, will not compress this file"
 						fi
 					fi
 				else
-					#File empty
-					main.log -w  "The output file ${filename} is empty, no compression attempted!"
+					# No Pattern matching needed
+					do_this=true
 				fi
-			done < "${CXR_INSTANCE_FILE_OUTPUT_LIST}" # Loop over lines
-		else
-			main.log -w  "The output file list ${CXR_INSTANCE_FILE_OUTPUT_LIST} is empty!"
-		fi
+				
+				# Do it if it is large enough
+				if [[ "$do_this" == true  ]]
+				then
+					if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
+					then
+						main.log -v  "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
+						"${CXR_COMPRESSOR_EXEC}" "${filename}"
+					else
+						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
+					fi
+				fi
+			else
+				#File empty
+				main.log -w  "The output file ${filename} is empty, no compression attempted!"
+			fi
+		done # Loop over files
+
 	else
 		main.log -a "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"
 	fi
+}
+
+################################################################################
+# Function: common.fs.isCompressed?
+# 
+# Checks if an input file is compressed, returns true if so, false otherwise.
+# Is not used by <common.fs.TryDecompressingFile> by design, but is used e. g.
+# by <common.check.postconditions> to detect existing, but compressed files
+#
+#
+# Parameters:
+# $1 - path to test
+################################################################################
+function common.fs.isCompressed?()
+################################################################################
+{
+		local input_file=${1:-/dev/null}
+		local iExt
+		local ext
+		local comp_file
+		
+		# Create proper array of extensions
+		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
+
+		# Checking if a compressed version of this file exists
+		for iExt in $(seq 0 $(( ${#a_cxr_compressed_ext[@]} - 1 )) )
+		do
+			# The current extension (e. g. .gz)
+			ext=${a_cxr_compressed_ext[${iExt}]}
+			
+			# Note that our extensions already contain a dot
+			comp_file="${input_file}${ext}"
+			main.log -v  "Looking for $comp_file"
+			
+			if [[ -r "$comp_file"  ]]
+			then
+				echo true
+				return $CXR_RET_OK
+			fi
+		done
+		
+		# If we arrive here, its probably not compressed
+		echo false
 }
 
 ################################################################################
@@ -458,7 +578,7 @@ function common.fs.CompressOutput()
 #
 # Due to potential permission issues, we decompress into temp files unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
-# This is stored in the file CXR_DECOMPRESSED_LIST.
+# This is stored in the hash CXR_GLOBAL_HASH_DECOMPRESSED_FILES.
 #
 # If the decompression fails, we return the input string.
 #
@@ -470,13 +590,19 @@ function common.fs.CompressOutput()
 function common.fs.TryDecompressingFile()
 ################################################################################
 {
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully  "Could not do decompression - no path passed!"
+	fi
+	
+	
 	local input_file=$1
 	# We assume that in was not compressed
 	local was_compressed=false
 	local line
 	local tempfile
 	local sed_tmp
-	local k
+	local iExt
 	local ext
 	local comp_file
 	local filetype
@@ -488,18 +614,11 @@ function common.fs.TryDecompressingFile()
 		main.log -v -B  "Testing compression on $(basename ${input_file})..."
 	
 		# Check first if we already have decompressed this file
-		# Look for an entry like
-		# /afs/psi.ch/intranet/LAC/keller_j/emiss/emisscamx/20070101/sem050/camx_emiss_domain1_uw3_sem050_20070101.asc|Some_Temp_File
-		# In $CXR_DECOMPRESSED_LIST
-		touch "$CXR_DECOMPRESSED_LIST"
-		
-		line="$(grep "${input_file}${CXR_DELIMITER}" $CXR_DECOMPRESSED_LIST | head -n1 )"
-		
-		if [[ "$line"  ]]
+		if [[ "$(common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}")" == true ]]
 		then
 			# Seems like we already did this file
-			# The tempfile is in the second field
-			tempfile="$(echo $line | cut -d${CXR_DELIMITER} -f2)"
+			# The tempfile is the value
+			tempfile="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}")"
 			
 			if [[ -s "$tempfile" ]]
 			then
@@ -512,10 +631,8 @@ function common.fs.TryDecompressingFile()
 				# tempfile empty, need to repeat
 				main.log -v  "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
 				
-				# First remove that line via sed
-				sed_tmp=$(common.runner.createTempFile sed)
-				sed "/$line/d" "${CXR_DECOMPRESSED_LIST}" > "${sed_tmp}"
-				mv "${sed_tmp}" "${CXR_DECOMPRESSED_LIST}"
+				# First remove that entry
+				common.hash.delete $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}"
 			fi	
 		fi # Entry found in compressed list?
 		
@@ -523,10 +640,10 @@ function common.fs.TryDecompressingFile()
 		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
 
 		# Checking if a compressed version of this file exists
-		for k in $(seq 0 $(( ${#a_cxr_compressed_ext[@]} - 1 )) )
+		for iExt in $(seq 0 $(( ${#a_cxr_compressed_ext[@]} - 1 )) )
 		do
 			# The current extension (e. g. .gz)
-			ext=${a_cxr_compressed_ext[$k]}
+			ext=${a_cxr_compressed_ext[${iExt}]}
 			
 			# Note that our extensions already contain a dot
 			comp_file="${input_file}${ext}"
@@ -589,8 +706,8 @@ function common.fs.TryDecompressingFile()
 
 		if [[ "$was_compressed" == true  ]]
 		then
-			# In CXR_DECOMPRESSED_LIST
-			echo "${input_file}${CXR_DELIMITER}${new_file}" >> $CXR_DECOMPRESSED_LIST
+			# Put into Hash with new_file as value
+			common.hash.put $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" "$new_file"
 		
 			echo "$new_file"
 		else
@@ -711,27 +828,27 @@ function common.fs.getFreeMb()
 			if [[ "$(common.string.isSubstringPresent? "$last_line" "no limit" )" == true ]]
 			then
 				main.log -v  "There seems to be no quota on $1, using df"
-		
+				
 				df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
 			else
 				# Quota must be taken into account
 			
-			# Suck line into LINE_ARRAY
-			# Line looks like this:
-			# usr.oderbolz                3000000   2440839   81%         90%
+				# Suck line into LINE_ARRAY
+				# Line looks like this:
+				# usr.oderbolz                3000000   2440839   81%         90%
 				# or this
 				# usr.oderbolz                5000000   3319991   66%        174%<<  <<WARNING
 				# or even this:
 				# lacfs.nb                   no limit-2092752580    0%       1077%<<  <<WARNING
-			quota_array=($last_line)
-			
-			# Calculate free KiBi
-			free_kb=$(( ${quota_array[1]} - ${quota_array[2]} ))
-			
-			# Convert to MB
-			free_mb=$(( $free_kb / 1024 ))
-			
-			echo $free_mb
+				quota_array=($last_line)
+				
+				# Calculate free KiBi
+				free_kb=$(( ${quota_array[1]} - ${quota_array[2]} ))
+				
+				# Convert to MB
+				free_mb=$(( $free_kb / 1024 ))
+				
+				echo $free_mb
 			fi
 			;;
 	*) 
@@ -739,6 +856,33 @@ function common.fs.getFreeMb()
 			df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
 			;;
 	esac
+}
+
+################################################################################
+# Function: common.memory.getFreePercent
+#
+# Estimates the percentage of free memory from the output of top.
+#
+#
+################################################################################
+function common.memory.getFreePercent()
+################################################################################
+{
+	local usedPercent=0
+	
+	# Memory percent is in the 10th column
+	# The first 7 lines are header
+	for used in $(top -b -n1 | sed '1,7d' | awk '{ print $10 }')
+	do
+		usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
+	done
+	
+	free="$(common.math.FloatOperation "100 - $usedPercent" -1 0)"
+	
+	main.log -v "Found $free % free memory"
+	
+	echo $free
+	
 }
 
 ################################################################################
@@ -751,44 +895,6 @@ function common.fs.getFreeMb()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -796,6 +902,7 @@ function test_module()
 	# We need a few tempfiles
 	a=$(common.runner.createTempFile $FUNCNAME)
 	b=$(common.runner.createTempFile $FUNCNAME)
+	c=$(common.runner.createTempFile $FUNCNAME)
 	
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
@@ -805,24 +912,35 @@ function test_module()
 	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
 	CXR_COMPRESS_OUTPUT_PATTERN=
 	
-	# Add this file to the output file list
-	echo "${a}${CXR_DELIMITER}path_functions" > "${CXR_INSTANCE_FILE_OUTPUT_LIST}"
+	# Compress also very small files
+	CXR_COMPRESS_THRESHOLD_MB=0
 	
-	# Mtime
+	# Destroy output file hash
+	common.hash.destroy $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE
+	
+	# Add this file to the output file list
+	common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE  "${a}" "path_functions"
+	
+	# Change Mtime of $a
 	touch $a
 	
 	# This is our time
 	local rtc=$(date "+%s") 
 	
-	# Time of file
+	# MTime of file $a
 	local ft=$(common.fs.getMtime $a)
 	
-	# create a 100 MB file
+	# create a 100 MB file called $b
 	dd bs=100M if=/dev/zero of=$b count=1
+	
+	# Compression check
+	gzip $c
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
+	
+	main.log "Free memory: $(common.memory.getFreePercent) %"
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
@@ -831,6 +949,21 @@ function test_module()
 	is $(common.fs.FileSizeMb $b) 100 "common.fs.FileSizeMb of 100MB file"
 	is $(common.fs.sameDevice? . .) true "common.fs.sameDevice? with twice the current path"
 	is $(common.fs.sameDevice? /proc .) false "common.fs.sameDevice? with proc and current path"
+	is "$(common.fs.getType /proc)" proc "common.fs.getType proc"
+	is "$(common.fs.isLocal? /proc)" true "common.fs.isLocal? proc"
+	is $(common.fs.isCompressed? "$c") true "common.fs.isCompressed? gzip"
+	
+	is "$(common.fs.isSubDirOf? /my_path / )" true "common.fs.isSubDirOf? root"
+	is "$(common.fs.isSubDirOf? ./my_path . )" true "common.fs.isSubDirOf? relative path"
+	is "$(common.fs.isSubDirOf? some/path some/otherpath )" false "common.fs.isSubDirOf? relative path"
+	# That is a tough one
+	is "$(common.fs.isSubDirOf? some/pathplus some/path )" false "common.fs.isSubDirOf? relative path"
+	is "$(common.fs.isSubDirOf? some/path/and/more some/path )" true "common.fs.isSubDirOf? relative path"
+	is "$(common.fs.isSubDirOf? some/path some/path/and/more )" false "common.fs.isSubDirOf? wrong order"
+	# By definition, the same directories are subdirs of each other
+	is "$(common.fs.isSubDirOf? some/path some/path )" true "common.fs.isSubDirOf? twice the same path"
+	is "$(common.fs.isSubDirOf? / / )" true "common.fs.isSubDirOf? twice /"
+	is "$(common.fs.isSubDirOf? . . )" true "common.fs.isSubDirOf? twice ."
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a"
@@ -887,55 +1020,5 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
 	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-
-fi

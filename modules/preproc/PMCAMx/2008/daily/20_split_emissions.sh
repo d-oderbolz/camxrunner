@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Preprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
@@ -45,47 +46,21 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-
-# just needed for stand-alone usage help
-progname=$(basename $0)
 ################################################################################
-
-################################################################################
-# Function: usage
+# Function: getNumInvocations
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
-#
+# Needs to be changed only if your module can be called more than once per step independently.
+# For example your module might be run for each grid separately. Then, CAMxRunner
+# can might be able to start these in parallel, but it needs to know how many
+# of these "invocations" per step are needed.
+# 
 ################################################################################
-function usage() 
+function getNumInvocations()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Is designed to be called by the CAMxRunner.
+	# this module needs one invocation per grid per step
 	
-	You can, however, call it like this:
-	
-	$ $progname -T
-	
-	this starts the self-test of the module.
-	
-	If you want to run just this part of the processing,
-	look at the options 
-	-D (to process one day),
-	-i (a step of the input prep) and 
-	-o (a part of the output prep) of the CAMxRunner
-	
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
-	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	echo $CXR_NUMBER_OF_GRIDS
 }
 
 ################################################################################
@@ -107,14 +82,17 @@ function set_variables()
 	# Set variables
 	########################################################################
 	
+	# Grid specific - we need to define CXR_IGRID
+	CXR_IGRID=$CXR_INVOCATION
+	
 	# Evaluate some rules
 	CXR_SPLIT_EMISSIONS_INPUT_FILE="$(common.runner.evaluateRule "$CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_INPUT_FILE_RULE)"
 
-	# CXR_CHECK_THESE_INPUT_FILES is a space separated list of output files to check
-	CXR_CHECK_THESE_INPUT_FILES="$CXR_SPLIT_EMISSIONS_INPUT_FILE"
-
 	# Output files must not be decompressed!
 	CXR_SPLIT_EMISSIONS_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE" false CXR_SPLIT_EMISSIONS_OUTPUT_FILE_RULE false)"
+
+	# CXR_CHECK_THESE_INPUT_FILES is a space separated list of output files to check
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_SPLIT_EMISSIONS_INPUT_FILE"
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"
@@ -129,6 +107,10 @@ function set_variables()
 function split_emissions() 
 ################################################################################
 {
+	# In this module, CXR_INVOCATION corresponds to the grid number.
+	# We die, if this parameter is missing
+	CXR_INVOCATION=${1}
+	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then
@@ -139,6 +121,8 @@ function split_emissions()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
@@ -176,6 +160,8 @@ function split_emissions()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+				common.state.storeState ${CXR_STATE_ERROR}
+			
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
@@ -211,44 +197,6 @@ function split_emissions()
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -262,7 +210,7 @@ function test_module()
 	# compared to date_functions because we cannot just compare
 	# Expected with actual results
 	
-	split_emissions
+	split_emissions 1
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -274,64 +222,4 @@ function test_module()
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is a subset of the progname,
-# somebody started this script alone
-# Normlly this is not allowed, exept to test using -t
-if [[ $(expr match "$progname" ".*$CXR_META_MODULE_NAME.*") -gt 0  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-		
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-			
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	fi
-	
-	usage
-	
-fi
-
-################################################################################
-# Code beyond this point is not executed in stand-alone operation
-################################################################################
-
-
-
-

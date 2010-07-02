@@ -1,11 +1,12 @@
-#!/usr/bin/env bash
+# Processing modules are not meant to be executed stand-alone, so there is no
+# she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
 # Version: $Id$ 
 #
-# Contains the Input Preparation
+# Contains functions to manage modules.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -21,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=2
+CXR_META_MODULE_NUM_TESTS=20
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -48,53 +49,63 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-# just needed for stand-alone usage help
-progname=$(basename $0)
-################################################################################
 
 ################################################################################
-# Function: usage
+# Function: common.module.parseIdentifier
+# 
+# Parses an identifier string of the form Module[Offset][@Invocation],
+# e. g. prepare_output_dir0 or convert_output0@1
+# Currently, no correction is done if a value is empty (this is by design)
 #
-# Shows that this script can only be used from within the CAMxRunner
-# For common scripts, remove the reference to CAMxRunner options
+# Output variables:
+# _module_name
+# _day_offset
+# _invocation
 #
+# Parameters:
+# $1 - an identifier
 ################################################################################
-function usage() 
+function common.module.parseIdentifier()
 ################################################################################
 {
-	# At least in theory compatible with help2man
-	cat <<EOF
-
-	$progname - A part of the CAMxRunner tool chain.
-
-	Can ONLY be called by the CAMxRunner.
-
-	Written by $CXR_META_MODULE_AUTHOR
-	License: $CXR_META_MODULE_LICENSE
+	if [[ $# -ne 1 || -z "$1" ]]
+	then
+		main.dieGracefully "Needs a non-empty identifier as Input"
+	fi
 	
-	Find more info here:
-	$CXR_META_MODULE_DOC_URL
-EOF
-exit 1
+	identifier="$1"
+	
+	main.log -v "Parsing $identifier"
+	
+	# Get just lowercase text at the beginning
+	_module_name="$(expr match "$identifier" '\(\<[_a-z]\{1,\}\)')"
+		
+	# get only the digits after the name, must handle the empty case using || : (otherwise we die here)
+	# the @-sign might be missing
+	_day_offset="$(expr match "$identifier" '\<[_a-z]\{1,\}\([0-9]\{1,\}\)@\{0,\}[0-9]\{0,\}\>')" || :
+		
+	# get invocation - needs the @-sign
+	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
+	
+	main.log -v "module: $_module_name day_offset: $_day_offset invocation: $_invocation"
 }
 
 ################################################################################
-# Function: common.module.getMetaField
+# Function: common.module.getNumInvocations
 # 
-# For a given module name, returns the given meta-data item.
+# For a given module name, returns the value of getNumInvocations
+# Caveat: This function modifies the environment - always call like this:
+# > b=$(common.module.getNumInvocations "$module")
+# The $() construct opens a subshell.
 #
 # Parameters:
 # $1 - name of a module
-# $2 - the name of the item
 ################################################################################
-function common.module.getMetaField()
+function common.module.getNumInvocations()
 ################################################################################
 {
 	local module="$1"
-	local item="$2"
-	local module_path
-	local value
-
+	local numInvocations
 	
 	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
 	then
@@ -105,6 +116,55 @@ function common.module.getMetaField()
 	
 	# Before sourcing, set this Meta var
 	CXR_META_MODULE_NAME=$module
+	
+	# source module
+	source "$module_path"
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "could not source $module ($module_path)"
+	fi
+	
+	# Call the function
+	numInvocations=$(getNumInvocations)
+	
+	echo $numInvocations
+}
+
+################################################################################
+# Function: common.module.getMetaField
+# 
+# For a given module name, returns the given meta-data item.
+# Caveat: This function modifies the environment - always call like this:
+# > b=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
+# The $() construct opens a subshell.
+#
+# Parameters:
+# $1 - name of a module
+# $2 - the name of the item
+################################################################################
+function common.module.getMetaField()
+################################################################################
+{
+	if [[ $# -ne 2  ]]
+	then
+		main.dieGracefully "needs a module name and a meta item as input"
+	fi
+	
+	local module="$1"
+	local item="$2"
+	local module_path
+	local value
+
+	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
+	then
+		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")"
+	else
+		main.dieGracefully "cannot find path of $module"
+	fi
+	
+	# Before sourcing, set this Meta var
+	CXR_META_MODULE_NAME="$module"
 	
 	# source module
 	source "$module_path"
@@ -126,6 +186,7 @@ function common.module.getMetaField()
 		# Return value (indirect)
 		echo ${!item}
 	fi
+
 }
 
 ################################################################################
@@ -191,10 +252,16 @@ function common.module.getNumTests()
 ################################################################################
 # Function: common.module.resolveSingleDependency
 # 
-# resolves a single dependenency string (containig just one dependency), depending 
+# Resolves a single dependenency string (containig just one dependency), depending 
 # on the day offset.
+# - turns the predicates "+" and "-" into actual day offsets
+# - turn all_* dependecies like "CXR_DEP_ALL_ONCE_PRE" into actual module names
+# - adds the different invorations if needed
+# So "all_model- " becomes "model1@1" at day 2, "albedo_haze_ozone" becomes "albedo_haze_ozone@1 albedo_haze_ozone@2" 
+# if albedo_haze_ozone can be split into two invocations.
+#
 # Any dependency that is not relevant (like module- for the first day) is not returned.
-# If a dependency is disabled, we either terminate or ignore this (depends on CXR_IGNORE_DISABLED_DEPENDENCIES)
+# If a dependency is disabled and this is allowed, we warn the user, otherwise we terminate
 # 
 # Hashes:
 # CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
@@ -205,19 +272,20 @@ function common.module.getNumTests()
 # CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
 
 # Parameters:
-# $1 - name of the dependency like "create_emissions" or a special dependency like "all_model")
+# $1 - name of the dependency like "create_emissions" or a special dependency like "${CXR_DEP_ALL_MODEL}")
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
 ################################################################################
 function common.module.resolveSingleDependency()
 ################################################################################
 {
-	if [[ $# -lt 1 && $# -gt 2 ]]
+	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
 		main.dieGracefully "Programming error - we need at least a depdendency and an optional day_offset as input"
 	fi
 
 	local dependency="$1"
 	local day_offset="${2:-}"
+	local our_day_offset="${2:-}"
 	local predicate
 	local my_prefix
 	local active_hash
@@ -225,10 +293,11 @@ function common.module.resolveSingleDependency()
 	local raw_date
 	local resolved_dependencies
 	local resolved_dependency
-	local active_modules
 	local module
-	local resolved_list
 	local first=true
+	local iKey
+	local iInvocation
+	local nInvocations
 	
 	if [[ "$day_offset" ]]
 	then
@@ -244,28 +313,80 @@ function common.module.resolveSingleDependency()
 	
 	case $predicate in
 		-) 
-			# Currently, we only support -
+			# This predicate refers to the same module, executed in the preceding simulation day
 			# if there is no day offset, this dependency is not relevant
 			if [[ "$day_offset" ]]
 			then
 				main.log -v  "Found the - predicate, will check last days results"
-				day_offset=$(( $day_offset - 1 ))
 				
-				# Cut off final -
-				dependency=${dependency%-}
-				if [[ ! $day_offset -le 0 ]]
+				# Test day offset
+				if [[ $day_offset -le 0 ]]
 				then
 					# At day 0, all previous day predicates are fulfilled
-					main.log -v  "We are at day 0 - previous day dependency not relevant"
+					main.log -v  "We are at day 0 - previous day dependency $dependency not relevant"
 					echo ""
 					return $CXR_RET_OK
 				fi
+				
+				# Correct offset
+				day_offset=$(( $day_offset - 1 ))
+				
+				# Cut off final -
+				# The actual resolving happens further down.
+				dependency=${dependency%-}
+				
 			else
+				main.log -v  "Dependency $dependency not relevant since there is no day offset"
 				# No offset
 				echo ""
 				return $CXR_RET_OK
 			fi # day_offset present?
 			;;
+			
+		+) 
+			# This predicate refers to all simulation days
+			# It is used to refer to a daily module from a One-Time module
+			# makes sure that the daily model was executed for all days
+			# Can only be used to refer to a name of a module, so
+			# ${CXR_DEP_ALL_MODEL}+ is invalid
+			
+			# Cut off final +
+			dependency=${dependency%+}
+			main.log -v  "Found the + predicate, will check that $dependency ran for all days"
+			
+			case $dependency in
+	
+				$CXR_DEP_ALL_ONCE_PRE | \
+				$CXR_DEP_ALL_DAILY_PRE | \
+				$CXR_DEP_ALL_DAILY_POST | \
+				$CXR_DEP_ALL_ONCE_POST | \
+				$CXR_DEP_ALL_MODEL) main.dieGracefully "Predicate + not allowed for $dependency" ;; 
+
+				*) # Handle + Predicate
+					for our_day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+					do
+						nInvocations=$(common.module.getNumInvocations "$dependency")
+						for iInvocation in $(seq 1 $nInvocations )
+						do
+							module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency)
+							resolved_dependency="$(common.parallel.formatDependency "$dependency" "$module_type" "$our_day_offset" "$iInvocation" "$nInvocations")"
+							
+							if [[ "$first" == true ]]
+							then
+								# First iteration
+								resolved_dependencies="$resolved_dependency"
+								first=false
+							else
+								resolved_dependencies="${resolved_dependencies} ${resolved_dependency}"
+							fi
+						done # invocations
+					done # days
+					
+					echo ${resolved_dependencies}
+					return $CXR_RET_OK
+					;;
+					
+			esac
 	esac
 	
 	# Check if we look at a special dependency or not
@@ -284,24 +405,39 @@ function common.module.resolveSingleDependency()
 		*) # A boring standard case
 		
 			# Is the dependency disabled?
-			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_UNIVERSAL "$dependency") == false  ]]
+			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dependency") == false  ]]
 			then
 				# Do we care?
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 				then
 					# No, user wants to ignore this
-					main.log  "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
-					echo ""
-					
-					return $CXR_RET_OK
+					main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
 				else
 					# Yes, we terminate
 					main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
-				fi
-			fi
+				fi # disabled dependencies allowed?
+			fi # dependency disabled?
 			
-			# We return something like create_emissions0
-			echo ${dependency}${day_offset}
+			# We ned the module type to know if we pass a day offset or not
+			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency)
+			
+			nInvocations=$(common.module.getNumInvocations "$dependency")
+			for iInvocation in $(seq 1 $nInvocations )
+			do
+				resolved_dependency="$(common.parallel.formatDependency "$dependency" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+				
+				if [[ "$first" == true ]]
+				then
+					# First iteration
+					resolved_dependencies="$resolved_dependency"
+					first=false
+				else
+					resolved_dependencies="${resolved_dependencies} ${resolved_dependency}"
+				fi
+			
+			done # invocations
+			
+			echo ${resolved_dependencies}
 			
 			return $CXR_RET_OK
 			;;
@@ -313,38 +449,110 @@ function common.module.resolveSingleDependency()
 	########################################	
 	main.log -v  "We resolve the special dependency ${dependency}..."
 	
-	# Create list of active modules
-	active_modules="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+	oIFS="$IFS"
+	local keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+	IFS="$CXR_DELIMITER"
+	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
+	local arrKeys=( $keyString )
+	# Reset Internal Field separator
+	IFS="$oIFS"
 	
-	for module in $active_modules
+	# looping through keys (safest approach)
+	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 	do
+		module="${arrKeys[$iKey]}"
 		main.log -v  "Found dependency on $module"
 		
-		resolved_dependency=${module}${day_offset}
+		# We ned the module type to know if we pass a day offset or not
+		module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
 		
-		if [[ "$first" == true ]]
-		then
-			# First iteration
-			resolved_list="$resolved_dependency"
-			first=false
-		else
-			# any other iteration
-			resolved_list="$resolved_list $resolved_dependency"
-		fi
+		
+		nInvocations=$(common.module.getNumInvocations "$module")
+		for iInvocation in $(seq 1 $nInvocations )
+		do
+			resolved_dependency="$(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+		
+			if [[ "$first" == true ]]
+			then
+				# First iteration
+				resolved_dependencies="$resolved_dependency"
+				first=false
+			else
+				# any other iteration
+				resolved_dependencies="$resolved_dependencies $resolved_dependency"
+			fi
+		
+		done # invocations
+		
 	done  # Loop over active modules
 	
-	echo "$resolved_list"
+	echo "$resolved_dependencies"
 	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: common.module.dependsOn?
+#
+# Returns true if the first argument depends on the second
+#
+# Parameters:
+# $1 - name of a step like create_emissions1@1
+# $2 - name of a step like create_emissions1@1
+################################################################################
+function common.module.dependsFirstOnSecond?()
+################################################################################
+{
+	local first="$1"
+	local second="$2"
+	
+	local first_module
+	local second_module
+	
+	local first_dep_raw
+	local first_dep
+	
+	local found=false
+	
+	# The question is if the first argument depends on the second, 
+	# or in other words if the module name of the second appears in the expanded version of the 
+	# dependencies of the first (and the day offset matches)
+	
+	common.module.parseIdentifier "$first"
+	first_module=$_module_name
+	first_offset=$_day_offset
+	
+	# Get the expanded dependencies of the first
+	first_dep_raw=$(common.module.getRawDependencies "$first_module")
+	first_dep=$(common.module.resolveAllDependencies "$first_dep_raw" "$first_offset")
+	
+	common.module.parseIdentifier "$second"
+	second_module=$_module_name
+	second_offset=$_day_offset
+	
+	for dep in $first_dep
+	do
+		common.module.parseIdentifier "$dep"
+		
+		if [[ "$_module_name" == "$second_module" && "$second_offset" == "$_day_offset" ]]
+		then
+			found=true
+			break
+		fi
+		
+	done
+	
+	echo $found
+	
 }
 
 ################################################################################
 # Function: common.module.resolveAllDependencies
 # 
-# resolves a complete dependenency string (containig more than one dependency), depending 
-# on the day offset.
+# Resolves a complete dependenency string (containig more than one dependency), depending 
+# on the day offset. 
 # 
 # Parameters:
-# $1 - a list of dependencies "create_emissions all_module-"
+# $1 - a list of dependencies like "create_emissions all_module-"
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
 ################################################################################
 function common.module.resolveAllDependencies()
@@ -353,8 +561,8 @@ function common.module.resolveAllDependencies()
 	local dependencies="$1"
 	local day_offset="${2:-}"
 	local dependency
-	local resolved_dependency
-	local resolved_list
+	local resolved_dependency=""
+	local resolved_dependencies=""
 	local first=true
 	
 	#Loop through dependencies
@@ -364,15 +572,15 @@ function common.module.resolveAllDependencies()
 		if [[ "$first" == true ]]
 		then
 			# First iteration
-			resolved_list="$resolved_dependency"
+			resolved_dependencies="$resolved_dependency"
 			first=false
 		else
 			# any other iteration
-			resolved_list="$resolved_list $resolved_dependency"
+			resolved_dependencies="$resolved_dependencies $resolved_dependency"
 		fi
 	done
 	
-	echo "$resolved_list"
+	echo "$resolved_dependencies"
 }
 
 ################################################################################
@@ -382,13 +590,11 @@ function common.module.resolveAllDependencies()
 # the run is destroyed, if the depdendency was not yet started, false is returned,
 # if it is OK, true is returned.
 #
-# Can handle dependencies on a whole type (like all_model) and the predicate - (previous day)
+# Can handle dependencies on a whole type (like ${CXR_DEP_ALL_MODEL}) and the predicates + and -
 #
 # Checks if a dependency is listed in the list of active modules.
-#
-# If this is a dryrun, we go on even if a dependency failed.
 # 
-# We access the state DB using <common.state.hasFinished?> to test if stuff has finished.
+# We access the state DB using <common.state.hasFinished?> to test if a step has finished.
 #
 # Parameters:
 # $1 - a list of raw dependencies
@@ -413,19 +619,57 @@ function common.module.areDependenciesOk?()
 	local day_offset="${2:-}"
 	local dep_day_offset
 	local dep_module_name
-	local dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
 	local dependency
 	local my_stage
+	local iInvocation
+	local nInvocations
 	
-	main.log -v  "Evaluating dependencies on $dependencies for day offset $day_offset"
+	
+	if [[ ! "$raw_dependencies" ]]
+	then
+		echo true
+		main.log -v "Dependency empty - OK"
+		return $CXR_RET_OK
+	fi
+		
+	main.log -v  "Evaluating dependencies on $raw_dependencies for day offset ${day_offset:-0}"
+	
+	# Resolve them
+	local dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
+	
+	main.log -v "Resolved dependencies: $dependencies"
 
 	for dependency in $dependencies
 	do
 		# We need to parse the dependency
-		# Remove potential digits
-		dep_module_name=$(expr match "$dependency" '\(\<[_a-z]\{1,\}\)')
-		# get only the digits at the end
-		dep_day_offset=$(expr match "$dependency" '.*\([0-9]\{1,\}\>\)')
+		# this sets a couple of _variables
+		common.module.parseIdentifier "$dependency"
+		
+		dep_module_name="$_module_name"
+		dep_day_offset="$_day_offset"
+		dep_invocation="$_invocation"
+		
+		# If there is no offset set in to 0 (TODO: Check correctness!)
+		if [[ -z "$(common.string.trim "$dep_day_offset")" ]]
+		then
+			dep_day_offset=0
+		fi
+		
+		# Check if it is disabled
+		if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dep_module_name") == false  ]]
+		then
+			# Do we care?
+			if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]]
+			then
+				# No, user wants to ignore this
+				main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dep_module_name is disabled. We will not check if this module was run"
+				# Next dependency
+				continue
+			else
+				# Yes, we terminate
+				main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dep_module_name is disabled. The dependency $dep_module_name cannot be fulfilled!"
+			fi # disabled dependencies allowed?
+		fi # dependency disabled?
 		
 		# Determine type
 		module_type="$(common.module.getType "$dep_module_name")"
@@ -433,26 +677,21 @@ function common.module.areDependenciesOk?()
 		# Convert date
 		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
 		
-		my_stage="$(common.state.getStageName "$module_type" "$dependency" "$raw_date" )"
+		my_stage="$(common.state.getStageName "$module_type" "$dep_module_name" "$raw_date" "$dep_invocation" )"
 		
 		# Is this known to have worked?
 		if [[ "$(common.state.hasFinished? "$my_stage")" == true ]]
 		then
-			main.log -v   "dependency ${dependency} fullfilled"
+			main.log -v "dependency ${dependency} fullfilled at $my_stage"
 		else
 			# dependency NOK, Find out why
 			
 			# Find out if dependency failed - if so, we crash
-			if [[ "$(common.state.hasFailed? "$my_stage")" == true  ]]
+			if [[ "$(common.state.hasFailed? "$my_stage")" == true ]]
 			then
 				# It failed
-				# Destroy run 
-				if [[ $CXR_DRY == false  ]]
-				then
-					main.dieGracefully "dependency ${day_offset}_${dependency} failed!"
-				else
-					main.log -v  "The dependency ${dependency} failed - but this is a dryrun, so we keep going!"
-				fi
+				# Destroy run (we used not to do this in dryruns. But this can result in a lockup!
+				main.dieGracefully "dependency ${dependency} failed at $my_stage !"
 			else
 				# It did not fail, it seems that it was not yet run - we have to wait
 				main.log -v  "${dependency} has not yet finished - we need to wait."
@@ -460,12 +699,11 @@ function common.module.areDependenciesOk?()
 				return $CXR_RET_OK
 			fi
 		fi
+
 	done # Loop over all dependencies
 	
 	# If we arrive here, all is swell
 	echo true
-	
-	return $CXR_RET_OK
 }
 
 ################################################################################
@@ -473,7 +711,11 @@ function common.module.areDependenciesOk?()
 #
 # Goes through all available modules for the current model and version, and collects 
 # vital information in various hashes.
+# For performance reasons, we check the hashes mtimes compared to the mtime of the configuration.
+# If any USER_TEMP variable is set, we do it anyway.
 # If a module name is non-unique, we fail.
+#
+# TODO: Make faster!
 #
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
@@ -498,10 +740,11 @@ function common.module.updateInfo()
 
 	main.log -a  "Updating module information, might take a while..."
 	
+	
 	# Increase global indent level
 	main.increaseLogIndent
 	
-	local i
+	local iIteration
 	local dirs
 	local dir
 	local types
@@ -511,36 +754,151 @@ function common.module.updateInfo()
 	local files
 	local file
 	local module_name
+	local run_it
+	local confMtime
+	local HashMtime
+	local cliCount
+	
+	# First check if the config changed after last update
+	
+	# Mtime of configfile. Strictly speaking we should look at all files of the hierarchy
+	confMtime=$(common.fs.getMtime $CXR_CONFIG)
+	# We use the path hash as representative hash
+	HashMtime=$(common.hash.getMtime $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL)
+	
+	main.log -v "Mtime Conf: $confMtime Mtime Hash:$HashMtime"
+	
+	if [[ $confMtime -lt $HashMtime ]]
+	then
+		# Conf was not changed.
+		# Test if user supplied any CLI-settings that change the active modules
+		
+		if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
+		then
+			# User did not supply any settings
+			main.log -a "It seems that module info is up-to-date. If not, touch $CXR_CONFIG and rerun"
+			return $CXR_RET_OK
+		fi
+	fi
 	
 	# Create a few working arrays we will go through
-	# Note that there are three kinds of common modules: general ones, model specific and version specific ones
-	# The same is true for installers
-	types=($CXR_TYPE_INSTALLER $CXR_TYPE_INSTALLER $CXR_TYPE_INSTALLER $CXR_TYPE_COMMON $CXR_TYPE_COMMON $CXR_TYPE_COMMON $CXR_TYPE_PREPROCESS_ONCE $CXR_TYPE_PREPROCESS_DAILY  $CXR_TYPE_MODEL $CXR_TYPE_POSTPROCESS_DAILY $CXR_TYPE_POSTPROCESS_ONCE)
-	dirs=($CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR $CXR_COMMON_INPUT_DIR $CXR_COMMON_MODEL_INPUT_DIR $CXR_COMMON_VERSION_INPUT_DIR $CXR_PREPROCESSOR_ONCE_INPUT_DIR $CXR_PREPROCESSOR_DAILY_INPUT_DIR $CXR_MODEL_INPUT_DIR $CXR_POSTPROCESSOR_DAILY_INPUT_DIR $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
-	# we ignore a hash called "-"
-	hashes=(- - - - - - $CXR_ACTIVE_ONCE_PRE_HASH $CXR_ACTIVE_DAILY_PRE_HASH $CXR_ACTIVE_MODEL_HASH $CXR_ACTIVE_DAILY_POST_HASH $CXR_ACTIVE_ONCE_POST_HASH)
+	# Note that there are three kinds of installer modules: general ones, model specific and version specific ones
+	# The same is true for common modules
+	types=($CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_PREPROCESS_ONCE \
+	       $CXR_TYPE_PREPROCESS_DAILY  \
+	       $CXR_TYPE_MODEL \
+	       $CXR_TYPE_POSTPROCESS_DAILY \
+	       $CXR_TYPE_POSTPROCESS_ONCE)
+	       
+	dirs=($CXR_INSTALLER_INPUT_DIR \
+	      $CXR_INSTALLER_MODEL_INPUT_DIR \
+	      $CXR_INSTALLER_VERSION_INPUT_DIR \
+	      $CXR_COMMON_INPUT_DIR \
+	      $CXR_COMMON_MODEL_INPUT_DIR \
+	      $CXR_COMMON_VERSION_INPUT_DIR \
+	      $CXR_PREPROCESSOR_ONCE_INPUT_DIR \
+	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_MODEL_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
 	
-	for i in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+	# we ignore any hash called "-"
+	hashes=(- \
+	        - \
+	        - \
+	        - \
+	        - \
+	        - \
+	        $CXR_ACTIVE_ONCE_PRE_HASH \
+	        $CXR_ACTIVE_DAILY_PRE_HASH \
+	        $CXR_ACTIVE_MODEL_HASH \
+	        $CXR_ACTIVE_DAILY_POST_HASH \
+	        $CXR_ACTIVE_ONCE_POST_HASH)
+	
+	# Clear global hashes if we are alone
+	if [[ ${CXR_ALLOW_MULTIPLE} == false ]]
+	then
+		common.hash.destroy $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_ONCE_PRE_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_DAILY_PRE_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_MODEL_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_DAILY_POST_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_ONCE_POST_HASH $CXR_HASH_TYPE_GLOBAL
+	fi
+	
+	
+	for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
 	do
-		type=${types[$i]}
-		dir=${dirs[$i]}
-		active_hash=${hashes[$i]}
+		type=${types[$iIteration]}
+		dir=${dirs[$iIteration]}
+		active_hash=${hashes[$iIteration]}
+		
+		# The enabled and disabled strings ore lists - we cannot do the array trick...
+		case "$type" in
+	
+			"${CXR_TYPE_COMMON}" ) 
+				enabled_modules=""
+				disabled_modules="";;
+				
+			"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+				;;
+				
+			"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+				enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+				;;
+				
+			"${CXR_TYPE_MODEL}" ) 
+				enabled_modules="$CXR_ENABLED_MODEL"
+				disabled_modules="$CXR_DISABLED_MODEL"
+				;;
+				
+			"${CXR_TYPE_INSTALLER}" ) 
+				enabled_modules="$CXR_ENABLED_INSTALLER"
+				disabled_modules="$CXR_DISABLED_INSTALLER"
+				;;
+				
+			* ) 
+				main.dieGracefully "Unknown module type $type" ;;
+		esac
+		
+		main.log -v "Adding $type modules..."
 		
 		if [[ -d "$dir" ]]
 		then
-		
 			# Find all of them
 			files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
-	
+
 			for file in $files
 			do
+				# We are still alive...
+				common.user.showProgress
+				
 				module_name="$(main.getModuleName $file)"
-				echo -n .
+				main.log -v  "Adding module $module_name in $file"
 				
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 				then
-					main.dieGracefully "There seems to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+					main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 				fi
 				
 				# Path 
@@ -549,14 +907,34 @@ function common.module.updateInfo()
 				# Type
 				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
 				
-				# All Hash (value is dummy)
-				common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
-				
-				if [[ "$active_hash" != - ]]
+				# Is this module active? (Enabled wins over disabled)
+				# if the module name is in the enabled list, run it,no matter what
+				if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$module_name")" == true ]]
 				then
-					# The current types active hash
-					common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+					# Module was explicitly enabled
+					run_it=true
+				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+				then
+					# Module was not explicitly disabled and we did not disable all
+					run_it=true
+				else
+					# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
+					run_it=false
+					main.log -a "Module $module_name is disabled, skipped"
 				fi
+				
+				if [[ "$run_it" == true ]]
+				then
+					# All Hash (value is dummy)
+					common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+					
+					if [[ "$active_hash" != - ]]
+					then
+						# The current types active hash
+						common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+					fi
+				fi
+			
 			done # Loop over files
 			
 		else
@@ -641,9 +1019,11 @@ function common.module.runType()
 	local enabled_modules
 	local disabled_modules
 	local run_it
+	local iInvocation
+	local nInvocations
 	
 	# Variables:
-	# module_direcotries - is a list of directories that will be used to search for modules
+	# module_directories - is a list of directories that will be used to search for modules
 	# enabled_modules - is a list of explicitly enables modules of the current type
 	# disabled_modules - is a list of disabled modules of the current type
 	case "$module_type" in
@@ -751,8 +1131,16 @@ function common.module.runType()
 						
 						if [[ "$(common.check.ModuleRequirements)" == true  ]]
 						then
-							main.log -v   "Starting Module $CXR_META_MODULE_NAME"
-							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
+							
+							# Loop through all invocations
+							nInvocations=$(common.module.getNumInvocations "$CXR_META_MODULE_NAME")
+							for iInvocation in $(seq 1 $nInvocations )
+							do
+								# RUNNING IT
+								main.log -v   "Starting Module $CXR_META_MODULE_NAME"
+								"$CXR_META_MODULE_NAME" $iInvocation || ret_val=$CXR_RET_ERROR
+							done # invocations
+							
 						else
 							main.log  "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
@@ -799,8 +1187,14 @@ function common.module.runType()
 						
 						if [[ "$(common.check.ModuleRequirements)" == true  ]]
 						then
-							main.log -v   "Starting Module $CXR_META_MODULE_NAME"
-							"$CXR_META_MODULE_NAME" || ret_val=$CXR_RET_ERROR
+							# Loop through all invocations
+							nInvocations=$(common.module.getNumInvocations "$CXR_META_MODULE_NAME")
+							for iInvocation in $(seq 1 $nInvocations )
+							do
+								# RUNNING IT
+								main.log -v   "Starting Module $CXR_META_MODULE_NAME"
+								"$CXR_META_MODULE_NAME" $iInvocation || ret_val=$CXR_RET_ERROR
+							done # invocations
 						else
 							main.log  "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 						fi
@@ -927,44 +1321,6 @@ function common.module.processSequentially
 function test_module()
 ################################################################################
 {
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false  ]]
-	then
-		# We need to do initialisation
-	
-		# This is the run we use to test this
-		CXR_RUN=$CXR_META_MODULE_TEST_RUN
-	
-		# Safety measure if script is not called from .
-		MY_DIR=$(dirname $0) && cd $MY_DIR
-	
-		# We step down the directory tree until we either find CAMxRunner.sh
-		# or hit the root directory /
-		while [[ $(pwd) != / ]]
-		do
-			# If we find CAMxRunner, we are there
-			ls CAMxRunner.sh >/dev/null 2>&1 && break
-			
-			# If we are in root, we have gone too far
-			if [[ $(pwd) == / ]]
-			then
-				echo "Could not find CAMxRunner.sh!"
-				exit 1
-			fi
-			
-			cd ..
-		done
-		
-		# Save the number of tests, as other modules
-		# will overwrite this (major design issue...)
-		MY_META_MODULE_NUM_TESTS=$CXR_META_MODULE_NUM_TESTS
-		
-		# Include the init code
-		source inc/init_test.inc
-		
-		# Plan the number of tests
-		plan_tests $MY_META_MODULE_NUM_TESTS
-	fi
-	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -973,61 +1329,44 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
+	# Testing parser. Always in groups of 3 with a call at the beginning
+	common.module.parseIdentifier convert_emissions
+	is "$_module_name" convert_emissions "common.module.parseIdentifier only module - name"
+	is "$_day_offset" "" "common.module.parseIdentifier only module - day offset"
+	is "$_invocation" "" "common.module.parseIdentifier only module - invocation"
+	
+	common.module.parseIdentifier some_module0
+	is "$_module_name" some_module "common.module.parseIdentifier module and day offset - name"
+	is "$_day_offset" 0 "common.module.parseIdentifier module and day offset - day offset"
+	is "$_invocation" "" "common.module.parseIdentifier module and day offset - invocation"
+	
+	common.module.parseIdentifier differentcase@2
+	is "$_module_name" differentcase "common.module.parseIdentifier module and invocation - name"
+	is "$_day_offset" "" "common.module.parseIdentifier module and invocation - day offset"
+	is "$_invocation" 2 "common.module.parseIdentifier module and invocation - invocation"
+	
+	common.module.parseIdentifier ThatsNowAll3@1
+	is "$_module_name" ThatsNowAll "common.module.parseIdentifier complete - name"
+	is "$_day_offset" 3 "common.module.parseIdentifier complete - day offset"
+	is "$_invocation" 1 "common.module.parseIdentifier complete - invocation"
+	
+	common.module.parseIdentifier ThatsNowAll123@24
+	is "$_module_name" ThatsNowAll "common.module.parseIdentifier multidigit - name"
+	is "$_day_offset" 123 "common.module.parseIdentifier multidigit - day offset"
+	is "$_invocation" 24 "common.module.parseIdentifier multidigit - invocation"
+	
 	is $(common.module.getType boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "common.module.getType boundary_conditions"
 	is $(common.module.getExclusive model) true "common.module.getExclusive model"
-
-
-
+	
+	# Testing the resolvers for dependencies
+	is "$(common.module.resolveSingleDependency "model-" 0)" "" "common.module.resolveSingleDependency minus on first day"
+	is "$(common.module.resolveSingleDependency "model-" 1)" "model0" "common.module.resolveSingleDependency minus on second day"
+	
+	is "$(common.module.resolveAllDependencies "model- create_emissions" 1)" "model0 create_emissions1@1 create_emissions1@2 create_emissions1@3" "common.module.resolveAllDependencies on second day"
+	
+	
 	########################################
 	# teardown tests if needed
 	########################################
 	
-	if [[ "${CXR_TESTING_FROM_HARNESS:-false}" == false ]]
-	then
-		# We where called stand-alone, cleanupo is needed
-		main.doCleanup
-	fi
-	
 }
-
-################################################################################
-# Are we running stand-alone? 
-################################################################################
-
-
-# If the CXR_META_MODULE_NAME  is not set
-# somebody started this script alone
-# Normlly this is not allowed, except to test using -t
-if [[ -z "${CXR_META_MODULE_NAME:-}"  ]]
-then
-
-	# When using getopts, never directly call a function inside the case,
-	# otherwise getopts does not process any parametres that come later
-	while getopts ":dvFST" opt
-	do
-		case "${opt}" in
-			d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-			v) CXR_USER_TEMP_VERBOSE=true ; echo "Enabling VERBOSE (-v) output. " ;;
-			F) CXR_USER_TEMP_FORCE=true ;;
-			S) CXR_USER_TEMP_SKIP_EXISTING=true ;;
-			
-			T) TEST_IT=true;;
-		esac
-	done
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
-	shift $((${OPTIND} - 1))
-
-	# Make getopts ready again
-	unset OPTSTRING
-	unset OPTIND
-	
-	# This is needed so that getopts surely processes all parameters
-	if [[ "${TEST_IT:-false}" == true  ]]
-	then
-		test_module
-	else
-		usage
-	fi
-fi
