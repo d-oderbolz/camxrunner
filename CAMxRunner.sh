@@ -122,18 +122,22 @@ function main.usage()
 
 	  -N    do NOT run CAMx, only input and output prep
 
-	  In the following (limiting) options, a module name can be given 
-	  if omitted, the whole sub-processing is run
-	  If these options are not used, both pre- and postproc is run
+	  The following options allow to run a subset of the modules that make up a run.
+	  One approach is to select all modules of a module type (these options can be combined):
 
-	  -x<module>    only runs model modules
-	  
-	  -p<module>    only one-time preprocessor modules
-	  
-	  -i<module>    only daily preprocessors step module
-	  -o<module>    only daily day postprocessors step module
+	  -x   only runs model modules
+	
+	  -p   only one-time preprocessor modules
+	
+	  -i   only daily preprocessors step module
+	  -o   only daily day postprocessors step module
+	
+	  -f   only one-time postprocessor modules
+	
+	  Or one can run a list of specific modules (the order is unimportant):
+	
+	  -r"list of modules"
 
-	  -f<module>    only one-time postprocessor modules
 	  
 	  Available modules for ${CXR_MODEL} ${CXR_MODEL_VERSION}:
 	  ----------------------------------------------------------------------------
@@ -245,8 +249,9 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # CXR_USER_TEMP_ to make automatic extraction easier.
 
 # When using getopts, never directly call a function inside the case,
-# otherwise getopts does not process any parametres that come later
-while getopts ":dlvVFwmct:sD:LP:ITxi:o:CRNp:f:h" opt
+# otherwise getopts does not process any parameters that come later
+# (we are in a loop!)
+while getopts ":dlvVFwmct:sD:LP:ITr:xioCRNpfh" opt
 do
 	case "${opt}" in
 		d) CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -275,14 +280,14 @@ do
 		
 		N) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false ;;
 		
-		p) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=true; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false; CXR_USER_TEMP_RUN_PRE_ONCE_STEP="${OPTARG}" ;;
-		i) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=true; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY_STEP="${OPTARG}"  ;;
-		o) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false; CXR_USER_TEMP_RUN_POST_DAILY_STEP="${OPTARG}" ;;
-		f) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true; CXR_USER_TEMP_RUN_POST_ONCE_STEP="${OPTARG}" ;;
-		
+		r) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_LIST="${OPTARG}" ;;
+		p) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=true; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		i) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=true; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		o) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
+		f) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true ;;
 		x) CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
 		
-		h) CXR_HOLLOW=true; main.usage ;;
+		h|-help) CXR_HOLLOW=true; main.usage ;;
 		\?) CXR_HOLLOW=true; main.usage ;; 
 		*) CXR_HOLLOW=true; main.usage ;;  # Show usage also for unrecognised options
 	esac
