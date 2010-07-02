@@ -1,0 +1,159 @@
+#!/bin/csh
+#
+#  --- Script to Run CAMxtrct ----                 2/11/00
+#
+#     CAMxtrct extracts concentrations for a single species from CAMx  
+#     coarse and/or fine AVERAGE files.  It then either writes a BINARY
+#     output file in UAM average file format or in an ASCII format (similar  
+#     to Golden Software Surfer GRD format).  CAMxtrct can also extract 
+#     and sum emissions data for one species from EMISSIONS or PTSOURCE 
+#     files.  The output format for EMISSIONS data is Surfer GRD and the 
+#     output format for PTSOURCE data is Surfer columnated DAT.
+#
+#     Note that some capabilities are not yet implemented (as noted below).
+#
+#     Compilation parameters:
+#
+#     Parameter statements in the include file "camxtrct.inc" are used to
+#     set maximum grid dimensions, numbers of species, etc.  These must be 
+#     set large enough to accomodate the grid you are extracting.  On the
+#     other hand, setting parameters much larger than needed increases
+#     memory requirements and slows down execution.  The key parameters
+#     are:
+#        MXSPEC I   maximum number of species
+#        MXCELL I   maximum number of cells
+#        MXLAYR I   maximum number of layers
+#        MXGRID I   maximum number of grids (for nests)
+#
+#
+#     Input parameters:
+#
+#     Line 1:  Extraction type
+#
+#        Choices are:
+#        XY HOURS     -- N-hourly X-Y extraction for one layer  
+#        XZ HOURS*    -- N-hourly X-Z extraction for one row 
+#        YZ HOURS*    -- N-hourly Y-Z extraction for one column 
+#        XY MAX       -- Maximum (over duration of file) X-Y extraction for one 
+#                        layer 
+#        XZ MAX*      -- Maximum (over duration of file) X-Z extraction for one
+#                        row 
+#        YZ MAX*      -- Maximum (over duration of file) Y-Z extraction for one
+#                        column 
+#        TIME SERIES* -- Time series of observations and predictions 
+#        EMISSIONS    -- X-Y area emissions summed over duration of file  
+#        PTSOURCE     -- Point emissions summed over duration of file 
+#        *Not currently available
+#
+#     Line 2:  Grid type to extract
+#
+#        Choices are:
+#        COARSE       -- Extracts data for coarse grid only 
+#        FINE n       -- Extracts data for fine grid n (1 to # of fine grids) 
+#        ALL          -- Extracts data for all grids, and outputs the results
+#                        at the horizontal resolution of the finest grid 
+#        *Ignored for EMISS and PTSRCE extractions
+#
+#     Line 3:  Output file type
+#
+#        Choices are:
+#        BINARY       -- Output file is UAM average file (XY extractions only) 
+#        ASCII        -- Output file is Surfer GRD or DAT format
+#
+#     Line 4:  Output file name
+#
+#     Line 5:  Name of coarse grid concentration file, or emissions file
+#
+#     Line 6:  Name of fine grid concentration file
+#
+#        *Ignored if COARSE extraction
+#
+#     Line 7:  Filename of UAM boundary definition file.
+#
+#        *If not supplied, a "regular" 1-cell boundary is assumed
+#
+#     Line 8:  Currently ignored
+#
+#     Line 9:  Layer extraction type
+#        Choices are:
+#        SURFACE      -- Extracts data from grid(s) for layer 1 
+#                        (Use to compare model concentrations with
+#                         surface measurements)
+#        ALOFT n      -- Extracts data from grid(s) for layer n
+#                        (for ALL extractions, n is indexed to
+#                        the coarsest grid, and fine layers spanning
+#                        this layer will be aggregated)
+#        *Ignored for EMISS and PTSOURCE extractions
+#
+#     Line 10:  N-hourly time interval between writing output (1 will write
+#               every hour, 2 will write every other hour, etc.)
+#
+#        *Ignored for MAX, EMISS, and PTSRCE extractions
+#
+#     Line 11:  Index of first hour to write to output file (1 will begin
+#               write at first hour, 2 will begin write at second hour, etc.)
+#
+#        *Ignored for MAX, EMISS, and PTSRCE extractions
+#
+#     Line 12: Currently ignored
+#
+#     Line 13: Currently ignored
+#
+#     Line 14: Species to extract (must match species in averge file)
+#
+#        A "parameter" may also be selected:
+#        NOX          -- NO + NO2 
+#        NOY          -- NO + NO2 + PAN + HNO2 + HNO3 + NXOY + NTR 
+#        VOC          -- ETH + OLE + PAR + TOL + XYL + FORM + ALD2 + ISOP +  
+#                        ETOH + MEOH + ISPD 
+#        AAA/BBB      -- ratio of two species or parameters (e.g., VOC/NOX) 
+#        OSAT tracer species, and combinations thereof, are also supported 
+#        (e.g., TNOX, TVOC, TO3, TO3N, TO3V) 
+#
+#     Line 16: Arbitrary string used for labeling output units
+#
+#     Line 17: Conversion factor to convert file units to user-specified units
+#              (model units are usually PPM for concentration and moles for 
+#              emissions)
+#
+#     Line 18: Number of decimal places to use when writing ASCII files
+#
+#     Line 19: Minimum value used for writing the output (will replace any
+#              non-zero value below this minimum -- used for emissions plots)
+#
+#     Line 20: Name of coarse grid temperature file
+#
+#        *Only supply this record if an XY ALL ALOFT extraction
+#
+#     Line 21: Number of total grids
+#
+#        *Only supply this record if an XY ALL ALOFT or XZ/YZ extraction
+#
+#     Line 22+: Names of Height/Pressure files for each grid
+#
+#        *Only supply this record if an XY ALL ALOFT or XZ/YZ extraction
+#
+src/CAMxtrct << ieof 
+Extraction type    : XY HOURS
+Grid type          : ALL 
+Output file format : ASCII
+Output filename    : tst.avrg
+Coarse Grid Average: CAMx.avrg
+Fine Grid Average  : CAMx.favrg
+Boundary filename  : 
+Station filename   : 
+Type of layer      : surface
+Skip time interval :  1 
+Beginning hour     :  1 
+Row to extract     :   
+Column to extract  :   
+Species to extract : O3
+Units              : ppb
+Units conversion   : 1000.
+Number of decimals : 
+Minumum output val : 
+Temperature file   : 
+No. of nested grids: 
+Height/press Grid 1: 
+Height/press Grid 2:
+ieof
