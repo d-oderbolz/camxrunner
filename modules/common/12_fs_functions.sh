@@ -676,6 +676,7 @@ function common.fs.getType()
 # returns the number of megabytes free in given path (floored?)
 # This might actually fail on non Linux-systems...
 #
+#
 # Internally determines the FS type; supports quota on afs only
 #
 # Parameters:
@@ -702,23 +703,27 @@ function common.fs.getFreeMb()
 	
 	case $fs in
 	afs)
-			main.log -v  "Directory $1 seems to be on AFS. Getting AFS quota..."
+			main.log -v  "Directory $1 seems to be on AFS. Getting AFS quota, if any..."
 			
 			# Get last line
 			last_line=$(fs listquota "$1" | tail -n1)
 			
-			# Parse the Last line
-			oIFS="$IFS"
+			if [[ "$(common.string.isSubstringPresent? "$last_line" "no limit" )" == true ]]
+			then
+				main.log -v  "There seems to be no quota on $1, using df"
 		
-			IFS=" "
+				df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
+			else
+				# Quota must be taken into account
 			
 			# Suck line into LINE_ARRAY
 			# Line looks like this:
 			# usr.oderbolz                3000000   2440839   81%         90%
+				# or this
+				# usr.oderbolz                5000000   3319991   66%        174%<<  <<WARNING
+				# or even this:
+				# lacfs.nb                   no limit-2092752580    0%       1077%<<  <<WARNING
 			quota_array=($last_line)
-			
-			# Reset IFS
-			IFS="$oIFS"
 			
 			# Calculate free KiBi
 			free_kb=$(( ${quota_array[1]} - ${quota_array[2]} ))
@@ -727,10 +732,11 @@ function common.fs.getFreeMb()
 			free_mb=$(( $free_kb / 1024 ))
 			
 			echo $free_mb
+			fi
 			;;
 	*) 
 			# Default
-			df --block-size=1M $1 | tail -n1 | awk '{ print $3 }'
+			df --block-size=1M $1 | tail -n1 | awk '{ print $4 }'
 			;;
 	esac
 }
