@@ -4,7 +4,7 @@
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
-# Version: $Id: 30_performance_functions.sh 3343 2010-04-20 22:10:27Z oderbolz $ 
+# Version: $Id$ 
 #
 # Contains the Filesystem functions of CAMxRunner.
 #
@@ -52,7 +52,7 @@ CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2009), CAMxRunner@psi.ch"
 CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerland (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)"
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
-CXR_META_MODULE_VERSION='$Id: 30_performance_functions.sh 3343 2010-04-20 22:10:27Z oderbolz $'
+CXR_META_MODULE_VERSION='$Id$'
 
 
 ################################################################################
