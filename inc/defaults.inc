@@ -373,13 +373,6 @@ CXR_RUN_PRE_ONCE=false
 CXR_RUN_POST_DAILY=false
 CXR_RUN_POST_ONCE=false
 
-# If set to a number, just run the respective input or output file
-CXR_RUN_PRE_DAILY_STEP=${CXR_ALL}
-CXR_RUN_POST_DAILY_STEP=${CXR_ALL}
-
-# The same for one-time processing
-CXR_RUN_PRE_ONCE_STEP=${CXR_ALL}
-CXR_RUN_POST_ONCE_STEP=${CXR_ALL}
 
 # This Check variable makes sure certain things are only checked once and not for each day
 CXR_CHECKED_ONCE=false

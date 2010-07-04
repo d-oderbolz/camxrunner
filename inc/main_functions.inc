@@ -1283,22 +1283,22 @@ function main.listAllModules
 {
 		main.log -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
 		
-		# XX_module_functions.sh
+		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
 		
 		main.log -v "CAMxRunner.sh" "  These are the possible values for daily pre processing steps:\n"
 		
-		# XX_module_functions.sh
+		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
 		
 		main.log -v "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
 		
-		# XX_module_functions.sh
+		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
 		
 		main.log -v "CAMxRunner.sh" "  These are the possible values for One-Time post processing steps:\n"
 		
-		# XX_module_functions.sh
+		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
 		
 		main.log -i "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    

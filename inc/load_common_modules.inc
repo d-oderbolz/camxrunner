@@ -18,17 +18,13 @@
 	
 		main.log "load_common_modules" "Reading modules from ${CURRENT_DIR} (if there are any)..."
 		
-		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 		do
 			
 			# Create the "bare" name (analogous to extract_module_name, but hen&egg)
 			BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
 			RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
-			
-			# Remove XX_
-			INDEX_US=$(expr index "$RAW_FUNCTION_NAME" _)
-			RAW_FUNCTION_NAME=${RAW_FUNCTION_NAME:$INDEX_US}
-			
+
 			if [[ "$RAW_FUNCTION_NAME" != "${CXR_NOLOAD:-}"  ]]
 			then
 				# Load it
