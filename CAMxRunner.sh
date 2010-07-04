@@ -680,7 +680,7 @@ then
 			CXR_ENABLED_DAILY_POSTPROC=""
 			CXR_ENABLED_ONCE_POSTPROC=""
 			
-			# Decode it
+			# Decode arguments
 			for module_name in $CXR_RUN_LIST
 			do
 				# Determine type
@@ -688,14 +688,14 @@ then
 				
 				case "$module_type" in
 				
-					"${CXR_TYPE_COMMON}" ) 
-						main.dieGracefully "Common modules cannot be run this way!" ;;
-						
 					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module_name";;
 						
 					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
 						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module_name";;
+						
+					"${CXR_TYPE_MODEL}" ) 
+						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name";;
 						
 					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
 						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module_name";;
@@ -703,14 +703,8 @@ then
 					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
 						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module_name";;
 						
-					"${CXR_TYPE_MODEL}" ) 
-						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name";;
-						
-					"${CXR_TYPE_INSTALLER}" ) 
-						main.dieGracefully "Common modules cannot be run this way!" ;;
-						
 					* ) 
-						main.dieGracefully "Unknown module type $module_type" ;;
+						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
 			
 				esac
 			
