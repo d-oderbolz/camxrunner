@@ -986,7 +986,7 @@ function common.module.getType()
 ################################################################################
 # Function: common.module.runType
 #	
-# Calls all or just one single module (adressed by their module name) at a specific 
+# Calls all or just one single module at a specific 
 # point in time (or One-Time)
 # Here, a sequential approach is implied.
 # If a module is enabled explicitly it is always used (wins over disabled), 
@@ -995,16 +995,11 @@ function common.module.getType()
 #
 # Parameters:
 # $1 - Type of modules to run
-# [$2] - Single Step (number)
 ################################################################################
 function common.module.runType()
 ################################################################################
 {
 	local module_type="$1"
-	
-	# Either contains a number (the only step to run)
-	# or the string "all"
-	local run_only="${2:-${CXR_RUN_ALL}}"
 	
 	#Return value - set optimisticaly
 	local ret_val=$CXR_RET_OK
@@ -1078,10 +1073,10 @@ function common.module.runType()
 	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
-	if [[ ! ( "${enabled_modules}" == "" && "${disabled_modules}" == "${CXR_SKIP_ALL}" && "$run_only" == "${CXR_RUN_ALL}" ) ]]
+	if [[ ! ( "${enabled_modules}" == "" && "${disabled_modules}" == "${CXR_SKIP_ALL}" ) ]]
 	then
 	
-		# We did not turn off everything or we need only a specific module to be run
+		# We did not turn off everything
 	
 		# Loop through available input dirs
 		for module_directory in $module_directories
@@ -1104,108 +1099,56 @@ function common.module.runType()
 				# Export the module name
 				CXR_META_MODULE_NAME=$(main.getModuleName $function_file)
 				
-				if [[ "$run_only" != "${CXR_RUN_ALL}"  ]]
-				then
-					# is this the module we should run?
-					# here we do no further checks on disabled/enabled
-					if [[ "$run_only" == "${CXR_META_MODULE_NAME}"  ]]
-					then
-						# First source the file to get the CXR_META_MODULE_NAME
-						source $function_file
-						
-						# This is not needed for installers
-						
-						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
-						then
-							main.log -a -b   "Running $FILE_NAME ${our_date:-}"
-						fi
-						
-						# Show dependencies, if any
-						if [[ "${CXR_META_MODULE_DEPENDS_ON:-}"  ]]
-						then
-							main.log -a -B  "This module depends on these modules:\n${CXR_META_MODULE_DEPENDS_ON}\nif it fails, run these dependencies first"
-						fi
-
-						# Increase global indent level
-						main.increaseLogIndent
-						
-						if [[ "$(common.check.ModuleRequirements)" == true  ]]
-						then
-							
-							# Loop through all invocations
-							nInvocations=$(common.module.getNumInvocations "$CXR_META_MODULE_NAME")
-							for iInvocation in $(seq 1 $nInvocations )
-							do
-								# RUNNING IT
-								main.log -v   "Starting Module $CXR_META_MODULE_NAME"
-								"$CXR_META_MODULE_NAME" $iInvocation || ret_val=$CXR_RET_ERROR
-							done # invocations
-							
-						else
-							main.log  "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
-						fi
-
-						# Take note that this module was already announced
-						CXR_ANNOUNCED_MODULES="${CXR_ANNOUNCED_MODULES} ${CXR_META_MODULE_NAME}"
-							
-						# Decrease global indent level
-						main.decreaseLogIndent
-					fi
-				else
-					#Run all modules of the given type
+				# First source the file to get the meta info
+				source $function_file
 				
-					# First source the file to get the meta info
-					source $function_file
+				# Check if we must run this
+				# if the module name is in the enabled list, run it,no matter what
+				if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true ]]
+				then
+					# Module was explicitly enabled
+					run_it=true
+				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+				then
+					# Module was not explicitly disabled and we did not disable all
+					run_it=true
+				else
+					# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
+					run_it=false
+					main.log -v "Step $FILE_NAME is disabled, skipped"
+				fi
+				
+				# Execute if needed
+				if [[ "$run_it" == true  ]]
+				then
+				
+					if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
+					then
+						main.log -a -b   "Running $FILE_NAME ${our_date:-}"
+					fi
 					
-					# Check if we must run this
-					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true  ]]
+					# Increase global indent level
+					main.increaseLogIndent
+					
+					if [[ "$(common.check.ModuleRequirements)" == true  ]]
 					then
-						# Module was explicitly enabled
-						run_it=true
-					elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
-					then
-						# Module was not explicitly disabled and we did not disable all
-						run_it=true
+						# Loop through all invocations
+						nInvocations=$(common.module.getNumInvocations "$CXR_META_MODULE_NAME")
+						for iInvocation in $(seq 1 $nInvocations )
+						do
+							# RUNNING IT
+							main.log -v "Starting Module $CXR_META_MODULE_NAME"
+							"$CXR_META_MODULE_NAME" $iInvocation || ret_val=$CXR_RET_ERROR
+						done # invocations
 					else
-						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
-						run_it=false
-						main.log  "Step $FILE_NAME is disabled, skipped"
+						main.log  "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
 					fi
-					
-					# Execute if needed
-					if [[ "$run_it" == true  ]]
-					then
-					
-						if [[ "$module_type" != "$CXR_TYPE_INSTALLER"  ]]
-						then
-							main.log -a -b   "Running $FILE_NAME ${our_date:-}"
-						fi
-						
-						# Increase global indent level
-						main.increaseLogIndent
-						
-						if [[ "$(common.check.ModuleRequirements)" == true  ]]
-						then
-							# Loop through all invocations
-							nInvocations=$(common.module.getNumInvocations "$CXR_META_MODULE_NAME")
-							for iInvocation in $(seq 1 $nInvocations )
-							do
-								# RUNNING IT
-								main.log -v   "Starting Module $CXR_META_MODULE_NAME"
-								"$CXR_META_MODULE_NAME" $iInvocation || ret_val=$CXR_RET_ERROR
-							done # invocations
-						else
-							main.log  "Version check for $CXR_META_MODULE_NAME failed. Either change the values in the head of the module or manipulate the revision numbers of either CAMxRunner.sh or the configuration.\nModule skipped."
-						fi
 
-						# Take note that this module was already announced
-						CXR_ANNOUNCED_MODULES="${CXR_ANNOUNCED_MODULES} ${CXR_META_MODULE_NAME}"
-							
-						# Decrease global indent level
-						main.decreaseLogIndent
-					fi
-					
+					# Take note that this module was already announced
+					CXR_ANNOUNCED_MODULES="${CXR_ANNOUNCED_MODULES} ${CXR_META_MODULE_NAME}"
+						
+					# Decrease global indent level
+					main.decreaseLogIndent
 				fi
 			done
 		done # Loop through module dirs
@@ -1241,7 +1184,7 @@ function common.module.processSequentially
 	
 	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
 	then
-		common.module.runType ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_RUN_PRE_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		common.module.runType ${CXR_TYPE_PREPROCESS_ONCE} || ret_val=$CXR_RET_ERROR
 	else
 		main.log -w "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
@@ -1270,21 +1213,21 @@ function common.module.processSequentially
 			
 			if [[ ${CXR_RUN_PRE_DAILY} == true  ]]
 			then
-				common.module.runType ${CXR_TYPE_PREPROCESS_DAILY} ${CXR_RUN_PRE_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_PREPROCESS_DAILY} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
-				common.module.runType ${CXR_TYPE_MODEL} ${CXR_RUN_MODEL_SINGLE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_MODEL} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
-				common.module.runType ${CXR_TYPE_POSTPROCESS_DAILY} ${CXR_RUN_POST_DAILY_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+				common.module.runType ${CXR_TYPE_POSTPROCESS_DAILY} || ret_val=$CXR_RET_ERROR
 			else
 				main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
@@ -1302,7 +1245,7 @@ function common.module.processSequentially
 	
 	if [[ ${CXR_RUN_POST_ONCE} == true  ]]
 	then
-		common.module.runType ${CXR_TYPE_POSTPROCESS_ONCE} ${CXR_RUN_POST_ONCE_STEP:-${CXR_RUN_ALL}} || ret_val=$CXR_RET_ERROR
+		common.module.runType ${CXR_TYPE_POSTPROCESS_ONCE} || ret_val=$CXR_RET_ERROR
 	else
 		main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
