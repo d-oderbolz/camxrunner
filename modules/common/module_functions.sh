@@ -1339,7 +1339,7 @@ function common.module.listModuleType()
 			for function_file in $(ls ${pattern} 2> /dev/null)
 			do
 				file_name=$(basename $function_file)
-				total_call="${CXR_CALL} ${call}$(main.getModuleName $function_file)"
+				total_call="${CXR_CALL} ${call}\"$(main.getModuleName $function_file)\""
 				
 				main.log -a  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
 				found=true
@@ -1401,9 +1401,9 @@ function common.module.listModuleType()
 function common.module.listAllModules
 ################################################################################
 {
-		main.log -a -B "CAMxRunner.sh" "  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r statement."
+		main.log -a -B "CAMxRunner.sh" "\n  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r"" statement."
 		
-		main.log -a -b "CAMxRunner.sh" "\n  One-Time pre-processing:\n"
+		main.log -a "CAMxRunner.sh" "\n  One-Time pre-processing:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
