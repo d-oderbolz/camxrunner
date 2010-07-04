@@ -1224,7 +1224,7 @@ function main.listModuleType()
 			for function_file in $(ls ${pattern} 2> /dev/null)
 			do
 				file_name=$(basename $function_file)
-				total_call="${CXR_call} ${call}$(main.getModuleName $function_file)"
+				total_call="${CXR_CALL} ${call}$(main.getModuleName $function_file)"
 				
 				main.log -v  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
 				found=true
