@@ -1175,22 +1175,27 @@ function main.listModuleType()
 		main.dieGracefully "Common modules cannot be run this way!" ;;
 			
 		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-			call="-p"
+			call="-r"
 			module_directories="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
 			disabled_modules="${CXR_DISABLED_ONCE_PREPROC:-}";;
 			
 		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-			call="-i"
+			call="-r"
 			module_directories="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
 			disabled_modules="${CXR_DISABLED_DAILY_PREPROC:-}";;
 			
+			"${CXR_TYPE_MODEL}" ) 
+			call="-r"
+			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-			call="-o"
+			call="-r"
 			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
 			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-			call="-f"
+			call="-r"
 			module_directories="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
 			disabled_modules="${CXR_DISABLED_ONCE_POSTPROC:-}";;
 			
@@ -1281,6 +1286,8 @@ function main.listModuleType()
 function main.listAllModules
 ################################################################################
 {
+		main.log -v "CAMxRunner.sh" "  Listing all available modules for $CXR_MODEL $CXR_MODEL_VERSION.\nAll of these can be combined in one single -r statement."
+		
 		main.log -v "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
 		
 		# module_functions.sh
@@ -1290,6 +1297,11 @@ function main.listAllModules
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
+		
+		main.log -v "CAMxRunner.sh" "  These are the possible values for model steps:\n"
+		
+		# module_functions.sh
+		main.listModuleType ${CXR_TYPE_MODEL}
 		
 		main.log -v "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
 		

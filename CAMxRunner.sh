@@ -30,10 +30,6 @@
 # Executables with _EXEC
 #
 ################################################################################
-# TODO: Remove XX_ digits
-# TODO: Enable direct calling of modules via CXR_MODULE_PATH_HASH
-# TODO: Enable the execution of more than one specific module
-# TODO: selective module data update (none if limited processing)
 # TODO: Rewrite detectRunningInstances: local via ps, remote via time of CONTINUE
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
@@ -136,7 +132,7 @@ function main.usage()
 	
 	  -r"list of modules"
 	  
-	  -l   List all available modules. (this command is sensitive to the run name)
+	  -L   List all available modules. (this command is sensitive to the run name)
 	  ----------------------------------------------------------------------------
 	  Examples:
 	  
@@ -244,7 +240,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dlvVFwmct:sD:nP:ITr:xioCRpflh" opt
+while getopts ":dlvVFwmct:sD:nP:ITr:xioCRpfLh" opt
 do
 	case "${opt}" in
 		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -277,7 +273,7 @@ do
 		o) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
 		f) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true ;;
 		x) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
-		l) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
+		L) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
 		h) CXR_HOLLOW=true; main.usage ;;
 		\?) CXR_HOLLOW=true; main.usage ;; 
@@ -370,7 +366,7 @@ fi
 #### Check for contradictions and take action (incomplete!)
 
 # either -F or CXR_SKIP_EXISTING
-if [[  "${CXR_FORCE}" == true && "${CXR_SKIP_EXISTING}" == true   ]]
+if [[  "${CXR_FORCE}" == true && "${CXR_SKIP_EXISTING}" == true ]]
 then
 	# Force wins (CXR_SKIP_EXISTING is default)
 	CXR_SKIP_EXISTING=false
@@ -508,7 +504,7 @@ fi
 # Start hollow functions if needed
 ################################################################################
 
-if [[ "${CXR_HOLLOW}" == true  ]]
+if [[ "${CXR_HOLLOW}" == true ]]
 then
 	#Hollow functions neeed init too
 	common.state.init
@@ -517,30 +513,30 @@ then
 	then
 		# Delete info in the state DB
 		common.state.cleanup
-	elif [[ "${CXR_CREATE_NEW_RUN}" == true  ]]
+	elif [[ "${CXR_CREATE_NEW_RUN}" == true ]]
 	then
 		# Create a new run
 		common.runner.createNewRun
-	elif [[ ! -z "${CXR_REPEAT_THIS_RUN:-}"  ]]
+	elif [[ ! -z "${CXR_REPEAT_THIS_RUN:-}" ]]
 	then
 		# Re-create existing run
 		common.runner.recreateRun
-	elif [[ "${CXR_STOP_RUN}" == true  ]]
+	elif [[ "${CXR_STOP_RUN}" == true ]]
 	then
 		#Delete .CONTINUE files of all instances
 		if [[ "$(common.user.getOK "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
 		then
 			common.state.deleteContinueFiles
 		fi
-	elif [[ "${CXR_INSTALL}" == true  ]]
+	elif [[ "${CXR_INSTALL}" == true ]]
 	then
 		# Run the installation
 		common.install.do
-	elif [[ "${CXR_LIST_MODULES}" == true  ]]
+	elif [[ "${CXR_LIST_MODULES}" == true ]]
 	then
 		# Show possible modules
 		main.listAllModules
-	elif [[ "${CXR_RUN_TESTS}" == true  ]]
+	elif [[ "${CXR_RUN_TESTS}" == true ]]
 	then
 		# Run the tests
 		common.test.all
