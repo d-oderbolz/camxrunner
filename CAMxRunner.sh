@@ -427,7 +427,7 @@ then
 		fi
 	
 		# Make sure Run name is ok (Model.vVersion...)
-		# XX_check_functions.sh
+		# check_functions.sh
 		common.check.RunName ${CXR_RUN} || main.dieGracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
 	fi
@@ -463,10 +463,10 @@ main.log -v -B "CAMxRunner.sh" "Checking CAMxRunner for consistency..."
 # Increase global indent level
 main.increaseLogIndent
 
-# XX_check_functions
+# check_functions
 common.check.BashVersion
 
-# XX_camx_runner_functions.sh
+# camx_runner_functions.sh
 common.check.runner
 
 # Decrease global indent level
@@ -815,7 +815,7 @@ then
 	if [[ "$CXR_PARALLEL_PROCESSING" == true ]]
 	then
 		# Creates a process dependency tree
-		# XX_task_functions.sh
+		# parallel_functions.sh
 		common.parallel.init
 	
 		# Creates CXR_MAX_PARALLEL_PROCS common.parallel.Worker processes
@@ -825,7 +825,7 @@ then
 		################################################################################
 		# Make sure that all subprocesses are done!
 		################################################################################
-		# XX_task_functions.sh
+		# parallel_functions.sh
 		common.parallel.waitForWorkers
 		
 		# If we arrive here, we should be done.
