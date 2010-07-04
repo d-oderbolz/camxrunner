@@ -1253,6 +1253,183 @@ function common.module.processSequentially
 	return $ret_val
 }
 
+################################################################################
+# Function: common.module.listModuleType
+#	
+# Shows a list of recognised modules of the given type and displays how they can
+# be called individually.
+#
+# Parameters:
+# $1 - Type of modules to be shown
+################################################################################
+function common.module.listModuleType()
+################################################################################
+{
+	# TODO: How do model and installer modules fit in here?
+	
+	local module_type="$1"
+	local call
+	local module_directories
+	local disabled_modules
+	local module_directory
+	local pattern
+	local num_modules
+	local function_file
+	local file_name
+	local total_call
+	local found
+	
+	
+	# What kind of module?
+	# - MODULE_DIRECOTRIES is a list of directories that will be used to search for modules
+	# - disabled_modules is a list of disabled modules of the current type
+	
+	case "$module_type" in
+	
+		"${CXR_TYPE_COMMON}" ) 
+		main.dieGracefully "Common modules cannot be run this way!" ;;
+			
+		"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+			call="-r"
+			module_directories="${CXR_PREPROCESSOR_ONCE_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_ONCE_PREPROC:-}";;
+			
+		"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+			call="-r"
+			module_directories="${CXR_PREPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_PREPROC:-}";;
+			
+			"${CXR_TYPE_MODEL}" ) 
+			call="-r"
+			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			
+		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+			call="-r"
+			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			
+		"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+			call="-r"
+			module_directories="${CXR_POSTPROCESSOR_ONCE_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_ONCE_POSTPROC:-}";;
+			
+		* ) 
+			main.dieGracefully "Unknown module type $module_type" ;;
+
+	esac
+	
+	# Increase global indent level
+	main.increaseLogIndent
+	
+	# Loop through available input dirs
+	for module_directory in $module_directories
+	do
+		# How do processors look like?
+		pattern="${module_directory}/??_*.sh"
+		
+		#Count modules
+		num_modules=$(ls ${pattern} 2> /dev/null | wc -l)
+		
+		if [[ "$num_modules" -gt 0  ]]
+		then
+			main.log -v  "  $(printf %-32s%-75s Name call)"
+			
+			# Active Processors
+			for function_file in $(ls ${pattern} 2> /dev/null)
+			do
+				file_name=$(basename $function_file)
+				total_call="${CXR_CALL} ${call}$(main.getModuleName $function_file)"
+				
+				main.log -a  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
+				found=true
+			done
+		else
+			# Increase global indent level
+			main.increaseLogIndent
+	
+			main.log -a "No enabled modules of type $module_type where found. Is this intended?\n"
+			
+			# Decrease global indent level
+			main.decreaseLogIndent
+		fi
+	
+		if [[ "$disabled_modules" ]]
+		then
+			main.log -w  "You disabled these modules in the configuration: $disabled_modules"
+		fi
+	
+		main.log -i "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
+		
+		# How do disabled modules look like?
+		pattern="${module_directory}/??_*.${CXR_DISABLED_EXT}"
+		
+		#Count processors
+		num_modules=$(ls ${pattern} 2> /dev/null | wc -l)
+		
+		if [[ "$num_modules" -gt 0 ]]
+		then
+			# Disabled Processors
+			for function_file in $(ls ${pattern} 2> /dev/null)
+			do
+				file_name=$(basename $function_file)
+				main.log -w   "$file_name"
+			done
+		else
+			# Increase global indent level
+			main.increaseLogIndent
+	
+			main.log -v   "  No disabled modules of type $module_type where found.\n"
+			
+			# Decrease global indent level
+			main.decreaseLogIndent
+		fi
+		
+	done # Loop through directories
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
+}
+
+################################################################################
+# Function: common.module.listAllModules
+#	
+# Shows a list of all recognised modules that can
+# be called individually.
+#
+################################################################################
+function common.module.listAllModules
+################################################################################
+{
+		main.log -a -B "CAMxRunner.sh" "  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r statement."
+		
+		main.log -a -b "CAMxRunner.sh" "\n  One-Time pre-processing:\n"
+		
+		# module_functions.sh
+		common.module.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
+		
+		main.log -a "CAMxRunner.sh" "\n  Daily pre-processing:\n"
+		
+		# module_functions.sh
+		common.module.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
+		
+		main.log -a "CAMxRunner.sh" "\n  Model:\n"
+		
+		# module_functions.sh
+		common.module.listModuleType ${CXR_TYPE_MODEL}
+		
+		main.log -a "CAMxRunner.sh" "\n  Daily post-processing:\n"
+		
+		# module_functions.sh
+		common.module.listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
+		
+		main.log -a "CAMxRunner.sh" "\n  One-Time post-processing steps:\n"
+		
+		# module_functions.sh
+		common.module.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
+		
+		main.log -a "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
+}
 
 ################################################################################
 # Function: test_module

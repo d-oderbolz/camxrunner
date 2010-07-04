@@ -535,7 +535,7 @@ then
 	elif [[ "${CXR_LIST_MODULES}" == true ]]
 	then
 		# Show possible modules
-		main.listAllModules
+		common.module.listAllModules
 	elif [[ "${CXR_RUN_TESTS}" == true ]]
 	then
 		# Run the tests
@@ -702,22 +702,17 @@ then
 		# Increase global indent level
 		main.increaseLogIndent
 		
-		main.log -v "CAMxRunner.sh" "If you just want to run just a part of either the input or the output preparation\nrun it like\n"    
+		main.log -v "CAMxRunner.sh" "If you just want to run just a part of either the input or the output preparation\nrun it like\n"
 	
 		# Increase global indent level
 		main.increaseLogIndent
 	
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -pXX for a one-time input step,\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -iXX for a daily input step,\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -oXX for a daily output step or\n"
-		main.log -v "CAMxRunner.sh" "${CXR_CALL} -fXX for a one-time output step.\n"
-		main.log -v "CAMxRunner.sh" "  These are the possible values for one-time input steps:\n"
+		main.log -v "CAMxRunner.sh" "${CXR_CALL} -r"module_name_list"\n"
+		common.module.listAllModules
+
 		
 		# Decrease global indent level
 		main.decreaseLogIndent
-		
-		# Show what can be done
-		main.listAllModules
 		
 	fi
 	
