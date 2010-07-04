@@ -1286,29 +1286,29 @@ function main.listModuleType()
 function main.listAllModules
 ################################################################################
 {
-		main.log -a "CAMxRunner.sh" "  Listing all available modules for $CXR_MODEL $CXR_MODEL_VERSION.\nAll of these can be combined in one single -r statement."
+		main.log -a -B "CAMxRunner.sh" "  Listing all available modules for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r statement."
 		
-		main.log -a "CAMxRunner.sh" "  These are the possible values for One-Time pre processing steps:\n"
+		main.log -a -b "CAMxRunner.sh" "\n  One-Time pre-processing:\n"
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
 		
-		main.log -a "CAMxRunner.sh" "  These are the possible values for daily pre processing steps:\n"
+		main.log -a "CAMxRunner.sh" "\n  Daily pre-processing:\n"
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
 		
-		main.log -a "CAMxRunner.sh" "  These are the possible values for model steps:\n"
+		main.log -a "CAMxRunner.sh" "\n  Model:\n"
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_MODEL}
 		
-		main.log -a "CAMxRunner.sh" "  These are the possible values for daily post processing steps:\n"
+		main.log -a "CAMxRunner.sh" "\n  Daily post-processing:\n"
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
 		
-		main.log -a "CAMxRunner.sh" "  These are the possible values for One-Time post processing steps:\n"
+		main.log -a "CAMxRunner.sh" "\n  One-Time post-processing steps:\n"
 		
 		# module_functions.sh
 		main.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
