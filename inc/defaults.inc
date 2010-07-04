@@ -297,6 +297,9 @@ CXR_DRY=false
 # When set to true, CAMx is not run, only state information is cleared
 CXR_CLEANUP=false
 
+# When true, we display all modules
+CXR_LIST_MODULES=false
+
 # When set to true, CAMx is not run, only a rew run is created
 CXR_CREATE_NEW_RUN=false
 
