@@ -1379,7 +1379,7 @@ function common.module.listModuleType()
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log -v   "  No disabled modules of type $module_type where found.\n"
+			main.log -a   "  No disabled modules of type $module_type where found.\n"
 			
 			# Decrease global indent level
 			main.decreaseLogIndent
@@ -1428,7 +1428,7 @@ function common.module.listAllModules
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
 		
-		main.log -a "CAMxRunner.sh" "To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
+		main.log -a "CAMxRunner.sh" "\n  To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
 }
 
 ################################################################################
