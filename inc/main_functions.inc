@@ -1226,14 +1226,14 @@ function main.listModuleType()
 				file_name=$(basename $function_file)
 				total_call="${CXR_CALL} ${call}$(main.getModuleName $function_file)"
 				
-				main.log -v  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
+				main.log -a  "  $(printf %-32s%-75s "${file_name}" "${total_call}")"
 				found=true
 			done
 		else
 			# Increase global indent level
 			main.increaseLogIndent
 	
-			main.log "No enabled modules of type $module_type where found. Is this intended?\n"
+			main.log -a "No enabled modules of type $module_type where found. Is this intended?\n"
 			
 			# Decrease global indent level
 			main.decreaseLogIndent
