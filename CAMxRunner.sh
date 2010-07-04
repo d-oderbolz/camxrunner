@@ -119,16 +119,16 @@ function main.usage()
 	  The following options allow to run a subset of the modules that make up a run.
 	  One approach is to select all modules of a module type (these options can be combined):
 
-	  -x   only runs model modules
+	  -x   only runs enabled model modules
 	
-	  -p   only one-time preprocessor modules
+	  -p   only enabled one-time preprocessor modules
 	
-	  -i   only daily preprocessors step module
-	  -o   only daily day postprocessors step module
+	  -i   only enabled daily preprocessors step module
+	  -o   only enabled daily day postprocessors step module
 	
-	  -f   only one-time postprocessor modules
+	  -f   only enabled one-time postprocessor modules
 	
-	  Or one can run a list of specific modules (the order is unimportant):
+	  Or one can enable just a list of specific modules (the order is unimportant):
 	
 	  -r"list of modules"
 	  
@@ -622,7 +622,106 @@ then
 	else
 		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
 	fi
-fi
+	else
+	
+		# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
+		# When the user selects a certain type of modules, they should be executed as 
+		# configured
+		
+		# First we store all current (configured values)
+		s_once_pre="$CXR_DISABLED_ONCE_PREPROC"
+		s_d_pre="$CXR_DISABLED_DAILY_PREPROC"
+		s_model="$CXR_DISABLED_MODEL"
+		s_d_post="$CXR_DISABLED_DAILY_POSTPROC"
+		s_once_post="$CXR_DISABLED_ONCE_POSTPROC"
+		
+		# Then, we disable all (later, we enable selectively)
+		CXR_DISABLED_ONCE_PREPROC="skip_all"
+		CXR_DISABLED_DAILY_PREPROC="skip_all"
+		CXR_DISABLED_MODEL="skip_all"
+		CXR_DISABLED_DAILY_POSTPROC="skip_all"
+		CXR_DISABLED_ONCE_POSTPROC="skip_all"
+		
+		
+		if [[ ${CXR_RUN_PRE_ONCE} == true ]]
+		then
+			CXR_DISABLED_ONCE_PREPROC="$s_once_pre"
+		fi
+		
+		if [[ ${CXR_RUN_PRE_DAILY} == true ]]
+		then
+			CXR_DISABLED_DAILY_PREPROC="$s_d_pre"
+		fi		
+		
+		if [[ ${CXR_RUN_MODEL} == true ]]
+		then
+			CXR_DISABLED_MODEL="$s_model"
+		fi
+
+		if [[ ${CXR_RUN_POST_DAILY} == true ]]
+		then
+			CXR_DISABLED_DAILY_POSTPROC="$s_d_post"
+		fi
+		
+		if [[ ${CXR_RUN_POST_ONCE} == true ]]
+		then
+			CXR_DISABLED_ONCE_POSTPROC="$s_once_post"
+		fi
+		
+		# Now, we must deal with -r.
+		if [[ "$(common.string.trim "$CXR_RUN_LIST")" ]]
+		then
+			# There are arguments
+			# we reset all specifically enabled modules
+			# (-r means "run ONLY these additional modules")
+			CXR_ENABLED_ONCE_PREPROC=""
+			CXR_ENABLED_DAILY_PREPROC=""
+			CXR_ENABLED_MODEL=""
+			CXR_ENABLED_DAILY_POSTPROC=""
+			CXR_ENABLED_ONCE_POSTPROC=""
+			
+			# Decode it
+			for module_name in $CXR_RUN_LIST
+			do
+				# Determine type
+				module_type="$(common.module.getType "$module_name")"
+				
+				case "$module_type" in
+				
+					"${CXR_TYPE_COMMON}" ) 
+						main.dieGracefully "Common modules cannot be run this way!" ;;
+						
+					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module_name";;
+						
+					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module_name";;
+						
+					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module_name";;
+						
+					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module_name";;
+						
+					"${CXR_TYPE_MODEL}" ) 
+						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name";;
+						
+					"${CXR_TYPE_INSTALLER}" ) 
+						main.dieGracefully "Common modules cannot be run this way!" ;;
+						
+					* ) 
+						main.dieGracefully "Unknown module type $module_type" ;;
+			
+				esac
+			
+			done
+			
+		else
+			main.log -v "No -r argument found"
+		fi
+		
+	
+fi # Limited Processing?
 
 # Show grid dimensions
 common.runner.reportDimensions
