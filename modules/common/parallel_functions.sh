@@ -1005,7 +1005,10 @@ function common.parallel.init()
 		mixed_file="$(common.runner.createTempFile mixed_tasks)"
 		
 		main.log -a "\nCreating the list of dependencies...\n"
-		time common.parallel.createDependencyList "$dep_file"
+		
+		main.log -a $(date)
+		common.parallel.createDependencyList "$dep_file"
+		main.log -a $(date)
 		
 		main.log -a  "\nOrdering tasks...\n"
 		${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file"
