@@ -189,7 +189,6 @@ function common.parallel.createDependencyList()
 	# Loop through the module types in order
 	for active_hash in $active_hashes
 	do
-		
 		# Get all active modules of the current type
 		oIFS="$IFS"
 		local keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
@@ -201,14 +200,20 @@ function common.parallel.createDependencyList()
 		
 		local active_modules=""
 		
+		# Re-determine module type
+		case $active_hash in
+			${CXR_ACTIVE_ONCE_PRE_HASH}) 	module_type="${CXR_TYPE_PREPROCESS_ONCE}";;
+			${CXR_ACTIVE_DAILY_PRE_HASH}) 	module_type="${CXR_TYPE_PREPROCESS_DAILY}";; 
+			${CXR_ACTIVE_MODEL_HASH}) 		module_type="${CXR_TYPE_MODEL}";;
+			${CXR_ACTIVE_DAILY_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_DAILY}";;
+			${CXR_ACTIVE_ONCE_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_ONCE}";;
+		esac
+		
 		# Loop through all active modules of this type
 		for iKey in $( seq 0 $(( ${#activeModuleKeys[@]} - 1)) )
 		do
 			module="${activeModuleKeys[$iKey]}"
-		
-			# get type
-			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
-			
+
 			# Get the raw dependencies
 			raw_dependencies="$(common.module.getRawDependencies $module)"
 			

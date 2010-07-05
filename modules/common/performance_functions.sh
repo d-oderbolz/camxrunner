@@ -183,7 +183,7 @@ function common.performance.estimateRuntime()
 	local stddev
 	local estimate
 	
-	if [[ $(common.hash.has? Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module") == true ]]
+	if [[ "$(common.hash.has? Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
 	then
 		# Got it
 		echo $(common.hash.get Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module")
