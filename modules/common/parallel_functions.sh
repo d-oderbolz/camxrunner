@@ -202,9 +202,9 @@ function common.parallel.createDependencyList()
 		
 		# Re-determine module type
 		case $active_hash in
-			${CXR_ACTIVE_ONCE_PRE_HASH}) 	module_type="${CXR_TYPE_PREPROCESS_ONCE}";;
+			${CXR_ACTIVE_ONCE_PRE_HASH}) 		module_type="${CXR_TYPE_PREPROCESS_ONCE}";;
 			${CXR_ACTIVE_DAILY_PRE_HASH}) 	module_type="${CXR_TYPE_PREPROCESS_DAILY}";; 
-			${CXR_ACTIVE_MODEL_HASH}) 		module_type="${CXR_TYPE_MODEL}";;
+			${CXR_ACTIVE_MODEL_HASH}) 			module_type="${CXR_TYPE_MODEL}";;
 			${CXR_ACTIVE_DAILY_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_DAILY}";;
 			${CXR_ACTIVE_ONCE_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_ONCE}";;
 		esac

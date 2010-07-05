@@ -314,9 +314,9 @@ function common.module.resolveSingleDependency()
 	
 	if [[ "$day_offset" ]]
 	then
-		main.log -v  "Resolving dependency $dependency for day offset $day_offset"
+		main.log -v "Resolving dependency $dependency for day offset $day_offset"
 	else
-		main.log -v  "Resolving dependency $dependency (no day offset)"
+		main.log -v "Resolving dependency $dependency (no day offset)"
 	fi
 	
 	# Is there a predicate?
@@ -330,8 +330,7 @@ function common.module.resolveSingleDependency()
 			# if there is no day offset, this dependency is not relevant
 			if [[ "$day_offset" ]]
 			then
-				main.log -v  "Found the - predicate, will check last days results"
-				
+			
 				# Test day offset
 				if [[ $day_offset -le 0 ]]
 				then
@@ -418,8 +417,9 @@ function common.module.resolveSingleDependency()
 		*) # A boring standard case
 		
 			# Is the dependency disabled?
-			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dependency") == false  ]]
+			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dependency") == false ]]
 			then
+				# not active
 				# Do we care?
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 				then
@@ -478,7 +478,6 @@ function common.module.resolveSingleDependency()
 		
 		# We ned the module type to know if we pass a day offset or not
 		module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
-		
 		
 		nInvocations=$(common.module.getNumInvocations "$module")
 		for iInvocation in $(seq 1 $nInvocations )
@@ -728,7 +727,8 @@ function common.module.areDependenciesOk?()
 # If any USER_TEMP variable is set, we do it anyway.
 # If a module name is non-unique, we fail.
 #
-# TODO: Make faster!
+# TODO: Make faster, also update CACHE_${item} hashes of common.module.getMetaField
+# and Cache_Performance of common.performance.estimateRuntime
 #
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path

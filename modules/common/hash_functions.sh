@@ -26,7 +26,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=13
+CXR_META_MODULE_NUM_TESTS=15
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -521,7 +521,7 @@ function common.hash.getValueMtime()
 # Function: common.hash.has?
 #
 # Returns true if the given key is contained in the hash. Also fills cache on hit.
-# and sets _value (to avoid having to call get again)
+# and sets _has and _value (to avoid having to call <common.hash.get> again)
 #
 # Parameters:
 # $1 - name of the hash
@@ -553,9 +553,10 @@ function common.hash.has?()
 		CXR_CACHE_H_KEY="$key"
 		CXR_CACHE_H_VALUE="$(cat "${fn}")"
 		_value="$CXR_CACHE_H_VALUE"
-		
+		_has=true
 		echo true
 	else
+		_has=false
 		echo false
 	fi
 }
@@ -832,6 +833,11 @@ function test_module()
 	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
 	is ${#a[@]} 5 "Hash of arrays"
 	
+	# testing the faster was to call has
+	common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
+	is $_has true "common.hash.has? non-functional approach I"
+	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
+	
 	oIFS="$IFS"
 	local keyString="$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)"
 	IFS="$CXR_DELIMITER"
@@ -873,6 +879,8 @@ function test_module()
 	
 	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "testing common.hash.toFile and .fromFile"
 	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces")" "another value" "testing common.hash.toFile and .fromFile"
+	
+	
 	
 	########################################
 	# teardown tests if needed
