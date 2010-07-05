@@ -102,7 +102,7 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
 	# If we do not run the first day, its a restart
-	if [[ "$(common.date.isFirstDayOfSimulation?)" == false  ]]
+	if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
 	then
 		# This must be a restart!
 		CXR_RESTART=true
@@ -156,7 +156,7 @@ function set_variables()
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
 		
-			if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
+			if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
 			then
 				CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
 				CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
@@ -185,7 +185,7 @@ function set_variables()
 		################################################################
 		# OSAT, PSAT, GOAT or APCA
 		################################################################
-		if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
+		if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
 		then
 		
 			# Output files must not be decompressed
@@ -545,7 +545,7 @@ function write_model_control_file()
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# Some CAMx 5.x features
-	if [[ ${CXR_MODEL_VERSION:0:1} -eq 5 ]]
+	if [[ ${CXR_MODEL_VERSION:0:1} -ge 5 ]]
 	then
 		echo " ACM2_Diffusion        = .${CXR_ACM2_DIFFUSION}.," >> ${CXR_MODEL_CTRL_FILE} 
 		echo " Super_Stepping        = .${CXR_SUPER_STEPPING}.," >> ${CXR_MODEL_CTRL_FILE} 
@@ -930,6 +930,8 @@ function model()
 	# We do not need this variable here (exept implicit for the stage name)
 	CXR_INVOCATION=${1:-1}
 	
+	local iGrid
+	
 	# Do we run the model?
 	if [[ "$CXR_RUN_MODEL" == true  ]]
 	then
@@ -941,6 +943,18 @@ function model()
 			
 			#  --- Execute the model and write stderr and stdout to CXR_LOG ---
 			set_variables
+			
+			# Test if any of the average file pre-exists
+			for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+			do
+				if [[ -e "${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}" ]]
+				then
+					# Ups, we skip this one
+					main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
+					common.state.storeState ${CXR_STATE_STOP}
+					return $CXR_RET_OK
+				fi
+			done
 			
 			if [[ "$CXR_DRY" == true ]]
 			then

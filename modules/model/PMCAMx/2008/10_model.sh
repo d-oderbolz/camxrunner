@@ -645,6 +645,18 @@ function model()
 			#  --- Execute the model and write stderr and stdout to CXR_LOG ---
 			set_variables
 			
+			# Test if any of the average file pre-exists
+			for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+			do
+				if [[ -e "${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}" ]]
+				then
+					# Ups, we skip this one
+					main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
+					common.state.storeState ${CXR_STATE_STOP}
+					return $CXR_RET_OK
+				fi
+			done
+			
 			#  --- Create the input file - will be stored in the state directory 
 			#      but a link called CAMx.in wil be created where the CAMx binary is located
 			write_model_control_file				
@@ -657,7 +669,7 @@ function model()
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
-
+			
 			if [[ "$CXR_DRY" == false  ]]
 			then
 				execute_model
