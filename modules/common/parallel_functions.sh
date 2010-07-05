@@ -189,6 +189,7 @@ function common.parallel.createDependencyList()
 	# Loop through the module types in order
 	for active_hash in $active_hashes
 	do
+		
 		# Get all active modules of the current type
 		oIFS="$IFS"
 		local keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
@@ -216,6 +217,9 @@ function common.parallel.createDependencyList()
 			# Loop through days
 			for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 			do
+				# Give some visual feedback
+				common.user.showProgress
+				
 				# We must resolve for each invocation
 				nInvocations=$(common.module.getNumInvocations "$module")
 				for iInvocation in $(seq 1 $nInvocations )

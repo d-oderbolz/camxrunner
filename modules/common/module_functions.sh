@@ -411,7 +411,7 @@ function common.module.resolveSingleDependency()
 				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
 				then
 					# No, user wants to ignore this
-					main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
+					main.log  -v "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
 				else
 					# Yes, we terminate
 					main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
