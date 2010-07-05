@@ -189,7 +189,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 			; Fill the "Total" Arrays
 			total_pressure[0,0,iver] = pressure_slice
 			total_height[0,0,iver] = height_slice
-			total_temperature[0,0,iver] = temperature_slice
+			total_temperature[0,0,iver] = t_slice
 			
 
 		endfor ; layer
