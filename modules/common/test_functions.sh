@@ -198,6 +198,10 @@ function common.test.all()
 		#source inc/init_test.inc
 		source inc/tap-functions.inc
 		
+		# For the time being, we turn off errexit
+		# Because tap-functions uses non-0 returns
+		set +e
+		
 		########################################
 		#  Count all tests (Harness needs to know the count)
 		########################################
