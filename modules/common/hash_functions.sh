@@ -834,7 +834,7 @@ function test_module()
 	is ${#a[@]} 5 "Hash of arrays"
 	
 	# testing the faster was to call has
-	common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
+	common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo" > /dev/null
 	is $_has true "common.hash.has? non-functional approach I"
 	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
 	
