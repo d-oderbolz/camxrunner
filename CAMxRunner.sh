@@ -629,11 +629,18 @@ then
 		# configured
 		
 		# First we store all current (configured values)
-		s_once_pre="$CXR_DISABLED_ONCE_PREPROC"
-		s_d_pre="$CXR_DISABLED_DAILY_PREPROC"
-		s_model="$CXR_DISABLED_MODEL"
-		s_d_post="$CXR_DISABLED_DAILY_POSTPROC"
-		s_once_post="$CXR_DISABLED_ONCE_POSTPROC"
+		d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
+		d_d_pre="$CXR_DISABLED_DAILY_PREPROC"
+		d_model="$CXR_DISABLED_MODEL"
+		d_d_post="$CXR_DISABLED_DAILY_POSTPROC"
+		d_once_post="$CXR_DISABLED_ONCE_POSTPROC"
+		
+		# The same for enabled
+		e_once_pre="$CXR_ENABLED_ONCE_PREPROC"
+		e_d_pre="$CXR_ENABLED_DAILY_PREPROC"
+		e_model="$CXR_ENABLED_MODEL"
+		e_d_post="$CXR_ENABLED_DAILY_POSTPROC"
+		e_once_post="$CXR_ENABLED_ONCE_POSTPROC"
 		
 		# Then, we disable all (later, we enable selectively)
 		CXR_DISABLED_ONCE_PREPROC="skip_all"
@@ -642,30 +649,41 @@ then
 		CXR_DISABLED_DAILY_POSTPROC="skip_all"
 		CXR_DISABLED_ONCE_POSTPROC="skip_all"
 		
+		CXR_ENABLED_ONCE_PREPROC=""
+		CXR_ENABLED_DAILY_PREPROC=""
+		CXR_ENABLED_MODEL=""
+		CXR_ENABLED_DAILY_POSTPROC=""
+		CXR_ENABLED_ONCE_POSTPROC=""
+		
 		
 		if [[ ${CXR_RUN_PRE_ONCE} == true ]]
 		then
-			CXR_DISABLED_ONCE_PREPROC="$s_once_pre"
+			CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
+			CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
 		fi
 		
 		if [[ ${CXR_RUN_PRE_DAILY} == true ]]
 		then
-			CXR_DISABLED_DAILY_PREPROC="$s_d_pre"
+			CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
+			CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
 		fi		
 		
 		if [[ ${CXR_RUN_MODEL} == true ]]
 		then
-			CXR_DISABLED_MODEL="$s_model"
+			CXR_DISABLED_MODEL="$d_model"
+			CXR_ENABLED_MODEL="$e_model"
 		fi
 
 		if [[ ${CXR_RUN_POST_DAILY} == true ]]
 		then
-			CXR_DISABLED_DAILY_POSTPROC="$s_d_post"
+			CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
+			CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
 		fi
 		
 		if [[ ${CXR_RUN_POST_ONCE} == true ]]
 		then
-			CXR_DISABLED_ONCE_POSTPROC="$s_once_post"
+			CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
+			CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
 		fi
 		
 		# Now, we must deal with -r.
