@@ -1006,9 +1006,9 @@ function common.parallel.init()
 		
 		main.log -a "\nCreating the list of dependencies...\n"
 		
-		main.log -a $(date)
+		main.log -a $(date +%T)
 		common.parallel.createDependencyList "$dep_file"
-		main.log -a $(date)
+		main.log -a $(date +%T)
 		
 		main.log -a  "\nOrdering tasks...\n"
 		${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file"
