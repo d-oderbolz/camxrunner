@@ -1519,8 +1519,10 @@ function test_module()
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
 	CXR_LOCK_TIMEOUT_SEC=20
 	
+	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s"
+	
 	# Get an instance lock
-	common.runner.getLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	common.runner.getLock "$lock" "$CXR_HASH_TYPE_INSTANCE" > /dev/null
 	
 	# Other processes want it
 	common.runner.waitForLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
