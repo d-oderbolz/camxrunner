@@ -1133,6 +1133,11 @@ function main.getModuleName()
 	# Remove XX_ if present
 	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-z]\{1,\}\)')"
 	
+	if [[ ! "$module_name" ]]
+	then
+		main.dieGracefully "Could not determine module name of $1"
+	fi
+	
 	echo "$module_name"
 	return $CXR_RET_OK
 }
