@@ -1105,7 +1105,7 @@ trap "main.HandleHup" HUP
 ################################################################################
 # Function: main.getModuleName
 #
-# Extracts the module name from a path, removes the leading number and the trailing extension
+# Extracts the module name from a path, removes the leading number (if any) and the trailing extension
 #
 # Parameters:
 # $1 - Module name with or without path
@@ -1130,9 +1130,8 @@ function main.getModuleName()
 	# Remove extension
 	module_name=${module_name%.sh}
 	
-	# Remove XX_
-	index_us=$(expr index "$module_name" _)
-	module_name=${module_name:$index_us}
+	# Remove XX_ if present
+	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-z]\{1,\}\)')"
 	
 	echo "$module_name"
 	return $CXR_RET_OK
