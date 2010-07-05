@@ -195,7 +195,8 @@ function common.test.all()
 		# Pre-load testing interface
 		CXR_RUN=base
 	
-		source inc/init_test.inc
+		#source inc/init_test.inc
+		source inc/tap-functions.inc
 		
 		########################################
 		#  Count all tests (Harness needs to know the count)
@@ -241,7 +242,7 @@ function common.test.all()
 	
 			main.log  -a "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
-			for function_file in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
 				module="$(main.getModuleName "$function_file")"
 				num_tests="$(common.module.getNumTests "$module")"
