@@ -202,6 +202,24 @@ function common.test.all()
 		# Because tap-functions uses non-0 returns
 		set +e
 		
+		# Prepare dummy environment
+		main.readConfig "${CXR_RUN}" "${model}" "${version}" "${CXR_RUN_DIR}"
+		
+		#Disable state DB
+		CXR_ENABLE_STATE_DB=false
+		
+		# No Notification etc.
+		CXR_HOLLOW=true
+		
+		# count simulation days
+		CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")
+		
+		# Let's just initialise the date variables for day 0
+		common.date.setVars "$CXR_START_DATE" "0"
+		
+		# Init state DB
+		common.state.init
+		
 		########################################
 		#  Count all tests (Harness needs to know the count)
 		########################################
@@ -272,7 +290,7 @@ function common.test.all()
 		########################################
 		
 		# This is to remember the last loaded config
-		LAST_LOADED_CONFIG=base
+		LAST_LOADED_CONFIG=$CXR_RUN
 		
 		if [[ "$extended" == true ]]
 		then
