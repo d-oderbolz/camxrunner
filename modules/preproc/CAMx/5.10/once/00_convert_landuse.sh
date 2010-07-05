@@ -1,1 +1,1 @@
-link ../../4.42/once/00_convert_landuse.sh
+../../4.42/once/00_convert_landuse.sh
