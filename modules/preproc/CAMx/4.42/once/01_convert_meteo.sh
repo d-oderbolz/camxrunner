@@ -4,7 +4,7 @@
 # Preprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
-# Version: $Id: 01_convert_meteo.sh 3360 2010-04-21 09:54:54Z oderbolz $ 
+# Version: $Id$ 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -66,7 +66,7 @@ CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2009), CAMxRunner@psi.ch"
 CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerland (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)"
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
-CXR_META_MODULE_VERSION='$Id: 01_convert_meteo.sh 3360 2010-04-21 09:54:54Z oderbolz $'
+CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
 # Function: getNumInvocations
