@@ -256,7 +256,8 @@ function common.fs.getMtime()
 	
 	if [[ -e "${file}"  ]]
 	then
-		mtime="$(stat "${file}" -c"%Y")"
+		# Dereference symlink, if needed
+		mtime="$(stat -L "${file}" -c"%Y")"
 	else
 		main.log -e  "No valid filename passed: ${file} !"
 		mtime=0
