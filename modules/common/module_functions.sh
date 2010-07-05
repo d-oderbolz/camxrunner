@@ -138,6 +138,7 @@ function common.module.getNumInvocations()
 # Caveat: This function modifies the environment - always call like this:
 # > b=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
 # The $() construct opens a subshell.
+# We cache the results in a hash, whose name depends on the item to be retrieved.
 #
 # Parameters:
 # $1 - name of a module
@@ -155,36 +156,48 @@ function common.module.getMetaField()
 	local item="$2"
 	local module_path
 	local value
-
-	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
+	local cache="CACHE_${item}"
+	
+	if [[ "$(common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
 	then
-		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")"
+		# It's in the cache
+		echo "$(common.hash.get $cache $CXR_HASH_TYPE_UNIVERSAL "$module")"
 	else
-		main.dieGracefully "cannot find path of $module"
-	fi
-	
-	# Before sourcing, set this Meta var
-	CXR_META_MODULE_NAME="$module"
-	
-	# source module
-	source "$module_path"
-	
-	if [[ $? -ne 0 ]]
-	then
-		main.dieGracefully "could not source $module ($module_path)"
-	fi
-	
-	# Do we have this variable?
-	set | grep $item 2>&1 > /dev/null
-	
-	if [[ $? -ne 0 ]]
-	then
-		# variable not known!
-		main.dieGracefully "variable $item not found!"
-	else
-		main.log -v "${item}: ${!item}"
-		# Return value (indirect)
-		echo ${!item}
+		if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
+		then
+			module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")"
+		else
+			main.dieGracefully "cannot find path of $module"
+		fi
+		
+		# Before sourcing, set this Meta var
+		CXR_META_MODULE_NAME="$module"
+		
+		# source module
+		source "$module_path"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "could not source $module ($module_path)"
+		fi
+		
+		# Do we have this variable?
+		set | grep $item 2>&1 > /dev/null
+		
+		if [[ $? -ne 0 ]]
+		then
+			# variable not known!
+			main.dieGracefully "variable $item not found!"
+		else
+			main.log -v "${item}: ${!item}"
+			
+			# Add to cache
+			common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${!item}"
+			
+			# Return value (indirect)
+			echo ${!item}
+		fi
+		
 	fi
 
 }

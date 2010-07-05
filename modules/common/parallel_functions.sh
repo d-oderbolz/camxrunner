@@ -964,6 +964,8 @@ function common.parallel.init()
 	local dep_file
 	local sorted_file
 	
+	main.log -a "Initializing parallel subsystem, might take a while, depending on number of tasks...\n"
+	
 	# Reset the ID counter
 	local current_id=1
 	local task_file
@@ -993,17 +995,15 @@ function common.parallel.init()
 			mkdir -p "$CXR_TASK_TODO_DIR"
 		fi
 		
-		
 		# Some tempfiles we need
 		dep_file="$(common.runner.createTempFile dependencies)"
 		sorted_file="$(common.runner.createTempFile tsort-out)"
 		mixed_file="$(common.runner.createTempFile mixed_tasks)"
 		
-		main.log -v "Creating the list of dependencies..."
+		main.log -a "\nCreating the list of dependencies...\n"
 		common.parallel.createDependencyList "$dep_file"
 		
-		main.log -v  "Ordering tasks..."
-		
+		main.log -a  "\nOrdering tasks...\n"
 		${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file"
 		
 		if [[ $? -ne 0 ]]
@@ -1014,7 +1014,7 @@ function common.parallel.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -a "Creating todo-structure"
+		main.log -a "\nCreating todo-structure...\n"
 		
 		while read line 
 		do
