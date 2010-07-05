@@ -19,7 +19,7 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
-# TODO: 
+# TODO: Improve performance
 ################################################################################
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
@@ -520,7 +520,8 @@ function common.hash.getValueMtime()
 ################################################################################
 # Function: common.hash.has?
 #
-# Returns true if the given key is contained in the hash
+# Returns true if the given key is contained in the hash. Also fills cache on hit.
+# and sets _value (to avoid having to call get again)
 #
 # Parameters:
 # $1 - name of the hash
@@ -544,8 +545,15 @@ function common.hash.has?()
 	# Generate the filename
 	fn="$(_common.hash.getFileName "$hash" "$type" "$key")"
 	
-	if [[ -f "${fn}"  ]]
+	if [[ -f "${fn}" ]]
 	then
+		# Fill cache
+		CXR_CACHE_H_HASH="$hash"
+		CXR_CACHE_H_TYPE="$type"
+		CXR_CACHE_H_KEY="$key"
+		CXR_CACHE_H_VALUE="$(cat "${fn}")"
+		_value="$CXR_CACHE_H_VALUE"
+		
 		echo true
 	else
 		echo false
