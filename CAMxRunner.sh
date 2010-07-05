@@ -654,35 +654,53 @@ then
 		CXR_ENABLED_DAILY_POSTPROC=""
 		CXR_ENABLED_ONCE_POSTPROC=""
 		
-		
+		# Since by default, we run everything, we need to
+		# use these special CLI variables to tell if the user
+		# actively chose this particular part.
+		# If not, we disable it in the case of limited processing
 		if [[ ${CXR_CLI_RUN_PRE_ONCE:-false} == true ]]
 		then
+			CXR_RUN_PRE_ONCE=true
 			CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
 			CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
+		else
+			CXR_RUN_PRE_ONCE=false
 		fi
 		
 		if [[ ${CXR_CLI_RUN_PRE_DAILY:-false} == true ]]
 		then
+			CXR_RUN_PRE_DAILY=true
 			CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
 			CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
+		else
+			CXR_RUN_PRE_DAILY=false
 		fi		
 		
 		if [[ ${CXR_CLI_RUN_MODEL:-false} == true ]]
 		then
+			CXR_RUN_MODEL=true
 			CXR_DISABLED_MODEL="$d_model"
 			CXR_ENABLED_MODEL="$e_model"
+		else
+			CXR_RUN_MODEL=false
 		fi
 
 		if [[ ${CXR_CLI_RUN_POST_DAILY:-false} == true ]]
 		then
+			CXR_RUN_POST_DAILY=true
 			CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
 			CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
+		else
+			CXR_RUN_POST_DAILY=false
 		fi
 		
 		if [[ ${CXR_CLI_RUN_POST_ONCE:-false} == true ]]
 		then
+			CXR_RUN_POST_ONCE=true
 			CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
 			CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
+		else
+			CXR_RUN_POST_ONCE=false
 		fi
 		
 		# Now, we must deal with -r.
