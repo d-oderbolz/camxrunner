@@ -783,9 +783,13 @@ function common.module.updateInfo()
 	
 	# Create a few working arrays we will go through
 	# Note that there are three kinds of installer modules: general ones, model specific and version specific ones
+	# The same is true for common modules
 	types=($CXR_TYPE_INSTALLER \
 	       $CXR_TYPE_INSTALLER \
 	       $CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
 	       $CXR_TYPE_PREPROCESS_ONCE \
 	       $CXR_TYPE_PREPROCESS_DAILY  \
 	       $CXR_TYPE_MODEL \
@@ -795,6 +799,9 @@ function common.module.updateInfo()
 	dirs=($CXR_INSTALLER_INPUT_DIR \
 	      $CXR_INSTALLER_MODEL_INPUT_DIR \
 	      $CXR_INSTALLER_VERSION_INPUT_DIR \
+	      $CXR_COMMON_INPUT_DIR \
+	      $CXR_COMMON_MODEL_INPUT_DIR \
+	      $CXR_COMMON_VERSION_INPUT_DIR \
 	      $CXR_PREPROCESSOR_ONCE_INPUT_DIR \
 	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
 	      $CXR_MODEL_INPUT_DIR \
@@ -803,6 +810,9 @@ function common.module.updateInfo()
 	
 	# we ignore any hash called "-"
 	hashes=(- \
+	        - \
+	        - \
+	        - \
 	        - \
 	        - \
 	        $CXR_ACTIVE_ONCE_PRE_HASH \
@@ -832,6 +842,10 @@ function common.module.updateInfo()
 		# The enabled and disabled strings ore lists - we cannot do the array trick...
 		case "$type" in
 	
+			"${CXR_TYPE_COMMON}" ) 
+				enabled_modules=""
+				disabled_modules="";;
+				
 			"${CXR_TYPE_PREPROCESS_ONCE}" ) 
 				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
 				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"

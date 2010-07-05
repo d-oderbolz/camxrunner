@@ -334,7 +334,6 @@ function common.test.all()
 						main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
 						common.module.updateInfo
 						
-						
 						LAST_LOADED_CONFIG=$CXR_RUN
 					fi
 					
