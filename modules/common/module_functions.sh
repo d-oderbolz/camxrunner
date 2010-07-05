@@ -1201,7 +1201,7 @@ function common.module.processSequentially
 	then
 		common.module.runType ${CXR_TYPE_PREPROCESS_ONCE} || ret_val=$CXR_RET_ERROR
 	else
-		main.log -w "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
+		main.log -a "We do not run ${CXR_TYPE_PREPROCESS_ONCE} modules."
 	fi
 
 	## Now we need to loop through the days
@@ -1230,21 +1230,21 @@ function common.module.processSequentially
 			then
 				common.module.runType ${CXR_TYPE_PREPROCESS_DAILY} || ret_val=$CXR_RET_ERROR
 			else
-				main.log -w "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
+				main.log -a "We do not run ${CXR_TYPE_PREPROCESS_DAILY} modules."
 			fi
 			
 			if [[ ${CXR_RUN_MODEL} == true  ]]
 			then
 				common.module.runType ${CXR_TYPE_MODEL} || ret_val=$CXR_RET_ERROR
 			else
-				main.log -w "We do not run ${CXR_TYPE_MODEL} modules."
+				main.log -a "We do not run ${CXR_TYPE_MODEL} modules."
 			fi
 			
 			if [[ ${CXR_RUN_POST_DAILY} == true  ]]
 			then
 				common.module.runType ${CXR_TYPE_POSTPROCESS_DAILY} || ret_val=$CXR_RET_ERROR
 			else
-				main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
+				main.log -a "We do not run ${CXR_TYPE_POSTPROCESS_DAILY} modules."
 			fi
 			
 			# If we do only 1 day, that's it
@@ -1262,7 +1262,7 @@ function common.module.processSequentially
 	then
 		common.module.runType ${CXR_TYPE_POSTPROCESS_ONCE} || ret_val=$CXR_RET_ERROR
 	else
-		main.log -w "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
+		main.log -a "We do not run ${CXR_TYPE_POSTPROCESS_ONCE} modules."
 	fi
 	
 	return $ret_val
