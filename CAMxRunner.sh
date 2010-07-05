@@ -607,7 +607,7 @@ mb_needed=$(common.check.PredictModelOutputMb)
 
 main.log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
 
-if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
+if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
 then
 	# Full simulation, do the space check if user has not disabled it
 	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
@@ -627,6 +627,8 @@ then
 		# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
 		# When the user selects a certain type of modules, they should be executed as 
 		# configured
+		
+		main.log -a "CXR_SKIP: ${CXR_SKIP_ALL}"
 		
 		# First we store all current (configured values)
 		d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
