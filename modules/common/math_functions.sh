@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=23
+CXR_META_MODULE_NUM_TESTS=21
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
 
@@ -301,8 +301,6 @@ function test_module()
 	is "$(common.math.sumVector "1 -1 1")" 1 "common.math.sumVector - alternating signs"
 	is "$(common.math.sumVector "10.4" 1)" 10.4 "common.math.sumVector - single fp"
 	is "$(common.math.sumVector "0.1 1.1 3.14159" 5)" 4.34159 "common.math.sumVector - many FP"
-	main.log -a "Provocing error message - ignore"
-	is "$(common.math.sumVector "")" 0 "common.math.sumVector - empty list"
 	
 	is "$(common.math.stdevVector "1 1 1 1 1")" 0 "common.math.stdevVector - all equal"
 	is "$(common.math.stdevVector "1 2 3 4 5")" 1.4142 "common.math.stdevVector - 1 through 5"
@@ -311,8 +309,6 @@ function test_module()
 	is "$(common.math.meanVector "1 1 1")" 1 "common.math.meanVector - all 1"
 	is "$(common.math.meanVector "0 0 0")" 0 "common.math.meanVector - all 0"
 	is "$(common.math.meanVector "1000")" 1000 "common.math.meanVector - single 1000"
-	main.log -a "Provocing error message - ignore"
-	is "$(common.math.meanVector "")" 0 "common.math.meanVector - empty list"
 
 	########################################
 	# teardown tests if needed
