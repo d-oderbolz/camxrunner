@@ -1014,10 +1014,13 @@ function common.parallel.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -v "Creating todo-structure"
+		main.log -a "Creating todo-structure"
 		
 		while read line 
 		do
+			# Visual feedback
+			common.user.showProgress
+			
 			task_file=$CXR_TASK_POOL_DIR/$(printf "%0${CXR_TASK_ID_DIGITS}d" $current_id)
 		
 			# Is this a unique number?
