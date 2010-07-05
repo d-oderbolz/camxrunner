@@ -851,10 +851,10 @@ function common.state.reportEta()
 {
 	local percentDone=$(common.math.FloatOperation "($CXR_TASKS_DONE / $CXR_TASKS_TOTAL) * 100" -1 false )
 	
-	local estimatedTimeSecods=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	local estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
 	
 	# Only goes to stderr
-	main.log -n "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSecods)"
+	main.log -n "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)"
 	main.log -n $(common.user.showProgressBar $percentDone)
 }
 

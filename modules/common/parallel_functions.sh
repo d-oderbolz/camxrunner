@@ -206,7 +206,7 @@ function common.parallel.createDependencyList()
 		do
 			module="${activeModuleKeys[$iKey]}"
 		
-			# get type (its not efficient here - will fix this later WIHT)
+			# get type
 			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
 			
 			# Get the raw dependencies
@@ -222,20 +222,19 @@ function common.parallel.createDependencyList()
 				
 				# We must resolve for each invocation
 				nInvocations=$(common.module.getNumInvocations "$module")
+				
+				# resolve the dependencies
+				resolved_dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" $day_offset )"
+				
 				for iInvocation in $(seq 1 $nInvocations )
 				do
-					# resolve the dependencies
-					resolved_dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" $day_offset )"
-					
 					# Are there any?
 					if [[ "$resolved_dependencies" ]]
 					then
 						# Loop 
 						for dependency in $resolved_dependencies
 						do
-
 							echo "${dependency} $(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> "$output_file"
-
 						done # Dependencies
 					else
 						# Add the module twice (see header), including all invocations
@@ -916,7 +915,7 @@ function common.parallel.cleanTasks()
 function common.parallel.waitForWorkers()
 ################################################################################
 {
-		main.log  "Entering a wait loop (the work is carried out by backgound processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
+		main.log  "Entering a wait loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 		
 		while [ -f "$CXR_CONTINUE_FILE" ]
 		do
