@@ -1197,7 +1197,7 @@ function common.module.processSequentially
 	# Setup environment
 	common.date.setVars "$CXR_START_DATE" 0
 	
-	if [[ ${CXR_RUN_PRE_ONCE} == true  ]]
+	if [[ ${CXR_RUN_PRE_ONCE} == true ]]
 	then
 		common.module.runType ${CXR_TYPE_PREPROCESS_ONCE} || ret_val=$CXR_RET_ERROR
 	else

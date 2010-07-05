@@ -724,19 +724,24 @@ then
 				case "$module_type" in
 				
 					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module_name";;
+						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module_name"
+						CXR_RUN_PRE_ONCE=true;;
 						
 					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module_name";;
+						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module_name"
+						CXR_RUN_PRE_DAILY=true;;
 						
 					"${CXR_TYPE_MODEL}" ) 
-						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name";;
+						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name"
+						CXR_RUN_MODEL=true;;
 						
 					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module_name";;
+						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module_name"
+						CXR_RUN_POST_DAILY=true;;
 						
 					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module_name";;
+						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module_name"
+						CXR_RUN_POST_ONCE=true;;
 						
 					* ) 
 						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
