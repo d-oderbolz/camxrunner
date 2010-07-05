@@ -268,11 +268,11 @@ do
 		R) 	CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG}; CXR_HOLLOW=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_LIST="${OPTARG}" ;;
-		p) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=true; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		i) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=true; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		o) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=true; CXR_USER_TEMP_RUN_POST_ONCE=false ;;
-		f) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=false; CXR_USER_TEMP_RUN_PRE_ONCE=false; CXR_USER_TEMP_RUN_PRE_DAILY=false; CXR_USER_TEMP_RUN_POST_DAILY=false; CXR_USER_TEMP_RUN_POST_ONCE=true ;;
-		x) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_RUN_MODEL=true; CXR_USER_TEMP_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
+		p) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
+		i) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=true; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
+		o) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=true; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
+		f) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=true ;;
+		x) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=true; CXR_USER_TEMP_CLI_RUN_MODEL_SINGLE_STEP="${OPTARG}" ;;
 		L) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
 		h) CXR_HOLLOW=true; main.usage ;;
@@ -554,7 +554,7 @@ fi
 
 main.log -H "CAMxRunner.sh" "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
-if [[ "${CXR_ONE_DAY}"  ]]
+if [[ "${CXR_ONE_DAY}" ]]
 then
 
 	if [[ "$(common.date.isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
@@ -623,13 +623,10 @@ then
 		main.log -w "CAMxRunner.sh" "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
 	fi
 	else
-	
 		# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
 		# When the user selects a certain type of modules, they should be executed as 
 		# configured
-		
-		main.log -a "CXR_SKIP: ${CXR_SKIP_ALL}"
-		
+
 		# First we store all current (configured values)
 		d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
 		d_d_pre="$CXR_DISABLED_DAILY_PREPROC"
@@ -658,31 +655,31 @@ then
 		CXR_ENABLED_ONCE_POSTPROC=""
 		
 		
-		if [[ ${CXR_RUN_PRE_ONCE} == true ]]
+		if [[ ${CXR_CLI_RUN_PRE_ONCE} == true ]]
 		then
 			CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
 			CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
 		fi
 		
-		if [[ ${CXR_RUN_PRE_DAILY} == true ]]
+		if [[ ${CXR_CLI_RUN_PRE_DAILY} == true ]]
 		then
 			CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
 			CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
 		fi		
 		
-		if [[ ${CXR_RUN_MODEL} == true ]]
+		if [[ ${CXR_CLI_RUN_MODEL} == true ]]
 		then
 			CXR_DISABLED_MODEL="$d_model"
 			CXR_ENABLED_MODEL="$e_model"
 		fi
 
-		if [[ ${CXR_RUN_POST_DAILY} == true ]]
+		if [[ ${CXR_CLI_RUN_POST_DAILY} == true ]]
 		then
 			CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
 			CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
 		fi
 		
-		if [[ ${CXR_RUN_POST_ONCE} == true ]]
+		if [[ ${CXR_CLI_RUN_POST_ONCE} == true ]]
 		then
 			CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
 			CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
