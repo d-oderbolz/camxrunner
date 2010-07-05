@@ -655,31 +655,31 @@ then
 		CXR_ENABLED_ONCE_POSTPROC=""
 		
 		
-		if [[ ${CXR_CLI_RUN_PRE_ONCE} == true ]]
+		if [[ ${CXR_CLI_RUN_PRE_ONCE:-false} == true ]]
 		then
 			CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
 			CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
 		fi
 		
-		if [[ ${CXR_CLI_RUN_PRE_DAILY} == true ]]
+		if [[ ${CXR_CLI_RUN_PRE_DAILY:-false} == true ]]
 		then
 			CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
 			CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
 		fi		
 		
-		if [[ ${CXR_CLI_RUN_MODEL} == true ]]
+		if [[ ${CXR_CLI_RUN_MODEL:-false} == true ]]
 		then
 			CXR_DISABLED_MODEL="$d_model"
 			CXR_ENABLED_MODEL="$e_model"
 		fi
 
-		if [[ ${CXR_CLI_RUN_POST_DAILY} == true ]]
+		if [[ ${CXR_CLI_RUN_POST_DAILY:-false} == true ]]
 		then
 			CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
 			CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
 		fi
 		
-		if [[ ${CXR_CLI_RUN_POST_ONCE} == true ]]
+		if [[ ${CXR_CLI_RUN_POST_ONCE:-false} == true ]]
 		then
 			CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
 			CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
