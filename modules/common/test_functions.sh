@@ -312,7 +312,7 @@ function common.test.all()
 	
 			main.log  "Executing ${COMMENT} tests..."
 			
-			for function_file in $(ls ${CURRENT_DIR}/??_*.sh 2>/dev/null)
+			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
 				module="$(main.getModuleName $function_file)"
 				
