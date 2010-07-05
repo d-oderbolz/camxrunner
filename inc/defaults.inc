@@ -394,7 +394,7 @@ CXR_LOG_EXT=""
 ################################################################################
 
 ################################################################################
-# Disabled Modules (space-separated module names, skip_all disables whole class)
+# Disabled Modules (space-separated module names, ${CXR_SKIP_ALL} disables whole class)
 ################################################################################
 
 CXR_DISABLED_DAILY_PREPROC=""
