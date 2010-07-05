@@ -97,6 +97,7 @@ function common.module.parseIdentifier()
 # Caveat: This function modifies the environment - always call like this:
 # > b=$(common.module.getNumInvocations "$module")
 # The $() construct opens a subshell.
+# Values are cached in a hash.
 #
 # Parameters:
 # $1 - name of a module
@@ -106,29 +107,44 @@ function common.module.getNumInvocations()
 {
 	local module="$1"
 	local numInvocations
+	local cache="CACHE_NumInvocations"
 	
-	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)" == true ]]
+	# This call sets _has and _value
+	common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+	if [[ "$_has" == true ]]
 	then
-		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module)"
+		# It's in the cache
+		echo "$_value"
 	else
-		main.dieGracefully "cannot find path of $module"
+	
+		# This call sets _has and _value
+		common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+		if [[ "$_has" == true ]]
+		then
+			module_path="$_value"
+		else
+			main.dieGracefully "cannot find path of $module"
+		fi
+		
+		# Before sourcing, set this Meta var
+		CXR_META_MODULE_NAME=$module
+		
+		# source module
+		source "$module_path"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "could not source $module ($module_path)"
+		fi
+		
+		# Call the function
+		numInvocations=$(getNumInvocations)
+		
+		# Add to cache
+		common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${numInvocations}"
+		
+		echo $numInvocations
 	fi
-	
-	# Before sourcing, set this Meta var
-	CXR_META_MODULE_NAME=$module
-	
-	# source module
-	source "$module_path"
-	
-	if [[ $? -ne 0 ]]
-	then
-		main.dieGracefully "could not source $module ($module_path)"
-	fi
-	
-	# Call the function
-	numInvocations=$(getNumInvocations)
-	
-	echo $numInvocations
 }
 
 ################################################################################
@@ -158,10 +174,12 @@ function common.module.getMetaField()
 	local value
 	local cache="CACHE_${item}"
 	
-	if [[ "$(common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
+	# This call sets _has and _value
+	common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+	if [[ "$_has" == true ]]
 	then
 		# It's in the cache
-		echo "$(common.hash.get $cache $CXR_HASH_TYPE_UNIVERSAL "$module")"
+		echo "$_value"
 	else
 		if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
 		then
@@ -980,9 +998,11 @@ function common.module.getType()
 	local name="${1}"
 	local module_type
 
-	if [[ "$(common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )" == true ]]
+	# This call sets _has and _value
+	common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" > /dev/null
+	if [[ "$_has" == true ]]
 	then
-		module_type="$(common.hash.get "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" )"
+		module_type="$_value"
 		
 		if [[ "$module_type" ]]
 		then

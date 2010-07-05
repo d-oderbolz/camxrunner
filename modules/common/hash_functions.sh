@@ -833,7 +833,7 @@ function test_module()
 	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
 	is ${#a[@]} 5 "Hash of arrays"
 	
-	# testing the faster was to call has
+	# testing the faster way to call common.hash.has? (has and get in one call)
 	common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo" > /dev/null
 	is $_has true "common.hash.has? non-functional approach I"
 	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
