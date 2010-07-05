@@ -1084,6 +1084,8 @@ function common.module.runType()
 	# Increase global indent level
 	main.increaseLogIndent
 	
+	main.log -a "Running $module_type,enabled: $enabled_modules, disabled: $disabled_modules"
+	
 	# Check if we need any of them at all
 	# If the user wants to run a specific module, we enter anyway
 	if [[ ! ( "${enabled_modules}" == "" && "${disabled_modules}" == "${CXR_SKIP_ALL}" ) ]]
