@@ -218,16 +218,16 @@ function common.parallel.createDependencyList()
 			raw_dependencies="$(common.module.getRawDependencies $module)"
 			
 			main.log -v "$module depedends on ${raw_dependencies:--}"
+			
+			# The number of invocations is not dependent on the day
+			nInvocations=$(common.module.getNumInvocations "$module")
 		
 			# Loop through days
 			for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 			do
 				# Give some visual feedback
 				common.user.showProgress
-				
-				# We must resolve for each invocation
-				nInvocations=$(common.module.getNumInvocations "$module")
-				
+
 				# resolve the dependencies
 				resolved_dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" $day_offset )"
 				
