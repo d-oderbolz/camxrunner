@@ -188,7 +188,7 @@ function main.countErrors()
 #
 # The user can manipulate Separate Loglevels for screen (CXR_LOG_LEVEL_SCREEN) and file (CXR_LOG_LEVEL_FILE),
 # Usually the screen shows less and the file shows more.
-# If the loglevel is greater or equal to the level of a message, the mesage is shown
+# If the loglevel is greater or equal to the level of a message, the message is shown
 #
 # The function automatically indents its messages according to $CXR_LOG_INDENT.
 # It also infers its caller from the FUNCNAME array

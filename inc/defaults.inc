@@ -153,7 +153,7 @@ CXR_LOG_LEVEL_EXTERNAL=${CXR_LOG_LEVEL_ERR}
 # Note that you can configure the log-level 
 # CXR_LOG_LEVEL_EXTERNAL
 # to decide what to see there.
-# As a minimum, you get a mesage when the run starts and when the run ends.
+# As a minimum, you get a message when the run starts and when the run ends.
 
 # If this Variable is true,Email will be sent
 CXR_SEND_EMAIL=true
