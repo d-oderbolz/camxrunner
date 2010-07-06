@@ -157,11 +157,12 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 			;do loop for layers
 			for iver=0L,num_levels-1 do begin
 			
-			;print,'Skipping Species header.'
-			skip_lun, input_lun,1, /LINES 
-			
-			readf,input_lun,c1,format=fmt
+				;print,'Skipping Species header.'
+				skip_lun, input_lun,1, /LINES 
 				
+				readf,input_lun,c1,format=fmt
+				
+				; Do we need c at all?
 				c[0,0,iver,ispec,i]=c1
 				
 				; loop through the NABEL stations

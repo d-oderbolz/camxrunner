@@ -304,7 +304,7 @@ function extract_station_data
 				# We set this fag to 0 because currently we only run on the innermost domain
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}'
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}'
 				exit
 				EOF
 				;;

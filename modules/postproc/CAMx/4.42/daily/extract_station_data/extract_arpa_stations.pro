@@ -1,10 +1,11 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,species,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
 	;
 	; Function: extract_arpa_stations
 	;
 	;*******************************************************************************************************
 	;						IDL Program to extract data from a camx average file from domain 3
 	;						for ARPA stations. Modified version of extract_nabel_stations written for co5.
+	;						THe list of species to be extracted is given by the project.
 	;
 	;						based on a script by Sebnem Andreani-Aksoyoglu, 11.1.2007
 	;
@@ -26,7 +27,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; day - day to be extracted
 	; month - month	to be extracted
 	; year - year to be extracted	
-	; species - a string array of the species to extract
 	; x_dim - the x dimension of the grid in grid cells of the grid in question	
 	; y_dim - the y dimension of the grid in grid cells of the grid in question
 	; num_levels - the number of levels of the grid in question
@@ -96,16 +96,28 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 	
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; Check settings
+	; Init Header Parser
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
-	num_species = n_elements(species)
+	; Load header Parser
+	hp=obj_new('header_parser',input_file)
+	
+	; Get number of species in average file
+	scalars=hp->get_scalars()
+	num_input_species=scalars->get('nspec')
+	head_length = hp->get_header_length()
+	
+	; Get list of species in average file
+	species=hp->get_species()
+
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; Check settings
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 	; stations are multidimensional
 	s = size(stations,/DIMENSIONS)
 	num_stations = s[1]
 	
-	if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
 	if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	
 	;; We cannot open more than 99 files!
@@ -236,11 +248,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	;;;;;;;;;;;;;;;;;;;; End pressure/temp preparation
 	
 	
-	; x, y, z, species, hours
-	c=fltArr(x_dim,y_dim,num_levels,num_species,24)
-	
 	; x, y
-	c1=fltArr(x_dim,y_dim)
+	conc_slice=fltArr(x_dim,y_dim)
 	
 	;Station information
 	; We must read the first 2 fields and conver to float afterwards
@@ -256,11 +265,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	station_luns=INDGEN(num_stations) + 1
 	
 	;z, species, hours, station
-	z=fltArr(num_levels,num_species,24,num_stations)
-	
-	; the time offset (formerly t(i)) is calculated like this (We assume that hour 1 is alwas at the beginning of a month):
-	; only needed if time should be relative to first day.
-	offset=(Fix(day)-1)*24+1
+	z=fltArr(num_levels,num_input_species,24,num_stations)
 	
 	; Open the input
 	openr,input_lun,input_file, /GET_LUN
@@ -293,9 +298,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	
 	;skip informational data and species
 	
-	; The length of the header depends on the number of species
-	; because they are listed first
-	head_length=num_species + 4
 	
 	skip_lun, input_lun,head_length, /LINES
 	;
@@ -307,7 +309,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		;
 		;do loop for species
 		;
-		for ispec=0L,num_species-1 do begin
+		for ispec=0L,num_input_species-1 do begin
 		
 			;do loop for layers
 			for iver=0L,num_levels-1 do begin
@@ -315,20 +317,18 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 				skip_lun, input_lun,1, /LINES 
 				
 				; We let IDL work out the format
-				readf,input_lun,c1,format=fmt
+				readf,input_lun,conc_slice,format=fmt
 					
-					c[0,0,iver,ispec,i]=c1
+				; loop through the stations and do the interpolation
+				for station=0L,num_stations-1 do begin
+				
+					;ix=44.62
+					;jy=73.26
+					;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
+					; bilinear allows us to retrieve decimal indices
+					z[iver,ispec,i,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
 					
-					; loop through the stations and do the interpolation
-					for station=0L,num_stations-1 do begin
-					
-						;ix=44.62
-						;jy=73.26
-						;z1(iver,ispec,i)=bilinear(c1,ix,jy)
-						; bilinear allows us to retrieve decimal indices
-						z[iver,ispec,i,station]=bilinear(c1,station_pos[0,station],station_pos[1,station])
-						
-					endfor ; stations
+				endfor ; stations
 			endfor ; layers
 		endfor ; species
 		
@@ -362,50 +362,154 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		 
 		 ;print,'Extracting chemical data for file ' + station_files(station) + ' at CAMx col ' + string(station_pos[0,station]) + ' row ' + string(station_pos[1,station])
 
-			no=z[0,0,i,station] * 1000 * ( M_NO / V_n) * f_n
-			no2=z[0,1,i,station] * 1000 * ( M_NO2 / V_n) * f_n
-			o3=z[0,2,i,station] * 1000 * ( M_O3 / V_n) * f_n
-			tol=z[0,3,i,station] * 1000 * ( M_TOL / V_n) * f_n
-			xyl=z[0,4,i,station] * 1000 * ( M_XYL / V_n) * f_n
-			form=z[0,5,i,station] * 1000 * ( M_FORM / V_n) * f_n
-			pan=z[0,6,i,station] * 1000 * ( M_PAN / V_n) * f_n
-			co=z[0,7,i,station] * 1000 * ( M_CO / V_n) * f_n
-			hono=z[0,8,i,station] * 1000 * ( M_HONO / V_n) * f_n
-			hno3=z[0,9,i,station] * 1000 * ( M_HNO3 / V_n) * f_n
-			h2o2=z[0,10,i,station] * 1000 * ( M_H2O2 / V_n) * f_n
-			isop=z[0,11,i,station] * 1000 * ( M_ISOP / V_n) * f_n
-			pna=z[0,12,i,station] * 1000 * ( M_PNA / V_n) * f_n
-			so2=z[0,13,i,station] * 1000 * ( M_SO2 / V_n) * f_n
-			nh3=z[0,14,i,station] * 1000 * ( M_NH3 / V_n) * f_n
+			; Gasses need convesion to ppb and norm-volume correction
+			if (species->iscontained('NO')) then begin
+				no=z[0,species->get('NO'),i,station] * 1000 * ( M_NO / V_n) * f_n
+			endif else begin
+				no=0
+			endelse
+
+			if (species->iscontained('NO2')) then begin
+				no2=z[0,species->get('NO2'),i,station] * 1000 * ( M_NO2 / V_n) * f_n
+			endif else begin
+				no2=0
+			endelse
+			
+			if (species->iscontained('O3')) then begin
+				o3=z[0,species->get('O3'),i,station] * 1000 * ( M_O3 / V_n) * f_n
+			endif else begin
+				o3=0
+			endelse
 			
 			; Start of aerosol species (already in proper unit - but need correction to norm conditions)
 			
-			ph2o=z[0,15,i,station] * f_n
-			pno3=z[0,16,i,station] * f_n
-			pso4=z[0,17,i,station] * f_n
-			pnh4=z[0,18,i,station] * f_n
-			poa=z[0,19,i,station] * f_n
-			pec=z[0,20,i,station] * f_n
-			soa1=z[0,21,i,station] * f_n
-			soa2=z[0,22,i,station] * f_n
-			soa3=z[0,23,i,station] * f_n
-			soa4=z[0,24,i,station] * f_n
-			soa5=z[0,25,i,station] * f_n
-			soa6=z[0,26,i,station] * f_n
-			soa7=z[0,27,i,station] * f_n
-			sopa=z[0,28,i,station] * f_n
-			sopb=z[0,29,i,station] * f_n
-			na	=z[0,30,i,station] * f_n
-			pcl =z[0,31,i,station] * f_n
-			fprm=z[0,32,i,station] * f_n
-			fcrs=z[0,33,i,station] * f_n
-			cprm=z[0,34,i,station] * f_n
-			ccrs=z[0,35,i,station] * f_n
+			if (species->iscontained('PH2O')) then begin
+				ph2o=z[0,species->get('PH2O'),i,station] * f_n
+			endif else begin
+				ph2o=0
+			endelse
+			
+			if (species->iscontained('PNO3')) then begin
+				pno3=z[0,species->get('PNO3'),i,station] * f_n
+			endif else begin
+				pno3=0
+			endelse
+			
+			if (species->iscontained('PSO4')) then begin
+				pso4=z[0,species->get('PSO4'),i,station] * f_n
+			endif else begin
+				pso4=0
+			endelse
+			
+			if (species->iscontained('PNH4')) then begin
+				pnh4=z[0,species->get('PNH4'),i,station] * f_n
+			endif else begin
+				pnh4=0
+			endelse
+			
+			if (species->iscontained('POA')) then begin
+				poa=z[0,species->get('POA'),i,station] * f_n
+			endif else begin
+				poa=0
+			endelse
+			
+			if (species->iscontained('PEC')) then begin
+				pec=z[0,species->get('PEC'),i,station] * f_n
+			endif else begin
+				pec=0
+			endelse
+			
+			if (species->iscontained('SOA1')) then begin
+				soa1=z[0,species->get('SOA1'),i,station] * f_n
+			endif else begin
+				soa1=0
+			endelse
+			
+			if (species->iscontained('SOA2')) then begin
+				soa2=z[0,species->get('SOA2'),i,station] * f_n
+			endif else begin
+				soa2=0
+			endelse
+			
+			if (species->iscontained('SOA3')) then begin
+				soa3=z[0,species->get('SOA3'),i,station] * f_n
+			endif else begin
+				soa3=0
+			endelse
+			
+			if (species->iscontained('SOA4')) then begin
+				soa4=z[0,species->get('SOA4'),i,station] * f_n
+			endif else begin
+				soa4=0
+			endelse
+			
+			if (species->iscontained('SOA5')) then begin
+				soa5=z[0,species->get('SOA5'),i,station] * f_n
+			endif else begin
+				soa5=0
+			endelse
+			
+			if (species->iscontained('SOA6')) then begin
+				soa6=z[0,species->get('SOA6'),i,station] * f_n
+			endif else begin
+				soa6=0
+			endelse
+			
+			if (species->iscontained('SOA7')) then begin
+				soa7=z[0,species->get('SOA7'),i,station] * f_n
+			endif else begin
+				soa7=0
+			endelse
+			
+			if (species->iscontained('SOPA')) then begin
+				sopa=z[0,species->get('SOPA'),i,station] * f_n
+			endif else begin
+				sopa=0
+			endelse
+			
+			if (species->iscontained('SOPB')) then begin
+				sopb=z[0,species->get('SOPB'),i,station] * f_n
+			endif else begin
+				sopb=0
+			endelse
+			
+			if (species->iscontained('NA')) then begin
+				na	=z[0,species->get('NA'),i,station] * f_n
+			endif else begin
+				na=0
+			endelse
+			
+			if (species->iscontained('PCL')) then begin
+				pcl =z[0,species->get('PCL'),i,station] * f_n
+			endif else begin
+				pcl=0
+			endelse
+			
+			if (species->iscontained('FPRM')) then begin
+				fprm=z[0,species->get('FPRM'),i,station] * f_n
+			endif else begin
+				fprm=0
+			endelse
+			
+			if (species->iscontained('FCRS')) then begin
+				fcrs=z[0,species->get('FCRS'),i,station] * f_n
+			endif else begin
+				fcrs=0
+			endelse
+			
+			if (species->iscontained('CPRM')) then begin
+				cprm=z[0,species->get('CPRM'),i,station] * f_n
+			endif else begin
+				cprm=0
+			endelse
+			
+			if (species->iscontained('CCRS')) then begin
+				ccrs=z[0,species->get('CCRS'),i,station] * f_n
+			endif else begin
+				ccrs=0
+			endelse
 			
 			pm = pno3 + pso4 + pnh4	+ poa + pec + soa1	+ soa2 + soa3	+ soa4	+ soa5 + soa6 + soa7 + sopa + sopb + na + pcl + fprm + fcrs + cprm + ccrs
-			
-			; the time in hours was formerly calculated using the offset
-			; printf,station_luns(station),i+offset,no,no2,o3,tol,xyl,form,pan,co,hono,hno3,h2o2,isop,pna,so2,nh3,ph2o,pno3,pso4,pnh4,poa,pec,soa1,soa2,soa3,soa4,soa5,format = '(A,27G15.7)'
 			
 			; dd : day (character 2 digit)
 			; mm: month (character 2 digit)
