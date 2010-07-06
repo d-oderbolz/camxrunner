@@ -182,7 +182,7 @@ function concatenate_station_data
 		# Postprocessor: we only terminate the module
 		if [[ "$(common.check.postconditions)" == false  ]]
 		then
-			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
+			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			common.state.storeState ${CXR_STATE_ERROR}
 			
 			# We notify the caller of the problem

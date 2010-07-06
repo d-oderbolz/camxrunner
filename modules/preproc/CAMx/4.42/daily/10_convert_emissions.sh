@@ -201,7 +201,7 @@ function convert_emissions()
 		# Check if all went well
 		if [[ $(common.check.postconditions) == false  ]]
 		then
-			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			common.state.storeState ${CXR_STATE_ERROR}
 			
 			# We notify the caller of the problem

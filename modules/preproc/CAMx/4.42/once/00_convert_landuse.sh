@@ -138,13 +138,13 @@ function convert_landuse()
 	CXR_INVOCATION=${1}
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
 		
 		#  --- Check Settings (only input)
-		if [[ $(common.check.preconditions -i) == false  ]]
+		if [[ $(common.check.preconditions -i) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			common.state.storeState ${CXR_STATE_ERROR}
@@ -159,7 +159,7 @@ function convert_landuse()
 			# Do conversion
 			
 			# Does the output already exist?
-			if [[ -s "${CXR_OUTPUT_FILE}"  ]]
+			if [[ -s "${CXR_OUTPUT_FILE}" ]]
 			then
 				main.log -w "File ${CXR_OUTPUT_FILE} exists - file will skipped."
 				continue
@@ -178,9 +178,9 @@ function convert_landuse()
 		main.decreaseLogIndent
 	
 		# Check if all went well
-		if [[ $(common.check.postconditions) == false  ]]
+		if [[ $(common.check.postconditions) == false ]]
 		then
-			main.log  "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
+			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
 			common.state.storeState ${CXR_STATE_ERROR}
 			
 			# We notify the caller of the problem
