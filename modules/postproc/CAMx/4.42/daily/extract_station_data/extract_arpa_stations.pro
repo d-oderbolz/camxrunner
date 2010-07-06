@@ -122,6 +122,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	
 	R = 8.314472 ; J K-1 mol-1 (CODATA)
 	
+	; Convert mbar to PA
+	mb2pa = 1E2
+	
 	; Standard conditions (according to EU legislation)
 	T0 = 293 ; K
 	p0 = 101300 ; Pa
@@ -174,21 +177,25 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 		for iver=0L,num_levels-1 do begin
 
 			; skip one line (timestamp)
-			skip_lun,input_t,1
 			skip_lun,input_zp,1
 			
-			; Read height data first
+			; height data is first in the ZP file
 			readf,input_zp,height_slice
+			
 			; skip another line (timestamp) of the pressure file
 			skip_lun,input_zp,1
+			
+			; Skip header of T file
+			skip_lun,input_t,1
 			
 			; read one slice
 			readf,input_t,pressure_slice
 			readf,input_zp,t_slice
 			
 			; Fill the "Total" Arrays
-			total_pressure[0,0,iver] = pressure_slice
 			total_height[0,0,iver] = height_slice
+			total_pressure[0,0,iver] = pressure_slice
+			
 			total_temperature[0,0,iver] = t_slice
 			
 
@@ -224,7 +231,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	free_lun,input_t
 	free_lun,input_zp
 	
-	
+	; Convert pressure in mb to Pascal
+	pressure = pressure * mb2pa
 	
 	;;;;;;;;;;;;;;;;;;;; End pressure/temp preparation
 	
