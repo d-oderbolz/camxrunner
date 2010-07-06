@@ -1124,12 +1124,9 @@ function main.getModuleName()
 	
 	full_name=${1}
 	
-	# We just want the filename
-	module_name=$(basename $full_name)
+	# We just want the filename (without .sh)
+	module_name=$(basename $full_name .sh)
 
-	# Remove extension
-	module_name=${module_name%.sh}
-	
 	# Remove XX_ if present
 	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-z]\{1,\}\)')"
 	

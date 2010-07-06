@@ -985,7 +985,7 @@ function common.module.updateInfo()
 # Gets its information directly from the CXR_MODULE_TYPE_HASH
 # 
 # Parameters:
-# $1 - name of module (without prefix or suffix, just something like "convert output"
+# $1 - name of module (without prefix or suffix, just something like "convert_output"
 ################################################################################
 function common.module.getType()
 ################################################################################
