@@ -162,7 +162,6 @@ function convert_landuse()
 			if [[ -s "${CXR_OUTPUT_FILE}" ]]
 			then
 				main.log -w "File ${CXR_OUTPUT_FILE} exists - file will skipped."
-				continue
 			else
 				# Call the converter, collect sterr and stout
 				# 0 indicates stdout for logging
