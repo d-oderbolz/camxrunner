@@ -156,7 +156,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	pressure=fltarr(x_dim, y_dim, 24)
 	t=fltarr(x_dim, y_dim, 24)
 	
-	; we need the next arrays becase we need to interolate to the ground
+	; we need the next arrays becase we need to interpolate to the ground
 	total_pressure=fltarr(x_dim, y_dim, num_levels)
 	total_temperature=fltarr(x_dim, y_dim, num_levels)
 	total_height=fltarr(x_dim, y_dim, num_levels)
@@ -164,7 +164,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	; to read, we need the slices
 	pressure_slice=fltarr(x_dim, y_dim)
 	height_slice=fltarr(x_dim, y_dim)
-	t_slice=fltarr(x_dim, y_dim)
 	
 	; Open the input
 	openr,input_t,temp_file, /GET_LUN
@@ -173,7 +172,14 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 	;do loop for time
 	for i=0L,23 do begin
 	
-		;do loop for layers
+		; temperature comes in levels 
+		; Skip header of T file
+		skip_lun,input_t,1
+		
+		; read one slice
+		readf,input_t,total_temperature
+	
+		;do loop for layers (height & temp file)
 		for iver=0L,num_levels-1 do begin
 
 			; skip one line (timestamp)
@@ -185,19 +191,12 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,spec
 			; skip another line (timestamp) of the pressure file
 			skip_lun,input_zp,1
 			
-			; Skip header of T file
-			skip_lun,input_t,1
-			
-			; read one slice
-			readf,input_t,pressure_slice
-			readf,input_zp,t_slice
+			; Height data is second
+			readf,input_zp,pressure_slice
 			
 			; Fill the "Total" Arrays
 			total_height[0,0,iver] = height_slice
 			total_pressure[0,0,iver] = pressure_slice
-			
-			total_temperature[0,0,iver] = t_slice
-			
 
 		endfor ; layer
 
