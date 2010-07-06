@@ -625,7 +625,7 @@ function common.check.preconditions()
 			# is it set?
 			if [[ "${!output_dir}"  ]]
 			then
-				main.log -v   "Variable $output_dir has value: ${!output_dir}\n"
+				main.log -v "Variable $output_dir has value: ${!output_dir}\n"
 				
 				# Test length
 				if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
@@ -866,7 +866,7 @@ function common.check.preconditions()
 				fi
 			else
 				# Not there, OK
-				main.log -v   "File $output_file does not yet exist - Good."
+				main.log -v "File $output_file does not yet exist - Good."
 			fi
 		done
 		

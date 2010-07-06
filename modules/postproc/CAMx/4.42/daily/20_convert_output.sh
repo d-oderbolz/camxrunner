@@ -176,8 +176,6 @@ function set_variables()
 	CXR_KV_GRID_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE false)
 	# NO Emissions
 
-
-	
 	# Checks for the input
 	CXR_CHECK_THESE_INPUT_FILES="${CXR_AVG_INPUT_FILE} \
 								 ${CXR_ZP_GRID_INPUT_FILE} \
@@ -197,7 +195,7 @@ function set_variables()
 	# Create "real" arrays 
 	CXR_INPUT_FILES=($CXR_CHECK_THESE_INPUT_FILES)
 	CXR_OUTPUT_FILES=($CXR_CHECK_THESE_OUTPUT_FILES)
-
+	
 }
 
 ################################################################################
@@ -228,7 +226,7 @@ function convert_output()
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [[ $(common.check.preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			common.state.storeState ${CXR_STATE_ERROR}
@@ -290,15 +288,15 @@ function convert_output()
 			# Any existing file will be skipped (see comment in header)
 			if [[ -s "$output_file"  ]]
 			then
-				if [[ "${CXR_FORCE}" == true  ]] 
+				if [[ "${CXR_SKIP_EXISTING}" == true ]]
 				then
-					# Delete it
-					main.log   "File ${output_file} exists - since you run with the -f option, if will be deleted now"
-					rm -f "$output_file"
-				else
 					# Skip it
-					main.log   "File ${output_file} exists - file will skipped."
+					main.log "File ${output_file} exists - file will skipped."
 					continue
+				else
+					main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+					common.state.storeState ${CXR_STATE_ERROR}
+					return $CXR_RET_ERROR
 				fi
 			fi
 			

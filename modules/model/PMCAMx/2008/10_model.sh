@@ -650,10 +650,17 @@ function model()
 			do
 				if [[ -e "${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}" ]]
 				then
-					# Ups, we skip this one
-					main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
-					common.state.storeState ${CXR_STATE_STOP}
-					return $CXR_RET_OK
+					if [[ "${CXR_SKIP_EXISTING}" == true ]]
+					then
+						# Ups, we skip this one
+						main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
+						common.state.storeState ${CXR_STATE_STOP}
+						return $CXR_RET_OK
+					else
+						main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+						common.state.storeState ${CXR_STATE_ERROR}
+						return $CXR_RET_ERROR
+					fi
 				fi
 			done
 			
