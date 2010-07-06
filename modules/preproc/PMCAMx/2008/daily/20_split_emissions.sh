@@ -168,10 +168,12 @@ function split_emissions()
 		else
 			# File exists. That is generally bad,
 			# unless user wants to skip
-			if [[ "$CXR_SKIP_EXISTING" == true  ]]
+			if [[ "$CXR_SKIP_EXISTING" == true ]]
 			then
 				# Skip it
 				main.log -w  "File $CXR_SPLIT_EMISSIONS_OUTPUT_FILE exists, because of CXR_SKIP_EXISTING, file will skipped."
+				# Store the state
+				common.state.storeState ${CXR_STATE_STOP} > /dev/null
 				return 0
 			else
 				# Fail!

@@ -191,7 +191,7 @@ function name()
 			else
 				# Fail
 				main.log -e  "File ${OUTPUT_FILE} exists - to force the re-creation run ${CXR_CALL} -F"
-				common.state.storeState ${CXR_STATE_ERROR}
+				common.state.storeState ${CXR_STATE_ERROR}  > /dev/null
 				return $CXR_RET_ERROR
 			fi
 		fi
@@ -233,7 +233,7 @@ function name()
 		main.log -v   "Some verbose message here"
 	
 		# Store the state
-		common.state.storeState ${CXR_STATE_STOP} > /dev/null ${STAGE}
+		common.state.storeState ${CXR_STATE_STOP} > /dev/null
 	fi
 }
 
