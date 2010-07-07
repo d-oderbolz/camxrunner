@@ -40,10 +40,10 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; mm: month (character 2 digit)
 	; yyyy year (character 4 digit)
 	; hh: hour (character 2 digit)
-	; PM10: hourly	concentration ( µg/m³)	(REAL o INTEGER) 
-	; NO2 : hourly concentration (µg/m³)	. (REAL o INTEGER)
-	; NO : hourly concentration	(µg/m³) (REAL o INTEGER)
-	; O3: hourly concentration	( µg/m³)	(REAL o INTEGER)
+	; PM10: hourly	concentration ( ï¿½g/mï¿½)	(REAL o INTEGER) 
+	; NO2 : hourly concentration (ï¿½g/mï¿½)	. (REAL o INTEGER)
+	; NO : hourly concentration	(ï¿½g/mï¿½) (REAL o INTEGER)
+	; O3: hourly concentration	( ï¿½g/mï¿½)	(REAL o INTEGER)
 	
 	; Of course, the CXR_OUTPUT_SPECIES_NAMES must match this list here:
 	
@@ -211,7 +211,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			total_pressure[0,0,iver] = pressure_slice
 
 		endfor ; layer
-		
+
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
 		for iCol = 0, x_dim - 1 do begin
@@ -228,6 +228,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				;                                                                               We want the value at h=0
 			endfor ; rows
 		endfor ; columns
+>>>>>>> .r3888
 	
 	endfor ; time
 	
