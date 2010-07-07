@@ -221,6 +221,10 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			total_pressure[0,0,iver] = pressure_slice
 
 		endfor ; layer
+		
+		print,total_height
+		print,total_pressure
+		print,total_temperature
 
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
