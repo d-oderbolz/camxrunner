@@ -343,10 +343,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		 col = station_pos[0,station]
 		 row = station_pos[1,station]
 		 
-		 ;print,'Extracting meteo data for file ' + station_files(station) + ' at MM5 col ' + string(col) + ' row ' + string(row)
-		 
-		 p =  pressure[col,row,i]
-		 Temp = t[col,row,i]
+		 ; We support fractional indexes
+		 p =  bilinear(pressure[*,*,i],col,row)
+		 Temp = bilinear(t[*,*,i],col,row)
 		 
 		 V_n = ( R * Temp ) / p
 		 V_0 = ( R * T0 ) / p0
