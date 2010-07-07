@@ -224,7 +224,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			readf,input_zp,pressure_slice
 			
 			; Fill the "Total" Arrays
-			total_temp[0,0,iver] = height_slice
+			total_temperature[0,0,iver] = height_slice
 			total_height[0,0,iver] = height_slice
 			total_pressure[0,0,iver] = pressure_slice
 
