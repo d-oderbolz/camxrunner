@@ -313,6 +313,8 @@ function convert_output()
 			fi
 		done # File types
 
+		# go back
+		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 
 		# Check if all went well
 		# Postprocessor: we only terminate the module
@@ -325,7 +327,6 @@ function convert_output()
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 		
-		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 		common.state.storeState ${CXR_STATE_STOP} > /dev/null
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."

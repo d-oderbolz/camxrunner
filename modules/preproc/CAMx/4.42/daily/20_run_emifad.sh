@@ -198,7 +198,8 @@ function run_emifad()
 			main.log "This is a dryrun, no action required"
 		fi
 
-		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
+		# go back
+		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 
 		# Check if all went well
 		# Postprocessor: we only terminate the module

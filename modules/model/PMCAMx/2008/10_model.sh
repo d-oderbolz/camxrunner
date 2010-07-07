@@ -604,6 +604,9 @@ function execute_model()
 		# OK
 		retval=0
 	fi
+	
+	# go back
+	cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 
 	outfile=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE")
 	
@@ -614,11 +617,10 @@ function execute_model()
 	if [[ $retval -ne 0 ]]
 	then
 		common.state.storeState ${CXR_STATE_ERROR}
-		main.dieGracefully "CAMx has returned a non-zero status for $CXR_DATE"
+		main.log -w "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
-	# go back
-	cd ${CXR_RUN_DIR}
+
 }
 
 ################################################################################

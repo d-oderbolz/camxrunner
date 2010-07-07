@@ -371,8 +371,8 @@ function boundary_conditions()
 						main.log   "This is a dry-run, will not run program"
 					fi
 			
-					# Get back
-					cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
+					# go back
+					cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 			
 					# Decrease global indent level
 					main.decreaseLogIndent
@@ -400,8 +400,8 @@ function boundary_conditions()
 						main.log   "This is a dry-run, no action required"
 					fi
 					
-					# Get back
-					cd ${CXR_RUN_DIR} || common.state.storeState ${CXR_STATE_ERROR}
+					# go back
+					cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 				;;
 				
 			esac

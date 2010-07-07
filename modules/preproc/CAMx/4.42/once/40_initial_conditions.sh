@@ -378,7 +378,7 @@ function initial_conditions()
 					fi
 			
 					# Get back
-					cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
+					cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 			
 					# Decrease global indent level
 					main.decreaseLogIndent
