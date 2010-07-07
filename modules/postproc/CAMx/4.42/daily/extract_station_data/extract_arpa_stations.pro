@@ -218,7 +218,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			for jRow = 0, y_dim - 1 do begin
 				; Interpolate ground pressure and temperature
 				; Both temperature and pressure correspond to the hights
-				pressure[iCol,j,i] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],0)
+				pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],0)
 				;                                                                                   |
 				;                                                                               We want the value at h=0
 				
