@@ -299,7 +299,7 @@ function extract_station_data
 				;;
 				
 			extract_arpa_stations)
-				# Here, we also need an MM5 file for the pressure (for ppb conversion), 
+				# Here, we also need our ZP and Temp file (for ppb conversion), 
 				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
 				# We set this fag to 0 because currently we only run on the innermost domain
 				cat <<-EOF > $exec_tmp_file

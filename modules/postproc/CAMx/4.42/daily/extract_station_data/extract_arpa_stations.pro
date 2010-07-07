@@ -229,22 +229,31 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				; Interpolate ground pressure and temperature
 				; Both temperature and pressure correspond to the heights
 				
-				print,'Height[0]:',total_height[iCol,jRow,0]
-				print,'Height[1]:',total_height[iCol,jRow,1]
-				print,'Pressure[0]:',total_pressure[iCol,jRow,0]
-				print,'Pressure[1]:',total_pressure[iCol,jRow,1]
-				print,'Temp[0]:',total_temperature[iCol,jRow,0]
-				print,'Temp[1]:',total_temperature[iCol,jRow,1]
+				; We want to get the data at this height above ground
+				h0 = 0
 				
-				; Pressure interpolation
-				pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],0)
-				;                                                                                          |
-				;                                                                                       We want the value at h=0
+				; IDLs interpolate does not anticipate DIV0 errors,
+				; so we need to check for it:
 				
-				; Lets do the same for temperature
-				t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],0)
-				;                                                                                      |
-				;                                                                                   We want the value at h=0
+				if ( total_height[iCol,jRow,0] EQ  total_height[iCol,jRow,1] ) then begin
+				
+					; Pressure interpolation
+					pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],h0)
+	
+					; Lets do the same for temperature
+					t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],h0)
+
+				endif else begin
+					
+					; For some reason height[1] == height[0]
+					print,'WRN: Cannot interpolate at col ' + strtrim(iCol,2) + ' row ' + strtrim(jRow,2)
+					
+					; We use the lowest level
+					pressure[iCol,jRow,iHour] = total_pressure[iCol,jRow,0]
+					t[iCol,jRow,iHour] = total_temperature[iCol,jRow,0]
+					
+				endelse
+
 			endfor ; rows
 		endfor ; columns
 		
