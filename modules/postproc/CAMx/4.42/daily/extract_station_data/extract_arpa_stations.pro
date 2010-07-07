@@ -353,7 +353,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		 
 		 f_n = V_n / V_0
 		 
-		 ;print,'Extracting chemical data for file ' + station_files(station) + ' at CAMx col ' + string(station_pos[0,station]) + ' row ' + string(station_pos[1,station])
+		 print,'Extracting chemical data for file ' + station_files(station) + ' at CAMx col ' + string(station_pos[0,station]) + ' row ' + string(station_pos[1,station])
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
