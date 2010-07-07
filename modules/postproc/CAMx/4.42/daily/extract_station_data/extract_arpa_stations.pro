@@ -221,10 +221,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			total_pressure[0,0,iver] = pressure_slice
 
 		endfor ; layer
-		
-		print,total_height[*,*,0]
-		print,total_pressure[*,*,0]
-		print,total_temperature[*,*,0]
 
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
@@ -232,12 +228,12 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			for jRow = 0, y_dim - 1 do begin
 				; Interpolate ground pressure and temperature
 				; Both temperature and pressure correspond to the hights
-				pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],1)
+				pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],[0])
 				;                                                                                          |
 				;                                                                                       We want the value at h=0
 				
 				; Lets do the same for temperature
-				t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],1)
+				t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],[0])
 				;                                                                                      |
 				;                                                                                   We want the value at h=0
 			endfor ; rows
