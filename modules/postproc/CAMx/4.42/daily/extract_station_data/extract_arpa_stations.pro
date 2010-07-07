@@ -182,7 +182,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	openr,input_zp,zp_file, /GET_LUN
 	
 	;do loop for time
-	for i=0L,23 do begin
+	for iHour=0L,23 do begin
 	
 		; temperature comes in levels 
 		; Skip header of T file
@@ -211,30 +211,23 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			total_pressure[0,0,iver] = pressure_slice
 
 		endfor ; layer
-
-		; Interpolate ground pressure and temperature
-		; we have the pressure (that is our function of h)
-		; in total_pressure[i,j,k]
-		; the height are the interfarce heights. 
-		; We calculate the center height of the two lowest levels (our x values)
-		; (Assuming that these height correspond to the average pressure of each level)
-		x0 = total_height[*,*,0]/2
-		x1 = total_height[*,*,0] + ((total_height[*,*,1] - total_height[*,*,0])/2)
 		
-		; These are the corresponding pressures
-		y0 = total_pressure[*,*,0]
-		y1 = total_pressure[*,*,1]
-
-		; We want to get the value for a height of 0
-		x=replicate(0,x_dim, y_dim)
-		
-		pressure[0,0,i] = y0 + (x - x0)*((y1 - y0)/(x1 - x0))
-		
-		; Lets do the same for temperature
-		y0 = total_temperature[*,*,0]
-		y1 = total_temperature[*,*,1]
-		
-		t[0,0,i] = y0 + (x - x0)*((y1 - y0)/(x1 - x0))
+		; For the vertical interpolation, we use 1D Interpolation
+		; Therefore, we need to loop (is there a better way??)
+		for iCol = 0, x_dim - 1 do begin
+			for jRow = 0, y_dim - 1 do begin
+				; Interpolate ground pressure and temperature
+				; Both temperature and pressure correspond to the hights
+				pressure[iCol,j,i] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],0)
+				;                                                                                   |
+				;                                                                               We want the value at h=0
+				
+				; Lets do the same for temperature
+				t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],0)
+				;                                                                                      |
+				;                                                                               We want the value at h=0
+			endfor ; rows
+		endfor ; columns
 	
 	endfor ; time
 	
