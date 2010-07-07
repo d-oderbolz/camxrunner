@@ -1,4 +1,4 @@
-﻿pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
 	;
 	; Function: extract_arpa_stations
 	;
@@ -40,10 +40,10 @@
 	; mm: month (character 2 digit)
 	; yyyy year (character 4 digit)
 	; hh: hour (character 2 digit)
-	; PM10: hourly	concentration ( �g/m�)	(REAL o INTEGER) 
-	; NO2 : hourly concentration (�g/m�)	. (REAL o INTEGER)
-	; NO : hourly concentration	(�g/m�) (REAL o INTEGER)
-	; O3: hourly concentration	( �g/m�)	(REAL o INTEGER)
+	; PM10: hourly	concentration ( ?g/m?)	(REAL o INTEGER) 
+	; NO2 : hourly concentration (?g/m?)	. (REAL o INTEGER)
+	; NO : hourly concentration	(?g/m?) (REAL o INTEGER)
+	; O3: hourly concentration	( ?g/m?)	(REAL o INTEGER)
 	
 	; Of course, the CXR_OUTPUT_SPECIES_NAMES must match this list here:
 	
