@@ -338,31 +338,29 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		; loop through the stations
 		for station=0L,num_stations-1 do begin
 		
-		 ; All gasses need to be converted to microg/m3 (from ppm)
-		 ; using this approach:
-		 ; microg/m3 = 1000 * ppm * (M/V_n) * f_n where M is the Molar weight [g/mole] of the species
-		 ; and V_n is the molar volume (the volume of one mole) [L/mole], 
-		 ; f_n is a correction factor to translate the concontration to to norm conditions of 0 deg C and 1013 hPa
-		 ;
-		 ; V_n = ( R * T ) / p where R = 8.314472 J K-1 mol-1 (CODATA)
-		 ;
-		 ; We do it for all gasses, even if we need only 3 of them for future reference
-		 ; Aerosols are corrected for norm concentrations
-		 
-		 ; Where do we look
-		 col = station_pos[0,station]
-		 row = station_pos[1,station]
-		 
-		 ; We support fractional indexes
-		 p =  bilinear(pressure[*,*,i],col,row)
-		 Temp = bilinear(t[*,*,i],col,row)
-		 
-		 V_n = ( R * Temp ) / p
-		 V_0 = ( R * T0 ) / p0
-		 
-		 f_n = V_n / V_0
-		 
-		 print,'Extracting chemical data for file ' + station_files[station] + ' at CAMx col ' + string(station_pos[0,station]) + ' row ' + string(station_pos[1,station])
+			; All gasses need to be converted to microg/m3 (from ppm)
+			; using this approach:
+			; microg/m3 = 1000 * ppm * (M/V_n) * f_n where M is the Molar weight [g/mole] of the species
+			; and V_n is the molar volume (the volume of one mole) [L/mole], 
+			; f_n is a correction factor to translate the concontration to to norm conditions of 0 deg C and 1013 hPa
+			;
+			; V_n = ( R * T ) / p where R = 8.314472 J K-1 mol-1 (CODATA)
+			;
+			; We do it for all gasses, even if we need only 3 of them for future reference
+			; Aerosols are corrected for norm concentrations
+			
+			; Where do we look
+			col = station_pos[0,station]
+			row = station_pos[1,station]
+			
+			; We support fractional indexes
+			p =  bilinear(pressure[*,*,i],col,row)
+			Temp = bilinear(t[*,*,i],col,row)
+			
+			V_n = ( R * Temp ) / p
+			V_0 = ( R * T0 ) / p0
+			
+			f_n = V_n / V_0
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
