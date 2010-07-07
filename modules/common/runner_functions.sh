@@ -321,7 +321,7 @@ function common.runner.reportDimensions()
 # ABSOLUTELY use this parameter for any OUTPUT_FILE because if the output would have been 
 # compressed, CAMxRunner would decompress it, wich makes no sense.
 #
-# The evaluator tests if the resulting dirname exists. This is needed if your rules
+# The evaluator tests if the resulting dirname exists (_FILE_RULE only). This is needed if your rules
 # contain things like /${VAR}/... because we have no way of knowing this name in the checker.
 #
 # To be on the safe side, quote the call (double quotes!)
@@ -386,43 +386,48 @@ function common.runner.evaluateRule()
 		
 		# *_FILE_RULE might be compressed
 		# Does the name of the rule end in _FILE_RULE ?
-		if [[ "${rule_name: -10}" == "_FILE_RULE"  ]]
+		if [[ "${rule_name: -10}" == "_FILE_RULE" ]]
 		#                 ¦
 		# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
-			if [[ "${try_decompression}" == true  ]]
+			if [[ "${try_decompression}" == true ]]
 			then
-		
 				# Try to decompress
 				expansion=$(common.fs.TryDecompressingFile $expansion)
-				
 			else
 				main.log -v  "No decompression attempted."
 			fi # try_decompression
 		fi
-		
 		main.log -v  "Evaluated rule: $expansion"
-	
 	fi
 	
 	# Test if expansion is empty but shouldn't
-	if [[  -z "$expansion" && "$allow_empty" == false ]]
+	if [[ -z "$expansion" ]]
 	then
-		# Empty not allowed
-		main.dieGracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
-	else
-		# Empty allowed. Test if the dirname exists
-		expansion_dir="$(dirname "$expansion")"
-		if [[ ! -d "${expansion_dir}" ]]
+		# Empty
+		if [[ $allow_empty" == false ]]
 		then
-			# Dirname does not exists
-			main.log -w "Dir $expansion_dir does not exist - creating it..."
-			mkdir -p "$expansion_dir"
+			# Empty not allowed
+			main.dieGracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+		fi
+	else
+		# Not empty. Test if the dirname exists, but only if its a FILE_RULE
+		# Does the name of the rule end in _FILE_RULE ?
+		if [[ "${rule_name: -10}" == "_FILE_RULE" ]]
+		#                 ¦
+		# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+		then
+			expansion_dir="$(dirname "$expansion")"
+			if [[ ! -d "${expansion_dir}" ]]
+			then
+				# Dirname does not exists
+				main.log -w "Dir $expansion_dir does not exist - creating it..."
+				mkdir -p "$expansion_dir"
+			fi
 		fi
 	fi
 	
 	echo "$expansion"
-	
 }
 
 ################################################################################
