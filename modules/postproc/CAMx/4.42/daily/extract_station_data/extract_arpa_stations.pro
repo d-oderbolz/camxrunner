@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
+﻿pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
 	;
 	; Function: extract_arpa_stations
 	;
@@ -228,8 +228,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				;                                                                               We want the value at h=0
 			endfor ; rows
 		endfor ; columns
->>>>>>> .r3888
-	
+		
 	endfor ; time
 	
 	; Close files
