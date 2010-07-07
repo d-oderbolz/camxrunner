@@ -186,6 +186,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; to read, we need the slices
 	pressure_slice=fltarr(x_dim, y_dim)
 	height_slice=fltarr(x_dim, y_dim)
+	temp_slice=fltarr(x_dim, y_dim)
 	
 	; Open the input
 	openr,input_t,temp_file, /GET_LUN
@@ -198,12 +199,18 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		; Skip header of T file
 		skip_lun,input_t,1
 		
-		; read one slice
-		readf,input_t,total_temperature
+		; read surface temp
+		readf,input_t,t[0,0,iHour]
 	
 		;do loop for layers (height & temp file)
 		for iver=0L,num_levels-1 do begin
-
+			
+			; skip next temp header
+			skip_lun,input_t,1
+			
+			; This is the height-dependent portion
+			readf,input_t,temp_slice
+			
 			; skip one line (timestamp)
 			skip_lun,input_zp,1
 			
@@ -217,6 +224,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			readf,input_zp,pressure_slice
 			
 			; Fill the "Total" Arrays
+			total_temp[0,0,iver] = height_slice
 			total_height[0,0,iver] = height_slice
 			total_pressure[0,0,iver] = pressure_slice
 
@@ -240,9 +248,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 					; Pressure interpolation
 					pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],h0)
 	
-					; Lets do the same for temperature
-					t[iCol,jRow,iHour] = interpol(total_temperature[iCol,jRow,*],total_height[iCol,jRow,*],h0)
-
 				endif else begin
 					
 					; For some reason height[1] == height[0]
@@ -250,7 +255,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 					
 					; We use the lowest level
 					pressure[iCol,jRow,iHour] = total_pressure[iCol,jRow,0]
-					t[iCol,jRow,iHour] = total_temperature[iCol,jRow,0]
 					
 				endelse
 
@@ -264,7 +268,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	free_lun,input_zp
 	
 	stop
-	
+
 	; Convert pressure in mb to Pascal
 	pressure = pressure * mb2pa
 	
