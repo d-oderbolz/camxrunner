@@ -235,7 +235,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				; IDLs interpolate does not anticipate DIV0 errors,
 				; so we need to check for it:
 				
-				if ( total_height[iCol,jRow,0] EQ  total_height[iCol,jRow,1] ) then begin
+				if ( total_height[iCol,jRow,0] NE total_height[iCol,jRow,1] ) then begin
 				
 					; Pressure interpolation
 					pressure[iCol,jRow,iHour] = interpol(total_pressure[iCol,jRow,*],total_height[iCol,jRow,*],h0)
