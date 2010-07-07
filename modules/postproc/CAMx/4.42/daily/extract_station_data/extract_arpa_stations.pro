@@ -263,6 +263,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	free_lun,input_t
 	free_lun,input_zp
 	
+	stop
+	
 	; Convert pressure in mb to Pascal
 	pressure = pressure * mb2pa
 	
