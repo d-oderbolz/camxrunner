@@ -369,7 +369,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 					print,'O3:2.00' 
 				endif
 				
-			end if 
+			endif 
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
