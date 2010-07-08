@@ -323,13 +323,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		for station=0L,num_stations-1 do begin
 		
 			; All gasses need to be converted to microg/m3 (from ppm)
-			; using this approach:
-			; microg/m3 = 1000 * ppm * (M/V_n) * f_n where M is the Molar weight [g/mol] of the species
-			; and V_n is the molar volume at current conditions (the volume of one mol) [m**3/mol], 
-			; f_n is a correction factor to translate the concentration to to norm conditions (defined in the header)
-			;
-			; V_n = ( R * T ) / p where R = 8.314472 J K-1 mol-1 (CODATA)
-			;
+			; and corrected for STP
 			; Aerosols are not corrected for norm conditions
 			
 			; Where do we look
@@ -343,17 +337,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			; conversion from ppb to ug/m**3
 			ppb2ugm = p / ( R * Temp )
 			
-			
 			fn = (T0 / Temp) * (p / p0)
 			
-			if (V_n EQ 0) then begin
-				print,'WRN: V_n is zero at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
-				V_n = V_0
-			endif
-			
-			if (~Finite(V_n)) then begin
-				print,'WRN: V_n is non-finite at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
-				V_n = V_0
+			if (~Finite(ppb2ugm)) then begin
+				print,'WRN: ppb2ugm is non-finite at time ' + strtrim(iHour,2)  + ', using norm values at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				ppb2ugm = p0 / ( R * T0 )
 			endif
 			
 			if (~Finite(f_n)) then begin
