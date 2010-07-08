@@ -198,7 +198,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		skip_lun,input_t,1
 		
 		; read surface temp
-		readf,input_t,t[0,0,iHour]
+		readf,input_t,temp_slice
+		
+		t[0,0,iHour]=temp_slice
 	
 		;do loop for layers (height & temp file)
 		for iver=0L,num_levels-1 do begin
@@ -378,13 +380,16 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			p =  bilinear(pressure[*,*,iHour],col,row)
 			Temp = bilinear(t[*,*,iHour],col,row)
 			
-			print,Temp
-			
 			V_n = ( R * Temp ) / p
 			V_0 = ( R * T0 ) / p0
 			
 			if (V_n EQ 0) then begin
 				print,'WRN: V_n is zero at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				V_n = V_0
+			endif
+			
+			if (~Finite(V_n) then begin
+				print,'WRN: V_n is non-finite at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
 				V_n = V_0
 			endif
 			
