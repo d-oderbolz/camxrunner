@@ -408,7 +408,7 @@ function common.runner.evaluateRule()
 		if [[ $allow_empty" == false ]]
 		then
 			# Empty not allowed
-			main.dieGracefully "Rule $rule_name ($rule) was expanded to the empty string which is not allowed in this context!"
+			main.dieGracefully "Rule $rule_name was expanded to the empty string which is not allowed in this context!"
 		fi
 	else
 		# Not empty. Test if the dirname exists, but only if its a FILE_RULE
