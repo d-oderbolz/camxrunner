@@ -340,9 +340,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			p =  bilinear(pressure[*,*,iHour],col,row)
 			Temp = bilinear(t[*,*,iHour],col,row)
 			
-			; Molar Volume at current conditions
-			V_n = ( R * Temp ) / p
-			V_0 = ( R * T0 ) / p0
+			; conversion from ppb to ug/m**3
+			ppb2ugm = p / ( R * Temp )
+			
 			
 			fn = (T0 / Temp) * (p / p0)
 			
@@ -356,11 +356,16 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				V_n = V_0
 			endif
 			
+			if (~Finite(f_n)) then begin
+				print,'WRN: f_n is non-finite at time ' + strtrim(iHour,2)  + ', using 1 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				f_n = 1
+			endif
+			
 			if (iHour EQ 0) then begin
 				print,'Correction factors for hour 0 for file ' + stations[2,station]
-				print,'NO:' + strtrim(( M_NO / V_n) * f_n,2)
-				print,'NO2:' + strtrim(( M_NO2 / V_n) * f_n,2)
-				print,'O3:' + strtrim(( M_O3 / V_n) * f_n,2)
+				print,'NO:' + strtrim(M_NO * ppb2ugm * f_n,2)
+				print,'NO2:' + strtrim(M_NO2 * ppb2ugm * f_n,2)
+				print,'O3:' + strtrim(M_O3 * ppb2ugm  * f_n,2)
 				
 				if (station EQ 0) then begin
 					print,'Factors used by NABEL < 1500 masl: (NABEL,2007)'
@@ -373,19 +378,19 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
-				no=station_conc[species->get('NO'),station] * 1000 * ( M_NO / V_n) * f_n
+				no=station_conc[species->get('NO'),station] * 1000 * M_NO * ppb2ugm * f_n
 			endif else begin
 				no=0
 			endelse
 
 			if (species->iscontained('NO2')) then begin
-				no2=station_conc[species->get('NO2'),station] * 1000 * ( M_NO2 / V_n) * f_n
+				no2=station_conc[species->get('NO2'),station] * 1000 * M_NO2 * ppb2ugm * f_n
 			endif else begin
 				no2=0
 			endelse
 			
 			if (species->iscontained('O3')) then begin
-				o3=station_conc[species->get('O3'),station] * 1000 * ( M_O3 / V_n) * f_n
+				o3=station_conc[species->get('O3'),station] * 1000 *  M_O3 * ppb2ugm * f_n
 			endif else begin
 				o3=0
 			endelse
