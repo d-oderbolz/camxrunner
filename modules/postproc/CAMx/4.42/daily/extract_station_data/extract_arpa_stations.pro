@@ -337,7 +337,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			; conversion from ppb to ug/m**3
 			ppb2ugm = p / ( R * Temp )
 			
-			fn = (T0 / Temp) * (p / p0)
+			f_n = (T0 / Temp) * (p / p0)
 			
 			if (~Finite(ppb2ugm)) then begin
 				print,'WRN: ppb2ugm is non-finite at time ' + strtrim(iHour,2)  + ', using norm values at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
