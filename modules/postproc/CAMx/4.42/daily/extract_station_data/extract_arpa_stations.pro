@@ -356,7 +356,20 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			
 			f_n = V_n / V_0
 			
-			if iHour EQ 0 then print,'NO:' + strtrim(( M_NO / V_n) * f_n,2)
+			if (iHour EQ 0) then begin
+				print,'Correction factors for hour 0 at station' + stations[2,station]
+				print,'NO:' + strtrim(( M_NO / V_n) * f_n,2)
+				print,'NO2:' + strtrim(( M_NO2 / V_n) * f_n,2)
+				print,'O3:' + strtrim(( M_O3 / V_n) * f_n,2)
+				
+				if (station EQ 0) then begin
+					print,'Factors used by NABEL < 1500 masl: (NABEL,2007)'
+					print,'NO: 1.25'
+					print,'NO2:1.91'
+					print,'O3:2.00' 
+				endif
+				
+			end if 
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
