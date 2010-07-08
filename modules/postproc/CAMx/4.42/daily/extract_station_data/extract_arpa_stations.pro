@@ -287,8 +287,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; We generate 0..n-1 and then add 1 to each element (Luns go 1..99)
 	station_luns=INDGEN(num_stations) + 1
 	
-	;z, species, hours, station
-	z=fltArr(num_levels,num_input_species,24,num_stations)
+	; contains the lowest levels avg concentrations for the current hour
+	; at the corrdinates of the stations
+	station_conc=fltArr(num_input_species,num_stations)
 	
 	; Open the input
 	openr,input_lun,input_file, /GET_LUN
@@ -320,13 +321,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	endfor
 	
 	;skip informational data and species
-	
-	
 	skip_lun, input_lun,head_length, /LINES
 	;
 	;do loop for time
 	;
-	for i=0L,23 do begin
+	for iHour=0L,23 do begin
 	
 		skip_lun, input_lun,1, /LINES
 		;
@@ -341,17 +340,19 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				
 				; We let IDL work out the format
 				readf,input_lun,conc_slice,format=fmt
-					
-				; loop through the stations and do the interpolation
-				for station=0L,num_stations-1 do begin
 				
-					;ix=44.62
-					;jy=73.26
-					;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
-					; bilinear allows us to retrieve decimal indices
-					z[iver,ispec,i,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+				; We are only interested in ground level 
+				if ( iver EQ 0) then begin
 					
-				endfor ; stations
+					; loop through the stations and do the interpolation
+					for station=0L,num_stations-1 do begin
+	
+						; bilinear allows us to retrieve decimal indices
+						station_conc[ispec,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+						
+					endfor ; stations
+				
+				endif
 			endfor ; layers
 		endfor ; species
 		
@@ -367,56 +368,43 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			; V_n = ( R * T ) / p where R = 8.314472 J K-1 mol-1 (CODATA)
 			;
 			; We do it for all gasses, even if we need only 3 of them for future reference
-			; Aerosols are corrected for norm concentrations
+			; Aerosols are corrected for norm conditions
 			
 			; Where do we look
 			col = station_pos[0,station]
 			row = station_pos[1,station]
 			
 			; We support fractional indexes
-			p =  bilinear(pressure[*,*,i],col,row)
-			Temp = bilinear(t[*,*,i],col,row)
+			p =  bilinear(pressure[*,*,iHour],col,row)
+			Temp = bilinear(t[*,*,iHour],col,row)
+			
+			print,Temp
 			
 			V_n = ( R * Temp ) / p
 			V_0 = ( R * T0 ) / p0
 			
-			; Find any volumes that are 0
-			indexes = WHERE(V_n EQ 0, count)
-			
-			if count ne 0 then begin
-				print,'WRN: V_n is zero sometimes, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
-				print,'p:'
-				print,p
-				print,'V_n:'
-				print,V_n
-				V_n[indexes] = V_0
-			endif
-			
-			; Are there any non-finite V_ns?
-			indexes = WHERE(~FINITE(V_n), count)
-			
-			if count ne 0 then begin
-				print,'WRN: V_n is not finite sometimes, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
-				V_n[indexes] = V_0
+			if (V_n EQ 0) then begin
+				print,'WRN: V_n is zero at time ' + strtrim(,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				V_n = V_0
 			endif
 			
 			f_n = V_n / V_0
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
-				no=z[0,species->get('NO'),i,station] * 1000 * ( M_NO / V_n) * f_n
+				no=station_conc[species->get('NO'),station] * 1000 * ( M_NO / V_n) * f_n
 			endif else begin
 				no=0
 			endelse
 
 			if (species->iscontained('NO2')) then begin
-				no2=z[0,species->get('NO2'),i,station] * 1000 * ( M_NO2 / V_n) * f_n
+				no2=station_conc[species->get('NO2'),station] * 1000 * ( M_NO2 / V_n) * f_n
 			endif else begin
 				no2=0
 			endelse
 			
 			if (species->iscontained('O3')) then begin
-				o3=z[0,species->get('O3'),i,station] * 1000 * ( M_O3 / V_n) * f_n
+				o3=station_conc[species->get('O3'),station] * 1000 * ( M_O3 / V_n) * f_n
 			endif else begin
 				o3=0
 			endelse
@@ -424,127 +412,127 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			; Start of aerosol species (already in proper unit - but need correction to norm conditions)
 			
 			if (species->iscontained('PH2O')) then begin
-				ph2o=z[0,species->get('PH2O'),i,station] * f_n
+				ph2o=station_conc[species->get('PH2O'),station] * f_n
 			endif else begin
 				ph2o=0
 			endelse
 			
 			if (species->iscontained('PNO3')) then begin
-				pno3=z[0,species->get('PNO3'),i,station] * f_n
+				pno3=station_conc[species->get('PNO3'),station] * f_n
 			endif else begin
 				pno3=0
 			endelse
 			
 			if (species->iscontained('PSO4')) then begin
-				pso4=z[0,species->get('PSO4'),i,station] * f_n
+				pso4=station_conc[species->get('PSO4'),station] * f_n
 			endif else begin
 				pso4=0
 			endelse
 			
 			if (species->iscontained('PNH4')) then begin
-				pnh4=z[0,species->get('PNH4'),i,station] * f_n
+				pnh4=station_conc[species->get('PNH4'),station] * f_n
 			endif else begin
 				pnh4=0
 			endelse
 			
 			if (species->iscontained('POA')) then begin
-				poa=z[0,species->get('POA'),i,station] * f_n
+				poa=station_conc[species->get('POA'),station] * f_n
 			endif else begin
 				poa=0
 			endelse
 			
 			if (species->iscontained('PEC')) then begin
-				pec=z[0,species->get('PEC'),i,station] * f_n
+				pec=station_conc[species->get('PEC'),station] * f_n
 			endif else begin
 				pec=0
 			endelse
 			
 			if (species->iscontained('SOA1')) then begin
-				soa1=z[0,species->get('SOA1'),i,station] * f_n
+				soa1=station_conc[species->get('SOA1'),station] * f_n
 			endif else begin
 				soa1=0
 			endelse
 			
 			if (species->iscontained('SOA2')) then begin
-				soa2=z[0,species->get('SOA2'),i,station] * f_n
+				soa2=station_conc[species->get('SOA2'),station] * f_n
 			endif else begin
 				soa2=0
 			endelse
 			
 			if (species->iscontained('SOA3')) then begin
-				soa3=z[0,species->get('SOA3'),i,station] * f_n
+				soa3=station_conc[species->get('SOA3'),station] * f_n
 			endif else begin
 				soa3=0
 			endelse
 			
 			if (species->iscontained('SOA4')) then begin
-				soa4=z[0,species->get('SOA4'),i,station] * f_n
+				soa4=station_conc[species->get('SOA4'),station] * f_n
 			endif else begin
 				soa4=0
 			endelse
 			
 			if (species->iscontained('SOA5')) then begin
-				soa5=z[0,species->get('SOA5'),i,station] * f_n
+				soa5=station_conc[species->get('SOA5'),station] * f_n
 			endif else begin
 				soa5=0
 			endelse
 			
 			if (species->iscontained('SOA6')) then begin
-				soa6=z[0,species->get('SOA6'),i,station] * f_n
+				soa6=station_conc[species->get('SOA6'),station] * f_n
 			endif else begin
 				soa6=0
 			endelse
 			
 			if (species->iscontained('SOA7')) then begin
-				soa7=z[0,species->get('SOA7'),i,station] * f_n
+				soa7=station_conc[species->get('SOA7'),station] * f_n
 			endif else begin
 				soa7=0
 			endelse
 			
 			if (species->iscontained('SOPA')) then begin
-				sopa=z[0,species->get('SOPA'),i,station] * f_n
+				sopa=station_conc[species->get('SOPA'),station] * f_n
 			endif else begin
 				sopa=0
 			endelse
 			
 			if (species->iscontained('SOPB')) then begin
-				sopb=z[0,species->get('SOPB'),i,station] * f_n
+				sopb=station_conc[species->get('SOPB'),station] * f_n
 			endif else begin
 				sopb=0
 			endelse
 			
 			if (species->iscontained('NA')) then begin
-				na	=z[0,species->get('NA'),i,station] * f_n
+				na	=station_conc[species->get('NA'),station] * f_n
 			endif else begin
 				na=0
 			endelse
 			
 			if (species->iscontained('PCL')) then begin
-				pcl =z[0,species->get('PCL'),i,station] * f_n
+				pcl =station_conc[species->get('PCL'),station] * f_n
 			endif else begin
 				pcl=0
 			endelse
 			
 			if (species->iscontained('FPRM')) then begin
-				fprm=z[0,species->get('FPRM'),i,station] * f_n
+				fprm=station_conc[species->get('FPRM'),station] * f_n
 			endif else begin
 				fprm=0
 			endelse
 			
 			if (species->iscontained('FCRS')) then begin
-				fcrs=z[0,species->get('FCRS'),i,station] * f_n
+				fcrs=station_conc[species->get('FCRS'),station] * f_n
 			endif else begin
 				fcrs=0
 			endelse
 			
 			if (species->iscontained('CPRM')) then begin
-				cprm=z[0,species->get('CPRM'),i,station] * f_n
+				cprm=station_conc[species->get('CPRM'),station] * f_n
 			endif else begin
 				cprm=0
 			endelse
 			
 			if (species->iscontained('CCRS')) then begin
-				ccrs=z[0,species->get('CCRS'),i,station] * f_n
+				ccrs=station_conc[species->get('CCRS'),station] * f_n
 			endif else begin
 				ccrs=0
 			endelse
@@ -568,9 +556,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	
 	; close all output files
 	for i=0L,num_stations-1 do begin
-	
 		free_lun,station_luns[i]
-		
 	endfor
 	
 	; And the input 
