@@ -405,7 +405,7 @@ function common.runner.evaluateRule()
 	if [[ -z "$expansion" ]]
 	then
 		# Empty
-		if [[ $allow_empty" == false ]]
+		if [[ "$allow_empty" == false ]]
 		then
 			# Empty not allowed
 			main.dieGracefully "Rule $rule_name was expanded to the empty string which is not allowed in this context!"
