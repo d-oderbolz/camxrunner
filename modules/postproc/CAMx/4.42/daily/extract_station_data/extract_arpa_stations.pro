@@ -388,7 +388,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				V_n = V_0
 			endif
 			
-			if (~Finite(V_n) then begin
+			if (~Finite(V_n)) then begin
 				print,'WRN: V_n is non-finite at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
 				V_n = V_0
 			endif
