@@ -324,14 +324,13 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		
 			; All gasses need to be converted to microg/m3 (from ppm)
 			; using this approach:
-			; microg/m3 = 1000 * ppm * (M/V_n) * f_n where M is the Molar weight [g/mole] of the species
-			; and V_n is the molar volume (the volume of one mole) [L/mole], 
-			; f_n is a correction factor to translate the concontration to to norm conditions of 0 deg C and 1013 hPa
+			; microg/m3 = 1000 * ppm * (M/V_n) * f_n where M is the Molar weight [g/mol] of the species
+			; and V_n is the molar volume at current conditions (the volume of one mol) [m**3/mol], 
+			; f_n is a correction factor to translate the concentration to to norm conditions (defined in the header)
 			;
 			; V_n = ( R * T ) / p where R = 8.314472 J K-1 mol-1 (CODATA)
 			;
-			; We do it for all gasses, even if we need only 3 of them for future reference
-			; Aerosols are corrected for norm conditions
+			; Aerosols are not corrected for norm conditions
 			
 			; Where do we look
 			col = station_pos[0,station]
@@ -341,8 +340,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			p =  bilinear(pressure[*,*,iHour],col,row)
 			Temp = bilinear(t[*,*,iHour],col,row)
 			
+			; Molar Volume at current conditions
 			V_n = ( R * Temp ) / p
 			V_0 = ( R * T0 ) / p0
+			
+			fn = (T0 / Temp) * (p / p0)
 			
 			if (V_n EQ 0) then begin
 				print,'WRN: V_n is zero at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
@@ -354,10 +356,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				V_n = V_0
 			endif
 			
-			f_n = V_n / V_0
-			
 			if (iHour EQ 0) then begin
-				print,'Correction factors for hour 0 at station' + stations[2,station]
+				print,'Correction factors for hour 0 for file ' + stations[2,station]
 				print,'NO:' + strtrim(( M_NO / V_n) * f_n,2)
 				print,'NO2:' + strtrim(( M_NO2 / V_n) * f_n,2)
 				print,'O3:' + strtrim(( M_O3 / V_n) * f_n,2)
