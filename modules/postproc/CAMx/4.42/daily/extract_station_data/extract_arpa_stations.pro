@@ -404,9 +404,12 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			V_n = ( R * Temp ) / p
 			V_0 = ( R * T0 ) / p0
 			
-			if ( V_n EQ 0 ) then begin
-				print,'WRN: V_n is zero, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
-				V_n = V_0
+			; Find any volumes that are 0
+			indexes = WHERE(V_n EQ 0, count)
+			
+			if count ne 0 then begin
+				print,'WRN: V_n is zero sometimes, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				V_n[indexes] = V_0
 			endif
 			
 			f_n = V_n / V_0
