@@ -808,6 +808,7 @@ function common.module.updateInfo()
 		then
 			# User did not supply any settings
 			main.log -a "It seems that module info is up-to-date. If not, touch $CXR_CONFIG and rerun"
+			CXR_MODULES_UP_TO_DATE=true
 			return $CXR_RET_OK
 		fi
 	fi
@@ -924,12 +925,11 @@ function common.module.updateInfo()
 				common.user.showProgress
 				
 				module_name="$(main.getModuleName $file)"
-				main.log -v  "Adding module $module_name in $file"
 				
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 				then
-					main.dieGracefully "There seem to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+					main.dieGracefully "There seems to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
 				fi
 				
 				# Path 

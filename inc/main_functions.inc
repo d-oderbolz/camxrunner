@@ -1115,11 +1115,10 @@ function main.getModuleName()
 {
 	local full_name
 	local module_name
-	local index_us
 	
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a string (the long module name) as input."
+		main.dieGracefully "needs a string (the long module name with or without path) as input."
 	fi	
 	
 	full_name=${1}
