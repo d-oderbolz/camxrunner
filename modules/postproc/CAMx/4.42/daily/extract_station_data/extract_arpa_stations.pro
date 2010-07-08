@@ -228,30 +228,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 
 		endfor ; layer
 		
-		@graphical_settings
-		
-		; Plot vertical structure
-		filename_ps='~/@plot/vertical_' + strtrim(iHour,2) + '.ps'
-		filename_pdf=STRMID(filename_ps,0,STRLEN(filename_ps)-3) + '.pdf'
-		
-		set_plot,'PS'
-		device,filename=filename_ps, /color,  XSize = a4_xsize_p, YSize = a4_ysize_p,XOffset = a4_x_offset, YOffset = a4_y_offset, /Helvetica
-		
-		!P.Region = [0,0,0.9,0.5]
-		
-		; Rigi
-		plot,total_height[68,57,*],total_pressure[68,57,*],xtitle='Height (m agl)',ytitle='Pressure (mbar)',subtitle='Rigi'
-		plot,total_height[68,57,*],total_temperature[68,57,*],xtitle='Height (m agl)',ytitle='Temperature (K)',subtitle='Rigi'
-		
-		; Zurich
-		plot,total_height[68,68,*],total_pressure[68,68,*],xtitle='Height (m agl)',ytitle='Pressure (mbar)',subtitle='Zuerich'
-		plot,total_height[68,68,*],total_temperature[68,68,*],xtitle='Height (m agl)',ytitle='Temperature (K)',subtitle='Zuerich'
-		
-		device, /close
-		set_plot,'X'
-		
-		spawn,'/usr/bin/ps2pdf ' + filename_ps + ' ' + filename_pdf
-
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
 		for iCol = 0, x_dim - 1 do begin
@@ -262,7 +238,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				; We want to get the data at this height above ground
 				h0 = 0
 				
-				; IDLs interpolate does not anticipate DIV0 errors,
+				; IDLs interpolate does not anticipate DIV/0 errors,
 				; so we need to check for it:
 				
 				if ( total_height[iCol,jRow,0] NE total_height[iCol,jRow,1] ) then begin
@@ -409,6 +385,10 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			
 			if count ne 0 then begin
 				print,'WRN: V_n is zero sometimes, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				print,'p:'
+				print,p
+				print,'V_n:'
+				print,V_n
 				V_n[indexes] = V_0
 			endif
 			
