@@ -236,7 +236,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		filename_ps='~/@plot/vertical_' + strtrim(iHour,2)
 		filename_pdf=STRMID(filename_ps,0,STRLEN(filename_ps)-3) + '.pdf'
 		
-		device,filename=filename_ps, XSize = a4_xsize_p, YSize = a4_ysize_p,XOffset = a4_x_offset, YOffset = a4_y_offset, /Helvetica
+		set_plot,'PS'
+		device,filename=filename_ps, /color,  XSize = a4_xsize_p, YSize = a4_ysize_p,XOffset = a4_x_offset, YOffset = a4_y_offset, /Helvetica
 		
 		; Rigi
 		plot,total_height[68,57,*],total_pressure[68,57,*],ytitle='Height (m agl)',xtitle='Pressure (mbar)',subtitle='Rigi'
@@ -247,6 +248,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		plot,total_height[68,68,*],total_temperature[68,68,*],ytitle='Height (m agl)',xtitle='Temperature (K)',subtitle='Zuerich'
 		
 		device, /close
+		set_plot,'X'
 		
 		pawn,'/usr/bin/ps2pdf ' + filename_ps + ' ' + filename_pdf
 
