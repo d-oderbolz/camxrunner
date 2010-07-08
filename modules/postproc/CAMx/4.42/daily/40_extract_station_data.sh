@@ -129,9 +129,13 @@ function set_variables()
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
 
+	main.log -a "Configuring station data"
+
 	# Station dependent data
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
+		common.user.showProgress
+		
 		# Needed to expand the file rule
 		station=${CXR_STATION[${iStation}]}
 		
