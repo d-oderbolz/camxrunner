@@ -551,7 +551,7 @@ function main.doCleanup()
 		common.runner.releaseAllLocks
 		
 		# Delete the instance files
-		common.state.deleteInstanceData
+		rm -rf ${CXR_INSTANCE_DIR:-/dev/null} >/dev/null 2>&1
 
 	fi
 	

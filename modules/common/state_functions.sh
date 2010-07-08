@@ -215,18 +215,6 @@ function common.state.deleteContinueFiles()
 }
 
 ################################################################################
-# Function: common.state.deleteInstanceData
-#
-# Deletes this instances runtime-data including CONTINUE File. Used at the end of a run.
-################################################################################
-function common.state.deleteInstanceData()
-################################################################################
-{
-	main.log -w  "The instance data in  ${CXR_INSTANCE_DIR} will be deleted now!"
-	rm -rf ${CXR_INSTANCE_DIR} >/dev/null 2>&1
-}
-
-################################################################################
 # Function: common.state.init
 #
 # Creates the state DB directories for the current run

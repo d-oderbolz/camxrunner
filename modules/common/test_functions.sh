@@ -373,19 +373,6 @@ function common.test.all()
 		########################################
 		summarize_tests
 		
-		########################################
-		# Do Basic cleanup
-		########################################
-		
-		# Remove all tempfiles
-		common.runner.removeTempFiles
-		
-		# Release Locks
-		common.runner.releaseAllLocks
-		
-		# Delete the instance files
-		common.state.deleteInstanceData
-
 	done
 	
 	# Reset strict return checks
