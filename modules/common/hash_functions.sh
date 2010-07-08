@@ -613,6 +613,7 @@ function common.hash.isNew?()
 # Returns a list of keys of the given hash as a quoted CXR_DELIMITER separated list.
 # Do not assume any particular order, it depends on the order ls imposes on the
 # encoded keys. See <common.hash.toFile> for an example on how to use this safely.
+# If the Hash does not exist, returns the empty string.
 # 
 # Recommended use:
 # > oIFS="$IFS"
@@ -654,14 +655,22 @@ function common.hash.getKeys()
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
 	
-	for fn in $(ls ${hash_dir}/${hash})
-	do
-		key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
-		list="${list}${key}$CXR_DELIMITER"
-	done
+	if [[ -d ${hash_dir}/${hash} ]]
+	then
+		# Hash exists
+		for fn in $(ls ${hash_dir}/${hash})
+		do
+			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
+			list="${list}${key}$CXR_DELIMITER"
+		done
+		
+		# Remove last delimiter
+		list="${list/%${CXR_DELIMITER}/}"
 	
-	# Remove last delimiter
-	list="${list/%${CXR_DELIMITER}/}"
+	else
+		main.log -w "Hash ${hash} does not exist."
+		list=""
+	fi
 	
 	echo $list
 }

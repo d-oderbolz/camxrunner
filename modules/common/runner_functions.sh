@@ -658,7 +658,6 @@ function common.runner.removeTempFiles()
 	# remove temporary files, if wanted
 	if [[ "$CXR_REMOVE_TEMP_FILES" == true  ]]
 	then
-
 			main.log  "Removing temporary files..."
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
@@ -689,8 +688,6 @@ function common.runner.removeTempFiles()
 	else
 		main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 	fi
-	
-
 }
 
 ################################################################################

@@ -481,7 +481,7 @@ function main.doCleanup()
 		# All the non-hollow stuff goes here
 		error_count=$(main.countErrors)
 		
-		main.log -B "Error Report (may be repeated)"
+		main.log -a -B "Error Report (may be repeated)"
 		
 		if [[ "${error_count:-0}" -ne 0 ]]
 		then
@@ -504,9 +504,9 @@ function main.doCleanup()
 			fi
 			
 		else	
-			main.log   "No errors where detected in this subprocess - exit status is $CXR_STATUS"
+			main.log -a "No errors where detected in this subprocess - exit status is $CXR_STATUS"
 		fi
-		main.log   "**********************************************************"
+		main.log -a "**********************************************************"
 	
 		########################################
 		# Do cleanup stuff - Run always when not hollow
@@ -514,7 +514,7 @@ function main.doCleanup()
 		
 		if [[ "$CXR_DRY" == true  ]]
 		then
-			main.log "Dryrun: removing the dummy files..."
+			main.log -a "Dryrun: removing the dummy files..."
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
@@ -542,7 +542,7 @@ function main.doCleanup()
 			
 			IFS="$oIFS"
 			
-		fi
+		fi # Dry?
 		
 		# Remove all tempfiles
 		common.runner.removeTempFiles
@@ -553,7 +553,7 @@ function main.doCleanup()
 		# Delete the instance files
 		rm -rf ${CXR_INSTANCE_DIR:-/dev/null} >/dev/null 2>&1
 
-	fi
+	fi # Hollow?
 	
 	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
 	then
@@ -563,12 +563,12 @@ function main.doCleanup()
 		if [[ "$CXR_DRY" == true  ]]
 		then
 		
-			main.log -H  "Before you can run the simulation, you must clean the state database\nbecause a dryrun makes the same entries as a normal run.\nDo this using this command:\n \t ${CXR_CALL} -c \nIf you have adjusted the configuration in ${CXR_CONFIG}\nand are happy with the log, run the simulation like this (assuming an AFS/Kerberos environment):\n"     
+			main.log -a -H  "Before you can run the simulation, you must clean the state database\nbecause a dryrun makes the same entries as a normal run.\nDo this using this command:\n \t ${CXR_CALL} -c \nIf you have adjusted the configuration in ${CXR_CONFIG}\nand are happy with the log, run the simulation like this (assuming an AFS/Kerberos environment):\n"     
 			
 			# Increase global indent level
 			main.increaseLogIndent
   	
-			main.log -b  "\t \$ k5run -b ${0}"
+			main.log -a -b  "\t \$ k5run -b ${0}"
 			
 			# Decrease global indent level
 			main.decreaseLogIndent
@@ -577,14 +577,14 @@ function main.doCleanup()
 			if [[ "$CXR_HOLLOW" == false ]]
 			then
 				# print some infos if we are not hollow 
-				main.log  "Ending ${CXR_RUN}, its now $(date)"
+				main.log -a "Ending ${CXR_RUN}, its now $(date)"
 				main.sendMessage "${CXR_RUN} finished on $CXR_MACHINE" "That is it, folks."
 			fi
 		fi
 	fi
 	
 	# Change Back to rundir
-	cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
+	cd ${CXR_RUN_DIR} 
 	
 
 	# What we do is kill the CAMxRunner processes (whole process group by giving negative PID)
