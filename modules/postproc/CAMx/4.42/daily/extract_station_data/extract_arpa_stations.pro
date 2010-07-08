@@ -85,15 +85,13 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	;>						34							 CPRM										(microg/m3) 
 	;>						35							 CCRS										(microg/m3) 
 	;>
-	;>						The stations are loaded with an @ script which can be created by the CAMx-runner.sh
-	;
 	;*******************************************************************************************************
 	
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; IDL Settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Show Math errors as they occur
-	!EXCEPT=2
+	;!EXCEPT=2
 	COMPILE_OPT IDL2
 	
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
