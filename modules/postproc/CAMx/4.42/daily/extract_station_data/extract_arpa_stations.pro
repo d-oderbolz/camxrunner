@@ -414,6 +414,14 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				V_n[indexes] = V_0
 			endif
 			
+			; Are there any non-finite V_ns?
+			indexes = WHERE(~FINITE(V_n), count)
+			
+			if count ne 0 then begin
+				print,'WRN: V_n is not finite sometimes, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				V_n[indexes] = V_0
+			endif
+			
 			f_n = V_n / V_0
 
 			; Gasses need convesion to ppb and norm-volume correction
