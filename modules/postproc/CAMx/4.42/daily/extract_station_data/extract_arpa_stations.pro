@@ -233,7 +233,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		@graphical_settings
 		
 		; Plot vertical structure
-		filename_ps='~/@plot/vertical_' + strtrim(iHour,2)
+		filename_ps='~/@plot/vertical_' + strtrim(iHour,2) + '.ps'
 		filename_pdf=STRMID(filename_ps,0,STRLEN(filename_ps)-3) + '.pdf'
 		
 		set_plot,'PS'
@@ -403,6 +403,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			
 			V_n = ( R * Temp ) / p
 			V_0 = ( R * T0 ) / p0
+			
+			if ( V_n EQ 0 ) then begin
+				print,'WRN: V_n is zero, using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				V_n = V_0
+			endif
 			
 			f_n = V_n / V_0
 
