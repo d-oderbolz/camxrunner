@@ -40,51 +40,12 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; mm: month (character 2 digit)
 	; yyyy year (character 4 digit)
 	; hh: hour (character 2 digit)
-	; PM10: hourly	concentration ( ?g/m?)	(REAL o INTEGER) 
-	; NO2 : hourly concentration (?g/m?)	. (REAL o INTEGER)
-	; NO : hourly concentration	(?g/m?) (REAL o INTEGER)
-	; O3: hourly concentration	( ?g/m?)	(REAL o INTEGER)
-	
-	; Of course, the CXR_OUTPUT_SPECIES_NAMES must match this list here:
-	
-	;>						idl No						Species										output unit
-	;>						0							 NO											(microg/m3)	
-	;>						1							 NO2										(microg/m3)	
-	;>						2							 O3											(microg/m3)	
-	;>						3							 TOL										(microg/m3)	
-	;>						4							 XYL										(microg/m3)	
-	;>						5							 FORM										(microg/m3)	
-	;>						6							 PAN										(microg/m3)	
-	;>						7							 CO											(microg/m3)	
-	;>						8							 HONO										(microg/m3)	
-	;>						9							 HNO3										(microg/m3)	
-	;>						10							 H2O2										(microg/m3)	
-	;>						11							 ISOP										(microg/m3)	
-	;>						12							 PNA										(microg/m3)	
-	;>						13							 SO2										(microg/m3)	
-	;>						14							 NH3										(microg/m3)	
-	;>						15							 PH2O										(microg/m3)
-	;>						16							 PNO3										(microg/m3)
-	;>						17							 PSO4										(microg/m3)
-	;>						18							 PNH4										(microg/m3)
-	;>						19							 POA										(microg/m3)
-	;>						20							 PEC										(microg/m3)
-	;>						21							 SOA1										(microg/m3)
-	;>						22							 SOA2										(microg/m3)
-	;>						23							 SOA3										(microg/m3)
-	;>						24							 SOA4										(microg/m3)
-	;>						25							 SOA5										(microg/m3)
-	;>						26							 SOA6										(microg/m3) 
-	;>						27							 SOA7										(microg/m3) 
-	;>						28							 SOPA										(microg/m3) 
-	;>						29							 SOPB										(microg/m3) 
-	;>						30							 NA											(microg/m3) 
-	;>						31							 PCL										(microg/m3) 
-	;>						32							 FPRM										(microg/m3) 
-	;>						33							 FCRS										(microg/m3) 
-	;>						34							 CPRM										(microg/m3) 
-	;>						35							 CCRS										(microg/m3) 
-	;>
+	; PM10: hourly	concentration ( ug/m**2)	(REAL o INTEGER) 
+	; NO2 : hourly concentration (ug/m**2)	. (REAL o INTEGER)
+	; NO : hourly concentration	(ug/m**2) (REAL o INTEGER)
+	; O3: hourly concentration	( ug/m**2)	(REAL o INTEGER)
+	;
+	; Gaseous species are converted to norm conditions, aerosols not (b. c. these are normally integrated measurements)
 	;*******************************************************************************************************
 	
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -394,6 +355,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			endif
 			
 			f_n = V_n / V_0
+			
+			if iHour EQ 0 then print,'NO:' + strtrim(( M_NO / V_n) * f_n,2)
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
@@ -414,130 +377,130 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				o3=0
 			endelse
 			
-			; Start of aerosol species (already in proper unit - but need correction to norm conditions)
+			; Start of aerosol species (already in proper unit - and will not be corrected to norm conditions)
 			
 			if (species->iscontained('PH2O')) then begin
-				ph2o=station_conc[species->get('PH2O'),station] * f_n
+				ph2o=station_conc[species->get('PH2O'),station]
 			endif else begin
 				ph2o=0
 			endelse
 			
 			if (species->iscontained('PNO3')) then begin
-				pno3=station_conc[species->get('PNO3'),station] * f_n
+				pno3=station_conc[species->get('PNO3'),station]
 			endif else begin
 				pno3=0
 			endelse
 			
 			if (species->iscontained('PSO4')) then begin
-				pso4=station_conc[species->get('PSO4'),station] * f_n
+				pso4=station_conc[species->get('PSO4'),station]
 			endif else begin
 				pso4=0
 			endelse
 			
 			if (species->iscontained('PNH4')) then begin
-				pnh4=station_conc[species->get('PNH4'),station] * f_n
+				pnh4=station_conc[species->get('PNH4'),station]
 			endif else begin
 				pnh4=0
 			endelse
 			
 			if (species->iscontained('POA')) then begin
-				poa=station_conc[species->get('POA'),station] * f_n
+				poa=station_conc[species->get('POA'),station]
 			endif else begin
 				poa=0
 			endelse
 			
 			if (species->iscontained('PEC')) then begin
-				pec=station_conc[species->get('PEC'),station] * f_n
+				pec=station_conc[species->get('PEC'),station]
 			endif else begin
 				pec=0
 			endelse
 			
 			if (species->iscontained('SOA1')) then begin
-				soa1=station_conc[species->get('SOA1'),station] * f_n
+				soa1=station_conc[species->get('SOA1'),station]
 			endif else begin
 				soa1=0
 			endelse
 			
 			if (species->iscontained('SOA2')) then begin
-				soa2=station_conc[species->get('SOA2'),station] * f_n
+				soa2=station_conc[species->get('SOA2'),station]
 			endif else begin
 				soa2=0
 			endelse
 			
 			if (species->iscontained('SOA3')) then begin
-				soa3=station_conc[species->get('SOA3'),station] * f_n
+				soa3=station_conc[species->get('SOA3'),station]
 			endif else begin
 				soa3=0
 			endelse
 			
 			if (species->iscontained('SOA4')) then begin
-				soa4=station_conc[species->get('SOA4'),station] * f_n
+				soa4=station_conc[species->get('SOA4'),station]
 			endif else begin
 				soa4=0
 			endelse
 			
 			if (species->iscontained('SOA5')) then begin
-				soa5=station_conc[species->get('SOA5'),station] * f_n
+				soa5=station_conc[species->get('SOA5'),station]
 			endif else begin
 				soa5=0
 			endelse
 			
 			if (species->iscontained('SOA6')) then begin
-				soa6=station_conc[species->get('SOA6'),station] * f_n
+				soa6=station_conc[species->get('SOA6'),station]
 			endif else begin
 				soa6=0
 			endelse
 			
 			if (species->iscontained('SOA7')) then begin
-				soa7=station_conc[species->get('SOA7'),station] * f_n
+				soa7=station_conc[species->get('SOA7'),station]
 			endif else begin
 				soa7=0
 			endelse
 			
 			if (species->iscontained('SOPA')) then begin
-				sopa=station_conc[species->get('SOPA'),station] * f_n
+				sopa=station_conc[species->get('SOPA'),station]
 			endif else begin
 				sopa=0
 			endelse
 			
 			if (species->iscontained('SOPB')) then begin
-				sopb=station_conc[species->get('SOPB'),station] * f_n
+				sopb=station_conc[species->get('SOPB'),station]
 			endif else begin
 				sopb=0
 			endelse
 			
 			if (species->iscontained('NA')) then begin
-				na	=station_conc[species->get('NA'),station] * f_n
+				na	=station_conc[species->get('NA'),station]
 			endif else begin
 				na=0
 			endelse
 			
 			if (species->iscontained('PCL')) then begin
-				pcl =station_conc[species->get('PCL'),station] * f_n
+				pcl =station_conc[species->get('PCL'),station]
 			endif else begin
 				pcl=0
 			endelse
 			
 			if (species->iscontained('FPRM')) then begin
-				fprm=station_conc[species->get('FPRM'),station] * f_n
+				fprm=station_conc[species->get('FPRM'),station]
 			endif else begin
 				fprm=0
 			endelse
 			
 			if (species->iscontained('FCRS')) then begin
-				fcrs=station_conc[species->get('FCRS'),station] * f_n
+				fcrs=station_conc[species->get('FCRS'),station]
 			endif else begin
 				fcrs=0
 			endelse
 			
 			if (species->iscontained('CPRM')) then begin
-				cprm=station_conc[species->get('CPRM'),station] * f_n
+				cprm=station_conc[species->get('CPRM'),station]
 			endif else begin
 				cprm=0
 			endelse
 			
 			if (species->iscontained('CCRS')) then begin
-				ccrs=station_conc[species->get('CCRS'),station] * f_n
+				ccrs=station_conc[species->get('CCRS'),station]
 			endif else begin
 				ccrs=0
 			endelse
