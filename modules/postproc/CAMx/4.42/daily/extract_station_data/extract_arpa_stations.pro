@@ -349,8 +349,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				f_n = 1
 			endif
 			
-			if (iHour EQ 0) then begin
-				print,'Correction factors for hour 0 for file ' + stations[2,station]
+			if (iHour EQ 9) then begin
+				print,'Correction factors for hour 9 for file ' + stations[2,station]
 				print,'NO:' + strtrim(M_NO * ppb2ugm * f_n,2)
 				print,'NO2:' + strtrim(M_NO2 * ppb2ugm * f_n,2)
 				print,'O3:' + strtrim(M_O3 * ppb2ugm  * f_n,2)
