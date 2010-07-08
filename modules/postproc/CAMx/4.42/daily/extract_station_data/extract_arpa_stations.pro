@@ -250,7 +250,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		device, /close
 		set_plot,'X'
 		
-		pawn,'/usr/bin/ps2pdf ' + filename_ps + ' ' + filename_pdf
+		spawn,'/usr/bin/ps2pdf ' + filename_ps + ' ' + filename_pdf
 
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
