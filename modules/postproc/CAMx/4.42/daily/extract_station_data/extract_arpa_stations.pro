@@ -195,7 +195,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	;do loop for time
 	for iHour=0L,23 do begin
 	
-		; temperature comes in levels 
+		; temperature is stored as surface temp and that in levels
 		; Skip header of T file
 		skip_lun,input_t,1
 		
@@ -229,6 +229,24 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			total_pressure[0,0,iver] = pressure_slice
 
 		endfor ; layer
+		
+		; Plot vertical structure
+		filename_ps='~/@plot/vertical_' + strtrim(iHour,2)
+		filename_pdf=STRMID(filename_ps,0,STRLEN(filename_ps)-3) + '.pdf'
+		
+		device,filename=filename_ps, /color, XSize = a4_xsize_p, YSize = a4_ysize_p,XOffset = a4_x_offset, YOffset = a4_y_offset, /Helvetica
+		
+		; Rigi
+		plot,total_height[68,57,*],total_pressure[68,57,*],ytitle='Height (m agl)',xtitle='Pressure (mbar)',subtitle='Rigi'
+		plot,total_height[68,57,*],total_temperature[68,57,*],ytitle='Height (m agl)',xtitle='Temperature (K)',subtitle='Rigi'
+		
+		; Zurich
+		plot,total_height[68,68,*],total_pressure[68,68,*],ytitle='Height (m agl)',xtitle='Pressure (mbar)',subtitle='Zuerich'
+		plot,total_height[68,68,*],total_temperature[68,68,*],ytitle='Height (m agl)',xtitle='Temperature (K)',subtitle='Zuerich'
+		
+		device, /close
+		
+		pawn,'/usr/bin/ps2pdf ' + filename_ps + ' ' + filename_pdf
 
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
@@ -266,8 +284,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; Close files
 	free_lun,input_t
 	free_lun,input_zp
-	
-	stop
 
 	; Convert pressure in mb to Pascal
 	pressure = pressure * mb2pa
