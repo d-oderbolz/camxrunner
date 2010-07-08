@@ -230,6 +230,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 
 		endfor ; layer
 		
+		@graphical_settings
+		
 		; Plot vertical structure
 		filename_ps='~/@plot/vertical_' + strtrim(iHour,2)
 		filename_pdf=STRMID(filename_ps,0,STRLEN(filename_ps)-3) + '.pdf'
