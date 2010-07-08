@@ -384,7 +384,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			V_0 = ( R * T0 ) / p0
 			
 			if (V_n EQ 0) then begin
-				print,'WRN: V_n is zero at time ' + strtrim(,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
+				print,'WRN: V_n is zero at time ' + strtrim(iHour,2)  + ', using V_0 at col ' + strtrim(col,2) + ' row ' + strtrim(row,2)
 				V_n = V_0
 			endif
 			
