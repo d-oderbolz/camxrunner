@@ -154,7 +154,7 @@ function common.module.getNumInvocations()
 # Caveat: This function modifies the environment - always call like this:
 # > b=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
 # The $() construct opens a subshell.
-# We cache the results in a hash, whose name depends on the item to be retrieved.
+# We cache the results in an instance hash, whose name depends on the item to be retrieved.
 #
 # Parameters:
 # $1 - name of a module
@@ -175,7 +175,7 @@ function common.module.getMetaField()
 	local cache="CACHE_${item}"
 	
 	# This call sets _has and _value
-	common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
 	if [[ "$_has" == true ]]
 	then
 		# It's in the cache
@@ -210,7 +210,7 @@ function common.module.getMetaField()
 			main.log -v "${item}: ${!item}"
 			
 			# Add to cache
-			common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${!item}"
+			common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "${!item}"
 			
 			# Return value (indirect)
 			echo ${!item}
@@ -944,7 +944,7 @@ function common.module.updateInfo()
 				then
 					# Module was explicitly enabled
 					run_it=true
-				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
 				then
 					# Module was not explicitly disabled and we did not disable all
 					run_it=true
