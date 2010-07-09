@@ -51,7 +51,7 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.string.isSubstringPresent?() 
 ################################################################################
 {
-	local found=$(expr match " $1" '.*$2.*')
+	local found=$(expr match " $1" ".*$2.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
 	if [[ $found -gt 0  ]]
