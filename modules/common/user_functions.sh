@@ -241,6 +241,8 @@ function common.user.getInput()
 #>do
 #>done
 #
+# Parameters:
+# [$1] - message
 ################################################################################
 function common.user.pause() 
 ################################################################################
@@ -248,7 +250,7 @@ function common.user.pause()
 	local dummy
 	
 	echo "${CXR_SINGLE_LINE}"
-	echo "Press a key of your choice to continue..."
+	echo "${1:-Press a key of your choice to continue...}"
 	read -n 1 dummy
 }
 
