@@ -1491,7 +1491,7 @@ function common.runner.recreateRun()
 	fi # got run name?
 	
 	# Verify
-	if [[ $(common.check.isCorrectRunName $oldRun) == false ]]
+	if [[ $(common.check.RunName $oldRun) == false ]]
 	then
 		main.dieGracefully "The name of the run you want to repeat () is not correct. Make sure only characters allowed in filenames are included"
 	fi # Supplied run name correct
