@@ -1008,7 +1008,7 @@ function common.runner.getExistingConfigFile()
 #
 # Parameters:
 # $1 - Run-name
-# [$2] - An old run name to be used (if given, we ask no questions)
+# [$2] - An existing run name to be used (if given, we ask no questions)
 ################################################################################	
 function common.runner.createConfigFile() 
 ################################################################################
@@ -1027,10 +1027,11 @@ function common.runner.createConfigFile()
 	then
 		# Make sure it works, no matter what
 		basefile=${CXR_CONF_DIR}/$(basename $existingRun .conf).conf
+		targetfile=${CXR_CONF_DIR}/$(basename $newRun .conf).conf
 		
-		cp ${basefile} ${CXR_CONFIG}
-		touch ${CXR_CONFIG}
-		chmod +x ${CXR_CONFIG}
+		cp ${basefile} ${targetfile}
+		touch ${targetfile}
+		chmod +x ${targetfile}
 	else
 		if [[ $(common.user.getOK "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
 		then
