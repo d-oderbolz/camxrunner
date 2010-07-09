@@ -566,7 +566,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			; this is the new format statement required by COST. 
 			ofmt = '(A2, "," , A2, "," , A4, "," , A2, 4(",",F5.1) )'
 			
-			printf,station_luns[station],strtrim(string(day),2),strtrim(string(month),2),strtrim(string(year),2),strtrim(string(i),2),pm,no2,no,o3,format = ofmt
+			printf,station_luns[station],strtrim(string(day),2),strtrim(string(month),2),strtrim(string(year),2),strtrim(string(iHour),2),pm,no2,no,o3,format = ofmt
 			
 		endfor ; stations
 		
