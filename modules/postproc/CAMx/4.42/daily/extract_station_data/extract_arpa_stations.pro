@@ -3,22 +3,22 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; Function: extract_arpa_stations
 	;
 	;*******************************************************************************************************
-	;						IDL Program to extract data from a camx average file from domain 3
-	;						for ARPA stations. Modified version of extract_nabel_stations written for co5.
-	;						THe list of species to be extracted is given by the project.
+	;	IDL Program to extract data from a camx average file from domain 3
+	;	for ARPA stations. Modified version of extract_nabel_stations written for co5.
+	;	THe list of species to be extracted is given by the project.
 	;
-	;						based on a script by Sebnem Andreani-Aksoyoglu, 11.1.2007
+	;	based on a script by Sebnem Andreani-Aksoyoglu, 11.1.2007
 	;
-	;						modified by Daniel Oderbolz (daniel.oderbolz@psi.ch)
+	;	modified by Daniel Oderbolz (daniel.oderbolz@psi.ch)
 	;
-	;						$Id$
+	;	$Id$
 	;
-	;						This script is called automatically by the output processor
-	;						<extract_station_data> - *hesitate to change the calling interface*!
+	;	This script is called automatically by the output processor
+	;	<extract_station_data> - *hesitate to change the calling interface*!
 	;
-	;						Originally, the code used \GET_LUN, but IDL can only open 29 files like this
-	;						(http://idlastro.gsfc.nasa.gov/idl_html_help/Understanding_(LUNs).html) so we
-	;						had to go for the less beautiful approach...
+	;	Originally, the code used \GET_LUN, but IDL can only open 29 files like this
+	;	(http://idlastro.gsfc.nasa.gov/idl_html_help/Understanding_(LUNs).html) so we
+	;	had to go for the less beautiful approach...
 	;
 	; Parameters:
 	; input_file - input file to operate on
@@ -361,7 +361,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 			endif
 			
 			; Determine the conversion factors according to to chosen method
-			case norm_method in
+			case norm_method of
 			
 				'physical': begin
 								; Here we consider normalisation
@@ -377,13 +377,20 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 								C_O3 = 2.00
 							end
 				
-				'none' :	begin
+				'none':		begin
 								; Only do the ppb conversion, but not the normalisation
 								C_NO = M_NO * ppb2ugm
 								C_NO2 = M_NO2 * ppb2ugm
 								C_O3 = M_O3 * ppb2ugm
 							end
-			
+							
+				else:		begin
+								print,'WRN: Unsupported norm_method ' + norm_method + ' falling back to none'
+								; Only do the ppb conversion, but not the normalisation
+								C_NO = M_NO * ppb2ugm
+								C_NO2 = M_NO2 * ppb2ugm
+								C_O3 = M_O3 * ppb2ugm
+							end
 			endcase
 			
 			if (iHour EQ 9) then begin
