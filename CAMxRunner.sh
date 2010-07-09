@@ -265,7 +265,7 @@ do
 	
 		# Creation or re-creation of configuration
 		C) 	CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		R) 	CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG:-}; CXR_HOLLOW=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG:-}; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_RUN_LIST="${OPTARG:-}" ;;
 		p) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
@@ -517,10 +517,10 @@ then
 	then
 		# Create a new run
 		common.runner.createNewRun
-	elif [[ ! -z "${CXR_REPEAT_THIS_RUN:-}" ]]
+	elif [[ "${CXR_REPEAT_RUN:-}" == true ]]
 	then
 		# Re-create existing run
-		common.runner.recreateRun
+		common.runner.recreateRun "${CXR_REPEAT_THIS_RUN:-}"
 	elif [[ "${CXR_STOP_RUN}" == true ]]
 	then
 		#Delete .CONTINUE files of all instances
