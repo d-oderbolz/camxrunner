@@ -24,7 +24,7 @@ CXR_META_MODULE_DESCRIPTION="Installs and prepares the ENVIRON test case"
 
 CXR_META_MODULE_TYPE="${CXR_TYPE_POSTPROCESS_DAILY}"
 
-# If >0 this module supports testing via -t
+# If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=0
 
 # This is the run name that is used to test this module

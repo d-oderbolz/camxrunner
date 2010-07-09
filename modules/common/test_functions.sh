@@ -24,8 +24,8 @@
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
-# If >0 this module supports testing via -t
-CXR_META_MODULE_NUM_TESTS=13
+# If >0, this module supports testing
+CXR_META_MODULE_NUM_TESTS=14
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -418,6 +418,8 @@ function test_module()
 	########################################
 	
 	#Here, we test some main functions
+	
+	is "$(main.getBinaryName ls)" "$(which ls)" "Test of main.getBinaryName using ls"
 	
 	is $(main.countDelimitedElements "one${CXR_DELIMITER}two") 2 "main.countDelimitedElements with 2 elements, default delimiter"
 	is $(main.countDelimitedElements "one two" " ") 2 "main.countDelimitedElements with 2 elements, space"

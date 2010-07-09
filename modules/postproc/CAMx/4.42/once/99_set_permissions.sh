@@ -46,7 +46,7 @@ CXR_META_MODULE_DESCRIPTION="Sets permissions on output."
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_POSTPROCESS_ONCE}"
 
-# If >0 this module supports testing via -t
+# If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=1
 
 # This is the run name that is used to test this module
