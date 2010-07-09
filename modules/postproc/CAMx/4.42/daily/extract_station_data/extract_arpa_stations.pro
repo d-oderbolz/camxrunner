@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt,normalisation_method=normalisation_method
 	;
 	; Function: extract_arpa_stations
 	;
@@ -33,8 +33,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 	; zp_file - pressure/height ASCII file
 	; temp_file - temperature ASCII file
-	; format - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
-	;
+	; [format=] - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
+	; [normalisation_method=] - a string selecting the approach to normalize concentrations to standard conditions:
+	;                        'physical' - using the models T and P fields (default)
+	;                        'nabel' - use the NABELs constant factors (ASSUMING h < 1500 m)
+	;                        'none' - do not correct
 	; Output format (comma-separated):
 	; dd : day (character 2 digit)
 	; mm: month (character 2 digit)
@@ -82,6 +85,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Check settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	
+	; physical is 
+	if (n_elements(normalisation_method) EQ 0) then normalisation_method='physical'
 	
 	; stations are multidimensional
 	s = size(stations,/DIMENSIONS)

@@ -746,24 +746,24 @@ CXR_ASC_EXT=asc
 CXR_LOCK_MAN_EXEC=${CXR_BIN_DIR}/lock.sh
 
 # Decompression
-CXR_GUNZIP_EXEC=$(which gunzip)
-CXR_BUNZIP2_EXEC=$(which bunzip2)
+CXR_GUNZIP_EXEC="$(main.getBinaryName gunzip true)"
+CXR_BUNZIP2_EXEC="$(main.getBinaryName bunzip2 true)"
 
 # Compression
-CXR_GZIP_EXEC=$(which gzip)
-CXR_BZIP2_EXEC=$(which bzip2)
+CXR_GZIP_EXEC="$(main.getBinaryName gzip true)"
+CXR_BZIP2_EXEC="$(main.getBinaryName bzip2 true)"
 
 # Hash generation
-CXR_MD5_EXEC=$(which md5sum)
+CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
 
 # The compressor we use to compress output
 CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
 
 # Fortran-77 Compiler (only needed when installing)
-CXR_FORTRAN77_COMPILER_EXEC=$(which pgf77)
+CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
 
 # Fortran-90 Compiler (only needed when installing)
-CXR_FORTRAN90_COMPILER_EXEC=$(which pgf90)
+CXR_FORTRAN90_COMPILER_EXEC="$(main.getBinaryName pgf90 true)"
 
 # This is the default FORTRAN compiler
 CXR_FORTRAN_COMPILER_EXEC="$CXR_FORTRAN77_COMPILER_EXEC"
@@ -771,25 +771,25 @@ CXR_FORTRAN_COMPILER_EXEC="$CXR_FORTRAN77_COMPILER_EXEC"
 # API GENERATOR
 CXR_API_DOC_EXEC=${CXR_BIN_DIR}/generate-api-doc.sh
 
-# wget to download stuff (only needed for installation  - save space)
-CXR_WGET_EXEC=$(which wget)
+# wget to download stuff (needed for installation and AHOMAP)
+CXR_WGET_EXEC=$(main.getBinaryName wget true)
 
 # needed to convert dos-unix and back
-CXR_DOS2UNIX_EXEC=$(which dos2unix)
-CXR_UNIX2DOS_EXEC=$(which unix2dos)
+CXR_DOS2UNIX_EXEC=$(main.getBinaryName dos2unix true)
+CXR_UNIX2DOS_EXEC=$(main.getBinaryName unix2dos true)
 
 # This is important for parallel processing,
 # we sort or tasks with it according to the dependencies
-CXR_TSORT_EXEC=$(which tsort)
+CXR_TSORT_EXEC=$(main.getBinaryName tsort true)
 
 # this can be used to draw graphs
-CXR_DOT_EXEC=$(which dot)
+CXR_DOT_EXEC=$(main.getBinaryName dot true)
 
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name
 #### CAMxRunner -I can do this for you.
 #### 
-#### Also the function main.getBinaryName then selects the most appropriate one.
+#### The function main.getBinaryName then selects the most appropriate one.
 #### replace with literal for your own choice
 
 # Checker for landuse

@@ -102,7 +102,7 @@ function main.decreaseLogIndent()
 	
 	next=$(( $CXR_LOG_INDENT - 1 ))
 	
-	if [[ $next -lt 0  ]]
+	if [[ $next -lt 0 ]]
 	then
 		next=0
 	fi
@@ -651,14 +651,13 @@ function main.dieGracefully()
 ################################################################################
 # Function: main.getBinaryName
 #
-# Returns the name and path of a binary name other than CAMx.
+# Returns the name and path of a binary name other than the model.
+# Use this fuction instead of "which"
 # The name depends on:
 # - The Machine Architecture
 # - (The machine name)
 # 
-# First it tries to find a machine dependent binary, if this is not found, 
-# a general one is seeked.
-#
+# We try to find the most specialised binary.
 # Notifies logger if no suitable executable could be found.
 #
 # Such a name looks like this:
@@ -671,40 +670,65 @@ function main.dieGracefully()
 #
 # Parameters:
 # $1 - name (without path!) of the binary in question
+# [$2] - allow_empty, an optional boolean, if true, we allow a binary to be missing (default: false)
 ################################################################################
 function main.getBinaryName()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.dieGracefully "needs the name of a binary as input"
+		main.dieGracefully "Programming error: needs at least the name of a binary as input, optional parameter allow_empty"
 	fi
 	
+	local exec_name="${1}"
+	local allow_empty="${2:-false}"
+	
 	#Determine possible names
-	local general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/$1-${HOSTTYPE}
+	local general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/${exec_name}-${HOSTTYPE}
 	local machine_exec=${general_exec}-$(uname -n)
 	
+	# First see if which delivers anything
+	# We must catch errors
+	set +o errexit
+	local which_output="$(which "${exec_name}" 2>/dev/null)"
+	set -o errexit
+	
+	# Set output to "" if which failed
+	if [[ $? -ne 0 ]]
+	then
+		which_output=""
+	fi
+	
+	# Check if one of these is executable,
+	# first in line wins
+
 	# Check name - machine first
-	if [[ -x ${machine_exec}  ]]
+	if [[ -x ${machine_exec} ]]
 	then
 		# Machine dependent exists
-		main.log   "Binary $1 is actually called ${machine_exec}"
+		main.log  "Binary ${exec_name} is actually called ${machine_exec}"
 		echo "${machine_exec}"
-	elif [[ -x ${general_exec}  ]]
+	elif [[ -x ${general_exec} ]]
 	then
 		# general exists
-		main.log   "Binary $1 is actually called ${general_exec}"
+		main.log "Binary ${exec_name} is actually called ${general_exec}"
 		echo "${general_exec}"
+	elif [[ -x "${which_output}" ]]
+	then
+		# Which output is OK
+		main.log  "Binary ${exec_name} is actually called ${which_output}"
+		echo "${which_output}"
 	else
 		#None exists
-		if [[ "$1" == false  ]]
+		if [[ "$allow_empty" == true ]]
 		then
-			# optional paratemeter is false,
-			# We do not care and return CXR_GENERAL_EXEC
-			echo "$general_exec" 
+			# optional param is true,
+			# We do not care and return the empty string
+			main.log -v  "Binary $exec_name not found"
+			echo "" 
 		else
 			# NOK-just issue a warning (if we are compiling e.g.)
-			main.log -w  "Could not find a suitable executable for name $1, neither ${machine_exec} nor ${general_exec} are present.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			main.log -w  "Could not find a suitable executable for binary $exec_name, neither ${machine_exec} nor ${general_exec} are present. The which cmd also did not find anything.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
 	
