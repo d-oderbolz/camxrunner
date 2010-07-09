@@ -114,7 +114,7 @@ function main.usage()
 
 	  -C    Create a new run, you are guided through the process.
 	  
-	  -R[name]  Creates a configuration to repeat an existing run. If no rn is given, asks user.
+	  -R[name]  Creates a configuration to repeat an existing run. If no run is passed, asks user.
 
 	  The following options allow to run a subset of the modules that make up a run.
 	  One approach is to select all modules of a module type (these options can be combined):
