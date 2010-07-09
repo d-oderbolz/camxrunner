@@ -1388,8 +1388,8 @@ function common.runner.createMissingDirs()
 function common.runner.getConfigItem() 
 ################################################################################
 {
-	local runName="${1}"
-	local item="${2}" 
+	local item="${1}" 
+	local runName="${2}"
 	
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 	
