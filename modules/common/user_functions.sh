@@ -249,8 +249,8 @@ function common.user.pause()
 {
 	local dummy
 	
-	echo "${CXR_SINGLE_LINE}"
-	echo "${1:-Press a key of your choice to continue...}"
+	echo "${CXR_SINGLE_LINE}" 1>&2
+	echo -e "${1:-Press a key of your choice to continue...}" 1>&2
 	read -n 1 dummy
 }
 
