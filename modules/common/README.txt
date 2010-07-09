@@ -11,7 +11,7 @@ named like the CAMx Version.
 CAMxRunner allows to overload functions (because bash supports it), 
 so for example the function <get_chemparam_file> may be defined more than once.
 If you do this, please give each of the files a UNIQUE name, otherwise the test subsystem 
-will finde only one definition (usually the one in the depest level).
+will find only one definition (usually the one in the deepest level).
 
 
 

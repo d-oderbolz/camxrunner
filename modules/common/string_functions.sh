@@ -12,7 +12,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=24
+CXR_META_MODULE_NUM_TESTS=27
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -43,7 +43,6 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.string.isSubstringPresent?
 #
 # Returns true if a substring needle was found within haystack, false otherwise.
-# TODO: most calls of thsi function are better replaced by a hash (has?) operation.
 #
 # Parameters:
 # $1 - haystack, the string in which we search
@@ -52,7 +51,7 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.string.isSubstringPresent?() 
 ################################################################################
 {
-	local found=$(expr match " $1" ".*$2.*")
+	local found=$(expr match " $1" '.*$2.*')
 	# For safety, here        ^ is a space, so that things never start at 0
 	
 	if [[ $found -gt 0  ]]
@@ -278,6 +277,9 @@ function test_module()
 	########################################
 	
 	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
+	is "$(common.string.isSubstringPresent? /hallo/velo /hallo )" true "common.string.isSubstringPresent? is /hallo in /hallo/velo"
+	is "$(common.string.isSubstringPresent? "" "")" true "common.string.isSubstringPresent? is empty in empty?"
+	is "$(common.string.isSubstringPresent? abc "")" true "common.string.isSubstringPresent? empty in abc?"
 	
 	is "$(common.string.repeat " " 3 )" "   " "common.string.repeat - three spaces"
 	is "$(common.string.repeat "|" 1 )" "|" "common.string.repeat - one pipe"

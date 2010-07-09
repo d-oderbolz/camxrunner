@@ -79,9 +79,9 @@ function common.runner.getX()
 	else
 		# Any other grid
 		xdim=$(( (((${CXR_NEST_END_I_INDEX[${domain}]} - ${CXR_NEST_BEG_I_INDEX[${domain}]}) + 1) * ${CXR_NEST_MESHING_FACTOR[${domain}]}) + 2))
-		#                                                                        |                                      |
-		#                                                                    Fencepost                                  |
-		#                                                                                                            Buffer Cells (left/right)
+		#                                                                                      |                                             |
+		#                                                                                  Fencepost                                         |
+		#                                                                                                                   Buffer Cells (left/right)
 	fi
 	
 	echo ${xdim}
@@ -1027,11 +1027,20 @@ function common.runner.createConfigFile()
 	then
 		# Make sure it works, no matter what
 		basefile=${CXR_CONF_DIR}/$(basename $existingRun .conf).conf
-		targetfile=${CXR_CONF_DIR}/$(basename $newRun .conf).conf
+		destination=${CXR_CONF_DIR}/$(basename $newRun .conf).conf
 		
-		cp ${basefile} ${targetfile}
-		touch ${targetfile}
-		chmod +x ${targetfile}
+		if [[ -f "$destination"  ]]
+			then
+				# Continue even if file is there?
+				if [[ $(common.user.getOK "$destination already exists. Do you want to overwrite this file?" N ) == false ]]
+				then
+					exit
+				fi
+			fi
+		
+		cp ${basefile} ${destination}
+		touch ${destination}
+		chmod +x ${destination}
 	else
 		if [[ $(common.user.getOK "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
 		then
