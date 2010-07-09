@@ -1253,14 +1253,12 @@ function common.runner.getNewRunName()
 	
 	local run=${model}-v${version}
 	
-	local addition
-	
-	echo "The Run name so far is ${run}- what do you want to add?"
-	read addition
+	# Ask user for rest of name
+	local addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add?")"
 
 	run="${run}-$addition"
 	
-	# Name ok? #
+	# Name ok? 
 	common.check.RunName $run || main.dieGracefully "Could not determine new run name"
 	
 	echo "$run"
