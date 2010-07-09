@@ -70,9 +70,37 @@ function common.variables.list()
 
 	# Decrease global indent level
 	main.decreaseLogIndent
-	
 }
- 
+
+################################################################################
+# Function: common.variables.getValue
+#	
+# Extracts the value of a given (non-exported) variable from the environment.
+# If the variable is not found, the empty string is returned and an error is throwed
+#
+# Parameters:
+# $1 - item to find
+################################################################################
+function common.variables.getValue()
+################################################################################
+{
+	local item=${1}
+	
+	set | grep ${item}= 2>&1 > /dev/null
+	
+	if [[ $? -ne 0 ]]
+	then
+		# variable not known!
+		main.log -e "variable $item not found!"
+		echo ""
+	else
+		main.log -v "${item}: ${!item}"
+
+		# Return value (indirect)
+		echo ${!item}
+	fi
+}
+
 ################################################################################
 # Function: common.variables.listSystemVars
 #	

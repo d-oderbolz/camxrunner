@@ -200,21 +200,12 @@ function common.module.getMetaField()
 		fi
 		
 		# Do we have this variable?
-		set | grep $item 2>&1 > /dev/null
+		value="$(common.common.variables.getValue $item)"
 		
-		if [[ $? -ne 0 ]]
-		then
-			# variable not known!
-			main.dieGracefully "variable $item not found!"
-		else
-			main.log -v "${item}: ${!item}"
-			
-			# Add to cache
-			common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "${!item}"
-			
-			# Return value (indirect)
-			echo ${!item}
-		fi
+		# Add to cache
+		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "$value"
+		
+		echo "$value"
 		
 	fi
 

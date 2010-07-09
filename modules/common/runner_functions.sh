@@ -1381,22 +1381,9 @@ function common.runner.getConfigItem()
 	
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 	
-	# Do we have this item?
-	set | grep $item 2>&1 > /dev/null
-		
-	if [[ $? -ne 0 ]]
-	then
-		# variable not known!
-		main.dieGracefully "variable $item not found!"
-	else
-		main.log -v "${item}: ${!item}"
-		
-		# Add to cache
-		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "${!item}"
-		
-		# Return value (indirect)
-		echo ${!item}
-	fi
+	value="$(common.common.variables.getValue $item)"
+
+	echo "$value"
 }
 
 ################################################################################
