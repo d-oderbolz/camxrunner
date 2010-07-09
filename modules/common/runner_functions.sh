@@ -980,6 +980,25 @@ function common.runner.releaseAllLocks()
 }
 
 ################################################################################
+# Function: common.runner.getExistingConfigFile
+#
+# Interactively asks user for the name of an existing config file (no path)
+#
+################################################################################	
+function common.runner.getExistingConfigFile() 
+################################################################################
+{
+	# To keep the list compact, we go into the conf dir and back out again
+	cd "${CXR_CONF_DIR}" || main.dieGracefully "Could not change to ${CXR_CONF_DIR}!"
+		
+	local config=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose a file I should use:" "*.conf" )
+		
+	cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+	
+	echo $config
+}
+
+################################################################################
 # Function: common.runner.createConfigFile
 #
 # Interactively creates a new configuration file for a run. 
@@ -1011,13 +1030,7 @@ function common.runner.createConfigFile()
 			basefile=${CXR_BASECONFIG}
 		else
 			#Yes, gimme options
-			
-			# To keep the list compact, we go into the conf dir and back out again
-			cd "${CXR_CONF_DIR}" || main.dieGracefully "Could not change to ${CXR_CONF_DIR}!"
-			
-			basefile=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose a file I should use:" "*.conf" )
-			
-			cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
+			basefile=$(common.runner.getExistingConfigFile)
 		fi
 	
 		if [[ ! -f "$basefile"  ]]
@@ -1204,19 +1217,15 @@ function common.runner.getModelId()
 	return 1
 }
 
-
 ################################################################################
-# Function: common.runner.createNewRun
+# Function: common.runner.getNewRunName
 #
-# Creates a new run by creating an appropriate link and calling <common.runner.createConfigFile>
-#
-# Tolerates runs that already exist (asks user).
+# Interactively asks user for new run name
 #
 ################################################################################	
-function common.runner.createNewRun() 
+function common.runner.getNewRunName() 
 ################################################################################
 {
-
 	local model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
 	
 	local model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
@@ -1237,12 +1246,26 @@ function common.runner.createNewRun()
 	read addition
 
 	run="${run}-$addition"
-
-	# Name ok? ###################################################################
-	common.check.RunName $run || main.dieGracefully "The name supplied does not contain a proper CAMx version. Rerun using $0 -C to be guided inturactively"
-		
-	# Name OK.
 	
+	# Name ok? #
+	common.check.RunName $run || main.dieGracefully "Could not determine new run name"
+	
+	echo "$run"
+}
+
+################################################################################
+# Function: common.runner.createNewRun
+#
+# Creates a new run by creating an appropriate link and calling <common.runner.createConfigFile>
+#
+# Tolerates runs that already exist (asks user).
+#
+################################################################################	
+function common.runner.createNewRun() 
+################################################################################
+{
+	run="$(common.runner.getNewRunName)"
+
 	# Extract and export model name and version 
 	main.setModelAndVersion $run
 	
@@ -1273,7 +1296,6 @@ function common.runner.createNewRun()
 	
 	# Messages & Good wishes #####################################################
 	main.log  "New run was created, start it with \n\t \$ $run -d"
-
 }
 
 ################################################################################
@@ -1459,16 +1481,20 @@ function common.runner.recreateRun()
 	if [[ -z "${1:-}" ]]
 	then
 		#no, ask
-		oldRun="$(common.runner.getExistingRunName)"
+		oldRunConf=$(common.runner.getExistingConfigFile)
+		
+		# remove .conf
+		oldRun="$(basename $oldRunConf .conf)"
 	else
 		#yes
 		oldRun=${1}
-		# Verify
-		if [[ $(common.check.isCorrectRunName $oldRun) == false ]]
-		then
-			main.dieGracefully "The name of the run you want to repeat () is not correct. Make sure only characters allowed in filenames are included"
-		fi # Supplied run name correct?
 	fi # got run name?
+	
+	# Verify
+	if [[ $(common.check.isCorrectRunName $oldRun) == false ]]
+	then
+		main.dieGracefully "The name of the run you want to repeat () is not correct. Make sure only characters allowed in filenames are included"
+	fi # Supplied run name correct
 	
 	
 	# Get the new one
