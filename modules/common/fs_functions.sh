@@ -142,8 +142,8 @@ function common.fs.isSubDirOf?()
 		fi
 		
 		# If path1 is a subdir of path2,
-		# the string making up path1 must be the start of path2
-		if [[ "$(common.string.isSubstringPresent? "$path1" "$path2")" == true ]]
+		# the string making up path2 must be the start of path1
+		if [[ "$(common.string.isSubstringPresent? "$path2" "$path1")" == true ]]
 		then
 			echo true
 		else
