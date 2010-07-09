@@ -937,7 +937,7 @@ function model()
 	then
 	
 		# common.state.storeState checks if we have finished this and if we need to continue
-		if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+		if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 		then
 			main.log -B  "Running $CXR_MODEL_EXEC for day $CXR_DATE"
 			

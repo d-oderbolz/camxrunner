@@ -700,7 +700,7 @@ function model()
 			common.state.storeState ${CXR_STATE_STOP} > /dev/null
 			
 		else
-			main.log  "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
+			main.log -a "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
 		fi
 		
 		else

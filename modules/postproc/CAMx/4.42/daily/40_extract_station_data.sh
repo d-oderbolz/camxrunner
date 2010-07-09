@@ -178,7 +178,7 @@ function extract_station_data
 	local iSpec
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 	then
 
 		#  --- Setup the Environment of the current day
