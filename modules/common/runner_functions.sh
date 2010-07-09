@@ -1008,11 +1008,14 @@ function common.runner.getExistingConfigFile()
 #
 # Parameters:
 # $1 - Run-name
+# [$2] - An old run name to be used (if given, we ask no questions)
 ################################################################################	
 function common.runner.createConfigFile() 
 ################################################################################
 {
-	local run="$1"
+	local newRun="$1"
+	local existingRun="${2:-}"
+	
 	local basefile
 	local template
 	local destination
@@ -1020,121 +1023,131 @@ function common.runner.createConfigFile()
 	local playfile
 	local tmpfile
 	
-	if [[ $(common.user.getOK "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
+	if [[ "$existingRun" ]]
 	then
-
-		# Show a list of existing files to choose from
-		if [[ $(common.user.getOK "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false  ]]
+		# Make sure it works, no matter what
+		basefile=${CXR_CONF_DIR}/$(basename $existingRun .conf).conf
+		
+		cp ${basefile} ${CXR_CONFIG}
+		touch ${CXR_CONFIG}
+		chmod +x ${CXR_CONFIG}
+	else
+		if [[ $(common.user.getOK "We create a configuration file for the new run now.\n Do you want to copy an existing file? (If you say no, you will be asked the values of the new configuration instead)" ) == true  ]]
 		then
-			#No, use base.conf
-			basefile=${CXR_BASECONFIG}
+	
+			# Show a list of existing files to choose from
+			if [[ $(common.user.getOK "Do you want to use a file other than \n $(basename ${CXR_BASECONFIG}) as as starting point?" ) == false  ]]
+			then
+				#No, use base.conf
+				basefile=${CXR_BASECONFIG}
+			else
+				#Yes, gimme options
+				basefile=$(common.runner.getExistingConfigFile)
+			fi
+		
+			if [[ ! -f "$basefile"  ]]
+			then
+				main.dieGracefully "File $basefile is not readable!"
+			fi
+		
+			# For the moment, I romoved the option to expand a config
+			# Tell user if expand is on and let the user decide
+			
+	#		if [ $(common.user.getOK "Do you want to expand the new configuration?\n \
+	#This means that any variable in $basefile that is not protected by \
+	#single quotes will be expanded to its value and then be written to the new configuration file. \
+	#This makes everything in it static, allowing you to preserve the actual settings used. \
+	#However, this can also be a disadvantage!" N ) == true ]
+	#		then
+	#			# Yes, expand.
+	#			common.runner.expandConfigFile ${CXR_BASECONFIG} ${CXR_EXPANDED_CONFIG}
+	#		else
+				#No expansion, just copy.
+			
+				# Is the file already there?
+				if [[ -f ${CXR_CONFIG}  ]]
+				then
+					# Continue even if file is there?
+					if [[ $(common.user.getOK "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false  ]]
+					then
+						exit
+					fi
+				fi
+			
+				# The user just wants a copy
+				# copy base config and make sure some file is present
+				cp  ${basefile} ${CXR_CONFIG}
+				touch ${CXR_CONFIG}
+				chmod +x ${CXR_CONFIG}
+	
+	#		fi # Decision to expand 
+	
 		else
-			#Yes, gimme options
-			basefile=$(common.runner.getExistingConfigFile)
-		fi
+			# The user wants to be asked a lot of questions.
+			
+			# This is for the replacement later
+			basefile=base.conf
 	
-		if [[ ! -f "$basefile"  ]]
-		then
-			main.dieGracefully "File $basefile is not readable!"
-		fi
+			# The template we use (can be chosen more elaborate, maybe)
+			template="${CXR_TEMPLATES_DIR}/conf/base.tpl"
 	
-		# For the moment, I romoved the option to expand a config
-		# Tell user if expand is on and let the user decide
-		
-#		if [ $(common.user.getOK "Do you want to expand the new configuration?\n \
-#This means that any variable in $basefile that is not protected by \
-#single quotes will be expanded to its value and then be written to the new configuration file. \
-#This makes everything in it static, allowing you to preserve the actual settings used. \
-#However, this can also be a disadvantage!" N ) == true ]
-#		then
-#			# Yes, expand.
-#			common.runner.expandConfigFile ${CXR_BASECONFIG} ${CXR_EXPANDED_CONFIG}
-#		else
-			#No expansion, just copy.
-		
-			# Is the file already there?
-			if [[ -f ${CXR_CONFIG}  ]]
+			destination="${CXR_CONF_DIR}/${newRun}.conf"
+	
+			if [[ -f "$destination"  ]]
 			then
 				# Continue even if file is there?
-				if [[ $(common.user.getOK "${CXR_CONFIG} already exists. Do you want to overwrite this file?" ) == false  ]]
+				if [[ $(common.user.getOK "$destination already exists. Do you want to overwrite this file?" N ) == false  ]]
 				then
 					exit
 				fi
 			fi
-		
-			# The user just wants a copy
-			# copy base config and make sure some file is present
-			cp  ${basefile} ${CXR_CONFIG}
-			touch ${CXR_CONFIG}
-			chmod +x ${CXR_CONFIG}
-
-#		fi # Decision to expand 
-
-	else
-		# The user wants to be asked a lot of questions.
-		
-		# This is for the replacement later
-		basefile=base.conf
-
-		# The template we use (can be chosen more elaborate, maybe)
-		template="${CXR_TEMPLATES_DIR}/conf/base.tpl"
-
-		destination="${CXR_CONF_DIR}/${run}.conf"
-
-		if [[ -f "$destination"  ]]
-		then
-			# Continue even if file is there?
-			if [[ $(common.user.getOK "$destination already exists. Do you want to overwrite this file?" N ) == false  ]]
+	
+			# Let's first copy the template
+			cp "$template" "$destination"
+			
+			# We will now ask the user a number of questions encoded in an ask-file
+			# The result will be a play-file
+			askfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/base.ask
+			playfile=${CXR_CONF_DIR}/${newRun}.play
+			
+			# Might be simplified later
+			if [[ -s "$playfile"  ]]
 			then
-				exit
-			fi
-		fi
-
-		# Let's first copy the template
-		cp "$template" "$destination"
-		
-		# We will now ask the user a number of questions encoded in an ask-file
-		# The result will be a play-file
-		askfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/base.ask
-		playfile=${CXR_CONF_DIR}/${run}.play
-		
-		# Might be simplified later
-		if [[ -s "$playfile"  ]]
-		then
-			# We already have a playfile
-			# Do you want to replay?
-			if [[ "$(common.user.getOK "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
-			then
-				# Yes, show me
-				cat "$playfile"
-				
-				if [[ "$(common.user.getOK "Should this installation be repeated with the existing settings?" N )" == true  ]]
+				# We already have a playfile
+				# Do you want to replay?
+				if [[ "$(common.user.getOK "Such a config file was already created. Do you want to look at the settings that where used then? (You will then be asked if you want to reinstall using those values)" Y )" == true  ]]
 				then
-					# Playback, do nothing
-					:
+					# Yes, show me
+					cat "$playfile"
+					
+					if [[ "$(common.user.getOK "Should this installation be repeated with the existing settings?" N )" == true  ]]
+					then
+						# Playback, do nothing
+						:
+					else
+						# Redo
+						common.user.getAnswers "$askfile" "$playfile"
+					fi
 				else
 					# Redo
 					common.user.getAnswers "$askfile" "$playfile"
 				fi
 			else
-				# Redo
+				# Start from scratch
 				common.user.getAnswers "$askfile" "$playfile"
 			fi
-		else
-			# Start from scratch
-			common.user.getAnswers "$askfile" "$playfile"
-		fi
-
-		common.user.applyPlayfile $playfile 
-		
-		# We need this set later
-		CXR_CONFIG=$destination
-
-		# Should we add more tests?
-		
-	fi # Decision if copy or .ask
 	
-	main.log  "Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${run} -d";
+			common.user.applyPlayfile $playfile 
+			
+			# We need this set later
+			CXR_CONFIG=$destination
+	
+			# Should we add more tests?
+			
+		fi # Decision if copy or .ask
+		
+		main.log  "Edit the config file ${CXR_CONFIG} if needed - else just dry-run the script: \n \$ \t ${newRun} -d";
+	fi # New name given?
 }
 
 ################################################################################
@@ -1504,7 +1517,7 @@ function common.runner.recreateRun()
 	# Get the new one
 	newRun="$(common.runner.getNewRunName)"
 	
-	# Create config (ATTN: IF changed)
+	# Create config
 	common.runner.createConfigFile "$newRun" "$oldRun"
 	
 	# Create Directories
