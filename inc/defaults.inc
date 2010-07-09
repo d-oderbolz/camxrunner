@@ -738,8 +738,6 @@ CXR_ASC_EXT=asc
 
 ################################################################################
 # Executables
-# TODO: we should offer compilation for all of these, use something like
-# cxr_get_exec...
 ################################################################################
 
 # Lock manager

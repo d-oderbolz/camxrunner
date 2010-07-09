@@ -898,8 +898,8 @@ function common.check.preconditions()
 # Checks if the currently loaded module requests a CAMxRunner and configuration
 # Version less or equal than current one and if it needs anything special 
 # (like special executables).
-# The executable check is still a bit rough - we later need to integrate it with
-# the new approach to determine any executables name.
+# The executable check is still a bit rough - the problem is that we do net know
+# which variable name the module expects the binary to be in.
 #
 # Returns true on success, false otherwise
 ################################################################################
@@ -1049,15 +1049,21 @@ function common.check.ModuleRequirements()
 				"exec") # Now we search the environment for this executable
 							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 							do
-								if [[ "$(basename ${!executable})" == "$what" ]]
+								# We try to get the real name, but allow empty
+								wanted_name="$(main.getBinaryName "$what" true)"
+								
+								if [[ "$wanted_name" ]]
 								then
-									main.log -v   "${!executable} matches $what"
-									found=true
-									break
+									if [[ "$(basename ${!executable})" == "$(basename "$wanted_name")" ]]
+									then
+										main.log -v "${!executable} matches $what"
+										found=true
+										break
+									fi
 								fi
 							done
 							
-							if [[ "$found" == false  ]]
+							if [[ "$found" == false ]]
 							then
 								if [[ "$need" == mandatory ]]
 								then
