@@ -1522,7 +1522,7 @@ function common.runner.recreateRun()
 	
 	# Create Directories
 	
-	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file now if needed!"
+	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file now if needed!\nPress any key to continue..."
 	common.runner.createMissingDirs "$newRun"
 	
 	# Ask user if we need to copy/link input data 
