@@ -1393,7 +1393,7 @@ function common.runner.getConfigItem()
 	
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 	
-	value="$(common.common.variables.getValue $item)"
+	value="$(common.variables.getValue $item)"
 
 	echo "$value"
 }
