@@ -303,12 +303,11 @@ function extract_station_data
 				;;
 				
 			extract_arpa_stations)
-				# Here, we also need our ZP and Temp file (for ppb conversion), 
-				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
-				# We set this fag to 0 because currently we only run on the innermost domain
+				# Here, we also need our ZP and Temp file (for ppb conversion)
+				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}'
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
 				exit
 				EOF
 				;;

@@ -861,10 +861,14 @@ CXR_MODEL_CTRL_FILE_RULE='${CXR_STATE_DIR}/CAMx.${CXR_DATE_RAW}.in'
 
 ########################################
 # Options for the export of station-specific data
+# Check if your extractor supports all these
 ########################################
 
 # Which species should be extracted (all does all, otherwise, provide a space separated list)
 CXR_STATION_SPECIES=${CXR_ALL}
+
+# How should we normalize the concentrations? (nabel, physical, none)
+CXR_NORM_METHOD=physical
 
 # Format can be either CSV or IDL
 CXR_STATION_FILE_FORMAT=IDL

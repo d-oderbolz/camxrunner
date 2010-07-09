@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt,normalisation_method=normalisation_method
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt,norm_method=norm_method
 	;
 	; Function: extract_arpa_stations
 	;
@@ -34,7 +34,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; zp_file - pressure/height ASCII file
 	; temp_file - temperature ASCII file
 	; [format=] - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
-	; [normalisation_method=] - a string selecting the approach to normalize concentrations to standard conditions:
+	; [norm_method=] - a string selecting the approach to normalize concentrations to standard conditions:
 	;                        'physical' - using the models T and P fields (default)
 	;                        'nabel' - use the NABELs constant factors (ASSUMING h < 1500 m)
 	;                        'none' - do not correct
@@ -87,7 +87,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 	; physical is 
-	if (n_elements(normalisation_method) EQ 0) then normalisation_method='physical'
+	if (n_elements(norm_method) EQ 0) then norm_method='physical'
+	norm_method=strlowcase(norm_method)
 	
 	; stations are multidimensional
 	s = size(stations,/DIMENSIONS)
@@ -111,6 +112,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	
 	; Convert mbar to PA
 	mb2pa = 1E2
+	
+	; Convert ppm to ppb
+	ppm2ppb = 1E3
 	
 	; Standard conditions (according to EU legislation)
 	T0 = 293 ; K
@@ -356,11 +360,37 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 				f_n = 1
 			endif
 			
+			; Determine the conversion factors according to to chosen method
+			case norm_method in
+			
+				'physical': begin
+								; Here we consider normalisation
+								C_NO = M_NO * ppb2ugm * f_n
+								C_NO2 = M_NO2 * ppb2ugm * f_n
+								C_O3 = M_O3 * ppb2ugm * f_n
+							end
+							
+				'nabel': 	begin
+								; Just use constants
+								C_NO = 1.25
+								C_NO2 = 1.91
+								C_O3 = 2.00
+							end
+				
+				'none' :	begin
+								; Only do the ppb conversion, but not the normalisation
+								C_NO = M_NO * ppb2ugm
+								C_NO2 = M_NO2 * ppb2ugm
+								C_O3 = M_O3 * ppb2ugm
+							end
+			
+			endcase
+			
 			if (iHour EQ 9) then begin
-				print,'Correction factors for hour 9 for file ' + stations[2,station]
-				print,'NO:' + strtrim(M_NO * ppb2ugm * f_n,2)
-				print,'NO2:' + strtrim(M_NO2 * ppb2ugm * f_n,2)
-				print,'O3:' + strtrim(M_O3 * ppb2ugm  * f_n,2)
+				print,'Conversion factors for hour 9 for file (ppb -> ugm)' + stations[2,station]
+				print,'NO:' + strtrim(C_NO,2)
+				print,'NO2:' + strtrim(C_NO2,2)
+				print,'O3:' + strtrim(C_O3,2)
 				
 				if (station EQ 0) then begin
 					print,'Factors used by NABEL < 1500 masl: (NABEL,2007)'
@@ -373,19 +403,19 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 
 			; Gasses need convesion to ppb and norm-volume correction
 			if (species->iscontained('NO')) then begin
-				no=station_conc[species->get('NO'),station] * 1000 * M_NO * ppb2ugm * f_n
+				no=station_conc[species->get('NO'),station] * ppm2ppb * C_NO
 			endif else begin
 				no=0
 			endelse
 
 			if (species->iscontained('NO2')) then begin
-				no2=station_conc[species->get('NO2'),station] * 1000 * M_NO2 * ppb2ugm * f_n
+				no2=station_conc[species->get('NO2'),station] * ppm2ppb * C_NO2
 			endif else begin
 				no2=0
 			endelse
 			
 			if (species->iscontained('O3')) then begin
-				o3=station_conc[species->get('O3'),station] * 1000 *  M_O3 * ppb2ugm * f_n
+				o3=station_conc[species->get('O3'),station] * ppm2ppb *  C_O3
 			endif else begin
 				o3=0
 			endelse
