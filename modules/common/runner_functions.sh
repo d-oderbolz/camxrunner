@@ -991,7 +991,7 @@ function common.runner.getExistingConfigFile()
 	# To keep the list compact, we go into the conf dir and back out again
 	cd "${CXR_CONF_DIR}" || main.dieGracefully "Could not change to ${CXR_CONF_DIR}!"
 		
-	local config=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose a file I should use:" "*.conf" )
+	local config=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose an existing config file as starting point:" "*.conf" )
 		
 	cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 	
@@ -1362,10 +1362,9 @@ function common.runner.createMissingDirs()
 # Function: common.runner.getConfigItem
 #
 # This function loads a runs configuration (full hierarchy) and then
-# extracts the value of a given variable. If the variable is not found, the empty 
-# string is returned.
+# extracts the value of a given variable. If the variable is not found, we crash.
 # Its recommended to call this function in a subshell (see below), otherwise,
-# the current configuration is lost.
+# the current configuration is overwritten.
 #
 # Example:
 # > local oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
@@ -1377,9 +1376,27 @@ function common.runner.createMissingDirs()
 function common.runner.getConfigItem() 
 ################################################################################
 {
+	local runName="${1}"
+	local item="${2}" 
+	
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 	
-	
+	# Do we have this item?
+	set | grep $item 2>&1 > /dev/null
+		
+	if [[ $? -ne 0 ]]
+	then
+		# variable not known!
+		main.dieGracefully "variable $item not found!"
+	else
+		main.log -v "${item}: ${!item}"
+		
+		# Add to cache
+		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "${!item}"
+		
+		# Return value (indirect)
+		echo ${!item}
+	fi
 }
 
 ################################################################################
@@ -1493,7 +1510,7 @@ function common.runner.recreateRun()
 	# Verify
 	if [[ $(common.check.RunName $oldRun) == false ]]
 	then
-		main.dieGracefully "The name of the run you want to repeat () is not correct. Make sure only characters allowed in filenames are included"
+		main.dieGracefully "The name of the run you want to repeat ($oldRun) is not correct. Make sure only characters allowed in filenames are included"
 	fi # Supplied run name correct
 	
 	
