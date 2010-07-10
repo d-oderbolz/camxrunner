@@ -129,14 +129,16 @@ function common.fs.isSubDirOf?()
 	local path1="$1"
 	local path2="$2"
 	
-	# If they are the same, they are subdirs of each other
+	# If they are the same, they are subdirs of each other by definition
 	if [[ "$path1" == "$path2" ]]
 	then
 		echo true
 	else
 		# They are not the same
-		# We add a slash to the suspected root unless it is root
-		if [[ "$path2" != "/" ]]
+		# We add a slash to the suspected root unless the last character is a slash
+		if [[ "${path2: -1}" != "/" ]]
+		#              ¦
+		#     This space is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
 			path2="$path2"/
 		fi

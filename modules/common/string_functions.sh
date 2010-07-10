@@ -51,6 +51,8 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.string.isSubstringPresent?() 
 ################################################################################
 {
+	main.log -a "Testing this expression: " $1" ".*$2.*""
+	
 	local found=$(expr match " $1" ".*$2.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	

@@ -1265,6 +1265,11 @@ function common.runner.getNewRunName()
 	
 	# Ask user for rest of name
 	local addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add?")"
+	
+	addition="$(common.string.trim $addition)"
+	
+	# Replace any spaces left by _
+	addition=${addition// /_}
 
 	run="${run}-$addition"
 	
@@ -1440,16 +1445,12 @@ function common.runner.recreateInput()
 	local oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
 	local newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
-
-	
 	# make sure they are not subdirs of each other
 	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
 	then
 		main.dieGracefully "To use the recreate feature, neither $oldEmissDir must be a subdirectory of $oldInputDir or vice versa."
 	fi
-	
-		exit
-	
+
 	# Emissions
 	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldRun?")" == true ]]
 	then
