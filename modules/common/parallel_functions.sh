@@ -1107,7 +1107,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 
-	common.parallel.init
+	# common.parallel.init
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
