@@ -1346,6 +1346,8 @@ function common.runner.createMissingDirs()
 	# Load config (silently)
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" 2>&1 > /dev/null
 	
+	exit
+	
 	# Get directories (create as needed)
 	for dir in $(set | grep -e ^CXR_[_A-Z]\+_DIR= | cut -d= -f1)
 	do
