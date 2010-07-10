@@ -1408,9 +1408,8 @@ function common.runner.getConfigItem()
 	# Load config (silently)
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" 2>&1 > /dev/null
 	
-	value="$(common.variables.getValue $item)"
-
-	echo "$value"
+	common.variables.getValue $item
+	echo "$_value"
 }
 
 ################################################################################

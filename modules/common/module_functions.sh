@@ -200,12 +200,12 @@ function common.module.getMetaField()
 		fi
 		
 		# Do we have this variable?
-		value="$(common.variables.getValue $item)"
+		common.variables.getValue $item
 		
 		# Add to cache
-		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "$value"
+		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "$_value"
 		
-		echo "$value"
+		echo "$_value"
 		
 	fi
 
