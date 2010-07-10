@@ -95,7 +95,7 @@ function common.variables.getValue()
 		main.log -e "variable $item not found!"
 		echo ""
 	else
-		main.log -a "${item}: ${!item}"
+		main.log -v "${item}: ${!item}"
 
 		# Return value (indirect)
 		echo ${!item}
