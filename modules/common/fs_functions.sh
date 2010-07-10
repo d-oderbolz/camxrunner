@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=24
+CXR_META_MODULE_NUM_TESTS=25
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -966,6 +966,8 @@ function test_module()
 	is "$(common.fs.isSubDirOf? some/path some/path )" true "common.fs.isSubDirOf? twice the same path"
 	is "$(common.fs.isSubDirOf? / / )" true "common.fs.isSubDirOf? twice /"
 	is "$(common.fs.isSubDirOf? . . )" true "common.fs.isSubDirOf? twice ."
+	# There seem to be issues if thesre are hyphens in the path:
+	is "$(common.fs.isSubDirOf? /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib) true "common.fs.isSubDirOf? using hyphens"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a"
