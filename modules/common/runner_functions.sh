@@ -1264,7 +1264,7 @@ function common.runner.getNewRunName()
 	local run=${model}-v${version}
 	
 	# Ask user for rest of name
-	local addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add?")"
+	local addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add (spaces will be replaced by _)?")"
 	
 	addition="$(common.string.trim $addition)"
 	
