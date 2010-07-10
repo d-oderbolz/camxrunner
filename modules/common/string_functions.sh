@@ -51,9 +51,17 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.string.isSubstringPresent?() 
 ################################################################################
 {
-	main.log -a "Testing this expression: " $1" ".*$2.*""
+	local haystack=$1
+	local needle=$1
 	
-	local found=$(expr match " $1" ".*$2.*")
+	if [[ -z "$haystack" || -z "$needle" ]]
+	then
+		# This can happen often and is not necessarily an error
+		main.log -v "Either of these parameters is empty: $haystack $needle"
+	fi
+	
+	
+	local found=$(expr match " $haystack" ".*$needle.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
 	if [[ $found -gt 0  ]]
