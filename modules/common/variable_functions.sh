@@ -87,15 +87,15 @@ function common.variables.getValue()
 {
 	local item=${1}
 	
-	set | grep ${item} 2>&1 > /dev/null
+	set | grep ${item}= 2>&1 > /dev/null
 	
-	if [[ $? -ne 0 ]]
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
 		# variable not known!
 		main.log -e "variable $item not found!"
 		echo ""
 	else
-		main.log -v "${item}: ${!item}"
+		main.log -a "${item}: ${!item}"
 
 		# Return value (indirect)
 		echo ${!item}
