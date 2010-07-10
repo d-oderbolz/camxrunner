@@ -87,9 +87,9 @@ function common.variables.getValue()
 	local item=${1}
 	
 	main.log -a reading $item
+	set
 	
-	set | grep ${item}= 
-	#2>&1 > /dev/null
+	set | grep ${item}= 2>&1 > /dev/null
 	
 	if [[ $? -ne 0 ]]
 	then
