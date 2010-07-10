@@ -87,7 +87,7 @@ function common.variables.getValue()
 	local item=${1}
 	
 	main.log -a reading $item
-	set
+	main.log -a $(set)
 	
 	set | grep ${item}= 2>&1 > /dev/null
 	
