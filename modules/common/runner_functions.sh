@@ -1440,13 +1440,15 @@ function common.runner.recreateInput()
 	local oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
 	local newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
-	exit
+
 	
 	# make sure they are not subdirs of each other
 	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
 	then
 		main.dieGracefully "To use the recreate feature, neither $oldEmissDir must be a subdirectory of $oldInputDir or vice versa."
 	fi
+	
+		exit
 	
 	# Emissions
 	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldRun?")" == true ]]
