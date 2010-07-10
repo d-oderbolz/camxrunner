@@ -77,11 +77,7 @@ function common.variables.list()
 #	
 # Extracts the value of a given (non-exported) variable from the environment.
 # If the variable is not found, the empty string is returned and an error is throwed.
-# We set the variable _value, do not call using $().
 #
-# Example:
-#> common.variables.getValue $item
-#> echo "$_value"
 #
 # Parameters:
 # $1 - item to find
@@ -91,21 +87,18 @@ function common.variables.getValue()
 {
 	local item=${1}
 	
-	main.log -a reading $item
-	main.log -a $(set)
-	
-	set | grep ${item}= 2>&1 > /dev/null
+	set | grep ${item} 2>&1 > /dev/null
 	
 	if [[ $? -ne 0 ]]
 	then
 		# variable not known!
 		main.log -e "variable $item not found!"
-		_value=""
+		echo ""
 	else
 		main.log -v "${item}: ${!item}"
 
 		# Return value (indirect)
-		_value=${!item}
+		echo ${!item}
 	fi
 }
 
