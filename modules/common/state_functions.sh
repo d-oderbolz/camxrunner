@@ -437,11 +437,11 @@ function common.state.detectInstances()
 	if [[ ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false ]]
 	then
 		# There are other processes running and this is not allowed
-		main.log -e   "Found other Continue files - maybe these processes died or they are still running:\n(Check their age!)"
+		main.log -e   "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
 		
-		find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | tee -a ${CXR_LOG}
+		find "${CXR_ALL_INSTANCES_DIR}" -noleaf -type d -maxdepth 1 2>/dev/null | tee -a ${CXR_LOG}
 		
-		main.log -e   "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
+		main.log -e "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
 		main.dieGracefully "Process stopped"
 	fi
