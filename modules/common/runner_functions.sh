@@ -1377,8 +1377,6 @@ function common.runner.createMissingDirs()
 				main.log -w   "Variable $dir is not set (might not be a problem, though)"
 			fi
 		done 
-		
-		exit
 }
 
 ################################################################################
