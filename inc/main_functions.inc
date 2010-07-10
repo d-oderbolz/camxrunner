@@ -920,7 +920,7 @@ function main.readConfig()
 		
 	CXR_RUN_DIR="${4}"
 	
-	if [[ -z "$CXR_MODEL_VERSION"  ]]
+	if [[ -z "$CXR_MODEL_VERSION" ]]
 	then
 		main.dieGracefully "Could not determine Model Version when loading config!"
 	fi
@@ -936,7 +936,7 @@ function main.readConfig()
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
 
-	main.log -v   "CXR_RUN_DIR of ${CXR_RUN} is $CXR_RUN_DIR"
+	main.log -v "CXR_RUN_DIR of ${CXR_RUN} is $CXR_RUN_DIR"
 	main.log  "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 
 	########################################

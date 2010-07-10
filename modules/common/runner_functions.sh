@@ -1347,18 +1347,18 @@ function common.runner.createMissingDirs()
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" 2>&1 > /dev/null
 	
 	# Get directories (create as needed)
-	for dir in $(set | grep -e ^CXR_*.*_DIR= | cut -d= -f1)
+	for dir in $(set | grep -e ^CXR_[_A-Z]\+_DIR= | cut -d= -f1)
 	do
-			main.log -v   "Variable $dir has value: ${!dir}\n"
+			main.log -v "Variable $dir has value: ${!dir}\n"
 
 			# is it set?
 			if [[ "${!dir}" ]]
 			then
 				# does it exist?
-				if [[ -d "${!dir}"  ]]
+				if [[ -d "${!dir}" ]]
 				then
 					# is it executable (dir: means accessible)?
-					if [[ ! -x ${!dir}  ]]
+					if [[ ! -x ${!dir} ]]
 					then
 						main.log -e "Directory ${!dir}, \nParameter $dir not accessible!"
 					fi
