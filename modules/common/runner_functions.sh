@@ -1349,7 +1349,7 @@ function common.runner.createMissingDirs()
 	local dir
 
 	# Load config (silently)
-	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" 2>&1 > /dev/null
+	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" &> /dev/null
 	
 	# Get directories (create as needed)
 	for dir in $(set | grep -e ^CXR_[_A-Z]\+_DIR= | cut -d= -f1)
@@ -1406,7 +1406,7 @@ function common.runner.getConfigItem()
 	local runName="${2}"
 	
 	# Load config (silently)
-	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" 2>&1 > /dev/null
+	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" &> /dev/null
 	
 	echo "$(common.variables.getValue $item)"
 }

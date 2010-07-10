@@ -87,7 +87,7 @@ function common.variables.getValue()
 {
 	local item=${1}
 	
-	set | grep ${item}= 2>&1 > /dev/null
+	set | grep ${item}= &>/dev/null
 	
 	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
