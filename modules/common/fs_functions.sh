@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=25
+CXR_META_MODULE_NUM_TESTS=27
 
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=base
@@ -970,6 +970,8 @@ function test_module()
 	is "$(common.fs.isSubDirOf? . . )" true "common.fs.isSubDirOf? twice ."
 	# There seem to be issues if there are hyphens in the path:
 	is "$(common.fs.isSubDirOf? /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib)" true "common.fs.isSubDirOf? using hyphens"
+	is "$(common.fs.isSubDirOf?  /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs)" false "common.fs.isSubDirOf? real world"
+	is "$(common.fs.isSubDirOf?   /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss)" false "common.fs.isSubDirOf? real world"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a"
