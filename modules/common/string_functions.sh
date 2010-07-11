@@ -52,7 +52,7 @@ function common.string.isSubstringPresent?()
 ################################################################################
 {
 	local haystack=$1
-	local needle=$1
+	local needle=$2
 	
 	if [[ -z "$haystack" || -z "$needle" ]]
 	then
@@ -64,9 +64,9 @@ function common.string.isSubstringPresent?()
 	local found=$(expr match " $haystack" ".*$needle.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
-	if [[ $found -gt 0  ]]
+	if [[ $found -gt 0 ]]
 	then
-		main.log -v   "Substring $2 matches (partially) with $1"
+		main.log -v "Substring $needle matches (partially) with $haystack"
 		echo true
 	else
 		echo false
