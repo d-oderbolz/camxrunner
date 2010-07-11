@@ -1443,11 +1443,6 @@ function common.runner.recreateInput()
 	local oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
 	local newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
-	main.log -a "oldEmissDir $oldEmissDir"
-	main.log -a "newEmissDir $newEmissDir"
-	main.log -a "oldInputDir $oldInputDir"
-	main.log -a "newInputDir $newInputDir"
-	
 	# make sure they are not subdirs of each other
 	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
 	then
