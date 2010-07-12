@@ -622,48 +622,41 @@ function common.state.cleanup()
 						# If this is true, we delete until the end
 						following_days="$(common.user.getOK "Do you want to delete also data of days following this one?" )"
 						
+						if [[ $which_day == none ]]
+						then
+							main.log -w "Will not delete any state information" 
+							return 0
+						fi
 						
-						case "$which_day" in
+						start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+								
+						if [[ "$following_days" == true ]]
+						then
+							stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
+						else
+							stop_offset=$start_offset
+						fi
 						
-							none) 
-								main.log -w "Will not delete any state information" 
-								return 0
-								;;
+						for iOffset in $(seq $start_offset $stop_offset)
+						do
+							# determine raw date from iOffset
+							current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
+						
+							main.log -w  "The following files will be deleted:"
+					
+							ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
 								
-							*)
-								start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+							if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
+							then
+								# No 
+								main.log -a "Will not delete this information"
+								continue
+							else
+								#Yes
+								rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
+							fi #Delete?
+						done
 								
-								if [[ "$following_days" == true ]]
-								then
-									stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
-								else
-									stop_offset=$start_offset
-								fi
-								
-								for iOffset in $(seq $start_offset $stop_offset)
-								do
-									# determine raw date from iOffset
-									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
-								
-									main.log -w  "The following files will be deleted:"
-							
-									ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
-										
-									if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
-									then
-										# No 
-										main.log -w "Will not delete any state information"
-										return 0
-									else
-										#Yes
-										rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
-									fi #Delete?
-								done
-								
-								main.log -a "Done."
-								;;
-							
-						esac
 						;; # specific.day
 						
 					step)
@@ -678,30 +671,27 @@ function common.state.cleanup()
 						
 						which_step="$(common.user.getMenuChoice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
 						
-						case "$which_step" in
+						if [[ $which_step == none ]]
+						then
+							main.log -a "Will not delete any state information" 
+							return 0
+						fi
 						
-							none) 
-								main.log -w   "Will not delete any state information" 
-								return 0
-								;;
+						main.log -w  "The following files will be deleted:"
 								
-							*)
-								main.log -w  "The following files will be deleted:"
-								
-								ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
-								
-								if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-								then
-									# No 
-									main.log -w   "Will not delete any state information"
-									return 0
-								else
-									#Yes
-									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-									main.log -a "Done."
-								fi #Delete?
-								;;
-						esac
+						ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
+						
+						if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+						then
+							# No 
+							main.log -a  "Will not delete any state information"
+							return 0
+						else
+							#Yes
+							rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
+							main.log -a "Done."
+						fi #Delete?
+
 						;; # specific.step
 						
 					both)
@@ -759,8 +749,8 @@ function common.state.cleanup()
 							if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 							then
 								# No 
-								main.log -w "Will not delete any state information"
-								return 0
+								main.log -a "Will not delete this information"
+								continue
 							else
 								#Yes
 								rm -f ${CXR_STATE_DIR}/${current_date}${which_step}* 2>/dev/null
