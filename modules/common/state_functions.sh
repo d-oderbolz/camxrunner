@@ -627,10 +627,11 @@ function common.state.cleanup()
 							none) 
 								main.log -w "Will not delete any state information" 
 								return 0
-							;;
+								;;
 								
 							*)
 								start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+								
 								if [[ "$following_days" == true ]]
 								then
 									stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
@@ -641,7 +642,7 @@ function common.state.cleanup()
 								for iOffset in $(seq $start_offset $stop_offset)
 								do
 									# determine raw date from iOffset
-									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset)
+									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
 								
 									main.log -w  "The following files will be deleted:"
 							
@@ -657,6 +658,7 @@ function common.state.cleanup()
 										rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
 									fi
 								done
+								
 								main.log -i "Done."
 							;;
 							
@@ -717,7 +719,7 @@ function common.state.cleanup()
 							none) 
 								main.log -w   "Will not delete any state information" 
 								return 0
-							;;
+								;;
 								
 							*)
 								# If this is true, we delete until the end
@@ -735,7 +737,7 @@ function common.state.cleanup()
 									none) 
 										main.log -w   "Will not delete any state information" 
 										return 0
-									;;
+										;;
 									
 									all) 
 										main.log -w  "The following files will be deleted:"
@@ -751,14 +753,14 @@ function common.state.cleanup()
 											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
 											main.log -i   "Done."
 										fi
-									;;
+										;;
 									
 									*)	
 										start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
 										
 										if [[ "$following_days" == true ]]
 										then
-											stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
+											stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
 										else
 											stop_offset=$start_offset
 										fi
@@ -772,7 +774,7 @@ function common.state.cleanup()
 									
 											ls ${CXR_STATE_DIR}/${current_date}*${which_step}* | xargs -i basename \{\}
 											
-											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 											then
 												# No 
 												main.log -w   "Will not delete any state information"
@@ -783,17 +785,17 @@ function common.state.cleanup()
 											fi
 										done
 										main.log -a "Done."
-									;;
+										;;
 									
 								esac
-							;;
+								;;
 						esac
-					;;
+						;;
 				
 					none) 
 						main.log -w   "Will not delete any state information" 
 						return 0
-					;;
+						;;
 				esac
 				;;
 				
