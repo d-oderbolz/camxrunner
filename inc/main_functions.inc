@@ -1105,9 +1105,6 @@ function main.readConfig()
 			main.log -w  "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
 		fi
 	fi
-	
-	# count simulation days
-	CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 }
 
 ################################################################################
