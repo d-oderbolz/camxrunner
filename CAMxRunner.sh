@@ -508,6 +508,7 @@ if [[ "${CXR_HOLLOW}" == true ]]
 then
 	#Hollow functions neeed init too
 	common.state.init
+	
 
 	if [[ "${CXR_CLEANUP}" == true  ]]
 	then
@@ -569,9 +570,6 @@ fi
 ################################################################################
 # Check space requirements if we run a full simulation
 ################################################################################
-
-# count simulation days
-CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
 # Is this a repetition of an earlier run?
 if [[ $(common.state.isRepeatedRun?) == true ]]

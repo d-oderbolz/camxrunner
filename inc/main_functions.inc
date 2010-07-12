@@ -1049,7 +1049,7 @@ function main.readConfig()
 	# Try to load CAMx version specific config
 	########################################
 	
-	if [[ -f "$CXR_VERSIONCONFIG"  ]]
+	if [[ -f "$CXR_VERSIONCONFIG" ]]
 	then
 		main.log -a   "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
 		source "${CXR_VERSIONCONFIG}"
@@ -1076,7 +1076,7 @@ function main.readConfig()
 		# Does it exist?
 		if [[ -f "${CXR_CONFIG}"  ]]
 		then
-			main.log -a   "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
+			main.log -a "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
 			# Source it
 			source "${CXR_CONFIG}"
 		else
@@ -1105,6 +1105,9 @@ function main.readConfig()
 			main.log -w  "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
 		fi
 	fi
+	
+	# count simulation days
+	CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 }
 
 ################################################################################
