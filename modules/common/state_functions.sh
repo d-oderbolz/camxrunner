@@ -551,7 +551,7 @@ function common.state.cleanup()
 	
 	message="Do you want to change the state database?"
 	
-	while [ "$(common.user.getOK "$message" )" == true ]
+	while [[ "$(common.user.getOK "$message" )" == true ]]
 	do
 		# Fix the message
 		message="Do you want to further change the state database?"
@@ -562,44 +562,45 @@ function common.state.cleanup()
 		case "$what" in 
 		
 			all-non-tasks)
-					main.log -w  "The following files will be deleted:"
-						
-					find ${CXR_STATE_DIR} -noleaf -maxdepth 1 -type f | xargs -i basename \{\}
-			
-					# Do we do this?
-					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-					then
-						# No 
-						main.log -i   "Will not delete any state information"
-						return 0
-					else
-						# Yes
-						rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
-						main.log -i   "Done."
-					fi
-			;;
+				main.log -w  "The following files will be deleted:"
+					
+				find ${CXR_STATE_DIR} -noleaf -maxdepth 1 -type f | xargs -i basename \{\}
+		
+				# Do we do this?
+				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				then
+					# No 
+					main.log -i "Will not delete any state information"
+					return 0
+				else
+					# Yes
+					rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
+					main.log -i "Done."
+				fi #Delete?
+				
+				;; # all-non-tasks
 			
 			existing-instances)
 			
-					main.log -w  "The following directories and files therein will be deleted:"
-						
-					find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
-			
-					# Do we do this?
-					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-					then
-						# No 
-						main.log -i   "Will not delete any state information"
-						return 0
-					else
-						# Yes
-						rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
-						main.log -i   "Done."
-					fi
-			
-			;;
+				main.log -w  "The following directories and files therein will be deleted:"
 					
-			specific) 
+				find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
+		
+				# Do we do this?
+				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				then
+					# No 
+					main.log -i   "Will not delete any state information"
+					return 0
+				else
+					# Yes
+					rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
+					main.log -i   "Done."
+				fi #Delete?
+			
+				;; existing-instances
+					
+			specific)
 			
 				# Possibilities:
 				# one day 
@@ -648,7 +649,7 @@ function common.state.cleanup()
 							
 									ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
 										
-									if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+									if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 									then
 										# No 
 										main.log -w "Will not delete any state information"
@@ -656,14 +657,14 @@ function common.state.cleanup()
 									else
 										#Yes
 										rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
-									fi
+									fi #Delete?
 								done
 								
 								main.log -i "Done."
-							;;
+								;;
 							
 						esac
-					;;
+						;;
 						
 					step)
 						# To enumerate all steps, we use a little grep-magic
@@ -683,10 +684,9 @@ function common.state.cleanup()
 							none) 
 								main.log -w   "Will not delete any state information" 
 								return 0
-							;;
+								;;
 								
 							*)
-							
 								main.log -w  "The following files will be deleted:"
 								
 								ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
@@ -700,10 +700,10 @@ function common.state.cleanup()
 									#Yes
 									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
 									main.log -i   "Done."
-								fi
-							;;
+								fi #Delete?
+								;;
 						esac
-					;;
+						;;
 						
 					both)
 						# First get the day, then the step
@@ -717,9 +717,9 @@ function common.state.cleanup()
 						case "$which_day" in
 				
 							none) 
-								main.log -w   "Will not delete any state information" 
+								main.log -w "Will not delete any state information" 
 								return 0
-								;;
+								;; # both.none
 								
 							*)
 								# If this is true, we delete until the end
@@ -735,32 +735,32 @@ function common.state.cleanup()
 								case "$which_step" in
 								
 									none) 
-										main.log -w   "Will not delete any state information" 
+										main.log -w "Will not delete any state information" 
 										return 0
-										;;
+										;; #both.none
 									
 									all) 
-										main.log -w  "The following files will be deleted:"
+										main.log -w "The following files will be deleted:"
 										ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
 										
 										if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 										then
 											# No 
-											main.log -w   "Will not delete any state information"
+											main.log -w "Will not delete any state information"
 											return 0
 										else
 											#Yes
 											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-											main.log -i   "Done."
+											main.log -i "Done."
 										fi
-										;;
+										;; #both.all
 									
 									*)	
 										start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
 										
 										if [[ "$following_days" == true ]]
 										then
-											stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
+											stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
 										else
 											stop_offset=$start_offset
 										fi
@@ -768,7 +768,7 @@ function common.state.cleanup()
 										for iOffset in $(seq $start_offset $stop_offset)
 										do
 											# determine raw date from iOffset
-											current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset)
+											current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
 											
 											main.log -w  "The following files will be deleted:"
 									
@@ -777,7 +777,7 @@ function common.state.cleanup()
 											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 											then
 												# No 
-												main.log -w   "Will not delete any state information"
+												main.log -w "Will not delete any state information"
 												return 0
 											else
 												#Yes
@@ -785,48 +785,48 @@ function common.state.cleanup()
 											fi
 										done
 										main.log -a "Done."
-										;;
+										;; #both.*
 									
 								esac
-								;;
-						esac
+								;; #both-which
+						esac # both
 						;;
 				
 					none) 
-						main.log -w   "Will not delete any state information" 
+						main.log -w "Will not delete any state information" 
 						return 0
 						;;
 				esac
-				;;
+				;; # specific
 				
 			tasks)
-					main.log -w  "The following files will be deleted:"
-						
-					ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* | xargs -i basename \{\}
-			
-					# Do we do this?
-					if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-					then
-						# No 
-						main.log -w   "Will not delete any state information"
-						return 0
-					else
-	
-						# Yes
-						common.parallel.cleanTasks
+				main.log -w  "The following files will be deleted:"
+					
+				ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* | xargs -i basename \{\}
+		
+				# Do we do this?
+				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				then
+					# No 
+					main.log -w "Will not delete any state information"
+					return 0
+				else
 
-						main.log -i   "Done."
-					fi
-			;;
+					# Yes
+					common.parallel.cleanTasks
+
+					main.log -a "Done."
+				fi
+				;; # Tasks
 			
 			none)
-				main.log -w   "Will not delete any state information" 
+				main.log -w "Will not delete any state information" 
 				return 0
-			;;
+				;; # none
 		
-		esac
+		esac # The big one...
 	
-	done
+	done # Loop where user can repeatedly delete data
 }
 
 ################################################################################
