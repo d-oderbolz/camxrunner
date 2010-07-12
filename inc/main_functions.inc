@@ -466,6 +466,9 @@ function main.doCleanup()
 	local error_count
 	local dummy_file
 	
+	#Relax
+	set +e
+	
 	main.log -a -B "Cleaning up $CXR_RUN and Terminating processes..."
 	
 	# Remove any traps once called
@@ -549,11 +552,11 @@ function main.doCleanup()
 		
 		# Release Locks
 		common.runner.releaseAllLocks
-		
-		# Delete the instance files
-		rm -rf ${CXR_INSTANCE_DIR:-/dev/null} >/dev/null 2>&1
 
 	fi # Hollow?
+	
+	# Delete the instance files in any case
+	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &>/dev/null
 	
 	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
 	then
