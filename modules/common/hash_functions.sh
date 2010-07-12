@@ -11,6 +11,10 @@
 # This has the disadvantage of being slower than traditional, memory-base hashes (like perl
 # has them), but it has two advantages: our hashes are persistent (they survive a run) and
 # we can determine meta-information, such as the time of the last update of a single key.
+# Each Hash is a directory with files representing the key value pairs, where the filename is the key
+# and the content is the value.
+# In filesystems like AFS, where we have a limit on the total lenght of all filenames in a directory,
+# we try to catch such errors and delete older entries.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -201,7 +205,8 @@ function _common.hash.getFileName()
 # Puts a value into a key of a given hash. First the key is urlencoded using perl
 # then we use this value as a filename to store the value in.
 # Also touches to directory of the hash (can be used for "last update time").
-# We keep the data in a cache, justin case somebody wants it right away again.
+# We keep the data in a cache, just in case somebody wants to read it right away.
+# We try to take care of the AFS issue mentioned in the file header.
 # 
 #
 # Parameters:
@@ -237,10 +242,26 @@ function common.hash.put()
 	else
 		# Change the update time
 		touch "$hashdir"
-	fi	
+	fi
+	
+	# Turn off errexit
+	set +e
 	
 	# Write the value
 	echo "${value}" > "${fn}"
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.log -w "Could not create hash entry ${fn}. It is possible that the TOC of the directory is full.\nI will delete the oldest file now."
+		# Delete oldest entry
+		ls -1t "$hashdir" | tail -1 | xargs rm
+		
+		# Try again
+		echo "${value}" > "${fn}"
+	fi
+	
+	# Turn errexit back on
+	set -e
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"
