@@ -789,12 +789,12 @@ function common.state.cleanup()
 	
 											main.log -a "Done."
 											;; #both.*
-										
+											
 									esac
-									;; #both-which
-								
-							done
-							
+								done
+
+								;; #both-which
+
 						esac # both
 						;;
 				
