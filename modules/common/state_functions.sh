@@ -544,6 +544,10 @@ function common.state.cleanup()
 	local steps
 	local which_step
 	local message
+	local start_offset
+	local stop_offset
+	local iOffset
+	local current_date
 	
 	message="Do you want to change the state database?"
 	
@@ -600,41 +604,60 @@ function common.state.cleanup()
 				# Possibilities:
 				# one day 
 				# one step
-				# Both
+				# both
 				
 				what_detail="$(common.user.getMenuChoice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
 				
 				case "$what_detail" in
 				
 					day)
+						
 						# To enumerate all days, we use a little grep-magic, also we add none at the end
 						# The basename is needed to strip off the path, because the pattern starts with ^
 						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
 						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
 						
+						# If this is true, we delete until the end
+						following_days="$(common.user.getOK "Do you want to delete also data of days following this one?" )"
+						
+						
 						case "$which_day" in
 						
 							none) 
-								main.log -w   "Will not delete any state information" 
+								main.log -w "Will not delete any state information" 
 								return 0
 							;;
 								
 							*)
-								main.log -w  "The following files will be deleted:"
-						
-								ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
-								
-								if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+								start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+								if [[ "$following_days" == true ]]
 								then
-									# No 
-									main.log -w   "Will not delete any state information"
-									return 0
+									stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
 								else
-									#Yes
-									rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-									main.log -i   "Done."
+									stop_offset=$start_offset
 								fi
+								
+								for iOffset in $(seq $start_offset $stop_offset)
+								do
+									# determine raw date from iOffset
+									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset)
+								
+									main.log -w  "The following files will be deleted:"
+							
+									ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
+										
+									if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+									then
+										# No 
+										main.log -w "Will not delete any state information"
+										return 0
+									else
+										#Yes
+										rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
+									fi
+								done
+								main.log -i "Done."
 							;;
 							
 						esac
@@ -688,7 +711,7 @@ function common.state.cleanup()
 						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
 						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
-					
+
 						case "$which_day" in
 				
 							none) 
@@ -697,6 +720,9 @@ function common.state.cleanup()
 							;;
 								
 							*)
+								# If this is true, we delete until the end
+								following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
+								
 								# Now get the step
 								# To enumerate all steps, we use a little grep-magic
 								
@@ -727,20 +753,36 @@ function common.state.cleanup()
 										fi
 									;;
 									
-									*)	main.log -w  "The following files will be deleted:"
-								
-										ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
+									*)	
+										start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
 										
-										if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+										if [[ "$following_days" == true ]]
 										then
-											# No 
-											main.log -w   "Will not delete any state information"
-											return 0
+											stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
 										else
-											#Yes
-											rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-											main.log -i   "Done."
+											stop_offset=$start_offset
 										fi
+										
+										for iOffset in $(seq $start_offset $stop_offset)
+										do
+											# determine raw date from iOffset
+											current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset)
+											
+											main.log -w  "The following files will be deleted:"
+									
+											ls ${CXR_STATE_DIR}/${current_date}*${which_step}* | xargs -i basename \{\}
+											
+											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+											then
+												# No 
+												main.log -w   "Will not delete any state information"
+												return 0
+											else
+												#Yes
+												rm -f ${CXR_STATE_DIR}/${current_date}*${which_step}* 2>/dev/null
+											fi
+										done
+										main.log -a "Done."
 									;;
 									
 								esac

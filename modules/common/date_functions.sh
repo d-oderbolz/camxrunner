@@ -728,7 +728,7 @@ function common.date.toOffset()
 ################################################################################
 # Function: common.date.OffsetToDate
 # 
-# Takes a day offset as input and converts it to a raw date (YYYY-MM-DD)
+# Takes a day offset as input and converts it to a date (YYYY-MM-DD)
 # It does so by calculating the difference of the julian dates.
 #
 #
