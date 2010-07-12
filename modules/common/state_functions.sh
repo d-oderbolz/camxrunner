@@ -664,12 +664,11 @@ function common.state.cleanup()
 								;;
 							
 						esac
-						;;
+						;; # specific.day
 						
 					step)
 						# To enumerate all steps, we use a little grep-magic
 						# We can tell between module types and steps
-						# This code is not yet substage-safe
 						module_types="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
 						
 						# Count the module types
@@ -703,10 +702,26 @@ function common.state.cleanup()
 								fi #Delete?
 								;;
 						esac
-						;;
+						;; # specific.step
 						
 					both)
-						# First get the day, then the step
+						# First get the step, then the day(s)
+						# To enumerate all steps, we use a little grep-magic
+						# We can tell between module types and steps
+						module_types="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
+						
+						# Count the module types
+						num_module_types=$(echo "$module_types" | wc -l)
+						
+						steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
+						
+						which_step="$(common.user.getMenuChoice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
+						
+						if [[ $which_step == none ]]
+						then
+							main.log -w "Will not delete any state information" 
+							return 0
+						fi
 						
 						# To enumerate all days, we use a little grep-magic, also we add none at the end
 						# The basename is needed to strip off the path, because the pattern starts with ^
@@ -714,92 +729,50 @@ function common.state.cleanup()
 						
 						which_day="$(common.user.getMenuChoice "Which days state information should be deleted (none exits this function)?" "$days" "none" )"
 
-						case "$which_day" in
-				
-							none) 
-								main.log -w "Will not delete any state information" 
+						if [[ $which_day == none ]]
+						then
+							main.log -w "Will not delete any state information" 
+							return 0
+						fi
+
+						# If this is true, we delete until the end
+						following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
+						
+						start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+
+						if [[ "$following_days" == true ]]
+						then
+							stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
+						else
+							stop_offset=$start_offset
+						fi
+						
+						for iOffset in $(seq $start_offset $stop_offset)
+						do
+							# determine raw date from iOffset
+							current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
+							
+							main.log -w "The following files will be deleted:"
+					
+							ls ${CXR_STATE_DIR}/${current_date}${which_step}* | xargs -i basename \{\}
+							
+							if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
+							then
+								# No 
+								main.log -w "Will not delete any state information"
 								return 0
-								;; # both.none
-								
-							*)
-								# If this is true, we delete until the end
-								following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
-								
-								start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
-
-								if [[ "$following_days" == true ]]
-								then
-									stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
-								else
-									stop_offset=$start_offset
-								fi
-								
-								for iOffset in $(seq $start_offset $stop_offset)
-								do
-									# determine raw date from iOffset
-									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
-									
-									# Now get the step
-									# To enumerate all steps, we use a little grep-magic
-									steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${current_date}'@.*@.*\.' - | sort | uniq) all none"
-									
-									which_step="$(common.user.getMenuChoice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
-			
-									case "$which_step" in
-									
-										none) 
-											main.log -w "Will not delete any state information" 
-											return 0
-											;; #both.none
-										
-										all) 
-											main.log -w "The following files will be deleted:"
-											ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
-											
-											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-											then
-												# No 
-												main.log -w "Will not delete any state information"
-												return 0
-											else
-												#Yes
-												rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
-												main.log -a "Done."
-											fi
-											
-											;; #both.all
-										
-										*)	
-											
-											main.log -w  "The following files will be deleted:"
-									
-											ls ${CXR_STATE_DIR}/${which_step}* | xargs -i basename \{\}
-											
-											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
-											then
-												# No 
-												main.log -w "Will not delete any state information"
-												return 0
-											else
-												#Yes
-												rm -f ${CXR_STATE_DIR}/${which_step}* 2>/dev/null
-											fi
-	
-											main.log -a "Done."
-											;; #both.*
-											
-									esac
-								done
-
-								;; #both-which
-
-						esac # both
-						;;
+							else
+								#Yes
+								rm -f ${CXR_STATE_DIR}/${current_date}${which_step}* 2>/dev/null
+							fi
+							main.log -a "Done."
+						done
+						;; # specific.both
 				
 					none) 
 						main.log -w "Will not delete any state information" 
 						return 0
-						;;
+						;; # specific.none
 				esac
 				;; # specific
 				
