@@ -756,6 +756,9 @@ function common.state.cleanup()
 										;; #both.all
 									
 									*)	
+										# Lets remove the day from the start
+										which_step=${which_step:8}
+										
 										start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
 										
 										if [[ "$following_days" == true ]]
@@ -772,7 +775,7 @@ function common.state.cleanup()
 											
 											main.log -w  "The following files will be deleted:"
 									
-											ls ${CXR_STATE_DIR}/${current_date}*${which_step}* | xargs -i basename \{\}
+											ls ${CXR_STATE_DIR}/${current_date}${which_step} | xargs -i basename \{\}
 											
 											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 											then
