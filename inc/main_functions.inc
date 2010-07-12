@@ -537,7 +537,7 @@ function main.doCleanup()
 
 				main.log -v "Deleting $dummy_file"
 				
-				rm -f "$dummy_file" >/dev/null 2>&1
+				rm -f "$dummy_file" &>/dev/null
 				
 				# Remove from hash
 				common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE "$dummy_file"

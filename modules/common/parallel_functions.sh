@@ -550,7 +550,7 @@ function common.parallel.waitingWorker()
 	
 	local task_pid=$1
 	
-	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid >/dev/null 2>&1
+	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid &>/dev/null
 	
 	touch $CXR_WAITING_WORKER_DIR/$task_pid
 	
@@ -580,7 +580,7 @@ function common.parallel.workingWorker()
 	# Detect lockup
 	common.parallel.detectLockup
 	
-	rm -f $CXR_WAITING_WORKER_DIR/$task_pid >/dev/null 2>&1
+	rm -f $CXR_WAITING_WORKER_DIR/$task_pid &>/dev/null
 	
 	touch $CXR_RUNNING_WORKER_DIR/$task_pid
 	
@@ -621,8 +621,8 @@ function common.parallel.removeWorker()
 	kill $pid 2>/dev/null
 	
 	# We do not care if the process was waiting or running
-	rm -f $CXR_WAITING_WORKER_DIR/$task_pid >/dev/null 2>&1
-	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid >/dev/null 2>&1
+	rm -f $CXR_WAITING_WORKER_DIR/$task_pid &>/dev/null
+	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid &>/dev/null
 }
 
 ################################################################################

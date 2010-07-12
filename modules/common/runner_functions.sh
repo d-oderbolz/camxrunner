@@ -647,7 +647,7 @@ function common.runner.removeTempFiles()
 				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "$compressed_filename")"
 				
 				main.log -v "Deleting $filename"
-				rm -f "${filename}" >/dev/null 2>&1
+				rm -f "${filename}" &>/dev/null
 			done
 			
 			IFS="$oIFS"
@@ -678,7 +678,7 @@ function common.runner.removeTempFiles()
 			
 				main.log -v "Deleting $temp_file"
 				
-				rm -f "$temp_file" >/dev/null 2>&1
+				rm -f "$temp_file" &>/dev/null
 				
 				# Remove from hash
 				common.hash.delete $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE "$temp_file"
