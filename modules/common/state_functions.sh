@@ -699,7 +699,7 @@ function common.state.cleanup()
 								else
 									#Yes
 									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-									main.log -a   "Done."
+									main.log -a "Done."
 								fi #Delete?
 								;;
 						esac
@@ -712,7 +712,7 @@ function common.state.cleanup()
 						# The basename is needed to strip off the path, because the pattern starts with ^
 						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
 						
-						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
+						which_day="$(common.user.getMenuChoice "Which days state information should be deleted (none exits this function)?" "$days" "none" )"
 
 						case "$which_day" in
 				
@@ -770,12 +770,10 @@ function common.state.cleanup()
 											;; #both.all
 										
 										*)	
-											# Lets remove the day from the start
-											which_step=${which_step:8}
 											
 											main.log -w  "The following files will be deleted:"
 									
-											ls ${CXR_STATE_DIR}/${current_date}${which_step} | xargs -i basename \{\}
+											ls ${CXR_STATE_DIR}/${which_step}* | xargs -i basename \{\}
 											
 											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
 											then
@@ -784,7 +782,7 @@ function common.state.cleanup()
 												return 0
 											else
 												#Yes
-												rm -f ${CXR_STATE_DIR}/${current_date}*${which_step}* 2>/dev/null
+												rm -f ${CXR_STATE_DIR}/${which_step}* 2>/dev/null
 											fi
 	
 											main.log -a "Done."
