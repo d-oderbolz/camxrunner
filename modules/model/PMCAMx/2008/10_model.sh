@@ -616,7 +616,7 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		common.state.storeState ${CXR_STATE_ERROR}
+		# common.state.storeState ${CXR_STATE_ERROR}
 		main.log -w "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
