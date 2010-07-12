@@ -570,12 +570,12 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 				then
 					# No 
-					main.log -i "Will not delete any state information"
+					main.log -a "Will not delete any state information"
 					return 0
 				else
 					# Yes
 					rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
-					main.log -i "Done."
+					main.log -a "Done."
 				fi #Delete?
 				
 				;; # all-non-tasks
@@ -590,15 +590,15 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 				then
 					# No 
-					main.log -i   "Will not delete any state information"
+					main.log -a   "Will not delete any state information"
 					return 0
 				else
 					# Yes
 					rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
-					main.log -i   "Done."
+					main.log -a "Done."
 				fi #Delete?
 			
-				;; existing-instances
+				;; # existing-instances
 					
 			specific)
 			
@@ -660,7 +660,7 @@ function common.state.cleanup()
 									fi #Delete?
 								done
 								
-								main.log -i "Done."
+								main.log -a "Done."
 								;;
 							
 						esac
@@ -699,7 +699,7 @@ function common.state.cleanup()
 								else
 									#Yes
 									rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-									main.log -i   "Done."
+									main.log -a   "Done."
 								fi #Delete?
 								;;
 						esac
@@ -751,7 +751,7 @@ function common.state.cleanup()
 										else
 											#Yes
 											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-											main.log -i "Done."
+											main.log -a "Done."
 										fi
 										;; #both.all
 									
