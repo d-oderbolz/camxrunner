@@ -725,53 +725,53 @@ function common.state.cleanup()
 								# If this is true, we delete until the end
 								following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
 								
-								# Now get the step
-								# To enumerate all steps, we use a little grep-magic
+								start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+
+								if [[ "$following_days" == true ]]
+								then
+									stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
+								else
+									stop_offset=$start_offset
+								fi
 								
-								steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${which_day}'@.*@.*\.' - | sort | uniq) all none"
-								
-								which_step="$(common.user.getMenuChoice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
-								
-								case "$which_step" in
-								
-									none) 
-										main.log -w "Will not delete any state information" 
-										return 0
-										;; #both.none
+								for iOffset in $(seq $start_offset $stop_offset)
+								do
+									# determine raw date from iOffset
+									current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
 									
-									all) 
-										main.log -w "The following files will be deleted:"
-										ls ${CXR_STATE_DIR}/${which_day}@*@* | xargs -i basename \{\}
-										
-										if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-										then
-											# No 
-											main.log -w "Will not delete any state information"
+									# Now get the step
+									# To enumerate all steps, we use a little grep-magic
+									steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o ${current_date}'@.*@.*\.' - | sort | uniq) all none"
+									
+									which_step="$(common.user.getMenuChoice "Which steps state information should be deleted \n(none exits this function)?" "${steps}" "none" )"
+			
+									case "$which_step" in
+									
+										none) 
+											main.log -w "Will not delete any state information" 
 											return 0
-										else
-											#Yes
-											rm -f ${CXR_STATE_DIR}/${which_day}@*@* 2>/dev/null
-											main.log -a "Done."
-										fi
-										;; #both.all
-									
-									*)	
-										# Lets remove the day from the start
-										which_step=${which_step:8}
+											;; #both.none
 										
-										start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
+										all) 
+											main.log -w "The following files will be deleted:"
+											ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
+											
+											if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+											then
+												# No 
+												main.log -w "Will not delete any state information"
+												return 0
+											else
+												#Yes
+												rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
+												main.log -a "Done."
+											fi
+											
+											;; #both.all
 										
-										if [[ "$following_days" == true ]]
-										then
-											stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
-										else
-											stop_offset=$start_offset
-										fi
-										
-										for iOffset in $(seq $start_offset $stop_offset)
-										do
-											# determine raw date from iOffset
-											current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
+										*)	
+											# Lets remove the day from the start
+											which_step=${which_step:8}
 											
 											main.log -w  "The following files will be deleted:"
 									
@@ -786,12 +786,15 @@ function common.state.cleanup()
 												#Yes
 												rm -f ${CXR_STATE_DIR}/${current_date}*${which_step}* 2>/dev/null
 											fi
-										done
-										main.log -a "Done."
-										;; #both.*
-									
-								esac
-								;; #both-which
+	
+											main.log -a "Done."
+											;; #both.*
+										
+									esac
+									;; #both-which
+								
+							done
+							
 						esac # both
 						;;
 				
