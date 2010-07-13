@@ -709,17 +709,17 @@ function main.getBinaryName()
 	if [[ -x ${machine_exec} ]]
 	then
 		# Machine dependent exists
-		main.log  "Binary ${exec_name} is actually called ${machine_exec}"
+		main.log -v "Binary ${exec_name} is actually called ${machine_exec}"
 		echo "${machine_exec}"
 	elif [[ -x ${general_exec} ]]
 	then
 		# general exists
-		main.log "Binary ${exec_name} is actually called ${general_exec}"
+		main.log -v "Binary ${exec_name} is actually called ${general_exec}"
 		echo "${general_exec}"
 	elif [[ -x "${which_output}" ]]
 	then
 		# Which output is OK
-		main.log  "Binary ${exec_name} is actually called ${which_output}"
+		main.log -v "Binary ${exec_name} is actually called ${which_output}"
 		echo "${which_output}"
 	else
 		#None exists
@@ -727,11 +727,11 @@ function main.getBinaryName()
 		then
 			# optional param is true,
 			# We do not care and return the empty string
-			main.log -v  "Binary $exec_name not found"
+			main.log -v "Binary $exec_name not found"
 			echo "" 
 		else
 			# NOK-just issue a warning (if we are compiling e.g.)
-			main.log -w  "Could not find a suitable executable for binary $exec_name, neither ${machine_exec} nor ${general_exec} are present. The which cmd also did not find anything.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			main.log -w "Could not find a suitable executable for binary $exec_name, neither ${machine_exec} nor ${general_exec} are present. The which cmd also did not find anything.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
 	

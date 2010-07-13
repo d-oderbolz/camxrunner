@@ -1052,7 +1052,7 @@ function common.check.ModuleRequirements()
 								# We try to get the real name, but allow empty
 								wanted_name="$(main.getBinaryName "$what" true)"
 								
-								if [[ "$wanted_name" ]]
+								if [[ "$wanted_name" && "${!executable}" ]]
 								then
 									if [[ "$(basename ${!executable})" == "$(basename "$wanted_name")" ]]
 									then
