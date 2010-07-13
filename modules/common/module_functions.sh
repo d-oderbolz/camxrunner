@@ -920,7 +920,7 @@ function common.module.updateInfo()
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 				then
-					main.dieGracefully "There seems to be more than one module called ${module_name}. This is not allowed - please adjust the names!"
+				main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
 				fi
 				
 				# Path 
