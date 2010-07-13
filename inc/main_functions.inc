@@ -1154,7 +1154,7 @@ function main.getModuleName()
 	module_name=$(basename $full_name .sh)
 
 	# Remove XX_ if present
-	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-z]\{1,\}\)')"
+	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"
 	
 	if [[ ! "$module_name" ]]
 	then
