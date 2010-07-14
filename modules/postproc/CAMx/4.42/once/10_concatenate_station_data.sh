@@ -197,7 +197,7 @@ function concatenate_station_data
 				# For the output, we need to calculate the modulus with respect to the nunber of stations
 				iStation=$(( $index % ${#CXR_STATION[@]} ))
 				
-				min.log -v "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
+				min.log -a "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
 				
 				#Dry?
 				if [[ "$CXR_DRY" == false  ]]
