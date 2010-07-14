@@ -133,12 +133,12 @@ function set_variables()
 	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
 	do
 		common.date.setVars "$CXR_START_DATE" "$day_offset"
+		
+		common.user.showProgress
 
 		# Station dependent data
 		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 		do
-			common.user.showProgress
-		
 			# Needed to expand the file rule
 			station=${CXR_STATION[${iStation}]}
 			
