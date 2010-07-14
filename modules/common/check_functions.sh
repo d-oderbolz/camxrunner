@@ -602,6 +602,8 @@ function common.check.preconditions()
 	#Mark if there were errors
 	errors_found=false
 	
+	main.log -a "Testing Preconditions..."
+	
 	##########################################
 	#### this is only checked once
 	##########################################
@@ -883,9 +885,11 @@ function common.check.preconditions()
 	if [[ "${errors_found:-false}" == false ]]
 	then
 		# No errors
+		main.log -a "Preconditions OK."
 		echo true
 	else
 		# Detected errors
+		main.log -a "Preconditions NOT OK."
 		echo false
 	fi
 	

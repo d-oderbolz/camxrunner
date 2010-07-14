@@ -111,6 +111,8 @@ function set_variables()
 	# Set variables
 	########################################################################
 	
+	main.log -a "Setting variables..."
+	
 	common.date.setVars "$CXR_START_DATE" 0
 	
 	# There is one output file per station
@@ -135,6 +137,8 @@ function set_variables()
 		# Station dependent data
 		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 		do
+			common.user.showProgress
+		
 			# Needed to expand the file rule
 			station=${CXR_STATION[${iStation}]}
 			
