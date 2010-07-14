@@ -104,25 +104,48 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
 	local iStation
+	local day_offset
+	local index=0
 
 	########################################################################
 	# Set variables
 	########################################################################
 	
-	# Station dependent data
+	common.date.setVars "$CXR_START_DATE" 0
+	
+	# There is one output file per station
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
 		# Needed to expand the file rule
 		station=${CXR_STATION[${iStation}]}
-		
-		CXR_STATION_INPUT_ARR_FILES[${iStation}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE)
-		
+	
 		# Output files must not be decompressed!
 		CXR_STATION_OUTPUT_ARR_FILES[${iStation}]=$(common.runner.evaluateRule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
 	
-		#Checks
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_STATION_INPUT_ARR_FILES[${iStation}]}"
+		#Define Output check
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
+	done
+	
+	# There is one input file per day and station
+	# later we need to determine the station from the running index
+	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+	do
+		common.date.setVars "$CXR_START_DATE" "$day_offset"
+
+		# Station dependent data
+		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
+		do
+			# Needed to expand the file rule
+			station=${CXR_STATION[${iStation}]}
+			
+			CXR_STATION_INPUT_ARR_FILES[${index}]=$(common.runner.evaluateRule "$CXR_STATION_FILE_RULE" false CXR_STATION_FILE_RULE)
+			
+			#Checks
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_STATION_INPUT_ARR_FILES[${index}]}"
+			
+			#increment index
+			index=$(($index + 1))
+		done
 	done
 }
 
@@ -131,6 +154,8 @@ function set_variables()
 #	
 # Concatenates the data that was extracted by <extract_station_data>
 # By Looping over the generated files
+#
+# TODO: We cannot really handle skipping of existing files...
 ################################################################################	
 function concatenate_station_data
 ################################################################################
@@ -139,43 +164,48 @@ function concatenate_station_data
 	CXR_INVOCATION=${1:-1}
 	
 	local iStation
+	local index
+	local iFile
+	local oFile
+	local InputFileArr
+	local OutputFileArr
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 	then
 	
-		for DAY_OFFSET in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-		do
-			common.date.setVars "$CXR_START_DATE" "$DAY_OFFSET"
+		set_variables
 	
-			#  --- Setup the Environment of the current day
-			set_variables 
-			
-			#  --- Check Settings
-			if [[ $(common.check.preconditions) == false  ]]
-			then
-				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				common.state.storeState ${CXR_STATE_ERROR}
-			
-				# We notify the caller of the problem
-				return $CXR_RET_ERR_PRECONDITIONS
-			fi
-			
-			main.log -a -b  "Concatenating files for $CXR_DATE..."
-			
-			# Station dependent data
-			for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
-			do
-				main.log -v  "${CXR_STATION_INPUT_ARR_FILES[${iStation}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"    
+		#  --- Check Settings
+		if [[ $(common.check.preconditions) == false  ]]
+		then
+			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
+			common.state.storeState ${CXR_STATE_ERROR}
+		
+			# We notify the caller of the problem
+			return $CXR_RET_ERR_PRECONDITIONS
+		fi
+		
+		# Turn Pseudo-Arrays into real ones
+		InputFileArr=($CXR_STATION_INPUT_ARR_FILES)
+		OutputFileArr=($CXR_STATION_OUTPUT_ARR_FILES)
+		
+		for index in $(seq 0 $(( ${#InputfileArr[@]} - 1)) )
+		do
+				# Input file
+				iFile="${InputFileArr[$index]}"
+				# For the output, we need to calculate the modulus with respect to the nunber of stations
+				iStation=$(( $index % ${#CXR_STATION[@]} ))
+				
+				min.log -v "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
 				
 				#Dry?
 				if [[ "$CXR_DRY" == false  ]]
 				then
-					cat ${CXR_STATION_INPUT_ARR_FILES[${iStation}]} >> ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}
+					cat "${InputFileArr[${index}]}" >> "${OutputFileArr[${iStation}]}"
 				else
-					main.log   "This is a dry-run, no action required"    
+					main.log -a "This is a dry-run, no action required"
 				fi
-			done
 		done
 		
 		# Check if all went well
