@@ -194,7 +194,7 @@ function concatenate_station_data
 		InputFileArr=($CXR_STATION_INPUT_ARR_FILES)
 		OutputFileArr=($CXR_STATION_OUTPUT_ARR_FILES)
 		
-		for index in $(seq 0 $(( ${#InputfileArr[@]} - 1)) )
+		for index in $(seq 0 $(( ${#InputFileArr[@]} - 1)) )
 		do
 				# Input file
 				iFile="${InputFileArr[$index]}"
