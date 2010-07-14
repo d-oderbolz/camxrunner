@@ -573,7 +573,7 @@ function write_model_control_file()
 		rm -f CAMx.in
 		
 		# New one
-		ln -s ${CXR_MODEL_CTRL_FILE} CAMx.in || return $CXR_RET_ERROR
+		ln -s $(basename ${CXR_MODEL_CTRL_FILE}) CAMx.in || return $CXR_RET_ERROR
 	)
 
 }
