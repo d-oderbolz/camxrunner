@@ -144,6 +144,7 @@ function create_emissions()
 	local exec_tmp_file
 	local stop_h
 	local start_h
+	local bionly
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
@@ -192,9 +193,26 @@ function create_emissions()
 			
 			start_h=${CXR_START_HOUR:0:2}
 			
+			################################################################################
+			# Determine value of bionly
+			################################################################################
+			
+			#	bionly=-1: only calculate anthropogenic Emissions
+			#	bionly=0 : calculate all anthropogenic and biogenic Emissions - we use this the first 7 days
+			#	bionly=1 : calculate only biogenic Emissions, ignore anthropogenic
+			#	bionly=2 : calculate only biogenic Emissions, use existing anthropogenic for the current weekday - we use this after offset 6
+			if [[ "${CXR_DAY_OFFSET}" -gt 6 ]]
+			then
+				main.log -a "We already have 7 days worth of emission data, anthropoginc data will be taken corresponding to tho current weekday..."
+				bionly=2
+			else
+				main.log -a "We have less than 7 days worth of emission data, will calculate anthropogenic data..."
+				bionly=0
+			fi
+			
 			cat <<-EOF > $exec_tmp_file
 			.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
-			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',0,'${CXR_EMISSION_SOURCE_DIR}'
+			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR}'
 			exit
 			EOF
 			

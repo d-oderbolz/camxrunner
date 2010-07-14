@@ -166,7 +166,7 @@ function run_emifad()
 		main.log "Running emifad on grid $CXR_INVOCATION"
 
 		# First we need to create links (if not existing)
-		main.log   "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
+		main.log "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
 		
 		# Link to emissions
 		CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE})
@@ -182,7 +182,7 @@ function run_emifad()
 		
 		#Link to terrain
 		CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})
-		if [[ ! ( -L ${CURRENT_TERRAIN_BASE} || -f ${CURRENT_TERRAIN_BASE} )   ]]
+		if [[ ! ( -L ${CURRENT_TERRAIN_BASE} || -f ${CURRENT_TERRAIN_BASE} ) ]]
 		then
 			ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}
 		fi
@@ -243,5 +243,4 @@ function test_module()
 	########################################
 	# teardown tests if needed
 	########################################
-	
 }
