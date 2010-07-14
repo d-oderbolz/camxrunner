@@ -68,7 +68,7 @@ function main.usage()
 	  Find detailed information here: 
 	  http://people.web.psi.ch/oderbolz/CAMxRunner
 
-	  This is revision \$Rev$ of CAMxRunner
+	  This is revision \$Rev: 4020 $ of CAMxRunner
 
 	  ----------------------------------------------------------------------------
 
