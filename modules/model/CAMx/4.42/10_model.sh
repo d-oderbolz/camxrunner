@@ -931,6 +931,7 @@ function model()
 	CXR_INVOCATION=${1:-1}
 	
 	local iGrid
+	local retval
 	
 	# Do we run the model?
 	if [[ "$CXR_RUN_MODEL" == true  ]]
@@ -993,17 +994,37 @@ function model()
 			execute_model
 			
 			# Did we run properly?
-			if [[ $(common.check.postconditions) == false  ]]
+			if [[ $(common.check.postconditions) == false ]]
 			then
 				main.log  "$CXR_MODEL Run was not successful!"
 				common.state.storeState ${CXR_STATE_ERROR}
 				
 				# We notify the caller of the problem
-				return $CXR_RET_ERR_POSTCONDITIONS
+				retval=$CXR_RET_ERR_POSTCONDITIONS
+			else
+				# We store the fact model run was completed
+				common.state.storeState ${CXR_STATE_STOP} > /dev/null
+				retval=$CXR_RET_OK
 			fi
 			
-			# We store the fact model run was completed
-			common.state.storeState ${CXR_STATE_STOP} > /dev/null
+			# In case of a dryrun, we need to remove the output files
+			# (its as if CAMx ran)
+			if [[ "$CXR_DRY" == true ]]
+			then
+				main.log -a "This is the content of the diagnostic file:"
+	
+				cat $CXR_DIAG_OUTPUT_FILE 2>&1 | tee -a $CXR_LOG
+				
+				main.log -a "This is a dry run, therefore we need to remove the output that was created by the diagnostics run"
+				
+				for file in $CXR_CHECK_THESE_OUTPUT_FILES
+				do
+					main.log -a "Removing $file"
+					rm -f $file
+				done
+			fi
+			
+			return $retval
 			
 		else
 			main.log  "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
