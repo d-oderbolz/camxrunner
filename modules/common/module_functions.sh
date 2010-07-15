@@ -1383,7 +1383,7 @@ function common.module.listModuleType()
 			main.log -w  "You disabled these modules in the configuration: $disabled_modules"
 		fi
 	
-		main.log -i "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
+		main.log "\n  These $module_type modules are disabled physically (if any) - to run them, remove the .${CXR_DISABLED_EXT} in the filename:\n"
 		
 		# How do disabled modules look like?
 		pattern="${module_directory}/??_*.${CXR_DISABLED_EXT}"

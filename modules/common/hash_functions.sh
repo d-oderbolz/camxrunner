@@ -151,7 +151,7 @@ function common.hash.destroy()
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
 	
-	main.log -i "Deleting the Hash ${hash}"
+	main.log "Deleting the Hash ${hash}"
 	rm -rf "${hash_dir}/${hash}"
 }
 
@@ -744,7 +744,7 @@ function common.hash.toFile()
 		echo "${key}${CXR_DELIMITER}${value}" >> "$file"
 	done
 
-	main.log -i "Data of ${hash} written to ${file}."
+	main.log "Data of ${hash} written to ${file}."
 }
 
 ################################################################################

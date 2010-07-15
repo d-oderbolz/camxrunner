@@ -355,7 +355,7 @@ function common.runner.reportDimensions()
 # $1 - The rule to be evaluated (a string, not a variable)
 # [$2] - allow_empty if false, a rule must expand to a non-empty string
 # [$3] - optional name of the rule
-# [$4] - try_decompression if false, will not attempt compression (and consequenital renaming)
+# [$4] - try_decompression if false (default true), will not attempt compression (and consequenital renaming)
 ################################################################################
 function common.runner.evaluateRule()
 ################################################################################
@@ -377,16 +377,15 @@ function common.runner.evaluateRule()
 	if [[ -z "$rule" ]]
 	then
 		# If the rule is empty, we evaluate to empty
-		main.log -v   "rule $rule_name was empty..."
+		main.log -v "rule $rule_name was empty..."
 		expansion=""
 	else
 		# Non-empty rule - do it
-		main.log -v   "Evaluating rule $rule_name $rule..."
-	
+
 		# Original code example: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
 		expansion="$(eval "echo $(echo "$rule")")"
 		
-		main.log -v  "Evaluated rule: $expansion"
+		main.log -v  "rule $rule_name ($rule) expanded to $expansion"
 		
 		# *_FILE_RULE might be compressed
 		# Does the name of the rule end in _FILE_RULE ?

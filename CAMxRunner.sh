@@ -335,8 +335,13 @@ do
 done
 
 # If user feels verbose, make it so
-if [[ "$CXR_LOG_LEVEL_SCREEN" -ge "$CXR_LOG_LEVEL_DBG" ]]
+if [[ "$CXR_LOG_LEVEL_SCREEN" -eq "$(( $CXR_LOG_LEVEL_VRB * 2 ))" ]]
 then
+	echo "You increased the screen log-level above verbose, we show additional bash inforamation."
+	set -x
+elif [[ "$CXR_LOG_LEVEL_SCREEN" -gt "$(( $CXR_LOG_LEVEL_VRB * 2 ))" ]]
+then
+	echo "You increased the screen log-level to the maximum, we show vorbose bash information."
 	set -xv
 fi
 
@@ -475,7 +480,7 @@ common.check.runner
 # Decrease global indent level
 main.decreaseLogIndent
 
-main.log -i -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can tell." 
+main.log -B "CAMxRunner.sh" "CAMxRunner is consistent as far as I can tell." 
 
 ################################################################################
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
@@ -577,7 +582,7 @@ fi
 # Is this a repetition of an earlier run?
 if [[ $(common.state.isRepeatedRun?) == true ]]
 then
-	main.log -i "CAMxRunner.sh" "This run has already been started earlier."
+	main.log "CAMxRunner.sh" "This run has already been started earlier."
 	
 	last="$(common.state.getLastDayModelled)"
 	
@@ -586,7 +591,7 @@ then
 	then
 		if [[ "$last" != ${CXR_STOP_DATE} ]]
 		then
-			main.log -i "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+			main.log "CAMxRunner.sh" "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 		fi
 	fi
 	
@@ -606,7 +611,7 @@ fi
 
 mb_needed=$(common.check.PredictModelOutputMb)
 
-main.log -i "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
+main.log "CAMxRunner.sh" "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
 
 if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
 then
@@ -773,18 +778,18 @@ common.check.ModelLimits
 INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname -n)\nRun ${CXR_RUN}, we use the ${CXR_MODEL_EXEC} executable. \n It is now $(date)\n\n The script was called as \n \t \$ ${0} ${CXR_ARGUMENTS} \n\n" 
 
 main.sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
-main.log -i "CAMxRunner.sh" "$INFO"
+main.log "CAMxRunner.sh" "$INFO"
 
 if [[  "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true   ]]
 then
-	main.log -i "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
+	main.log "CAMxRunner.sh" "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
 
 if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD}  ]]
 then
-	main.log -i "CAMxRunner.sh" "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
+	main.log "CAMxRunner.sh" "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
 else
-	main.log -i "CAMxRunner.sh" "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
+	main.log "CAMxRunner.sh" "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
 fi
 
 if [[ ${CXR_SKIP_EXISTING} == true  ]]
@@ -898,7 +903,7 @@ fi
 common.fs.CompressOutput
 
 # Echo the "Finish message"
-main.log -i "CAMxRunner.sh" "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
+main.log "CAMxRunner.sh" "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 
 
 ################################################################################

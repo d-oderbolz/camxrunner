@@ -164,13 +164,13 @@ function common.check.MbNeeded()
 	
 	if [[ "$available" -eq -1 ]]
 	then
-		main.log -i  "I cannot tell if space in $dir is sufficient."
+		main.log -w "I cannot tell if space in $dir is sufficient."
 	else
 		main.log -v "Found $available Mb in $dir"
 		
 		if [[ "$available" -ge "$mb" ]]
 		then
-			main.log -i  "Space in $dir is sufficient."
+			main.log "Space in $dir is sufficient."
 		else
 			main.dieGracefully "Space in $dir is not sufficient, need at least $mb Megabytes!"
 		fi
@@ -199,7 +199,7 @@ function common.check.MbNeeded()
 function common.check.DataType()
 ################################################################################
 {
-	if [[ $# -ne 2  ]]
+	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs 2 strings as input"
 	fi
@@ -207,7 +207,7 @@ function common.check.DataType()
 	local value=$1
 	local datatype=$2
 	
-	main.log -d   "VALUE: *$value*\nDATATYPE: *$datatype*"
+	main.log -v "VALUE: *$value*\nDATATYPE: *$datatype*"
 
 	case $datatype in
 	S) # String - everything is ok, even an empty string

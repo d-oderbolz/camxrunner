@@ -200,15 +200,14 @@ function main.countErrors()
 #>                              a message"
 # is not recommended because the whitespace before the second part of the string will 
 # be output "as is".
+#
+# If no parameter is gives, the log-level is "CXR_LOG_LEVEL_INF"
 # 
 # Parameters:
 # [-a] - shown always, no prefix, cannot be turned off
-# [-d] - debug message
 # [-v] - verbose message
-# [-i] - information message (Default)
 # [-w] - warning
 # [-e] - error (always shown)
-# [-n] - no write to file (useful where CXR_LOG is defined but we still want no logfile)
 # [-b] - surround with small box of stars
 # [-B] - surround with large box of stars
 # [-H] - surround with huge box of stars
@@ -234,20 +233,18 @@ function main.log()
 	local iFct
 	local maxNests
 	local do_log=${CXR_DO_FILE_LOGGING:-true}
+	local prefix=
 	
-	while getopts ":ndviweabBH" opt
+	while getopts ":vawebBH" opt
 	do
 		case $opt in
+		v) log_level=$CXR_LOG_LEVEL_VRB ;;
+		a) log_level=$CXR_LOG_LEVEL_ALW ;;
+		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
+		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
 		b) stars="${CXR_BOX_SMALL}";;
 		B) stars="${CXR_BOX_LARGE}";;
 		H) stars="${CXR_BOX_HUGE}";;
-		n) local do_log=false;; #Local only!
-		d) log_level=$CXR_LOG_LEVEL_DBG ; prefix=DBG: ;;
-		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix= ;;
-		i) log_level=$CXR_LOG_LEVEL_INF ; prefix= ;;
-		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
-		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
-		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix= ;;
 		esac
 	done
 	
@@ -262,24 +259,17 @@ function main.log()
 	# max index of the call-stack
 	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
 	
-	# Often the case the first parameter is forgotten,
-	# which leads to a lost message
-	if [[ $# -eq 2 ]]
+
+	# The caller is in ${FUNCNAME[1]}, if not, use CAMxRunner
+	if [[ ${maxNests} -ge 1 ]]
 	then
-		# Non-Standard case
-		function_name="${1:-}"
-		blank_message="${prefix}${2:-}"
+		function_name="${FUNCNAME[1]}"
 	else
-		# The caller is in ${FUNCNAME[1]}
-		if [[ ${maxNests} -ge 1 ]]
-		then
-			function_name="${FUNCNAME[1]}"
-		else
-			function_name="CAMxRunner"
-		fi
-		
-		blank_message="${prefix}${1:-}"
+		function_name="CAMxRunner"
 	fi
+	
+	blank_message="${prefix}${1:-}"
+
 	
 	# If set, we display the worker ID on screen
 	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
@@ -294,12 +284,12 @@ function main.log()
 	if [[ "${log_level}" -eq "${CXR_LOG_LEVEL_ERR}" ]]
 	then
 		# Could be that the state db is not yet initialized
-		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}"  ]]
+		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}" ]]
 		then
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
 		
-		# Create callstack
+		# Create callstack in case of error
 		if [[ ${maxNests} -ge 1 ]]
 		then
 			call_stack="Call Stack:"
@@ -315,28 +305,24 @@ function main.log()
 	fi
 	
 	# We have to look at several things separately: 
-	# - writing to STDERR
+	# - writing to STDERR (errors have already been taken care of)
 	# - writing to the logfile
 	# - external channels like twitter/email/sms (treated together)
 	
 	# STDERR
 	# Here we add no indentation
-	if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}"  ]]
+	if [[ "${log_level}" != "${CXR_LOG_LEVEL_ERR}" && "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" ]]
 	then
 		# stderr not needed in case of error (already done)
-		if [[ "${log_level}" != "${CXR_LOG_LEVEL_ERR}" ]]
+		# If stars are set, we add a line of stars at the beginning and end
+		if [[ "${stars}" ]]
 		then
-			# If stars are set, we add a line of stars at the beginning and end
-			if [[ "${stars}" ]]
-			then
-				stderr_message="${stars}\n${stderr_message}\n${stars}\n"
-			fi
-			
-			# Write a unformatted copy to sterr. 
-			echo -e "${stderr_message}" 1>&2
+			stderr_message="${stars}\n${stderr_message}\n${stars}\n"
 		fi
+		
+		# Write a unformatted copy to sterr. 
+		echo -e "${stderr_message}" 1>&2
 	else
-	
 		if [[ $CXR_EVALUATE_FUNCTION_VERBOSE_LIST == true ]]
 		then
 			# There is a second chance: the user might have added the function in question to 
@@ -355,18 +341,16 @@ function main.log()
 				
 				# Write a unformatted copy to sterr
 				echo -e "${stderr_message}" 1>&2
-			fi
-		
-		fi
-		
+			fi # does user want to log this?
+		fi # Do we consider additional verbose stuff
 	fi
 	
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
-	if [[   "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" && -n "${CXR_LOG:-}" && "$do_log" == true    ]]
+	if [[ "$do_log" == true && -n "${CXR_LOG:-}" && "${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" ]]
 	then
-		# Logfile is defined
+		# We want and can log to a file
 
 		# Add date of form Aug 26 15:44:45
 		# The printf prints CXR_LOG_INDENT tabs
@@ -380,7 +364,7 @@ function main.log()
 		message="${message//\\n/\n${prefix}}"
 		
 		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${stars}"  ]]
+		if [[ "${stars}" ]]
 		then
 			message="${prefix}${stars}\n${message}\n${prefix}${stars}\n"
 		fi
@@ -391,9 +375,10 @@ function main.log()
 	
 	# The external channels (motify decides who needs to get the message)
 	# -a does not go there
-	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}"   ]]
+	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}" ]]
 	then
-		main.sendMessage "Log" "${blank_message} - ${call_stack}"
+		# The sending is done in the background
+		main.sendMessage "Log" "${blank_message} - ${call_stack}" &
 	fi
 	
 	return $CXR_RET_OK

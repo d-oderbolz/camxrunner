@@ -60,13 +60,13 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.user.showProgress()
 ################################################################################
 {
-	echo -n .  1>&2
+	echo -n . 1>&2
 }
 
 ################################################################################
 # Function: common.user.showProgressBar
 #
-# Given a number in percent, produces a progress bar on stout.
+# Given a number in percent, produces a progress bar on stderr.
 # 
 # Parameters:
 # $1 - a number in percent
@@ -94,7 +94,7 @@ function common.user.showProgressBar()
 	nSpaces=$(( $CXR_MAX_BAR_WIDTH - $progress ))
 	spaces="$(common.string.repeat "." $nSpaces)"
 	
-	echo -n "|${string}>${spaces}|"
+	echo -n "|${string}>${spaces}|" 1>&2
 }
 
 
@@ -789,7 +789,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.user.showProgressBar 10)" '|=======>........................................................................|' "common.user.showProgressBar"
+	# To test this function, we must redirect stderr to stdout
+	is "$(common.user.showProgressBar 10 2>&1)" '|=======>........................................................................|' "common.user.showProgressBar"
 
 	########################################
 	# teardown tests if needed

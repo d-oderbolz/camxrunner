@@ -284,7 +284,7 @@ function common.state.init()
 	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE
 	
 	# Creating .continue file
-	main.log -n -i  "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage"
+	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage" 1>&2
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	# Update the module path hash and form the lists of active modules
@@ -361,7 +361,7 @@ function common.state.storeState()
 			;;
 	
 			"$CXR_STATE_STOP")
-				main.log -i  "stage $stage successfully completed."
+				main.log "stage $stage successfully completed."
 				echo true
 				;;
 	
@@ -853,8 +853,8 @@ function common.state.reportEta()
 	local estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
 	
 	# Only goes to stderr
-	main.log -n "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)"
-	main.log -n $(common.user.showProgressBar $percentDone)
+	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2
+	common.user.showProgressBar $percentDone
 }
 
 ################################################################################
