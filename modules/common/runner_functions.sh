@@ -1346,6 +1346,8 @@ function common.runner.createMissingDirs()
 	# TODO: Add input check
 	local runName=$1
 	local dir
+	
+	main.log -a "Creating missing directories..."
 
 	# Load config (silently)
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" &> /dev/null
@@ -1353,7 +1355,7 @@ function common.runner.createMissingDirs()
 	# Get directories (create as needed)
 	for dir in $(set | grep -e ^CXR_[_A-Z]\+_DIR= | cut -d= -f1)
 	do
-			main.log -v "Variable $dir has value: ${!dir}\n"
+			main.log -a "Variable $dir has value: ${!dir}\n"
 
 			# is it set?
 			if [[ "${!dir}" ]]
@@ -1370,7 +1372,7 @@ function common.runner.createMissingDirs()
 					# Does not exist, create it.
 					if [[ $(common.fs.isAbsolutePath? ${!dir}) == true  ]]
 					then
-						main.log -w   "Directory ${!dir}, \nParameter $dir does not exist - creating it"
+						main.log -w "Directory ${!dir}, \nParameter $dir does not exist - creating it"
 						mkdir -p ${!dir}
 					else
 						main.log -v  "${!dir} does not exist, but is a relative path - no action taken"
