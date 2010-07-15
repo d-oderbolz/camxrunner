@@ -377,6 +377,7 @@ function common.runner.evaluateRule()
 	if [[ -z "$rule" ]]
 	then
 		# If the rule is empty, we evaluate to empty
+		# we decide below if this is a problem
 		main.log -v "rule $rule_name was empty..."
 		expansion=""
 	else
@@ -385,23 +386,18 @@ function common.runner.evaluateRule()
 		# Original code example: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
 		expansion="$(eval "echo $(echo "$rule")")"
 		
-		main.log -v  "rule $rule_name ($rule) expanded to $expansion"
-		
 		# *_FILE_RULE might be compressed
 		# Does the name of the rule end in _FILE_RULE ?
-		if [[ "${rule_name: -10}" == "_FILE_RULE" ]]
-		#                 ¦
-		# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+		if [[ "${try_decompression}" == true && "${rule_name: -10}" == "_FILE_RULE" ]]
+		#                                                    ¦
+		#                                    This space here ¦ is vital, otherwise, 
+		#                                    bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
-			if [[ "${try_decompression}" == true ]]
-			then
-				# Try to decompress
-				expansion=$(common.fs.TryDecompressingFile $expansion)
-			else
-				main.log -v  "No decompression attempted."
-			fi # try_decompression
+			# Try to decompress
+			expansion=$(common.fs.TryDecompressingFile $expansion)
 		fi
-		main.log -v  "Evaluated rule: $expansion"
+		
+		main.log -v "rule $rule_name ($rule) expanded to $expansion"
 	fi
 	
 	# Test if expansion is empty but shouldn't
@@ -417,8 +413,8 @@ function common.runner.evaluateRule()
 		# Not empty. Test if the dirname exists, but only if its a FILE_RULE
 		# Does the name of the rule end in _FILE_RULE ?
 		if [[ "${rule_name: -10}" == "_FILE_RULE" ]]
-		#                 ¦
-		# This space here ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+		#                  ¦
+		# This space here  ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
 			expansion_dir="$(dirname "$expansion")"
 			if [[ ! -d "${expansion_dir}" ]]

@@ -595,9 +595,8 @@ function common.fs.TryDecompressingFile()
 {
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully  "Could not do decompression - no path passed!"
+		main.dieGracefully "Could not try decompression - no path passed!"
 	fi
-	
 	
 	local input_file=$1
 	# We assume that in was not compressed
@@ -612,20 +611,22 @@ function common.fs.TryDecompressingFile()
 	local new_file
 	local a_cxr_compressed_ext
 	
-	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true  ]]
+	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]]
 	then
-		main.log -v -B  "Testing compression on $(basename ${input_file})..."
+		main.log -v -B "Testing compression on $(basename ${input_file})..."
 	
 		# Check first if we already have decompressed this file
-		if [[ "$(common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}")" == true ]]
+		common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" > /dev/null
+		
+		if [[ "$_has" == true ]]
 		then
 			# Seems like we already did this file
 			# The tempfile is the value
-			tempfile="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}")"
+			tempfile="$_value"
 			
 			if [[ -s "$tempfile" ]]
 			then
-				main.log -v  "File ${input_file} was already decompressed into $tempfile"
+				main.log -v "File ${input_file} was already decompressed into $tempfile"
 			
 				# tempfile not empty
 				echo "$tempfile"
@@ -633,11 +634,8 @@ function common.fs.TryDecompressingFile()
 			else
 				# tempfile empty, need to repeat
 				main.log -v  "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
-				
-				# First remove that entry
-				common.hash.delete $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}"
 			fi	
-		fi # Entry found in compressed list?
+		fi # Entry found in hash of compressed files
 		
 		# Create proper array of extensions
 		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
@@ -652,14 +650,14 @@ function common.fs.TryDecompressingFile()
 			comp_file="${input_file}${ext}"
 			main.log -v  "Looking for $comp_file"
 			
-			if [[ -r "$comp_file"  ]]
+			if [[ -r "$comp_file" ]]
 			then
 				# File is readable
 				
 				# We decompress into a tempfile if we don't decompress in place
-				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false  ]]
+				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false ]]
 				then
-					# Use a tempfile and give it a recogisable name. It will not be added to the templist (managed here)
+					# Use a tempfile and give it a recogisable name. It will not be added to the temp hash because we keep it in the hash of decompressed files.
 					tempfile=$(common.runner.createTempFile decomp_$(basename ${input_file}) false)
 				else
 					# The target is the "original" file name
@@ -693,7 +691,7 @@ function common.fs.TryDecompressingFile()
 				esac
 
 				# Check retval of decompressor
-				if [[ $? -eq 0  ]]
+				if [[ $? -eq 0 ]]
 				then
 					was_compressed=true
 					new_file=$tempfile

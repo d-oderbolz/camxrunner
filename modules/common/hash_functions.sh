@@ -544,6 +544,11 @@ function common.hash.getValueMtime()
 # Returns true if the given key is contained in the hash. Also fills cache on hit.
 # and sets _has and _value (to avoid having to call <common.hash.get> again)
 #
+# If you use the "non-functional form" redirect output to /dev/null:
+# > common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" > /dev/null
+# > if [[ "$_has" == true ]]
+# > then ...
+#
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
