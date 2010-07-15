@@ -159,7 +159,6 @@ function set_variables()
 # Concatenates the data that was extracted by <extract_station_data>
 # By Looping over the generated files
 #
-# TODO: We cannot really handle skipping of existing files...
 ################################################################################	
 function concatenate_station_data
 ################################################################################
@@ -187,12 +186,37 @@ function concatenate_station_data
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
+		# Test if we need to skip any file
+		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
+		do
+			if [[ -e ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]} ]]
+			then
+				if [[ $CXR_SKIP_EXISTING == true ]]
+				then
+					main.log -w "File ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]} exists - because of CXR_SKIP_EXISTING, file will skipped."
+					# Skip this file
+					skip[${iStation}]=true
+				else
+					main.dieGracefully "File ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]} exists, CXR_SKIP_EXISTING is false!"
+				fi
+			else
+				# Don't skip
+				skip[${iStation}]=false
+			fi
+		done
+		
 		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES[@]} - 1)) )
 		do
 				# Input file
 				iFile="${CXR_STATION_INPUT_ARR_FILES[$index]}"
 				# For the output, we need to calculate the modulus with respect to the number of stations
 				iStation=$(( $index % ${#CXR_STATION[@]} ))
+				
+				if [[ ${skip[${iStation}]} == true ]]
+				then
+					# Skip this station file if needed
+					continue
+				fi
 				
 				main.log -a "Adding ${CXR_STATION_INPUT_ARR_FILES[${index}]} to ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}..."
 				
