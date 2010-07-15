@@ -33,7 +33,7 @@
 				
 				source $FUNCTION_FILE
 			else
-				main.log "load_common_modules" "\nModule ${CXR_NOLOAD} seems to be running already"
+				main.log "\nModule ${CXR_NOLOAD} seems to be running already"
 			fi
 		done
 		
@@ -42,4 +42,4 @@
 	# Decrease global indent level
 	main.decreaseLogIndent
 	
-	main.log -H "load_common_modules" "Modules loaded." 
+	main.log -H "Modules loaded." 

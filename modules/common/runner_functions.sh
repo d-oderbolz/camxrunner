@@ -1523,13 +1523,12 @@ function common.runner.recreateRun()
 	# Get the new one
 	newRun="$(common.runner.getNewRunName)"
 	
-		#name is OK - create link ##################################################
+	#name is OK - create link ##################################################
 	if [[ ! -L $newRun  ]]
 	then
 		main.log -a "Creating link $newRun."
 			
 		ln -s $CXR_RUNNER_NAME $newRun
-		
 	else
 		# run already existists, OK? ###############################################
 		if [[ $(common.user.getOK "$newRun already exists. Do you want to continue?" N ) == false  ]]

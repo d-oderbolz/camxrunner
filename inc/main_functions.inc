@@ -887,8 +887,8 @@ function main.getRevision()
 #
 # Also here, we set all variables that depend on model & version
 #
-# TODO: Make all parameters, except run name optional. Write function called
-# pareseRunName or something.
+# TODO: Make all parameters, except run name optional. Check if a higt-level file is 
+# a link to a lower-level file. If so, do not load (will otherwise overwrite stuff!)
 #
 # Parameters:
 # $1 - The name of the run to use
@@ -1025,7 +1025,7 @@ function main.readConfig()
 	# Try to load the base config
 	########################################
 	
-	if [[ -f "${CXR_BASECONFIG}"  ]]
+	if [[ -f "${CXR_BASECONFIG}" ]]
 	then
 		main.log -a   "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
 		source "${CXR_BASECONFIG}"
@@ -1050,7 +1050,7 @@ function main.readConfig()
 	########################################
 	
 	# Try to load an run-specific config that was expanded
-	if [[ -f "${CXR_EXPANDED_CONFIG}"  ]]
+	if [[ -f "${CXR_EXPANDED_CONFIG}" ]]
 	then
 		# Found an expanded configuration (priority)
 		main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
@@ -1062,7 +1062,7 @@ function main.readConfig()
 		#No expanded version found - see if we find a normal one
 		# Try to load the run-specific config
 		# Does it exist?
-		if [[ -f "${CXR_CONFIG}"  ]]
+		if [[ -f "${CXR_CONFIG}" ]]
 		then
 			main.log -a "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
 			# Source it

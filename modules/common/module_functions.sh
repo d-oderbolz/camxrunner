@@ -1425,34 +1425,34 @@ function common.module.listModuleType()
 function common.module.listAllModules
 ################################################################################
 {
-		main.log -a -B "CAMxRunner.sh" "\n  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r"" statement."
+		main.log -a -B "\n  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r"" statement."
 		
-		main.log -a "CAMxRunner.sh" "\n  One-Time pre-processing:\n"
+		main.log -a "\n  One-Time pre-processing:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_PREPROCESS_ONCE}
 		
-		main.log -a "CAMxRunner.sh" "\n  Daily pre-processing:\n"
+		main.log -a "\n  Daily pre-processing:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_PREPROCESS_DAILY}
 		
-		main.log -a "CAMxRunner.sh" "\n  Model:\n"
+		main.log -a "\n  Model:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_MODEL}
 		
-		main.log -a "CAMxRunner.sh" "\n  Daily post-processing:\n"
+		main.log -a "\n  Daily post-processing:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_POSTPROCESS_DAILY}
 		
-		main.log -a "CAMxRunner.sh" "\n  One-Time post-processing steps:\n"
+		main.log -a "\n  One-Time post-processing steps:\n"
 		
 		# module_functions.sh
 		common.module.listModuleType ${CXR_TYPE_POSTPROCESS_ONCE}
 		
-		main.log -a "CAMxRunner.sh" "\n  To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
+		main.log -a "\n  To disable single modules, you can add the name of a module you do *not* want to run to either of the lists\n CXR_DISABLED_DAILY_PREPROC,\n CXR_DISABLED_ONCE_PREPROC,\n CXR_DISABLED_DAILY_POSTPROC or\n CXR_DISABLED_ONCE_POSTPROC\nin your configuration file. Setting any of these strings to \"${CXR_SKIP_ALL}\" disables all modules of this class."    
 }
 
 ################################################################################
