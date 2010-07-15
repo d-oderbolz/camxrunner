@@ -171,8 +171,6 @@ function concatenate_station_data
 	local index
 	local iFile
 	local oFile
-	local InputFileArr
-	local OutputFileArr
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
@@ -189,23 +187,19 @@ function concatenate_station_data
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		# Turn Pseudo-Arrays into real ones
-		InputFileArr=($CXR_STATION_INPUT_ARR_FILES)
-		OutputFileArr=($CXR_STATION_OUTPUT_ARR_FILES)
-		
-		for index in $(seq 0 $(( ${#InputFileArr[@]} - 1)) )
+		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES[@]} - 1)) )
 		do
 				# Input file
-				iFile="${InputFileArr[$index]}"
-				# For the output, we need to calculate the modulus with respect to the nunber of stations
+				iFile="${CXR_STATION_INPUT_ARR_FILES[$index]}"
+				# For the output, we need to calculate the modulus with respect to the number of stations
 				iStation=$(( $index % ${#CXR_STATION[@]} ))
 				
-				main.log -a "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
+				main.log -a "Adding ${CXR_STATION_INPUT_ARR_FILES[${index}]} to ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}..."
 				
 				#Dry?
 				if [[ "$CXR_DRY" == false  ]]
 				then
-					cat "${InputFileArr[${index}]}" >> "${OutputFileArr[${iStation}]}"
+					cat "${CXR_STATION_INPUT_ARR_FILES[${index}]}" >> "${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
 				else
 					main.log -a "This is a dry-run, no action required"
 				fi

@@ -315,11 +315,15 @@ function common.runner.reportDimensions()
 # to non-bashers.
 # If it is a file rule, the file might be compressed, <common.fs.TryDecompressingFile> is called.
 #
+# Note that teh expansion of a rule depends on the environment (e. g. the value of date variables
+# or other global variables). This makes it hard to cache the output of this function.
+#
 # Side effect: if the file is compressed and we cannot decompress in place,
 # the returned file name will change. If you want the "expected" file name,
 # use the fourth parameter.
 # ABSOLUTELY use this parameter for any OUTPUT_FILE because if the output would have been 
 # compressed, CAMxRunner would decompress it, wich makes no sense.
+# 
 #
 # The evaluator tests if the resulting dirname exists (_FILE_RULE only). This is needed if your rules
 # contain things like /${VAR}/... because we have no way of knowing this name in the checker.
