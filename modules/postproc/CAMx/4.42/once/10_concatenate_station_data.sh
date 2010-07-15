@@ -177,7 +177,6 @@ function concatenate_station_data
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true ]]
 	then
-	
 		set_variables
 	
 		#  --- Check Settings
@@ -201,7 +200,7 @@ function concatenate_station_data
 				# For the output, we need to calculate the modulus with respect to the nunber of stations
 				iStation=$(( $index % ${#CXR_STATION[@]} ))
 				
-				min.log -a "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
+				main.log -a "Adding ${InputFileArr[${index}]} to ${OutputFileArr[${iStation}]}..."
 				
 				#Dry?
 				if [[ "$CXR_DRY" == false  ]]
