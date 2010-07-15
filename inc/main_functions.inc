@@ -373,9 +373,9 @@ function main.log()
 		echo -e "$message" >> ${CXR_LOG}
 	fi
 	
-	# The external channels (motify decides who needs to get the message)
-	# -a does not go there
-	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}" ]]
+	# The external channels (sendMessage decides who needs to get the message)
+	# only -e and -w may  even go there
+	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${log_level}" -lt "${CXR_LOG_LEVEL_INF}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}" ]]
 	then
 		# The sending is done in the background
 		main.sendMessage "Log" "${blank_message} - ${call_stack}" &
