@@ -1,9 +1,9 @@
-	main.log -H "load_common_modules" "Loading external modules from ${CXR_COMMON_INPUT_DIR}..." 
+	main.log -H "Loading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 	
 	# Increase global indent level
 	main.increaseLogIndent
 	
-	main.log "load_common_modules" "Get more information about the modules using verbose output (-v)" 
+	main.log "Get more information about the modules using verbose output (-v)" 
 	
 	# Find all external functions.
 	# 3 levels:
@@ -16,7 +16,7 @@
 	for CURRENT_DIR in $CXR_COMMON_INPUT_DIR $CXR_COMMON_MODEL_INPUT_DIR $CXR_COMMON_VERSION_INPUT_DIR
 	do
 	
-		main.log "load_common_modules" "Reading modules from ${CURRENT_DIR} (if there are any)..."
+		main.log "Reading modules from ${CURRENT_DIR} (if there are any)..."
 		
 		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 		do
