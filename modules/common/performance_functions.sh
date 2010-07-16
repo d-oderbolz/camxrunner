@@ -222,7 +222,7 @@ function common.performance.estimateRuntime()
 # Function: common.performance.getMemFreePercent
 #
 # Estimates the percentage of free memory from the output of top.
-#
+# TODO: Fix inconsistency
 #
 ################################################################################
 function common.performance.getMemFreePercent()
@@ -230,7 +230,11 @@ function common.performance.getMemFreePercent()
 {
 	local usedPercent=0
 	
-	# Memory percent is in the 10th column
+	# Memory percent is in the 10th or 7th column
+	headers=$(top -b -n1 | head -n7 | tail -n1)
+	
+	
+	
 	# The first 7 lines are header
 	for used in $(top -b -n1 | sed '1,7d' | awk '{ print $10 }')
 	do
@@ -253,7 +257,7 @@ function common.performance.getMemFreePercent()
 #
 #
 ################################################################################
-function common.memory.getSystemLoadPercent()
+function common.performance.getSystemLoadPercent()
 ################################################################################
 {
 	local rawLoad
