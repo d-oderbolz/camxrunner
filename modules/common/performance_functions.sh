@@ -219,6 +219,55 @@ function common.performance.estimateRuntime()
 }
 
 ################################################################################
+# Function: common.performance.getMemFreePercent
+#
+# Estimates the percentage of free memory from the output of top.
+#
+#
+################################################################################
+function common.performance.getMemFreePercent()
+################################################################################
+{
+	local usedPercent=0
+	
+	# Memory percent is in the 10th column
+	# The first 7 lines are header
+	for used in $(top -b -n1 | sed '1,7d' | awk '{ print $10 }')
+	do
+		usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
+	done
+	
+	free="$(common.math.FloatOperation "100 - $usedPercent" -1 0)"
+	
+	main.log -v "Found $free % free memory"
+	
+	echo $free
+	
+}
+
+################################################################################
+# Function: common.performance.getSystemLoadPercent
+#
+# Gets the CPU-corrected systemload in percent from top (15 min average). 
+# If this number is higher than 100, the system is heavily loaded.
+#
+#
+################################################################################
+function common.memory.getSystemLoadPercent()
+################################################################################
+{
+	local rawLoad
+	
+	# The 16th field contains the 15min average of the load
+	rawLoad=$(top -b | head -n1 | cut -d" " -f16)
+	# Divide this number by number of cores and multply by 100
+	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2 false)
+	
+	echo $Load
+	
+}
+
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module
@@ -248,6 +297,9 @@ function test_module()
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
+	
+	main.log "Free memory: $(common.performance.getMemFreePercent) %"
+	main.log "System Load: $(common.performance.getSystemLoadPercent)"
 	
 	# Load the performance array
 	arr=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL test) )

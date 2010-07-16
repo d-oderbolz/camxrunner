@@ -861,33 +861,6 @@ function common.fs.getFreeMb()
 }
 
 ################################################################################
-# Function: common.memory.getFreePercent
-#
-# Estimates the percentage of free memory from the output of top.
-#
-#
-################################################################################
-function common.memory.getFreePercent()
-################################################################################
-{
-	local usedPercent=0
-	
-	# Memory percent is in the 10th column
-	# The first 7 lines are header
-	for used in $(top -b -n1 | sed '1,7d' | awk '{ print $10 }')
-	do
-		usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
-	done
-	
-	free="$(common.math.FloatOperation "100 - $usedPercent" -1 0)"
-	
-	main.log -v "Found $free % free memory"
-	
-	echo $free
-	
-}
-
-################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please
@@ -942,7 +915,6 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	main.log "Free memory: $(common.memory.getFreePercent) %"
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"

@@ -696,7 +696,7 @@ function common.parallel.Worker()
 		common.parallel.waitingWorker $task_pid
 		
 		# Is there enough free memory?
-		if [[ "$(common.memory.getFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
+		if [[ "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
 		then
 			# Enough Memory
 			
