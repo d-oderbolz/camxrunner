@@ -142,7 +142,7 @@ function common.test.all()
 		################################################################################
 		# Determine model and version
 		################################################################################	
-		
+
 		if [[ ! "${iput_model}" ]]
 		then
 			# Model was not passed
@@ -194,6 +194,9 @@ function common.test.all()
 		
 		# Pre-load testing interface
 		CXR_RUN=base
+		
+		# When this is true, we know a test is running
+		CXR_TEST_IN_PROGRESS=true
 	
 		#source inc/init_test.inc
 		source inc/tap-functions.inc

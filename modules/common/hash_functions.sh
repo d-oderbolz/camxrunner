@@ -260,8 +260,11 @@ function common.hash.put()
 		echo "${value}" > "${fn}"
 	fi
 	
-	# Turn errexit back on
-	set -e
+		#Turn strict checks back on unles we are testing
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
+	then
+		set -e
+	fi
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"

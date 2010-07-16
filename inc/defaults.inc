@@ -22,7 +22,7 @@ CXR_CALL="\$ ${0}"
 # command || return $CXR_RET_ERROR)
 # If you want to ignore failure (e. g. when calling expr) 
 # use command || :
-set -o errexit
+set -e
 
 # Never use an undefined variable.
 # This is a very strict requirement, but its also safe...

@@ -677,9 +677,9 @@ function main.getBinaryName()
 	
 	# First see if which delivers anything
 	# We must catch errors
-	set +o errexit
+	set +e
 	local which_output="$(which "${exec_name}" 2>/dev/null)"
-	set -o errexit
+	set -e
 	
 	# Set output to "" if which failed
 	if [[ $? -ne 0 ]]

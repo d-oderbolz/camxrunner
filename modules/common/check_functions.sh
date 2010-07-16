@@ -237,8 +237,11 @@ function common.check.DataType()
 			echo false
 		fi
 		
-		#Turn strict checks back on
-		set -e
+		#Turn strict checks back on unles we are testing
+		if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
+		then
+			set -e
+		fi
 		
 		;;
 	B) # Boolean - either true or false
