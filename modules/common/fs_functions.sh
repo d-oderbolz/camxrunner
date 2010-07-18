@@ -447,17 +447,23 @@ function common.fs.CompressOutput()
 	local module
 	local do_this
 	local found
+	local arrKeys
+	local keyString
 	
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
 
+		set -x
+
 		oIFS="$IFS"
-		local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)"
+		keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)"
 		IFS="$CXR_DELIMITER"
 		# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-		local arrKeys=( $keyString )
+		arrKeys=( $keyString )
 		# Reset Internal Field separator
 		IFS="$oIFS"
+		
+		set +x
 		
 		# looping through keys (safest approach)
 		for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )

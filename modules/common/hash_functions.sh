@@ -710,8 +710,6 @@ function common.hash.getKeys()
 		main.log -w "Hash ${hash_dir}/${hash} is empty..."
 	fi
 	
-	main.log -a "$list"
-	
 	echo $list
 }
 
