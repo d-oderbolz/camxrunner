@@ -685,10 +685,12 @@ function common.hash.getKeys()
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
 	
+	main.log -v "Getting keys for $hash $type out of ${hash_dir}/${hash}..."
+	
 	if [[ -d ${hash_dir}/${hash} ]]
 	then
 		# Hash exists, get all files within
-		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1)
+		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1 2>/dev/null)
 		do
 			found=true
 			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$(basename $fn)")"
