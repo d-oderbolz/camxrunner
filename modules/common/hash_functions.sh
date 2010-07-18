@@ -676,6 +676,7 @@ function common.hash.getKeys()
 	local hash="$1"
 	local type="$2"
 	
+	local found=false
 	local hash_dir
 	local fn
 	local key
@@ -689,6 +690,7 @@ function common.hash.getKeys()
 		# Hash exists, get all files within
 		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1)
 		do
+			found=true
 			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$(basename $fn)")"
 			list="${list}${key}$CXR_DELIMITER"
 		done
@@ -699,6 +701,11 @@ function common.hash.getKeys()
 	else
 		main.log -w "Hash ${hash} does not exist."
 		list=""
+	fi
+	
+	if [[ $found == false]]
+	then
+		main.log -w "Hash ${hash_dir}/${hash} is empty..."
 	fi
 	
 	echo $list
