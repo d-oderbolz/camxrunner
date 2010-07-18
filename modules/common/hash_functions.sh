@@ -686,10 +686,10 @@ function common.hash.getKeys()
 	
 	if [[ -d ${hash_dir}/${hash} ]]
 	then
-		# Hash exists
-		for fn in $(ls ${hash_dir}/${hash})
+		# Hash exists, get all files within
+		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1)
 		do
-			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
+			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$(basename $fn)")"
 			list="${list}${key}$CXR_DELIMITER"
 		done
 		
