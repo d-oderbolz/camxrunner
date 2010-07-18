@@ -944,10 +944,10 @@ function test_module()
 	is "$(common.fs.isSubDirOf?   /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss)" false "common.fs.isSubDirOf? real world"
 	
 	# test the dos-detection
-	${CXR_UNIX2DOS_EXEC} "$a" > /dev/null
+	${CXR_UNIX2DOS_EXEC} "$a" &> /dev/null
 	is $(common.fs.isDos? "$a") true "common.fs.isDos? on dos-file"
 	
-	${CXR_DOS2UNIX_EXEC} "$a" > /dev/null
+	${CXR_DOS2UNIX_EXEC} "$a" &> /dev/null
 	is $(common.fs.isDos? "$a") false "common.fs.isDos? on unix-file"
 	
 	# compress
