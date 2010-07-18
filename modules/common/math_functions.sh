@@ -70,10 +70,13 @@ function common.math.FloatOperation()
 	fi
 	
 	# Define & Initialize local vars
-	local resolution=${2:-$CXR_NUM_DIGITS}
-	local add_trailing_dp=${3:-true}
+	local resolution
+	local add_trailing_dp
 	local result
 	local bc_res
+	
+	resolution=${2:-$CXR_NUM_DIGITS}
+	add_trailing_dp=${3:-true}
 	
 	# Fix resolution (-1 is just a marker)
 	if [[ "$resolution" -eq -1 ]]
@@ -156,10 +159,14 @@ function common.math.sumVector()
 		return $CXR_RET_ERROR
 	fi
 	
-	local list="${1}"
-	local scale="${2:--1}"
+	local list
+	local scale
 	local iElement
-	local result=0
+	local result
+	
+	list="${1}"
+	scale="${2:--1}"
+	result=0
 	
 	arr=( $list )
 	
@@ -193,8 +200,11 @@ function common.math.meanVector()
 		return $CXR_RET_ERROR
 	fi
 	
-	local list="${1}"
-	local scale="${2:--1}"
+	local list
+	local scale
+	
+	list="${1}"
+	scale="${2:--1}"
 	
 	nValues=$(main.countDelimitedElements "$list" " ")
 	
@@ -232,10 +242,14 @@ function common.math.stdevVector()
 		return $CXR_RET_ERROR
 	fi
 	
-	local list="${1}"
-	local mean="${2:-}"
-	local SumSquaredDeviation=0
+	local list
+	local mean
+	local SumSquaredDeviation
+	local nValues
 	
+	list="${1}"
+	mean="${2:-}"
+	SumSquaredDeviation=0
 	nValues=$(main.countDelimitedElements "$list" " ")
 	
 	# Just to be on the safe side

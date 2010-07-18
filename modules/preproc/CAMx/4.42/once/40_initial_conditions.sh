@@ -252,7 +252,8 @@ function initial_conditions()
 				MOZART | MOZART_CONSTANT | MOZART_INCREMENT )
 				
 					# By default, we pass no extra
-					local extra=
+					local extra
+					extra=""
 					
 					# MOZART_CONSTANT or INCREMENT?
 					if [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_CONSTANT  ]]
@@ -394,8 +395,11 @@ function initial_conditions()
 						create_topconc_file
 						
 						# We need the grid resolution in m
-						local master_cell_dx_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
-						local master_cell_dy_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
+						local master_cell_dx_m
+						local master_cell_dy_m
+						
+						master_cell_dx_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
+						master_cell_dy_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
 						
 						# Is topconc non-empty?
 						if [[ -s "${CXR_TOPCONC_OUTPUT_FILE}"  ]]

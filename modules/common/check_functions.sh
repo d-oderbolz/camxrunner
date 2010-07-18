@@ -147,8 +147,11 @@ function common.check.MbNeeded()
 		main.dieGracefully "needs 2 parameters: a path and a number (megabytes needed)"
 	fi
 	
-	local dir="$1"
-	local mb="$2"
+	local dir
+	local mb
+	
+	dir="$1"
+	mb="$2"
 	
 	main.log -v  "Checking if space in $dir is sufficient..."
 		
@@ -204,8 +207,11 @@ function common.check.DataType()
 		main.dieGracefully "needs 2 strings as input"
 	fi
 	
-	local value=$1
-	local datatype=$2
+	local value
+	local datatype
+	
+	value=$1
+	datatype=$2
 	
 	main.log -v "VALUE: *$value*\nDATATYPE: *$datatype*"
 
@@ -279,13 +285,15 @@ function common.check.ModelLimits()
 	main.log -a -B  "Checking model limits for ${CXR_MODEL_EXEC}..."
 	
 	# We must find the play file
-	local conffile=${CXR_MODEL_BIN_DIR}/$(basename ${CXR_MODEL_EXEC}).conf
+	local conffile
 	local iGrid
 	local var
 	local curr_var
 	local f_val
 	local f_nspec
 	local cxr_value
+	
+	conffile=${CXR_MODEL_BIN_DIR}/$(basename ${CXR_MODEL_EXEC}).conf
 	
 	if [[ -f "${conffile}"  ]]
 	then
@@ -454,7 +462,8 @@ function common.check.getMD5()
 			main.log -e  "Programming error: no filename passed!"
 		fi
 		
-		local file="$1"
+		local file
+		file="$1"
 		
 		if [[ -r "${file}" ]]
 		then
@@ -491,12 +500,15 @@ function common.check.reportMD5()
 			main.log -e  "Programming error: no filename passed!"
 		fi
 		
-		local file="$1"
-		local isLocal="$(common.fs.isLocal? "$file")"
+		local file
+		local isLocal
 		local hash
 		local new_hash
 		local old_hash
 		local old_mtime
+		
+		file="$1"
+		isLocal="$(common.fs.isLocal? "$file")"
 		
 		if [[ "$isLocal" == true ]]
 		then
@@ -564,16 +576,19 @@ function common.check.preconditions()
 ################################################################################
 {
 	# Does the user want to limit the checks?
-	local limited=false
-	
-	# First, all is switched off
-	local do_input=false
-	local do_output=false
+	local limited
+	local do_input
+	local do_output
 	local errors_found
 	local output_dir
 	local dir
 	local output_file
 	local input_file
+	
+	limited=false
+	# First, all is switched off
+	do_input=false
+	do_output=false
 
 	while getopts ":io" opt
 	do
@@ -914,7 +929,7 @@ function common.check.ModuleRequirements()
 ################################################################################
 {
 	# Test if Module was already announced (for efficiency and log-file size reasons)
-	local found=$(common.string.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
+	local found
 	local requirement
 	local elements
 	local n_elements
@@ -922,14 +937,18 @@ function common.check.ModuleRequirements()
 	local what
 	local need
 	local executable
-	local found=false
+	local found
 	local version
+	
+	found=false
+	
+	found=$(common.string.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
 	
 	# We announce only if it was not found
 	if [[ "$found" == false  ]]
 	then
 	
-		main.log -v   "\nLoading ${CXR_META_MODULE_NAME} - Version ${CXR_META_MODULE_VERSION}\n"    
+		main.log -v "\nLoading ${CXR_META_MODULE_NAME} - Version ${CXR_META_MODULE_VERSION}\n"
 	
 		# Increase global indent level
 		main.increaseLogIndent
@@ -1116,8 +1135,10 @@ function common.check.ModuleRequirements()
 function common.check.postconditions() 
 ################################################################################
 {
-	local errors_found=false
+	local errors_found
 	local output_file
+	
+	errors_found=false
 	
 	# No output check for dryruns
 	if [[ $CXR_DRY == true  ]]
@@ -1196,13 +1217,19 @@ function common.check.isVersionSupported?()
 		return 1
 	fi
 	
-	local version=$1
-	local model=$2
-	local model_id="$(common.runner.getModelId "$model")" || main.dieGracefully "Model $model is not known."
-	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
+	local version
+	local model
+	local model_id
+	local supported
+	local found
+	
+	version=$1
+	model=$2
+	model_id="$(common.runner.getModelId "$model")" || main.dieGracefully "Model $model is not known."
+	supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
-	local found=$(common.string.isSubstringPresent? "$supported" "$version")
+	found=$(common.string.isSubstringPresent? "$supported" "$version")
 	
 	if [[ $found == true ]]
 	then

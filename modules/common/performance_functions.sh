@@ -93,19 +93,24 @@ function common.performance.startTiming()
 function common.performance.stopTiming()
 ################################################################################
 {
-	module=${1}
+	local module
 	local time_norm
+	local start_time
+	local stop_time
+	local keys
+	
+	module=${1}
 	
 	# Get the current epoch
-	local stop_time="$(date "+%s")"
+	stop_time="$(date "+%s")"
 	
 	var=CXR_TEMP_START_TIME_${module}
 	
 	# Get value via indirection
-	local start_time=${!var:-}
+	start_time=${!var:-}
 	
 	# We will later loop through this
-	local keys="$module all"
+	keys="$module all"
 	
 	if [[ "$start_time" ]]
 	then
@@ -178,10 +183,12 @@ function common.performance.stopTiming()
 function common.performance.estimateRuntime()
 ################################################################################
 {
-	local module=${1}
+	local module
 	local mean
 	local stddev
 	local estimate
+	
+	module=${1}
 	
 	# This call sets _has and _value
 	common.hash.has? Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module" > /dev/null
@@ -228,7 +235,9 @@ function common.performance.estimateRuntime()
 function common.performance.getMemFreePercent()
 ################################################################################
 {
-	local usedPercent=0
+	local usedPercent
+	usedPercent=0
+	
 	
 	# Memory percent is in the 10th or 7th column
 	headers=$(top -b -n1 | head -n7 | tail -n1)
@@ -284,13 +293,16 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	local nSeconds=5
+	local nSeconds
 	local time
 	local arr
 	local difference
+	local epsilon
+	
 	
 	# We accept one second difference
-	local epsilon=1
+	epsilon=1
+	nSeconds=5
 	
 	main.log -a "We will now wait $nSeconds seconds to test timing..."
 	

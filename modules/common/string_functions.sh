@@ -51,8 +51,12 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.string.isSubstringPresent?() 
 ################################################################################
 {
-	local haystack=$1
-	local needle=$2
+	local haystack
+	local needle
+	local found
+	
+	haystack=$1
+	needle=$2
 	
 	if [[ -z "$haystack" || -z "$needle" ]]
 	then
@@ -61,7 +65,7 @@ function common.string.isSubstringPresent?()
 	fi
 	
 	
-	local found=$(expr match " $haystack" ".*$needle.*")
+	found=$(expr match " $haystack" ".*$needle.*")
 	# For safety, here        ^ is a space, so that things never start at 0
 	
 	if [[ $found -gt 0 ]]
@@ -123,9 +127,12 @@ function common.string.toUpper()
 function common.string.trim() 
 ################################################################################
 {
-	local string="${1}"
-	local to_remove="${2:-" "}"
+	local string
+	local to_remove
 	local out
+	
+	string="${1}"
+	to_remove="${2:-" "}"
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
@@ -155,9 +162,12 @@ function common.string.trim()
 function common.string.repeat() 
 ################################################################################
 {
-	local string="${1}"
-	local times="${2}"
+	local string
+	local times
 	local dummy
+	
+	string="${1}"
+	times="${2}"
 	
 	if [[ $# -ne 2 ]]
 	then
@@ -230,8 +240,11 @@ function common.string.leftPadZero
 		main.dieGracefully "We need 2 digits as input: the number to pad and the number of digits to pad to"
 	fi
 	
-	local number="$1"
-	local digits="$2"
+	local number
+	local digits
+	
+	number="$1"
+	digits="$2"
 	
 	printf "%0${digits}d" "$number"
 }

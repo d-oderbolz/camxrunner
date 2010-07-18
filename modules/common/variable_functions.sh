@@ -85,7 +85,9 @@ function common.variables.list()
 function common.variables.getValue()
 ################################################################################
 {
-	local item=${1}
+	local item
+	
+	item=${1}
 	
 	set | grep ${item}= &>/dev/null
 	

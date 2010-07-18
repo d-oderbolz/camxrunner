@@ -167,16 +167,18 @@ function boundary_conditions()
 	CXR_INVOCATION=${1:-1}
 	
 	# Define & Initialize local vars
-	local extra=
-	local species=
-	local conc=
-	local spec_line=
-	local exec_tmp_file=
-	local iSpec=0
-	local mozart_array=
-	local camx_array=
-	local mozart_spec=
-	local camx_spec=
+	local extra
+	local species
+	local conc
+	local spec_line
+	local exec_tmp_file
+	local iSpec
+	local mozart_array
+	local camx_array
+	local mozart_spec
+	local camx_spec
+	
+	iSpec=0
 	
 	# Set according to input (ternary operator did not work as expected)
 	if [[ ${CXR_IC_BC_TC_DO_PLOT:-false} == true ]]

@@ -147,9 +147,13 @@ function get_model_exec()
 ################################################################################
 {
 	#Determine possible names
-	local general_exec=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
-	local machine_exec=${general_exec}-$(uname -n)
-	local run_exec=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
+	local general_exec
+	local machine_exec
+	local run_exec
+	
+	general_exec=${CXR_MODEL_BIN_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_PARALLEL_PARADIGM}-${CXR_PROBING_TOOL}-${HOSTTYPE}
+	machine_exec=${general_exec}-$(uname -n)
+	run_exec=${CXR_MODEL_BIN_DIR}/${CXR_RUN}-${HOSTTYPE}
 	
 	# Check name - run first
 	if [[ -x ${run_exec}  ]]

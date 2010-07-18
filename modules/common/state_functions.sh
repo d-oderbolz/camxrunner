@@ -159,19 +159,24 @@ function common.state.getFirstDayModelled()
 function common.state.getStageName()
 ################################################################################
 {
+	local module_type
+	local module_name
+	local date
+	local invocation
+	
 	if [[ $# -lt 3 ]]
 	then
 		# Use the environment
-		local module_type="${CXR_META_MODULE_TYPE}"
-		local module_name="${CXR_META_MODULE_NAME}"
-		local date="${CXR_DATE_RAW:-date_not_set}"
-		local invocation="${CXR_INVOCATION:-1}"
+		module_type="${CXR_META_MODULE_TYPE}"
+		module_name="${CXR_META_MODULE_NAME}"
+		date="${CXR_DATE_RAW:-date_not_set}"
+		invocation="${CXR_INVOCATION:-1}"
 	else
 		# Use parameters
-		local module_type="${1}"
-		local module_name="${2}"
-		local date="${3}"
-		local invocation="${4:-1}"
+		module_type="${1}"
+		module_name="${2}"
+		date="${3}"
+		invocation="${4:-1}"
 	fi
 	
 	case "${module_type}" in
@@ -322,9 +327,12 @@ function common.state.storeState()
 		main.dieGracefully "needs a state like $CXR_STATE_ERROR as Input"   
 	fi
 	
-	local state=$1
+	local state
+	local stage
+	
+	state=$1
 	# stage is either passed or set using common.state.getStageName
-	local stage="${2:-$(common.state.getStageName)}"
+	stage="${2:-$(common.state.getStageName)}"
 	
 	# Do we care at all?
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
@@ -401,8 +409,11 @@ function _common.state.getStateFileName()
 		main.dieGracefully "needs a state and a stage as Input" 
 	fi
 	
-	local state=$1
-	local stage=$2
+	local state
+	local stage
+	
+	state=$1
+	stage=$2
 	
 	echo ${CXR_STATE_DIR}/${stage}.${state}	
 }
@@ -417,9 +428,7 @@ function _common.state.getStateFileName()
 function common.state.countInstances()
 ################################################################################
 {
-	local process_count=$(find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l) 
-	
-	echo $process_count
+	$(find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l)
 }
 
 ################################################################################
@@ -432,7 +441,8 @@ function common.state.countInstances()
 function common.state.detectInstances()
 ################################################################################
 {
-	local process_count=$(common.state.countInstances) 
+	local process_count
+	process_count=$(common.state.countInstances) 
 	
 	if [[ ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false ]]
 	then
@@ -464,9 +474,13 @@ function common.state.hasFinished?()
 		echo false
 	fi
 	
-	local stage="$1"
-	local start_file=$(_common.state.getStateFileName "${CXR_STATE_START}" "${stage}")
-	local stop_file=$(_common.state.getStateFileName "${CXR_STATE_STOP}" "${stage}")
+	local stage
+	local start_file
+	local stop_file
+	
+	stage="$1"
+	start_file=$(_common.state.getStateFileName "${CXR_STATE_START}" "${stage}")
+	stop_file=$(_common.state.getStateFileName "${CXR_STATE_STOP}" "${stage}")
 	
 	main.log -v "Testing stage ${stage}, looking for ${start_file} and ${stop_file}"
 	
@@ -509,8 +523,11 @@ function common.state.hasFailed?()
 		echo false
 	fi
 	
-	local stage="$1"
-	local error_file=$(_common.state.getStateFileName "${CXR_STATE_ERROR}" "${stage}")
+	local stage
+	local error_file
+	
+	stage="$1"
+	error_file=$(_common.state.getStateFileName "${CXR_STATE_ERROR}" "${stage}")
 	
 	if [[ -f "$error_file"  ]]
 	then
@@ -806,7 +823,9 @@ function common.state.cleanup()
 function common.state.doContinue?()
 ################################################################################
 {
-	local error_count=$(main.countErrors)
+	local error_count
+	error_count=$(main.countErrors)
+	
 	
 	# Report error count
 	main.log -v -b "Current Error Count: $error_count"
@@ -848,9 +867,12 @@ function common.state.doContinue?()
 function common.state.reportEta()
 ################################################################################
 {
-	local percentDone=$(common.math.FloatOperation "($CXR_TASKS_DONE / $CXR_TASKS_TOTAL) * 100" -1 false )
+	local percentDone
+	local estimatedTimeSeconds
 	
-	local estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	percentDone=$(common.math.FloatOperation "($CXR_TASKS_DONE / $CXR_TASKS_TOTAL) * 100" -1 false )
+	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	
 	
 	# Only goes to stderr
 	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2

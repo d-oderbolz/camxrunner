@@ -233,12 +233,16 @@ function create_ahomap_control_file()
 ################################################################################
 {
 	# Define & Initialize local vars
-	local ahomap_file="$1"
-	local start_offset="$2"
-	local num_days="$3"
+	local ahomap_file
+	local start_offset
+	local num_days
 	local iGrid
 	
 	local day_offset
+	
+	ahomap_file="$1"
+	start_offset="$2"
+	num_days="$3"
 	
 	# Write data line by line (analogous to write_control_file)
 	
@@ -343,12 +347,16 @@ function albedo_haze_ozone()
 	CXR_INVOCATION=${1}
 	
 	# Define & Initialize local vars
-	local day_offset=0
-	
-	local num_days=0
-	local days_left=0
-	local month_length=0
+	local day_offset
+	local num_days
+	local days_left
+	local month_length
 	local iMonth
+	
+	day_offset=0
+	num_days=0
+	days_left=0
+	month_length=0
 	
 	local ahomap_control_file
 	

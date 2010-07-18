@@ -116,8 +116,8 @@ function common.test.loadData()
 function common.test.all()
 ################################################################################
 {
-	local iput_model="${1:-}"
-	local input_version="${2:-}"
+	local iput_model
+	local input_version
 	local model_id
 	local supported
 	local array
@@ -125,7 +125,11 @@ function common.test.all()
 	local total_tests
 	local message
 	local function_file
-	local extended=false
+	local extended
+	
+	iput_model="${1:-}"
+	input_version="${2:-}"
+	extended=false
 	
 	# This function runs all tests that are availabe (asking the user before each new test if wanted).
 	# For this, all modules are enumerated and then tested if marked as testable.

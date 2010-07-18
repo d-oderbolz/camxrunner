@@ -105,7 +105,9 @@ function set_variables()
 	
 	local iStation
 	local day_offset
-	local index=0
+	local index
+	
+	index=0
 
 	########################################################################
 	# Set variables

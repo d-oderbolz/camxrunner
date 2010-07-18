@@ -136,8 +136,10 @@ function common.install.do()
 function common.install.getPatchTarget()
 ################################################################################
 {
-	local patch=${1:-}
+	local patch
 	local file
+	
+	patch=${1:-}
 	
 	if [[ ! -f "$patch"  ]]
 	then
@@ -175,10 +177,10 @@ function common.install.getPatchTarget()
 function common.install.applyPatch()
 ################################################################################
 {
-	local patch_dir="$1"
-	local src_dir="$2"
-	local logfile="${3:-/dev/null}"
-	local ask_user="${4:-true}"
+	local patch_dir
+	local src_dir
+	local logfile
+	local ask_user
 	
 	local patchlist
 	local curline
@@ -187,6 +189,11 @@ function common.install.applyPatch()
 	local len_patch_dir
 	local current_dir
 	local real_file
+	
+	patch_dir="$1"
+	src_dir="$2"
+	logfile="${3:-/dev/null}"
+	ask_user="${4:-true}"
 	
 	if [[ ! -d "$patch_dir" || ! -d "$src_dir" ]]
 	then

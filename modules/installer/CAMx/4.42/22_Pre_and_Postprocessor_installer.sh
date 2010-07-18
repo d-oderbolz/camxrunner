@@ -60,7 +60,7 @@ function Pre_and_Postprocessor_installer()
 	then
 	
 		# Is the compiler there?
-		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC}  ]]
+		if [[ ! -x ${CXR_FORTRAN_COMPILER_EXEC} ]]
 		then
 			main.dieGracefully "Compiler ${CXR_FORTRAN_COMPILER_EXEC} not found/executable, eiter adjust CXR_FORTRAN_COMPILER_EXEC (and maybe the Makefiles) or make sure the compiler is there (module add?)"
 		fi

@@ -735,6 +735,8 @@ function common.hash.toFile()
 	local hash="$1"
 	local type="$2"
 	local file="$3"
+	local keyString
+	local arrKeys
 	
 	local key
 	local value
@@ -746,10 +748,10 @@ function common.hash.toFile()
 	fi
 	
 	oIFS="$IFS"
-	local keyString="$(common.hash.getKeys "$hash" "$type")"
+	keyString="$(common.hash.getKeys "$hash" "$type")"
 	IFS="$CXR_DELIMITER"
 	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-	local arrKeys=( $keyString )
+	arrKeys=( $keyString )
 	# Reset Internal Field separator
 	IFS="$oIFS"
 	

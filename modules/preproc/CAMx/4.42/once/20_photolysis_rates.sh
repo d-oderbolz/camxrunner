@@ -134,7 +134,8 @@ function create_tuv_control_file ()
 ################################################################################
 {
 	# Create a file name
-	local tuv_control_file=$(common.runner.createTempFile $FUNCNAME)
+	local tuv_control_file
+	tuv_control_file=$(common.runner.createTempFile $FUNCNAME)
 
 	# Here, we need only > (overwrite)
 	echo "output file name   |$CXR_TUV_OUTPUT_FILE" > $tuv_control_file
@@ -180,11 +181,13 @@ function photolysis_rates()
 	CXR_INVOCATION=${1}
 	
 	# Define & Initialize local vars
-	local tuv_control_file=
-	local day_offset=0
+	local tuv_control_file
+	local day_offset
 	local start_offset
 	local iMonth
 	
+	day_offset=0
+	 
 	#Was this stage already completed?
 	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
 	then

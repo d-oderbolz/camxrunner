@@ -74,12 +74,13 @@ function common.user.showProgress()
 function common.user.showProgressBar()
 ################################################################################
 {
-	local percent=${1:-0}
 	local string
 	local spaces
 	local nSpaces
 	local nElements
-	local progress=$(common.math.FloatOperation "($percent * $CXR_MAX_BAR_WIDTH) / 100" -1 false)
+	local progress
+	
+	progress=$(common.math.FloatOperation "(${1:-0} * $CXR_MAX_BAR_WIDTH) / 100" -1 false)
 
 	nElements=$(( $progress - 1 ))
 	
@@ -210,8 +211,10 @@ function common.user.getOK()
 function common.user.getInput() 
 ################################################################################
 {
-	local message=$1
+	local message
 	local answer
+	
+	message=$1
 	
 	# Communicate with the user on STDERR.
 	echo "${CXR_SINGLE_LINE}" 1>&2
@@ -299,11 +302,14 @@ function common.user.getMenuChoice()
 ################################################################################
 {
 	echo "${CXR_SINGLE_LINE}" 1>&2
-	local message="$1\nEnter the *number* of your choice:"
-	local options=$2
+	local message
+	local options
 	local default
 	local choice
 	local chosen
+	
+	message="$1\nEnter the *number* of your choice:"
+	options=$2
 	
 	if [[ "${3:-}"  ]]
 	then
@@ -404,8 +410,8 @@ function common.user.getMenuChoice()
 function common.user.getAnswers()
 ################################################################################
 {
-	local askfile="$1"
-	local playfile="$2"
+	local askfile
+	local playfile
 	local curline
 	local line
 	local lov
@@ -418,7 +424,10 @@ function common.user.getAnswers()
 	local question
 	local default
 	local value
-	
+
+	askfile="$1" 
+	playfile="$2"
+
 	
 	main.log -a  "Using ask-file ${askfile} to create playfile ${playfile}"
 	
@@ -642,15 +651,17 @@ function common.user.applyPlayfile()
 ################################################################################
 {
 	# The delimiter in use here (might change below if file has a different format)
-	local delimiter="${CXR_DELIMITER}"
+	local delimiter
+	
+	delimiter="${CXR_DELIMITER}"
 
 	if [[ $# -ne 2  ]]
 	then
 		main.dieGracefully "needs a playfile and a list of input files as input"
 	fi
 
-	local playfile="$1"
-	local files="$2"
+	local playfile
+	local files
 	local sed_tmp
 	local current_file
 	local line
@@ -658,6 +669,9 @@ function common.user.applyPlayfile()
 	local variable
 	local value
 	local curline
+	
+	playfile="$1"
+	files="$2"
 
 	########################################
 	main.log  "Playback of $playfile..."

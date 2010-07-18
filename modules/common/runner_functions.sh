@@ -987,10 +987,12 @@ function common.runner.releaseAllLocks()
 function common.runner.getExistingConfigFile() 
 ################################################################################
 {
+	local config
+	
 	# To keep the list compact, we go into the conf dir and back out again
 	cd "${CXR_CONF_DIR}" || main.dieGracefully "Could not change to ${CXR_CONF_DIR}!"
 		
-	local config=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose an existing config file as starting point:" "*.conf" )
+	config=${CXR_CONF_DIR}/$(common.user.getMenuChoice "Choose an existing config file as starting point:" "*.conf" )
 		
 	cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 	
@@ -1012,8 +1014,8 @@ function common.runner.getExistingConfigFile()
 function common.runner.createConfigFile() 
 ################################################################################
 {
-	local newRun="$1"
-	local existingRun="${2:-}"
+	local newRun
+	local existingRun
 	
 	local basefile
 	local template
@@ -1021,6 +1023,9 @@ function common.runner.createConfigFile()
 	local askfile
 	local playfile
 	local tmpfile
+	
+	newRun="$1"
+	existingRun="${2:-}"
 	
 	if [[ "$existingRun" ]]
 	then
@@ -1173,8 +1178,13 @@ function common.runner.createConfigFile()
 function common.runner.expandConfigFile() 
 ################################################################################
 {
-	local basefile=$1
-	local expanded_config=$2
+	local basefile
+	local expanded_config
+	local model_version
+	local run_dir
+	
+	basefile=$1
+	expanded_config=$2
 	
 	# Is the file already there?
 	if [[ -f ${expanded_config}  ]]
@@ -1192,8 +1202,8 @@ function common.runner.expandConfigFile()
 	# but their values are still referenced. 
 	# We first unset all variables, then load the config!
 
-	local model_version=${CXR_MODEL_VERSION}
-	local run_dir=${CXR_RUN_DIR}
+	model_version=${CXR_MODEL_VERSION}
+	run_dir=${CXR_RUN_DIR}
 	run=${CXR_RUN}
 
 	# This nice construction expands any variables which are not
@@ -1217,11 +1227,15 @@ function common.runner.expandConfigFile()
 function common.runner.getModelId() 
 ################################################################################
 {
-	local needle="$1"
+	local needle
 	
 	# Find my element
-	local current_id=0
+	local current_id
 	local current_model
+	
+	needle="$1"
+	# Find my element
+	current_id=0
 	
 	for current_model in $CXR_SUPPORTED_MODELS
 	do
@@ -1248,23 +1262,29 @@ function common.runner.getModelId()
 function common.runner.getNewRunName() 
 ################################################################################
 {
-	local model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
+	model
+	model_id
+	supported
+	version
+	run
+	addition
 	
-	local model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
+	model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
+	
+	model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
 	
 	# Extract the list of supported versions
-	local supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
+	supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	#Generate a menu automatically
-	local version="$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )"
+	version="$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" )"
 	
 	common.check.isVersionSupported? "$version" "$model" || main.dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
-	local run=${model}-v${version}
+	run=${model}-v${version}
 	
 	# Ask user for rest of name
-	local addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add (spaces will be replaced by _)?")"
-	
+	addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add (spaces will be replaced by _)?")"
 	addition="$(common.string.trim $addition)"
 	
 	# Replace any spaces left by _
@@ -1344,8 +1364,10 @@ function common.runner.createMissingDirs()
 {
 
 	# TODO: Add input check
-	local runName=$1
+	local runName
 	local dir
+	
+	runName=$1
 	
 	main.log -a "Creating missing directories..."
 
@@ -1394,7 +1416,7 @@ function common.runner.createMissingDirs()
 # the current configuration is overwritten.
 #
 # Example:
-# > local oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
+# > oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
 #
 # Parameters:
 # $1 - item name (a variable name) 
@@ -1403,8 +1425,11 @@ function common.runner.createMissingDirs()
 function common.runner.getConfigItem() 
 ################################################################################
 {
-	local item="${1}" 
-	local runName="${2}"
+	local item
+	local runName
+	
+	item="${1}" 
+	runName="${2}"
 	
 	# Load config (silently)
 	main.readConfig "${runName}" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR" &> /dev/null
@@ -1434,15 +1459,23 @@ function common.runner.recreateInput()
 	# In theory, we could ask for each file, but that would take ages...
 	# Just make sure that the two directories (Emissions/Other Input) are distinct.
 	
-	local newRun=$1
-	local oldRun=$2
+	local newRun
+	local oldRun
+	local oldEmissDir
+	local newEmissDir
+	local oldInputDir
+	local newInputDir
+	
+	
+	newRun=$1
+	oldRun=$2
 	
 	# get the relevant directories
-	local oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
-	local newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
+	oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
+	newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
 	
-	local oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
-	local newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
+	oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
+	newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
 	# make sure they are not subdirs of each other
 	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
@@ -1580,7 +1613,8 @@ function test_module()
 	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
 	
 	# Test Locking
-	local lock=test
+	local lock
+	lock=test
 	
 	## Adjust a few settings
 	CXR_LOG_FUNCTION_VERBOSE_LIST="$CXR_LOG_FUNCTION_VERBOSE_LIST common.runner.waitForLock"

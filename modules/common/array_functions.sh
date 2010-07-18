@@ -69,8 +69,10 @@ function common.array.allElementsZero?()
 ################################################################################
 {
 	# Here we store our status, default is OK
-	local status=true
+	local status
 	local i_arr
+	
+	status=true
 	
 	# We must suck the array passed as list into an array again
 	local array
