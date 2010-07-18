@@ -845,7 +845,9 @@ function test_module()
 ################################################################################
 {
 	local iKey
-
+	local keyString
+	local arrKeys
+	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -886,10 +888,10 @@ function test_module()
 	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
 	
 	oIFS="$IFS"
-	local keyString="$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)"
+	keyString="$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)"
 	IFS="$CXR_DELIMITER"
 	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-	local arrKeys=( $keyString )
+	arrKeys=( $keyString )
 	# Reset Internal Field separator
 	IFS="$oIFS"
 	
