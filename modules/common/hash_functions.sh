@@ -703,7 +703,7 @@ function common.hash.getKeys()
 		list=""
 	fi
 	
-	if [[ $found == false]]
+	if [[ $found == false ]]
 	then
 		main.log -w "Hash ${hash_dir}/${hash} is empty..."
 	fi
