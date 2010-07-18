@@ -88,11 +88,17 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.parallel.formatDependency()
 ################################################################################
 {
-	local module_name="${1}"
-	local module_type="${2}"
-	local day_offset="${3}"
-	local iInvocation="${4}"
-	local nInvocations="${5}"
+	local module_name
+	local module_type
+	local day_offset
+	local iInvocation
+	local nInvocations
+	
+	module_name="${1}"
+	module_type="${2}"
+	day_offset="${3}"
+	iInvocation="${4}"
+	nInvocations="${5}"
 
 	# Create dependency string
 	if [[ "$module_type" == "${CXR_TYPE_MODEL}" ||\
@@ -148,7 +154,7 @@ function common.parallel.formatDependency()
 function common.parallel.createDependencyList()
 ################################################################################
 {
-	local output_file="$1"
+	local output_file
 	local tempfile
 	local module
 	local module_type
@@ -159,6 +165,12 @@ function common.parallel.createDependencyList()
 	local day_offset
 	local iInvocation
 	local nInvocation
+	local dep_string
+	local active_modules
+	local activeModuleKeys
+	local keyString
+	
+	output_file="$1"
 	
 	# Add the different module types
 	if [[ "$CXR_RUN_PRE_ONCE" == true ]]
@@ -191,14 +203,14 @@ function common.parallel.createDependencyList()
 	do
 		# Get all active modules of the current type
 		oIFS="$IFS"
-		local keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+		keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 		IFS="$CXR_DELIMITER"
 		# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-		local activeModuleKeys=( $keyString )
+		activeModuleKeys=( $keyString )
 		# Reset Internal Field separator
 		IFS="$oIFS"
 		
-		local active_modules=""
+		active_modules=""
 		
 		# Re-determine module type
 		case $active_hash in
@@ -243,7 +255,7 @@ function common.parallel.createDependencyList()
 						done # Dependencies
 					else
 						# Add the module twice (see header), including all invocations
-						local dep_string="$(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+						dep_string="$(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
 						echo $dep_string $dep_string >> "$output_file"
 					fi
 				done # invocations
@@ -274,13 +286,18 @@ function common.parallel.createDependencyList()
 function common.parallel.drawDependencyGraph()
 ################################################################################
 {
-	local input_file="$1"
-	local output_file="${2:-$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf}"
-	local dot_file=$(common.runner.createTempFile $FUNCNAME)
+	local input_file
+	local output_file
+	local dot_file
 	local elements
 	
 	# Extract the filetype (lowercase)
-	local extension="$(common.string.toLower "${output_file##*.}")"
+	local extension
+	
+	input_file="$1"
+	output_file="${2:-$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf}"
+	dot_file=$(common.runner.createTempFile $FUNCNAME)
+	extension="$(common.string.toLower "${output_file##*.}")"
 	
 	echo "digraph dependencies" > "$dot_file"
 	echo "{" >> "$dot_file"
@@ -548,8 +565,9 @@ function common.parallel.waitingWorker()
 		main.dieGracefully "needs a task_pid as input"
 	fi
 	
-	local task_pid=$1
-	
+	local task_pid
+	task_pid=$1
+	 
 	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid &>/dev/null
 	
 	touch $CXR_WAITING_WORKER_DIR/$task_pid
@@ -575,7 +593,8 @@ function common.parallel.workingWorker()
 		main.dieGracefully "needs a task_pid as input"
 	fi
 	
-	local task_pid=$1
+	local task_pid
+	task_pid=$1
 	
 	# Detect lockup
 	common.parallel.detectLockup
@@ -601,9 +620,11 @@ function common.parallel.removeWorker()
 		main.dieGracefully "needs a task_pid as input"
 	fi
 	
-	local task_pid=$1
+	local task_pid
 	local pid
 	local node
+	
+	task_pid=$1
 	
 	# Remove identifier
 	rm -f $CXR_WORKER_DIR/$task_pid
@@ -971,8 +992,10 @@ function common.parallel.init()
 	main.log -a "Initializing parallel subsystem, might take a while, depending on number of tasks...\n"
 	
 	# Reset the ID counter
-	local current_id=1
+	local current_id
 	local task_file
+	
+	current_id=1
 	
 	# Init
 	CXR_TIME_TOTAL_ESTIMATED=0

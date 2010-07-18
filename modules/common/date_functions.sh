@@ -99,7 +99,8 @@ function common.date.isYYYYMMDD?()
 ################################################################################
 {
 	# Define & Initialize local vars
-	local date="$1"
+	local date
+	date="$1"
 	
 	# We neet the retval,
 	# turn off strict checks
@@ -197,15 +198,20 @@ function common.date.humanSeconds()
 		main.dieGracefully "Programming error: needs 1 time interval in seconds as input"
 	fi
 	
-	local secondsLeft=${1}
-	local SecPerMin=60
-	local SecPerHour=$(( 60 * $SecPerMin ))
-	local SecPerDay=$(( 24 * $SecPerHour ))
+	local secondsLeft
+	local SecPerMin
+	local SecPerHour
+	local SecPerDay
 	local days
 	local hours
 	local minutes
 	local seconds
 	local result
+	
+	secondsLeft=${1}
+	SecPerMin=60
+	SecPerHour=$(( 60 * $SecPerMin ))
+	SecPerDay=$(( 24 * $SecPerHour ))
 	
 	days=$(( $secondsLeft / $SecPerDay ))
 	secondsLeft=$(( $secondsLeft % $SecPerDay ))
@@ -403,7 +409,8 @@ function common.date.EpochToDate()
 		main.dieGracefully  "needs one number as input"
 	fi
 	
-	local epoch_seconds=$1
+	local epoch_seconds
+	epoch_seconds=$1
 	
 	echo "$(date -d "1970-01-01 $epoch_seconds sec" +"%Y-%m-%d")"
 }
@@ -427,7 +434,8 @@ function common.date.EpochToDateTime()
 		main.dieGracefully "needs one number as input"
 	fi
 	
-	local epoch_seconds=$1
+	local epoch_seconds
+	epoch_seconds=$1
 	
 	echo "$(date -d "1970-01-01 $epoch_seconds sec" +"%Y-%m-%d %T")"
 }
@@ -879,8 +887,10 @@ function common.date.WeeksBetween()
 	local julstart
 	local oldweek
 	local iDay
+	local nWeeks
+	
 	# Even if in the same week it's one week
-	local nWeeks=1
+	nWeeks=1
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
@@ -947,8 +957,11 @@ function common.date.MonthsBetween()
 	local julstart
 	local oldmonth
 	local iDay
+	local nMonths
+	
 	# Even if in the same month it's one month
-	local nMonths=1
+	nMonths=1
+	
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
@@ -1223,8 +1236,11 @@ function common.date.setVars()
 function common.date.isFirstDayOfWeek? ()
 ################################################################################
 {
-	local date=$1
-	local days_left=$(common.date.DaysLeftInWeek $date)
+	local date
+	date=$1
+	
+	local days_left
+	days_left=$(common.date.DaysLeftInWeek $date)
 	
 	if [[ "$days_left" -eq 7 ]]
 	then
@@ -1245,7 +1261,8 @@ function common.date.isFirstDayOfWeek? ()
 function common.date.isFirstDayOfMonth?()
 ################################################################################
 {
-	local date=$1
+	local date
+	date=$1
 	
 	if [[ "$CXR_DAY" == "01" ]]
 	then
@@ -1266,7 +1283,8 @@ function common.date.isFirstDayOfMonth?()
 function common.date.isFirstDayOfYear?()
 ################################################################################
 {
-	local date=$1
+	local date
+	date=$1
 	
 	month="$(date -d "$date" +%m)"
 	day="$(date -d "$date" +%d)"

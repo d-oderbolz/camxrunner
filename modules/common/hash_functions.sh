@@ -78,7 +78,8 @@ function _common.hash.getDir()
 		main.dieGracefully "needs a hash-type as input"
 	fi
 
-	local type="${1}"
+	local type
+	type="${1}"
 	
 	# Work out the directory
 	case $type in
@@ -112,8 +113,12 @@ function common.hash.init()
 		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
+	local hash
+	local type
+	
+	hash="$1"
+	type="$2"
+
 	local hash_dir
 	
 	# Work out the directory
@@ -144,8 +149,12 @@ function common.hash.destroy()
 	fi
 	
 	
-	local hash="$1"
-	local type="$2"
+	local hash
+	local type
+	
+	hash="$1"
+	type="$2"
+
 	local hash_dir
 	
 	# Work out the directory
@@ -174,9 +183,13 @@ function _common.hash.getFileName()
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 
 	local hash_dir
 	local fn
@@ -223,10 +236,16 @@ function common.hash.put()
 		main.dieGracefully "needs a hash, a valid hash-type, a key and a value as input. Got $@"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
-	local value="$4"
+	local hash
+	local type
+	local key
+	local value
+	
+	hash="$1"
+	type="$2"
+	key="$3"
+	value="$4"
+	
 	local hashdir
 
 	local fn
@@ -274,83 +293,6 @@ function common.hash.put()
 }
 
 ################################################################################
-# Function: common.hash.increment
-#
-# Increments the numeric value in a hash by a value (default 1).
-# If the increment is negative, we do not go below 0.
-# 
-# Parameters:
-# $1 - name of the hash
-# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# $3 - key
-# [$4] - increment (default 1)
-################################################################################
-function common.hash.increment()
-################################################################################
-{
-	if [[ $# -lt 3 || $# -gt 4 ]]
-	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and a optional increment as input"
-	fi
-	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
-	local increment="${4:1}"
-	
-	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
-	then
-		# The number we want to increment is there
-		currentValue=$(common.hash.get "$hash" "$type")
-	else
-		# No value, start with 0
-		currentValue=0
-	fi
-	
-	# Test if we would go below 0
-	if [[ $currentValue -eq 0 && $increment -lt 0 ]]
-	then
-		newValue=0
-	else
-		# Do the increment
-		newValue=$(common.math.FloatOperation "$currentValue + $increment" 0 false )
-	fi
-	
-	# Store
-	common.hash.put Locks "$hash" "$type" "$key" "$newValue"
-}
-
-################################################################################
-# Function: common.hash.decrement
-#
-# decrements the numeric value in a hash by a value (default 1)
-# (Convenience wrapper of <common.hash.increment>).
-#
-# Parameters:
-# $1 - name of the hash
-# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# $3 - key
-# [$4] - decrement (default 1)
-################################################################################
-function common.hash.decrement()
-################################################################################
-{
-	if [[ $# -lt 3 || $# -gt 4 ]]
-	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and a optional decrement as input"
-	fi
-	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
-	local decrement="${4:1}"
-	
-	# Invert the decrement
-	local increment=$(common.math.FloatOperation "$decrement * -1" 0 false )
-	common.hash.increment "$hash" "$type" "$key" "$increment"
-}
-
-################################################################################
 # Function: common.hash.get
 #
 # Gets a certain value from a hash.
@@ -374,9 +316,14 @@ function common.hash.get()
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
+	
 	local value
 	
 	local fn
@@ -433,9 +380,13 @@ function common.hash.delete()
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 	
 	local fn
 	
@@ -470,9 +421,13 @@ function common.hash.remove()
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 	
 	common.hash.get "$hash" "$type" "$key"
 	common.hash.delete "$hash" "$type" "$key"
@@ -495,8 +450,11 @@ function common.hash.getMtime()
 		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
+	local hash
+	local type
+	
+	hash="$1"
+	type="$2"
 	
 	local basedir
 	local hashdir
@@ -528,9 +486,13 @@ function common.hash.getValueMtime()
 	fi
 	
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 	
 	local fn
 	
@@ -565,9 +527,13 @@ function common.hash.has?()
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 	
 	local fn
 	
@@ -611,9 +577,13 @@ function common.hash.isNew?()
 	fi
 	
 	
-	local hash="$1"
-	local type="$2"
-	local key="$3"
+	local hash
+	local type
+	local key
+	
+	hash="$1"
+	type="$2"
+	key="$3"
 	
 	local res
 	
@@ -646,10 +616,10 @@ function common.hash.isNew?()
 # 
 # Recommended use:
 # > oIFS="$IFS"
-# > local keyString="$(common.hash.getKeys $hash $CXR_HASH_TYPE_GLOBAL)"
+# > keyString="$(common.hash.getKeys $hash $CXR_HASH_TYPE_GLOBAL)"
 # > IFS="$CXR_DELIMITER"
 # > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-# > local arrKeys=( $keyString )
+# > arrKeys=( $keyString )
 # > # Reset Internal Field separator
 # > IFS="$oIFS"
 # > 
@@ -673,14 +643,19 @@ function common.hash.getKeys()
 	fi
 	
 	
-	local hash="$1"
-	local type="$2"
+	local hash
+	local type
 	
-	local found=false
+	local found
 	local hash_dir
 	local fn
 	local key
-	local list=""
+	local list
+	
+	hash="$1"
+	type="$2"
+	
+	found=false
 	
 	# Work out the directory
 	hash_dir="$(_common.hash.getDir "$type")"
@@ -732,9 +707,14 @@ function common.hash.toFile()
 		main.dieGracefully "needs a hash, a valid hash-type and a filename to write to as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local file="$3"
+	local hash
+	local type
+	local file
+	
+	hash="$1"
+	type="$2"
+	file="$3"
+	
 	local keyString
 	local arrKeys
 	
@@ -788,10 +768,15 @@ function common.hash.fromFile()
 		main.dieGracefully "needs a hash, a valid hash-type and a filename read from, and optionally a mode as input"
 	fi
 	
-	local hash="$1"
-	local type="$2"
-	local file="$3"
-	local mode="${4:-APPEND}"
+	local hash
+	local type
+	local file
+	local mode
+	
+	hash="$1"
+	type="$2"
+	file="$3"
+	mode="${4:-APPEND}"
 	
 	local oIFS
 	local key

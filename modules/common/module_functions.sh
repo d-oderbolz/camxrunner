@@ -105,9 +105,12 @@ function common.module.parseIdentifier()
 function common.module.getNumInvocations()
 ################################################################################
 {
-	local module="$1"
+	local module
 	local numInvocations
-	local cache="CACHE_NumInvocations"
+	local cache
+	
+	module="$1"
+	cache="CACHE_NumInvocations"
 	
 	# This call sets _has and _value
 	common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
@@ -168,11 +171,15 @@ function common.module.getMetaField()
 		main.dieGracefully "needs a module name and a meta item as input"
 	fi
 	
-	local module="$1"
-	local item="$2"
+	local module
+	local item
 	local module_path
 	local value
-	local cache="CACHE_${item}"
+	local cache
+	
+	module="$1"
+	item="$2"
+	cache="CACHE_${item}"
 	
 	# This call sets _has and _value
 	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
@@ -223,8 +230,10 @@ function common.module.getMetaField()
 function common.module.getRawDependencies()
 ################################################################################
 {
-	local module="$1"
+	local module
 	local raw_dependencies
+	
+	module="$1"
 	
 	raw_dependencies=$(common.module.getMetaField "$module" "CXR_META_MODULE_DEPENDS_ON")
 
@@ -243,8 +252,10 @@ function common.module.getRawDependencies()
 function common.module.getExclusive()
 ################################################################################
 {
-	local module="$1"
+	local module
 	local exclusive
+	
+	module="$1"
 	
 	exclusive=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
 
@@ -263,8 +274,10 @@ function common.module.getExclusive()
 function common.module.getNumTests()
 ################################################################################
 {
-	local module="$1"
+	local module
 	local num_tests
+	
+	module="$1"
 	
 	num_tests=$(common.module.getMetaField "$module" "CXR_META_MODULE_NUM_TESTS")
 
@@ -305,9 +318,9 @@ function common.module.resolveSingleDependency()
 		main.dieGracefully "Programming error - we need at least a depdendency and an optional day_offset as input"
 	fi
 
-	local dependency="$1"
-	local day_offset="${2:-}"
-	local our_day_offset="${2:-}"
+	local dependency
+	local day_offset
+	local our_day_offset
 	local predicate
 	local my_prefix
 	local active_hash
@@ -316,10 +329,18 @@ function common.module.resolveSingleDependency()
 	local resolved_dependencies
 	local resolved_dependency
 	local module
-	local first=true
+	local first
 	local iKey
 	local iInvocation
 	local nInvocations
+	local arrKeys
+	local keyString
+	
+	
+	dependency="$1"
+	day_offset="${2:-}"
+	our_day_offset="${2:-}"
+	first=true
 	
 	if [[ "$day_offset" ]]
 	then
@@ -472,10 +493,10 @@ function common.module.resolveSingleDependency()
 	main.log -v  "We resolve the special dependency ${dependency}..."
 	
 	oIFS="$IFS"
-	local keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
+	keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
 	IFS="$CXR_DELIMITER"
 	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-	local arrKeys=( $keyString )
+	arrKeys=( $keyString )
 	# Reset Internal Field separator
 	IFS="$oIFS"
 	
@@ -523,8 +544,8 @@ function common.module.resolveSingleDependency()
 function common.module.dependsFirstOnSecond?()
 ################################################################################
 {
-	local first="$1"
-	local second="$2"
+	local first
+	local second
 	
 	local first_module
 	local second_module
@@ -532,7 +553,11 @@ function common.module.dependsFirstOnSecond?()
 	local first_dep_raw
 	local first_dep
 	
-	local found=false
+	local found
+	
+	first="$1"
+	second="$2"
+	found=false
 	
 	# The question is if the first argument depends on the second, 
 	# or in other words if the module name of the second appears in the expanded version of the 
@@ -579,12 +604,18 @@ function common.module.dependsFirstOnSecond?()
 function common.module.resolveAllDependencies()
 ################################################################################
 {
-	local dependencies="$1"
-	local day_offset="${2:-}"
+	local dependencies
+	local day_offset
 	local dependency
-	local resolved_dependency=""
-	local resolved_dependencies=""
-	local first=true
+	local resolved_dependency
+	local resolved_dependencies
+	local first
+	
+	dependencies="$1"
+	day_offset="${2:-}"
+	resolved_dependency=""
+	resolved_dependencies=""
+	first=true
 	
 	#Loop through dependencies
 	for dependency in $dependencies
@@ -636,15 +667,18 @@ function common.module.areDependenciesOk?()
 		main.dieGracefully "needs a depdendency list and a day offset as input"
 	fi
 
-	local raw_dependencies="$1"
-	local day_offset="${2:-}"
+	local raw_dependencies
+	local day_offset
 	local dep_day_offset
 	local dep_module_name
 	local dependency
 	local my_stage
 	local iInvocation
 	local nInvocations
+	local dependencies
 	
+	raw_dependencies="$1"
+	day_offset="${2:-}
 	
 	if [[ ! "$raw_dependencies" ]]
 	then
@@ -656,7 +690,7 @@ function common.module.areDependenciesOk?()
 	main.log -v  "Evaluating dependencies on $raw_dependencies for day offset ${day_offset:-0}"
 	
 	# Resolve them
-	local dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
+	dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
 	
 	main.log -v "Resolved dependencies: $dependencies"
 
@@ -986,8 +1020,10 @@ function common.module.getType()
 		main.log -e  "Need a module name as input"
 	fi
 	
-	local name="${1}"
+	local name
 	local module_type
+	
+	name="${1}"
 
 	# This call sets _has and _value
 	common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" > /dev/null
@@ -1023,13 +1059,17 @@ function common.module.getType()
 function common.module.runType()
 ################################################################################
 {
-	local module_type="$1"
+	local module_type
 	
 	#Return value - set optimisticaly
-	local ret_val=$CXR_RET_OK
+	local ret_val
 	
 	# Normally, we check continue, except installers
-	local check_continue=true
+	local check_continue
+	
+	module_type="$1"
+	ret_val=$CXR_RET_OK
+	check_continue=true
 	
 	# Contains the date for which we currently run if needed
 	# We set it to the empty string if date is not relevant (One-Time modules)
@@ -1199,8 +1239,10 @@ function common.module.processSequentially
 ################################################################################
 {
 	# Set up return value
-	local ret_val=$CXR_RET_OK
+	local ret_val
 	local day_offset
+	
+	ret_val=$CXR_RET_OK
 	
 
 	# Setup environment
@@ -1291,7 +1333,7 @@ function common.module.listModuleType()
 {
 	# TODO: How do model and installer modules fit in here?
 	
-	local module_type="$1"
+	local module_type
 	local call
 	local module_directories
 	local disabled_modules
@@ -1302,6 +1344,8 @@ function common.module.listModuleType()
 	local file_name
 	local total_call
 	local found
+	
+	module_type="$1"
 	
 	
 	# What kind of module?

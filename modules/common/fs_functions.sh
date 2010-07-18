@@ -126,8 +126,11 @@ function common.fs.isSubDirOf?()
 ################################################################################
 {
 	# first, we need proper names
-	local path1="$1"
-	local path2="$2"
+	local path1
+	local path2
+	
+	path1="$1"
+	path2="$2"
 	
 	# If they are the same, they are subdirs of each other by definition
 	if [[ "$path1" == "$path2" ]]
@@ -168,8 +171,11 @@ function common.fs.isSubDirOf?()
 function common.fs.getType()
 ################################################################################
 {
-	local path=${1}
-	local dir="$(basename $path)"
+	local path
+	local dir
+	
+	path=${1}
+	dir="$(basename $path)"
 	
 	if [[ "$dir" && -d "$dir" ]]
 	then
@@ -202,9 +208,12 @@ function common.fs.getType()
 function common.fs.isLocal?()
 ################################################################################
 {
-	local path=${1}
-	local type="$(common.fs.getType "$path")"
-
+	local path
+	local type
+	
+	path=${1}
+	type="$(common.fs.getType "$path")"
+	
 	case "$type" in
 	
 		afs|nfs|cifs)	echo false ;;
@@ -226,11 +235,16 @@ function common.fs.isLocal?()
 function common.fs.sameDevice?()
 ################################################################################
 {
-	local file1="$1"
-	local file2="$2"
+	local file1
+	local file2
+	local dev1
+	local dev2
 	
-	local dev1="$(stat -c"%d" "${file1}")"
-	local dev2="$(stat -c"%d" "${file2}")"
+	file1="$1"
+	file2="$2"
+	
+	dev1="$(stat -c"%d" "${file1}")"
+	dev2="$(stat -c"%d" "${file2}")"
 	
 	if [[ "$dev1" -eq "$dev2" ]]
 	then
@@ -253,8 +267,10 @@ function common.fs.sameDevice?()
 function common.fs.getMtime()
 ################################################################################
 {
-	local file=$1
+	local file
 	local mtime
+	
+	file=$1
 	
 	if [[ -e "${file}"  ]]
 	then
@@ -281,8 +297,10 @@ function common.fs.getMtime()
 function common.fs.getFileType()
 ################################################################################
 {
-	local file=$1
+	local file
 	local filetype
+	
+	file=$1
 	
 	filetype=$(file "${file}" | cut -f2 -d' ')
 	
@@ -307,8 +325,11 @@ function common.fs.getFileType()
 function common.fs.isDos?()
 ################################################################################
 {
-	local file=$1
+	local file
 	local filetype
+	
+	file=$1
+	
 	
 	# Grep returns a string if found
 	found="$(file "${file}" | grep "CRLF line terminators" )"
@@ -363,7 +384,9 @@ function common.fs.FileSizeMb()
 function common.fs.WaitForFile()
 ################################################################################
 {
-	local filename="$1"
+	local filename
+	filename="$1"
+	
 	
 	until [[ -f $filename && ! ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
 	do
@@ -398,8 +421,11 @@ function common.fs.WaitForFile()
 function common.fs.WaitForStableSize()
 ################################################################################
 {
-	local filename="$1"
-	local old_size=0
+	local filename
+	local old_size
+	
+	filename="$1"
+	old_size=0
 	
 	until [[ $(common.fs.FileSizeMb $filename) -eq $old_size  &&  ( $waited_mins -gt $CXR_TIMEOUT_MINS || $total_waited_mins -gt $CXR_TOTAL_WAITING_MINS ) ]]
 	do
@@ -452,9 +478,7 @@ function common.fs.CompressOutput()
 	
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
-
-		set -x
-
+	
 		oIFS="$IFS"
 		keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)"
 		IFS="$CXR_DELIMITER"
@@ -462,8 +486,6 @@ function common.fs.CompressOutput()
 		arrKeys=( $keyString )
 		# Reset Internal Field separator
 		IFS="$oIFS"
-		
-		set +x
 		
 		# looping through keys (safest approach)
 		for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
@@ -549,10 +571,12 @@ function common.fs.CompressOutput()
 function common.fs.isCompressed?()
 ################################################################################
 {
-		local input_file=${1:-/dev/null}
+		local input_file
 		local iExt
 		local ext
 		local comp_file
+		
+		input_file=${1:-/dev/null}
 		
 		# Create proper array of extensions
 		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
@@ -604,9 +628,9 @@ function common.fs.TryDecompressingFile()
 		main.dieGracefully "Could not try decompression - no path passed!"
 	fi
 	
-	local input_file=$1
-	# We assume that in was not compressed
-	local was_compressed=false
+	local input_file
+	
+	local was_compressed
 	local line
 	local tempfile
 	local sed_tmp
@@ -616,6 +640,11 @@ function common.fs.TryDecompressingFile()
 	local filetype
 	local new_file
 	local a_cxr_compressed_ext
+	
+	
+	input_file=$1
+	# We assume that in was not compressed
+	was_compressed=false
 	
 	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]]
 	then
@@ -906,10 +935,10 @@ function test_module()
 	touch $a
 	
 	# This is our time
-	local rtc=$(date "+%s") 
+	rtc=$(date "+%s") 
 	
 	# MTime of file $a
-	local ft=$(common.fs.getMtime $a)
+	ft=$(common.fs.getMtime $a)
 	
 	# create a 100 MB file called $b
 	dd bs=100M if=/dev/zero of=$b count=1

@@ -217,13 +217,13 @@ function main.log()
 ################################################################################
 {
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
-	local prefix=
+	local prefix
 	
 	# A standard message is an info
-	local log_level=${CXR_LOG_LEVEL_INF}
+	local log_level
 	
 	# A line of stars
-	local stars=""
+	local stars
 	
 	local function_name
 	local blank_message
@@ -232,8 +232,14 @@ function main.log()
 	local call_stack
 	local iFct
 	local maxNests
-	local do_log=${CXR_DO_FILE_LOGGING:-true}
-	local prefix=
+	local do_log
+	local prefix
+	local FOUND
+	local last
+	
+	log_level=${CXR_LOG_LEVEL_INF}
+	do_log=${CXR_DO_FILE_LOGGING:-true}
+	
 	
 	while getopts ":vawebBH" opt
 	do
@@ -296,7 +302,7 @@ function main.log()
 			for iFct in $(seq 1 ${maxNests})
 			do
 				# Index of last fct
-				local last=$(( $iFct - 1 ))
+				last=$(( $iFct - 1 ))
 				call_stack="${call_stack} ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]}"
 			done
 		fi # Callstack available?
@@ -327,7 +333,7 @@ function main.log()
 		then
 			# There is a second chance: the user might have added the function in question to 
 			# CXR_LOG_FUNCTION_VERBOSE_LIST
-			local FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
+			FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
 			
 			if [[ "${FOUND}" -ne 0 ]]
 			then
@@ -397,7 +403,8 @@ function main.log()
 function main.sendMessage()
 ################################################################################
 {
-	local adresses=
+	local adresses
+	
 	
 	#Add SMS Adress if needed
 	if [[ ${CXR_SEND_SMS} == true  ]]
@@ -450,6 +457,8 @@ function main.doCleanup()
 {
 	local error_count
 	local dummy_file
+	local arrKeys
+	local keyString
 	
 	#Relax
 	set +e
@@ -506,11 +515,11 @@ function main.doCleanup()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE)"
+			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			local arrKeys=( $keyString )
+			arrKeys=( $keyString )
 			
 			# Reset Internal Field separator
 			IFS="$oIFS"
@@ -603,6 +612,7 @@ function main.dieGracefully()
 	trap - INT TERM EXIT
 	local iFct
 	local maxNests
+	local last
 	
 	# Stop this run
 	# Delete any .CONTINUE FILES
@@ -625,7 +635,7 @@ function main.dieGracefully()
 		
 		for iFct in $(seq 1 ${maxNests})
 		do
-			local last=$(( $iFct - 1 ))
+			last=$(( $iFct - 1 ))
 			echo ${FUNCNAME[$iFct]}:${BASH_LINENO[$last]} 1>&2
 		done
 	fi # Callstack available?
@@ -668,17 +678,23 @@ function main.getBinaryName()
 		main.dieGracefully "Programming error: needs at least the name of a binary as input, optional parameter allow_empty"
 	fi
 	
-	local exec_name="${1}"
-	local allow_empty="${2:-false}"
+	local exec_name
+	local allow_empty
+	local which_output
+	local general_exec
+	local machine_exec
+	
+	exec_name="${1}"
+	allow_empty="${2:-false}"
 	
 	#Determine possible names
-	local general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/${exec_name}-${HOSTTYPE}
-	local machine_exec=${general_exec}-$(uname -n)
+	general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/${exec_name}-${HOSTTYPE}
+	machine_exec=${general_exec}-$(uname -n)
 	
 	# First see if which delivers anything
 	# We must catch errors
 	set +e
-	local which_output="$(which "${exec_name}" 2>/dev/null)"
+	which_output="$(which "${exec_name}" 2>/dev/null)"
 	set -e
 	
 	# Set output to "" if which failed
@@ -1082,8 +1098,11 @@ function main.readConfig()
 	
 	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}"  ]]
 	then
-		local INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
-		local INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
+		local INSTALLER_CONF
+		local INSTALLER_CONF_REV
+		INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
+		INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
+		
 		
 		if [[ -f "${INSTALLER_CONF}"  ]]
 		then

@@ -64,8 +64,10 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.runner.getX()
 ################################################################################
 {
-	local domain=${1}
+	local domain
 	local xdim
+	
+	domain=${1}
 		
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
@@ -101,8 +103,10 @@ function common.runner.getX()
 function common.runner.getY()
 ################################################################################
 {
-	local domain=${1:-0}
+	local domain
 	local ydim
+	
+	domain=${1:-0}
 	
 	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
 	then
@@ -160,8 +164,10 @@ function common.runner.getMaxX()
 ################################################################################
 {
 	local new
-	local max_xdim=0
+	local max_xdim
 	local iGrid
+	
+	max_xdim=0
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
@@ -187,8 +193,10 @@ function common.runner.getMaxY()
 ################################################################################
 {
 	local new
-	local max_ydim=0
+	local max_ydim
 	local iGrid
+	
+	max_ydim=0
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
@@ -214,8 +222,10 @@ function common.runner.getMaxZ()
 ################################################################################
 {
 	local new
-	local max_zdim=0
+	local max_zdim
 	local iGrid
+	
+	max_zdim=0
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
@@ -241,8 +251,10 @@ function common.runner.countCells3D()
 ################################################################################
 {
 	local new
-	local sum=0
+	local sum
 	local iGrid
+	
+	sum=0
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
@@ -263,8 +275,10 @@ function common.runner.countCells2D()
 ################################################################################
 {
 	local new
-	local sum=0
+	local sum
 	local iGrid
+	
+	sum=0
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
@@ -365,14 +379,19 @@ function common.runner.evaluateRule()
 		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
 	fi	
 	
-	local rule="$1"
-	
-	# Per default we allow rules to expand to the empty string
-	local allow_empty="${2:-true}"
-	local rule_name="${3:-}"
-	# By default try decompression
-	local try_decompression="${4:-true}"
+	local rule
+	local allow_empty
+	local rule_name
+	local try_decompression
 	local expansion
+	
+	rule="$1"
+
+	# Per default we allow rules to expand to the empty string
+	allow_empty="${2:-true}"
+	rule_name="${3:-}"
+	# By default try decompression
+	try_decompression="${4:-true}"
 	
 	if [[ -z "$rule" ]]
 	then
@@ -496,10 +515,13 @@ function common.runner.evaluateScalarRules()
 		main.dieGracefully "needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
 	fi
 	
-	local rule_list="$1"
+	local 
 	local current_rule
-	local variable
+	variable
+	local allow_empty
 	
+	
+	rule_list="$1"
 	# Per default we allow rules te expand to the empty string
 	allow_empty=${2:-true}
 		
@@ -531,8 +553,11 @@ function common.runner.evaluateScalarRules()
 function common.runner.createDummyFile()
 ################################################################################
 {
-	local filename="$1"
-	local size="${2:-1}"
+	local filename
+	local size
+	
+	filename="$1"
+	size="${2:-1}"
 	
 	main.log "Creating Dummy $filename of size $size"
 	
@@ -572,6 +597,9 @@ function common.runner.createDummyFile()
 function common.runner.createTempFile()
 ################################################################################
 {
+	local store
+	local template
+	local filename
 	
 	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
@@ -584,18 +612,18 @@ function common.runner.createTempFile()
 		main.dieGracefully "could not create tmp directory ${CXR_TMP_DIR} (maybe its a broken Link?), CAMxRunner cannot continue."
 	fi
 	
-	local store=${2:-true}
+	store=${2:-true}
 	
 	# Create a template by using $1 
 	# and adding 8 random alphanums
 	# This way, the filename has a meaning
-	local template="${CXR_TMP_DIR}/${CXR_TMP_PREFIX}${1:-temp}.XXXXXXXX"
+	template="${CXR_TMP_DIR}/${CXR_TMP_PREFIX}${1:-temp}.XXXXXXXX"
 
 	# replace eventual spaces by _
 	template=${template// /_}
 	
-	local filename=$(mktemp $template)
-	main.log -v   "Creating temporary file $filename"
+	filename=$(mktemp $template)
+	main.log -v "Creating temporary file $filename"
 	
 	if [[ "${store}" == true  ]]
 	then
@@ -620,6 +648,10 @@ function common.runner.removeTempFiles()
 	local line
 	local filename
 	local temp_file
+	local arrKeys
+	local keyString
+	local arrKeys
+	local keyString
 	
 	# remove decompressed files, if wanted
 	# each removed file is also removed from the global list
@@ -629,11 +661,11 @@ function common.runner.removeTempFiles()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			local keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL)"
+			keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			local arrKeys=( $keyString )
+			arrKeys=( $keyString )
 			
 			# Reset Internal Field separator
 			IFS="$oIFS"
@@ -661,11 +693,11 @@ function common.runner.removeTempFiles()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			local keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE)"
+			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			local arrKeys=( $keyString )
+			arrKeys=( $keyString )
 			
 			# Reset Internal Field separator
 			IFS="$oIFS"
@@ -716,17 +748,24 @@ function common.runner.waitForLock()
 		main.dieGracefully "needs the name of a lock, a level and an optional intention as input"
 	fi
 	
-	local lock="$1"
-	local level="$2"
-	local wantsLock="${3:-false}"
-	local procsWaiting=0
+	local lock
+	local level
+	local wantsLock
+	local procsWaiting
 	local myId
 	local wait_array
 	local arr_string
 	_retval=true
+	local time
+	local add
+	local currPid
 	
+	lock="$1"
+	level="$2"
+	wantsLock="${3:-false}"
+	procsWaiting=0
 	# how long did we wait?
-	local time=0
+	time=0
 	
 	########################################
 	# Notify system if we want the lock
@@ -737,8 +776,8 @@ function common.runner.waitForLock()
 		_turn=1
 		
 		# should we add this one?
-		local add=true
-		local currPid
+		add=true
+		currPid
 	
 		# We use our pid as id
 		myId=$$
@@ -870,13 +909,16 @@ function common.runner.getLock()
 		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
-	local lock="$1"
-	local level="$2"
-	
-	# If turn is 1 we can get a lock.
-	local turn=0
+	local lock
+	local level
+	local turn
 	local wait_array
 	local arr_string
+	
+	lock="$1"
+	level="$2"
+	# If turn is 1 we can get a lock.
+	turn=0
 
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false ]]
@@ -951,10 +993,13 @@ function common.runner.releaseLock()
 		main.dieGracefully "needs the name of a lock  and a lock-level as input"
 	fi
 	
-	local lock="$1"
-	local level="$2"
+	local lock
+	local level
 	
-	main.log -v   "Waiting to release lock $lock..."
+	lock="$1"
+	level="$2"
+	
+	main.log -v "Waiting to release lock $lock..."
 
 	# We even release locks if locking is turned off
 	common.hash.delete Locks "$level" "$lock"
