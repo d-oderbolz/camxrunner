@@ -336,7 +336,7 @@ function common.performance.getReaLoadPercent()
 	mem=$(common.performance.getMemUsedPercent)
 	cpu=$(common.performance.getSystemLoadPercent)
 	
-	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)"
+	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1 0)
 	
 	echo $load
 }
@@ -377,7 +377,7 @@ function test_module()
 	
 	main.log "Free memory: $(common.performance.getMemFreePercent) %"
 	main.log "System Load: $(common.performance.getSystemLoadPercent) %"
-	main.log "RealLoad: $(common.performance.getReaLoadPercent) %"
+	main.log "ReaLoad: $(common.performance.getReaLoadPercent) %"
 	
 	# Load the performance array
 	arr=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL test) )
