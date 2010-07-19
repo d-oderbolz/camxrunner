@@ -78,11 +78,11 @@ function common.module.parseIdentifier()
 	main.log -v "Parsing $identifier"
 	
 	# Get just lowercase text at the beginning
-	_module_name="$(expr match "$identifier" '\(\<[_a-z]\{1,\}\)')"
+	_module_name="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"
 		
 	# get only the digits after the name, must handle the empty case using || : (otherwise we die here)
 	# the @-sign might be missing
-	_day_offset="$(expr match "$identifier" '\<[_a-z]\{1,\}\([0-9]\{1,\}\)@\{0,\}[0-9]\{0,\}\>')" || :
+	_day_offset="$(expr match "$identifier" '\<[_a-zA-Z]\{1,\}\([0-9]\{1,\}\)@\{0,\}[0-9]\{0,\}\>')" || :
 		
 	# get invocation - needs the @-sign
 	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
