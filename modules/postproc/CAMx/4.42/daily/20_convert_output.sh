@@ -272,7 +272,7 @@ function convert_output()
 		
 		main.log -v  "Grid $CXR_INVOCATION\nXDIM: $xdim\nYDIM: $ydim\nZDIM: $zdim"
 
-		### Go trough all input files
+		### Go through all input files
 		for iFile in $( seq 0 $(( ${#CXR_INPUT_FILES[@]} - 1)) )
 		do
 			# Fetch the corresponding in and outfiles

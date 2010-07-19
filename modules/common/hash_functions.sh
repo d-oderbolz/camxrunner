@@ -679,14 +679,14 @@ function common.hash.getKeys()
 	found=false
 	
 	# Work out the directory
-	hash_dir="$(_common.hash.getDir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"/${hash}
 	
-	main.log -v "Getting keys for $hash $type out of ${hash_dir}/${hash}..."
+	main.log -v "Getting keys for $hash $type out of ${hash_dir}..."
 	
 	if [[ -d ${hash_dir}/${hash} ]]
 	then
 		# Hash exists, get all files within
-		for fn in $(find ${hash_dir}/${hash} -noleaf -type f 2>/dev/null)
+		for fn in $(find ${hash_dir} -noleaf -type f 2>/dev/null)
 		do
 			found=true
 			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
@@ -713,7 +713,7 @@ function common.hash.getKeys()
 	
 	if [[ $found == false ]]
 	then
-		main.log -w "Hash ${hash_dir}/${hash} is empty..."
+		main.log -w "Hash ${hash_dir} is empty..."
 	fi
 	
 	echo $list
@@ -917,7 +917,7 @@ function test_module()
 	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 	do
 		key="${arrKeys[$iKey]}"
-		is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going trough keys in an interator"
+		is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces

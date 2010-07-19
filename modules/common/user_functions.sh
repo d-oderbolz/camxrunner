@@ -629,7 +629,7 @@ function common.user.getAnswers()
 ################################################################################
 # Function: common.user.applyPlayfile
 #	
-# Complementary function of <common.user.getAnswers>. Loops trough a playfile and 
+# Complementary function of <common.user.getAnswers>. Loops through a playfile and 
 # uses its information to search for variables in all listed files and
 # replaces them by the repective value.
 #
@@ -696,7 +696,7 @@ function common.user.applyPlayfile()
 	
 	main.log -a  "Applying changes to the template files..."
 		
-	# Loop trough playfile, curline is the line index 1..n
+	# Loop through playfile, curline is the line index 1..n
 	while [ $curline -le $(wc -l < $playfile) ]
 	do
 		# Read the current line (needed because we use read in the loop)
@@ -762,7 +762,7 @@ function common.user.applyPlayfile()
 			# Advance to next line in playfile
 			curline=$(( $curline + 1 ))
 
-		done # Loop trough playfile
+		done # Loop through playfile
 
 		if [[ "$(common.user.getOK "Do you want to have a look at the new files?" N )" == true  ]]
 		then

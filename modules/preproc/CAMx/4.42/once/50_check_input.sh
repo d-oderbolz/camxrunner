@@ -152,7 +152,7 @@ function check_input()
 		
 		#Run this even in dry run
 
-		### Go trough all grids
+		### Go through all grids
 		for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
 		do
 			
