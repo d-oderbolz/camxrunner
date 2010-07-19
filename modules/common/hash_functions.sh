@@ -92,6 +92,55 @@ function _common.hash.getDir()
 	echo "$hash_dir"
 	
 }
+
+################################################################################
+# Function: _common.hash.hashval
+#
+# Internal function that determines the hashkey for a value
+#
+# Parameters:
+# $1 - key to hash
+# $2 - max index to return
+################################################################################
+function _common.hash.hashval()
+################################################################################
+{
+	local h
+	local string
+	local maxent
+	local current_letter
+	local offset
+	local len
+	local idx
+	
+	
+	# The ASCII char of @
+	h=0
+	offset=40
+	
+	string=$1
+	maxent=$2
+	len=${#string}
+	idx=0
+	
+	while [[ $idx -lt $len ]]
+	do
+		# Get next letter
+		current_letter=${string:$idx:1}
+		
+		# as a hex
+		current_num=$(echo -n $current_letter | xxd -c 1 -p -u)
+		# as decimal
+		current_num=$(echo "ibase=16; $current_num" | bc)
+
+		h=$(( $h * 48 + $current_num - $offset ))
+		h=$(( $h % $maxent ))
+		idx=$(( $idx + 1 ))
+	done
+	
+	echo $h
+}
+
 ################################################################################
 # Function: common.hash.init
 #
@@ -958,5 +1007,4 @@ function test_module()
 	common.hash.destroy test_array $CXR_HASH_TYPE_INSTANCE
 	common.hash.destroy test_global $CXR_HASH_TYPE_GLOBAL
 	common.hash.destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
-
 }
