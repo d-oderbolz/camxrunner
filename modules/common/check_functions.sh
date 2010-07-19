@@ -625,15 +625,15 @@ function common.check.preconditions()
 	##########################################
 	#### this is only checked once
 	##########################################
-	if [[ "$CXR_CHECKED_ONCE" == false  ]]
+	if [[ "$CXR_CHECKED_ONCE" == false ]]
 	then
 	
-		main.log -v   "Performing one-time checks..."
+		main.log -v "Performing one-time checks..."
 		
 		# Increase global indent level
 		main.increaseLogIndent
 
-		main.log -v   "Checking Output directories ..."
+		main.log -v "Checking Output directories ..."
 		
 		# Increase global indent level
 		main.increaseLogIndent
@@ -642,6 +642,9 @@ function common.check.preconditions()
 		# cut extracts the variable name
 		for output_dir in $(set | grep -e ^CXR_*.*_OUTPUT_DIR= | cut -d= -f1)
 		do
+			# Still alive
+			common.user.showProgress
+			
 			# is it set?
 			if [[ "${!output_dir}"  ]]
 			then
@@ -697,6 +700,8 @@ function common.check.preconditions()
 		for dir in $(set | grep -e ^CXR_*.*_DIR= | cut -d= -f1)
 		do
 			main.log -v   "Variable $dir has value: ${!dir}\n"
+			# Still alive
+			common.user.showProgress
 
 			# is it set?
 			if [[ "${!dir}"  ]]
@@ -757,6 +762,9 @@ function common.check.preconditions()
 	
 		for input_file in ${CXR_CHECK_THESE_INPUT_FILES}
 		do
+			# Still alive
+			common.user.showProgress
+			
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
@@ -835,6 +843,9 @@ function common.check.preconditions()
 	
 		for output_file in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
+			# Still alive
+			common.user.showProgress
+			
 			# Test length
 			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 			then
@@ -1141,14 +1152,17 @@ function common.check.postconditions()
 	errors_found=false
 	
 	# No output check for dryruns
-	if [[ $CXR_DRY == true  ]]
+	if [[ $CXR_DRY == true ]]
 	then
 		
-		main.log -w  "Output check is not carried out for dryruns - no output was generated.\nStill we generate dummy files now..."
+		main.log -a "Output check is not carried out for dryruns - no output was generated.\nStill we generate dummy files now..."
 		
 		# generate dummy files if needed
 		for output_file in ${CXR_CHECK_THESE_OUTPUT_FILES}
 		do
+			# Still alive
+			common.user.showProgress
+			
 			# does it exist?
 			if [[ -f "${output_file}" || "$(common.fs.isCompressed? "${output_file}")" == true ]]
 			then
@@ -1162,7 +1176,7 @@ function common.check.postconditions()
 		return 0
 	fi
 
-	main.log -v   "Checking Result Files..."
+	main.log -a "Checking Postconditions:"
 
 	# Increase global indent level
 	main.increaseLogIndent
@@ -1170,6 +1184,9 @@ function common.check.postconditions()
 	# We do word splitting
 	for output_file in ${CXR_CHECK_THESE_OUTPUT_FILES}
 	do
+		# Still alive
+		common.user.showProgress
+		
 		# does it exist and is it larger than 0 bytes?
 		if [[ -s "${output_file}"  ]]
 		then
