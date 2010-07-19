@@ -695,7 +695,7 @@ function common.hash.getKeys()
 			key=${key#${hash_dir}/}
 			
 			# Add slash if other slashes are present (assuming it is a path)
-			if [[ $(common.string.isSubstringPresent? "$key" / ]]
+			if [[ $(common.string.isSubstringPresent? "$key" / ) == true ]]
 			then
 				key="/$key"
 			fi
