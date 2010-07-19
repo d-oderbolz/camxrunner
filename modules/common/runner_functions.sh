@@ -777,7 +777,6 @@ function common.runner.waitForLock()
 		
 		# should we add this one?
 		add=true
-		currPid
 	
 		# We use our pid as id
 		myId=$$
