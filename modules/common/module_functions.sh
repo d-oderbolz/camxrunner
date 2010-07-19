@@ -678,7 +678,7 @@ function common.module.areDependenciesOk?()
 	local dependencies
 	
 	raw_dependencies="$1"
-	day_offset="${2:-}
+	day_offset="${2:-}"
 	
 	if [[ ! "$raw_dependencies" ]]
 	then
@@ -813,7 +813,6 @@ function common.module.updateInfo()
 	local run_it
 	local confMtime
 	local HashMtime
-	local cliCount
 	
 	# First check if the config changed after last update
 	
@@ -954,7 +953,7 @@ function common.module.updateInfo()
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
 				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
 				then
-				main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
+					main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
 				fi
 				
 				# Path 
