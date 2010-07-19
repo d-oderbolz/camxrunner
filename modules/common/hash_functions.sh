@@ -170,6 +170,10 @@ function common.hash.destroy()
 # Generates a filename for a given hash and key. Internal function for use in hash functions.
 # Tries to remedy missing directories (if <common.hash.init> was not called!)
 #
+# If a key is an ABSOLUTE PATH, we remove the leading slash and create the
+# whole path structure in the hash directory. The value is then stored in the lowest level as file.
+# This is a workaround to make large file databases (like MD5) possible on AFS.
+#
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
@@ -193,9 +197,23 @@ function _common.hash.getFileName()
 
 	local hash_dir
 	local fn
+	local keypath
 	
 	# Work out the directory
-	hash_dir="$(_common.hash.getDir "$type")"
+	hash_dir="$(_common.hash.getDir "$type")"/${hash}
+	
+	# Is the key a path?
+	if [[ "$(common.fs.isAbsolutePath? "$key")" == true ]]
+	then
+		main.log -v "It seems that the key $key is a path. Will store it as such."
+		keypath="$(dirname $key)"
+		key="$(basename $key)"
+
+		# Remove leading /
+		keypath=${keypath#/}
+		# We use the full path
+		hash_dir=${hash_dir}/${keypath}
+	fi
 	
 	if [[ ! "$key" ]]
 	then
@@ -204,7 +222,7 @@ function _common.hash.getFileName()
 	fi
 	
 	# Generate the filename
-	fn="${hash_dir}/${hash}/$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
+	fn="${hash_dir}/$(perl -MURI::Escape -e 'print uri_escape($ARGV[0]);' "$key")"
 	
 	# Make the directory, just in case
 	mkdir -p "$(dirname "${fn}")" >/dev/null 2>&1
@@ -220,6 +238,10 @@ function _common.hash.getFileName()
 # Also touches to directory of the hash (can be used for "last update time").
 # We keep the data in a cache, just in case somebody wants to read it right away.
 # We try to take care of the AFS issue mentioned in the file header.
+#
+# If a key is an ABSOLUTE PATH, we remove the leading slash and create the
+# whole path structure in the hash directory. The value is then stored in the lowest level as file.
+# This is a workaround to make large file databases (like MD5) possible on AFS.
 # 
 #
 # Parameters:
@@ -642,7 +664,6 @@ function common.hash.getKeys()
 		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
-	
 	local hash
 	local type
 	
@@ -668,7 +689,11 @@ function common.hash.getKeys()
 		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1 2>/dev/null)
 		do
 			found=true
-			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$(basename $fn)")"
+			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
+			
+			# Remove leading hashdir (not the same as basename!!)
+			key=${key#${hash_dir}/}
+			
 			list="${list}${key}$CXR_DELIMITER"
 		done
 		

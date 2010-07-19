@@ -98,7 +98,8 @@ function common.fs.exists?()
 ################################################################################
 # Function: common.fs.isAbsolutePath?
 # 
-# Returns true if argument is an absolute path, false otherwise
+# Returns true if argument is an absolute path, false otherwise.
+# An NFS-like path of the form machine:/some/path also works
 #
 # Parameters:
 # $1 - path to test
@@ -106,9 +107,20 @@ function common.fs.exists?()
 function common.fs.isAbsolutePath?()
 ################################################################################
 {
-	case $1 in
+	path="$1"
+	
+	# Remove machine, if any
+	case "$path" in
 		/*) echo true ;;
-		*) echo false ;;
+		*) 
+			# remove machine name, if any
+			path=${path#*:}
+			# Try again
+			case "$path" in
+				/*) echo true ;;
+				*) echo false ;;
+			esac
+			;;
 	esac
 }
 
