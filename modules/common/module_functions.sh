@@ -113,7 +113,7 @@ function common.module.getNumInvocations()
 	cache="CACHE_NumInvocations"
 	
 	# This call sets _has and _value
-	common.hash.has? $cache $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
 	if [[ "$_has" == true ]]
 	then
 		# It's in the cache
