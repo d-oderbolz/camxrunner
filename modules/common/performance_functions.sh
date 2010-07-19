@@ -226,36 +226,73 @@ function common.performance.estimateRuntime()
 }
 
 ################################################################################
+# Function: common.performance.getMemUsedPercent
+#
+# Estimates the percentage of used memory from the output of top.
+#
+################################################################################
+function common.performance.getMemUsedPercent()
+################################################################################
+{
+	local usedPercent
+	local iColumn
+	local MemColumn
+	local found
+	
+	usedPercent=0
+	iColumn=1
+	found=false
+	
+	headers=$(top -b -n1 | head -n7 | tail -n1)
+	for item in $headers
+	do
+		# Memory percent may be in different columns
+		if [[ $item == %MEM ]]
+		then
+			found=true
+			MemColumn=$iColumn
+		fi
+		
+		iColumn=$(( $iColumn + 1 ))
+	done
+	
+	if [[ $found == true ]]
+	then
+		# The first 7 lines are header
+		for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
+		#                                                    ^ Espace awk $ for shell
+		do
+			usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
+		done
+		
+		main.log -v "Currently $usedPercent % of memory are in use"
+		
+		echo $usedPercent
+	else
+		main.log -w "Could not find column %MEM of top - cannot determine amount of used memory"
+		echo 0
+	fi
+	
+}
+
+################################################################################
 # Function: common.performance.getMemFreePercent
 #
-# Estimates the percentage of free memory from the output of top.
-# TODO: Fix inconsistency
+# Gets free memory using <common.performance.getMemUsedPercent>
 #
 ################################################################################
 function common.performance.getMemFreePercent()
 ################################################################################
 {
 	local usedPercent
-	usedPercent=0
 	
-	
-	# Memory percent is in the 10th or 7th column
-	headers=$(top -b -n1 | head -n7 | tail -n1)
-	
-	
-	
-	# The first 7 lines are header
-	for used in $(top -b -n1 | sed '1,7d' | awk '{ print $10 }')
-	do
-		usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
-	done
-	
+	usedPercent=$(common.performance.getMemUsedPercent)
 	free="$(common.math.FloatOperation "100 - $usedPercent" -1 0)"
 	
 	main.log -v "Found $free % free memory"
 	
 	echo $free
-	
+
 }
 
 ################################################################################
@@ -272,12 +309,36 @@ function common.performance.getSystemLoadPercent()
 	local rawLoad
 	
 	# The 16th field contains the 15min average of the load
-	rawLoad=$(top -b | head -n1 | cut -d" " -f16)
+	rawLoad=$(top -b -n1 | head -n1 | cut -d" " -f16)
 	# Divide this number by number of cores and multply by 100
 	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2 false)
 	
 	echo $Load
 	
+}
+
+################################################################################
+# Function: common.performance.getReaLoadPercent
+#
+# A performance metrich that takes both Memory and CPU into account.
+# We calculate the length of the vector determined by memory and CPU use.
+# This metrich could be extended by an arbitrary number of metrics :-)
+#
+#
+################################################################################
+function common.performance.getReaLoadPercent()
+################################################################################
+{
+	local mem
+	local cpu
+	local load
+	
+	mem=$(common.performance.getMemUsedPercent)
+	cpu=$(common.performance.getSystemLoadPercent)
+	
+	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)"
+	
+	echo $load
 }
 
 ################################################################################
@@ -315,7 +376,8 @@ function test_module()
 	########################################
 	
 	main.log "Free memory: $(common.performance.getMemFreePercent) %"
-	main.log "System Load: $(common.performance.getSystemLoadPercent)"
+	main.log "System Load: $(common.performance.getSystemLoadPercent) %"
+	main.log "RealLoad: $(common.performance.getReaLoadPercent) %"
 	
 	# Load the performance array
 	arr=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL test) )

@@ -428,7 +428,7 @@ function _common.state.getStateFileName()
 function common.state.countInstances()
 ################################################################################
 {
-	$(find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l)
+	find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l
 }
 
 ################################################################################
