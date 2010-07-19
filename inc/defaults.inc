@@ -214,6 +214,12 @@ CXR_RUN_ALL=${CXR_ALL}
 # Set inital values of features ################################################
 ################################################################################
 
+# Warning level for system load in percent
+# (as determined by ReaLoad)
+CXR_LOAD_WARN_THRESHOLD=80
+
+# Level where we bail out
+CXR_LOAD_EXIT_THRESHOLD=90
 
 # Percentage of Memory that should be free upon starting a new task
 CXR_MEM_FREE_PERCENT=20
