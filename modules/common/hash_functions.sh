@@ -266,8 +266,8 @@ function common.hash.put()
 	# Turn off errexit
 	set +e
 	
-	# Write the value
-	echo "${value}" > "${fn}"
+	# Write the value, discard errors
+	echo "${value}" > "${fn}" 2>/dev/null
 	
 	if [[ $? -ne 0 ]]
 	then
