@@ -308,8 +308,12 @@ function common.performance.getSystemLoadPercent()
 {
 	local rawLoad
 	
-	# The 16th field contains the 15min average of the load
+	# The 16th field contains the 15min (sometimes its also the 5min) average of the load
 	rawLoad=$(top -b -n1 | head -n1 | cut -d" " -f16)
+	
+	# remove , if any
+	rawLoad=${rawLoad%%,*}
+	
 	# Divide this number by number of cores and multply by 100
 	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2 false)
 	
