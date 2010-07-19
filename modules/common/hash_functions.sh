@@ -686,7 +686,7 @@ function common.hash.getKeys()
 	if [[ -d ${hash_dir}/${hash} ]]
 	then
 		# Hash exists, get all files within
-		for fn in $(find ${hash_dir}/${hash} -noleaf -type f -maxdepth 1 2>/dev/null)
+		for fn in $(find ${hash_dir}/${hash} -noleaf -type f 2>/dev/null)
 		do
 			found=true
 			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
