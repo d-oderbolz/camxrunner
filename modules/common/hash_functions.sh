@@ -694,6 +694,12 @@ function common.hash.getKeys()
 			# Remove leading hashdir (not the same as basename!!)
 			key=${key#${hash_dir}/}
 			
+			# Add slash if other slashes are present (assuming it is a path)
+			if [[ $(common.string.isSubstringPresent? "$key" / ]]
+			then
+				key="/$key"
+			fi
+			
 			list="${list}${key}$CXR_DELIMITER"
 		done
 		
