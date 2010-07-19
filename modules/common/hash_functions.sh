@@ -683,7 +683,7 @@ function common.hash.getKeys()
 	
 	main.log -v "Getting keys for $hash $type out of ${hash_dir}..."
 	
-	if [[ -d ${hash_dir}/${hash} ]]
+	if [[ -d ${hash_dir} ]]
 	then
 		# Hash exists, get all files within
 		for fn in $(find ${hash_dir} -noleaf -type f 2>/dev/null)
