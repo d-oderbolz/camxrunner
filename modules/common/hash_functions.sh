@@ -689,16 +689,18 @@ function common.hash.getKeys()
 		for fn in $(find ${hash_dir} -noleaf -type f 2>/dev/null)
 		do
 			found=true
-			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
 			
 			# Remove leading hashdir (not the same as basename!!)
-			key=${key#${hash_dir}/}
+			fn=${fn#${hash_dir}/}
 			
-			# Add slash if other slashes are present (assuming it is a path)
-			if [[ $(common.string.isSubstringPresent? "$key" / ) == true ]]
+			# Add slash if other slashes are present (it is a path)
+			if [[ $(common.string.isSubstringPresent? "$fn" / ) == true ]]
 			then
-				key="/$key"
+				fn="/$fn"
 			fi
+			
+			# decode it
+			key="$(perl -MURI::Escape -e 'print uri_unescape($ARGV[0]);' "$fn")"
 			
 			list="${list}${key}$CXR_DELIMITER"
 		done
