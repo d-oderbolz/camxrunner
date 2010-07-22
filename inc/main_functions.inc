@@ -649,7 +649,7 @@ function main.dieGracefully()
 ################################################################################
 # Function: main.getBinaryName
 #
-# Returns the name and path of a binary name other than the model.
+# Returns the full path of a binary name other than the model (model name comes from <get_model_exec>)
 # Use this fuction instead of "which"
 # The name depends on:
 # - The Machine Architecture
@@ -680,50 +680,58 @@ function main.getBinaryName()
 	
 	local exec_name
 	local allow_empty
-	local which_output
-	local general_exec
-	local machine_exec
 	
 	exec_name="${1}"
 	allow_empty="${2:-false}"
 	
-	#Determine possible names
-	general_exec=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/${exec_name}-${HOSTTYPE}
-	machine_exec=${general_exec}-$(uname -n)
+	local which_output
+	local current_special
+	local current_general
 	
-	# First see if which delivers anything
-	# We must catch errors
+	local -a directories
+	local dir
+	
+	# We go through the whole hierarchy from special to general	
+	directories=(${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION} ${CXR_BIN_DIR}/${CXR_MODEL} ${CXR_BIN_DIR})
+
+	for dir in $directories
+	do
+		#Determine possible names
+		current_general="${dir}/${exec_name}-${HOSTTYPE}"
+		current_special="${current_general}-${CXR_MACHINE}"
+		
+		# In each dir, we check the machine-specific first, then the general
+		if [[ -x "${current_special}" ]]
+		then
+			# Machine dependent exists
+			main.log -v "Binary ${exec_name} is actually called ${current_special}"
+			echo "${current_special}"
+			return $CXR_RET_OK
+		elif [[ -x "${current_general}" ]]
+		then
+			# general exists
+			main.log -v "Binary ${exec_name} is actually called ${current_general}"
+			echo "${current_general}"
+			return $CXR_RET_OK
+		fi
+	done # Loop through directories.
+	
+	# If we arrive here, nothing was found yet.
+	# Check which
+	
+	# We must allow errors
 	set +e
-	which_output="$(which "${exec_name}" 2>/dev/null)"
+		which_output="$(which "${exec_name}" 2>/dev/null)"
 	set -e
 	
 	# Set output to "" if which failed
-	if [[ $? -ne 0 ]]
+	if [[ $? -eq 0 ]]
 	then
-		which_output=""
-	fi
-	
-	# Check if one of these is executable,
-	# first in line wins
-
-	# Check name - machine first
-	if [[ -x ${machine_exec} ]]
-	then
-		# Machine dependent exists
-		main.log -v "Binary ${exec_name} is actually called ${machine_exec}"
-		echo "${machine_exec}"
-	elif [[ -x ${general_exec} ]]
-	then
-		# general exists
-		main.log -v "Binary ${exec_name} is actually called ${general_exec}"
-		echo "${general_exec}"
-	elif [[ -x "${which_output}" ]]
-	then
-		# Which output is OK
+		# Ok, found it
 		main.log -v "Binary ${exec_name} is actually called ${which_output}"
 		echo "${which_output}"
 	else
-		#None exists
+		# Still no match
 		if [[ "$allow_empty" == true ]]
 		then
 			# optional param is true,
@@ -735,8 +743,8 @@ function main.getBinaryName()
 			main.log -w "Could not find a suitable executable for binary $exec_name, neither ${machine_exec} nor ${general_exec} are present. The which cmd also did not find anything.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
 		fi
 	fi
-	
-	return 0
+
+	return $CXR_RET_OK
 }
 
 ################################################################################
