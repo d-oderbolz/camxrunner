@@ -657,6 +657,7 @@ function main.dieGracefully()
 # 
 # We try to find the most specialised binary.
 # Notifies logger if no suitable executable could be found.
+# We cannot cache the result, because we need it when we read the config (right befor loading the other modules)
 #
 # Such a name looks like this:
 #
