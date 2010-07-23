@@ -978,7 +978,7 @@ function main.isSubstringPresent?()
 # - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf (if available)
 #
 # Also here, we set all variables that depend on model & version
-# TODO: Use loop
+# 
 #
 # Parameters:
 # $1 - The name of the run to use
@@ -994,6 +994,11 @@ function main.readConfig()
 	# to a lower level one...
 	# We do it only locally because sometimes we want to re-load config data.
 	local loaded
+	
+	local iFile
+	local file
+	local rev
+	local md5
 	
 	export CXR_RUN="${1}"
 	
@@ -1019,37 +1024,6 @@ function main.readConfig()
 
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
-
-	main.log "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
-
-	########################################
-	# Locations of configuration
-	########################################
-	
-	# Site config
-	CXR_SITECONFIG=${CXR_CONF_DIR}/site.conf
-	
-	# Base config file - from this all other config is derived
-	CXR_BASECONFIG=${CXR_CONF_DIR}/base.conf
-	
-	# Version specific
-	CXR_VERSIONCONFIG=${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf
-	
-	# This is an expanded form (might not exist)
-	CXR_EXPANDED_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.econf
-	
-	# This is a "normal" copy
-	CXR_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.conf
-	
-	########################################
-	# Revisions - these are available as global vars
-	########################################
-	
-	CXR_SITECONFIG_REV="$(main.getRevision $CXR_SITECONFIG)"
-	CXR_BASECONFIG_REV="$(main.getRevision $CXR_BASECONFIG)"
-	CXR_VERSIONCONFIG_REV="$(main.getRevision $CXR_VERSIONCONFIG)"
-	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
-	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
 	
 	########################################
 	# Setting some specific variables
@@ -1099,155 +1073,102 @@ function main.readConfig()
 	# The name of the hash that will hold the types of the modules
 	CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
 
-	########################################
-	# Try to load the site config
-	########################################
-	
-	# No drama if it does not exist
-	if [[ -f "${CXR_SITECONFIG}" ]]
-	then
-		CXR_SITECONFIG_MD5="$(main.getMD5 $CXR_SITECONFIG)"
-		main.log -a  "Loading ${CXR_SITECONFIG} rev ${CXR_SITECONFIG_REV}. MD5: ${CXR_SITECONFIG_MD5}"
-	
-		source "${CXR_SITECONFIG}"
-		
-		# Add to loaded list
-		loaded="${loaded} ${CXR_SITECONFIG_MD5}"
-	else
-		main.log "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
-	fi
-
-	########################################
-	# Try to load the base config
-	########################################
-	
-	if [[ -f "${CXR_BASECONFIG}" ]]
-	then
-		CXR_BASECONFIG_MD5="$(main.getMD5 $CXR_BASECONFIG)"
-		
-		# Was this already loaded?
-		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_BASECONFIG_MD5") == false ]]
-		then
-			main.log -a "Loading ${CXR_BASECONFIG} rev  ${CXR_BASECONFIG_REV}. MD5: ${CXR_BASECONFIG_MD5}"
-			source "${CXR_BASECONFIG}"
-			
-			# Add to loaded list
-			loaded="${loaded} ${CXR_BASECONFIG_MD5}"
-		else
-			main.log -v "${CXR_BASECONFIG} was already loaded"
-		fi
-	else
-		main.dieGracefully "The base configuration ${CXR_BASECONFIG} is not available - exiting"
-	fi
+	main.log "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 	
 	########################################
-	# Try to load CAMx version specific config
+	# Locations of configuration
 	########################################
 	
-	if [[ -f "$CXR_VERSIONCONFIG" ]]
-	then
-		CXR_VERSIONCONFIG_MD5="$(main.getMD5 $CXR_VERSIONCONFIG)"
-		
-		# Was this already loaded?
-		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_VERSIONCONFIG_MD5") == false ]]
-		then
-			main.log -a "Loading ${CXR_VERSIONCONFIG} rev ${CXR_VERSIONCONFIG_REV}. MD5: ${CXR_VERSIONCONFIG_MD5}"
-			source "${CXR_VERSIONCONFIG}"
-			
-			# Add to loaded list
-			loaded="${loaded} ${CXR_VERSIONCONFIG_MD5}"
-		else
-			main.log -v "${CXR_VERSIONCONFIG} was already loaded"
-		fi
-	else
-		main.log  "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want load special settings based no model version."
-	fi
+	# Site config
+	CXR_SITECONFIG=${CXR_CONF_DIR}/site.conf
+	
+	# Base config file - from this all other config is derived
+	CXR_BASECONFIG=${CXR_CONF_DIR}/base.conf
+	
+	# Version specific
+	CXR_VERSIONCONFIG=${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf
+	
+	# This is an expanded form (might not exist)
+	CXR_EXPANDED_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.econf
+	
+	# This is a "normal" copy
+	CXR_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.conf
+	
+	# Only used for installer
+	CXR_INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
 	
 	########################################
-	# Loading config that is run-specific
+	# Revisions - these are available as global vars
 	########################################
 	
-	# Try to load an run-specific config that was expanded
+	CXR_SITECONFIG_REV="$(main.getRevision $CXR_SITECONFIG)"
+	CXR_BASECONFIG_REV="$(main.getRevision $CXR_BASECONFIG)"
+	CXR_VERSIONCONFIG_REV="$(main.getRevision $CXR_VERSIONCONFIG)"
+	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
+	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
+	
+	# Only used for installer
+	CXR_INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
+	
+	# If there is an expanded specific config, use it
 	if [[ -f "${CXR_EXPANDED_CONFIG}" ]]
 	then
-		CXR_EXPANDED_CONFIG_MD5="$(main.getMD5 $CXR_EXPANDED_CONFIG)"
+		CXR_CONFIG=$CXR_EXPANDED_CONFIG
+		CXR_CONFIG_REV=$CXR_EXPANDED_CONFIG_REV
+	fi
+	
+	########################################
+	# Define Hierarchy
+	########################################
+	
+	if [[ "${CXR_RUN}" != "${CXR_INSTALLER}" ]]
+	then
+		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG)
+		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV)
+	else
+		# Installer needs an additional file
+		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG $INSTALLER_CONF)
+		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV $INSTALLER_CONF_REV)
+	fi
+	
+	########################################
+	# Load the whole hierarchy
+	########################################
+	
+	for iFile in $(seq 0 $(( ${#CXR_CONF_HIERARCHY[@]} - 1 )) )
+	do
+		file=${CXR_CONF_HIERARCHY[$iFile]}
+		rev=${CXR_CONF_HIERARCHY_REV[$iFile]}
+		
+		if [[ ! -e "$file" ]]
+		then
+			if [[ $iFile -eq 0 ]]
+			then
+				# First file (site) may be missing
+				main.log "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
+				continue
+			else
+				# all other files must exist
+				main.dieGracefully "The mandatory configuration file ${file} is not available - exiting"
+			fi
+		fi # File non-existent?
+		
+		md5="$(main.getMD5 "$file")"
 		
 		# Was this already loaded?
-		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_EXPANDED_CONFIG_MD5") == false ]]
+		if [[ $(main.isSubstringPresent? "$loaded" "$md5") == false ]]
 		then
-			# Found an expanded configuration (priority)
-			main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} rev  ${CXR_EXPANDED_CONFIG_REV}"
-			source "${CXR_EXPANDED_CONFIG}"
-			
-			# This makes sure all following code looks at the right file
-			CXR_CONFIG=${CXR_EXPANDED_CONFIG}
+			main.log -a  "Loading ${file} rev ${rev}. MD5: ${md5}"
 		
+			source "${file}"
+			
 			# Add to loaded list
-			loaded="${loaded} ${CXR_EXPANDED_CONFIG_MD5}"
+			loaded="${loaded} ${md5}"
 		else
-			main.log -v "${CXR_EXPANDED_CONFIG} already loaded."
+			main.log -v "A file with the same MD5 hash as ${file} ($md5) was already loaded!"
 		fi
-	else
-		#No expanded version found - see if we find a normal one
-		# Try to load the run-specific config
-		# Does it exist?
-		if [[ -f "${CXR_CONFIG}" ]]
-		then
-			CXR_CONFIG_MD5="$(main.getMD5 $CXR_CONFIG)"
-			
-			# Was this already loaded?
-			if [[ $(main.isSubstringPresent? "$loaded" "$CXR_CONFIG_MD5") == false ]]
-			then
-				main.log -a "Loading ${CXR_CONFIG} rev  ${CXR_CONFIG_REV}"
-				# Source it
-				source "${CXR_CONFIG}"
-				
-				# Add to loaded list
-				loaded="${loaded} ${CXR_CONFIG_MD5}"
-			else
-				main.log -v "${CXR_CONFIG} was already loaded"
-			fi
-		else
-			# If the user types CAMxRunner.sh -h we land here
-			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
-			then
-				main.dieGracefully "found no configuration for the run ${CXR_RUN}. Use \n CAMxRunner.sh -C to recreate the run!"
-			fi
-		fi
-	fi
-	
-	########################################
-	# Installer only: Loading special version specific config
-	########################################
-	
-	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}" ]]
-	then
-		local INSTALLER_CONF
-		local INSTALLER_CONF_REV
-		local INSTALLER_CONF_MD5
-		
-		INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
-		INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
-		
-		if [[ -f "${INSTALLER_CONF}" ]]
-		then
-			INSTALLER_CONF_MD5="$(main.getMD5 $INSTALLER_CONF)"
-			
-			if [[ $(main.isSubstringPresent? "$loaded" "$INSTALLER_CONF_MD5") == false ]]
-			then
-			
-				main.log -a  "Loading ${INSTALLER_CONF} rev  ${INSTALLER_CONF_REV}"
-				source "${INSTALLER_CONF}"
-				
-				# Add to loaded list, even if its last 
-				loaded="${loaded} ${INSTALLER_CONF_MD5}"
-			else
-				main.log -v "${INSTALLER_CONF} already loaded."
-			fi
-		else
-			main.log -w  "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
-		fi
-	fi
+
+	done
 }
 
 ################################################################################

@@ -66,7 +66,7 @@ function get_chemparam_file()
 	RUN_SPECIFIC=${CXR_MODEL_BIN_DIR}/chemparam/${CXR_RUN}_chemparam
 	
 	# First check if there is a run-specific file
-	if [[ -r "${RUN_SPECIFIC}"  ]]
+	if [[ -r "${RUN_SPECIFIC}" ]]
 	then
 		our_chemparam="${RUN_SPECIFIC}"
 	else
@@ -79,7 +79,7 @@ function get_chemparam_file()
 	
 		MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION}.chemparam.${MY_MECHANISM}
 	
-		if [[ -r "${MY_CHEMPARAM_INPUT_FILE}"  ]]
+		if [[ -r "${MY_CHEMPARAM_INPUT_FILE}" ]]
 		then
 			our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 		else
@@ -87,7 +87,7 @@ function get_chemparam_file()
 			# Maybe we have to cut off the last digit of the Version number
 			MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx${CXR_MODEL_VERSION:0:3}.chemparam.${MY_MECHANISM}
 	
-			if [[ -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
+			if [[ -f "${MY_CHEMPARAM_INPUT_FILE}" ]]
 			then
 				our_chemparam="${MY_CHEMPARAM_INPUT_FILE}"
 			else
