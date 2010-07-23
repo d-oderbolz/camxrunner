@@ -1107,7 +1107,7 @@ function main.readConfig()
 	if [[ -f "${CXR_SITECONFIG}" ]]
 	then
 		CXR_SITECONFIG_MD5="$(main.getMD5 $CXR_SITECONFIG)"
-		main.log -a  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}. MD5: ${CXR_SITECONFIG_MD5}"
+		main.log -a  "Loading ${CXR_SITECONFIG} rev ${CXR_SITECONFIG_REV}. MD5: ${CXR_SITECONFIG_MD5}"
 	
 		source "${CXR_SITECONFIG}"
 		
@@ -1128,7 +1128,7 @@ function main.readConfig()
 		# Was this already loaded?
 		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_BASECONFIG_MD5") == false ]]
 		then
-			main.log -a "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}. MD5: ${CXR_BASECONFIG_MD5}"
+			main.log -a "Loading ${CXR_BASECONFIG} rev  ${CXR_BASECONFIG_REV}. MD5: ${CXR_BASECONFIG_MD5}"
 			source "${CXR_BASECONFIG}"
 			
 			# Add to loaded list
@@ -1151,7 +1151,7 @@ function main.readConfig()
 		# Was this already loaded?
 		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_VERSIONCONFIG_MD5") == false ]]
 		then
-			main.log -a "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
+			main.log -a "Loading ${CXR_VERSIONCONFIG} rev ${CXR_VERSIONCONFIG_REV}. MD5: ${CXR_VERSIONCONFIG_MD5}"
 			source "${CXR_VERSIONCONFIG}"
 			
 			# Add to loaded list
@@ -1176,7 +1176,7 @@ function main.readConfig()
 		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_EXPANDED_CONFIG_MD5") == false ]]
 		then
 			# Found an expanded configuration (priority)
-			main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
+			main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} rev  ${CXR_EXPANDED_CONFIG_REV}"
 			source "${CXR_EXPANDED_CONFIG}"
 			
 			# This makes sure all following code looks at the right file
@@ -1198,7 +1198,7 @@ function main.readConfig()
 			# Was this already loaded?
 			if [[ $(main.isSubstringPresent? "$loaded" "$CXR_CONFIG_MD5") == false ]]
 			then
-				main.log -a "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
+				main.log -a "Loading ${CXR_CONFIG} rev  ${CXR_CONFIG_REV}"
 				# Source it
 				source "${CXR_CONFIG}"
 				
@@ -1236,7 +1236,7 @@ function main.readConfig()
 			if [[ $(main.isSubstringPresent? "$loaded" "$INSTALLER_CONF_MD5") == false ]]
 			then
 			
-				main.log -a  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
+				main.log -a  "Loading ${INSTALLER_CONF} rev  ${INSTALLER_CONF_REV}"
 				source "${INSTALLER_CONF}"
 				
 				# Add to loaded list, even if its last 
@@ -1254,6 +1254,7 @@ function main.readConfig()
 # Function: main.HandleHup
 #
 # Handles the HUP signal (sent to reread the configuration)
+# TODO: test in parallel configuration
 #
 ################################################################################
 function main.HandleHup()
