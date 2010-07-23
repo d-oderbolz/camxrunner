@@ -345,7 +345,7 @@ function common.test.all()
 					if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG" ]]
 					then
 						# We load the config
-						main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "."
+						main.readConfig "${CXR_RUN}" "${model}" "${version}" "."
 						common.module.updateInfo
 						
 						LAST_LOADED_CONFIG=$CXR_RUN

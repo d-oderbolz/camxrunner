@@ -767,7 +767,7 @@ function main.setModelAndVersion()
 	# We expect a name like CAMx-v4.42-bafu3_winter07.run3_lcsl5a
 	# So we split using "-"
 	
-	if [[   $1 == CAMxRunner.sh || $1 == base || $1 == installer ]]
+	if [[ $1 == CAMxRunner.sh || $1 == base || $1 == installer ]]
 	then
 		# If the user does CAMxRunner.sh -h this must work too!
 		version=4.51
