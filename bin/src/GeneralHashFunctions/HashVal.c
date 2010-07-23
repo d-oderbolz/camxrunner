@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	// We need to check a couple of things here...
 	key=argv[1];
 	
-	// Lenght
+	// Lenght of key, assuming it is a string and not a stream of bytes
 	len=strlen(argv[1]);
 	
 	// We need to read the integer from the string parameter
@@ -57,31 +57,40 @@ int main(int argc, char* argv[])
 		sscanf(argv[3], "%d", &fct);
 	}
 	
-
 	switch (fct){
-
 		case 1: 	printf("%u",RSHash(key,len) % maxent);
 							break;
+							
 		case 2:		printf("%u",JSHash(key,len) % maxent);
 							break;
+							
 		case 3:		printf("%u",PJWHash(key,len) % maxent);
 							break;
+							
 		case 4:		printf("%u",ELFHash(key,len) % maxent);
 							break;
+							
 		case 5:		printf("%u",BKDRHash(key,len) % maxent);
 							break;
+							
 		case 6:		printf("%u",SDBMHash(key,len) % maxent);
 							break;
+							
 		case 7:		printf("%u",DJBHash(key,len) % maxent);
 							break;
+							
 		case 8:		printf("%u",DEKHash(key,len) % maxent);
 							break;
+							
 		case 9:		printf("%u",BPHash(key,len) % maxent);
 							break;
+							
 		case 10:	printf("%u",FNVHash(key,len) % maxent);
 							break;
+							
 		case 11:	printf("%u",APHash(key,len) % maxent);
 							break;
+							
 		default:	printf("%u",DJBHash(key,len) % maxent);
 	}
 
