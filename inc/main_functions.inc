@@ -1185,7 +1185,7 @@ function main.readConfig()
 			# Add to loaded list
 			loaded="${loaded} ${CXR_EXPANDED_CONFIG_MD5}"
 		else
-		
+			main.log -v "${CXR_EXPANDED_CONFIG} already loaded."
 		fi
 	else
 		#No expanded version found - see if we find a normal one
