@@ -194,7 +194,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(basename $(get_chemparam_file 6 CF)) CAMx4.5.chemparam.6_CF "get_chemparam_file 6 CF"
+	# This is not easy to test since it depends on the version...
+	is $(basename $(get_chemparam_file 4 CF)) CAMx4.5.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
 
 	########################################
 	# teardown tests if needed
