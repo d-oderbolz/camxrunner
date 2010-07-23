@@ -24,20 +24,10 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 # If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=2
 
-# This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=base
-
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
 # If a requirement is not binding, optional is added at the end
 CXR_META_MODULE_REQ_SPECIAL="exec|md5sum|optional"
-
-# Min CAMxRunner Version needed (Revision number)
-CXR_META_MODULE_REQ_RUNNER_VERSION=100
-
-# Min Revision number of configuration needed (to avoid that old runs try to execute new modules)
-# The revision number is automatically extracted from the config file
-CXR_META_MODULE_REQ_CONF_VERSION=100
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -935,7 +925,7 @@ function common.check.ModuleRequirements()
 		# Increase global indent level
 		main.increaseLogIndent
 		
-		main.log -v   "==========================================================\nName of the Module: *${CXR_META_MODULE_NAME}*\n==========================================================\nType: *${CXR_META_MODULE_TYPE}*\nRequires at least CAMxRunner Revision: *${CXR_META_MODULE_REQ_RUNNER_VERSION}*\n"
+		main.log -v   "==========================================================\nName of the Module: *${CXR_META_MODULE_NAME}*\n==========================================================\nType: *${CXR_META_MODULE_TYPE}*\n"
 		main.log -v   "Description:\n$CXR_META_MODULE_DESCRIPTION\n"     
 		main.log -v   "More Information can be found here:\n$CXR_META_MODULE_DOC_URL\n"     
 		main.log -v   "The Module was written by: $CXR_META_MODULE_AUTHOR\nAnd is released under these terms:\n$CXR_META_MODULE_LICENSE\n"
@@ -947,67 +937,6 @@ function common.check.ModuleRequirements()
 
 		# Decrease global indent level
 		main.decreaseLogIndent
-	fi
-	
-	################################################################################
-	# Perform version check
-	################################################################################	
-	
-	# Increase global indent level
-	main.increaseLogIndent
-	
-	# check if the stuff is set properly
-	# Check CAMxRunner revision
-	if [[ "$CXR_META_MODULE_REQ_RUNNER_VERSION" && (  "$CXR_META_MODULE_REQ_RUNNER_VERSION" != "-" )   ]]
-	then
-		
-		# Increase global indent level
-		main.increaseLogIndent
-		
-		# CAMxRunner Version
-		RUNNER_REVISION=$(main.getRevision $CXR_RUN_DIR/CAMxRunner.sh)
-		
-		if [[ "$RUNNER_REVISION" -ge "$CXR_META_MODULE_REQ_RUNNER_VERSION"  ]] 
-		then
-			main.log -v   "CAMxRunner Version OK"
-		else
-			main.log -w  "Module $CXR_META_MODULE_NAME needs at least revision $CXR_META_MODULE_REQ_RUNNER_VERSION of CAMxRunner.\nCurrently running is revision $RUNNER_REVISION"
-			echo false
-			return 0
-		fi
-		
-		# Decrease global indent level
-		main.decreaseLogIndent
-		
-	else
-			main.log -w  "Consider to set the required CAMxRunner Version in Module ${CXR_META_MODULE_NAME} using variable CXR_META_MODULE_REQ_RUNNER_VERSION"
-	fi
-	
-	# check if the stuff is set properly
-	# Check config revision
-	if [[  "$CXR_META_MODULE_REQ_CONF_VERSION" && (  "$CXR_META_MODULE_REQ_CONF_VERSION" != "-" ) ]]
-	then
-		
-		# Increase global indent level
-		main.increaseLogIndent
-		
-		# Config Revision
-		CONFIG_REVISION=$(main.getRevision $CXR_CONFIG)
-
-		if [[ "$CONFIG_REVISION" -ge "$CXR_META_MODULE_REQ_CONF_VERSION"  ]] 
-		then
-			main.log -v   "Config Version OK"
-		else
-			main.log -w  "Module $CXR_META_MODULE_NAME needs at least revision $CXR_META_MODULE_REQ_CONF_VERSION of the config file $CXR_CONFIG.\nCurrently loaded is revision $CONFIG_REVISION"
-			echo false
-			return 0
-		fi
-		
-		# Decrease global indent level
-		main.decreaseLogIndent
-		
-	else
-			main.log -w  "Consider to set the required Config Version in Module ${CXR_META_MODULE_NAME} using variable CXR_META_MODULE_REQ_CONF_VERSION"
 	fi
 	
 	################################################################################

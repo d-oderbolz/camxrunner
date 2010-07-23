@@ -35,13 +35,6 @@ CXR_META_MODULE_TEST_RUN=base
 # If a requirement is not binding, optional is added at the end
 CXR_META_MODULE_REQ_SPECIAL="exec|wget"
 
-# Min CAMxRunner Version needed (Revision number)
-CXR_META_MODULE_REQ_RUNNER_VERSION=94
-
-# Min Revision number of configuration needed (to avoid that old runs try to execute new modules)
-# The revision number is automatically extracted from the config file
-CXR_META_MODULE_REQ_CONF_VERSION=94
-
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
 

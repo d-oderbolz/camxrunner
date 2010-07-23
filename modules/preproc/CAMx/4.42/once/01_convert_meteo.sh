@@ -49,13 +49,6 @@ CXR_META_MODULE_NUM_TESTS=1
 # This is the run name that is used to test this module
 CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
 
-# Min CAMxRunner Version needed (Revision number)
-CXR_META_MODULE_REQ_RUNNER_VERSION=94
-
-# Min Revision number of configuration needed (to avoid that old runs try to execute new modules)
-# The revision number is automatically extracted from the config file
-CXR_META_MODULE_REQ_CONF_VERSION=94
-
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
 
