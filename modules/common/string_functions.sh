@@ -39,43 +39,7 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-################################################################################
-# Function: common.string.isSubstringPresent?
-#
-# Returns true if a substring needle was found within haystack, false otherwise.
-#
-# Parameters:
-# $1 - haystack, the string in which we search
-# $2 - needle, the substring to be found
-################################################################################
-function common.string.isSubstringPresent?() 
-################################################################################
-{
-	local haystack
-	local needle
-	local found
-	
-	haystack=$1
-	needle=$2
-	
-	if [[ -z "$haystack" || -z "$needle" ]]
-	then
-		# This can happen often and is not necessarily an error
-		main.log -v "Either of these parameters is empty: $haystack $needle"
-	fi
-	
-	
-	found=$(expr match " $haystack" ".*$needle.*")
-	# For safety, here        ^ is a space, so that things never start at 0
-	
-	if [[ $found -gt 0 ]]
-	then
-		main.log -v "Substring $needle matches (partially) with $haystack"
-		echo true
-	else
-		echo false
-	fi
-}
+
 
 ################################################################################
 # Function: common.string.toLower
@@ -299,10 +263,10 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.string.isSubstringPresent? abc a)" true "common.string.isSubstringPresent? is a in abc?"
-	is "$(common.string.isSubstringPresent? /hallo/velo /hallo )" true "common.string.isSubstringPresent? is /hallo in /hallo/velo"
-	is "$(common.string.isSubstringPresent? "" "")" true "common.string.isSubstringPresent? is empty in empty?"
-	is "$(common.string.isSubstringPresent? abc "")" true "common.string.isSubstringPresent? empty in abc?"
+	is "$(main.isSubstringPresent? abc a)" true "main.isSubstringPresent? is a in abc?"
+	is "$(main.isSubstringPresent? /hallo/velo /hallo )" true "main.isSubstringPresent? is /hallo in /hallo/velo"
+	is "$(main.isSubstringPresent? "" "")" true "main.isSubstringPresent? is empty in empty?"
+	is "$(main.isSubstringPresent? abc "")" true "main.isSubstringPresent? empty in abc?"
 	
 	is "$(common.string.repeat " " 3 )" "   " "common.string.repeat - three spaces"
 	is "$(common.string.repeat "|" 1 )" "|" "common.string.repeat - one pipe"

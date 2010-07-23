@@ -894,6 +894,73 @@ function main.getRevision()
 }
 
 ################################################################################
+# Function: main.getMD5
+#	
+# Returns an MD5 Hash of a file. Returns the empty string if file does not exist.
+#
+# Parameters:
+# $1 - file to Hash
+################################################################################
+function main.getMD5() 
+################################################################################
+{
+		if [[ $# -ne 1 ]]
+		then
+			main.log -e "Programming error: no filename passed!"
+		fi
+		
+		local file
+		file="$1"
+		
+		if [[ -r "${file}" ]]
+		then
+			"${CXR_MD5_EXEC}" "${file}" | cut -d" " -f1
+		else
+			# Return the empty string
+			main.log -e "File $file not readable."
+			echo ""
+		fi
+}
+
+################################################################################
+# Function: main.isSubstringPresent?
+#
+# Returns true if a substring needle was found within haystack, false otherwise.
+#
+# Parameters:
+# $1 - haystack, the string in which we search
+# $2 - needle, the substring to be found
+################################################################################
+function main.isSubstringPresent?() 
+################################################################################
+{
+	local haystack
+	local needle
+	local found
+	
+	haystack=$1
+	needle=$2
+	
+	if [[ -z "$haystack" || -z "$needle" ]]
+	then
+		# This can happen often and is not necessarily an error
+		main.log -v "Either of these parameters is empty: $haystack $needle"
+	fi
+	
+	
+	found=$(expr match " $haystack" ".*$needle.*")
+	# For safety, here        ^ is a space, so that things never start at 0
+	
+	if [[ $found -gt 0 ]]
+	then
+		main.log -v "Substring $needle matches (partially) with $haystack"
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
 # Function: main.readConfig
 #
 # Determine relevant config files and load them, also report their names and versions.
@@ -911,9 +978,7 @@ function main.getRevision()
 # - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf (if available)
 #
 # Also here, we set all variables that depend on model & version
-#
-# TODO: Make all parameters, except run name optional. Check if a higt-level file is 
-# a link to a lower-level file. If so, do not load (will otherwise overwrite stuff!)
+# TODO: Use loop
 #
 # Parameters:
 # $1 - The name of the run to use
@@ -924,6 +989,12 @@ function main.getRevision()
 function main.readConfig()
 ################################################################################
 {
+	# In this variable, we store the MD5 hashes of all config files loaded so far
+	# it is for example possible, that a higher level config file is in reality a link
+	# to a lower level one...
+	# We do it only locally because sometimes we want to re-load config data.
+	local loaded
+	
 	export CXR_RUN="${1}"
 	
 	CXR_MODEL="${2}"
@@ -949,8 +1020,7 @@ function main.readConfig()
 	# Now redefine, we need an absolute path
 	CXR_RUN_DIR="$(pwd)"
 
-	main.log -v "CXR_RUN_DIR of ${CXR_RUN} is $CXR_RUN_DIR"
-	main.log  "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
+	main.log "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 
 	########################################
 	# Locations of configuration
@@ -972,7 +1042,7 @@ function main.readConfig()
 	CXR_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.conf
 	
 	########################################
-	# Revisions
+	# Revisions - these are available as global vars
 	########################################
 	
 	CXR_SITECONFIG_REV="$(main.getRevision $CXR_SITECONFIG)"
@@ -980,7 +1050,6 @@ function main.readConfig()
 	CXR_VERSIONCONFIG_REV="$(main.getRevision $CXR_VERSIONCONFIG)"
 	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
 	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
-	
 	
 	########################################
 	# Setting some specific variables
@@ -995,7 +1064,6 @@ function main.readConfig()
 	
 	# And these Version specific common modules
 	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
-	
 	
 	# Directories where to find installer modules
 	
@@ -1028,7 +1096,6 @@ function main.readConfig()
 	# The name of the hash that will hold the directories of the modules
 	CXR_MODULE_PATH_HASH=module_paths_${CXR_MODEL}_${CXR_MODEL_VERSION}
 
-
 	# The name of the hash that will hold the types of the modules
 	CXR_MODULE_TYPE_HASH=module_types_${CXR_MODEL}_${CXR_MODEL_VERSION}
 
@@ -1039,9 +1106,13 @@ function main.readConfig()
 	# No drama if it does not exist
 	if [[ -f "${CXR_SITECONFIG}" ]]
 	then
-		main.log -a   "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}"
+		CXR_SITECONFIG_MD5="$(main.getMD5 $CXR_SITECONFIG)"
+		main.log -a  "Loading ${CXR_SITECONFIG} revision ${CXR_SITECONFIG_REV}. MD5: ${CXR_SITECONFIG_MD5}"
 	
 		source "${CXR_SITECONFIG}"
+		
+		# Add to loaded list
+		loaded="${loaded} ${CXR_SITECONFIG_MD5}"
 	else
 		main.log "I noticed that you have no site-specific configuration file (${CXR_SITECONFIG}) - this is not needed, but you might want to put site-specific stuff there."
 	fi
@@ -1052,8 +1123,19 @@ function main.readConfig()
 	
 	if [[ -f "${CXR_BASECONFIG}" ]]
 	then
-		main.log -a   "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}"
-		source "${CXR_BASECONFIG}"
+		CXR_BASECONFIG_MD5="$(main.getMD5 $CXR_BASECONFIG)"
+		
+		# Was this already loaded?
+		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_BASECONFIG_MD5") == false ]]
+		then
+			main.log -a "Loading ${CXR_BASECONFIG} revision ${CXR_BASECONFIG_REV}. MD5: ${CXR_BASECONFIG_MD5}"
+			source "${CXR_BASECONFIG}"
+			
+			# Add to loaded list
+			loaded="${loaded} ${CXR_BASECONFIG_MD5}"
+		else
+			main.log -v "${CXR_BASECONFIG} was already loaded"
+		fi
 	else
 		main.dieGracefully "The base configuration ${CXR_BASECONFIG} is not available - exiting"
 	fi
@@ -1064,8 +1146,19 @@ function main.readConfig()
 	
 	if [[ -f "$CXR_VERSIONCONFIG" ]]
 	then
-		main.log -a   "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
-		source "${CXR_VERSIONCONFIG}"
+		CXR_VERSIONCONFIG_MD5="$(main.getMD5 $CXR_VERSIONCONFIG)"
+		
+		# Was this already loaded?
+		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_VERSIONCONFIG_MD5") == false ]]
+		then
+			main.log -a "Loading ${CXR_VERSIONCONFIG} revision ${CXR_VERSIONCONFIG_REV}"
+			source "${CXR_VERSIONCONFIG}"
+			
+			# Add to loaded list
+			loaded="${loaded} ${CXR_VERSIONCONFIG_MD5}"
+		else
+			main.log -v "${CXR_VERSIONCONFIG} was already loaded"
+		fi
 	else
 		main.log  "No CAMx version specific config ($CXR_VERSIONCONFIG) found.\nThis is only needed if you want load special settings based no model version."
 	fi
@@ -1077,21 +1170,43 @@ function main.readConfig()
 	# Try to load an run-specific config that was expanded
 	if [[ -f "${CXR_EXPANDED_CONFIG}" ]]
 	then
-		# Found an expanded configuration (priority)
-		main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
-		source "${CXR_EXPANDED_CONFIG}"
+		CXR_EXPANDED_CONFIG_MD5="$(main.getMD5 $CXR_EXPANDED_CONFIG)"
 		
-		# This makes sure all following code looks at the right file
-		CXR_CONFIG=${CXR_EXPANDED_CONFIG}
+		# Was this already loaded?
+		if [[ $(main.isSubstringPresent? "$loaded" "$CXR_EXPANDED_CONFIG_MD5") == false ]]
+		then
+			# Found an expanded configuration (priority)
+			main.log -a  "Found an expanded configuration for this run - loading ${CXR_EXPANDED_CONFIG} revision ${CXR_EXPANDED_CONFIG_REV}"
+			source "${CXR_EXPANDED_CONFIG}"
+			
+			# This makes sure all following code looks at the right file
+			CXR_CONFIG=${CXR_EXPANDED_CONFIG}
+		
+			# Add to loaded list
+			loaded="${loaded} ${CXR_EXPANDED_CONFIG_MD5}"
+		else
+		
+		fi
 	else
 		#No expanded version found - see if we find a normal one
 		# Try to load the run-specific config
 		# Does it exist?
 		if [[ -f "${CXR_CONFIG}" ]]
 		then
-			main.log -a "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
-			# Source it
-			source "${CXR_CONFIG}"
+			CXR_CONFIG_MD5="$(main.getMD5 $CXR_CONFIG)"
+			
+			# Was this already loaded?
+			if [[ $(main.isSubstringPresent? "$loaded" "$CXR_CONFIG_MD5") == false ]]
+			then
+				main.log -a "Loading ${CXR_CONFIG} revision ${CXR_CONFIG_REV}"
+				# Source it
+				source "${CXR_CONFIG}"
+				
+				# Add to loaded list
+				loaded="${loaded} ${CXR_CONFIG_MD5}"
+			else
+				main.log -v "${CXR_CONFIG} was already loaded"
+			fi
 		else
 			# If the user types CAMxRunner.sh -h we land here
 			if [[ "${CXR_RUN}" != "${CXR_RUNNER_NAME}"  ]]
@@ -1105,18 +1220,30 @@ function main.readConfig()
 	# Installer only: Loading special version specific config
 	########################################
 	
-	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}"  ]]
+	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}" ]]
 	then
 		local INSTALLER_CONF
 		local INSTALLER_CONF_REV
+		local INSTALLER_CONF_MD5
+		
 		INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
 		INSTALLER_CONF_REV=$(main.getRevision $INSTALLER_CONF)
 		
-		
-		if [[ -f "${INSTALLER_CONF}"  ]]
+		if [[ -f "${INSTALLER_CONF}" ]]
 		then
-			main.log -a   "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
-			source "${INSTALLER_CONF}"
+			INSTALLER_CONF_MD5="$(main.getMD5 $INSTALLER_CONF)"
+			
+			if [[ $(main.isSubstringPresent? "$loaded" "$INSTALLER_CONF_MD5") == false ]]
+			then
+			
+				main.log -a  "Loading ${INSTALLER_CONF} revision ${INSTALLER_CONF_REV}"
+				source "${INSTALLER_CONF}"
+				
+				# Add to loaded list, even if its last 
+				loaded="${loaded} ${INSTALLER_CONF_MD5}"
+			else
+				main.log -v "${INSTALLER_CONF} already loaded."
+			fi
 		else
 			main.log -w  "No CAMx version specific config for installer ($INSTALLER_CONF) found.\nThis is only needed if you want to install and run different CAMx versions in parallel"
 		fi

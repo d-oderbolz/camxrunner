@@ -964,11 +964,11 @@ function common.module.updateInfo()
 				
 				# Is this module active? (Enabled wins over disabled)
 				# if the module name is in the enabled list, run it,no matter what
-				if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$module_name")" == true ]]
+				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module_name")" == true ]]
 				then
 					# Module was explicitly enabled
 					run_it=true
-				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
+				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
 				then
 					# Module was not explicitly disabled and we did not disable all
 					run_it=true
@@ -1167,11 +1167,11 @@ function common.module.runType()
 				
 				# Check if we must run this
 				# if the module name is in the enabled list, run it,no matter what
-				if [[ "$(common.string.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true ]]
+				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$CXR_META_MODULE_NAME")" == true ]]
 				then
 					# Module was explicitly enabled
 					run_it=true
-				elif [[  "$(common.string.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
+				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$CXR_META_MODULE_NAME")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}"   ]]
 				then
 					# Module was not explicitly disabled and we did not disable all
 					run_it=true

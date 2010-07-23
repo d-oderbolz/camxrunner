@@ -160,7 +160,7 @@ function common.fs.isSubDirOf?()
 		
 		# If path1 is a subdir of path2,
 		# the string making up path1 must be the start of path2
-		if [[ "$(common.string.isSubstringPresent? "$path1" "$path2")" == true ]]
+		if [[ "$(main.isSubstringPresent? "$path1" "$path2")" == true ]]
 		then
 			echo true
 		else
@@ -874,7 +874,7 @@ function common.fs.getFreeMb()
 			# Get last line
 			last_line=$(fs listquota "$1" | tail -n1)
 			
-			if [[ "$(common.string.isSubstringPresent? "$last_line" "no limit" )" == true ]]
+			if [[ "$(main.isSubstringPresent? "$last_line" "no limit" )" == true ]]
 			then
 				main.log -v  "There seems to be no quota on $1, cannot determine free space"
 				

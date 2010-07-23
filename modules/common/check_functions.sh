@@ -437,42 +437,13 @@ function common.check.Vars ()
 				fi
 			else
 			  # Not present!
-			  main.log -w   "Executable ${!executable}, Parameter $executable does not exist (might not be a problem, though, CAMx e. g. is not needed for postprocessing and vice-versa)!"
+			  main.log -w "Executable ${!executable}, Parameter $executable does not exist (might not be a problem, though, CAMx e. g. is not needed for postprocessing and vice-versa)!"
 			fi
 			
 		else
-			main.log -w   "Variable $executable is not set (might not be a problem, though)"
+			main.log -w "Variable $executable is not set (might not be a problem, though)"
 		fi
 	done
-}
-
-################################################################################
-# Function: common.check.getMD5
-#	
-# Returns an MD5 Hash of a file. Returns the empty string if file does not exist.
-#
-# Parameters:
-# $1 - file to Hash
-################################################################################
-function common.check.getMD5() 
-################################################################################
-{
-		if [[ $# -ne 1  ]]
-		then
-			main.log -e  "Programming error: no filename passed!"
-		fi
-		
-		local file
-		file="$1"
-		
-		if [[ -r "${file}" ]]
-		then
-			"${CXR_MD5_EXEC}" "${file}" | cut -d" " -f1
-		else
-			# Return the empty string
-			main.log -e  "File $file not readable."
-			echo ""
-		fi
 }
 
 
@@ -527,7 +498,7 @@ function common.check.reportMD5()
 			if [[ "$(common.hash.isNew? MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
-				new_hash="$(common.check.getMD5 "$file")"
+				new_hash="$(main.getMD5 "$file")"
 				old_hash="$(common.hash.get MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
@@ -543,7 +514,7 @@ function common.check.reportMD5()
 		
 		else
 			# Never seen this file before!
-			hash="$(common.check.getMD5 "$file")"
+			hash="$(main.getMD5 "$file")"
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
@@ -953,7 +924,7 @@ function common.check.ModuleRequirements()
 	
 	found=false
 	
-	found=$(common.string.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
+	found=$(main.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$CXR_META_MODULE_NAME")
 	
 	# We announce only if it was not found
 	if [[ "$found" == false  ]]
@@ -1246,7 +1217,7 @@ function common.check.isVersionSupported?()
 	supported="${CXR_SUPPORTED_MODEL_VERSIONS[${model_id}]}"
 	
 	# Check the Version
-	found=$(common.string.isSubstringPresent? "$supported" "$version")
+	found=$(main.isSubstringPresent? "$supported" "$version")
 	
 	if [[ $found == true ]]
 	then
@@ -1475,7 +1446,7 @@ function test_module()
 	########################################
 	
 	is $(common.check.DataType 1 I) true "common.check.DataType 1 I"
-	is $(common.check.getMD5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "common.check.getMD5 strings test"
+	is $(main.getMD5 $x) 4868ac39fdeb60e886791d6be8c0fcb3 "main.getMD5 strings test"
 
 	########################################
 	# teardown tests if needed
