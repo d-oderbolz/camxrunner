@@ -342,20 +342,20 @@ function common.runner.reportDimensions()
 # The evaluator tests if the resulting dirname exists (_FILE_RULE only). This is needed if your rules
 # contain things like /${VAR}/... because we have no way of knowing this name in the checker.
 #
-# To be on the safe side, quote the call (double quotes!) and the rule (single quotes!!)
+# To be on the safe side, quote the call (double quotes!)
 #
 # Examples:
 # This code does not if the rule expands to the empty string:
-# >MY_DIR="$(common.runner.evaluateRule '$RULE' false "$rule_name")"
+# >MY_DIR="$(common.runner.evaluateRule "$RULE" false "$rule_name")"
 # >These  ^                                                ^
 # >Ensure that the code does not fail if the string returned contains
 # >spaces.
 #
 # This code accepts an empty string:
-# >MY_DIR="$(common.runner.evaluateRule '$RULE' true "$rule_name")" 
+# >MY_DIR="$(common.runner.evaluateRule "$RULE" true "$rule_name")" 
 #
 # This code is also valid and will not fail on empty expansion:
-# >MY_DIR="$(common.runner.evaluateRule '$RULE')"
+# >MY_DIR="$(common.runner.evaluateRule "$RULE")"
 #
 # You can use it to generate any string that is made up by variables,
 # but make sure that control sequences like \n are double-escaped (\\n)
@@ -363,7 +363,7 @@ function common.runner.reportDimensions()
 #
 # >CXR_FINISH_MESSAGE_RULE='Please copy this into https://wiki.intranet.psi.ch/twiki/LAC/CAMxRuns \\n \| $(date +"%Y/%M/%D") \| ${USER} \| ${CXR_STATUS} \| ${CXR_RUN} \| ${CXR_START_DATE} \| ${CXR_STOP_DATE} \| http://people.web.psi.ch/oderbolz/CAMx/conf/$(basename $CXR_CONFIG) \| http://people.web.psi.ch/oderbolz/CAMx/log/$(basename $CXR_LOG) \| \\n'
 # ...
-# >main.log  "$(common.runner.evaluateRule '$CXR_FINISH_MESSAGE_RULE' true CXR_FINISH_MESSAGE_RULE)"
+# >main.log  "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 #
 # Parameters:
 # $1 - The rule to be evaluated (a string, not a variable)
@@ -385,7 +385,7 @@ function common.runner.evaluateRule()
 	local try_decompression
 	local expansion
 	
-	rule='$1'
+	rule="$1"
 
 	# Per default we allow rules to expand to the empty string
 	allow_empty="${2:-true}"
@@ -393,7 +393,7 @@ function common.runner.evaluateRule()
 	# By default try decompression
 	try_decompression="${4:-true}"
 	
-	if [[ -z '$rule' ]]
+	if [[ -z "$rule" ]]
 	then
 		# If the rule is empty, we evaluate to empty
 		# we decide below if this is a problem
@@ -416,7 +416,7 @@ function common.runner.evaluateRule()
 			expansion=$(common.fs.TryDecompressingFile $expansion)
 		fi
 		
-		main.log -v "rule $rule_name ($rule) expanded to $expansion"
+		main.log -v "rule $rule_name expanded to $expansion"
 	fi
 	
 	# Test if expansion is empty but shouldn't
@@ -426,7 +426,7 @@ function common.runner.evaluateRule()
 		if [[ "$allow_empty" == false ]]
 		then
 			# Empty not allowed
-			main.dieGracefully "Rule $rule_name ('$rule') was expanded to the empty string which is not allowed in this context!"
+			main.dieGracefully "Rule $rule_name was expanded to the empty string which is not allowed in this context!"
 		fi
 	else
 		# Not empty. Test if the dirname exists, but only if its a FILE_RULE
