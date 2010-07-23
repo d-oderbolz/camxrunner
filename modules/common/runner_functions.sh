@@ -1665,9 +1665,9 @@ function test_module()
 	
 	# save & lower timeout
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-	CXR_LOCK_TIMEOUT_SEC=20
+	CXR_LOCK_TIMEOUT_SEC=5
 	
-	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s"
+	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s. The warning you get is expected."
 	
 	# Get an instance lock
 	common.runner.getLock "$lock" "$CXR_HASH_TYPE_INSTANCE" > /dev/null
