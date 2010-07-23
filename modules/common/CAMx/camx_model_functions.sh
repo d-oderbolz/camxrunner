@@ -195,8 +195,13 @@ function test_module()
 	########################################
 	
 	# This is not easy to test since it depends on the version...
-	is $(basename $(get_chemparam_file 4 CF)) CAMx${CXR_MODEL_VERSION:0:3}.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
-
+	if [[ $CXR_VERSION == 4.42 ]]
+	then
+		is $(basename $(get_chemparam_file 4 CF)) CAMx${CXR_MODEL_VERSION}.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
+	else
+		is $(basename $(get_chemparam_file 4 CF)) CAMx${CXR_MODEL_VERSION:0:3}.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
+	fi
+	
 	########################################
 	# teardown tests if needed
 	########################################
