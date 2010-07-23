@@ -156,7 +156,7 @@ function get_model_exec()
 		# Machine dependent exists
 		main.log -v   "CAMx Binary is actually called ${machine_exec}"
 		echo "${machine_exec}"
-	elif [[ -x ${general_exec}  ]]
+	elif [[ -x ${general_exec} ]]
 	then
 		# general exists
 		main.log -v   "CAMx Binary is actually called ${general_exec}"
@@ -195,7 +195,7 @@ function test_module()
 	########################################
 	
 	# This is not easy to test since it depends on the version...
-	is $(basename $(get_chemparam_file 4 CF)) CAMx4.5.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
+	is $(basename $(get_chemparam_file 4 CF)) CAMx${CXR_MODEL_VERSION:0:3}.chemparam.4_CF "get_chemparam_file 4 CF (using constants!)"
 
 	########################################
 	# teardown tests if needed
