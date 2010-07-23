@@ -416,7 +416,7 @@ function common.runner.evaluateRule()
 			expansion=$(common.fs.TryDecompressingFile $expansion)
 		fi
 		
-		main.log -v "rule $rule_name ('$rule') expanded to $expansion"
+		main.log -v "rule $rule_name ($rule) expanded to $expansion"
 	fi
 	
 	# Test if expansion is empty but shouldn't
