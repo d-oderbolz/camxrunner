@@ -1,11 +1,9 @@
 CXR_BIN_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
 CXR_LIB_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib
 CXR_TMP_DIR=/afs/psi.ch/user/o/oderbolz/tmp
-./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${CXR_LIB_DIR}/sqlite --includedir=${CXR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-x86_64-linux
+HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
+LIBDIR=${CXR_LIB_DIR}/sqlite/$HOSTTYPE
+mkdir -p ${LIBDIR}
+./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${LIBDIR} --includedir=${C    XR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-x86_64-linux
 make
 make install
-
-# Use
-# sqlite3 test.db  "create table n (id INTEGER PRIMARY KEY,f TEXT,l TEXT);"
-# sqlite3 test.db  "insert into n (f,l) values ('john','smith');"
-# sqlite3 test.db  "select * from n";
