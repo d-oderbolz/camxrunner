@@ -912,6 +912,55 @@ function test_module()
 	########################################
 	# Instance hash
 	common.hash.init test_instance $CXR_HASH_TYPE_INSTANCE
+	
+	
+	nElements=1000
+	main.log -a "Doing some performance tests using $nElements elements..."
+	
+	main.log -a -B Array
+	
+	start="$(date "+%s")"
+		for i in $(seq 1 $nElements)
+		do
+			a[$i]=$i
+		done
+		
+		for i in $(seq 1 $nElements)
+		do
+			b=${a[$i]}
+		done
+	echo $(( $(date "+%s") - $start )) seconds elapsed
+	
+	main.log -a -B Hash
+	
+	start="$(date "+%s")"
+		for i in $(seq 1 $nElements)
+		do
+			common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE $i $i
+		done
+		
+		for i in $(seq 1 $nElements)
+		do
+			b=$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE $i)
+		done
+	echo $(( $(date "+%s") - $start )) seconds elapsed
+	
+	main.log -a -B sqlite
+	${CXR_SQLITE_EXEC} test.db "CREATE TABLE t (x integer )"
+	
+	start="$(date "+%s")"
+		for i in $(seq 1 $nElements)
+		do
+			${CXR_SQLITE_EXEC} test.db "INSERT INTO t (x) VALUES($i)"
+		done
+		
+		for i in $(seq 1 $nElements)
+		do
+			b=$(${CXR_SQLITE_EXEC} test.db "SELECT x FROM t WHERE x=$i")
+		done
+	echo $(( $(date "+%s") - $start )) seconds elapsed
+
+	
 	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
 	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
 	
