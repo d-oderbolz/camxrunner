@@ -914,7 +914,7 @@ function test_module()
 	common.hash.init test_instance $CXR_HASH_TYPE_INSTANCE
 	
 	
-	nElements=1000
+	nElements=10000
 	main.log -a "Doing some performance tests using $nElements elements..."
 	
 	main.log -a -B Array
