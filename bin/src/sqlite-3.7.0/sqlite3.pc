@@ -1,9 +1,9 @@
 # Package Information for pkg-config
 
-prefix=/usr/local
-exec_prefix=${prefix}
-libdir=${exec_prefix}/lib
-includedir=${prefix}/include
+prefix=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
+exec_prefix=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
+libdir=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib
+includedir=/afs/psi.ch/user/o/oderbolz/tmp
 
 Name: SQLite
 Description: SQL database engine
