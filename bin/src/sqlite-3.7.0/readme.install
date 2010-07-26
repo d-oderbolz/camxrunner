@@ -1,7 +1,7 @@
 CXR_BIN_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
 CXR_LIB_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib
 CXR_TMP_DIR=/afs/psi.ch/user/o/oderbolz/tmp
-./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${CXR_LIB_DIR} --includedir=${CXR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-x86_64-linux
+./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${CXR_LIB_DIR}/sqlite --includedir=${CXR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-x86_64-linux
 make
 make install
 
