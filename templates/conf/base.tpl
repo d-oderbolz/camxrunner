@@ -714,9 +714,6 @@ CXR_MACHINE=$(uname -n)
 
 #Base path to find the CAMx executable is defined in the directory section!
 
-# Lock manager
-CXR_LOCK_MAN_EXEC=${CXR_BIN_DIR}/lock.sh
-
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name
 #### CAMxRunner -I can do this for you.

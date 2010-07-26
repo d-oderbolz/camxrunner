@@ -745,9 +745,6 @@ CXR_ASC_EXT=asc
 # Executables
 ################################################################################
 
-# Lock manager
-CXR_LOCK_MAN_EXEC=${CXR_BIN_DIR}/lock.sh
-
 # Decompression
 CXR_GUNZIP_EXEC="$(main.getBinaryName gunzip true)"
 CXR_BUNZIP2_EXEC="$(main.getBinaryName bunzip2 true)"
@@ -758,6 +755,9 @@ CXR_BZIP2_EXEC="$(main.getBinaryName bzip2 true)"
 
 # Hash generation
 CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
+
+# SQLite db engine
+CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
 
 # The compressor we use to compress output
 CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
