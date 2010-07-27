@@ -402,12 +402,10 @@ function common.check.Vars ()
 {
 	local executable
 	
-	set -v
-
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 	do
 	
-		main.log -a "Variable $executable has value: ${!executable}\n"
+		main.log -v "Variable $executable has value: ${!executable}\n"
 			
 		# is it set?
 		if [[ "${!executable}" ]]
@@ -418,9 +416,9 @@ function common.check.Vars ()
 				# is it executable 
 				if [[ ! -x ${!executable} ]]
 				then
-					main.log -w   "Executable ${!executable}, Parameter $executable not executable - I try to correct this ..."     
+					main.log -w "Executable ${!executable}, Parameter $executable not executable - I try to correct this ..."     
 					
-					chmod +x ${!executable} || main.log  "Could not change permissions on file $FILE"
+					chmod +x ${!executable} || main.log -w "Could not change permissions on file $FILE"
 
 					# Do not increase error count here - maybe we do not need this one
 				else
@@ -436,8 +434,6 @@ function common.check.Vars ()
 			main.log -w "Variable $executable is not set (might not be a problem, though)"
 		fi
 	done
-	
-	set +v
 }
 
 
@@ -1178,7 +1174,7 @@ function common.check.runner()
 	# Increase global indent level
 	main.increaseLogIndent
 
-	main.log -a  "Checking if subdirectories exist..."
+	main.log -v "Checking if subdirectories exist..."
 	
 	for SUBIDR in $CXR_RUN_SUBDIRS
 	do
@@ -1189,9 +1185,9 @@ function common.check.runner()
 		then
 			# Oh Oh!
 			mkdir -p $CXR_RUN_DIR/$SUBIDR
-			main.log -a "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
+			main.log -v "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
 		else 
-			main.log -a "The directory $CXR_RUN_DIR/$SUBIDR exists"
+			main.log -v "The directory $CXR_RUN_DIR/$SUBIDR exists"
 		fi
 		
 		# Decrease global indent level
@@ -1201,13 +1197,13 @@ function common.check.runner()
 	# Check executables
 	
 	############################################################################
-	main.log -a "Checking if all executables are present and executable..."
+	main.log -v "Checking if all executables are present and executable..."
 	
 	# Increase global indent level
 	main.increaseLogIndent
 	
 	########################################
-	main.log -a "Checking external files..."
+	main.log -v "Checking external files..."
 	########################################
 	
 	# Increase global indent level
@@ -1228,7 +1224,7 @@ function common.check.runner()
 	# Each directory in $CXR_RUN_VERSION_SUBDIRS must have 
 	# one subdir for each model and each version 
 	
-	main.log -a "Checking if version sub-subdirectories exist..."
+	main.log -v "Checking if version sub-subdirectories exist..."
 	
 	for subdir in $CXR_RUN_VERSION_SUBDIRS
 	do
@@ -1236,12 +1232,12 @@ function common.check.runner()
 		# Increase global indent level
 		main.increaseLogIndent
 		
-		main.log -a "Checking subdirs of $subdir..."
+		main.log -v "Checking subdirs of $subdir..."
 		
 		for model in $CXR_SUPPORTED_MODELS
 		do
 		
-			main.log -a "Checking model $model..."
+			main.log -v "Checking model $model..."
 		
 			# Get id of the current model
 			model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
@@ -1252,7 +1248,7 @@ function common.check.runner()
 			for version in $supported
 			do
 				
-				main.log -a  "Checking version $version..."
+				main.log -v "Checking version $version..."
 				
 				dir=$CXR_RUN_DIR/$subdir/$model/$version
 			
@@ -1263,7 +1259,7 @@ function common.check.runner()
 					main.log  "The directory $dir did not exist. All directories stored in CXR_RUN_VERSION_SUBDIRS need a subdirectory for each supported version of model and each supported version  (stored in CXR_SUPPORTED_MODEL_VERSIONS).\n I created this one now, but if you want to use model $model $version you need to fill it with sensible stuff!"
 				else
 	
-					main.log -v   "The directory $CXR_RUN_DIR/$subdir/$version exists"
+					main.log -v  "The directory $CXR_RUN_DIR/$subdir/$version exists"
 	
 				fi
 			done # Versions
