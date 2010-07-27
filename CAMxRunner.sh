@@ -388,7 +388,7 @@ fi
 
 ################################################################################
 
-main.log -B "Checking if selected options are valid..." 
+main.log -v -B "Checking if selected options are valid..." 
 
 if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
@@ -407,7 +407,7 @@ then
 	CXR_MAX_PARALLEL_PROCS=1
 fi
 
-main.log -B "Selected options are valid." 
+main.log -v -B "Selected options are valid." 
 
 
 ################################################################################
@@ -466,7 +466,7 @@ fi
 # Is the configuration OK?
 ################################################################################
 
-main.log -B "Checking CAMxRunner for consistency..." 
+main.log -v -B "Checking CAMxRunner for consistency..." 
 
 # Increase global indent level
 main.increaseLogIndent
@@ -480,7 +480,7 @@ common.check.runner
 # Decrease global indent level
 main.decreaseLogIndent
 
-main.log -a -B "CAMxRunner is consistent as far as I can tell." 
+main.log -v -B "CAMxRunner is consistent as far as I can tell." 
 
 ################################################################################
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
