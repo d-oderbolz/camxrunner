@@ -13,7 +13,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: 
+# TODO: rewrite using sqlite
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -237,17 +237,6 @@ function common.state.init()
 	
 	# Create any instance dirs
 	mkdir -p "${CXR_INSTANCE_DIR}"
-	
-	# Create all the task directories
-	mkdir -p "${CXR_TASK_POOL_DIR}"
-	mkdir -p "${CXR_TASK_TODO_DIR}"
-	mkdir -p "${CXR_TASK_RUNNING_DIR}"
-	mkdir -p "${CXR_TASK_SUCCESSFUL_DIR}"
-	mkdir -p "${CXR_TASK_FAILED_DIR}"
-
-	mkdir -p "${CXR_WORKER_DIR}"
-	mkdir -p "${CXR_RUNNING_WORKER_DIR}"
-	mkdir -p "${CXR_WAITING_WORKER_DIR}"
 	
 	##################
 	# Init a few Hashes
@@ -772,10 +761,8 @@ function common.state.cleanup()
 				;; # specific
 				
 			tasks)
-				main.log -w  "The following files will be deleted:"
-					
-				ls ${CXR_TASK_POOL_DIR}/* ${CXR_WORKER_DIR}/* | xargs -i basename \{\}
-		
+				main.log -w  "This file will be deleted: ${CXR_TASK_DB_FILE}"
+
 				# Do we do this?
 				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
 				then

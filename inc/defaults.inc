@@ -262,9 +262,6 @@ CXR_IGNORE_DISABLED_DEPENDENCIES=true
 # If this is true, we ignore dependecies altogether
 CXR_IGNORE_ANY_DEPENDENCIES=false
 
-# There probably won't be more than 99'999 tasks per run
-CXR_TASK_ID_DIGITS=5
-
 # These are the indexes of the task descriptor structure
 CXR_TASK_DESCR_I_PATH=0					# Relative Path to module,
 CXR_TASK_DESCR_I_OFFSET=1				# Day offset
@@ -570,56 +567,16 @@ CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
 # This is global to all instances
 ########################################
 
-# Task directories
-CXR_TASK_POOL_DIR=$CXR_GLOBAL_DIR/tasks
+# In this DB we store all information about tasks, 
+# workers etc.
+CXR_TASK_DB_FILE=$CXR_GLOBAL_DIR/tasks.${CXR_DB_SUFFIX}
 
-
-# Contains links to the tasks that need to be done still
-# The links have the form 0001
-CXR_TASK_TODO_DIR=$CXR_TASK_POOL_DIR/todo
-
-
-# Contains links to tasks that are currently running
-CXR_TASK_RUNNING_DIR=$CXR_TASK_POOL_DIR/running
-
-
-# Contains links to the successfully terminated tasks
-# name is the day offset and the module name (like 1_convert_emissions)
-CXR_TASK_SUCCESSFUL_DIR=$CXR_TASK_POOL_DIR/successful
-
-
-# Contains tasks that failed
-# name is the day_offset and the module name (like 1_convert_emissions)
-# if a subsequent module depends on a failed module, it will stop the run, otherwise it will continue
-CXR_TASK_FAILED_DIR=$CXR_TASK_POOL_DIR/failed
-
-
-# Workers
-CXR_WORKER_DIR=$CXR_GLOBAL_DIR/workers
-
-
-CXR_RUNNING_WORKER_DIR=$CXR_WORKER_DIR/running
-
-
-CXR_WAITING_WORKER_DIR=$CXR_WORKER_DIR/waiting
-
-
-# Hashes to store currently active modules (to resolve dependecies)
+# Hash names to store currently active modules (to resolve dependecies)
 CXR_ACTIVE_ALL_HASH=active_all_hash
-
-
 CXR_ACTIVE_ONCE_PRE_HASH=active_once_pre_hash
-
-
 CXR_ACTIVE_DAILY_PRE_HASH=active_daily_pre_hash
-
-
 CXR_ACTIVE_DAILY_POST_HASH=active_daily_post_hash
-
-
 CXR_ACTIVE_ONCE_POST_HASH=active_once_post_hash
-
-
 CXR_ACTIVE_MODEL_HASH=active_model_hash
 
 ########################################

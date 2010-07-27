@@ -11,7 +11,8 @@
 # between modules.
 #
 # Prepares a pool of tasks, which are then harvested by Worker threads. 
-# This pool is implemented as a sqlite DB which also provides the locking mechanism 
+# This pool is implemented as a <http://www.sqlite.org>  DB which also provides 
+# the locking mechanism (except for the exclusive access)
 # 
 # These threads can run parallel - even on different machines.
 #
@@ -409,15 +410,16 @@ function common.parallel.detectLockup()
 ################################################################################
 # Function: common.parallel.setNextTask
 #
-# Returns the full path of the task descriptor for the next task to execute in an environment variable.
-# We protect this form concurrent access using locking (instance level).
+# Returns the id of the next task to execute and all its data in environment vars.
+# Even though sqlite does locking, we protect this critical function with a lock.
+# 
 # If there are no more tasks, the empty string is returned.
 # If all tasks are executed, deletes the continue file.
 #
-# The task is parsed in here, and we set these _vars:
+# We set these _vars:
 #
 # Output variables:
-# _new_task_descriptor
+# _id
 # _exclusive
 # _module_name
 # _day_offset
@@ -439,7 +441,6 @@ function common.parallel.setNextTask()
 	local descriptor
 	local new_descriptor_name
 	
-
 	task_count=$(common.parallel.countOpenTasks)
 
 	# Are there open tasks at all?
@@ -492,7 +493,7 @@ function common.parallel.setNextTask()
 		# Return content
 		_new_task_descriptor="$new_descriptor_name"
 	fi
-
+	
 	# Release lock
 	common.runner.releaseLock NextTask "$CXR_HASH_TYPE_INSTANCE"
 }
@@ -851,7 +852,7 @@ function common.parallel.Worker()
 		
 		else
 			# Not enough memory
-			main.log -w "Worker $task_pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory. We wait..."
+			main.log -w "Worker $task_pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
 			
 			# Tell the system we wait, then sleep
 			common.parallel.waitingWorker $task_pid
@@ -913,17 +914,16 @@ function common.parallel.removeAllWorkers()
 ################################################################################
 # Function: common.parallel.cleanTasks
 #
-# Deletes the contents of the task pool and the workers directories.
+# Deletes the Task DB file.
 #
 #
 ################################################################################
 function common.parallel.cleanTasks()
 ################################################################################
 {
-	main.log -v "Removing files in ${CXR_TASK_POOL_DIR} and ${CXR_WORKER_DIR}"
+	main.log -v "Removing DB file ${CXR_TASK_DB_FILE}..."
 	
-	find ${CXR_TASK_POOL_DIR} -noleaf -exec rm -f \{\} \; 2>/dev/null
-	find ${CXR_WORKER_DIR} -noleaf -exec rm -f \{\} \; 2>/dev/null
+	rm -f "${CXR_TASK_DB_FILE}"
 }
 ################################################################################
 # Function: common.parallel.waitForWorkers
@@ -951,16 +951,15 @@ function common.parallel.waitForWorkers()
 ################################################################################
 # Function: common.parallel.init
 # 
-# Creates a sorted lists of files in the CXR_TASK_POOL_DIR directory and
-# links to these in the CXR_TASK_TODO_DIR.
-# Tasks that already finished successfully are not added to the Todo dir.
+# Creates a sqlite database containing the tasks we need to execute.
+# Tasks that already finished successfully are not added.
 # Unless we allow multiple CAMxRunner instances and we are not the master, 
 # we recreate the task infrastructure every run. 
-# This works because the information on what did run is in the state db.
 # 
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
-# 
+# DBs:
+# CXR_TASK_DB_FILE
 ################################################################################
 function common.parallel.init()
 ################################################################################
@@ -995,7 +994,7 @@ function common.parallel.init()
 	
 	# Check if we already have tasks 
 	# Iff we have this and allow multiple, we use them.
-	taskCount=$(find "$CXR_TASK_POOL_DIR" -noleaf -maxdepth 1 -type f 2>/dev/null | wc -l )
+	taskCount=$(common.parallel.countAllTasks)
 	
 	if [[	$taskCount -ne 0 && \
 			${CXR_ALLOW_MULTIPLE} == true && \
@@ -1009,11 +1008,37 @@ function common.parallel.init()
 		# Delete contents, if any
 		common.parallel.cleanTasks
 		
-		## Create the todo dir if needed
-		if [[ ! -d "$CXR_TASK_TODO_DIR" ]]
-		then
-			mkdir -p "$CXR_TASK_TODO_DIR"
-		fi
+		## Create the task db uisng a here-document
+		${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" <<-EOT
+		-- Get exclusive access
+		PRAGMA main.locking_mode=EXCLUSIVE; 
+		
+		-- Drop tables
+		DROP TABLE IF EXISTS tasks;
+		DROP TABLE IF EXISTS workers;
+		
+		-- Table for tasks
+		CREATE TABLE IF NOT EXISTS tasks 
+		(id,
+		module_name,
+		module_type,
+		exclusive,
+		day_offset,
+		invocation,
+		status,
+		epoch_m);
+		
+		-- Table for workers
+		CREATE TABLE IF NOT EXISTS workers
+		(pid,
+		hostname,
+		status,
+		current_task,
+		epoch_m);
+		
+		PRAGMA main.locking_mode=NORMAL; 
+		
+		EOT
 		
 		# Some tempfiles we need
 		dep_file="$(common.runner.createTempFile dependencies)"
@@ -1037,55 +1062,55 @@ function common.parallel.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -a "\nCreating todo-structure...\n"
+		main.log -a "\nFilling task DB $CXR_TASK_DB_FILE...\n"
 		
 		while read line 
 		do
 			# Visual feedback
 			common.user.showProgress
 			
-			task_file=$CXR_TASK_POOL_DIR/$(printf "%0${CXR_TASK_ID_DIGITS}d" $current_id)
-		
-			# Is this a unique number?
-			if [[ -f "$task_file" ]]
-			then
-				main.dieGracefully "The task Id $current_id is already taken"
-			fi
-			
 			# each line contains something like "create_emissions0@1" or "initial_conditions"
 			
 			# We need to parse the line
 			# this sets a couple of _variables
 			common.module.parseIdentifier "$line"
-					
-			module_name="$_module_name"
-			day_offset="$_day_offset"
-			invocation="$_invocation"
-			
-			module_type="$(common.module.getType "$module_name")"
+
+			module_type="$(common.module.getType "$_module_name")"
+			exclusive="$(common.module.getExclusive "$_module_name")"
 			
 			# Convert date
-			raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${day_offset:-0}"))"
-			
-			my_stage="$(common.state.getStageName "$module_type" "$module_name" "$raw_date" "$invocation" )"
+			raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${_day_offset:-0}"))"
+			my_stage="$(common.state.getStageName "$module_type" "$_module_name" "$raw_date" "$_invocation" )"
 			
 			# Is this known to have worked?
 			if [[ "$(common.state.hasFinished? "$my_stage")" == false ]]
 			then
-			
-				# estimate the runtime
+				# estimate the runtime and add to total
 				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $module_name)" -1 false)
 				
-				# we just put it in a file
-				echo $line > "$task_file"
-				
-				# Create link in todo dir
+				# we put this information into the DB
+				${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" <<-EOT
+				INSERT INTO tasks 
+				(id,
+				module_name,
+				module_type,
+				exclusive,
+				day_offset,
+				invocation,
+				status,
+				epoch_m)
+				VALUES
 				(
-					cd $CXR_TASK_TODO_DIR || main.dieGracefully "Could not change to dir $CXR_TASK_TODO_DIR"
-			
-					# General
-					ln -s $task_file
+				$id,
+				'$_module_name',
+				'$module_type',
+				'$_exclusive',
+				${_day_offset:-0},
+				$_invocation,
+				'TODO',
+				$(date "+%s")
 				)
+				EOT
 				
 				# Increase ID
 				current_id=$(( $current_id + 1 ))
