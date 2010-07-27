@@ -249,7 +249,7 @@ function common.db.put()
 # we cache the last value.
 #
 # Since a DB may contain more than one row with this key (by design), we return the 
-# newest (highest epoc_c)
+# newest (highest epoch_c)
 #
 # Parameters:
 # $1 - name of the db
@@ -310,7 +310,7 @@ function common.db.get()
 			echo ""
 		else
 			# Read the contents
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoc_c DESC LIMIT 1")
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$db"
@@ -500,7 +500,7 @@ function common.db.getValueMtime()
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	# Get the value
-	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoc_c DESC LIMIT 1")
+	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 	
 	echo $mtime
 }
@@ -560,7 +560,7 @@ function common.db.has?()
 			main.log -w "DB $db_file not found!"
 		else
 			# get the value
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoc_c DESC LIMIT 1")
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 
 			# is there a row?
 			rowcount=$(echo $value | wc -l)
