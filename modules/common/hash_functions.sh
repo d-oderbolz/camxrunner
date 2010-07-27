@@ -77,9 +77,9 @@ function _common.hash.getDbFile()
 	then
 		# Work out the directory
 		case $type in
-			$CXR_HASH_TYPE_INSTANCE) echo "${CXR_INSTANCE_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
-			$CXR_HASH_TYPE_GLOBAL) echo "${CXR_GLOBAL_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
-			$CXR_HASH_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
+			$CXR_HASH_TYPE_INSTANCE) echo "${CXR_INSTANCE_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_GLOBAL) echo "${CXR_GLOBAL_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
 			*) main.dieGracefully "Unknown DB type $type" ;;
 		esac
 	else
