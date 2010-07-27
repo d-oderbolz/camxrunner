@@ -1066,7 +1066,7 @@ function common.parallel.init()
 			if [[ "$(common.state.hasFinished? "$my_stage")" == false ]]
 			then
 				# estimate the runtime and add to total
-				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $module_name)" -1 false)
+				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module_name)" -1 false)
 				
 				# we put this information into the DB
 				${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" <<-EOT
@@ -1081,7 +1081,7 @@ function common.parallel.init()
 				epoch_m)
 				VALUES
 				(
-				$id,
+				 $current_id,
 				'$_module_name',
 				'$module_type',
 				'$_exclusive',
