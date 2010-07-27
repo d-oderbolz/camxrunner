@@ -179,7 +179,7 @@ function common.db.destroy()
 function common.db.put()
 ################################################################################
 {
-	if [[ $# -lt 4 || $# gt 5 ]]
+	if [[ $# -lt 4 || $# -gt 5 ]]
 	then
 		main.dieGracefully "needs a db, a valid db-type, a key, a value and an optional boolean (restrict_model_version) as input. Got $@"
 	fi
