@@ -407,7 +407,7 @@ then
 	CXR_MAX_PARALLEL_PROCS=1
 fi
 
-main.log -v -B "Selected options are valid." 
+main.log -a -B "Selected options are valid." 
 
 
 ################################################################################
@@ -466,7 +466,7 @@ fi
 # Is the configuration OK?
 ################################################################################
 
-main.log -v -B "Checking CAMxRunner for consistency..." 
+main.log -a -B "Checking CAMxRunner for consistency..." 
 
 # Increase global indent level
 main.increaseLogIndent
@@ -480,7 +480,7 @@ common.check.runner
 # Decrease global indent level
 main.decreaseLogIndent
 
-main.log -B "CAMxRunner is consistent as far as I can tell." 
+main.log -a -B "CAMxRunner is consistent as far as I can tell." 
 
 ################################################################################
 # Setting up chemparam file (dependent on CAMx executable and mechanisms)
@@ -517,6 +517,7 @@ then
 	#Hollow functions neeed init too
 	common.state.init
 	
+	main.log -a "Starting functions..."
 
 	if [[ "${CXR_CLEANUP}" == true  ]]
 	then

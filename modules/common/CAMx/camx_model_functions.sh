@@ -173,9 +173,6 @@ function get_model_exec()
 			main.log -w  "Could not find a suitable CAMx executable, neither ${machine_exec} nor ${general_exec} are present.\nRecompile CAMx using\n\t\$ CAMxRunner.sh -I\n(Ignore this message during installation :-)"
 		fi
 	fi
-	
-	main.log -a "Found binary"
-	
 }
 
 ################################################################################
