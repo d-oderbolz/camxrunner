@@ -127,10 +127,9 @@ function common.db.init()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
-	if [[ ! -f "$db_file" ]]
-	then
-		${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
-	fi
+	# Create table, no matter what
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
+
 
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
@@ -369,23 +368,14 @@ function common.db.delete()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
-	# Just delete, even if its not around
+	# Just delete
 	if [[ ! -f "$db_file" ]]
-		then
-			main.log -w "DB $db_file not found!"
-		else
-			# Do the delete contents
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE key='$key' AND model='$model' AND version='$version'")
-			
-			# Fill cache
-			CXR_CACHE_H_HASH="$db"
-			CXR_CACHE_H_TYPE="$type"
-			CXR_CACHE_H_KEY="$key"
-			CXR_CACHE_H_VALUE="$value"
-			
-			# Return the value
-			echo $value
-		fi
+	then
+		main.log -w "DB $db_file not found!"
+	else
+		# delete entry
+		value=$(${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE key='$key' AND model='$model' AND version='$version'")
+	fi
 }
 
 
