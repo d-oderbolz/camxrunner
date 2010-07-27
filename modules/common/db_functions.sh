@@ -83,7 +83,6 @@ function _common.db.getDir()
 	esac
 	
 	echo "$db_dir"
-	
 }
 
 
@@ -175,14 +174,14 @@ function common.db.destroy()
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
 # $4 - value
-# $5 - restrict_model_version , boolean, if true (default false), we write tag this entry with the model and version
+# [$5] - restrict_model_version , boolean, if true (default false), we write tag this entry with the model and version
 ################################################################################
 function common.db.put()
 ################################################################################
 {
-	if [[ $# -lt 4 ]]
+	if [[ $# -lt 4 || $# gt 5 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and a value as input. Got $@"
+		main.dieGracefully "needs a db, a valid db-type, a key, a value and an optional boolean (restrict_model_version) as input. Got $@"
 	fi
 	
 	local db
@@ -250,14 +249,14 @@ function common.db.put()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.get()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
 	local db
@@ -329,14 +328,14 @@ function common.db.get()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.delete()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
 	local db
@@ -393,11 +392,12 @@ function common.db.delete()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.remove()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs a db, a valid db-type and a key as input"
 	fi
@@ -405,13 +405,15 @@ function common.db.remove()
 	local db
 	local type
 	local key
+	local restrict_model_version
 	
 	db="$1"
 	type="$2"
 	key="$3"
+	restrict_model_version="${4:-false}"
 	
-	common.db.get "$db" "$type" "$key"
-	common.db.delete "$db" "$type" "$key"
+	common.db.get "$db" "$type" "$key" $restrict_model_version
+	common.db.delete "$db" "$type" "$key" $restrict_model_version
 }
 
 ################################################################################
@@ -455,16 +457,15 @@ function common.db.getMtime()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.getValueMtime()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
-	
 	
 	local db
 	local type
@@ -513,14 +514,14 @@ function common.db.getValueMtime()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.has?()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4  ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
 	local db
@@ -587,14 +588,14 @@ function common.db.has?()
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
 # $3 - key
-# $4 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.isNew?()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
 	
@@ -658,7 +659,7 @@ function common.db.isNew?()
 # Parameters:
 # $1 - name of the db
 # $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
-# $3 - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+# [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.db.getKeys()
 ################################################################################
