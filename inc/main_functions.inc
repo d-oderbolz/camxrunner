@@ -217,7 +217,7 @@ function main.log()
 ################################################################################
 {
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
-	local prefix
+	local prefix=""
 	
 	# A standard message is an info
 	local log_level
