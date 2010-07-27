@@ -154,7 +154,6 @@ function common.db.destroy()
 		main.dieGracefully "needs a db and a valid db-type as input"
 	fi
 	
-	
 	local db
 	local type
 	
@@ -698,7 +697,7 @@ function common.db.getKeys()
 	
 	main.log -v "Getting keys for $db $type out of ${db_file}..."
 	
-	if [[ -d ${db_file} ]]
+	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
 		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key FROM hash WHERE model='$model' AND version='$version'")
@@ -792,7 +791,7 @@ function common.db.getValues()
 	
 	main.log -v "Getting keys for $db $type out of ${db_file}..."
 	
-	if [[ -d ${db_file} ]]
+	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
 		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE model='$model' AND version='$version'")
@@ -884,7 +883,7 @@ function common.db.getKeysAndValues()
 	
 	main.log -v "Getting keys for $db $type out of ${db_file}..."
 	
-	if [[ -d ${db_file} ]]
+	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
 		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE model='$model' AND version='$version' GPOUP BY key, value HAVING MAX(epoch_c)")
@@ -989,8 +988,6 @@ function test_module()
 	
 	common.db.delete test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo" 
 	is "$(common.db.has? test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" false "common.db.delete test_universal with path as key"
-	
-	sleep 200
 	
 	########################################
 	# teardown tests if needed
