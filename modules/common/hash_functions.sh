@@ -302,7 +302,7 @@ function common.hash.get()
 			echo ""
 		else
 			# Read the contents
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+			value="$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")"
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -311,7 +311,7 @@ function common.hash.get()
 			CXR_CACHE_H_VALUE="$value"
 			
 			# Return the value
-			echo $value
+			echo "$value"
 		fi
 	fi
 }
