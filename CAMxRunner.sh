@@ -388,7 +388,7 @@ fi
 
 ################################################################################
 
-main.log -v -B "Checking if selected options are valid..." 
+main.log -a -B "Checking if selected options are valid..." 
 
 if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
@@ -516,8 +516,6 @@ if [[ "${CXR_HOLLOW}" == true ]]
 then
 	#Hollow functions neeed init too
 	common.state.init
-	
-	main.log -a "Starting functions..."
 
 	if [[ "${CXR_CLEANUP}" == true  ]]
 	then
