@@ -127,8 +127,7 @@ function common.db.init()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
-	main.log -a "Creating $db_file:"
-	main.log -a "Creating $db_file:\n${CXR_SQLITE_EXEC} $db_file CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
+	main.log -a "Creating $db_file"
 	
 	# Create table, no matter what
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
@@ -826,7 +825,7 @@ function common.db.getValues()
 # key1|value1
 # key2|value2
 # Do not assume any particular order, it depends on the order the db imposes on the
-# data. 
+# data. We ensure that for each key we return only one value (the most recet one).
 # If the DB does not exist, returns the empty string.
 # 
 # Recommended use:
@@ -888,7 +887,7 @@ function common.db.getKeysAndValues()
 	if [[ -d ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key, value FROM hash WHERE model='$model' AND version='$version'")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE model='$model' AND version='$version' GPOUP BY key, value HAVING MAX(epoch_c)")
 		do
 			found=true
 
@@ -991,6 +990,7 @@ function test_module()
 	common.db.delete test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo" 
 	is "$(common.db.has? test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" false "common.db.delete test_universal with path as key"
 	
+	common.user.pause
 	
 	########################################
 	# teardown tests if needed
