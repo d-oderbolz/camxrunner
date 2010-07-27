@@ -217,7 +217,7 @@ function main.log()
 ################################################################################
 {
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
-	local prefix=""
+	local prefix
 	
 	# A standard message is an info
 	local log_level
@@ -234,7 +234,7 @@ function main.log()
 	local maxNests
 	local do_log
 	local prefix
-	local FOUND
+	local found
 	local last
 	
 	log_level=${CXR_LOG_LEVEL_INF}
@@ -244,8 +244,8 @@ function main.log()
 	while getopts ":vawebBH" opt
 	do
 		case $opt in
-		v) log_level=$CXR_LOG_LEVEL_VRB ;;
-		a) log_level=$CXR_LOG_LEVEL_ALW ;;
+		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix=""   ;;
+		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix=""   ;;
 		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
 		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
 		b) stars="${CXR_BOX_SMALL}";;
@@ -333,9 +333,9 @@ function main.log()
 		then
 			# There is a second chance: the user might have added the function in question to 
 			# CXR_LOG_FUNCTION_VERBOSE_LIST
-			FOUND=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
+			found=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
 			
-			if [[ "${FOUND}" -ne 0 ]]
+			if [[ "${found}" -ne 0 ]]
 			then
 				# Function was added by user
 				
