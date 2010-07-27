@@ -1185,9 +1185,9 @@ function common.check.runner()
 		then
 			# Oh Oh!
 			mkdir -p $CXR_RUN_DIR/$SUBIDR
-			main.log  "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
+			main.log -a "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
 		else 
-			main.log -v   "The directory $CXR_RUN_DIR/$SUBIDR exists"
+			main.log -a "The directory $CXR_RUN_DIR/$SUBIDR exists"
 		fi
 		
 		# Decrease global indent level
