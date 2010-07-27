@@ -733,6 +733,100 @@ function common.db.getKeys()
 }
 
 ################################################################################
+# Function: common.db.getValues
+#
+# Returns all valuos of the given db as a quoted CXR_DELIMITER separated list.
+# Do not assume any particular order, it depends on the order the db imposes on the
+# data. 
+# If the DB does not exist, returns the empty string.
+# 
+# Recommended use:
+# > oIFS="$IFS"
+# > valueString="$(common.db.getValues $db $CXR_DB_TYPE_GLOBAL)"
+# > IFS="$CXR_DELIMITER"
+# > # Turn string into array (we cannot call <common.db.getKeys> directly here!)
+# > arrVal=( $valueString )
+# > # Reset Internal Field separator
+# > IFS="$oIFS"
+# > 
+# > # looping through keys (safest approach)
+# > for iVal in $( seq 0 $(( ${#arrVal[@]} - 1)) )
+# > do
+# > 	val=${arrVal[$iVal]}
+# > 	# Whatever more
+# > done
+# 
+# Parameters:
+# $1 - name of the db
+# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+################################################################################
+function common.db.getValues()
+################################################################################
+{
+	if [[ $# -lt 2 || $# -gt 3 ]]
+	then
+		main.dieGracefully "needs a db, a valid db-type an an optional boolean (restrict_model_version) as input"
+	fi
+	
+	local db
+	local type
+	
+	local found
+	local value
+	local list
+	local restrict_model_version
+	local model
+	local version
+	local db_file
+	
+	db="$1"
+	type="$2"
+	restrict_model_version="${3:-false}"
+	
+	if [[ "$restrict_model_version" == true ]]
+	then
+		model=$CXR_MODEL
+		version=$CXR_MODEL_VERSION
+	else
+		model=any
+		version=any
+	fi
+	
+	found=false
+	
+	# Work out the filename
+	db_file="$(_common.db.getDbFile "$type" "$db")"
+	
+	main.log -v "Getting keys for $db $type out of ${db_file}..."
+	
+	if [[ -d ${db_file} ]]
+	then
+		# DB exists, get data
+		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE model='$model' AND version='$version'")
+		do
+			found=true
+
+			list="${list}${value}$CXR_DELIMITER"
+		done
+		
+		# Remove last delimiter
+		list="${list/%${CXR_DELIMITER}/}"
+	
+	else
+		main.log -w "DB ${db_file} does not exist."
+		list=""
+	fi
+	
+	if [[ $found == false ]]
+	then
+		main.log -w "DB ${db_file} is empty..."
+	fi
+	
+	echo $list
+}
+
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please
