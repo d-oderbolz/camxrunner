@@ -56,14 +56,15 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: _common.db.getDir
+# Function: _common.db.getDbFile
 #
-# Returns the db_dir to use depending on the type.
+# Returns the db_file to use depending on the type.
 #
 # Parameters:
 # $1 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL" 
+# $2 - name of the hash
 ################################################################################
-function _common.db.getDir()
+function _common.db.getDbFile()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -72,17 +73,22 @@ function _common.db.getDir()
 	fi
 
 	local type
+	local db
 	type="${1}"
+	db="${2}"
 	
-	# Work out the directory
-	case $type in
-		$CXR_DB_TYPE_INSTANCE) db_dir="${CXR_INSTANCE_DB_DIR}" ;;
-		$CXR_DB_TYPE_GLOBAL) db_dir="${CXR_GLOBAL_DB_DIR}" ;;
-		$CXR_DB_TYPE_UNIVERSAL) db_dir="${CXR_UNIVERSAL_DB_DIR}" ;;
-		*) main.dieGracefully "Unknown DBtype $type" ;;
-	esac
-	
-	echo "$db_dir"
+	if [[ "${db}" ]]
+	then
+		# Work out the directory
+		case $type in
+			$CXR_DB_TYPE_INSTANCE) echo "${CXR_INSTANCE_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			$CXR_DB_TYPE_GLOBAL) echo "${CXR_GLOBAL_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			$CXR_DB_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			*) main.dieGracefully "Unknown DB type $type" ;;
+		esac
+	else
+		main.dieGracefully "DB name is empty!" 
+	fi
 }
 
 
@@ -119,7 +125,7 @@ function common.db.init()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -157,7 +163,7 @@ function common.db.destroy()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	main.log -v "Deleting the DB ${db}"
 	rm -f "${db_file}"
@@ -210,7 +216,7 @@ function common.db.put()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -295,7 +301,7 @@ function common.db.get()
 		local db_file
 	
 		# Work out the filename
-		db_file="$(_common.db.getDir "$type")/$db"
+		db_file="$(_common.db.getDbFile "$type" "$db")"
 		
 		# Get value
 		if [[ ! -f "$db_file" ]]
@@ -361,7 +367,7 @@ function common.db.delete()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	# Just delete, even if its not around
 	if [[ ! -f "$db_file" ]]
@@ -441,7 +447,7 @@ function common.db.getMtime()
 	type="$2"
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 
 	# Get the mtime
 	common.fs.getMtime "$db_file"
@@ -491,7 +497,7 @@ function common.db.getValueMtime()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	# Get the value
 	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoc_c DESC LIMIT 1")
@@ -547,7 +553,7 @@ function common.db.has?()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	if [[ ! -f "$db_file" ]]
 		then
@@ -696,7 +702,7 @@ function common.db.getKeys()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.db.getDir "$type")/$db"
+	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	main.log -v "Getting keys for $db $type out of ${db_file}..."
 	
