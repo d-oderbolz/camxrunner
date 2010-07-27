@@ -1086,7 +1086,7 @@ function common.parallel.init()
 				'$module_type',
 				'$exclusive',
 				${_day_offset:-0},
-				$_invocation,
+				${_invocation:-NULL},
 				'TODO',
 				$(date "+%s")
 				)
