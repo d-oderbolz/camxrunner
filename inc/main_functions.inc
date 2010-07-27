@@ -484,10 +484,10 @@ function main.doCleanup()
 		main.log -a "**********************************************************"
 	
 		########################################
-		# Do cleanup stuff - Run always when not hollow
+		# Do cleanup stuff - do this always
 		########################################
 		
-		if [[ "$CXR_DRY" == true  ]]
+		if [[ "$CXR_DRY" == true ]]
 		then
 			main.log -a "Dryrun: removing the dummy files..."
 			

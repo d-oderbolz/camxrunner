@@ -13,8 +13,9 @@
 # - we can benefit from disk-chaching
 # -> its faster (a simple test showed sqlite is about four to five times faster than my plain old filedb)
 # - storage of additional metadata is easy
-# - we can easily get lists of key value pairs out (even faster!)
-# - we only need one file per hash type
+# - we can easily get lists of (key,value) tuples out (even faster!)
+# - only one file per hash type needed (even better for the file cache)
+# - storage of more than one value per key (versioning) is possible
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -23,6 +24,8 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
+# TODO: Unite getKeys, getKeysAndValues and getValues
+
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
@@ -229,7 +232,7 @@ function common.hash.put()
 ################################################################################
 # Function: common.hash.get
 #
-# Gets a certain value from a hash.
+# Gets a certain single value from a hash.
 # Be careful, values might contain spaces and other nasties. Use like this:
 # > value="$(common.hash.get "$hash" "$type" "$key")"
 # Returns the empty string on error or if this key does not exist.
@@ -313,6 +316,78 @@ function common.hash.get()
 	fi
 }
 
+################################################################################
+# Function: common.hash.getAll
+#
+# Gets all versions of a single value out of a hash (oldest comes first)
+# Be careful, values might contain spaces and other nasties. Use like this:
+#
+# > oIFS="$IFS"
+# > # Set IFS to newline
+# > IFS='
+# > '
+# > for value in $(common.hash.getAll "$hash" "$type" "$key")
+# > do
+# > echo "$value"
+# > done
+# > IFS="$oIFS"
+#
+# Returns the empty string on error or if this key does not exist.
+#
+# Parameters:
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $3 - key
+# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
+################################################################################
+function common.hash.getAll()
+################################################################################
+{
+	if [[ $# -lt 3 || $# -gt 4 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+	fi
+	
+	local hash
+	local type
+	local key
+	local restrict_model_version
+	local model
+	local version
+	
+	hash="$1"
+	type="$2"
+	key="$3"
+	restrict_model_version="${4:-false}"
+	
+	if [[ "$restrict_model_version" == true ]]
+	then
+		model=$CXR_MODEL
+		version=$CXR_MODEL_VERSION
+	else
+		model=any
+		version=any
+	fi
+	
+	local value
+	
+	main.log -v "Getting al values for $key out of hash $hash $type"
+	
+	local db_file
+
+	# Work out the filename
+	db_file="$(_common.hash.getDbFile "$type")"
+	
+	# Get value
+	if [[ ! -f "$db_file" ]]
+	then
+		main.log -w "DB $db_file not found!"
+		echo ""
+	else
+		# get the contents
+		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c ASC")
+	fi
+}
 
 ################################################################################
 # Function: common.hash.delete
@@ -625,6 +700,11 @@ function common.hash.isNew?()
 # Do not assume any particular order, it depends on the order the hash imposes on the
 # data. 
 # If the DB does not exist, returns the empty string.
+#
+# Use this function only if you are not interested in the actual values in the hash
+# (if you merely need to know something exists). 
+# The functions <common.hash.getValues> and <common.hash.getKeysAndValuesValues> 
+# also provide you with the data in one call.
 # 
 # Recommended use:
 # > oIFS="$IFS"
@@ -817,16 +897,17 @@ function common.hash.getValues()
 # If the DB does not exist, returns the empty string.
 # 
 # Recommended use:
-# > oIFS="$IFS"
-# > IFS="$CXR_DELIMITER"
+#
 # > # looping through pairs
 # > for pair in $(common.hash.getKeysAndValues $hash $type)
 # > do
+# > 	oIFS="$IFS"
+# >		IFS="$CXR_DELIMITER"
 # > 	set $pair
 # > 	key="$1"
 # > 	value="$2"
+# > 	IFS="$oIFS"
 # > done
-# > IFS="$oIFS"
 # 
 # Parameters:
 # $1 - name of the hash

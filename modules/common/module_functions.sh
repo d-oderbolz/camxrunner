@@ -111,7 +111,7 @@ function common.module.getNumInvocations()
 	else
 	
 		# This call sets _has and _value
-		common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module > /dev/null
+		common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module true > /dev/null
 		if [[ "$_has" == true ]]
 		then
 			module_path="$_value"
@@ -178,9 +178,9 @@ function common.module.getMetaField()
 		# It's in the cache
 		echo "$_value"
 	else
-		if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")" == true ]]
+		if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)" == true ]]
 		then
-			module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module")"
+			module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)"
 		else
 			main.dieGracefully "cannot find path of $module"
 		fi
@@ -400,7 +400,7 @@ function common.module.resolveSingleDependency()
 						nInvocations=$(common.module.getNumInvocations "$dependency")
 						for iInvocation in $(seq 1 $nInvocations )
 						do
-							module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency)
+							module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency true)
 							resolved_dependency="$(common.parallel.formatDependency "$dependency" "$module_type" "$our_day_offset" "$iInvocation" "$nInvocations")"
 							
 							if [[ "$first" == true ]]
@@ -452,7 +452,7 @@ function common.module.resolveSingleDependency()
 			fi # dependency disabled?
 			
 			# We ned the module type to know if we pass a day offset or not
-			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency)
+			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency true)
 			
 			nInvocations=$(common.module.getNumInvocations "$dependency")
 			for iInvocation in $(seq 1 $nInvocations )
@@ -497,7 +497,7 @@ function common.module.resolveSingleDependency()
 		main.log -v  "Found dependency on $module"
 		
 		# We ned the module type to know if we pass a day offset or not
-		module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module)
+		module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module true)
 		
 		nInvocations=$(common.module.getNumInvocations "$module")
 		for iInvocation in $(seq 1 $nInvocations )
@@ -940,16 +940,16 @@ function common.module.updateInfo()
 				module_name="$(main.getModuleName $file)"
 				
 				# Is there a new entry of this name? (this would indicate non-uniqueness!)
-				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name) == true ]]
+				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true) == true ]]
 				then
 					main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
 				fi
 				
 				# Path 
-				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file
+				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file true
 				
 				# Type
-				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type
+				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type true
 				
 				# Is this module active? (Enabled wins over disabled)
 				# if the module name is in the enabled list, run it,no matter what
@@ -1014,7 +1014,7 @@ function common.module.getType()
 	name="${1}"
 
 	# This call sets _has and _value
-	common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" > /dev/null
+	common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" true > /dev/null
 	if [[ "$_has" == true ]]
 	then
 		module_type="$_value"

@@ -764,9 +764,9 @@ function common.parallel.Worker()
 				fi
 				
 				
-				if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name)" == true ]]
+				if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true)" == true ]]
 				then
-					module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name)"
+					module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true)"
 				else
 					main.dieGracefully "cannot find path of $module_name"
 				fi

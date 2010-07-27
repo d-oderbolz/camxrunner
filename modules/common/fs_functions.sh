@@ -481,22 +481,20 @@ function common.fs.CompressOutput()
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
 	
-		oIFS="$IFS"
-		keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)"
-		IFS="$CXR_DELIMITER"
-		# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-		arrKeys=( $keyString )
-		# Reset Internal Field separator
-		IFS="$oIFS"
+		# looping through filename|module pairs
+		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)
 		
-		# looping through keys (safest approach)
-		for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
-		do
-			filename=${arrKeys[$iKey]}
-		
-			# the module is the value
-			module="$(common.hash.get $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE $filename)"
+			# Parse the DB string
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
 			
+			set $pair
+			
+			filename="$1"
+			module="$2"
+			# Reset IFS
+			IFS="$oIFS"
+		
 			main.log -v "Testing if we compress $filename (created by $module)..."
 			
 			if [[ -s "${filename}" ]]
@@ -553,6 +551,7 @@ function common.fs.CompressOutput()
 				main.log -w  "The output file ${filename} is empty, no compression attempted!"
 			fi
 		done # Loop over files
+		
 
 	else
 		main.log -a "Will not compress any output files (either dry run or CXR_COMPRESS_OUTPUT is false.)"

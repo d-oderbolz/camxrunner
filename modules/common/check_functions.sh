@@ -441,21 +441,20 @@ function common.check.Vars ()
 # Function: common.check.reportMD5
 #	
 # Logs the MD5 Hash of a file.
-# Also stores this information in a global hash called MD5. If there is a current 
+# Also stores this information in a universal hash called MD5. If there is a current 
 # value in there (generated during this run), we do not report a new value, 
 # otherwise we do and compare the new with the old value.
 # If a file is on a local filesystem, we add the nodename as prefix to tell local files
 # of different machines apart.
 #
 # Parameters:
-# $1 - file to Hash
+# $1 - filename to calculate MD5 on
 ################################################################################
 function common.check.reportMD5() 
 ################################################################################
 {
 	if [[ "${CXR_REPORT_MD5}" == true ]]
 	then
-	
 		if [[ $# -ne 1 ]]
 		then
 			main.log -e  "Programming error: no filename passed!"
