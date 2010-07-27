@@ -556,6 +556,9 @@ function common.db.has?()
 
 		if [[ $rowcount -gt 0 ]]
 		then
+			# Get the value
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+			
 			# Fill cache
 			CXR_CACHE_H_HASH="$db"
 			CXR_CACHE_H_TYPE="$type"
