@@ -628,7 +628,9 @@ function main.dieGracefully()
 # Function: main.getBinaryName
 #
 # Returns the full path of a binary name other than the model (model name comes from <get_model_exec>)
-# Use this fuction instead of "which"
+#
+# In CAMxRunner, *always* use this function instead of "which"
+#
 # The name depends on:
 # - The Machine Architecture
 # - (The machine name)
@@ -664,6 +666,7 @@ function main.getBinaryName()
 	allow_empty="${2:-false}"
 	
 	local which_output
+	local alias_output
 	local current_special
 	local current_general
 	
@@ -696,10 +699,12 @@ function main.getBinaryName()
 	done # Loop through directories.
 	
 	# If we arrive here, nothing was found yet.
-	# Check which
+	# Check alias and which
 	
 	# We must allow errors
 	set +e
+		alias_output="$(alias "${exec_name}" 2>/dev/null)"
+	
 		which_output="$(which "${exec_name}" 2>/dev/null)"
 	set -e
 	
@@ -707,6 +712,11 @@ function main.getBinaryName()
 	if [[ $? -eq 0 ]]
 	then
 		# Ok, found it
+		if [[ "$alias_output" ]]
+		then
+			main.log -v "${exec_name} is an alias to ${alias_output}"
+		fi
+		
 		main.log -v "Binary ${exec_name} is actually called ${which_output}"
 		echo "${which_output}"
 	else
