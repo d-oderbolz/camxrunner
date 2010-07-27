@@ -67,9 +67,9 @@ CXR_META_MODULE_VERSION='$Id$'
 function _common.db.getDbFile()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db-type as input"
+		main.dieGracefully "needs a db-type and a db name as input"
 	fi
 
 	local type
