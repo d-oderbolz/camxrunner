@@ -693,9 +693,9 @@ function main.getBinaryName()
 	local dir
 	
 	# We go through the whole hierarchy from special to general	
-	directories=(${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION} ${CXR_BIN_DIR}/${CXR_MODEL} ${CXR_BIN_DIR})
+	directories="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION} ${CXR_BIN_DIR}/${CXR_MODEL} ${CXR_BIN_DIR}"
 
-	for dir in ${directories[@]}
+	for dir in $directories
 	do
 		#Determine possible names
 		current_general="${dir}/${exec_name}-${HOSTTYPE}"
