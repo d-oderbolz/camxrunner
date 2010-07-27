@@ -701,6 +701,8 @@ function main.getBinaryName()
 		current_general="${dir}/${exec_name}-${HOSTTYPE}"
 		current_special="${current_general}-${CXR_MACHINE}"
 		
+		main.log -a "Looking for :\n$current_general and \n$current_special"
+		
 		# In each dir, we check the machine-specific first, then the general
 		if [[ -x "${current_special}" ]]
 		then
