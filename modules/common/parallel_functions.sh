@@ -11,20 +11,19 @@
 # between modules.
 #
 # Prepares a pool of tasks, which are then harvested by Worker threads. 
-# This pool is implemented as a <http://www.sqlite.org>  DB which also provides 
-# the locking mechanism (except for the exclusive access)
+# This pool is implemented as a <http://www.sqlite.org> DB.
 # 
-# These threads can run parallel - even on different machines.
+# The worker processes can run in parallel - even on different machines.
 #
+# Approach:
 # First, a list of tasks is generated.
 # This list is sorted according to the dependencies (topological sorting), so that tasks with no or few
 # dependencies appear first -> execution plan.
 # Then, we create a number of workers, which each get a unique entry of this list. 
 # They check first if the dependencies are already fulfilled 
-# if not they wait otherwise, the task starts.
+# if not they wait, otherwise the task starts.
 # After successful execution, the worker gets the next task from the list.
-# A task is identified by its module name, a day offset, and a invocation id like create_emissions1@1. 
-# One-Time Tasks have no day offset, like initial_conditions@1. 
+# A task is identified by its module name, a day offset, and a invocation id. 
 # The invocation id is useful for tasks that can be splitted further, like albedo_haze_ozone.
 # This allows us to parallelize parts of a task.
 #
@@ -333,6 +332,25 @@ function common.parallel.drawDependencyGraph()
 }
 
 ################################################################################
+# Function: common.parallel.countAllTasks
+#
+# Returns the number of tasks known.
+# 
+#
+################################################################################
+function common.parallel.countAllTasks()
+################################################################################
+{
+	# Find all entries in the table
+	task_count="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM tasks")"
+	
+	main.log -v "Found $task_count tasks in total"
+	
+	echo "$task_count"
+}
+
+
+################################################################################
 # Function: common.parallel.countOpenTasks
 #
 # Returns the number of open tasks. 
@@ -344,8 +362,8 @@ function common.parallel.drawDependencyGraph()
 function common.parallel.countOpenTasks()
 ################################################################################
 {
-	# Find all links below CXR_TASK_TODO_DIR
-	task_count="$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | wc -l)"
+	# Find only "TODO" entries
+	task_count="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATE_TODO}'")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -375,15 +393,16 @@ function common.parallel.detectLockup()
 	local count
 	local numRunning
 	
-	if [[ $(common.hash.has? Lockup $CXR_HASH_TYPE_GLOBAL LockupCount) == true ]]
+	common.hash.has? Lockup $CXR_HASH_TYPE_GLOBAL LockupCount
+	if [[ $_has == true ]]
 	then
-		count=$(common.hash.get Lockup $CXR_HASH_TYPE_GLOBAL LockupCount)
+		count=$_value
 	else
 		count=0
 	fi
 	
 	# Count the running workers
-	numRunning=$(find $CXR_RUNNING_WORKER_DIR -noleaf -maxdepth 1 -type f 2>/dev/null | wc -l)
+	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATE_RUNNING}'")"
 	
 	if [[ $numRunning -gt 0 ]]
 	then
@@ -436,20 +455,17 @@ function common.parallel.setNextTask()
 	fi
 	
 	local task_count
-	local potential_task
-	local skip_it
-	local descriptor
-	local new_descriptor_name
+	local potential_task_data
 	
 	task_count=$(common.parallel.countOpenTasks)
 
 	# Are there open tasks at all?
-	if [[ "$task_count" -eq 0  ]]
+	if [[ "$task_count" -eq 0 ]]
 	then
 		main.log  "All tasks have been processed, notifying system after security pause..."
 		
 		# there are no more tasks, remove all continue files after some waiting
-		# The waiting should ensure that all tasks aro past their check for do_we_continue
+		# The waiting should ensure that all tasks are past their check for do_we_continue
 		sleep $CXR_WAITING_SLEEP_SECONDS
 		
 		common.state.deleteContinueFiles
@@ -461,37 +477,40 @@ function common.parallel.setNextTask()
 		main.log -v "There are $task_count unfinished tasks - we choose the top one."
 	fi
 	
-	# get first file in the TODO directory
-	potential_task="$(find "$CXR_TASK_TODO_DIR" -noleaf -type l 2>/dev/null | head -n1)"
+	# get first relevant entry in the DB
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT id,module_name,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
 	
 	# Check status
-	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+	if [[ $? -ne 0 ]]
 	then
 		main.dieGracefully "could not find next task!"
 	fi
 	
 	# we might not get a string
-	if [[ -z "$potential_task" ]]
+	if [[ -z "$potential_task_data" ]]
 	then
 		# No task!
 		main.dieGracefully "could not find next task!"
 	else
 		# We got a task
-		# Assign it by moving
-		new_descriptor_name=$CXR_TASK_RUNNING_DIR/${task_pid}_$(basename $potential_task)
-		mv $potential_task $new_descriptor_name
+		# parse
 		
-		main.log -v "New descriptor is $new_descriptor_name"
+		oIFS="$IFS"
+		IFS="$CXR_DELIMITER"
+		set $potential_task_data
+		IFS="$oIFS"
 		
-		# We need to parse the task
-		# this sets a couple of _variables
-		common.module.parseIdentifier "$(cat $new_descriptor_name)"
+		_id="$1"
+		_module_name="$2"
+		_module_type="$3"
+		_exclusive="$4"
+		_day_offset="$5"
+		_invocation="$6"
 		
-		# Test if it needs exclusive access
-		_exclusive="$(common.module.getExclusive "$_module_name")"
+		# Assign it by an update
+		${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATE_RUNNING}' WHERE id=$id"
 		
-		# Return content
-		_new_task_descriptor="$new_descriptor_name"
+		main.log -v "New task has id $id"
 	fi
 	
 	# Release lock
@@ -501,143 +520,115 @@ function common.parallel.setNextTask()
 ################################################################################
 # Function: common.parallel.changeTaskStatus
 #
-# Just moves the task descriptor (used only for the users reference).
+# Just updates the task db.
 # As a precaution, we also notify the state DB on error (all modules should do this!)
 #
 # Parameters:
-# $1 - descriptor file of task
+# $1 - id of task
 # $2 - status (SUCCESS/FAILURE)
 ################################################################################
 function common.parallel.changeTaskStatus()
 ################################################################################
 {
-	local task_descriptor_path
-	local task_descriptor
+	local id
 	local status
 	
-	if [[ $# -ne 2  ]]
+	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a task descriptor and a status as input"
 	fi
 	
-	task_descriptor_path="$1"
-	task_descriptor="$(basename "$task_descriptor_path")"
+	id="$1"
 	status="$2"
 	
-	main.log -v "Changing status of $task_descriptor_path to $status"
+	main.log -v "Changing status of $id to $status"
 	
 	case $status in
 	
-		$CXR_STATUS_SUCCESS) 
-			DIRECTORY="$CXR_TASK_SUCCESSFUL_DIR";;
-			
-		$CXR_STATUS_FAILURE) 
-			DIRECTORY="$CXR_TASK_FAILED_DIR";;
-			
+		$CXR_STATUS_SUCCESS|$CXR_STATUS_FAILURE) 
+			${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE tasks set status='${status}' WHERE id=$id"
+			;;
+
 		*)
 			main.dieGracefully "status $status not supported!"
 	
 	esac
-	
-	mv "$task_descriptor_path" "$DIRECTORY/$task_descriptor"
 }
 
 ################################################################################
 # Function: common.parallel.waitingWorker
 #
-# Add a task_pid file in the CXR_WAITING_WORKER_DIR
-# Remove it from CXR_RUNNING_WORKER_DIR.
+# Udates the status of a worker to waiting
 #
 # Parameters:
-# $1 - task_pid of common.parallel.Worker
+# $1 - pid of common.parallel.Worker
 ################################################################################
 function common.parallel.waitingWorker()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "needs a task_pid as input"
+		main.dieGracefully "needs a pid as input"
 	fi
 	
-	local task_pid
-	task_pid=$1
+	local pid
+	pid=$1
 	 
-	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid &>/dev/null
+	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE workers set status='${CXR_STATE_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	touch $CXR_WAITING_WORKER_DIR/$task_pid
-	
-	main.log -v   "common.parallel.Worker (task_pid: $task_pid) changed its state to waiting"
+	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to waiting"
 }
 
 ################################################################################
-# Function: common.parallel.workingWorker
+# Function: common.parallel.runningWorker
 #
-# Add a task_pid file in the CXR_RUNNING_WORKER_DIR
-# Remove it from CXR_WAITING_WORKER_DIR if it exists.
-# Tests if we are locked up.
+# Udates the status of a worker to running
 #
 # Parameters:
-# $1 - task_pid of common.parallel.Worker
+# $1 - pid of common.parallel.Worker
 ################################################################################
-function common.parallel.workingWorker()
+function common.parallel.runningWorker()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "needs a task_pid as input"
+		main.dieGracefully "needs a pid as input"
 	fi
 	
-	local task_pid
-	task_pid=$1
+	local pid
+	pid=$1
+	 
+	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE workers set status='${CXR_STATE_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	# Detect lockup
-	common.parallel.detectLockup
-	
-	rm -f $CXR_WAITING_WORKER_DIR/$task_pid &>/dev/null
-	
-	touch $CXR_RUNNING_WORKER_DIR/$task_pid
-	
-	main.log -v   "common.parallel.Worker (task_pid: $task_pid) changed its state to working"
+	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to running"
 }
+
 
 ################################################################################
 # Function: common.parallel.removeWorker
 #
 # kills the common.parallel.Worker of the given task_pid and alse removes it from the process list.
-# For this the task_pid is parsed
+# 
+# Parameters:
+# $1 - the workers pid
 ################################################################################
 function common.parallel.removeWorker()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a task_pid as input"
 	fi
 	
-	local task_pid
 	local pid
-	local node
 	
-	task_pid=$1
+	pid=$1
 	
-	# Remove identifier
-	rm -f $CXR_WORKER_DIR/$task_pid
-
-	pid=$(echo $task_pid | cut -d_ -f1)
-	node=$(echo $task_pid | cut -d_ -f2)
-	
-	if [[ "$node" != "$(uname -n)"  ]]
-	then
-		main.log  "Strange: $task_pid seems to run on $node rather than on $(uname -n)"
-		return $CXR_RET_ERROR
-	fi
-	
-	# Add check if the process is running at all!
+	# Kill the process
 	kill $pid 2>/dev/null
 	
-	# We do not care if the process was waiting or running
-	rm -f $CXR_WAITING_WORKER_DIR/$task_pid &>/dev/null
-	rm -f $CXR_RUNNING_WORKER_DIR/$task_pid &>/dev/null
+	# Remove from DB
+	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 }
 
 ################################################################################
@@ -684,19 +675,19 @@ function common.parallel.Worker()
 	# and the 4th field of /proc/self/stat is the Parent PID
 	awk '{print $4}' /proc/self/stat > $tmp
 	# We add the machine name so that it is unique among all machines
-	task_pid=$(cat $tmp)_$(uname -n)
+	pid=$(cat $tmp)
 	
-	# Create a file identifying the Worker in the $CXR_WORKER_DIR
-	touch $CXR_WORKER_DIR/$task_pid
+	# Insert this worker
+	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATE_WAITING',$(date "+%s"))"
 	
-	main.log -a -B  "parallel worker (task_pid ${task_pid}, id ${CXR_WORKER_ID} ) starts..."
+	main.log -a -B  "parallel worker (pid ${pid}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
 	if [[ -f "$CXR_LOG" && "$CXR_MAX_PARALLEL_PROCS" -gt 1 ]]
 	then
 		# Set task_pid-dependent logfile to disentangle things
-		CXR_LOG=${CXR_LOG%.log}_${task_pid}.log
+		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${pid}.log
 		
 		main.log -a "This common.parallel.Worker will use its own logfile: ${CXR_LOG}"
 	fi
@@ -708,7 +699,7 @@ function common.parallel.Worker()
 		common.state.doContinue? || main.dieGracefully "Continue file no longer present."
 		
 		# We are not yet busy
-		common.parallel.waitingWorker $task_pid
+		common.parallel.waitingWorker $pid
 		
 		# Is there enough free memory?
 		if [[ "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
@@ -721,23 +712,12 @@ function common.parallel.Worker()
 			# This is a blocking call (we wait until we get a task)
 			common.parallel.setNextTask
 			
-			new_task_descriptor=$_new_task_descriptor
+			id=$_id
 			
-			# here we get something like "create_emissions0@1" (no path!)
-			# as a side effect, _exclusive is set
-			
-			if [[ -f $new_task_descriptor ]]
+			# The task id might be empty due to errors
+			if [[ "$id" ]]
 			then
-				new_task="$(cat $new_task_descriptor)"
-			else
-				main.log -w "File $new_task_descriptor (new task descriptor) not found"
-				new_task=
-			fi
-			
-			# The task name might be empty due to errors
-			if [[ "$new_task" ]]
-			then
-				main.log -v "New task received: $new_task"
+				main.log -v "New task received: $id"
 				
 				######################
 				# task was already parsed by common.parallel.setNextTask
@@ -795,7 +775,7 @@ function common.parallel.Worker()
 				done
 				
 				# Time to work
-				common.parallel.workingWorker $task_pid
+				common.parallel.runningWorker $task_pid
 				
 				main.log -v "module: $module_name day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
 				
@@ -841,7 +821,7 @@ function common.parallel.Worker()
 					common.runner.releaseLock Exclusive "$CXR_HASH_TYPE_GLOBAL"
 				fi
 			else
-				main.log -v  "Worker $task_pid did not receive an assignment - maybe there are too many workers around"
+				main.log -v  "Worker $pid did not receive an assignment - maybe there are too many workers around"
 				
 				# This means that someone wants exclusive access
 				# Tell the system we wait, then sleep
@@ -855,14 +835,14 @@ function common.parallel.Worker()
 			main.log -w "Worker $task_pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
 			
 			# Tell the system we wait, then sleep
-			common.parallel.waitingWorker $task_pid
+			common.parallel.waitingWorker $pid
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		fi # Enough Memory?
 			
 	done
 	
 	# We have done our duty
-	common.parallel.removeWorker $task_pid
+	common.parallel.removeWorker $pid
 
 	exit $CXR_RET_OK
 }
@@ -903,11 +883,11 @@ function common.parallel.spawnWorkers()
 function common.parallel.removeAllWorkers()
 ################################################################################
 {
-	main.log  "We remove all workers now."
+	main.log  "We remove all workers on $CXR_MACHINE."
 	
-	for task_pid in $(find "$CXR_WORKER_DIR" -noleaf -name \*_$(uname -n) )
+	for pid in $(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
 	do
-		common.parallel.removeWorker "$(basename $task_pid)"
+		common.parallel.removeWorker "$pid"
 	done
 }
 
@@ -1148,7 +1128,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 
-	# common.parallel.init
+	common.parallel.init
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
