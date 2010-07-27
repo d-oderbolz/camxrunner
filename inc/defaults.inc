@@ -552,18 +552,9 @@ CXR_HASH_TYPE_INSTANCE=instance
 # Suffix for sqlite files
 CXR_DB_SUFFIX=sqlite
 
-# Supported types of DBs
-CXR_DB_TYPE_UNIVERSAL=$CXR_HASH_TYPE_UNIVERSAL
-CXR_DB_TYPE_GLOBAL=$CXR_HASH_TYPE_GLOBAL
-CXR_DB_TYPE_INSTANCE=$CXR_HASH_TYPE_INSTANCE
-
 # Some state data is global to all runs (e. g. the hash used for change detection)
-CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
+CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
 
-
-# Universal Hashes (e. g. MD5 database) go here
-CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
-CXR_UNIVERSAL_DB_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
 
 ########################################
 # Data that is global to all instances of a given run
@@ -572,11 +563,6 @@ CXR_UNIVERSAL_DB_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
 # Directory where the global stuff goes
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
-
-
-# Global Hashes (e. g. MD5 database) go here
-CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
-CXR_GLOBAL_DB_DIR=$CXR_GLOBAL_DIR/hashes
 
 
 ########################################
@@ -677,10 +663,6 @@ CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
 # In this file, we store the days where issues where detected
 CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
-# Instance Hashes are stored here
-CXR_INSTANCE_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
-CXR_INSTANCE_DB_DIR=${CXR_INSTANCE_DIR}/hashes
-
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
 CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
@@ -761,7 +743,7 @@ CXR_BZIP2_EXEC="$(main.getBinaryName bzip2 true)"
 # Hash generation
 CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
 
-# SQLite db engine
+# SQLite db engine (needed for Hashes)
 CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
 
 # The compressor we use to compress output

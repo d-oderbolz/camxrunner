@@ -14,6 +14,7 @@
 # -> its faster (a simple test showed sqlite is about four to five times faster than my plain old filedb)
 # - storage of additional metadata is easy
 # - we can easily get lists of key value pairs out (even faster!)
+# - we only need one file per hash type
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -21,8 +22,6 @@
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
-################################################################################
-# TODO: Improve performance
 ################################################################################
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
@@ -58,32 +57,29 @@ CXR_META_MODULE_VERSION='$Id$'
 #
 # Parameters:
 # $1 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
-# $2 - name of the hash
 ################################################################################
 function _common.hash.getDbFile()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a hash-type and a hash name as input"
+		main.dieGracefully "needs a hash-type as input"
 	fi
 
 	local type
-	local hash
 	type="${1}"
-	hash="${2}"
 	
-	if [[ "${hash}" ]]
+	if [[ "${type}" ]]
 	then
 		# Work out the directory
 		case $type in
-			$CXR_HASH_TYPE_INSTANCE) echo "${CXR_INSTANCE_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
-			$CXR_HASH_TYPE_GLOBAL) echo "${CXR_GLOBAL_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
-			$CXR_HASH_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_HASH_DIR}/${hash}.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_INSTANCE) echo "${CXR_INSTANCE_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_GLOBAL) echo "${CXR_GLOBAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
 			*) main.dieGracefully "Unknown DB type $type" ;;
 		esac
 	else
-		main.dieGracefully "DB name is empty!" 
+		main.dieGracefully "Hash type is empty!" 
 	fi
 }
 
@@ -119,12 +115,12 @@ function common.hash.init()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	main.log -v "Creating DB $db_file"
 	
 	# Create table, no matter what
-	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (hash, key, value , model, version, epoch_c)"
 
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
@@ -156,7 +152,7 @@ function common.hash.destroy()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	main.log -v "Deleting the Hash ${hash}"
 	rm -f "${db_file}"
@@ -209,7 +205,7 @@ function common.hash.put()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -221,7 +217,7 @@ function common.hash.put()
 	fi
 	
 	# Write value to DB
-	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (key, value , model, version, epoch_c) VALUES ('$key','$value','$model','$version',$(date "+%s"))" || :
+	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (hash, key, value , model, version, epoch_c) VALUES ('$hash','$key','$value','$model','$version',$(date "+%s"))" || :
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"
@@ -294,7 +290,7 @@ function common.hash.get()
 		local db_file
 	
 		# Work out the filename
-		db_file="$(_common.hash.getDbFile "$type" "$hash")"
+		db_file="$(_common.hash.getDbFile "$type")"
 		
 		# Get value
 		if [[ ! -f "$db_file" ]]
@@ -303,7 +299,7 @@ function common.hash.get()
 			echo ""
 		else
 			# Read the contents
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -360,7 +356,7 @@ function common.hash.delete()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")""
 	
 	# Just delete
 	if [[ ! -f "$db_file" ]]
@@ -368,7 +364,7 @@ function common.hash.delete()
 		main.log -w "DB $db_file not found!"
 	else
 		# delete entry
-		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE key='$key' AND model='$model' AND version='$version'"
+		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version'"
 	fi
 }
 
@@ -431,8 +427,8 @@ function common.hash.getMtime()
 	type="$2"
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
-
+	db_file="$(_common.hash.getDbFile "$type")"
+	
 	# Get the mtime
 	common.fs.getMtime "$db_file"
 }
@@ -481,10 +477,10 @@ function common.hash.getValueMtime()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	# Get the value
-	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 	
 	echo $mtime
 }
@@ -537,7 +533,7 @@ function common.hash.has?()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -545,12 +541,12 @@ function common.hash.has?()
 		_has=false
 	else
 		# get the rowcount
-		rowcount=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT COUNT(*) FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+		rowcount=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 
 		if [[ $rowcount -gt 0 ]]
 		then
 			# Get the value
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -686,14 +682,14 @@ function common.hash.getKeys()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key FROM hash WHERE model='$model' AND version='$version'")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash' AND model='$model' AND version='$version'")
 		do
 			found=true
 
@@ -780,14 +776,14 @@ function common.hash.getValues()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE model='$model' AND version='$version'")
+		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version'")
 		do
 			found=true
 
@@ -872,14 +868,14 @@ function common.hash.getKeysAndValues()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type" "$hash")"
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE model='$model' AND version='$version' GPOUP BY key, value HAVING MAX(epoch_c)")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version' GPOUP BY key, value HAVING MAX(epoch_c)")
 		do
 			found=true
 

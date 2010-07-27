@@ -165,7 +165,6 @@ function common.performance.stopTiming()
 #
 # Hashes:
 # Timing (Universal)
-# Cache_Performance (Universal)
 #
 # Parameters:
 # $1 - module name
@@ -180,39 +179,29 @@ function common.performance.estimateRuntime()
 	
 	module=${1}
 	
-	# This call sets _has and _value
-	common.hash.has? Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module" > /dev/null
-	if [[ $_has == true ]]
+	if [[ $(common.hash.has? Timing $CXR_HASH_TYPE_UNIVERSAL "$module") == true ]]
 	then
-		# Got it
-		echo $_value
+		time_array=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL "$module") )
 	else
-		# Not cached yet
-		
-		if [[ $(common.hash.has? Timing $CXR_HASH_TYPE_UNIVERSAL "$module") == true ]]
+		if [[ $(common.hash.has? Timing $CXR_HASH_TYPE_UNIVERSAL "all") == true ]]
 		then
-			time_array=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL "$module") )
+			time_array=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL "all") )
 		else
-			if [[ $(common.hash.has? Timing $CXR_HASH_TYPE_UNIVERSAL "all") == true ]]
-			then
-				time_array=( $(common.hash.get Timing $CXR_HASH_TYPE_UNIVERSAL "all") )
-			else
-				main.log -w "Cannot find any timing data."
-				echo 0
-				return $CXR_RET_OK
-			fi
+			main.log -w "Cannot find any timing data."
+			echo 0
+			return $CXR_RET_OK
 		fi
-	
-		mean=$(common.math.meanVector "${time_array[@]}")
-		stddev=$(common.math.stdevVector "${time_array[@]}" "$mean")
-		# We use mean + 1 sigma as estimate, we need to multply with cell factor to get it right
-		estimate=$(common.math.FloatOperation "($mean + $stddev) * $CXR_TIME_NORM_FACTOR" -1 )
-		
-		# Add to cache
-		common.hash.put Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module" "$estimate"
-		
-		echo $estimate
 	fi
+
+	mean=$(common.math.meanVector "${time_array[@]}")
+	stddev=$(common.math.stdevVector "${time_array[@]}" "$mean")
+	# We use mean + 1 sigma as estimate, we need to multply with cell factor to get it right
+	estimate=$(common.math.FloatOperation "($mean + $stddev) * $CXR_TIME_NORM_FACTOR" -1 )
+	
+	# Add to cache
+	common.hash.put Cache_Performance $CXR_HASH_TYPE_UNIVERSAL "$module" "$estimate"
+	
+	echo $estimate
 }
 
 ################################################################################

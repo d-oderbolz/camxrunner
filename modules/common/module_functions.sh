@@ -100,7 +100,7 @@ function common.module.getNumInvocations()
 	local cache
 	
 	module="$1"
-	cache="CACHE_NumInvocations"
+	cache="Cache_NumInvocations"
 	
 	# This call sets _has and _value
 	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
@@ -169,7 +169,7 @@ function common.module.getMetaField()
 	
 	module="$1"
 	item="$2"
-	cache="CACHE_${item}"
+	cache="Cache_${item}"
 	
 	# This call sets _has and _value
 	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
@@ -760,8 +760,7 @@ function common.module.areDependenciesOk?()
 # If any USER_TEMP variable is set, we do it anyway.
 # If a module name is non-unique, we fail.
 #
-# TODO: Make faster, also update CACHE_${item} hashes of common.module.getMetaField
-# and Cache_Performance of common.performance.estimateRuntime
+# TODO: Make faster, also update Cache_${item} hashes of common.module.getMetaField
 #
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
