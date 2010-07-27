@@ -643,13 +643,6 @@ CXR_ACTIVE_MODEL_HASH=active_model_hash
 # Name of the Log file 
 CXR_LOG=${CXR_LOG_OUTPUT_DIR}/${CXR_RUN}_$(date +"%Y_%m_%d_%H_%M")${CXR_LOG_EXT}.log
 
-# These functions will report verbosely, no matter what
-# Space separated list - for debugging only
-CXR_LOG_FUNCTION_VERBOSE_LIST=""
-
-# Here this feature can be disabled for performance reasons
-CXR_EVALUATE_FUNCTION_VERBOSE_LIST=false
-
 ################################################################################
 # Per-Instance Information
 ################################################################################

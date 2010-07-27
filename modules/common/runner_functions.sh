@@ -1650,9 +1650,6 @@ function test_module()
 	local lock
 	lock=test
 	
-	## Adjust a few settings
-	CXR_LOG_FUNCTION_VERBOSE_LIST="$CXR_LOG_FUNCTION_VERBOSE_LIST common.runner.waitForLock"
-	
 	# save & lower timeout
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
 	CXR_LOCK_TIMEOUT_SEC=5

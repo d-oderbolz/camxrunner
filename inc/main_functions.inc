@@ -328,27 +328,6 @@ function main.log()
 		
 		# Write a unformatted copy to sterr. 
 		echo -e "${stderr_message}" 1>&2
-	else
-		if [[ $CXR_EVALUATE_FUNCTION_VERBOSE_LIST == true ]]
-		then
-			# There is a second chance: the user might have added the function in question to 
-			# CXR_LOG_FUNCTION_VERBOSE_LIST
-			found=$(expr match " ${CXR_LOG_FUNCTION_VERBOSE_LIST:-}" ".*${function_name}.*")
-			
-			if [[ "${found}" -ne 0 ]]
-			then
-				# Function was added by user
-				
-				# If stars are set, we add a line of stars at the beginning and end
-				if [[ "${stars}" ]]
-				then
-					stderr_message="${stars}\n${stderr_message}\n${stars}\n"
-				fi
-				
-				# Write a unformatted copy to sterr
-				echo -e "${stderr_message}" 1>&2
-			fi # does user want to log this?
-		fi # Do we consider additional verbose stuff
 	fi
 	
 	# file
