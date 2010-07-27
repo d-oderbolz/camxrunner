@@ -124,7 +124,10 @@ function common.hash.init()
 	
 	# Create table, no matter what
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (hash, key, value , model, version, epoch_c)"
-
+	# Create two indexes
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS hash_idx ON hash(hash)"
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS key_idx ON key(hash)"
+	
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
 }
@@ -959,7 +962,7 @@ function common.hash.getKeysAndValues()
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version' GPOUP BY key, value HAVING MAX(epoch_c)")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version' GROUP BY key, value HAVING MAX(epoch_c)")
 		do
 			found=true
 
