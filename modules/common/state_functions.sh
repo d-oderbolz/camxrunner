@@ -234,11 +234,9 @@ function common.state.init()
 	
 	# Create the global dirs
 	mkdir -p "${CXR_GLOBAL_DIR}"
-	mkdir -p "${CXR_UNIVERSAL_HASH_DIR}"
 	
 	# Create any instance dirs
 	mkdir -p "${CXR_INSTANCE_DIR}"
-	mkdir -p "${CXR_INSTANCE_HASH_DIR}"
 	
 	# Create all the task directories
 	mkdir -p "${CXR_TASK_POOL_DIR}"
