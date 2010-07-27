@@ -401,6 +401,8 @@ function common.check.Vars ()
 ################################################################################
 {
 	local executable
+	
+	set +v
 
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 	do
@@ -434,6 +436,8 @@ function common.check.Vars ()
 			main.log -w "Variable $executable is not set (might not be a problem, though)"
 		fi
 	done
+	
+	set -v
 }
 
 
