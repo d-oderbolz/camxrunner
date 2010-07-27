@@ -407,7 +407,7 @@ then
 	CXR_MAX_PARALLEL_PROCS=1
 fi
 
-main.log -a -B "Selected options are valid." 
+main.log -B "Selected options are valid." 
 
 
 ################################################################################
@@ -466,7 +466,7 @@ fi
 # Is the configuration OK?
 ################################################################################
 
-main.log -a -B "Checking CAMxRunner for consistency..." 
+main.log -B "Checking CAMxRunner for consistency..." 
 
 # Increase global indent level
 main.increaseLogIndent
