@@ -234,7 +234,6 @@ function main.log()
 	local maxNests
 	local do_log
 	local prefix
-	local found
 	local last
 	
 	log_level=${CXR_LOG_LEVEL_INF}
