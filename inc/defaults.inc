@@ -680,6 +680,7 @@ CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
 # Instance Hashes are stored here
 CXR_INSTANCE_HASH_DIR=${CXR_INSTANCE_DIR}/hashes
+CXR_INSTANCE_DB_DIR=${CXR_INSTANCE_DIR}/hashes
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
