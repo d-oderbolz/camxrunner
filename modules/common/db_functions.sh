@@ -128,7 +128,7 @@ function common.db.init()
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	main.log -a "Creating $db_file:"
-	main.log -a "Creating $db_file:\n${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)""
+	main.log -a "Creating $db_file:\n${CXR_SQLITE_EXEC} $db_file CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
 	
 	# Create table, no matter what
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
