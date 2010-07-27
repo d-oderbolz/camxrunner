@@ -385,7 +385,7 @@ function common.hash.getAll()
 		echo ""
 	else
 		# get the contents
-		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c ASC")
+		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c ASC"
 	fi
 }
 
