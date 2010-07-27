@@ -547,31 +547,28 @@ function common.db.has?()
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
 	if [[ ! -f "$db_file" ]]
-		then
-			main.log -w "DB $db_file not found!"
-		else
-			# get the value
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+	then
+		main.log -w "DB $db_file not found!"
+		_has=false
+	else
+		# get the rowcount
+		rowcount=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT COUNT(*) FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 
-			# is there a row?
-			rowcount=$(echo $value | wc -l)
-			
-			if [[ $rowcount -gt 0 ]]
-			then
-				# Fill cache
-				CXR_CACHE_H_HASH="$db"
-				CXR_CACHE_H_TYPE="$type"
-				CXR_CACHE_H_KEY="$key"
-				CXR_CACHE_H_VALUE="$value"
-				_has=true
-				_value=$value
-			else
-				_has=false
-			fi
-			
-			echo $_has
-			
+		if [[ $rowcount -gt 0 ]]
+		then
+			# Fill cache
+			CXR_CACHE_H_HASH="$db"
+			CXR_CACHE_H_TYPE="$type"
+			CXR_CACHE_H_KEY="$key"
+			CXR_CACHE_H_VALUE="$value"
+			_has=true
+			_value=$value
+		else
+			_has=false
 		fi
+	fi
+	
+	echo $_has
 }
 
 ################################################################################
