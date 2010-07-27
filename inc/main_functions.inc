@@ -1083,9 +1083,6 @@ function main.readConfig()
 	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
 	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
 	
-	
-	
-	
 	# If there is an expanded specific config, use it
 	if [[ -f "${CXR_EXPANDED_CONFIG}" ]]
 	then
