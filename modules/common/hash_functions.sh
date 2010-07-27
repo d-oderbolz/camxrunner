@@ -384,6 +384,8 @@ function common.hash.getAll()
 		main.log -w "DB $db_file not found!"
 		echo ""
 	else
+		# Dummy for the parser
+		:
 		# get the contents
 		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c ASC"
 	fi
@@ -431,7 +433,7 @@ function common.hash.delete()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")""
+	db_file="$(_common.hash.getDbFile "$type")"
 	
 	# Just delete
 	if [[ ! -f "$db_file" ]]
