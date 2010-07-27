@@ -405,7 +405,7 @@ function common.check.Vars ()
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 	do
 	
-		main.log -v   "Variable $executable has value: ${!executable}\n"
+		main.log -a "Variable $executable has value: ${!executable}\n"
 			
 		# is it set?
 		if [[ "${!executable}" ]]
