@@ -726,7 +726,7 @@ function common.db.getKeys()
 	
 	if [[ $found == false ]]
 	then
-		main.log -w "DB ${db_dir} is empty..."
+		main.log -w "DB ${db_file} is empty..."
 	fi
 	
 	echo $list
