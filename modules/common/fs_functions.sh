@@ -483,7 +483,7 @@ function common.fs.CompressOutput()
 	
 		# looping through filename|module pairs
 		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)
-		
+		do
 			# Parse the DB string
 			oIFS="$IFS"
 			IFS="$CXR_DELIMITER"
