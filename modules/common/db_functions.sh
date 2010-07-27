@@ -4,7 +4,7 @@
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner
 #
-# Version: $Id: db_functions.sh 4145 2010-07-23 21:04:12Z oderbolz $ 
+# Version: $Id$ 
 #
 # This is a re-implementation of the db functions which uses sqlite <http://www.sqlite.org>.
 # Compared to the old filebased approach, this has a number of advantages:
@@ -53,7 +53,7 @@ CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2009), CAMxRunner@psi.ch"
 CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerland (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)"
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
-CXR_META_MODULE_VERSION='$Id: db_functions.sh 4145 2010-07-23 21:04:12Z oderbolz $'
+CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
 # Function: _common.db.getDir
