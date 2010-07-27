@@ -1174,23 +1174,20 @@ function common.check.runner()
 	# Increase global indent level
 	main.increaseLogIndent
 
-	main.log   "Checking if subdirectories exist..."
+	main.log -a  "Checking if subdirectories exist..."
 	
 	for SUBIDR in $CXR_RUN_SUBDIRS
 	do
 		# Increase global indent level
 		main.increaseLogIndent
 
-		if [[ ! -d $CXR_RUN_DIR/$SUBIDR  ]]
+		if [[ ! -d $CXR_RUN_DIR/$SUBIDR ]]
 		then
 			# Oh Oh!
 			mkdir -p $CXR_RUN_DIR/$SUBIDR
 			main.log  "The directory $CXR_RUN_DIR/$SUBIDR did not exist. According to the Variable CXR_RUN_SUBDIRS it should exist, however. I created it now, but you need to fill it with sensible stuff!" 
-			
 		else 
-
 			main.log -v   "The directory $CXR_RUN_DIR/$SUBIDR exists"
-
 		fi
 		
 		# Decrease global indent level
@@ -1200,13 +1197,13 @@ function common.check.runner()
 	# Check executables
 	
 	############################################################################
-	main.log   "Checking if all executables are present and executable..."
+	main.log -a "Checking if all executables are present and executable..."
 	
 	# Increase global indent level
 	main.increaseLogIndent
 	
 	########################################
-	main.log   "Checking external files..."
+	main.log -a "Checking external files..."
 	########################################
 	
 	# Increase global indent level
@@ -1227,7 +1224,7 @@ function common.check.runner()
 	# Each directory in $CXR_RUN_VERSION_SUBDIRS must have 
 	# one subdir for each model and each version 
 	
-	main.log   "Checking if version sub-subdirectories exist..."
+	main.log -a "Checking if version sub-subdirectories exist..."
 	
 	for subdir in $CXR_RUN_VERSION_SUBDIRS
 	do
@@ -1235,12 +1232,12 @@ function common.check.runner()
 		# Increase global indent level
 		main.increaseLogIndent
 		
-		main.log -v   "Checking subdirs of $subdir..."
+		main.log -a "Checking subdirs of $subdir..."
 		
 		for model in $CXR_SUPPORTED_MODELS
 		do
 		
-			main.log -v   "Checking model $model..."
+			main.log -a "Checking model $model..."
 		
 			# Get id of the current model
 			model_id=$(common.runner.getModelId "$model") || main.dieGracefully "model $model is not known."
@@ -1251,7 +1248,7 @@ function common.check.runner()
 			for version in $supported
 			do
 				
-				main.log -v   "Checking version $version..."
+				main.log -a  "Checking version $version..."
 				
 				dir=$CXR_RUN_DIR/$subdir/$model/$version
 			

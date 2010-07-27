@@ -388,7 +388,7 @@ fi
 
 ################################################################################
 
-main.log -a -B "Checking if selected options are valid..." 
+main.log -B "Checking if selected options are valid..." 
 
 if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
@@ -474,7 +474,7 @@ main.increaseLogIndent
 # check_functions
 common.check.BashVersion
 
-# camx_runner_functions.sh
+# check_functions.sh
 common.check.runner
 
 # Decrease global indent level
