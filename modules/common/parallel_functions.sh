@@ -1089,7 +1089,7 @@ function common.parallel.init()
 				${_invocation:-NULL},
 				'TODO',
 				$(date "+%s")
-				)
+				);
 				EOT
 				
 				# Increase ID
