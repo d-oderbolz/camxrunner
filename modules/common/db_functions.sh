@@ -127,7 +127,7 @@ function common.db.init()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$type" "$db")"
 	
-	main.log -a "Creating $db_file"
+	main.log -v "Creating DB $db_file"
 	
 	# Create table, no matter what
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
@@ -375,7 +375,7 @@ function common.db.delete()
 		main.log -w "DB $db_file not found!"
 	else
 		# delete entry
-		value=$(${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE key='$key' AND model='$model' AND version='$version'")
+		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE key='$key' AND model='$model' AND version='$version'"
 	fi
 }
 
