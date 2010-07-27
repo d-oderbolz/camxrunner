@@ -1084,7 +1084,7 @@ function common.parallel.init()
 				 $current_id,
 				'$_module_name',
 				'$module_type',
-				'$_exclusive',
+				'$exclusive',
 				${_day_offset:-0},
 				$_invocation,
 				'TODO',
