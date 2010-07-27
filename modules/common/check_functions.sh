@@ -402,7 +402,7 @@ function common.check.Vars ()
 {
 	local executable
 	
-	set +v
+	set -v
 
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 	do
@@ -437,7 +437,7 @@ function common.check.Vars ()
 		fi
 	done
 	
-	set -v
+	set +v
 }
 
 
