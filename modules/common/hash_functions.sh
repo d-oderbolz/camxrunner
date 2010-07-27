@@ -6,18 +6,14 @@
 #
 # Version: $Id$ 
 #
-# This is a re-implementation of the db functions which uses sqlite <http://www.sqlite.org>.
-# Compared to the old filebased approach, this has a number of advantages:
+# This is a re-implementation of the file-based functions using sqlite <http://www.sqlite.org>.
+# Compared to the old approach, this has a number of advantages:
 # - there is no need to limit the number of keys per directory (was an issue on AFS)
 # - less overhead
 # - we can benefit from disk-chaching
 # -> its faster (a simple test showed sqlite is about four to five times faster than my plain old filedb)
 # - storage of additional metadata is easy
-# The goal is to map keys to values, but we also need this information:
-# - When was an etry created?
-# - To which model/Version does the entry belong (optional)
-# - What keys are available
-# - Storage of historical information (MD5 dbes at different times)
+# - we can easily get lists of key value pairs out (even faster!)
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -41,7 +37,7 @@ CXR_META_MODULE_NUM_TESTS=13
 CXR_META_MODULE_REQ_SPECIAL="exec|sqlite3"
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the DB functions for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains the Hash functions (using sqlite) for the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -56,34 +52,34 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: _common.db.getDbFile
+# Function: _common.hash.getDbFile
 #
 # Returns the db_file to use depending on the type.
 #
 # Parameters:
-# $1 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL" 
+# $1 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 # $2 - name of the hash
 ################################################################################
-function _common.db.getDbFile()
+function _common.hash.getDbFile()
 ################################################################################
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db-type and a db name as input"
+		main.dieGracefully "needs a hash-type and a hash name as input"
 	fi
 
 	local type
-	local db
+	local hash
 	type="${1}"
-	db="${2}"
+	hash="${2}"
 	
-	if [[ "${db}" ]]
+	if [[ "${hash}" ]]
 	then
 		# Work out the directory
 		case $type in
-			$CXR_DB_TYPE_INSTANCE) echo "${CXR_INSTANCE_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
-			$CXR_DB_TYPE_GLOBAL) echo "${CXR_GLOBAL_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
-			$CXR_DB_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_DB_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			$CXR_HASH_TYPE_INSTANCE) echo "${CXR_INSTANCE_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
+			$CXR_HASH_TYPE_GLOBAL) echo "${CXR_GLOBAL_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
+			$CXR_HASH_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_HASH_DIR}/${hash}.${CXR_HASH_SUFFIX}" ;;
 			*) main.dieGracefully "Unknown DB type $type" ;;
 		esac
 	else
@@ -91,106 +87,103 @@ function _common.db.getDbFile()
 	fi
 }
 
-
-
 ################################################################################
-# Function: common.db.init
+# Function: common.hash.init
 #
-# Creates a db with a given name, if it already exists, nothing happens.
+# Creates a hash with a given name, if it already exists, nothing happens.
 # We distinguish three visibility levels: 
-# $CXR_DB_TYPE_INSTANCE - only visible for this instance
-# $CXR_DB_TYPE_GLOBAL - visible for all instances of this run
-# $CXR_DB_TYPE_UNIVERSAL - visible for all instances of all runs
-# Usage note: since we can store metadata in a db, it is not recommended to encode
-# information in the name of the db (like it was done before).
+# $CXR_HASH_TYPE_INSTANCE - only visible for this instance
+# $CXR_HASH_TYPE_GLOBAL - visible for all instances of this run
+# $CXR_HASH_TYPE_UNIVERSAL - visible for all instances of all runs
+# Usage note: since we can store metadata in a hash, it is not recommended to encode
+# information in the name of the hash (like it was done before).
 #
 # Parameters:
-# $1 - name of the db (must be usable as a filename)
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL" 
+# $1 - name of the hash (must be usable as a filename)
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL" 
 ################################################################################
-function common.db.init()
+function common.hash.init()
 ################################################################################
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db name and a valid db-type as input"
+		main.dieGracefully "needs a hash name and a valid hash-type as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
 	main.log -v "Creating DB $db_file"
 	
 	# Create table, no matter what
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (key, value , model, version, epoch_c)"
 
-
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
 }
 
 ################################################################################
-# Function: common.db.destroy
+# Function: common.hash.destroy
 #
-# Destroys a db with a given name by deleting its datafile.
+# Destroys a hash with a given name by deleting its datafile.
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
-function common.db.destroy()
+function common.hash.destroy()
 ################################################################################
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db and a valid db-type as input"
+		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
-	main.log -v "Deleting the DB ${db}"
+	main.log -v "Deleting the Hash ${hash}"
 	rm -f "${db_file}"
 }
 
 ################################################################################
-# Function: common.db.put
+# Function: common.hash.put
 #
-# Puts a value into a key of a given db. Alos touches the DB file (needed to
+# Puts a value into a key of a given hash. Alos touches the DB file (needed to
 # determine the last access)
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # $4 - value
 # [$5] - restrict_model_version , boolean, if true (default false), we write tag this entry with the model and version
 ################################################################################
-function common.db.put()
+function common.hash.put()
 ################################################################################
 {
 	if [[ $# -lt 4 || $# -gt 5 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key, a value and an optional boolean (restrict_model_version) as input. Got $@"
+		main.dieGracefully "needs a hash, a valid hash-type, a key, a value and an optional boolean (restrict_model_version) as input. Got $@"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local value
@@ -198,7 +191,7 @@ function common.db.put()
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	value="$4"
@@ -216,12 +209,12 @@ function common.db.put()
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
 		main.log -w "DB $db_file not found!"
-		common.db.init "$db" "$type"
+		common.hash.init "$hash" "$type"
 	else
 		# Change the update time
 		touch "$db_file"
@@ -231,18 +224,18 @@ function common.db.put()
 	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (key, value , model, version, epoch_c) VALUES ('$key','$value','$model','$version',$(date "+%s"))" || :
 	
 	# Fill cache
-	CXR_CACHE_H_HASH="$db"
+	CXR_CACHE_H_HASH="$hash"
 	CXR_CACHE_H_TYPE="$type"
 	CXR_CACHE_H_KEY="$key"
 	CXR_CACHE_H_VALUE="$value"
 }
 
 ################################################################################
-# Function: common.db.get
+# Function: common.hash.get
 #
-# Gets a certain value from a db.
+# Gets a certain value from a hash.
 # Be careful, values might contain spaces and other nasties. Use like this:
-# > value="$(common.db.get "$db" "$type" "$key")"
+# > value="$(common.hash.get "$hash" "$type" "$key")"
 # Returns the empty string on error or if this key does not exist.
 #
 # Often, the same items are accessed several times in a row. For this reason,
@@ -252,27 +245,27 @@ function common.db.put()
 # newest (highest epoch_c)
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.get()
+function common.hash.get()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local restrict_model_version
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
@@ -288,7 +281,7 @@ function common.db.get()
 	
 	local value
 	
-	if [[ "$db" == "${CXR_CACHE_H_HASH:-}" &&\
+	if [[ "$hash" == "${CXR_CACHE_H_HASH:-}" &&\
 	      "$type" == "${CXR_CACHE_H_TYPE:-}" &&\
 	      "$key" == "${CXR_CACHE_H_KEY:-}" ]]
 	then
@@ -296,12 +289,12 @@ function common.db.get()
 		echo "$CXR_CACHE_H_VALUE"
 	else
 		# Lookup needed
-		main.log -v "Getting $key out of db $db $type"
+		main.log -v "Getting $key out of hash $hash $type"
 		
 		local db_file
 	
 		# Work out the filename
-		db_file="$(_common.db.getDbFile "$type" "$db")"
+		db_file="$(_common.hash.getDbFile "$type" "$hash")"
 		
 		# Get value
 		if [[ ! -f "$db_file" ]]
@@ -313,7 +306,7 @@ function common.db.get()
 			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
-			CXR_CACHE_H_HASH="$db"
+			CXR_CACHE_H_HASH="$hash"
 			CXR_CACHE_H_TYPE="$type"
 			CXR_CACHE_H_KEY="$key"
 			CXR_CACHE_H_VALUE="$value"
@@ -326,25 +319,25 @@ function common.db.get()
 
 
 ################################################################################
-# Function: common.db.delete
+# Function: common.hash.delete
 #
-# Deletes a certain key from a db without returning its value.
+# Deletes a certain key from a hash without returning its value.
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.delete()
+function common.hash.delete()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local db_file
@@ -352,7 +345,7 @@ function common.db.delete()
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
@@ -367,7 +360,7 @@ function common.db.delete()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
 	# Just delete
 	if [[ ! -f "$db_file" ]]
@@ -381,90 +374,90 @@ function common.db.delete()
 
 
 ################################################################################
-# Function: common.db.remove
+# Function: common.hash.remove
 #
-# Returns a value from a db and then deletes it.
+# Returns a value from a hash and then deletes it.
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.remove()
+function common.hash.remove()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local restrict_model_version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
 	
-	common.db.get "$db" "$type" "$key" $restrict_model_version
-	common.db.delete "$db" "$type" "$key" $restrict_model_version
+	common.hash.get "$hash" "$type" "$key" $restrict_model_version
+	common.hash.delete "$hash" "$type" "$key" $restrict_model_version
 }
 
 ################################################################################
-# Function: common.db.getMtime
+# Function: common.hash.getMtime
 #
-# Gets the modification time (Unix Epoch) for a given db (the mtime of the db_file)
+# Gets the modification time (Unix Epoch) for a given hash (the mtime of the db_file)
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
-function common.db.getMtime()
+function common.hash.getMtime()
 ################################################################################
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db and a valid db-type as input"
+		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local db_file
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 
 	# Get the mtime
 	common.fs.getMtime "$db_file"
 }
 
 ################################################################################
-# Function: common.db.getValueMtime
+# Function: common.hash.getValueMtime
 #
 # Gets the (latest) modification time (Unix Epoch) for a given value.
 # If the value is not found, the empty string is returned
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.getValueMtime()
+function common.hash.getValueMtime()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local db_file
@@ -472,7 +465,7 @@ function common.db.getValueMtime()
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
@@ -488,7 +481,7 @@ function common.db.getValueMtime()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
 	# Get the value
 	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
@@ -497,31 +490,31 @@ function common.db.getValueMtime()
 }
 
 ################################################################################
-# Function: common.db.has?
+# Function: common.hash.has?
 #
-# Returns true if the given key is contained in the db. Also fills cache on hit.
-# and sets _has and _value (to avoid having to call <common.db.get> again)
+# Returns true if the given key is contained in the hash. Also fills cache on hit.
+# and sets _has and _value (to avoid having to call <common.hash.get> again)
 #
 # If you use the "non-functional form" redirect output to /dev/null:
-# > common.db.has? $CXR_GLOBAL_DB_DECOMPRESSED_FILES $CXR_DB_TYPE_GLOBAL "${input_file}" > /dev/null
+# > common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" > /dev/null
 # > if [[ "$_has" == true ]]
 # > then ...
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.has?()
+function common.hash.has?()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4  ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	local key
 	local db_file
@@ -529,7 +522,7 @@ function common.db.has?()
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
@@ -544,7 +537,7 @@ function common.db.has?()
 	fi
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -560,7 +553,7 @@ function common.db.has?()
 			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
-			CXR_CACHE_H_HASH="$db"
+			CXR_CACHE_H_HASH="$hash"
 			CXR_CACHE_H_TYPE="$type"
 			CXR_CACHE_H_KEY="$key"
 			CXR_CACHE_H_VALUE="$value"
@@ -575,47 +568,47 @@ function common.db.has?()
 }
 
 ################################################################################
-# Function: common.db.isNew?
+# Function: common.hash.isNew?
 #
-# Returns true if the given key is contained in the db and its update time is 
-# newer than this runs start time (meaning that we do not need to update such a db
+# Returns true if the given key is contained in the hash and its update time is 
+# newer than this runs start time (meaning that we do not need to update such a hash
 # if it is used as a cache)
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.isNew?()
+function common.hash.isNew?()
 ################################################################################
 {
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
 	fi
 	
 	
-	local db
+	local hash
 	local type
 	local key
 	local restrict_model_version
 	local model
 	local version
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	key="$3"
 	restrict_model_version="${4:-false}"
 	
 	local res
 	
-	# Is it in the db?
-	if [[ $(common.db.has? "$db" "$type" "$key" "$restrict_model_version") == true ]]
+	# Is it in the hash?
+	if [[ $(common.hash.has? "$hash" "$type" "$key" "$restrict_model_version") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
-		# if the db's epoch is smaller, it is older
-		if [[ "$(common.db.getValueMtime "$db" "$type" "$key" "$restrict_model_version")" -lt "$CXR_EPOCH" ]]
+		# if the hash's epoch is smaller, it is older
+		if [[ "$(common.hash.getValueMtime "$hash" "$type" "$key" "$restrict_model_version")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -630,18 +623,18 @@ function common.db.isNew?()
 }
 
 ################################################################################
-# Function: common.db.getKeys
+# Function: common.hash.getKeys
 #
-# Returns a unique list of keys of the given db as a quoted CXR_DELIMITER separated list.
-# Do not assume any particular order, it depends on the order the db imposes on the
+# Returns a unique list of keys of the given hash as a quoted CXR_DELIMITER separated list.
+# Do not assume any particular order, it depends on the order the hash imposes on the
 # data. 
 # If the DB does not exist, returns the empty string.
 # 
 # Recommended use:
 # > oIFS="$IFS"
-# > keyString="$(common.db.getKeys $db $CXR_DB_TYPE_GLOBAL)"
+# > keyString="$(common.hash.getKeys $hash $CXR_HASH_TYPE_GLOBAL)"
 # > IFS="$CXR_DELIMITER"
-# > # Turn string into array (we cannot call <common.db.getKeys> directly here!)
+# > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 # > arrKeys=( $keyString )
 # > # Reset Internal Field separator
 # > IFS="$oIFS"
@@ -654,19 +647,19 @@ function common.db.isNew?()
 # > done
 # 
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.getKeys()
+function common.hash.getKeys()
 ################################################################################
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	
 	local found
@@ -677,7 +670,7 @@ function common.db.getKeys()
 	local version
 	local db_file
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	restrict_model_version="${3:-false}"
 	
@@ -693,9 +686,9 @@ function common.db.getKeys()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
-	main.log -v "Getting keys for $db $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
@@ -724,18 +717,18 @@ function common.db.getKeys()
 }
 
 ################################################################################
-# Function: common.db.getValues
+# Function: common.hash.getValues
 #
-# Returns all valuos of the given db as a quoted CXR_DELIMITER separated list.
-# Do not assume any particular order, it depends on the order the db imposes on the
+# Returns all valuos of the given hash as a quoted CXR_DELIMITER separated list.
+# Do not assume any particular order, it depends on the order the hash imposes on the
 # data. 
 # If the DB does not exist, returns the empty string.
 # 
 # Recommended use:
 # > oIFS="$IFS"
-# > valueString="$(common.db.getValues $db $CXR_DB_TYPE_GLOBAL)"
+# > valueString="$(common.hash.getValues $hash $CXR_HASH_TYPE_GLOBAL)"
 # > IFS="$CXR_DELIMITER"
-# > # Turn string into array (we cannot call <common.db.getKeys> directly here!)
+# > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 # > arrVal=( $valueString )
 # > # Reset Internal Field separator
 # > IFS="$oIFS"
@@ -748,19 +741,19 @@ function common.db.getKeys()
 # > done
 # 
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.getValues()
+function common.hash.getValues()
 ################################################################################
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	
 	local found
@@ -771,7 +764,7 @@ function common.db.getValues()
 	local version
 	local db_file
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	restrict_model_version="${3:-false}"
 	
@@ -787,9 +780,9 @@ function common.db.getValues()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
-	main.log -v "Getting keys for $db $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
@@ -818,12 +811,12 @@ function common.db.getValues()
 }
 
 ################################################################################
-# Function: common.db.getKeysAndValues
+# Function: common.hash.getKeysAndValues
 #
 # Returns rows of unique key value pairs as in 
 # key1|value1
 # key2|value2
-# Do not assume any particular order, it depends on the order the db imposes on the
+# Do not assume any particular order, it depends on the order the hash imposes on the
 # data. We ensure that for each key we return only one value (the most recet one).
 # If the DB does not exist, returns the empty string.
 # 
@@ -831,7 +824,7 @@ function common.db.getValues()
 # > oIFS="$IFS"
 # > IFS="$CXR_DELIMITER"
 # > # looping through pairs
-# > for pair in $(common.db.getKeysAndValues $db $type)
+# > for pair in $(common.hash.getKeysAndValues $hash $type)
 # > do
 # > 	set $pair
 # > 	key="$1"
@@ -840,19 +833,19 @@ function common.db.getValues()
 # > IFS="$oIFS"
 # 
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_DB_TYPE_INSTANCE" , "$CXR_DB_TYPE_GLOBAL" or "$CXR_DB_TYPE_UNIVERSAL"
+# $1 - name of the hash
+# $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
-function common.db.getKeysAndValues()
+function common.hash.getKeysAndValues()
 ################################################################################
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs a db, a valid db-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
 	fi
 	
-	local db
+	local hash
 	local type
 	
 	local found
@@ -863,7 +856,7 @@ function common.db.getKeysAndValues()
 	local version
 	local db_file
 	
-	db="$1"
+	hash="$1"
 	type="$2"
 	restrict_model_version="${3:-false}"
 	
@@ -879,9 +872,9 @@ function common.db.getKeysAndValues()
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.db.getDbFile "$type" "$db")"
+	db_file="$(_common.hash.getDbFile "$type" "$hash")"
 	
-	main.log -v "Getting keys for $db $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $type out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
@@ -926,46 +919,46 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
-	# Instance db
-	common.db.init test_instance $CXR_DB_TYPE_INSTANCE
-	common.db.put test_instance $CXR_DB_TYPE_INSTANCE /hallo/gugs SomeOtherValue
-	common.db.put test_instance $CXR_DB_TYPE_INSTANCE /hallo/velo SomeOtherValue
+	# Instance hash
+	common.hash.init test_instance $CXR_HASH_TYPE_INSTANCE
+	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/gugs SomeOtherValue
+	common.hash.put test_instance $CXR_HASH_TYPE_INSTANCE /hallo/velo SomeOtherValue
 	
 	# DB of arrays
-	common.db.init test_array $CXR_DB_TYPE_INSTANCE
-	common.db.put test_array $CXR_DB_TYPE_INSTANCE array1 "1 2 3 4 5"
+	common.hash.init test_array $CXR_HASH_TYPE_INSTANCE
+	common.hash.put test_array $CXR_HASH_TYPE_INSTANCE array1 "1 2 3 4 5"
 	
 	# Read again
-	a=( $(common.db.get test_array $CXR_DB_TYPE_INSTANCE array1) )
+	a=( $(common.hash.get test_array $CXR_HASH_TYPE_INSTANCE array1) )
 	
 	# Glabal DB with strange keys
-	common.db.init test_global $CXR_DB_TYPE_GLOBAL
-	common.db.put test_global $CXR_DB_TYPE_GLOBAL "This key has spaces" "a value"
-	common.db.put test_global $CXR_DB_TYPE_GLOBAL "This key also has spaces" "another value"
+	common.hash.init test_global $CXR_HASH_TYPE_GLOBAL
+	common.hash.put test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces" "a value"
+	common.hash.put test_global $CXR_HASH_TYPE_GLOBAL "This key also has spaces" "another value"
 	
 	# Universal DB
-	common.db.init test_universal $CXR_DB_TYPE_UNIVERSAL
-	common.db.put test_universal $CXR_DB_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
-	common.db.put test_universal  $CXR_DB_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
+	common.hash.init test_universal $CXR_HASH_TYPE_UNIVERSAL
+	common.hash.put test_universal $CXR_HASH_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
+	common.hash.put test_universal  $CXR_HASH_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.db.get test_instance $CXR_DB_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "common.db.get test_instance with path as key"
-	is "$(common.db.has? test_instance $CXR_DB_TYPE_INSTANCE "/hallo/velo")" true "common.db.has? test_instance with path as key"
-	is "$(common.db.getKeys test_instance $CXR_DB_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.db.getKeys test_instance with path as key"
+	is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
+	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
+	is "$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
 	is ${#a[@]} 5 "DB of arrays"
 	
-	# testing the faster way to call common.db.has? (has and get in one call)
-	common.db.has? test_instance $CXR_DB_TYPE_INSTANCE "/hallo/velo" > /dev/null
-	is $_has true "common.db.has? non-functional approach I"
-	is $_value SomeOtherValue "common.db.has? non-functional approach II"
+	# testing the faster way to call common.hash.has? (has and get in one call)
+	common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo" > /dev/null
+	is $_has true "common.hash.has? non-functional approach I"
+	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
 	
 	oIFS="$IFS"
-	keyString="$(common.db.getKeys test_instance $CXR_DB_TYPE_INSTANCE)"
+	keyString="$(common.hash.getKeys test_instance $CXR_HASH_TYPE_INSTANCE)"
 	IFS="$CXR_DELIMITER"
-	# Turn string into array (we cannot call <common.db.getKeys> directly here!)
+	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 	arrKeys=( $keyString )
 	# Reset Internal Field separator
 	IFS="$oIFS"
@@ -974,26 +967,26 @@ function test_module()
 	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 	do
 		key="${arrKeys[$iKey]}"
-		is "$(common.db.get test_instance $CXR_DB_TYPE_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
+		is "$(common.hash.get test_instance $CXR_HASH_TYPE_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
-	is "$(common.db.get test_global $CXR_DB_TYPE_GLOBAL "This key has spaces")" "a value" "common.db.get test_instance - key with spaces"
+	is "$(common.hash.get test_global $CXR_HASH_TYPE_GLOBAL "This key has spaces")" "a value" "common.hash.get test_instance - key with spaces"
 	
-	common.db.delete test_instance $CXR_DB_TYPE_INSTANCE "/hallo/velo"
-	is "$(common.db.has? test_instance $CXR_DB_TYPE_INSTANCE "/hallo/velo")" false "common.db.delete test_instance with path as key"
+	common.hash.delete test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo"
+	is "$(common.hash.has? test_instance $CXR_HASH_TYPE_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
 
-	is "$(common.db.get test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.db.get test_universal with path as key"
-	is "$(common.db.has? test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" true "common.db.has? test_universal with path as key"
+	is "$(common.hash.get test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
+	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
 	
-	common.db.delete test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo" 
-	is "$(common.db.has? test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" false "common.db.delete test_universal with path as key"
+	common.hash.delete test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo" 
+	is "$(common.hash.has? test_universal $CXR_HASH_TYPE_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
 	
 	########################################
 	# teardown tests if needed
 	########################################
-	common.db.destroy test_instance $CXR_DB_TYPE_INSTANCE
-	common.db.destroy test_array $CXR_DB_TYPE_INSTANCE
-	common.db.destroy test_global $CXR_DB_TYPE_GLOBAL
-	common.db.destroy test_universal $CXR_DB_TYPE_UNIVERSAL
+	common.hash.destroy test_instance $CXR_HASH_TYPE_INSTANCE
+	common.hash.destroy test_array $CXR_HASH_TYPE_INSTANCE
+	common.hash.destroy test_global $CXR_HASH_TYPE_GLOBAL
+	common.hash.destroy test_universal $CXR_HASH_TYPE_UNIVERSAL
 }
