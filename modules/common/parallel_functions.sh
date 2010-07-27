@@ -7,9 +7,12 @@
 # Version: $Id$ 
 #
 # Contains the Functions to manage parallel execution of modules.
-# The most important aspect of this is the management of the varius dependencies between modules.
+# The most important aspect of this is the management of the varius dependencies 
+# between modules.
 #
 # Prepares a pool of tasks, which are then harvested by Worker threads. 
+# This pool is implemented as a sqlite DB which also provides the locking mechanism 
+# 
 # These threads can run parallel - even on different machines.
 #
 # First, a list of tasks is generated.

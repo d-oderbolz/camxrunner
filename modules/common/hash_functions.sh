@@ -126,7 +126,7 @@ function common.hash.init()
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (hash, key, value , model, version, epoch_c)"
 	# Create two indexes
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS hash_idx ON hash(hash)"
-	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS key_idx ON key(hash)"
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS key_idx ON hash(key)"
 	
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
