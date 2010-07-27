@@ -132,7 +132,7 @@ function common.hash.init()
 ################################################################################
 # Function: common.hash.destroy
 #
-# Destroys a hash with a given name by deleting its datafile.
+# Destroys a hash with a given name by deleting the relevant entries in the db.
 #
 # Parameters:
 # $1 - name of the hash
@@ -157,8 +157,9 @@ function common.hash.destroy()
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$type")"
 	
-	main.log -v "Deleting the Hash ${hash}"
-	rm -f "${db_file}"
+	main.log -v "Deleting all entries of Hash ${hash}.."
+	
+	${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash'"
 }
 
 ################################################################################
