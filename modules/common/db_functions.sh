@@ -990,7 +990,7 @@ function test_module()
 	common.db.delete test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo" 
 	is "$(common.db.has? test_universal $CXR_DB_TYPE_UNIVERSAL "/hallo/velo")" false "common.db.delete test_universal with path as key"
 	
-	common.user.pause
+	sleep 200
 	
 	########################################
 	# teardown tests if needed
