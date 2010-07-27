@@ -970,12 +970,12 @@ function main.isSubstringPresent?()
 # - Model version specific
 # - run-specific (potentially expanded)
 #
-# The run name 'installer' is treated separately, there we load
+# The run names 'installer' and 'test' are treated separately, there we load
 # - site.conf
 # - base.conf
 # - Model version specific
 # - installer.conf
-# - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf (if available)
+# - ${CXR_MODEL}-${CXR_MODEL_VERSION}-installer.conf resp. ${CXR_MODEL}-${CXR_MODEL_VERSION}-test.conf (if available)
 #
 # Also here, we set all variables that depend on model & version
 # 
@@ -1094,8 +1094,6 @@ function main.readConfig()
 	# This is a "normal" copy
 	CXR_CONFIG=${CXR_CONF_DIR}/${CXR_RUN}.conf
 	
-	# Only used for installer
-	CXR_INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-installer.conf"
 	
 	########################################
 	# Revisions - these are available as global vars
@@ -1107,8 +1105,8 @@ function main.readConfig()
 	CXR_CONFIG_REV="$(main.getRevision $CXR_CONFIG)"
 	CXR_EXPANDED_CONFIG_REV="$(main.getRevision $CXR_EXPANDED_CONFIG)"
 	
-	# Only used for installer
-	CXR_INSTALLER_CONF_REV=$(main.getRevision $CXR_INSTALLER_CONF)
+	
+	
 	
 	# If there is an expanded specific config, use it
 	if [[ -f "${CXR_EXPANDED_CONFIG}" ]]
@@ -1121,14 +1119,25 @@ function main.readConfig()
 	# Define Hierarchy
 	########################################
 	
-	if [[ "${CXR_RUN}" != "${CXR_INSTALLER}" ]]
+	if [[ "${CXR_RUN}" == "${CXR_INSTALLER}" ]]
 	then
-		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG)
-		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV)
-	else
 		# Installer needs an additional file
+		CXR_INSTALLER_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_INSTALLER}.conf"
+		CXR_INSTALLER_CONF_REV=$(main.getRevision $CXR_INSTALLER_CONF)
+		
 		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG $CXR_INSTALLER_CONF)
 		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV $CXR_INSTALLER_CONF_REV)
+	elif [[ "${CXR_RUN}" != "${CXR_TEST}" ]]
+	then
+		# Test also
+		CXR_TEST_CONF="${CXR_CONF_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${CXR_TEST}.conf"
+		CXR_TEST_CONF_REV=$(main.getRevision $CXR_TEST_CONF)
+	
+		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG $CXR_TEST_CONF)
+		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV $CXR_TEST_CONF_REV)
+	else
+		CXR_CONF_HIERARCHY=($CXR_SITECONFIG $CXR_BASECONFIG $CXR_VERSIONCONFIG $CXR_CONFIG)
+		CXR_CONF_HIERARCHY_REV=($CXR_SITECONFIG_REV $CXR_BASECONFIG_REV $CXR_VERSIONCONFIG_REV $CXR_CONFIG_REV)
 	fi
 	
 	########################################

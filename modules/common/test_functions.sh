@@ -186,9 +186,6 @@ function common.test.all()
 			extended=false
 		fi
 		
-		# Pre-load testing interface
-		CXR_RUN=base
-		
 		# When this is true, we know a test is running
 		CXR_TEST_IN_PROGRESS=true
 	
@@ -199,8 +196,8 @@ function common.test.all()
 		# Because tap-functions uses non-0 returns
 		set +e
 		
-		# Prepare dummy environment
-		main.readConfig "${CXR_RUN}" "${model}" "${version}" "${CXR_RUN_DIR}"
+		# Prepare environment
+		main.readConfig "${CXR_TEST}" "${model}" "${version}" "${CXR_RUN_DIR}"
 		
 		#Disable state DB
 		CXR_ENABLE_STATE_DB=false
@@ -338,19 +335,6 @@ function common.test.all()
 				
 				if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
 				then
-					# We must set the run name properly
-					CXR_RUN=${CXR_META_MODULE_TEST_RUN:-base}
-					
-					# If we did not just load this config, do it now
-					if [[ "$CXR_RUN" != "$LAST_LOADED_CONFIG" ]]
-					then
-						# We load the config
-						main.readConfig "${CXR_RUN}" "${model}" "${version}" "."
-						common.module.updateInfo
-						
-						LAST_LOADED_CONFIG=$CXR_RUN
-					fi
-					
 					main.log -b  "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
 					
 					test_module
@@ -370,6 +354,8 @@ function common.test.all()
 		summarize_tests
 		
 	done
+	
+	CXR_TEST_IN_PROGRESS=false
 	
 	# Reset strict return checks
 	set -e

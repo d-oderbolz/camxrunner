@@ -46,9 +46,6 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_ONCE}"
 # If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=1
 
-# This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
-
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
 

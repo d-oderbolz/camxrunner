@@ -27,9 +27,6 @@ CXR_META_MODULE_TYPE=${CXR_TYPE_INSTALLER}
 # If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=0
 
-# This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=base
-
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
 # If a requirement is not binding, optional is added at the end

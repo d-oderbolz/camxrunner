@@ -45,9 +45,6 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_MODEL}"
 # If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=1
 
-# This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
-
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains the functions to call CAMx"
 

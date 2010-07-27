@@ -46,9 +46,6 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_DAILY}"
 # If >0, this module supports testing
 CXR_META_MODULE_NUM_TESTS=1
 
-# This is the run name that is used to test this module
-CXR_META_MODULE_TEST_RUN=CAMx-v4.51-test
-
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
 # If a requirement is not binding, optional is added at the end
