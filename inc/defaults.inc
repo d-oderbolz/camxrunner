@@ -562,6 +562,7 @@ CXR_STATE_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_HASH_TYPE_UNIVERSAL
 
 # Universal Hashes (e. g. MD5 database) go here
 CXR_UNIVERSAL_HASH_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
+CXR_UNIVERSAL_DB_DIR=$CXR_STATE_UNIVERSAL_DIR/hashes
 
 ########################################
 # Data that is global to all instances of a given run
@@ -574,6 +575,7 @@ CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
 
 # Global Hashes (e. g. MD5 database) go here
 CXR_GLOBAL_HASH_DIR=$CXR_GLOBAL_DIR/hashes
+CXR_GLOBAL_DB_DIR=$CXR_GLOBAL_DIR/hashes
 
 
 ########################################
