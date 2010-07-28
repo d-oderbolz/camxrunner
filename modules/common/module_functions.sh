@@ -87,7 +87,6 @@ function common.module.parseIdentifier()
 # Caveat: This function modifies the environment - always call like this:
 # > b=$(common.module.getNumInvocations "$module")
 # The $() construct opens a subshell.
-# Values are cached in a hash.
 #
 # Parameters:
 # $1 - name of a module
@@ -97,47 +96,36 @@ function common.module.getNumInvocations()
 {
 	local module
 	local numInvocations
-	local cache
 	
 	module="$1"
-	cache="Cache_NumInvocations"
 	
 	# This call sets _has and _value
-	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
+	common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module true > /dev/null
 	if [[ "$_has" == true ]]
 	then
-		# It's in the cache
-		echo "$_value"
+		module_path="$_value"
 	else
-	
-		# This call sets _has and _value
-		common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module true > /dev/null
-		if [[ "$_has" == true ]]
-		then
-			module_path="$_value"
-		else
-			main.dieGracefully "cannot find path of $module"
-		fi
-		
-		# Before sourcing, set this Meta var
-		CXR_META_MODULE_NAME=$module
-		
-		# source module
-		source "$module_path"
-		
-		if [[ $? -ne 0 ]]
-		then
-			main.dieGracefully "could not source $module ($module_path)"
-		fi
-		
-		# Call the function
-		numInvocations=$(getNumInvocations)
-		
-		# Add to cache
-		common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${numInvocations}"
-		
-		echo $numInvocations
+		main.dieGracefully "cannot find path of $module"
 	fi
+	
+	# Before sourcing, set this Meta var
+	CXR_META_MODULE_NAME=$module
+	
+	# source module
+	source "$module_path"
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "could not source $module ($module_path)"
+	fi
+	
+	# Call the function
+	numInvocations=$(getNumInvocations)
+	
+	# Add to cache
+	common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${numInvocations}"
+	
+	echo $numInvocations
 }
 
 ################################################################################
@@ -147,7 +135,6 @@ function common.module.getNumInvocations()
 # Caveat: This function modifies the environment - always call like this:
 # > b=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
 # The $() construct opens a subshell.
-# We cache the results in an instance hash, whose name depends on the item to be retrieved.
 #
 # Parameters:
 # $1 - name of a module
@@ -165,47 +152,33 @@ function common.module.getMetaField()
 	local item
 	local module_path
 	local value
-	local cache
 	
 	module="$1"
 	item="$2"
-	cache="Cache_${item}"
 	
-	# This call sets _has and _value
-	common.hash.has? $cache $CXR_HASH_TYPE_INSTANCE $module > /dev/null
-	if [[ "$_has" == true ]]
-	then
-		# It's in the cache
-		echo "$_value"
-	else
-		if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)" == true ]]
-		then
-			module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)"
-		else
-			main.dieGracefully "cannot find path of $module"
-		fi
-		
-		# Before sourcing, set this Meta var
-		CXR_META_MODULE_NAME="$module"
-		
-		# source module
-		source "$module_path"
-		
-		if [[ $? -ne 0 ]]
-		then
-			main.dieGracefully "could not source $module ($module_path)"
-		fi
-		
-		# Do we have this variable?
-		value="$(common.variables.getValue $item)"
-		
-		# Add to cache
-		common.hash.put $cache $CXR_HASH_TYPE_INSTANCE "$module" "$value"
-		
-		echo "$value"
-		
-	fi
 
+	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)" == true ]]
+	then
+		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)"
+	else
+		main.dieGracefully "cannot find path of $module"
+	fi
+	
+	# Before sourcing, set this Meta var
+	CXR_META_MODULE_NAME="$module"
+	
+	# source module
+	source "$module_path"
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "could not source $module ($module_path)"
+	fi
+	
+	# Do we have this variable?
+	value="$(common.variables.getValue $item)"
+	
+	echo "$value"
 }
 
 ################################################################################
