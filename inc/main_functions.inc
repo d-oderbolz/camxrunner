@@ -594,11 +594,7 @@ function main.dieGracefully()
 	
 	# Stop this run
 	# Delete any .CONTINUE FILES
-	
-	if [[ -d "${CXR_STATE_DIR:-}"  ]]
-	then
-		rm -f ${CXR_STATE_DIR}/*.${CXR_STATE_CONTINUE} 2>/dev/null
-	fi
+	common.state.deleteContinueFiles
 	
 	main.log -a "### CAMxRunner Crashes because of this reason:############"
 	# This function also echoes the message

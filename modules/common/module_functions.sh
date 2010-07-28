@@ -279,9 +279,9 @@ function common.module.getNumTests()
 # 
 # Resolves a single dependenency string (containig just one dependency), depending 
 # on the day offset.
-# - turns the predicates "+" and "-" into actual day offsets
+# - turns the predicate "-" into actual day offsets
 # - turn all_* dependecies like "CXR_DEP_ALL_ONCE_PRE" into actual module names
-# - adds the different invorations if needed
+# - adds the different invocations if needed
 # So "all_model- " becomes "model1@1" at day 2, "albedo_haze_ozone" becomes "albedo_haze_ozone@1 albedo_haze_ozone@2" 
 # if albedo_haze_ozone can be split into two invocations.
 #
@@ -350,7 +350,6 @@ function common.module.resolveSingleDependency()
 			# if there is no day offset, this dependency is not relevant
 			if [[ "$day_offset" ]]
 			then
-			
 				# Test day offset
 				if [[ $day_offset -le 0 ]]
 				then
@@ -374,51 +373,6 @@ function common.module.resolveSingleDependency()
 				return $CXR_RET_OK
 			fi # day_offset present?
 			;;
-			
-		+) 
-			# This predicate refers to all simulation days
-			# It is used to refer to a daily module from a One-Time module
-			# makes sure that the daily model was executed for all days
-			# Can only be used to refer to a name of a module, so
-			# ${CXR_DEP_ALL_MODEL}+ is invalid
-			
-			# Cut off final +
-			dependency=${dependency%+}
-			main.log -v  "Found the + predicate, will check that $dependency ran for all days"
-			
-			case $dependency in
-	
-				$CXR_DEP_ALL_ONCE_PRE | \
-				$CXR_DEP_ALL_DAILY_PRE | \
-				$CXR_DEP_ALL_DAILY_POST | \
-				$CXR_DEP_ALL_ONCE_POST | \
-				$CXR_DEP_ALL_MODEL) main.dieGracefully "Predicate + not allowed for $dependency" ;; 
-
-				*) # Handle + Predicate
-					for our_day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-					do
-						nInvocations=$(common.module.getNumInvocations "$dependency")
-						for iInvocation in $(seq 1 $nInvocations )
-						do
-							module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency true)
-							resolved_dependency="$(common.parallel.formatDependency "$dependency" "$module_type" "$our_day_offset" "$iInvocation" "$nInvocations")"
-							
-							if [[ "$first" == true ]]
-							then
-								# First iteration
-								resolved_dependencies="$resolved_dependency"
-								first=false
-							else
-								resolved_dependencies="${resolved_dependencies} ${resolved_dependency}"
-							fi
-						done # invocations
-					done # days
-					
-					echo ${resolved_dependencies}
-					return $CXR_RET_OK
-					;;
-					
-			esac
 	esac
 	
 	# Check if we look at a special dependency or not

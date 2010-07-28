@@ -31,9 +31,9 @@
 # ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
 
 
-# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. The predicate "+" means that this module must have run for all days, so extract_station_data+ means that extract_station_data ran for all days. (Usually only useful in One-Time Postprocessors)
+# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. 
 
-CXR_META_MODULE_DEPENDS_ON="${CXR_DEP_ALL_MODEL} ${CXR_DEP_ALL_DAILY_POST} concatenate_station_data"
+CXR_META_MODULE_DEPENDS_ON="concatenate_station_data"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs

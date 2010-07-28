@@ -185,20 +185,17 @@ CXR_ENABLE_STATE_DB=true
 # Define the prefix for disabled scripts (no dot please)
 CXR_DISABLED_EXT=disabled
 
+# Stages that the state DB knows
+CXR_STATE_START=START # RUNNING
+CXR_STATE_STOP=STOP		# SUCCESS
+CXR_STATE_ERROR=ERROR 
 
-
-# Stages that the stage controller knows
-CXR_STATE_CONTINUE=CONTINUE
-
-
-CXR_STATE_START=START
-
-
-CXR_STATE_STOP=STOP
-
-
-CXR_STATE_ERROR=ERROR
-
+# New ones
+CXR_STATE_RUNNING=RUNNING
+CXR_STATE_TODO=TODO
+CXR_STATE_WAITING=WAITING
+CXR_STATE_SUCCESS=SUCCESS
+CXR_STATE_FAILURE=FAILURE
 
 # Change this in case the name of the runner script changes
 CXR_RUNNER_NAME=CAMxRunner.sh
@@ -622,7 +619,7 @@ CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
-CXR_CONTINUE=${CXR_RUNNER_NAME}.${CXR_STATE_CONTINUE}
+CXR_CONTINUE=${CXR_RUNNER_NAME}.CONTINUE
 
 # The whole file name -if it is deleted, this instance stops
 # This file is created explictly in common.state.init
