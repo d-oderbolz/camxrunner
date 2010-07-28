@@ -1,0 +1,33 @@
+To: cygwin@sourceware.cygnus.com
+Subject: Re: B20.1: 'tsort' missing...where to get it? ('tsort' source attached)
+From: "Shane Y. Gibson" <shane@mbari.org>
+Date: Fri, 26 Feb 1999 08:22:46 -0800
+CC: N8TM@aol.com, khan@xraylith.wisc.edu
+Delivered-To: listarch-cygwin@sourceware.cygnus.com
+Delivered-To: mailing list cygwin@sourceware.cygnus.com
+Mailing-List: contact cygwin-help@sourceware.cygnus.com; run by ezmlm
+Organization: Monterey Bay Aquarium Research Institute
+References: <e19c02bc.36d627db@aol.com>
+Sender: cygwin-owner@sourceware.cygnus.com
+Sender: shane@wave.mbari.org
+
+In case anyone else needs the 'tsort' source code, here
+it is; attached as a GNU zipped source file.  Simply
+gunzip it, then (on 95/NT, with Cygwin B20.1) do:
+
+	gcc -o tsort tsort.c
+
+viola!  You've got "tsort.exe".  This source is courtesy
+of "Andrew M. Bishop" <amb@gedanken.demon.co.uk>.
+
+v/r
+Shane
+
+-- 
+                        o   , __     ~                  
+Shane Y. Gibson        o    \`\\"._     _      M onterey
+shane@mbari.org          o  / _  |||;._/ )     B ay
+                      ~   _/@ @  ///    (  ~   A quarium
+(831) 775-1917           ( (`__,     ,`\|      R esearch
+http://www.mbari.org/     '.\_/ |\_.'          I nstitute
+                             ""```    ~
