@@ -894,16 +894,16 @@ function common.parallel.removeAllWorkers()
 ################################################################################
 # Function: common.parallel.cleanTasks
 #
-# Deletes the Task DB file.
+# Deletes some data of the task DB .
 #
 #
 ################################################################################
 function common.parallel.cleanTasks()
 ################################################################################
 {
-	main.log -v "Removing DB file ${CXR_TASK_DB_FILE}..."
+	main.log -v "Cleaning DB file ${CXR_TASK_DB_FILE}..."
 	
-	rm -f "${CXR_TASK_DB_FILE}"
+	# To be defined.
 }
 ################################################################################
 # Function: common.parallel.waitForWorkers

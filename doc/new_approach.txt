@@ -1,0 +1,6 @@
+# Fill days table
+...
+
+# Create tasks by "joining" constants and days
+select "create_emissions", 1 from days
+
