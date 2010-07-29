@@ -324,8 +324,6 @@ function common.state.updateInfo()
 	
 				for file in $files
 				do
-					main.log -v "Adding $file..."
-					
 					# We are still alive...
 					common.user.showProgress
 					
@@ -368,7 +366,7 @@ function common.state.updateInfo()
 							# Field is to the left of the = sign
 							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')"
 							# the value is to the right (test quoting!!)
-							value="$(expr match "$metafield" '.*=\(\)')"
+							value="$(expr match "$metafield" '.*=\(.*\)')"
 							
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						done
