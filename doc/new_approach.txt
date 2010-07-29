@@ -1,10 +1,66 @@
-# Structure
-CREATE TABLE DEPENDENCIES (independent_module, 
-                           independent_day_offset, 
-                           independent_invocation, 
-                           dependent_module, 
-                           dependent_day_offset, 
-                           dependent_invocation);
+		# DB Structure
+
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+		-- Get exclusive access
+		PRAGMA main.locking_mode=EXCLUSIVE; 
+		
+		-- Here we store tho simulation days
+		CREATE TABLE IF NOT EXISTS days (day_offset,
+		                                 day_iso);
+
+		-- All modules go here
+		CREATE TABLE IF NOT EXISTS modules (module, 
+		                                    type,
+		                                    path);
+		CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON module(module);
+
+		-- List of module types
+		CREATE TABLE IF NOT EXISTS types (type);
+		CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON types(type);
+		
+		-- Storage of module metadata
+		CREATE TABLE IF NOT EXISTS metadata (module,
+		                                     field,
+		                                     value);
+
+		-- Table to store dependencies
+		CREATE TABLE IF NOT EXISTS dependencies (independent_module, 
+		                                         independent_day_offset, 
+		                                         independent_invocation, 
+		                                         dependent_module, 
+		                                         dependent_day_offset, 
+		                                         dependent_invocation);
+		
+		-- Table for all tasks comprising a run (static)
+		CREATE TABLE IF NOT EXISTS tasks (module,
+		                                 module_type,
+		                                 exclusive,
+		                                 day_offset,
+		                                 invocation,
+		                                 status,
+		                                 epoch_m);
+		                                 
+		-- Table for all steps we need to take, ordered
+		CREATE TABLE IF NOT EXISTS plan (id,
+		                                 module,
+		                                 module_type,
+		                                 exclusive,
+		                                 day_offset,
+		                                 invocation,
+		                                 status,
+		                                 epoch_m);
+		
+		-- Table for workers
+		CREATE TABLE IF NOT EXISTS workers (pid,
+		                                    hostname,
+		                                    status,
+		                                    current_task,
+		                                    epoch_m);
+		
+		PRAGMA main.locking_mode=NORMAL; 
+		
+		EOT
+
 
 # Fill days table depending on the number of days we run
 ...
@@ -22,7 +78,7 @@ for file in $(find)
 	
 	for invocation in ...
 		# Insert Tasks
-		INSERT INTO TASKS (module_name, invocation, day_offset) 
+		INSERT INTO TASKS (module, invocation, day_offset) 
 		SELECT 'create_emissions',1,offset from days
 	done
 	
@@ -75,7 +131,7 @@ done
 	# First of all, insert all tasks with all tasks (tsort needs this for stuff without dependency)
 	# Any duplicates will be removed later.
 	INSERT INTO dependencies (independent_module,independent_day_offset,independent_invocation,dependent_module,dependent_day_offset,dependent_invocation)
-	SELECT module_name, day_offset, invocation,module_name, day_offset, invocation FROM tasks
+	SELECT module, day_offset, invocation,module, day_offset, invocation FROM tasks
 	
 	# Get the raw dependencies
 	SELECT met.module, met.field, ta.day_offset, ta.invocation

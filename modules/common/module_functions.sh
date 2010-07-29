@@ -182,72 +182,6 @@ function common.module.getMetaField()
 }
 
 ################################################################################
-# Function: common.module.getRawDependencies
-# 
-# For a given module name, returns the raw dependency string that is
-# in the header (CXR_META_MODULE_DEPENDS_ON)
-#
-# Parameters:
-# $1 - name of a module
-################################################################################
-function common.module.getRawDependencies()
-################################################################################
-{
-	local module
-	local raw_dependencies
-	
-	module="$1"
-	
-	raw_dependencies=$(common.module.getMetaField "$module" "CXR_META_MODULE_DEPENDS_ON")
-
-	echo "${raw_dependencies}"
-}
-
-################################################################################
-# Function: common.module.getExclusive
-# 
-# For a given module name, returns the exclusive string that is
-# in the header (CXR_META_MODULE_RUN_EXCLUSIVELY)
-#
-# Parameters:
-# $1 - name of a module
-################################################################################
-function common.module.getExclusive()
-################################################################################
-{
-	local module
-	local exclusive
-	
-	module="$1"
-	
-	exclusive=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
-
-	echo "${exclusive}"
-}
-
-################################################################################
-# Function: common.module.getExclusive
-# 
-# For a given module name, returns the exclusive string that is
-# in the header (CXR_META_MODULE_NUM_TESTS)
-#
-# Parameters:
-# $1 - name of a module
-################################################################################
-function common.module.getNumTests()
-################################################################################
-{
-	local module
-	local num_tests
-	
-	module="$1"
-	
-	num_tests=$(common.module.getMetaField "$module" "CXR_META_MODULE_NUM_TESTS")
-
-	echo "${num_tests}"
-}
-
-################################################################################
 # Function: common.module.resolveSingleDependency
 # 
 # Resolves a single dependenency string (containig just one dependency), depending 
@@ -485,7 +419,7 @@ function common.module.dependsFirstOnSecond?()
 	first_offset=$_day_offset
 	
 	# Get the expanded dependencies of the first
-	first_dep_raw=$(common.module.getRawDependencies "$first_module")
+	first_dep_raw=$(common.module.getMetaField "$first_module" "CXR_META_MODULE_DEPENDS_ON")
 	first_dep=$(common.module.resolveAllDependencies "$first_dep_raw" "$first_offset")
 	
 	common.module.parseIdentifier "$second"
@@ -686,8 +620,6 @@ function common.module.areDependenciesOk?()
 # For performance reasons, we check the hashes mtimes compared to the mtime of the configuration.
 # If any USER_TEMP variable is set, we do it anyway.
 # If a module name is non-unique, we fail.
-#
-# TODO: Make faster, also update Cache_${item} hashes of common.module.getMetaField
 #
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
@@ -1459,7 +1391,7 @@ function test_module()
 	is "$_invocation" 24 "common.module.parseIdentifier multidigit - invocation"
 	
 	is $(common.module.getType boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "common.module.getType boundary_conditions"
-	is $(common.module.getExclusive model) true "common.module.getExclusive model"
+	is $(common.module.getMetaField model "CXR_META_MODULE_RUN_EXCLUSIVELY") true "common.module.getMetaField model CXR_META_MODULE_RUN_EXCLUSIVELY"
 	
 	# Testing the resolvers for dependencies
 	is "$(common.module.resolveSingleDependency "model-" 0)" "" "common.module.resolveSingleDependency minus on first day"

@@ -261,7 +261,7 @@ function common.test.all()
 			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
 				module="$(main.getModuleName "$function_file")"
-				num_tests="$(common.module.getNumTests "$module")"
+				num_tests="$(common.module.getMetaField "$module" "CXR_META_MODULE_NUM_TESTS")"
 				
 				main.log -v  "Found $num_tests in $module"
 				

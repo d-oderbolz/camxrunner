@@ -761,10 +761,8 @@ function common.state.cleanup()
 				;; # specific
 				
 			tasks)
-				main.log -w  "This file will be deleted: ${CXR_TASK_DB_FILE}"
-
 				# Do we do this?
-				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				if [[ "$(common.user.getOK "Do you really want to clean all tasks?" )" == false  ]]
 				then
 					# No 
 					main.log -w "Will not delete any state information"

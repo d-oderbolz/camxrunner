@@ -566,7 +566,7 @@ CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
 
 # In this DB we store all information about tasks, 
 # workers etc.
-CXR_TASK_DB_FILE=$CXR_GLOBAL_DIR/tasks.${CXR_DB_SUFFIX}
+CXR_STATE_DB_FILE=$CXR_GLOBAL_DIR/tasks.${CXR_DB_SUFFIX}
 
 # Hash names to store currently active modules (to resolve dependecies)
 CXR_ACTIVE_ALL_HASH=active_all_hash
@@ -708,6 +708,9 @@ CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
 
 # Fortran-90 Compiler (only needed when installing)
 CXR_FORTRAN90_COMPILER_EXEC="$(main.getBinaryName pgf90 true)"
+
+# The C Compiler (used sparingly)
+CXR_C_COMPILER_EXEC="$(main.getBinaryName gcc true)"
 
 # This is the default FORTRAN compiler
 CXR_FORTRAN_COMPILER_EXEC="$CXR_FORTRAN77_COMPILER_EXEC"

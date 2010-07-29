@@ -220,7 +220,7 @@ function common.parallel.createDependencyList()
 			module="${activeModuleKeys[$iKey]}"
 
 			# Get the raw dependencies
-			raw_dependencies="$(common.module.getRawDependencies $module)"
+			raw_dependencies="$(common.module.getMetaField $module "CXR_META_MODULE_DEPENDS_ON")"
 			
 			main.log -v "$module depedends on ${raw_dependencies:--}"
 			
@@ -342,7 +342,7 @@ function common.parallel.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM tasks")"
+	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -363,7 +363,7 @@ function common.parallel.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATE_TODO}'")"
+	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATE_TODO}'")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -402,7 +402,7 @@ function common.parallel.detectLockup()
 	fi
 	
 	# Count the running workers
-	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATE_RUNNING}'")"
+	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATE_RUNNING}'")"
 	
 	if [[ $numRunning -gt 0 ]]
 	then
@@ -478,7 +478,7 @@ function common.parallel.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT id,module_name,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module_name,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -508,7 +508,7 @@ function common.parallel.setNextTask()
 		_invocation="$6"
 		
 		# Assign it by an update
-		${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATE_RUNNING}' WHERE id=$id"
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATE_RUNNING}' WHERE id=$id"
 		
 		main.log -v "New task has id $id"
 	fi
@@ -546,7 +546,7 @@ function common.parallel.changeTaskStatus()
 	case $status in
 	
 		$CXR_STATUS_SUCCESS|$CXR_STATUS_FAILURE) 
-			${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE tasks set status='${status}' WHERE id=$id"
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set status='${status}' WHERE id=$id"
 			;;
 
 		*)
@@ -574,7 +574,7 @@ function common.parallel.waitingWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE workers set status='${CXR_STATE_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to waiting"
 }
@@ -598,7 +598,7 @@ function common.parallel.runningWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "UPDATE workers set status='${CXR_STATE_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to running"
 }
@@ -628,7 +628,7 @@ function common.parallel.removeWorker()
 	kill $pid 2>/dev/null
 	
 	# Remove from DB
-	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 }
 
 ################################################################################
@@ -678,7 +678,7 @@ function common.parallel.Worker()
 	pid=$(cat $tmp)
 	
 	# Insert this worker
-	${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATE_WAITING',$(date "+%s"))"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATE_WAITING',$(date "+%s"))"
 	
 	main.log -a -B  "parallel worker (pid ${pid}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
 
@@ -755,7 +755,7 @@ function common.parallel.Worker()
 					main.dieGracefully "cannot find path of $module_name"
 				fi
 				
-				raw_dependencies="$(common.module.getRawDependencies $module_name)"
+				raw_dependencies="$(common.module.getMetaField $module_name "CXR_META_MODULE_DEPENDS_ON")"
 				
 				start_epoch=$CXR_EPOCH
 				
@@ -885,7 +885,7 @@ function common.parallel.removeAllWorkers()
 {
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
-	for pid in $(${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
+	for pid in $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
 	do
 		common.parallel.removeWorker "$pid"
 	done
@@ -901,7 +901,7 @@ function common.parallel.removeAllWorkers()
 function common.parallel.cleanTasks()
 ################################################################################
 {
-	main.log -v "Cleaning DB file ${CXR_TASK_DB_FILE}..."
+	main.log -v "Cleaning DB file ${CXR_STATE_DB_FILE}..."
 	
 	# To be defined.
 }
@@ -939,7 +939,7 @@ function common.parallel.waitForWorkers()
 # Hashes:
 # CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
 # DBs:
-# CXR_TASK_DB_FILE
+# CXR_STATE_DB_FILE
 ################################################################################
 function common.parallel.init()
 ################################################################################
@@ -988,38 +988,6 @@ function common.parallel.init()
 		# Delete contents, if any
 		common.parallel.cleanTasks
 		
-		## Create the task db uisng a here-document
-		${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" <<-EOT
-		-- Get exclusive access
-		PRAGMA main.locking_mode=EXCLUSIVE; 
-		
-		-- Drop tables
-		DROP TABLE IF EXISTS tasks;
-		DROP TABLE IF EXISTS workers;
-		
-		-- Table for tasks
-		CREATE TABLE IF NOT EXISTS tasks 
-		(id,
-		module_name,
-		module_type,
-		exclusive,
-		day_offset,
-		invocation,
-		status,
-		epoch_m);
-		
-		-- Table for workers
-		CREATE TABLE IF NOT EXISTS workers
-		(pid,
-		hostname,
-		status,
-		current_task,
-		epoch_m);
-		
-		PRAGMA main.locking_mode=NORMAL; 
-		
-		EOT
-		
 		# Some tempfiles we need
 		dep_file="$(common.runner.createTempFile dependencies)"
 		sorted_file="$(common.runner.createTempFile tsort-out)"
@@ -1042,7 +1010,7 @@ function common.parallel.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -a "\nFilling task DB $CXR_TASK_DB_FILE...\n"
+		main.log -a "\nFilling task DB $CXR_STATE_DB_FILE...\n"
 		
 		while read line 
 		do
@@ -1056,7 +1024,7 @@ function common.parallel.init()
 			common.module.parseIdentifier "$line"
 
 			module_type="$(common.module.getType "$_module_name")"
-			exclusive="$(common.module.getExclusive "$_module_name")"
+			exclusive="$(common.module.getMetaField "$_module_name" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
 			
 			# Convert date
 			raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${_day_offset:-0}"))"
@@ -1069,7 +1037,7 @@ function common.parallel.init()
 				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module_name)" -1 false)
 				
 				# we put this information into the DB
-				${CXR_SQLITE_EXEC} "$CXR_TASK_DB_FILE" <<-EOT
+				${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 				INSERT INTO tasks 
 				(id,
 				module_name,
