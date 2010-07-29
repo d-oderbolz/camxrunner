@@ -378,7 +378,7 @@ function common.state.updateInfo()
 						
 						IFS="$oIFS"
 					else
-						mainlog -a "File $file not added."
+						main.log -a "File $file not added."
 					fi
 				done # Loop over files
 			else
