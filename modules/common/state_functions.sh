@@ -368,6 +368,9 @@ function common.state.updateInfo()
 							# the value is to the right (test quoting!!)
 							value="$(expr match "$metafield" '.*=\(.*\)')"
 							
+							# OK, we want all quoting gone
+							value="$(eval "echo $(echo "$value")")"
+							
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						done
 						
