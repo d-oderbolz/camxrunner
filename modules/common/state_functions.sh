@@ -333,7 +333,7 @@ function common.state.updateInfo()
 					# Like mentioned above, only active stuff is added.
 					# Other things are not needed.
 					# Add $file, $module and $type to DB
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUE ('$module','$type','$file')"
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUES ('$module','$type','$file')"
 				
 					# Add metadata
 					# grep the CXR_META_ vars that are not commented out
