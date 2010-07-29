@@ -351,7 +351,7 @@ function common.state.updateInfo()
 						# the value is to the right (test quoting!!)
 						value="$(expr match "$metafield" '.*=\(\)')"
 						
-						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUE ('$module','$field','$value')"
+						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 					done
 					
 					IFS="$oIFS"
