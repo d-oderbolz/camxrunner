@@ -31,7 +31,7 @@ CXR_META_MODULE_DESCRIPTION="Contains the functions to manage the (simple) state
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
 
 # Who wrote this module?
-CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2009), CAMxRunner@psi.ch"
+CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2010), CAMxRunner@psi.ch"
 
 # Add license info if applicable (possibly with URL)
 CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerland (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)"
@@ -324,10 +324,7 @@ function common.state.updateInfo()
 	
 				for file in $files
 				do
-					# We are still alive...
-					common.user.showProgress
-					
-					main.log -a "Adding $file"
+					common.check.reportMD5 $file
 					
 					module="$(main.getModuleName $file)"
 					

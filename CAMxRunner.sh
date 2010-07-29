@@ -403,7 +403,7 @@ fi
 # Ok, now less than 2 processes is not parallel
 if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 2 ]]
 then
-	main.log -w "You chose to use less than 2 processes, we will run sequantially".
+	main.log -w "You chose to use less than 2 processes, we will run sequentially".
 	CXR_MAX_PARALLEL_PROCS=1
 	CXR_PARALLEL_PROCESSING=false
 fi
