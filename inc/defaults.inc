@@ -568,14 +568,6 @@ CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_HASH_TYPE_GLOBAL
 # workers etc.
 CXR_STATE_DB_FILE=$CXR_GLOBAL_DIR/tasks.${CXR_DB_SUFFIX}
 
-# Hash names to store currently active modules (to resolve dependecies)
-CXR_ACTIVE_ALL_HASH=active_all_hash
-CXR_ACTIVE_ONCE_PRE_HASH=active_once_pre_hash
-CXR_ACTIVE_DAILY_PRE_HASH=active_daily_pre_hash
-CXR_ACTIVE_DAILY_POST_HASH=active_daily_post_hash
-CXR_ACTIVE_ONCE_POST_HASH=active_once_post_hash
-CXR_ACTIVE_MODEL_HASH=active_model_hash
-
 ########################################
 # Logging
 ########################################

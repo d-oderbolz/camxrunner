@@ -1186,7 +1186,7 @@ function main.getModuleName()
 ################################################################################
 {
 	local full_name
-	local module_name
+	local module
 	
 	if [[ $# -ne 1 ]]
 	then
@@ -1196,17 +1196,17 @@ function main.getModuleName()
 	full_name=${1}
 	
 	# We just want the filename (without .sh)
-	module_name=$(basename $full_name .sh)
+	module=$(basename $full_name .sh)
 
 	# Remove XX_ if present
-	module_name="$(expr match "$module_name" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"
+	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"
 	
-	if [[ ! "$module_name" ]]
+	if [[ ! "$module" ]]
 	then
 		main.dieGracefully "Could not determine module name of $1"
 	fi
 	
-	echo "$module_name"
+	echo "$module"
 	return $CXR_RET_OK
 }
 

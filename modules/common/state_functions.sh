@@ -150,7 +150,7 @@ function common.state.getStageName()
 ################################################################################
 {
 	local module_type
-	local module_name
+	local module
 	local date
 	local invocation
 	
@@ -158,13 +158,13 @@ function common.state.getStageName()
 	then
 		# Use the environment
 		module_type="${CXR_META_MODULE_TYPE}"
-		module_name="${CXR_META_MODULE_NAME}"
+		module="${CXR_META_MODULE_NAME}"
 		date="${CXR_DATE_RAW:-date_not_set}"
 		invocation="${CXR_INVOCATION:-1}"
 	else
 		# Use parameters
 		module_type="${1}"
-		module_name="${2}"
+		module="${2}"
 		date="${3}"
 		invocation="${4:-1}"
 	fi
@@ -172,25 +172,25 @@ function common.state.getStageName()
 	case "${module_type}" in
 		${CXR_TYPE_COMMON}) 
 			# A common module normally does not need this, but who knows?
-			echo ${date}@${module_type}@${module_name}@${invocation} ;; 
+			echo ${date}@${module_type}@${module}@${invocation} ;; 
 		
 		${CXR_TYPE_PREPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module_name}@${invocation} ;;
+			echo ${date}@${module_type}@${module}@${invocation} ;;
 			
 		${CXR_TYPE_PREPROCESS_ONCE}) 
-			echo _@${module_type}@${module_name}@${invocation} ;;
+			echo _@${module_type}@${module}@${invocation} ;;
 			
 		${CXR_TYPE_POSTPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module_name}@${invocation} ;;
+			echo ${date}@${module_type}@${module}@${invocation} ;;
 		
 		${CXR_TYPE_POSTPROCESS_ONCE}) 
-			echo ZZ_@${module_type}@${module_name}@${invocation} ;;
+			echo ZZ_@${module_type}@${module}@${invocation} ;;
 			
 		${CXR_TYPE_MODEL} ) 
-			echo ${date}@${module_type}@${module_name}@${invocation} ;;
+			echo ${date}@${module_type}@${module}@${invocation} ;;
 			
 		${CXR_TYPE_INSTALLER}) 
-			echo ${module_type}@${module_name}@${invocation} ;;
+			echo ${module_type}@${module}@${invocation} ;;
 			
 	 *) main.dieGracefully "Unknown module type ${module_type}";;
 	esac
@@ -215,21 +215,21 @@ function common.state.deleteContinueFiles()
 # Goes through all available modules for the current model and version, and collects 
 # vital information in the state DB.
 # 
-# Stuff that is persistent:
+# tables that are persistent:
 # - tasks
 # - days 
+# - installed
+# - types (constant)
+#
+# tables that contain ony whats relevant currently ("active")
+# - modules
+# - metadata
+# - and all the rest
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
 {
-	# Its possible that this is called more than once (e. g. during testing).
-	# But this makes it hard to detect duplicates.
-	if [[ "${CXR_MODULES_UP_TO_DATE:-false}" == true ]]
-	then
-		return $CXR_RET_OK
-	fi
-
-	main.log -a  "Updating module information, might take a while..."
+	main.log -a "Collecting module information, might take a while..."
 	
 	# Increase global indent level
 	main.increaseLogIndent
@@ -239,117 +239,70 @@ function common.state.updateInfo()
 	local dir
 	local types
 	local type
-	local hashes
-	local active_hash
 	local files
 	local file
-	local module_name
+	local module
 	local run_it
+	local metafiled
+	local list
+	local field
+	lacal value
 
 	# Create a few working arrays we will go through
-	# Note that there are three kinds of installer modules: general ones, model specific and version specific ones
-	# The same is true for common modules
-	types=($CXR_TYPE_INSTALLER \
-	       $CXR_TYPE_INSTALLER \
-	       $CXR_TYPE_INSTALLER \
-	       $CXR_TYPE_COMMON \
-	       $CXR_TYPE_COMMON \
-	       $CXR_TYPE_COMMON \
-	       $CXR_TYPE_PREPROCESS_ONCE \
-	       $CXR_TYPE_PREPROCESS_DAILY  \
+	types=($CXR_TYPE_PREPROCESS_ONCE \
+	       $CXR_TYPE_PREPROCESS_DAILY \
 	       $CXR_TYPE_MODEL \
 	       $CXR_TYPE_POSTPROCESS_DAILY \
 	       $CXR_TYPE_POSTPROCESS_ONCE)
 	       
-	dirs=($CXR_INSTALLER_INPUT_DIR \
-	      $CXR_INSTALLER_MODEL_INPUT_DIR \
-	      $CXR_INSTALLER_VERSION_INPUT_DIR \
-	      $CXR_COMMON_INPUT_DIR \
-	      $CXR_COMMON_MODEL_INPUT_DIR \
-	      $CXR_COMMON_VERSION_INPUT_DIR \
-	      $CXR_PREPROCESSOR_ONCE_INPUT_DIR \
+	dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR \
 	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
 	      $CXR_MODEL_INPUT_DIR \
 	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
 	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
 	
-	# we ignore any hash called "-"
-	hashes=(- \
-	        - \
-	        - \
-	        - \
-	        - \
-	        - \
-	        $CXR_ACTIVE_ONCE_PRE_HASH \
-	        $CXR_ACTIVE_DAILY_PRE_HASH \
-	        $CXR_ACTIVE_MODEL_HASH \
-	        $CXR_ACTIVE_DAILY_POST_HASH \
-	        $CXR_ACTIVE_ONCE_POST_HASH)
-	
-	# Clear global hashes if we are alone
-	if [[ ${CXR_ALLOW_MULTIPLE} == false ]]
-	then
-		common.hash.destroy $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL
-		common.hash.destroy $CXR_ACTIVE_ONCE_PRE_HASH $CXR_HASH_TYPE_GLOBAL
-		common.hash.destroy $CXR_ACTIVE_DAILY_PRE_HASH $CXR_HASH_TYPE_GLOBAL
-		common.hash.destroy $CXR_ACTIVE_MODEL_HASH $CXR_HASH_TYPE_GLOBAL
-		common.hash.destroy $CXR_ACTIVE_DAILY_POST_HASH $CXR_HASH_TYPE_GLOBAL
-		common.hash.destroy $CXR_ACTIVE_ONCE_POST_HASH $CXR_HASH_TYPE_GLOBAL
-	fi
-	
-	
 	for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
 	do
 		type=${types[$iIteration]}
 		dir=${dirs[$iIteration]}
-		active_hash=${hashes[$iIteration]}
 		
-		# The enabled and disabled strings ore lists - we cannot do the array trick...
+		# The enabled and disabled strings are lists
 		case "$type" in
-	
-			"${CXR_TYPE_COMMON}" ) 
-				enabled_modules=""
-				disabled_modules="";;
-				
-			"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+			"${CXR_TYPE_PREPROCESS_ONCE}" )
 				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
 				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
 				;;
 				
-			"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+			"${CXR_TYPE_PREPROCESS_DAILY}" )
 				enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
 				disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
 				;;
 				
-			"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
-				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
-				;;
-				
-			"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
-				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
-				;;
-				
-			"${CXR_TYPE_MODEL}" ) 
+			"${CXR_TYPE_MODEL}" )
 				enabled_modules="$CXR_ENABLED_MODEL"
 				disabled_modules="$CXR_DISABLED_MODEL"
 				;;
 				
-			"${CXR_TYPE_INSTALLER}" ) 
-				enabled_modules="$CXR_ENABLED_INSTALLER"
-				disabled_modules="$CXR_DISABLED_INSTALLER"
+			"${CXR_TYPE_POSTPROCESS_DAILY}" )
+				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
 				;;
 				
+			"${CXR_TYPE_POSTPROCESS_ONCE}" )
+				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+				;;
+				
+
 			* ) 
-				main.dieGracefully "Unknown module type $type" ;;
+				main.dieGracefully "The module type $type is not relevant here" ;;
 		esac
 		
 		main.log -v "Adding $type modules..."
 		
 		if [[ -d "$dir" ]]
 		then
-			# Find all of them
+			# Find all *.sh files in this dir (no descent!)
 			files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
 
 			for file in $files
@@ -357,67 +310,76 @@ function common.state.updateInfo()
 				# We are still alive...
 				common.user.showProgress
 				
-				module_name="$(main.getModuleName $file)"
-				
-				# Add $file, $module_name and type to DB
+				module="$(main.getModuleName $file)"
 				
 				# Is this module active? (Enabled wins over disabled)
 				# if the module name is in the enabled list, run it,no matter what
-				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module_name")" == true ]]
+				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
 				then
 					# Module was explicitly enabled
 					run_it=true
-				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
+				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
 				then
 					# Module was not explicitly disabled and we did not disable all
 					run_it=true
 				else
 					# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
 					run_it=false
-					main.log -a "Module $module_name is disabled, skipped"
+					main.log -a "Module $module is disabled, skipped"
 				fi
 				
 				if [[ "$run_it" == true ]]
 				then
-					# All Hash (value is dummy)
-					common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+					# Like mentioned above, only active stuff is added.
+					# Other things are not needed.
+					# Add $file, $module and $type to DB
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUE ('$module','$type','$file')"
+				
+					# Add metadata
+					# grep the CXR_META_ vars that are not commented out
+					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
 					
-					if [[ "$active_hash" != - ]]
-					then
-						# The current types active hash
-						common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
-					fi
+					oIFS="$IFS"
+					# Set IFS to newline
+					IFS='
+'
+					for metafield in $list
+					do
+						# Parse this
+						# Field is to the left of the = sign
+						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')"
+						# the value is to the right (test quoting!!)
+						value="$(expr match "$metafield" '.*=\(\)')"
+						
+						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUE ('$module','$field','$value')"
+					done
+					
+					IFS="$oIFS"
+					
 				fi
-			
 			done # Loop over files
-			
 		else
-			main.log -w "Tried to add modules in $dir - directory not found. (May not be relevant)"
+			main.dieGracefully "Tried to add modules in $dir - directory not found."
 		fi # Directory exists?
 	done # loop over type-index
 	
 	# decrease global indent level
 	main.decreaseLogIndent
 	
-	CXR_MODULES_UP_TO_DATE=true
+	exit
 }
-
 
 ################################################################################
 # Function: common.state.init
 #
-# Creates the state DB directories for the current run
+# Creates the state database for the current run
 ################################################################################
 function common.state.init()
 ################################################################################
 {
-	local var
-	local file
-	
-	if [[ -z "${CXR_STATE_DIR}"  ]]
+	if [[ -z "${CXR_STATE_DIR}" ]]
 	then
-		main.log -e  "CXR_STATE_DIR not set!"
-		return 1
+		main.dieGracefully  "CXR_STATE_DIR not set!"
 	fi
 	
 	# Not started yet - create state dir first
@@ -442,6 +404,7 @@ function common.state.init()
 	common.hash.init Timing $CXR_HASH_TYPE_UNIVERSAL
 	
 	# In this hash, we store files that where decompressed (for all instances)
+	# Implies that all instances see the same CXR_TEMP_DIR
 	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL
 	
 	# In this hash, we store all output files that have been generated
@@ -455,7 +418,79 @@ function common.state.init()
 	
 	# Creating .continue file
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage" 1>&2
-	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
+	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
+	
+	main.log -v "Creating database schema..."
+	
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	-- Get exclusive access
+	PRAGMA main.locking_mode=EXCLUSIVE; 
+	
+	-- Here we store all installed stuff (just for installer)
+	CREATE TABLE IF NOT EXISTS installed (item,
+	                                      model,
+	                                      model_version);
+	
+	-- Here we store all known simulation days
+	CREATE TABLE IF NOT EXISTS days (day_offset,
+	                                 day_iso);
+	
+	-- These are the days we currently plan to run on
+	CREATE TABLE IF NOT EXISTS plan_days (day_offset,
+	                                      day_iso);
+
+	-- All modules go here
+	CREATE TABLE IF NOT EXISTS modules (module, 
+	                                    type,
+	                                    path);
+	CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
+
+	-- List of module types
+	CREATE TABLE IF NOT EXISTS types (type);
+	CREATE UNIQUE INDEX IF NOT EXISTS type_idx ON types(type);
+	
+	-- Storage of module metadata
+	CREATE TABLE IF NOT EXISTS metadata (module,
+	                                     field,
+	                                     value);
+
+	-- Table to store dependencies
+	CREATE TABLE IF NOT EXISTS dependencies (independent_module, 
+	                                         independent_day_offset, 
+	                                         independent_invocation, 
+	                                         dependent_module, 
+	                                         dependent_day_offset, 
+	                                         dependent_invocation);
+	
+	-- Table for all tasks comprising a run (static)
+	CREATE TABLE IF NOT EXISTS tasks (module,
+	                                 module_type,
+	                                 exclusive,
+	                                 day_offset,
+	                                 invocation,
+	                                 status,
+	                                 epoch_m);
+	                                 
+	-- Table for all steps we need to take, ordered
+	CREATE TABLE IF NOT EXISTS plan (id,
+	                                 module,
+	                                 module_type,
+	                                 exclusive,
+	                                 day_offset,
+	                                 invocation,
+	                                 status,
+	                                 epoch_m);
+	
+	-- Table for workers
+	CREATE TABLE IF NOT EXISTS workers (pid,
+	                                    hostname,
+	                                    status,
+	                                    current_task,
+	                                    epoch_m);
+	
+	PRAGMA main.locking_mode=NORMAL; 
+	
+	EOT
 	
 	# Update the module path hash and form the lists of active modules
 	common.state.updateInfo

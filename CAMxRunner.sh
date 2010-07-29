@@ -734,31 +734,31 @@ then
 			CXR_ENABLED_ONCE_POSTPROC=""
 			
 			# Decode arguments
-			for module_name in $CXR_RUN_LIST
+			for module in $CXR_RUN_LIST
 			do
 				# Determine type
-				module_type="$(common.module.getType "$module_name")"
+				module_type="$(common.module.getType "$module")"
 				
 				case "$module_type" in
 				
 					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module_name"
+						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
 						CXR_RUN_PRE_ONCE=true;;
 						
 					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module_name"
+						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
 						CXR_RUN_PRE_DAILY=true;;
 						
 					"${CXR_TYPE_MODEL}" ) 
-						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module_name"
+						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
 						CXR_RUN_MODEL=true;;
 						
 					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module_name"
+						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
 						CXR_RUN_POST_DAILY=true;;
 						
 					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module_name"
+						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
 						CXR_RUN_POST_ONCE=true;;
 						
 					* ) 
@@ -855,7 +855,7 @@ then
 		# Increase global indent level
 		main.increaseLogIndent
 	
-		main.log -v "${CXR_CALL} -r"module_name_list"\n"
+		main.log -v "${CXR_CALL} -r"module_list"\n"
 		common.module.listAllModules
 
 		# Decrease global indent level

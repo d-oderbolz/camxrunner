@@ -69,7 +69,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Creates a proper dependency string out of several inputs.
 #
 # Example:
-# > echo "${dependency} $(common.task.formatDependency "$module_name" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> $output_file
+# > echo "${dependency} $(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> $output_file
 # 
 # Parameters:
 # $1 - module name
@@ -81,13 +81,13 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.task.formatDependency()
 ################################################################################
 {
-	local module_name
+	local module
 	local module_type
 	local day_offset
 	local iInvocation
 	local nInvocations
 	
-	module_name="${1}"
+	module="${1}"
 	module_type="${2}"
 	day_offset="${3}"
 	iInvocation="${4}"
@@ -103,9 +103,9 @@ function common.task.formatDependency()
 		# Add invocation only if there is more than one
 		if [[ $nInvocations -gt 1 ]]
 		then
-			echo "${module_name}${day_offset}@${iInvocation}" 
+			echo "${module}${day_offset}@${iInvocation}" 
 		else
-			echo "${module_name}${day_offset}"
+			echo "${module}${day_offset}"
 		fi
 	else
 		# Without day offset
@@ -113,9 +113,9 @@ function common.task.formatDependency()
 		# Add invocation only if there is more than one
 		if [[ $nInvocations -gt 1 ]]
 		then
-			echo "${module_name}@${iInvocation}"
+			echo "${module}@${iInvocation}"
 		else
-			echo "${module_name}"
+			echo "${module}"
 		fi
 	fi
 }
@@ -154,32 +154,6 @@ function common.task.createDependencyList()
 	local keyString
 	
 	output_file="$1"
-	
-	# Add the different module types
-	if [[ "$CXR_RUN_PRE_ONCE" == true ]]
-	then
-		active_hashes="${active_hashes} ${CXR_ACTIVE_ONCE_PRE_HASH}"
-	fi
-	
-	if [[ "$CXR_RUN_PRE_DAILY" == true ]]
-	then
-		active_hashes="${active_hashes} ${CXR_ACTIVE_DAILY_PRE_HASH}"
-	fi
-	
-	if [[ "$CXR_RUN_MODEL" == true ]]
-	then
-		active_hashes="${active_hashes} ${CXR_ACTIVE_MODEL_HASH}"
-	fi
-	
-	if [[ "$CXR_RUN_POST_DAILY" == true ]]
-	then
-		active_hashes="${active_hashes} ${CXR_ACTIVE_DAILY_POST_HASH}"
-	fi
-	
-	if [[ "$CXR_RUN_POST_ONCE" == true ]]
-	then
-		active_hashes="${active_hashes} ${CXR_ACTIVE_ONCE_POST_HASH}"
-	fi
 	
 	# Loop through the module types in order
 	for active_hash in $active_hashes
@@ -430,7 +404,7 @@ function common.task.detectLockup()
 # Output variables:
 # _id
 # _exclusive
-# _module_name
+# _module
 # _day_offset
 # _invocation
 #
@@ -468,7 +442,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module_name,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -491,7 +465,7 @@ function common.task.setNextTask()
 		IFS="$oIFS"
 		
 		_id="$1"
-		_module_name="$2"
+		_module="$2"
 		_module_type="$3"
 		_exclusive="$4"
 		_day_offset="$5"
@@ -654,7 +628,7 @@ function common.task.Worker()
 	local exclusive
 	local raw_dependencies
 	local invocation
-	local module_name
+	local module
 	local day_offset
 	local start_epoch
 	
@@ -713,12 +687,12 @@ function common.task.Worker()
 				# task was already parsed by common.task.setNextTask
 				######################
 				
-				module_name="$_module_name"
+				module="$_module"
 				day_offset="$_day_offset"
 				invocation="$_invocation"
 				exclusive="$_exclusive"
 				
-				main.log -v "module: $module_name day_offset: $day_offset invocation: $invocation"
+				main.log -v "module: $module day_offset: $day_offset invocation: $invocation"
 				
 				if [[ "$exclusive" == true ]]
 				then
@@ -737,16 +711,16 @@ function common.task.Worker()
 					fi
 				fi
 				
-				module_path="$(common.module.getPath "$module_name")"
+				module_path="$(common.module.getPath "$module")"
 
-				raw_dependencies="$(common.module.getMetaField $module_name "CXR_META_MODULE_DEPENDS_ON")"
+				raw_dependencies="$(common.module.getMetaField $module "CXR_META_MODULE_DEPENDS_ON")"
 				
 				start_epoch=$CXR_EPOCH
 				
 				# We need to wait until all dependencies are ok
 				until [[ "$(common.module.areDependenciesOk? "$raw_dependencies" "$day_offset" )" == true ]]
 				do
-					main.log -v "Waiting for dependencies of $module_name to be done for day $day_offset"
+					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
 					
 					# Tell the system we wait, then sleep
 					common.task.waitingWorker $task_pid
@@ -754,25 +728,25 @@ function common.task.Worker()
 					
 					if [[ $(( $(date "+%s") - $start_epoch )) -gt $CXR_DEPENDECY_TIMEOUT_SEC ]]
 					then
-						main.dieGracefully "It took longer than CXR_DEPENDECY_TIMEOUT_SEC ($CXR_DEPENDECY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module_name for day $day_offset"
+						main.dieGracefully "It took longer than CXR_DEPENDECY_TIMEOUT_SEC ($CXR_DEPENDECY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_offset"
 					fi
 				done
 				
 				# Time to work
 				common.task.runningWorker $task_pid
 				
-				main.log -v "module: $module_name day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
+				main.log -v "module: $module day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
 				
-				main.log -a -B "common.task.Worker $task_pid assigned to $module_name for $CXR_DATE"
+				main.log -a -B "common.task.Worker $task_pid assigned to $module for $CXR_DATE"
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
 				
 				# Export the module name
-				CXR_META_MODULE_NAME=${module_name}
+				CXR_META_MODULE_NAME=${module}
 				
 				# source the file to get the rest of the metadata
 				source $module_path
@@ -932,7 +906,7 @@ function common.task.init()
 	local taskCount
 	local task_file
 	local line
-	local module_name
+	local module
 	local day_offset
 	local invocation
 	local module_type
@@ -1003,24 +977,24 @@ function common.task.init()
 			# this sets a couple of _variables
 			common.module.parseIdentifier "$line"
 
-			module_type="$(common.module.getType "$_module_name")"
-			exclusive="$(common.module.getMetaField "$_module_name" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
+			module_type="$(common.module.getType "$_module")"
+			exclusive="$(common.module.getMetaField "$_module" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
 			
 			# Convert date
 			raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${_day_offset:-0}"))"
-			my_stage="$(common.state.getStageName "$module_type" "$_module_name" "$raw_date" "$_invocation" )"
+			my_stage="$(common.state.getStageName "$module_type" "$_module" "$raw_date" "$_invocation" )"
 			
 			# Is this known to have worked?
 			if [[ "$(common.state.hasFinished? "$my_stage")" == false ]]
 			then
 				# estimate the runtime and add to total
-				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module_name)" -1 false)
+				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module)" -1 false)
 				
 				# we put this information into the DB
 				${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 				INSERT INTO tasks 
 				(id,
-				module_name,
+				module,
 				module_type,
 				exclusive,
 				day_offset,
@@ -1030,7 +1004,7 @@ function common.task.init()
 				VALUES
 				(
 				 $current_id,
-				'$_module_name',
+				'$_module',
 				'$module_type',
 				'$exclusive',
 				${_day_offset:-0},

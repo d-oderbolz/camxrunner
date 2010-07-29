@@ -48,7 +48,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Currently, no correction is done if a value is empty (this is by design)
 #
 # Output variables:
-# _module_name
+# _module
 # _day_offset
 # _invocation
 #
@@ -68,7 +68,7 @@ function common.module.parseIdentifier()
 	main.log -v "Parsing $identifier"
 	
 	# Get just lowercase text at the beginning
-	_module_name="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"
+	_module="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"
 		
 	# get only the digits after the name, must handle the empty case using || : (otherwise we die here)
 	# the @-sign might be missing
@@ -77,7 +77,7 @@ function common.module.parseIdentifier()
 	# get invocation - needs the @-sign
 	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
 	
-	main.log -v "module: $_module_name day_offset: $_day_offset invocation: $_invocation"
+	main.log -v "module: $_module day_offset: $_day_offset invocation: $_invocation"
 }
 
 ################################################################################
@@ -179,6 +179,35 @@ function common.module.getMetaField()
 }
 
 ################################################################################
+# Function: common.module.isActive?
+# 
+# Tests if a given module is active (listed in the modules table)
+#
+# Parameters:
+# $1 - name of a module
+################################################################################
+function common.module.isActive?()
+################################################################################
+{
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully "needs a module name as input"
+	fi
+	
+	local module
+	local count
+
+	# Count entries
+	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM module WHERE module='$1'")
+	
+	if [[ $count -eq 1 ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+################################################################################
 # Function: common.module.resolveSingleDependency
 # 
 # Resolves a single dependenency string (containig just one dependency), depending 
@@ -192,14 +221,7 @@ function common.module.getMetaField()
 # Any dependency that is not relevant (like module- for the first day) is not returned.
 # If a dependency is disabled and this is allowed, we warn the user, otherwise we terminate
 # 
-# Hashes:
-# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
-# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
-# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
-# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
-# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
-# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
-
+#
 # Parameters:
 # $1 - name of the dependency like "create_emissions" or a special dependency like "${CXR_DEP_ALL_MODEL}")
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
@@ -295,7 +317,7 @@ function common.module.resolveSingleDependency()
 		*) # A boring standard case
 		
 			# Is the dependency disabled?
-			if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dependency") == false ]]
+			if [[ $(common.module.isActive? "$dependency") == false ]]
 			then
 				# not active
 				# Do we care?
@@ -459,7 +481,7 @@ function common.module.areDependenciesOk?()
 	local raw_dependencies
 	local day_offset
 	local dep_day_offset
-	local dep_module_name
+	local dep_module
 	local dependency
 	local my_stage
 	local iInvocation
@@ -489,7 +511,7 @@ function common.module.areDependenciesOk?()
 		# this sets a couple of _variables
 		common.module.parseIdentifier "$dependency"
 		
-		dep_module_name="$_module_name"
+		dep_module="$_module"
 		dep_day_offset="$_day_offset"
 		dep_invocation="$_invocation"
 		
@@ -500,28 +522,28 @@ function common.module.areDependenciesOk?()
 		fi
 		
 		# Check if it is disabled
-		if [[ $(common.hash.has? $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL "$dep_module_name") == false  ]]
+		if [[ $(common.module.isActive? "$dep_module") == false  ]]
 		then
 			# Do we care?
 			if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]]
 			then
 				# No, user wants to ignore this
-				main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dep_module_name is disabled. We will not check if this module was run"
+				main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dep_module is disabled. We will not check if this module was run"
 				# Next dependency
 				continue
 			else
 				# Yes, we terminate
-				main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dep_module_name is disabled. The dependency $dep_module_name cannot be fulfilled!"
+				main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dep_module is disabled. The dependency $dep_module cannot be fulfilled!"
 			fi # disabled dependencies allowed?
 		fi # dependency disabled?
 		
 		# Determine type
-		module_type="$(common.module.getType "$dep_module_name")"
+		module_type="$(common.module.getType "$dep_module")"
 		
 		# Convert date
 		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
 		
-		my_stage="$(common.state.getStageName "$module_type" "$dep_module_name" "$raw_date" "$dep_invocation" )"
+		my_stage="$(common.state.getStageName "$module_type" "$dep_module" "$raw_date" "$dep_invocation" )"
 		
 		# Is this known to have worked?
 		if [[ "$(common.state.hasFinished? "$my_stage")" == true ]]
@@ -748,27 +770,27 @@ function test_module()
 	
 	# Testing parser. Always in groups of 3 with a call at the beginning
 	common.module.parseIdentifier convert_emissions
-	is "$_module_name" convert_emissions "common.module.parseIdentifier only module - name"
+	is "$_module" convert_emissions "common.module.parseIdentifier only module - name"
 	is "$_day_offset" "" "common.module.parseIdentifier only module - day offset"
 	is "$_invocation" "" "common.module.parseIdentifier only module - invocation"
 	
 	common.module.parseIdentifier some_module0
-	is "$_module_name" some_module "common.module.parseIdentifier module and day offset - name"
+	is "$_module" some_module "common.module.parseIdentifier module and day offset - name"
 	is "$_day_offset" 0 "common.module.parseIdentifier module and day offset - day offset"
 	is "$_invocation" "" "common.module.parseIdentifier module and day offset - invocation"
 	
 	common.module.parseIdentifier differentcase@2
-	is "$_module_name" differentcase "common.module.parseIdentifier module and invocation - name"
+	is "$_module" differentcase "common.module.parseIdentifier module and invocation - name"
 	is "$_day_offset" "" "common.module.parseIdentifier module and invocation - day offset"
 	is "$_invocation" 2 "common.module.parseIdentifier module and invocation - invocation"
 	
 	common.module.parseIdentifier ThatsNowAll3@1
-	is "$_module_name" ThatsNowAll "common.module.parseIdentifier complete - name"
+	is "$_module" ThatsNowAll "common.module.parseIdentifier complete - name"
 	is "$_day_offset" 3 "common.module.parseIdentifier complete - day offset"
 	is "$_invocation" 1 "common.module.parseIdentifier complete - invocation"
 	
 	common.module.parseIdentifier ThatsNowAll123@24
-	is "$_module_name" ThatsNowAll "common.module.parseIdentifier multidigit - name"
+	is "$_module" ThatsNowAll "common.module.parseIdentifier multidigit - name"
 	is "$_day_offset" 123 "common.module.parseIdentifier multidigit - day offset"
 	is "$_invocation" 24 "common.module.parseIdentifier multidigit - invocation"
 	

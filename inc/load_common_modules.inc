@@ -21,7 +21,7 @@
 		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 		do
 			
-			# Create the "bare" name (analogous to extract_module_name, but hen&egg)
+			# Create the "bare" name
 			BASE_FUNCTION_NAME=$(basename $FUNCTION_FILE)
 			RAW_FUNCTION_NAME=${BASE_FUNCTION_NAME%.sh}
 
