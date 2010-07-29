@@ -327,6 +327,8 @@ function common.state.updateInfo()
 					# We are still alive...
 					common.user.showProgress
 					
+					main.log -a "Adding $file"
+					
 					module="$(main.getModuleName $file)"
 					
 					# Is this module active? (Enabled wins over disabled)
@@ -375,7 +377,8 @@ function common.state.updateInfo()
 						done
 						
 						IFS="$oIFS"
-						
+					else
+						mainlog -a "File $file not added."
 					fi
 				done # Loop over files
 			else
