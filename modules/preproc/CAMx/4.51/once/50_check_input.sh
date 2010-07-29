@@ -1,1 +1,0 @@
-../../4.42/once/50_check_input.sh

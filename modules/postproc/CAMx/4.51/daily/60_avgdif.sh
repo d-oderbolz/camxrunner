@@ -1,1 +1,0 @@
-../../4.42/daily/60_avgdif.sh
