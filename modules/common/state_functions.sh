@@ -249,8 +249,7 @@ function common.state.updateInfo()
 	local value
 	
 	# Only update info if we are not a slave
-	if [[	$taskCount -ne 0 && \
-			${CXR_ALLOW_MULTIPLE} == true && \
+	if [[	${CXR_ALLOW_MULTIPLE} == true && \
 			"$(common.state.countInstances)" -gt 1 ]]
 	then
 		# We are in a non-master multiple runner
