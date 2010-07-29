@@ -383,6 +383,8 @@ function common.state.updateInfo()
 			fi # Directory exists?
 		done # loop over type-index
 		
+		main.log -a "Module data successfully collected."
+		
 		# decrease global indent level
 		main.decreaseLogIndent
 	
