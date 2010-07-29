@@ -123,7 +123,7 @@ function common.hash.init()
 	main.log -v "Creating DB $db_file"
 	
 	# Create table, no matter what
-	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (hash, key, value , model, version, epoch_c)"
+	${CXR_SQLITE_EXEC} "$db_file" "CREATE TABLE IF NOT EXISTS hash (hash, key, value, epoch_c)"
 	# Create two indexes
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS hash_idx ON hash(hash)"
 	${CXR_SQLITE_EXEC} "$db_file" "CREATE INDEX IF NOT EXISTS key_idx ON hash(key)"
@@ -176,38 +176,25 @@ function common.hash.destroy()
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
 # $4 - value
-# [$5] - restrict_model_version , boolean, if true (default false), we write tag this entry with the model and version
 ################################################################################
 function common.hash.put()
 ################################################################################
 {
-	if [[ $# -lt 4 || $# -gt 5 ]]
+	if [[ $# -ne 4 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key, a value and an optional boolean (restrict_model_version) as input. Got $@"
+		main.dieGracefully "needs a hash, a valid hash-type, a key and a value as input. Got $@"
 	fi
 	
 	local hash
 	local type
 	local key
 	local value
-	local restrict_model_version
-	local model
-	local version
+
 	
 	hash="$1"
 	type="$2"
 	key="$3"
 	value="$4"
-	restrict_model_version="${5:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	local db_file
 	
@@ -224,7 +211,7 @@ function common.hash.put()
 	fi
 	
 	# Write value to DB
-	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (hash, key, value , model, version, epoch_c) VALUES ('$hash','$key','$value','$model','$version',$(date "+%s"))" || :
+	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (hash, key, value , epoch_c) VALUES ('$hash','$key','$value',$(date "+%s"))" || :
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"
@@ -251,36 +238,22 @@ function common.hash.put()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.get()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	local hash
 	local type
 	local key
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	local value
 	
@@ -306,7 +279,7 @@ function common.hash.get()
 			echo ""
 		else
 			# Read the contents
-			value="$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")"
+			value="$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")"
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -342,37 +315,23 @@ function common.hash.get()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.getAll()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	local hash
 	local type
 	local key
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
-	
+
 	local value
 	
 	main.log -v "Getting al values for $key out of hash $hash $type"
@@ -391,7 +350,7 @@ function common.hash.getAll()
 		# Dummy for the parser
 		:
 		# get the contents
-		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c ASC"
+		${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c ASC"
 	fi
 }
 
@@ -404,37 +363,23 @@ function common.hash.getAll()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.delete()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	local hash
 	local type
 	local key
 	local db_file
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$type")"
@@ -445,7 +390,7 @@ function common.hash.delete()
 		main.log -w "DB $db_file not found!"
 	else
 		# delete entry
-		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version'"
+		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
 	fi
 }
 
@@ -459,12 +404,11 @@ function common.hash.delete()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.remove()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
@@ -472,15 +416,13 @@ function common.hash.remove()
 	local hash
 	local type
 	local key
-	local restrict_model_version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
 	
-	common.hash.get "$hash" "$type" "$key" $restrict_model_version
-	common.hash.delete "$hash" "$type" "$key" $restrict_model_version
+	common.hash.get "$hash" "$type" "$key"
+	common.hash.delete "$hash" "$type" "$key"
 }
 
 ################################################################################
@@ -524,44 +466,31 @@ function common.hash.getMtime()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.getValueMtime()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	local hash
 	local type
 	local key
 	local db_file
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
 	local mtime
 	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$type")"
 	
 	# Get the value
-	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+	mtime=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 	
 	echo $mtime
 }
@@ -581,37 +510,24 @@ function common.hash.getValueMtime()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.has?()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4  ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	local hash
 	local type
 	local key
 	local db_file
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
+
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$type")"
@@ -622,12 +538,12 @@ function common.hash.has?()
 		_has=false
 	else
 		# get the rowcount
-		rowcount=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+		rowcount=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 
 		if [[ $rowcount -gt 0 ]]
 		then
 			# Get the value
-			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' AND model='$model' AND version='$version' ORDER BY epoch_c DESC LIMIT 1")
+			value=$(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -655,37 +571,32 @@ function common.hash.has?()
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 # $3 - key
-# [$4] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.isNew?()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
 	fi
 	
 	
 	local hash
 	local type
 	local key
-	local restrict_model_version
-	local model
-	local version
 	
 	hash="$1"
 	type="$2"
 	key="$3"
-	restrict_model_version="${4:-false}"
 	
 	local res
 	
 	# Is it in the hash?
-	if [[ $(common.hash.has? "$hash" "$type" "$key" "$restrict_model_version") == true ]]
+	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(common.hash.getValueMtime "$hash" "$type" "$key" "$restrict_model_version")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(common.hash.getValueMtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -731,14 +642,13 @@ function common.hash.isNew?()
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.getKeys()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
 	local hash
@@ -747,24 +657,12 @@ function common.hash.getKeys()
 	local found
 	local key
 	local list
-	local restrict_model_version
-	local model
-	local version
+
 	local db_file
 	
 	hash="$1"
 	type="$2"
-	restrict_model_version="${3:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
-	
+
 	found=false
 	
 	# Work out the filename
@@ -775,7 +673,7 @@ function common.hash.getKeys()
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash' AND model='$model' AND version='$version'")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash'")
 		do
 			found=true
 
@@ -825,14 +723,13 @@ function common.hash.getKeys()
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.getValues()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
 	local hash
@@ -841,23 +738,11 @@ function common.hash.getValues()
 	local found
 	local value
 	local list
-	local restrict_model_version
-	local model
-	local version
+
 	local db_file
 	
 	hash="$1"
 	type="$2"
-	restrict_model_version="${3:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	found=false
 	
@@ -869,7 +754,7 @@ function common.hash.getValues()
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version'")
+		for value in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT value FROM hash WHERE hash='$hash'")
 		do
 			found=true
 
@@ -918,14 +803,13 @@ function common.hash.getValues()
 # Parameters:
 # $1 - name of the hash
 # $2 - type of hash, either "$CXR_HASH_TYPE_INSTANCE" , "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# [$3] - restrict_model_version , boolean, if true (default false), we get only an entry for this model and version
 ################################################################################
 function common.hash.getKeysAndValues()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type an an optional boolean (restrict_model_version) as input"
+		main.dieGracefully "needs a hash and a valid hash-type as input"
 	fi
 	
 	local hash
@@ -934,23 +818,11 @@ function common.hash.getKeysAndValues()
 	local found
 	local key
 	local list
-	local restrict_model_version
-	local model
-	local version
+	
 	local db_file
 	
 	hash="$1"
 	type="$2"
-	restrict_model_version="${3:-false}"
-	
-	if [[ "$restrict_model_version" == true ]]
-	then
-		model=$CXR_MODEL
-		version=$CXR_MODEL_VERSION
-	else
-		model=any
-		version=any
-	fi
 	
 	found=false
 	
@@ -962,7 +834,7 @@ function common.hash.getKeysAndValues()
 	if [[ -f ${db_file} ]]
 	then
 		# DB exists, get data
-		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' AND model='$model' AND version='$version' GROUP BY key, value HAVING MAX(epoch_c)")
+		for key in $(${CXR_SQLITE_EXEC} "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)")
 		do
 			found=true
 
