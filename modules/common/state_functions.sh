@@ -246,7 +246,7 @@ function common.state.updateInfo()
 	local metafiled
 	local list
 	local field
-	lacal value
+	local value
 
 	# Create a few working arrays we will go through
 	types=($CXR_TYPE_PREPROCESS_ONCE \
