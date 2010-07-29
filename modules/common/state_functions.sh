@@ -298,7 +298,7 @@ function common.state.updateInfo()
 				main.dieGracefully "The module type $type is not relevant here" ;;
 		esac
 		
-		main.log -v "Adding $type modules..."
+		main.log -a "Adding $type modules..."
 		
 		if [[ -d "$dir" ]]
 		then
