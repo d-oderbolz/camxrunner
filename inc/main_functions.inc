@@ -925,12 +925,17 @@ function main.isSubstringPresent?()
 	haystack=$1
 	needle=$2
 	
-	if [[ -z "$haystack" || -z "$needle" ]]
+	if [[ -z "$haystack" ]]
 	then
 		# This can happen often and is not necessarily an error
-		main.log -v "Either of these parameters is empty: $haystack $needle"
+		main.log -v "Empty haystack (This can happen often and is not necessarily an error)"
 	fi
 	
+	if [[ -z "$needle" ]]
+	then
+		# This can happen often and is not necessarily an error
+		main.log -v main.log -v "Empty needle (This can happen often and is not necessarily an error)"
+	fi
 	
 	found=$(expr match " $haystack" ".*$needle.*")
 	# For safety, here        ^ is a space, so that things never start at 0
