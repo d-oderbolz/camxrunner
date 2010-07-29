@@ -74,7 +74,7 @@ function common.state.getLastDayModelled()
 	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
 		# Let the database tell it
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM plan WHERE status='$CXR_STATUS_SUCCESS'"
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM tasks WHERE status='$CXR_STATUS_SUCCESS'"
 	else
 		echo ""
 	fi
@@ -95,77 +95,12 @@ function common.state.getFirstDayModelled()
 	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
 		# Let the database tell it
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM plan WHERE status='$CXR_STATUS_SUCCESS'"
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM tasks WHERE status='$CXR_STATUS_SUCCESS'"
 	else
 		echo ""
 	fi
 	
 	return $CXR_RET_OK
-}
-
-################################################################################
-# Function: common.state.getStageName
-#
-# Generates the name of the current stage from the parameters.
-# Names are dependent on the type of module.
-# Names have the form
-# ${CXR_DATE_RAW}@${CXR_META_MODULE_TYPE}@${CXR_META_MODULE_NAME}@${CXR_INVOCATION}
-# We choose names that sort more or less nicely.
-# 
-# Parameters:
-# $1 - module type
-# $2 - module name
-# $3 - raw date (may be empty, depending on module type)
-# $4 - invocation (may be empty)
-################################################################################
-function common.state.getStageName()
-################################################################################
-{
-	local module_type
-	local module
-	local date
-	local invocation
-	
-	if [[ $# -lt 3 ]]
-	then
-		# Use the environment
-		module_type="${CXR_META_MODULE_TYPE}"
-		module="${CXR_META_MODULE_NAME}"
-		date="${CXR_DATE_RAW:-date_not_set}"
-		invocation="${CXR_INVOCATION:-1}"
-	else
-		# Use parameters
-		module_type="${1}"
-		module="${2}"
-		date="${3}"
-		invocation="${4:-1}"
-	fi
-	
-	case "${module_type}" in
-		${CXR_TYPE_COMMON}) 
-			# A common module normally does not need this, but who knows?
-			echo ${date}@${module_type}@${module}@${invocation} ;; 
-		
-		${CXR_TYPE_PREPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module}@${invocation} ;;
-			
-		${CXR_TYPE_PREPROCESS_ONCE}) 
-			echo _@${module_type}@${module}@${invocation} ;;
-			
-		${CXR_TYPE_POSTPROCESS_DAILY}) 
-			echo ${date}@${module_type}@${module}@${invocation} ;;
-		
-		${CXR_TYPE_POSTPROCESS_ONCE}) 
-			echo ZZ_@${module_type}@${module}@${invocation} ;;
-			
-		${CXR_TYPE_MODEL} ) 
-			echo ${date}@${module_type}@${module}@${invocation} ;;
-			
-		${CXR_TYPE_INSTALLER}) 
-			echo ${module_type}@${module}@${invocation} ;;
-			
-	 *) main.dieGracefully "Unknown module type ${module_type}";;
-	esac
 }
 
 ################################################################################
@@ -428,16 +363,14 @@ function common.state.init()
 	
 	-- Here we store all known simulation days
 	CREATE TABLE IF NOT EXISTS days (day_offset,
-	                                 day_iso);
-	
-	-- These are the days we currently plan to run on
-	CREATE TABLE IF NOT EXISTS plan_days (day_offset,
-	                                      day_iso);
+	                                 day_iso,
+	                                 active);
 
 	-- All modules go here
 	CREATE TABLE IF NOT EXISTS modules (module, 
 	                                    type,
-	                                    path);
+	                                    path,
+	                                    active);
 	CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
 
 	-- List of module types
@@ -458,21 +391,12 @@ function common.state.init()
 	                                         dependent_invocation);
 	
 	-- Table for all tasks comprising a run (static)
-	CREATE TABLE IF NOT EXISTS tasks (module,
-	                                 module_type,
-	                                 exclusive,
-	                                 day_offset,
-	                                 invocation,
-	                                 status,
-	                                 epoch_m);
-	                                 
-	-- Table for all steps we need to take, ordered
-	CREATE TABLE IF NOT EXISTS plan (id,
+	CREATE TABLE IF NOT EXISTS tasks (task_id,
+	                                 rank,
 	                                 module,
 	                                 module_type,
 	                                 exclusive,
 	                                 day_offset,
-	                                 day_iso,
 	                                 invocation,
 	                                 status,
 	                                 seconds_estimated,
@@ -588,7 +512,7 @@ function common.state.storeStatus()
 	esac
 	
 	# Update the database
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE plan set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
 	
 	return $CXR_RET_OK
 }
@@ -622,7 +546,7 @@ function common.state.detectInstances()
 	if [[ ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false ]]
 	then
 		# There are other processes running and this is not allowed
-		main.log -e   "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
+		main.log -e "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
 		
 		find "${CXR_ALL_INSTANCES_DIR}" -noleaf -type d -maxdepth 1 2>/dev/null | tee -a ${CXR_LOG}
 		
@@ -723,8 +647,6 @@ function common.state.hasFailed?()
 # - Deletes only part of the state information
 # - Respects also the task structures
 # All is in a endless loop so one can quickly delete a lot of stuff
-#
-# There is a lot of redundant code here, must be refactored if time permits
 # 
 ################################################################################
 function common.state.cleanup()
@@ -1037,17 +959,17 @@ function common.state.doContinue?()
 ################################################################################
 # Function: common.state.getPercentDone
 # 
-# Calculates the % of tasks done (only on the plan)
+# Calculates the % of tasks done
 ################################################################################
-function common.state.getPercentOfPlanDone()
+function common.state.getPercentDone()
 ################################################################################
 {
 	local percentDone
 	local done
 	local total
 	
-	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan WHERE status NOT IN('$CXR_STATUS_TODO')")
-	total=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan")
+	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN('$CXR_STATUS_TODO')")
+	total=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")
 	
 	if [[ $total -gt 0 ]]
 	then
@@ -1070,7 +992,7 @@ function common.state.reportEta()
 	local percentDone
 	local estimatedTimeSeconds
 	
-	percentDone=$(common.state.getPercentOfPlanDone)
+	percentDone=$(common.state.getPercentDone)
 	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
 	
 	# Only goes to stderr

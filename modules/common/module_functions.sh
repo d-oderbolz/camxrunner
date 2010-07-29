@@ -241,7 +241,6 @@ function common.module.resolveSingleDependency()
 	local my_prefix
 	local active_hash
 	local module_type
-	local raw_date
 	local resolved_dependencies
 	local resolved_dependency
 	local module
@@ -540,10 +539,7 @@ function common.module.areDependenciesOk?()
 		# Determine type
 		module_type="$(common.module.getType "$dep_module")"
 		
-		# Convert date
-		raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${dep_day_offset}"))"
-		
-		my_stage="$(common.state.getStageName "$module_type" "$dep_module" "$raw_date" "$dep_invocation" )"
+		my_stage="$(common.state.getStageName "$dep_module" "$dep_day_offset" "$dep_invocation" )"
 		
 		# Is this known to have worked?
 		if [[ "$(common.state.hasFinished? "$my_stage")" == true ]]

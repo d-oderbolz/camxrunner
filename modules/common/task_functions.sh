@@ -64,60 +64,44 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: common.task.formatDependency
+# Function: common.task.getId
 #
-# Creates a proper dependency string out of several inputs.
+# Creates a task Id out of several inputs. Can be used to identify a task,
+# be it as a dependency or otherwise.
+#
+# Format: $raw_date@$module@$invocation
 #
 # Example:
-# > echo "${dependency} $(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> $output_file
+# > echo "${dependency} $(common.task.getId "$module" "$day_offset" "$iInvocation" )" >> $output_file
 # 
 # Parameters:
 # $1 - module name
-# $2 - module type
-# $3 - day offset
-# $4 - iInvocation
-# $5 - nInvocations
+# $2 - day offset
+# $3 - iInvocation
 ################################################################################
-function common.task.formatDependency()
+function common.task.getId()
 ################################################################################
 {
 	local module
-	local module_type
 	local day_offset
 	local iInvocation
 	local nInvocations
-	
-	module="${1}"
-	module_type="${2}"
-	day_offset="${3}"
-	iInvocation="${4}"
-	nInvocations="${5}"
+	local date
 
-	# Create dependency string
-	if [[ "$module_type" == "${CXR_TYPE_MODEL}" ||\
-	      "$module_type" == "${CXR_TYPE_PREPROCESS_DAILY}" ||\
-	      "$module_type" == "${CXR_TYPE_POSTPROCESS_DAILY}" ]]
+	if [[ $# -lt 3 ]]
 	then
-		# With day offset
-		
-		# Add invocation only if there is more than one
-		if [[ $nInvocations -gt 1 ]]
-		then
-			echo "${module}${day_offset}@${iInvocation}" 
-		else
-			echo "${module}${day_offset}"
-		fi
+		# Use the environment
+		module="${CXR_META_MODULE_NAME}"
+		date="${CXR_DATE_RAW:-any_date}"
+		invocation="${CXR_INVOCATION:-1}"
 	else
-		# Without day offset
-		
-		# Add invocation only if there is more than one
-		if [[ $nInvocations -gt 1 ]]
-		then
-			echo "${module}@${iInvocation}"
-		else
-			echo "${module}"
-		fi
+		# Use parameters
+		module="${1}"
+		date="$(common.date.toRaw $(common.date.OffsetToDate "${2:-0}"))"
+		invocation="${3:-1}"
 	fi
+	
+	echo "${date}${module}@${iInvocation}" 
 }
 
 
