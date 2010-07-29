@@ -115,6 +115,7 @@ function common.test.all()
 	local total_tests
 	local message
 	local function_file
+	local metafield
 	local extended
 	
 	iput_model="${1:-}"
@@ -261,10 +262,18 @@ function common.test.all()
 			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
 				module="$(main.getModuleName "$function_file")"
-				num_tests="$(common.module.getMetaField "$module" "CXR_META_MODULE_NUM_TESTS")"
-				
-				main.log -v  "Found $num_tests in $module"
-				
+
+				# Extract the number of tests using grep
+				# Similar code is used in <common.state.updateInfo>
+
+				metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_NUM_TESTS\{1,\}=.*' $function_file)
+
+				# the value is to the right
+				num_tests="$(expr match "$metafield" '.*=\(.*\)')" || :
+
+				# OK, we want all quoting gone and variables expanded
+				num_tests="$(eval "echo $(echo "$value")")"
+
 				total_tests=$(( $total_tests + $num_tests ))
 			done
 		done

@@ -364,7 +364,7 @@ function common.state.updateInfo()
 							# Parse this
 							# Field is to the left of the = sign
 							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
-							# the value is to the right (test quoting!!)
+							# the value is to the right
 							value="$(expr match "$metafield" '.*=\(.*\)')" || :
 							
 							# OK, we want all quoting gone and variables expanded
@@ -387,8 +387,6 @@ function common.state.updateInfo()
 		main.decreaseLogIndent
 	
 	fi
-	
-	exit
 }
 
 ################################################################################
