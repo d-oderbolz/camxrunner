@@ -209,7 +209,7 @@ function convert_output()
 	local options
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
@@ -219,7 +219,7 @@ function convert_output()
 		if [[ $(common.check.preconditions) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -285,7 +285,7 @@ function convert_output()
 					continue
 				else
 					main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-					common.state.storeState ${CXR_STATE_ERROR}
+					common.state.storeStatus ${CXR_STATUS_FAILURE}
 					return $CXR_RET_ERROR
 				fi
 			fi
@@ -311,13 +311,13 @@ function convert_output()
 		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 		
-		common.state.storeState ${CXR_STATE_STOP} > /dev/null
+		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi

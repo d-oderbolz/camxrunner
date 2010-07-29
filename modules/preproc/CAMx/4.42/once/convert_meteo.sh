@@ -140,7 +140,7 @@ function convert_meteo()
 	local DayOffset
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
 		#  --- Setup the Environment
 		set_variables 
@@ -149,7 +149,7 @@ function convert_meteo()
 		if [[ $(common.check.preconditions -i) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -183,14 +183,14 @@ function convert_meteo()
 		if [[ $(common.check.postconditions) == false  ]]
 		then
 			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
 		fi
 
 		# Store the state
-		common.state.storeState ${CXR_STATE_STOP} > /dev/null
+		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi

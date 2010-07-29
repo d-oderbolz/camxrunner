@@ -42,8 +42,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.state.isRepeatedRun?
 #
-# Returns true, if this run was already started earlier (basically a check if the 
-# state directory is empty)
+# Returns true, if this run was already started earlier (If there are any Non-Todo Tasks)
 # 
 ################################################################################
 function common.state.isRepeatedRun?()
@@ -51,11 +50,10 @@ function common.state.isRepeatedRun?()
 {
 	local count
 	
-	count=$(find ${CXR_STATE_DIR} -maxdepth 1 -noleaf -type f 2>/dev/null | wc -l)
+	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO'))
+	main.log -v  "Counting $count tasks that where already touched"
 	
-	main.log -v  "File count in state directory: $count"
-	
-	if [[ "$count" -gt 0  ]]
+	if [[ "$count" -gt 0 ]]
 	then
 		echo true
 	else
@@ -73,23 +71,10 @@ function common.state.isRepeatedRun?()
 function common.state.getLastDayModelled()
 ################################################################################
 {
-	local max_day
-	local date
-	
 	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
-		# A similar expression is used in common.state.cleanup
-		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | tail -n1)
-		
-		if [[ "$max_day" ]]
-		then
-			# Convert to ISO
-			date=$(common.date.toISO "$max_day")
-		
-			echo "$date"
-		else
-			echo ""
-		fi
+		# Let the database tell it
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM plan WHERE status='$CXR_STATUS_SUCCESS'"
 	else
 		echo ""
 	fi
@@ -107,23 +92,10 @@ function common.state.getLastDayModelled()
 function common.state.getFirstDayModelled()
 ################################################################################
 {
-	local min_day
-	local date
-	
 	if [[ $(common.state.isRepeatedRun?) == true  ]]
 	then
-		# A similar expression is used in common.state.cleanup
-		max_day=$(find ${CXR_STATE_DIR} -noleaf -type f 2>/dev/null | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq | head -n1)
-		
-		if [[ "$min_day" ]]
-		then
-			# Convert to ISO
-			date=$(common.date.toISO "$min_day")
-		
-			echo "$date"
-		else
-			echo ""
-		fi
+		# Let the database tell it
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM plan WHERE status='$CXR_STATUS_SUCCESS'"
 	else
 		echo ""
 	fi
@@ -500,6 +472,7 @@ function common.state.init()
 	                                 module_type,
 	                                 exclusive,
 	                                 day_offset,
+	                                 day_iso,
 	                                 invocation,
 	                                 status,
 	                                 seconds_estimated,
@@ -522,9 +495,9 @@ function common.state.init()
 }
 
 ################################################################################
-# Function: common.state.storeState
+# Function: common.state.storeStatus
 #
-# Stores the current state of a run, can be either $CXR_STATE_START, $CXR_STATE_STOP or $CXR_STATE_ERROR.
+# Stores the current status of a run, can be either $CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE.
 # In the case of ERROR, we will take note of the fact.
 #
 # If a stage starts, checks if this stage was already executed.
@@ -539,50 +512,52 @@ function common.state.init()
 # 	$CXR_RET_ALREADY_RUN if this stage was already started (false)
 #
 # Parameters:
-# $1 - State (START, STOP, ERROR)
-# [$2] - an optional name of a state, currently used by installation. 
-#        Installation prefix the names with the model name and version.
+# $1 - status ($CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE.)
 ################################################################################
-function common.state.storeState()
+function common.state.storeStatus()
 ################################################################################
 {
-	
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a state like $CXR_STATE_ERROR as Input"   
+		main.dieGracefully "needs a state like $CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE as Input"   
 	fi
 	
-	local state
+	local status
 	local stage
 	
-	state=$1
-	# stage is either passed or set using common.state.getStageName
-	stage="${2:-$(common.state.getStageName)}"
+	status=$1
+	
+	# Get a nice string describing where we are
+	stage=$(common.state.getStageName)
+	
+	# Set the current state data
+	module="${CXR_META_MODULE_NAME}"
+	day_offset="${CXR_DAY_OFFSET}"
+	invocation="${CXR_INVOCATION:-1}"
 	
 	# Do we care at all?
 	# Set CXR_ENABLE_STATE_DB to false in tests etc.
-	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
+	if [[ "$CXR_ENABLE_STATE_DB" == false ]]
 	then
-		main.log -v   "You disabled the state DB (CXR_ENABLE_STATE_DB=false), new state will not be stored."
+		main.log -v "You disabled the state DB (CXR_ENABLE_STATE_DB=false), new status will not be stored."
 		echo true
 		return $CXR_RET_OK
 	fi
 	
-	case "$state" in
+	case "$status" in
 	
-		"$CXR_STATE_START") 
+		"$CXR_STATUS_RUNNING") 
 			# Check if this was already started
-			if [[ $(common.state.hasFinished? "$stage") == true  ]]
+			if [[ $(common.state.hasFinished? "$module" "$day_offset" "$invocation") == true ]]
 			then
-				
-				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true  ]]
+				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true ]]
 				then
 					# Ran already, but user wants to run specifically this
-					main.log -w  "stage $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
+					main.log -w  "Task $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
 					echo true
 				else
 					# Oops, this stage was already started	
-					main.log -w  "stage $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+					main.log -w  "Task $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 					
 					# false means already run
 					echo false
@@ -593,26 +568,28 @@ function common.state.storeState()
 			fi
 			;;
 	
-			"$CXR_STATE_STOP")
-				main.log "stage $stage successfully completed."
+			"$CXR_STATUS_SUCCESS")
+				main.log "Task $stage successfully completed."
 				echo true
 				;;
 	
-			"$CXR_STATE_ERROR")
+			"$CXR_STATUS_FAILURE")
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				main.log -e "An error has occured during the execution of $stage!"
+				main.log -e "An error has occured during the execution of task $stage!"
 				echo false
 			;;
 			
 			*)
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				main.dieGracefully "Unknown state $state given"
+				main.dieGracefully "Unknown state $status given"
 				echo false
+				return $CXR_RET_ERROR
 			;;
 	esac
 	
-	# Touch your state file
-	touch "$(_common.state.getStateFileName "$state" "$stage")" 
+	# Update the database
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE plan set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
+	
 	return $CXR_RET_OK
 }
 
@@ -658,17 +635,19 @@ function common.state.detectInstances()
 ################################################################################
 # Function: common.state.hasFinished?
 #	
-# Check if a specific stage has finished.
+# Checks if a specific stage has finished.
 #
 # Parameters:	
-# $1 - stage to test
+# $1 - module name
+# $2 - day_offset
+# $3 - invocation
 ################################################################################
 function common.state.hasFinished?()
 ################################################################################
 {
-	if [[ $# -ne 1 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a state and a stage as Input" 
+		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
 		echo false
 	fi
 	
@@ -677,12 +656,12 @@ function common.state.hasFinished?()
 	local stop_file
 	
 	stage="$1"
-	start_file=$(_common.state.getStateFileName "${CXR_STATE_START}" "${stage}")
-	stop_file=$(_common.state.getStateFileName "${CXR_STATE_STOP}" "${stage}")
+	start_file=$(_common.state.getStateFileName "${CXR_STATUS_RUNNING}" "${stage}")
+	stop_file=$(_common.state.getStateFileName "${CXR_STATUS_SUCCESS}" "${stage}")
 	
 	main.log -v "Testing stage ${stage}, looking for ${start_file} and ${stop_file}"
 	
-	if [[ -f "$stop_file"  ]]
+	if [[ -f "$stop_file" ]]
 	then
 	
 		if [[ -f "$start_file"  ]]
@@ -706,18 +685,19 @@ function common.state.hasFinished?()
 ################################################################################
 # Function: common.state.hasFailed?
 #	
-# Check if a specific stage has failed. We do not consider if we have a start file,
-# we check if we have an error file.
+# Check if a specific task has failed.
 #
 # Parameters:	
-# $1 - stage to test
+# $1 - module name
+# $2 - day_offset
+# $3 - invocation
 ################################################################################
 function common.state.hasFailed?()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a state and a stage as Input" 
+		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
 		echo false
 	fi
 	
@@ -725,7 +705,7 @@ function common.state.hasFailed?()
 	local error_file
 	
 	stage="$1"
-	error_file=$(_common.state.getStateFileName "${CXR_STATE_ERROR}" "${stage}")
+	error_file=$(_common.state.getStateFileName "${CXR_STATUS_FAILURE}" "${stage}")
 	
 	if [[ -f "$error_file"  ]]
 	then
@@ -1066,7 +1046,7 @@ function common.state.getPercentOfPlanDone()
 	local done
 	local total
 	
-	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan WHERE status NOT IN('$CXR_STATE_TODO')")
+	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan WHERE status NOT IN('$CXR_STATUS_TODO')")
 	total=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan")
 	
 	if [[ $total -gt 0 ]]

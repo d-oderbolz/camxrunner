@@ -184,7 +184,7 @@ function prepare_output_dir()
 	fi
 
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
@@ -194,7 +194,7 @@ function prepare_output_dir()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -247,7 +247,7 @@ function prepare_output_dir()
 		
 		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
 
-		common.state.storeState ${CXR_STATE_STOP} > /dev/null
+		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi

@@ -107,7 +107,7 @@ function set_permissions
 	CXR_INVOCATION=${1:-1}
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
 	
 		#  --- Setup the Environment 
@@ -117,7 +117,7 @@ function set_permissions
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -146,14 +146,14 @@ function set_permissions
 		else
 			# Nope, we need an octal permision string
 			main.log  "We need an octal permission string in CXR_OUTPUT_DIR_PERMISSIONS, got ${CXR_OUTPUT_DIR_PERMISSIONS}"
-			common.state.storeState ${CXR_STATE_ERROR}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
 		# OK, done
-		common.state.storeState ${CXR_STATE_STOP} > /dev/null
+		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
 		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi

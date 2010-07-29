@@ -52,13 +52,6 @@ CXR_NO_LOCKING=false
 # Just for main.usage
 progname=CAMxRunner.sh
 
-# Define Statusses
-CXR_STATUS_SUCCESS=SUCCESS
-
-
-CXR_STATUS_FAILURE=FAILURE
-
-
 # If we exit unexpectedly, we will indicate failure
 CXR_STATUS=$CXR_STATUS_FAILURE
 
@@ -186,24 +179,18 @@ CXR_ENABLE_STATE_DB=true
 CXR_DISABLED_EXT=disabled
 
 # Stages that the state DB knows
-CXR_STATE_START=START # RUNNING
-CXR_STATE_STOP=STOP		# SUCCESS
-CXR_STATE_ERROR=ERROR 
+CXR_STATUS_RUNNING=RUNNING
+CXR_STATUS_SUCCESS=SUCCESS
+CXR_STATUS_FAILURE=FAILURE
 
-# New ones
-CXR_STATE_RUNNING=RUNNING
-CXR_STATE_TODO=TODO
-CXR_STATE_WAITING=WAITING
-CXR_STATE_SUCCESS=SUCCESS
-CXR_STATE_FAILURE=FAILURE
+CXR_STATUS_TODO=TODO
+CXR_STATUS_WAITING=WAITING
 
 # Change this in case the name of the runner script changes
 CXR_RUNNER_NAME=CAMxRunner.sh
 
-
 # This is a special value that is used in many contexts
 CXR_ALL=all
-
 
 # Used to tell a single step from all steps
 CXR_RUN_ALL=${CXR_ALL}

@@ -327,7 +327,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATE_TODO}'")"
+	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -366,7 +366,7 @@ function common.task.detectLockup()
 	fi
 	
 	# Count the running workers
-	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATE_RUNNING}'")"
+	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
 	
 	if [[ $numRunning -gt 0 ]]
 	then
@@ -442,7 +442,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATE_TODO}' ORDER BY id ASC LIMIT 1")"
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' ORDER BY id ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -472,7 +472,7 @@ function common.task.setNextTask()
 		_invocation="$6"
 		
 		# Assign it by an update
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATE_RUNNING}' WHERE id=$id"
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATUS_RUNNING}' WHERE id=$id"
 		
 		main.log -v "New task has id $id"
 	fi
@@ -538,7 +538,7 @@ function common.task.waitingWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v   "common.task.Worker (pid: $pid) changed its state to waiting"
 }
@@ -562,7 +562,7 @@ function common.task.runningWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v   "common.task.Worker (pid: $pid) changed its state to running"
 }
@@ -642,7 +642,7 @@ function common.task.Worker()
 	pid=$(cat $tmp)
 	
 	# Insert this worker
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATE_WAITING',$(date "+%s"))"
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
 	main.log -a -B  "parallel worker (pid ${pid}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
 

@@ -607,7 +607,7 @@ function execute_model()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		# common.state.storeState ${CXR_STATE_ERROR}
+		# common.state.storeStatus ${CXR_STATUS_FAILURE}
 		main.log -w "CAMx has returned a non-zero status for $CXR_DATE"
 	fi
 	
@@ -629,8 +629,8 @@ function model()
 	if [[ "$CXR_RUN_MODEL" == true  ]]
 	then
 	
-		# common.state.storeState checks if we have finished this and if we need to continue
-		if [[ ! $(common.state.storeState ${CXR_STATE_START}) == true  ]]
+		# common.state.storeStatus checks if we have finished this and if we need to continue
+		if [[ ! $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 		then
 		
 			main.log -B  "Running $CXR_MODEL_EXEC for day $CXR_DATE"
@@ -647,11 +647,11 @@ function model()
 					then
 						# Ups, we skip this one
 						main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
-						common.state.storeState ${CXR_STATE_STOP}
+						common.state.storeStatus ${CXR_STATUS_SUCCESS}
 						return $CXR_RET_OK
 					else
 						main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-						common.state.storeState ${CXR_STATE_ERROR}
+						common.state.storeStatus ${CXR_STATUS_FAILURE}
 						return $CXR_RET_ERROR
 					fi
 				fi
@@ -664,7 +664,7 @@ function model()
 			if [[ $(common.check.preconditions) == false  ]]
 			then
 				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				common.state.storeState ${CXR_STATE_ERROR}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}
 				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
@@ -681,14 +681,14 @@ function model()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "$CXR_MODEL Run was not successful!"
-				common.state.storeState ${CXR_STATE_ERROR}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}
 				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
 			fi
 			
 			# We store the fact model run was completed
-			common.state.storeState ${CXR_STATE_STOP} > /dev/null
+			common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 			
 		else
 			main.log -a "Stage was already started, therefore we do not run it. I assume this is a restart - we try to catch up!"
