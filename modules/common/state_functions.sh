@@ -381,6 +381,9 @@ function common.state.updateInfo()
 			fi # Directory exists?
 		done # loop over type-index
 		
+		# Adding any new module types
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
+		
 		main.log -a "Module data successfully collected."
 		
 		# decrease global indent level
