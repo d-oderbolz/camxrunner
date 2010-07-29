@@ -324,6 +324,8 @@ function common.state.updateInfo()
 	
 				for file in $files
 				do
+					main.log -v "Adding $file..."
+					
 					# We are still alive...
 					common.user.showProgress
 					
