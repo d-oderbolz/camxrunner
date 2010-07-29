@@ -502,6 +502,8 @@ function common.state.init()
 	                                 day_offset,
 	                                 invocation,
 	                                 status,
+	                                 seconds_estimated,
+	                                 seconds_real,
 	                                 epoch_m);
 	
 	-- Table for workers
@@ -612,33 +614,6 @@ function common.state.storeState()
 	# Touch your state file
 	touch "$(_common.state.getStateFileName "$state" "$stage")" 
 	return $CXR_RET_OK
-}
-
-################################################################################
-# Function: _common.state.getStateFileName
-#
-# Returns:
-# The start/stop/error filename of a stage
-#
-# Parameters:
-# $1 - state
-# $2 - stage 
-################################################################################
-function _common.state.getStateFileName()
-################################################################################
-{
-	if [[ $# -ne 2  ]]
-	then
-		main.dieGracefully "needs a state and a stage as Input" 
-	fi
-	
-	local state
-	local stage
-	
-	state=$1
-	stage=$2
-	
-	echo ${CXR_STATE_DIR}/${stage}.${state}	
 }
 
 ################################################################################
@@ -1038,13 +1013,14 @@ function common.state.cleanup()
 # Checks if the .continue file still exists,
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
 # ends run if we are too high and toches the alive file
+#
+# TODO: This is a nice place to test system resources...
 ################################################################################
 function common.state.doContinue?()
 ################################################################################
 {
 	local error_count
 	error_count=$(main.countErrors)
-	
 	
 	# Report error count
 	main.log -v -b "Current Error Count: $error_count"
@@ -1079,6 +1055,31 @@ function common.state.doContinue?()
 }
 
 ################################################################################
+# Function: common.state.getPercentDone
+# 
+# Calculates the % of tasks done (only on the plan)
+################################################################################
+function common.state.getPercentOfPlanDone()
+################################################################################
+{
+	local percentDone
+	local done
+	local total
+	
+	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan WHERE status NOT IN('$CXR_STATE_TODO')")
+	total=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM plan")
+	
+	if [[ $total -gt 0 ]]
+	then
+		percentDone=$(common.math.FloatOperation "($done / $total) * 100" -1 false )
+	else
+		percentDone=0
+	fi
+	
+	echo $percentDone
+}
+
+################################################################################
 # Function: common.state.reportEta
 # 
 #  Reports the estimated time of arrival.
@@ -1089,9 +1090,8 @@ function common.state.reportEta()
 	local percentDone
 	local estimatedTimeSeconds
 	
-	percentDone=$(common.math.FloatOperation "($CXR_TASKS_DONE / $CXR_TASKS_TOTAL) * 100" -1 false )
+	percentDone=$(common.state.getPercentOfPlanDone)
 	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
-	
 	
 	# Only goes to stderr
 	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2

@@ -768,10 +768,6 @@ function common.task.Worker()
 				# Stop Timing 
 				common.performance.stopTiming $CXR_META_MODULE_NAME
 				
-				# There is a potential race-condition here...
-				# It is not critical, since we use this only for ETA estimations
-				CXR_TASKS_DONE=$(( $CXR_TASKS_DONE + 1 ))
-	
 				#Release resources if needed
 				if [[ "$_exclusive" == true ]]
 				then
@@ -1023,11 +1019,7 @@ function common.task.init()
 		
 		done < "$sorted_file"
 		
-		# Set the total number of tasks
-		CXR_TASKS_TOTAL=$(( $current_id -1 ))
-		CXR_TASKS_DONE=0
-		
-		main.log -v  "This run consists of $CXR_TASKS_TOTAL tasks."
+		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		
 		# pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
 		# common.task.drawDependencyGraph "$dep_file" "$pdf_file"
