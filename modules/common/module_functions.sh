@@ -99,14 +99,7 @@ function common.module.getNumInvocations()
 	
 	module="$1"
 	
-	# This call sets _has and _value
-	common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module true > /dev/null
-	if [[ "$_has" == true ]]
-	then
-		module_path="$_value"
-	else
-		main.dieGracefully "cannot find path of $module"
-	fi
+	module_path="$(common.module.getPath "$module")"
 	
 	# Before sourcing, set this Meta var
 	CXR_META_MODULE_NAME=$module
@@ -129,12 +122,41 @@ function common.module.getNumInvocations()
 }
 
 ################################################################################
+# Function: common.module.getPath
+# 
+# For a given module name, returns the whole path of its file out of the state DB.
+#
+# Parameters:
+# $1 - name of a module
+# $2 - the name of the item
+################################################################################
+function common.module.getPath()
+################################################################################
+{
+	path=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT path FROM modules WHERE module='$1'")
+	echo "$path"
+}
+
+################################################################################
+# Function: common.module.getType
+# 
+# For a given module name, returns the type of the module.
+#
+# Parameters:
+# $1 - name of a module
+# $2 - the name of the item
+################################################################################
+function common.module.getType()
+################################################################################
+{
+	type=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT type FROM modules WHERE module='$1'")
+	echo "$type"
+}
+
+################################################################################
 # Function: common.module.getMetaField
 # 
-# For a given module name, returns the given meta-data item.
-# Caveat: This function modifies the environment - always call like this:
-# > b=$(common.module.getMetaField "$module" "CXR_META_MODULE_RUN_EXCLUSIVELY")
-# The $() construct opens a subshell.
+# For a given module name, returns the given meta-data item by looking at the DB.
 #
 # Parameters:
 # $1 - name of a module
@@ -143,40 +165,15 @@ function common.module.getNumInvocations()
 function common.module.getMetaField()
 ################################################################################
 {
-	if [[ $# -ne 2  ]]
+	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a module name and a meta item as input"
 	fi
 	
 	local module
-	local item
-	local module_path
-	local value
-	
-	module="$1"
-	item="$2"
-	
 
-	if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)" == true ]]
-	then
-		module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL "$module" true)"
-	else
-		main.dieGracefully "cannot find path of $module"
-	fi
-	
-	# Before sourcing, set this Meta var
-	CXR_META_MODULE_NAME="$module"
-	
-	# source module
-	source "$module_path"
-	
-	if [[ $? -ne 0 ]]
-	then
-		main.dieGracefully "could not source $module ($module_path)"
-	fi
-	
 	# Do we have this variable?
-	value="$(common.variables.getValue $item)"
+	value=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT value FROM metadata WHERE module='$1' and field='$2'")
 	
 	echo "$value"
 }
@@ -313,7 +310,7 @@ function common.module.resolveSingleDependency()
 			fi # dependency disabled?
 			
 			# We ned the module type to know if we pass a day offset or not
-			module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $dependency true)
+			module_type=$(common.module.getType $dependency)
 			
 			nInvocations=$(common.module.getNumInvocations "$dependency")
 			for iInvocation in $(seq 1 $nInvocations )
@@ -358,7 +355,7 @@ function common.module.resolveSingleDependency()
 		main.log -v  "Found dependency on $module"
 		
 		# We ned the module type to know if we pass a day offset or not
-		module_type=$(common.hash.get $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module true)
+		module_type=$(common.module.getType $module)
 		
 		nInvocations=$(common.module.getNumInvocations "$module")
 		for iInvocation in $(seq 1 $nInvocations )
@@ -551,45 +548,6 @@ function common.module.areDependenciesOk?()
 	
 	# If we arrive here, all is swell
 	echo true
-}
-
-################################################################################
-# Function: common.module.getType
-#
-# Gets its information directly from the CXR_MODULE_TYPE_HASH
-# 
-# Parameters:
-# $1 - name of module (without prefix or suffix, just something like "convert_output"
-################################################################################
-function common.module.getType()
-################################################################################
-{
-	if [[ $# -ne 1  ]]
-	then
-		main.log -e  "Need a module name as input"
-	fi
-	
-	local name
-	local module_type
-	
-	name="${1}"
-
-	# This call sets _has and _value
-	common.hash.has? "$CXR_MODULE_TYPE_HASH" $CXR_HASH_TYPE_UNIVERSAL "$name" true > /dev/null
-	if [[ "$_has" == true ]]
-	then
-		module_type="$_value"
-		
-		if [[ "$module_type" ]]
-		then
-			echo "$module_type"
-		else
-			main.dieGracefully "Could not find module type of $name!"
-		fi
-	else
-		main.dieGracefully "Could not find module $name!"
-	fi
-	
 }
 
 ################################################################################

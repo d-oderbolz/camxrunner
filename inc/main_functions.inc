@@ -1050,13 +1050,6 @@ function main.readConfig()
 	# Model
 	CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
 	
-	# Hashes
-	# The name of the hash that will hold the directories of the modules
-	CXR_MODULE_PATH_HASH=module_paths
-
-	# The name of the hash that will hold the types of the modules
-	CXR_MODULE_TYPE_HASH=module_types
-
 	main.log "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 	
 	########################################

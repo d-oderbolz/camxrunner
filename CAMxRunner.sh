@@ -401,10 +401,11 @@ then
 fi
 
 # Ok, now less than 2 processes is not parallel
-if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1 ]]
+if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 2 ]]
 then
-	main.log -w "You chose to use less than 1 common.task.Worker, this will literally not work. I will use 1".
+	main.log -w "You chose to use less than 2 processes, we will run sequantially".
 	CXR_MAX_PARALLEL_PROCS=1
+	CXR_PARALLEL_PROCESSING=false
 fi
 
 main.log -v -B "Selected options are valid." 
@@ -870,8 +871,7 @@ then
 		$CXR_MAX_PARALLEL_PROCS=1
 	fi
 	
-	# Creates a process dependency tree
-	# parallel_functions.sh
+	# Create a plan
 	common.task.init
 
 	# Creates CXR_MAX_PARALLEL_PROCS common.task.Worker processes
@@ -890,7 +890,7 @@ then
 	# We need a way to find out if all workers returned happily to
 	# manipulate CXR_STATUS if needed
 	
-	if [[ "$(common.task.countOpenTasks)" -ne 0  ]]
+	if [[ "$(common.task.countOpenTasks)" -ne 0 ]]
 	then
 		main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
 		# We are not happy

@@ -131,16 +131,6 @@ function common.task.formatDependency()
 # independent_module independent_module
 # (see man tsort for details)
 #
-# Hashes:
-# CXR_MODULE_TYPE_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their type
-#
-# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
-# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
-# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
-# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
-# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
-# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
-#
 # Parameters:
 # $1 - output_file to write list of dependencies for tsort to sort to
 ################################################################################
@@ -747,14 +737,8 @@ function common.task.Worker()
 					fi
 				fi
 				
-				
-				if [[ "$(common.hash.has? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true)" == true ]]
-				then
-					module_path="$(common.hash.get $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true)"
-				else
-					main.dieGracefully "cannot find path of $module_name"
-				fi
-				
+				module_path="$(common.module.getPath "$module_name")"
+
 				raw_dependencies="$(common.module.getMetaField $module_name "CXR_META_MODULE_DEPENDS_ON")"
 				
 				start_epoch=$CXR_EPOCH
@@ -931,13 +915,9 @@ function common.task.waitForWorkers()
 ################################################################################
 # Function: common.task.init
 # 
-# Creates a sqlite database containing the tasks we need to execute.
-# Tasks that already finished successfully are not added.
-# Unless we allow multiple CAMxRunner instances and we are not the master, 
-# we recreate the task infrastructure every run. 
+# Modifies the state database by creating a plan to execute.
+# If we run in parallel, the sorting is done differently that if we run non-parallel
 # 
-# Hashes:
-# CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
 # DBs:
 # CXR_STATE_DB_FILE
 ################################################################################
@@ -1080,7 +1060,6 @@ function common.task.init()
 
 	fi # Multiple mode?
 }
-
 
 ################################################################################
 # Function: test_module

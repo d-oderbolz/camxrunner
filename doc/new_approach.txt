@@ -21,11 +21,11 @@
 		CREATE TABLE IF NOT EXISTS modules (module, 
 		                                    type,
 		                                    path);
-		CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON module(module);
+		CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
 
 		-- List of module types
 		CREATE TABLE IF NOT EXISTS types (type);
-		CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON types(type);
+		CREATE UNIQUE INDEX IF NOT EXISTS type_idx ON types(type);
 		
 		-- Storage of module metadata
 		CREATE TABLE IF NOT EXISTS metadata (module,

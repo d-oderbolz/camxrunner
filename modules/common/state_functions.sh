@@ -213,21 +213,11 @@ function common.state.deleteContinueFiles()
 # Function: common.state.updateInfo
 #
 # Goes through all available modules for the current model and version, and collects 
-# vital information in various hashes.
-# For performance reasons, we check the hashes mtimes compared to the mtime of the configuration.
-# If any USER_TEMP variable is set, we do it anyway.
-# If a module name is non-unique, we fail.
-#
-# Hashes:
-# CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
-# CXR_MODULE_TYPE_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their type
-#
-# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
-# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
-# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
-# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
-# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
-# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
+# vital information in the state DB.
+# 
+# Stuff that is persistent:
+# - tasks
+# - days 
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
@@ -240,7 +230,6 @@ function common.state.updateInfo()
 	fi
 
 	main.log -a  "Updating module information, might take a while..."
-	
 	
 	# Increase global indent level
 	main.increaseLogIndent
@@ -256,32 +245,7 @@ function common.state.updateInfo()
 	local file
 	local module_name
 	local run_it
-	local confMtime
-	local HashMtime
-	
-	# First check if the config changed after last update
-	
-	# Mtime of configfile. Strictly speaking we should look at all files of the hierarchy
-	confMtime=$(common.fs.getMtime $CXR_CONFIG)
-	# We use the path hash as representative hash
-	HashMtime=$(common.hash.getMtime $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL)
-	
-	main.log -v "Mtime Conf: $confMtime Mtime Hash:$HashMtime"
-	
-	if [[ $confMtime -lt $HashMtime ]]
-	then
-		# Conf was not changed.
-		# Test if user supplied any CLI-settings that change the active modules
-		
-		if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
-		then
-			# User did not supply any settings
-			main.log -a "It seems that module info is up-to-date. If not, touch $CXR_CONFIG and rerun"
-			CXR_MODULES_UP_TO_DATE=true
-			return $CXR_RET_OK
-		fi
-	fi
-	
+
 	# Create a few working arrays we will go through
 	# Note that there are three kinds of installer modules: general ones, model specific and version specific ones
 	# The same is true for common modules
@@ -395,17 +359,7 @@ function common.state.updateInfo()
 				
 				module_name="$(main.getModuleName $file)"
 				
-				# Is there a new entry of this name? (this would indicate non-uniqueness!)
-				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true) == true ]]
-				then
-					main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
-				fi
-				
-				# Path 
-				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file true
-				
-				# Type
-				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type true
+				# Add $file, $module_name and type to DB
 				
 				# Is this module active? (Enabled wins over disabled)
 				# if the module name is in the enabled list, run it,no matter what
@@ -486,12 +440,6 @@ function common.state.init()
 	
 	# Stores Timing information
 	common.hash.init Timing $CXR_HASH_TYPE_UNIVERSAL
-	
-	# Contains the paths of all detected modules for this model and version
-	common.hash.init $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL
-
-	# Contains the module types of given modules
-	common.hash.init $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL
 	
 	# In this hash, we store files that where decompressed (for all instances)
 	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL
