@@ -225,7 +225,7 @@ function common.string.getPrefixNumber
 		string=$1
 		
 		#Dont be afraid, the bash does not seem to recognize the quantor +
-		numbers=$(expr match $string '\([0-9]*\)')
+		numbers=$(expr match $string '\([0-9]*\)')  || :
 		
 		# Extract 2 Digits
 		numbers=$(common.string.getCharacters "${numbers}" 2)

@@ -364,14 +364,14 @@ function common.state.updateInfo()
 						do
 							# Parse this
 							# Field is to the left of the = sign
-							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')"
+							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
 							# the value is to the right (test quoting!!)
-							value="$(expr match "$metafield" '.*=\(.*\)')"
+							value="$(expr match "$metafield" '.*=\(.*\)')" || :
 							
 							# OK, we want all quoting gone and variables expanded
 							value="$(eval "echo $(echo "$value")")"
 							
-							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')" || :
+							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						done
 						
 						IFS="$oIFS"

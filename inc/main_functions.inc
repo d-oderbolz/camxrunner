@@ -939,7 +939,7 @@ function main.isSubstringPresent?()
 		main.log -v main.log -v "Empty needle (This can happen often and is not necessarily an error)"
 	fi
 	
-	found=$(expr match " $haystack" ".*$needle.*")
+	found=$(expr match " $haystack" ".*$needle.*")  || :
 	# For safety, here        ^ is a space, so that things never start at 0
 	
 	if [[ $found -gt 0 ]]
@@ -1206,7 +1206,7 @@ function main.getModuleName()
 	module=$(basename $full_name .sh)
 
 	# Remove XX_ if present
-	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"
+	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"  || :
 	
 	if [[ ! "$module" ]]
 	then

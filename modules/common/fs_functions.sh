@@ -510,7 +510,7 @@ function common.fs.CompressOutput()
 					################
 					# Check filename
 					################
-					found=$(expr match "${filename}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
+					found=$(expr match "${filename}" "${CXR_COMPRESS_OUTPUT_PATTERN}")  || :
 					
 					if [[ $found -gt 0 ]]
 					then
@@ -520,7 +520,7 @@ function common.fs.CompressOutput()
 						################
 						# filename did not match - try module name
 						################
-						found=$(expr match "${module}" "${CXR_COMPRESS_OUTPUT_PATTERN}")
+						found=$(expr match "${module}" "${CXR_COMPRESS_OUTPUT_PATTERN}")  || :
 				
 						if [[ $found -gt 0  ]]
 						then

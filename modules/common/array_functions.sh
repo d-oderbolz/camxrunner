@@ -126,7 +126,7 @@ function common.array.importArrays()
 	for var in $(set | sort | grep ^CXR_.*_ARR_X= | cut -d= -f1)
 	do
 		# With this pattern, we extract the name of the Array
-		arr_name=$(expr match $var '\(.*\)_ARR_X$')
+		arr_name=$(expr match $var '\(.*\)_ARR_X$')  || :
 		
 		# Then we import
 		# This code is due to stephane_chazelas_at_yahoo.fr - http://unix.derkeiler.com/Newsgroups/comp.unix.shell/2003-05/0603.html

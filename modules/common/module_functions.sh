@@ -68,7 +68,7 @@ function common.module.parseIdentifier()
 	main.log -v "Parsing $identifier"
 	
 	# Get just lowercase text at the beginning
-	_module="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"
+	_module="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"  || :
 		
 	# get only the digits after the name, must handle the empty case using || : (otherwise we die here)
 	# the @-sign might be missing
