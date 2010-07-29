@@ -4,9 +4,18 @@
 		-- Get exclusive access
 		PRAGMA main.locking_mode=EXCLUSIVE; 
 		
-		-- Here we store tho simulation days
+		-- Here we store all installed stuff (just for installer)
+		CREATE TABLE IF NOT EXISTS installed (item,
+		                                      model,
+		                                      model_version);
+		
+		-- Here we store all known simulation days
 		CREATE TABLE IF NOT EXISTS days (day_offset,
 		                                 day_iso);
+		
+		-- These are the days we currently plan to run on
+		CREATE TABLE IF NOT EXISTS plan_days (day_offset,
+		                                      day_iso);
 
 		-- All modules go here
 		CREATE TABLE IF NOT EXISTS modules (module, 

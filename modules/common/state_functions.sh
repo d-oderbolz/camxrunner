@@ -210,6 +210,246 @@ function common.state.deleteContinueFiles()
 }
 
 ################################################################################
+# Function: common.state.updateInfo
+#
+# Goes through all available modules for the current model and version, and collects 
+# vital information in various hashes.
+# For performance reasons, we check the hashes mtimes compared to the mtime of the configuration.
+# If any USER_TEMP variable is set, we do it anyway.
+# If a module name is non-unique, we fail.
+#
+# Hashes:
+# CXR_MODULE_PATH_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their path
+# CXR_MODULE_TYPE_HASH ($CXR_HASH_TYPE_UNIVERSAL) - maps module names to their type
+#
+# CXR_ACTIVE_ALL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active modules (dummy value)
+# CXR_ACTIVE_ONCE_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time preprocessing modules (dummy value)
+# CXR_ACTIVE_DAILY_PRE_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily preprocessing modules (dummy value)
+# CXR_ACTIVE_MODEL_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active model modules (dummy value)
+# CXR_ACTIVE_DAILY_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active daily postprocessing modules (dummy value)
+# CXR_ACTIVE_ONCE_POST_HASH ($CXR_HASH_TYPE_GLOBAL) - contains all active One-Time postprocessing modules (dummy value)
+################################################################################
+function common.state.updateInfo()
+################################################################################
+{
+	# Its possible that this is called more than once (e. g. during testing).
+	# But this makes it hard to detect duplicates.
+	if [[ "${CXR_MODULES_UP_TO_DATE:-false}" == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+
+	main.log -a  "Updating module information, might take a while..."
+	
+	
+	# Increase global indent level
+	main.increaseLogIndent
+	
+	local iIteration
+	local dirs
+	local dir
+	local types
+	local type
+	local hashes
+	local active_hash
+	local files
+	local file
+	local module_name
+	local run_it
+	local confMtime
+	local HashMtime
+	
+	# First check if the config changed after last update
+	
+	# Mtime of configfile. Strictly speaking we should look at all files of the hierarchy
+	confMtime=$(common.fs.getMtime $CXR_CONFIG)
+	# We use the path hash as representative hash
+	HashMtime=$(common.hash.getMtime $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL)
+	
+	main.log -v "Mtime Conf: $confMtime Mtime Hash:$HashMtime"
+	
+	if [[ $confMtime -lt $HashMtime ]]
+	then
+		# Conf was not changed.
+		# Test if user supplied any CLI-settings that change the active modules
+		
+		if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
+		then
+			# User did not supply any settings
+			main.log -a "It seems that module info is up-to-date. If not, touch $CXR_CONFIG and rerun"
+			CXR_MODULES_UP_TO_DATE=true
+			return $CXR_RET_OK
+		fi
+	fi
+	
+	# Create a few working arrays we will go through
+	# Note that there are three kinds of installer modules: general ones, model specific and version specific ones
+	# The same is true for common modules
+	types=($CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_INSTALLER \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_COMMON \
+	       $CXR_TYPE_PREPROCESS_ONCE \
+	       $CXR_TYPE_PREPROCESS_DAILY  \
+	       $CXR_TYPE_MODEL \
+	       $CXR_TYPE_POSTPROCESS_DAILY \
+	       $CXR_TYPE_POSTPROCESS_ONCE)
+	       
+	dirs=($CXR_INSTALLER_INPUT_DIR \
+	      $CXR_INSTALLER_MODEL_INPUT_DIR \
+	      $CXR_INSTALLER_VERSION_INPUT_DIR \
+	      $CXR_COMMON_INPUT_DIR \
+	      $CXR_COMMON_MODEL_INPUT_DIR \
+	      $CXR_COMMON_VERSION_INPUT_DIR \
+	      $CXR_PREPROCESSOR_ONCE_INPUT_DIR \
+	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_MODEL_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+	
+	# we ignore any hash called "-"
+	hashes=(- \
+	        - \
+	        - \
+	        - \
+	        - \
+	        - \
+	        $CXR_ACTIVE_ONCE_PRE_HASH \
+	        $CXR_ACTIVE_DAILY_PRE_HASH \
+	        $CXR_ACTIVE_MODEL_HASH \
+	        $CXR_ACTIVE_DAILY_POST_HASH \
+	        $CXR_ACTIVE_ONCE_POST_HASH)
+	
+	# Clear global hashes if we are alone
+	if [[ ${CXR_ALLOW_MULTIPLE} == false ]]
+	then
+		common.hash.destroy $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_ONCE_PRE_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_DAILY_PRE_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_MODEL_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_DAILY_POST_HASH $CXR_HASH_TYPE_GLOBAL
+		common.hash.destroy $CXR_ACTIVE_ONCE_POST_HASH $CXR_HASH_TYPE_GLOBAL
+	fi
+	
+	
+	for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+	do
+		type=${types[$iIteration]}
+		dir=${dirs[$iIteration]}
+		active_hash=${hashes[$iIteration]}
+		
+		# The enabled and disabled strings ore lists - we cannot do the array trick...
+		case "$type" in
+	
+			"${CXR_TYPE_COMMON}" ) 
+				enabled_modules=""
+				disabled_modules="";;
+				
+			"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+				;;
+				
+			"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+				enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+				;;
+				
+			"${CXR_TYPE_MODEL}" ) 
+				enabled_modules="$CXR_ENABLED_MODEL"
+				disabled_modules="$CXR_DISABLED_MODEL"
+				;;
+				
+			"${CXR_TYPE_INSTALLER}" ) 
+				enabled_modules="$CXR_ENABLED_INSTALLER"
+				disabled_modules="$CXR_DISABLED_INSTALLER"
+				;;
+				
+			* ) 
+				main.dieGracefully "Unknown module type $type" ;;
+		esac
+		
+		main.log -v "Adding $type modules..."
+		
+		if [[ -d "$dir" ]]
+		then
+			# Find all of them
+			files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
+
+			for file in $files
+			do
+				# We are still alive...
+				common.user.showProgress
+				
+				module_name="$(main.getModuleName $file)"
+				
+				# Is there a new entry of this name? (this would indicate non-uniqueness!)
+				if [[ $(common.hash.isNew? $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name true) == true ]]
+				then
+					main.dieGracefully "There seems to be more than one module called ${module_name} (last we saw ${file}).\nThis is not allowed - please adjust the names!"
+				fi
+				
+				# Path 
+				common.hash.put $CXR_MODULE_PATH_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $file true
+				
+				# Type
+				common.hash.put $CXR_MODULE_TYPE_HASH $CXR_HASH_TYPE_UNIVERSAL $module_name $type true
+				
+				# Is this module active? (Enabled wins over disabled)
+				# if the module name is in the enabled list, run it,no matter what
+				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module_name")" == true ]]
+				then
+					# Module was explicitly enabled
+					run_it=true
+				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module_name")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
+				then
+					# Module was not explicitly disabled and we did not disable all
+					run_it=true
+				else
+					# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
+					run_it=false
+					main.log -a "Module $module_name is disabled, skipped"
+				fi
+				
+				if [[ "$run_it" == true ]]
+				then
+					# All Hash (value is dummy)
+					common.hash.put $CXR_ACTIVE_ALL_HASH $CXR_HASH_TYPE_GLOBAL $module_name true
+					
+					if [[ "$active_hash" != - ]]
+					then
+						# The current types active hash
+						common.hash.put $active_hash $CXR_HASH_TYPE_GLOBAL $module_name true
+					fi
+				fi
+			
+			done # Loop over files
+			
+		else
+			main.log -w "Tried to add modules in $dir - directory not found. (May not be relevant)"
+		fi # Directory exists?
+	done # loop over type-index
+	
+	# decrease global indent level
+	main.decreaseLogIndent
+	
+	CXR_MODULES_UP_TO_DATE=true
+}
+
+
+################################################################################
 # Function: common.state.init
 #
 # Creates the state DB directories for the current run
@@ -270,7 +510,7 @@ function common.state.init()
 	echo "If you remove this file, the process  ($0) on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	# Update the module path hash and form the lists of active modules
-	common.module.updateInfo
+	common.state.updateInfo
 }
 
 ################################################################################
@@ -770,7 +1010,7 @@ function common.state.cleanup()
 				else
 
 					# Yes
-					common.parallel.cleanTasks
+					common.task.cleanTasks
 
 					main.log -a "Done."
 				fi

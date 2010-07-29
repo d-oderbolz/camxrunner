@@ -392,18 +392,18 @@ main.log -v -B "Checking if selected options are valid..."
 
 if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
 then
-	main.dieGracefully "CAMxRunner:${LINENO} - The argument of -P must be numeric!"
+	main.dieGracefully "The argument of -P must be numeric!"
 fi
 
 if [[ $(main.isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
 then
-	main.dieGracefully "CAMxRunner:${LINENO} - The argument of -t must be numeric!"
+	main.dieGracefully "The argument of -t must be numeric!"
 fi
 
 # Ok, now less than 2 processes is not parallel
 if [[ "${CXR_MAX_PARALLEL_PROCS}" -lt 1 ]]
 then
-	main.log -w "You chose to use less than 1 common.parallel.Worker, this will literally not work. I will use 1".
+	main.log -w "You chose to use less than 1 common.task.Worker, this will literally not work. I will use 1".
 	CXR_MAX_PARALLEL_PROCS=1
 fi
 
@@ -415,11 +415,11 @@ main.log -v -B "Selected options are valid."
 ################################################################################
 
 # Fewer checks if we are hollow
-if [[ "${CXR_HOLLOW}" == false  ]] 
+if [[ "${CXR_HOLLOW}" == false ]] 
 then
 	if [[ ${CXR_RUN} == ${CXR_RUNNER_NAME}  ]]
 	then
-		main.dieGracefully "CAMxRunner:${LINENO} - You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
+		main.dieGracefully "You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
 	else
 		
 		# Check if the name of the script has changed
@@ -431,12 +431,12 @@ then
 		
 		if [[ "$link_target" != " ${CXR_RUNNER_NAME}" ]]
 		then
-			main.dieGracefully "CAMxRunner:${LINENO} - Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
+			main.dieGracefully "Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
 	
 		# Make sure Run name is ok (Model.vVersion...)
 		# check_functions.sh
-		common.check.RunName ${CXR_RUN} || main.dieGracefully "CAMxRunner:${LINENO} - Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
+		common.check.RunName ${CXR_RUN} || main.dieGracefully "Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
 	fi
 	
@@ -517,7 +517,7 @@ then
 	#Hollow functions neeed init too
 	common.state.init
 
-	if [[ "${CXR_CLEANUP}" == true  ]]
+	if [[ "${CXR_CLEANUP}" == true ]]
 	then
 		# Delete info in the state DB
 		common.state.cleanup
@@ -539,7 +539,7 @@ then
 	elif [[ "${CXR_INSTALL}" == true ]]
 	then
 		# Run the installation
-		common.install.do
+		common.install.init
 	elif [[ "${CXR_LIST_MODULES}" == true ]]
 	then
 		# Show possible modules
@@ -762,11 +762,8 @@ then
 						
 					* ) 
 						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
-			
 				esac
-			
 			done
-			
 		else
 			main.log -v "No -r argument found"
 		fi
@@ -828,14 +825,14 @@ fi
 ################################################################################
 
 # TODO: Rethink this strategy (this check should never be false!)
-if [[ "$CXR_HOLLOW" == false  ]]
+if [[ "$CXR_HOLLOW" == false ]]
 then
 
 	main.log -v -B "Checking if another instance is running on this run..." 
 	 
 	common.state.detectInstances
 	
-	main.log -v -B "No other instance found." 
+	main.log -v -B "No other instances found." 
 
 
 	################################################################################
@@ -860,53 +857,47 @@ then
 		main.log -v "${CXR_CALL} -r"module_name_list"\n"
 		common.module.listAllModules
 
-		
 		# Decrease global indent level
 		main.decreaseLogIndent
-		
 	fi
 	
 	# Here we really start things. Note that the execution of tasks is no longer sequential
 	# if not needed 
-
-	if [[ "$CXR_PARALLEL_PROCESSING" == true ]]
+	
+	if [[ "$CXR_PARALLEL_PROCESSING" == false ]]
 	then
-		# Creates a process dependency tree
-		# parallel_functions.sh
-		common.parallel.init
+		# Sequential is "Parallel with one process"
+		$CXR_MAX_PARALLEL_PROCS=1
+	fi
 	
-		# Creates CXR_MAX_PARALLEL_PROCS common.parallel.Worker processes
-		# The workers then carry out the tasks in parallel
-		common.parallel.spawnWorkers $CXR_MAX_PARALLEL_PROCS
+	# Creates a process dependency tree
+	# parallel_functions.sh
+	common.task.init
+
+	# Creates CXR_MAX_PARALLEL_PROCS common.task.Worker processes
+	# The workers then carry out the tasks 
+	common.task.spawnWorkers $CXR_MAX_PARALLEL_PROCS
+
+	################################################################################
+	# Make sure that all subprocesses are done!
+	################################################################################
+	# parallel_functions.sh
+	common.task.waitForWorkers
 	
-		################################################################################
-		# Make sure that all subprocesses are done!
-		################################################################################
-		# parallel_functions.sh
-		common.parallel.waitForWorkers
-		
-		# If we arrive here, we should be done.
-		# We can add a good check later.
-		
-		# We need a way to find out if all workers returned happily to
-		# manipulate CXR_STATUS if needed
-		
-		if [[ "$(common.parallel.countOpenTasks)" -ne 0  ]]
-		then
-			main.log "The run $CXR_RUN stopped, but there are still $(common.parallel.countOpenTasks) open tasks!"
-			# We are not happy
-			CXR_STATUS=$CXR_STATUS_FAILURE
-		else
-			# We are happy
-			CXR_STATUS=$CXR_STATUS_SUCCESS
-		fi
-		
+	# If we arrive here, we should be done.
+	# We can add a good check later.
+	
+	# We need a way to find out if all workers returned happily to
+	# manipulate CXR_STATUS if needed
+	
+	if [[ "$(common.task.countOpenTasks)" -ne 0  ]]
+	then
+		main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
+		# We are not happy
+		CXR_STATUS=$CXR_STATUS_FAILURE
 	else
-		# Optimistic by nature
+		# We are happy
 		CXR_STATUS=$CXR_STATUS_SUCCESS
-	
-		# Sequential processing (module_functions)
-		common.module.processSequentially || CXR_STATUS=$CXR_STATUS_FAILURE
 	fi
 fi
 

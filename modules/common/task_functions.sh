@@ -6,14 +6,14 @@
 #
 # Version: $Id$ 
 #
-# Contains the Functions to manage parallel execution of modules.
+# Contains the Functions to manage execution of modules.
 # The most important aspect of this is the management of the varius dependencies 
 # between modules.
 #
 # Prepares a pool of tasks, which are then harvested by Worker threads. 
 # This pool is implemented as a <http://www.sqlite.org> DB.
 # 
-# The worker processes can run in parallel - even on different machines.
+# The worker processes may run in parallel - even on different machines.
 #
 # Approach:
 # First, a list of tasks is generated.
@@ -64,12 +64,12 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: common.parallel.formatDependency
+# Function: common.task.formatDependency
 #
 # Creates a proper dependency string out of several inputs.
 #
 # Example:
-# > echo "${dependency} $(common.parallel.formatDependency "$module_name" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> $output_file
+# > echo "${dependency} $(common.task.formatDependency "$module_name" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> $output_file
 # 
 # Parameters:
 # $1 - module name
@@ -78,7 +78,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # $4 - iInvocation
 # $5 - nInvocations
 ################################################################################
-function common.parallel.formatDependency()
+function common.task.formatDependency()
 ################################################################################
 {
 	local module_name
@@ -122,7 +122,7 @@ function common.parallel.formatDependency()
 
 
 ################################################################################
-# Function: common.parallel.createDependencyList
+# Function: common.task.createDependencyList
 # 
 # Collects all dependencies (resolved) of the modules to be executed in a file of the form
 # independent_module dependent_module.
@@ -144,7 +144,7 @@ function common.parallel.formatDependency()
 # Parameters:
 # $1 - output_file to write list of dependencies for tsort to sort to
 ################################################################################
-function common.parallel.createDependencyList()
+function common.task.createDependencyList()
 ################################################################################
 {
 	local output_file
@@ -244,11 +244,11 @@ function common.parallel.createDependencyList()
 						# Loop 
 						for dependency in $resolved_dependencies
 						do
-							echo "${dependency} $(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> "$output_file"
+							echo "${dependency} $(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> "$output_file"
 						done # Dependencies
 					else
 						# Add the module twice (see header), including all invocations
-						dep_string="$(common.parallel.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+						dep_string="$(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
 						echo $dep_string $dep_string >> "$output_file"
 					fi
 				done # invocations
@@ -267,7 +267,7 @@ function common.parallel.createDependencyList()
 }
 
 ################################################################################
-# Function: common.parallel.drawDependencyGraph
+# Function: common.task.drawDependencyGraph
 # 
 # Creates an image of the dependency graphy using dot (graphviz)
 # 
@@ -276,7 +276,7 @@ function common.parallel.createDependencyList()
 # [$2] - an output file (extension must be any suported Graphviz filetype like pdf, ps, svg) 
 # see also <http://www.graphviz.org/doc/info/output.html>
 ################################################################################
-function common.parallel.drawDependencyGraph()
+function common.task.drawDependencyGraph()
 ################################################################################
 {
 	local input_file
@@ -332,13 +332,13 @@ function common.parallel.drawDependencyGraph()
 }
 
 ################################################################################
-# Function: common.parallel.countAllTasks
+# Function: common.task.countAllTasks
 #
 # Returns the number of tasks known.
 # 
 #
 ################################################################################
-function common.parallel.countAllTasks()
+function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
@@ -351,7 +351,7 @@ function common.parallel.countAllTasks()
 
 
 ################################################################################
-# Function: common.parallel.countOpenTasks
+# Function: common.task.countOpenTasks
 #
 # Returns the number of open tasks. 
 # Make sure you call this in a critical section (lock acquired), otherwise 
@@ -359,7 +359,7 @@ function common.parallel.countAllTasks()
 # 
 #
 ################################################################################
-function common.parallel.countOpenTasks()
+function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
@@ -371,7 +371,7 @@ function common.parallel.countOpenTasks()
 }
 
 ################################################################################
-# Function: common.parallel.detectLockup
+# Function: common.task.detectLockup
 #
 # Tests if all workers of a run are in a waiting state. This means that some dependency
 # is not fullfilled but has not failed, so all Worker will have to wait forever
@@ -387,7 +387,7 @@ function common.parallel.countOpenTasks()
 # Lockup (Global)
 #
 ################################################################################
-function common.parallel.detectLockup()
+function common.task.detectLockup()
 ################################################################################
 {
 	local count
@@ -427,7 +427,7 @@ function common.parallel.detectLockup()
 
 
 ################################################################################
-# Function: common.parallel.setNextTask
+# Function: common.task.setNextTask
 #
 # Returns the id of the next task to execute and all its data in environment vars.
 # Even though sqlite does locking, we protect this critical function with a lock.
@@ -445,7 +445,7 @@ function common.parallel.detectLockup()
 # _invocation
 #
 ################################################################################
-function common.parallel.setNextTask()
+function common.task.setNextTask()
 ################################################################################
 {
 	# Acquire lock
@@ -457,7 +457,7 @@ function common.parallel.setNextTask()
 	local task_count
 	local potential_task_data
 	
-	task_count=$(common.parallel.countOpenTasks)
+	task_count=$(common.task.countOpenTasks)
 
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
@@ -518,7 +518,7 @@ function common.parallel.setNextTask()
 }
 
 ################################################################################
-# Function: common.parallel.changeTaskStatus
+# Function: common.task.changeTaskStatus
 #
 # Just updates the task db.
 # As a precaution, we also notify the state DB on error (all modules should do this!)
@@ -527,7 +527,7 @@ function common.parallel.setNextTask()
 # $1 - id of task
 # $2 - status (SUCCESS/FAILURE)
 ################################################################################
-function common.parallel.changeTaskStatus()
+function common.task.changeTaskStatus()
 ################################################################################
 {
 	local id
@@ -556,14 +556,14 @@ function common.parallel.changeTaskStatus()
 }
 
 ################################################################################
-# Function: common.parallel.waitingWorker
+# Function: common.task.waitingWorker
 #
 # Udates the status of a worker to waiting
 #
 # Parameters:
-# $1 - pid of common.parallel.Worker
+# $1 - pid of common.task.Worker
 ################################################################################
-function common.parallel.waitingWorker()
+function common.task.waitingWorker()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -576,18 +576,18 @@ function common.parallel.waitingWorker()
 	 
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to waiting"
+	main.log -v   "common.task.Worker (pid: $pid) changed its state to waiting"
 }
 
 ################################################################################
-# Function: common.parallel.runningWorker
+# Function: common.task.runningWorker
 #
 # Udates the status of a worker to running
 #
 # Parameters:
-# $1 - pid of common.parallel.Worker
+# $1 - pid of common.task.Worker
 ################################################################################
-function common.parallel.runningWorker()
+function common.task.runningWorker()
 ################################################################################
 {
 	if [[ $# -ne 1  ]]
@@ -600,19 +600,19 @@ function common.parallel.runningWorker()
 	 
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATE_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	main.log -v   "common.parallel.Worker (pid: $pid) changed its state to running"
+	main.log -v   "common.task.Worker (pid: $pid) changed its state to running"
 }
 
 
 ################################################################################
-# Function: common.parallel.removeWorker
+# Function: common.task.removeWorker
 #
-# kills the common.parallel.Worker of the given task_pid and alse removes it from the process list.
+# kills the common.task.Worker of the given task_pid and alse removes it from the process list.
 # 
 # Parameters:
 # $1 - the workers pid
 ################################################################################
-function common.parallel.removeWorker()
+function common.task.removeWorker()
 ################################################################################
 {
 	if [[ $# -ne 1 ]]
@@ -632,7 +632,7 @@ function common.parallel.removeWorker()
 }
 
 ################################################################################
-# Function: common.parallel.Worker
+# Function: common.task.Worker
 #
 # This function is the workhorse of the parallel CAMxRunner. The Runner spawns one 
 # or more of this functions to operate on the existing tasks.
@@ -641,14 +641,14 @@ function common.parallel.removeWorker()
 # TODO: a worker that finishes must restore a consistent state, that is the current
 # task must be "put back"
 #
-# The worker gets a new task via <common.parallel.setNextTask>
+# The worker gets a new task via <common.task.setNextTask>
 # then waits (using <common.module.areDependenciesOk?>)
 # until the dependencies of this task are fullfilled. 
 #
 # Parameters:
 # $1 - the worker id (internal number, just to tell log output on screen apart)
 ################################################################################
-function common.parallel.Worker()
+function common.task.Worker()
 ################################################################################
 {
 	# The ID is global
@@ -689,7 +689,7 @@ function common.parallel.Worker()
 		# Set task_pid-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${pid}.log
 		
-		main.log -a "This common.parallel.Worker will use its own logfile: ${CXR_LOG}"
+		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}"
 	fi
 
 	# We stay in this loop as long as the continue file exists
@@ -699,18 +699,18 @@ function common.parallel.Worker()
 		common.state.doContinue? || main.dieGracefully "Continue file no longer present."
 		
 		# We are not yet busy
-		common.parallel.waitingWorker $pid
+		common.task.waitingWorker $pid
 		
 		# Is there enough free memory?
 		if [[ "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
 		then
 			# Enough Memory
 			
-			# common.parallel.setNextTask provides tasks in an atomic fashion
+			# common.task.setNextTask provides tasks in an atomic fashion
 			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
 			# This is a blocking call (we wait until we get a task)
-			common.parallel.setNextTask
+			common.task.setNextTask
 			
 			id=$_id
 			
@@ -720,7 +720,7 @@ function common.parallel.Worker()
 				main.log -v "New task received: $id"
 				
 				######################
-				# task was already parsed by common.parallel.setNextTask
+				# task was already parsed by common.task.setNextTask
 				######################
 				
 				module_name="$_module_name"
@@ -765,7 +765,7 @@ function common.parallel.Worker()
 					main.log -v "Waiting for dependencies of $module_name to be done for day $day_offset"
 					
 					# Tell the system we wait, then sleep
-					common.parallel.waitingWorker $task_pid
+					common.task.waitingWorker $task_pid
 					sleep $CXR_WAITING_SLEEP_SECONDS
 					
 					if [[ $(( $(date "+%s") - $start_epoch )) -gt $CXR_DEPENDECY_TIMEOUT_SEC ]]
@@ -775,14 +775,14 @@ function common.parallel.Worker()
 				done
 				
 				# Time to work
-				common.parallel.runningWorker $task_pid
+				common.task.runningWorker $task_pid
 				
 				main.log -v "module: $module_name day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
 				
-				main.log -a -B "common.parallel.Worker $task_pid assigned to $module_name for $CXR_DATE"
+				main.log -a -B "common.task.Worker $task_pid assigned to $module_name for $CXR_DATE"
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
@@ -804,8 +804,8 @@ function common.parallel.Worker()
 				# most modules simply ignore this.
 				# If invocation is unset, we pass 1
 				$CXR_META_MODULE_NAME ${invocation:-1} \
-				&& common.parallel.changeTaskStatus $new_task_descriptor $CXR_STATUS_SUCCESS \
-				|| common.parallel.changeTaskStatus $new_task_descriptor $CXR_STATUS_FAILURE
+				&& common.task.changeTaskStatus $new_task_descriptor $CXR_STATUS_SUCCESS \
+				|| common.task.changeTaskStatus $new_task_descriptor $CXR_STATUS_FAILURE
 							
 				# Stop Timing 
 				common.performance.stopTiming $CXR_META_MODULE_NAME
@@ -825,7 +825,7 @@ function common.parallel.Worker()
 				
 				# This means that someone wants exclusive access
 				# Tell the system we wait, then sleep
-				common.parallel.waitingWorker $task_pid
+				common.task.waitingWorker $task_pid
 				sleep $CXR_WAITING_SLEEP_SECONDS
 				
 			fi # Got a task?
@@ -835,25 +835,25 @@ function common.parallel.Worker()
 			main.log -w "Worker $task_pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
 			
 			# Tell the system we wait, then sleep
-			common.parallel.waitingWorker $pid
+			common.task.waitingWorker $pid
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		fi # Enough Memory?
 			
 	done
 	
 	# We have done our duty
-	common.parallel.removeWorker $pid
+	common.task.removeWorker $pid
 
 	exit $CXR_RET_OK
 }
 
 ################################################################################
-# Function: common.parallel.spawnWorkers
+# Function: common.task.spawnWorkers
 #
 # Parameters:
 # $1 - number of workers to spawn
 ################################################################################
-function common.parallel.spawnWorkers()
+function common.task.spawnWorkers()
 ################################################################################
 {
 	local iWorker
@@ -866,7 +866,7 @@ function common.parallel.spawnWorkers()
 	for iWorker in $(seq 1 $1)
 	do
 		# Create a worker and send it to background
-		common.parallel.Worker $iWorker &
+		common.task.Worker $iWorker &
 		
 		# Wait a bit to avoid congestion
 		main.log -a "We wait 60 seconds until we launch the next worker to see the memory demand"
@@ -875,30 +875,30 @@ function common.parallel.spawnWorkers()
 }
 
 ################################################################################
-# Function: common.parallel.removeAllWorkers
+# Function: common.task.removeAllWorkers
 # 
 # Removes all workers
 # 
 ################################################################################
-function common.parallel.removeAllWorkers()
+function common.task.removeAllWorkers()
 ################################################################################
 {
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
 	for pid in $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
 	do
-		common.parallel.removeWorker "$pid"
+		common.task.removeWorker "$pid"
 	done
 }
 
 ################################################################################
-# Function: common.parallel.cleanTasks
+# Function: common.task.cleanTasks
 #
 # Deletes some data of the task DB .
 #
 #
 ################################################################################
-function common.parallel.cleanTasks()
+function common.task.cleanTasks()
 ################################################################################
 {
 	main.log -v "Cleaning DB file ${CXR_STATE_DB_FILE}..."
@@ -906,30 +906,30 @@ function common.parallel.cleanTasks()
 	# To be defined.
 }
 ################################################################################
-# Function: common.parallel.waitForWorkers
+# Function: common.task.waitForWorkers
 #
 # Basically a sleep function: we loop and check if the continue file is there.
 #
 ################################################################################
-function common.parallel.waitForWorkers()
+function common.task.waitForWorkers()
 ################################################################################
 {
-		main.log  "Entering a wait loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
-		
-		while [ -f "$CXR_CONTINUE_FILE" ]
-		do
-			sleep $CXR_WAITING_SLEEP_SECONDS
-			common.state.reportEta
-		done
-		
-		main.log -B   "The Continue file is gone, all workers will stop asap."
-		
-		# OK, remove the workers now
-		common.parallel.removeAllWorkers
+	main.log  "Entering a wait loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
+	
+	while [ -f "$CXR_CONTINUE_FILE" ]
+	do
+		sleep $CXR_WAITING_SLEEP_SECONDS
+		common.state.reportEta
+	done
+	
+	main.log -B   "The Continue file is gone, all workers will stop asap."
+	
+	# OK, remove the workers now
+	common.task.removeAllWorkers
 }
 
 ################################################################################
-# Function: common.parallel.init
+# Function: common.task.init
 # 
 # Creates a sqlite database containing the tasks we need to execute.
 # Tasks that already finished successfully are not added.
@@ -941,7 +941,7 @@ function common.parallel.waitForWorkers()
 # DBs:
 # CXR_STATE_DB_FILE
 ################################################################################
-function common.parallel.init()
+function common.task.init()
 ################################################################################
 {
 	local running_tasks
@@ -974,7 +974,7 @@ function common.parallel.init()
 	
 	# Check if we already have tasks 
 	# Iff we have this and allow multiple, we use them.
-	taskCount=$(common.parallel.countAllTasks)
+	taskCount=$(common.task.countAllTasks)
 	
 	if [[	$taskCount -ne 0 && \
 			${CXR_ALLOW_MULTIPLE} == true && \
@@ -986,7 +986,7 @@ function common.parallel.init()
 		# Redo everything
 		
 		# Delete contents, if any
-		common.parallel.cleanTasks
+		common.task.cleanTasks
 		
 		# Some tempfiles we need
 		dep_file="$(common.runner.createTempFile dependencies)"
@@ -996,7 +996,7 @@ function common.parallel.init()
 		main.log -a "\nCreating the list of dependencies...\n"
 		
 		main.log -a $(date +%T)
-		common.parallel.createDependencyList "$dep_file"
+		common.task.createDependencyList "$dep_file"
 		main.log -a $(date +%T)
 		
 		main.log -a  "\nOrdering tasks...\n"
@@ -1076,7 +1076,7 @@ function common.parallel.init()
 		main.log -v  "This run consists of $CXR_TASKS_TOTAL tasks."
 		
 		# pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
-		# common.parallel.drawDependencyGraph "$dep_file" "$pdf_file"
+		# common.task.drawDependencyGraph "$dep_file" "$pdf_file"
 
 	fi # Multiple mode?
 }
@@ -1096,15 +1096,15 @@ function test_module()
 	# Setup tests if needed
 	########################################
 
-	common.parallel.init
+	common.task.init
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.parallel.formatDependency test ${CXR_TYPE_MODEL} 1 2 12)" "test1@2" "common.parallel.formatDependency normal"
-	is "$(common.parallel.formatDependency test ${CXR_TYPE_MODEL} 1 2 1)" "test1" "common.parallel.formatDependency only one invocation in total"
-	is "$(common.parallel.formatDependency test ${CXR_TYPE_MODEL} "" "" "")" "test" "common.parallel.formatDependency empty parameters"
+	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} 1 2 12)" "test1@2" "common.task.formatDependency normal"
+	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} 1 2 1)" "test1" "common.task.formatDependency only one invocation in total"
+	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} "" "" "")" "test" "common.task.formatDependency empty parameters"
 	
 	########################################
 	# teardown tests if needed

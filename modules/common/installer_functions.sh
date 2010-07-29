@@ -45,14 +45,63 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: common.install.do
+# Function: common.install.run
+#	
+# Runs the installer modules one by one. These modules are the last ones to
+# use lexical sorting (based on their numeric filename prefix like 00_start.sh)
+# to determine their order.
+#
+# TODO: Use table "installed" of state DB
+# 
+################################################################################
+function common.install.run()
+################################################################################
+{
+	local module_directories
+
+	# module_directories - is a list of directories that will be used to search for modules
+	module_directories="$CXR_INSTALLER_INPUT_DIR $CXR_INSTALLER_MODEL_INPUT_DIR $CXR_INSTALLER_VERSION_INPUT_DIR" 
+
+	# Increase global indent level
+	main.increaseLogIndent
+
+	# Loop through available input dirs
+	for module_directory in $module_directories
+	do
+		main.log -a "Loading installer modules from $module_directory..."
+	
+		for function_file in $(ls ${module_directory}/*.sh 2>/dev/null)
+		do
+			FILE_NAME=$(basename "$function_file")
+			
+			# Before loading a new module, remove old meta variables
+			unset ${!CXR_META_MODULE*}
+			
+			# Export the module name
+			CXR_META_MODULE_NAME=$(main.getModuleName $function_file)
+			
+			# First source the file to get the meta info
+			source $function_file
+			
+			# Call it
+			$CXR_META_MODULE_NAME
+		done
+	done # Loop through module dirs
+
+	# Decrease global indent level
+	main.decreaseLogIndent
+	
+	return ${ret_val}
+}
+
+################################################################################
+# Function: common.install.init
 #	
 # * Interactively installs the CAMxRunner, CAMx and the testcase.
-# * TODO: Use the state DB to keep track of what is installed already.
-# * Uses <common.module.runType> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
+# * Uses <common.install.run> to loop through the relevant files under ${CXR_INSTALLER_INPUT_DIR}
 #   and executes them in order
 ################################################################################
-function common.install.do()
+function common.install.init()
 ################################################################################
 {
 	# What we do here is similar to the pre- or postprocessors:
@@ -107,8 +156,8 @@ function common.install.do()
 		# reload config for this version (the run is called "installer")
 		main.readConfig "installer" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
 		
-		# Run the required modules (we could even select them!)
-		common.module.runType ${CXR_TYPE_INSTALLER}
+		# Run the required modules
+		common.install.run
 	
 		main.log -a -b "All installation actions finished."
 	done
