@@ -38,7 +38,7 @@ CXR_META_MODULE_DEPENDS_ON=""
 CXR_META_MODULE_RUN_EXCLUSIVELY=false
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Converts meteorological files and terrain data from ASCII to Binary"
+CXR_META_MODULE_DESCRIPTION="Converts terrain data from ASCII to Binary"
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_ONCE}"

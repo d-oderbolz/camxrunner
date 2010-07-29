@@ -229,8 +229,6 @@ function common.state.deleteContinueFiles()
 function common.state.updateInfo()
 ################################################################################
 {
-	main.log -a "Collecting module information, might take a while..."
-	
 	# Increase global indent level
 	main.increaseLogIndent
 	
@@ -277,6 +275,8 @@ function common.state.updateInfo()
 		      $CXR_MODEL_INPUT_DIR \
 		      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
 		      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+		      
+		main.log -a "Collecting module information, might take a while..."
 		
 		for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
 		do
