@@ -224,7 +224,7 @@ function common.state.deleteContinueFiles()
 # tables that contain ony whats relevant currently ("active")
 # - modules
 # - metadata
-# - and all the rest
+# (also some others, but they are taken care of in <common.task.init>)
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
@@ -247,124 +247,144 @@ function common.state.updateInfo()
 	local list
 	local field
 	local value
-
-	# Create a few working arrays we will go through
-	types=($CXR_TYPE_PREPROCESS_ONCE \
-	       $CXR_TYPE_PREPROCESS_DAILY \
-	       $CXR_TYPE_MODEL \
-	       $CXR_TYPE_POSTPROCESS_DAILY \
-	       $CXR_TYPE_POSTPROCESS_ONCE)
-	       
-	dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR \
-	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
-	      $CXR_MODEL_INPUT_DIR \
-	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
-	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
 	
-	for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
-	do
-		type=${types[$iIteration]}
-		dir=${dirs[$iIteration]}
+	# Only update info if we are not a slave
+	if [[	$taskCount -ne 0 && \
+			${CXR_ALLOW_MULTIPLE} == true && \
+			"$(common.state.countInstances)" -gt 1 ]]
+	then
+		# We are in a non-master multiple runner
+		main.log -a -b "This is a slave process - we will not collect new information"
+	else
 		
-		# The enabled and disabled strings are lists
-		case "$type" in
-			"${CXR_TYPE_PREPROCESS_ONCE}" )
-				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
-				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
-				;;
-				
-			"${CXR_TYPE_PREPROCESS_DAILY}" )
-				enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
-				disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
-				;;
-				
-			"${CXR_TYPE_MODEL}" )
-				enabled_modules="$CXR_ENABLED_MODEL"
-				disabled_modules="$CXR_DISABLED_MODEL"
-				;;
-				
-			"${CXR_TYPE_POSTPROCESS_DAILY}" )
-				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
-				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
-				;;
-				
-			"${CXR_TYPE_POSTPROCESS_ONCE}" )
-				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
-				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
-				;;
-				
-
-			* ) 
-				main.dieGracefully "The module type $type is not relevant here" ;;
-		esac
+		main.log -a "Cleaning Non-Persistent tables..."
 		
-		main.log -a "Adding $type modules..."
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 		
-		if [[ -d "$dir" ]]
-		then
-			# Find all *.sh files in this dir (no descent!)
-			files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
-
-			for file in $files
-			do
-				# We are still alive...
-				common.user.showProgress
-				
-				module="$(main.getModuleName $file)"
-				
-				# Is this module active? (Enabled wins over disabled)
-				# if the module name is in the enabled list, run it,no matter what
-				if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
-				then
-					# Module was explicitly enabled
-					run_it=true
-				elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
-				then
-					# Module was not explicitly disabled and we did not disable all
-					run_it=true
-				else
-					# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
-					run_it=false
-					main.log -a "Module $module is disabled, skipped"
-				fi
-				
-				if [[ "$run_it" == true ]]
-				then
-					# Like mentioned above, only active stuff is added.
-					# Other things are not needed.
-					# Add $file, $module and $type to DB
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUES ('$module','$type','$file')"
-				
-					# Add metadata
-					# grep the CXR_META_ vars that are not commented out
-					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+			DELETE FROM modules;
+			DELETE FROM metadata;
+		
+		EOT
+	
+		# Create a few working arrays we will go through
+		types=($CXR_TYPE_PREPROCESS_ONCE \
+		       $CXR_TYPE_PREPROCESS_DAILY \
+		       $CXR_TYPE_MODEL \
+		       $CXR_TYPE_POSTPROCESS_DAILY \
+		       $CXR_TYPE_POSTPROCESS_ONCE)
+		       
+		dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR \
+		      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
+		      $CXR_MODEL_INPUT_DIR \
+		      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
+		      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+		
+		for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+		do
+			type=${types[$iIteration]}
+			dir=${dirs[$iIteration]}
+			
+			# The enabled and disabled strings are lists
+			case "$type" in
+				"${CXR_TYPE_PREPROCESS_ONCE}" )
+					enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+					disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+					;;
 					
-					oIFS="$IFS"
-					# Set IFS to newline
-					IFS='
-'
-					for metafield in $list
-					do
-						# Parse this
-						# Field is to the left of the = sign
-						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')"
-						# the value is to the right (test quoting!!)
-						value="$(expr match "$metafield" '.*=\(\)')"
+				"${CXR_TYPE_PREPROCESS_DAILY}" )
+					enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+					disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+					;;
+					
+				"${CXR_TYPE_MODEL}" )
+					enabled_modules="$CXR_ENABLED_MODEL"
+					disabled_modules="$CXR_DISABLED_MODEL"
+					;;
+					
+				"${CXR_TYPE_POSTPROCESS_DAILY}" )
+					enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+					disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+					;;
+					
+				"${CXR_TYPE_POSTPROCESS_ONCE}" )
+					enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+					disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+					;;
+					
+	
+				* ) 
+					main.dieGracefully "The module type $type is not relevant here" ;;
+			esac
+			
+			main.log -v "Adding $type modules..."
+			
+			if [[ -d "$dir" ]]
+			then
+				# Find all *.sh files in this dir (no descent!)
+				files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
+	
+				for file in $files
+				do
+					# We are still alive...
+					common.user.showProgress
+					
+					module="$(main.getModuleName $file)"
+					
+					# Is this module active? (Enabled wins over disabled)
+					# if the module name is in the enabled list, run it,no matter what
+					if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
+					then
+						# Module was explicitly enabled
+						run_it=true
+					elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
+					then
+						# Module was not explicitly disabled and we did not disable all
+						run_it=true
+					else
+						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
+						run_it=false
+						main.log -a "Module $module is disabled, skipped"
+					fi
+					
+					if [[ "$run_it" == true ]]
+					then
+						# Like mentioned above, only active stuff is added.
+						# Other things are not needed.
+						# Add $file, $module and $type to DB
+						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUES ('$module','$type','$file')"
+					
+						# Add metadata
+						# grep the CXR_META_ vars that are not commented out
+						list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
 						
-						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
-					done
-					
-					IFS="$oIFS"
-					
-				fi
-			done # Loop over files
-		else
-			main.dieGracefully "Tried to add modules in $dir - directory not found."
-		fi # Directory exists?
-	done # loop over type-index
+						oIFS="$IFS"
+						# Set IFS to newline
+						IFS='
+	'
+						for metafield in $list
+						do
+							# Parse this
+							# Field is to the left of the = sign
+							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')"
+							# the value is to the right (test quoting!!)
+							value="$(expr match "$metafield" '.*=\(\)')"
+							
+							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
+						done
+						
+						IFS="$oIFS"
+						
+					fi
+				done # Loop over files
+			else
+				main.dieGracefully "Tried to add modules in $dir - directory not found."
+			fi # Directory exists?
+		done # loop over type-index
+		
+		# decrease global indent level
+		main.decreaseLogIndent
 	
-	# decrease global indent level
-	main.decreaseLogIndent
+	fi
 	
 	exit
 }
