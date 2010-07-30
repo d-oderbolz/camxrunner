@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=20
+CXR_META_MODULE_NUM_TESTS=19
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains the functions to run modules (only used for installer modules) for the CAMxRunner"
@@ -794,11 +794,8 @@ function test_module()
 	
 	# Testing the resolvers for dependencies
 	is "$(common.module.resolveSingleDependency "model-" 0)" "" "common.module.resolveSingleDependency minus on first day"
-	is "$(common.module.resolveSingleDependency "model-" 1)" "model0" "common.module.resolveSingleDependency minus on second day"
-	
-	is "$(common.module.resolveAllDependencies "model- create_emissions" 1)" "model0 create_emissions1@1 create_emissions1@2 create_emissions1@3" "common.module.resolveAllDependencies on second day"
-	
-	
+	is "$(common.module.resolveSingleDependency "model-" 1)" "${CXR_START_DATE}model@1" "common.module.resolveSingleDependency minus on second day"
+
 	########################################
 	# teardown tests if needed
 	########################################
