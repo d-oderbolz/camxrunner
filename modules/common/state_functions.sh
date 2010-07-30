@@ -353,6 +353,9 @@ function common.state.init()
 	main.log -v "Creating database schema..."
 	
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	-- Use legacy format
+	PRAGMA legacy_file_format = on;
+	
 	-- Get exclusive access
 	PRAGMA main.locking_mode=EXCLUSIVE; 
 	
