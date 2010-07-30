@@ -712,6 +712,34 @@ function common.runner.removeTempFiles()
 }
 
 ################################################################################
+# Function: common.runner.getLockFile
+#
+# Returns the name of a lockfile to use.
+#
+# Parameters:
+# $1 - the name of the lock to get
+# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+################################################################################
+function common.runner.waitForLock()
+################################################################################
+{
+	local level
+	local lock
+	local file
+	
+	level="$1"
+	lock="$2"
+	file=${lock}.lock
+	
+	case $level in
+		$CXR_HASH_TYPE_INSTANCE) 	echo $CXR_INSTANCE_DIR/$file ;;
+		$CXR_HASH_TYPE_GLOBAL) 		echo CXR_GLOBAL_DIR/$file ;;
+		$CXR_HASH_TYPE_UNIVERSAL) 	echo $CXR_UNIVERSAL_DIR/$file ;;
+		*) main.dieGracefully "Lock level $level not supported";;
+	esac
+}
+
+################################################################################
 # Function: common.runner.waitForLock
 #
 # Waits until a lock is released without getting it. 
@@ -728,125 +756,37 @@ function common.runner.removeTempFiles()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
-# [$3] - wantsLock: boolean flag (default false), if true, we would like to have the lock later
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs the name of a lock, a level and an optional intention as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
+	
+	_retval=true
 	
 	local lock
 	local level
-	local wantsLock
-	local procsWaiting
-	local myId
-	local wait_array
-	local arr_string
-	_retval=true
-	local time
-	local add
-	local currPid
+	local lockfile
 	
+	local time
+
 	lock="$1"
 	level="$2"
-	wantsLock="${3:-false}"
-	procsWaiting=0
+	
+	lockfile=$(common.runner.getLockFile $lock $level)
+
 	# how long did we wait?
 	time=0
 	
 	########################################
-	# Notify system if we want the lock
-	########################################
-	if [[ "$wantsLock" == true ]]
-	then
-		# If the lock is not set, its our turn
-		_turn=1
-		
-		# should we add this one?
-		add=true
-	
-		# We use our pid as id
-		myId=$$
-		
-		wait_str="$(common.hash.get Locks "$level" "wait_${lock}")"
-		
-		if [[ "$wait_str" ]]
-		then 
-			
-			# Add this processes to the waiting queue if its not already there
-			wait_array=( $wait_str )
-			
-			# Search for this process
-			for currPid in ${wait_array[@]}
-			do 
-				if [[ $currPid == $myId ]]
-				then
-					add=false
-					break
-				fi
-			done
-			
-		else
-			add=true
-		fi
-		
-		if [[ $add == true ]]
-		then
-		
-			# Was there something?
-			if [[ "$wait_str" ]]
-			then 
-				# There was data already
-				# Get last index
-				last_index=${#wait_array[@]}
-				
-				wait_array[$last_index]=$myId
-				arr_string="${wait_array[@]}"
-			
-			else
-				# Start from scratch
-				wait_array[0]=$myId
-				arr_string="${wait_array[@]}"
-			fi
-			
-			# Store in Hash
-			common.hash.put Locks "$level" "wait_${lock}" "$arr_string"
-		fi
-	fi
-	
-	########################################
 	# We wait until lock is free or Continue file is gone.
 	########################################		
-	while [[ $(common.hash.has? Locks "$level" "$lock") == true && -f ${CXR_CONTINUE_FILE} ]]
+	while [[ -f $lockfile && -f ${CXR_CONTINUE_FILE} ]]
 	do
 		main.log -v "Waiting for lock $lock."
-		
-		# We need to check if we are in position 1
-		if [[ "$wantsLock" == true ]]
-		then
-			wait_array=( $(common.hash.get Locks "$level" "wait_${lock}") )
-			
-			procsWaiting=${#wait_array[@]}
-			
-			if [[ $procsWaiting -eq 1 ]]
-			then
-				# Nobody else waits - we may proceed
-				_turn=1
-			else
-				# There are still others. Lets see if we where first.
-				# If the value added last is my id, we are in!
-				# since we add at the back, the oldest is in position 0
-				if [[ ${wait_array[0]} -eq $myId ]]
-				then
-					_turn=1
-				else
-					_turn=0
-				fi
-			fi
-		fi
 		
 		sleep 10
 		time=$(( $time + 10 ))
@@ -855,7 +795,7 @@ function common.runner.waitForLock()
 		then
 			main.log -w "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 			_retval=false
-			return $CXR_RET_ERROR
+			return $CXR_RET_OK
 		fi
 	done # is lock set?
 	
@@ -870,15 +810,19 @@ function common.runner.waitForLock()
 ################################################################################
 # Function: common.runner.getLock
 #
-# Tries to get a lock. If we get the lock, it will be added to the 
-# gobal Lock Hash and returns true.
-# Locks can have three levels (like hashes) 
-# This allows to release the locks later when we exit from the program.
-# When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false.
+# Tries to get a lock. 
+# Locks can have three levels (similar to hashes) 
+# If we get the lock, a file in the appropiate directory is created and
+# the path to the file is stored in the Instance Hash "Locks"
+# These files can be purged by <common.runner.releaseAllLocks>
 #
 # The problem is that here, locking is not atomic, so 2 processes could try
-# to get the same lock. We try to detect this situation.
-# (Even better would be an implementation of a general form of Peterson's or Dekkers algorithm...)
+# to get the same lock...
+# TODO: Implement a general (n concurrent procs) Peterson's or Dekkers algorithm
+# or use a probobilistic approach (wait 0..1 sec)
+#
+# Since SQLite seems to have some issues with locking, we must guard all write 
+# access where we assume concurrency with a lock.
 #
 # Example:
 # > if [[ $(common.runner.getLock NextTask "$CXR_HASH_TYPE_INSTANCE") == false ]]
@@ -908,6 +852,8 @@ function common.runner.getLock()
 	level="$2"
 	# If turn is 1 we can get a lock.
 	turn=0
+	
+	lockfile=$(common.runner.getLockFile $lock $level)
 
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false ]]
@@ -915,46 +861,21 @@ function common.runner.getLock()
 		
 		main.log -v "Waiting to set lock $lock..."
 		
-		while [[ $turn -ne 1 ]]
-		do
-			
-			# Wait for the lock, _retval is false if we exceeded the timeout
-			common.runner.waitForLock "$lock" "$level" true
-			
-			if [[ $_retval == false ]]
-			then
-				# Took to long...
-				echo false
-				return $CXR_RET_ERROR
-			fi
-			
-			# common.runner.waitForLock decides if its our turn
-			turn=$_turn
-			
-			# We only get the lock if its our turn
-			if [[ $turn -eq 1 ]]
-			then
-				# Add lock to hash (value is a dummy)
-				common.hash.put Locks "$level" "$lock" dummy
-				
-				# Remove our id from the queue
-				wait_array=( $(common.hash.get Locks "$level" "wait_${lock}") )
-				
-				# Now lets cut off the 0th element (using a string operator thast works perfectly on 
-				# an array
-				arr_string="${wait_array[@]:1}"
+		# Wait for the lock, _retval is false if we exceeded the timeout
+		common.runner.waitForLock "$lock" "$level"
 		
-				# Store in Hash
-				common.hash.put Locks "$level" "wait_${lock}" "$arr_string"
-				
-				main.log -v "Got lock $lock. (${level})"
-				break
-			else
-				# try again
-				continue
-			fi
-		done
+		if [[ $_retval == false ]]
+		then
+			# Took to long...
+			echo false
+			return $CXR_RET_ERROR
+		fi
 		
+		# Touch the file
+		touch $lockfile
+		
+		# Add lock to hash (value is the filename)
+		common.hash.put Locks $CXR_HASH_TYPE_INSTANCE "$lock" "$lockfile"
 	else
 		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
@@ -977,7 +898,7 @@ function common.runner.getLock()
 function common.runner.releaseLock()
 ################################################################################
 {
-	if [[ $# -ne 2  ]]
+	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs the name of a lock  and a lock-level as input"
 	fi
@@ -987,19 +908,20 @@ function common.runner.releaseLock()
 	
 	lock="$1"
 	level="$2"
+	lockfile=$(common.runner.getLockFile $lock $level)
 	
-	main.log -v "Waiting to release lock $lock..."
-
-	# We even release locks if locking is turned off
-	common.hash.delete Locks "$level" "$lock"
+	rm -f $lockfile
 	
-	main.log -v   "lock $lock released."
+	# Delete the lock from our own list
+	common.hash.delete Locks "$CXR_HASH_TYPE_INSTANCE" "$lock"
+	
+	main.log -v "lock $lock released."
 }
 
 ################################################################################
 # Function: common.runner.releaseAllLocks
 #
-# Releases all locks held by removing the relevant hash
+# Releases all locks this instance holds by getting them from the lock hash.
 #
 #
 # Parameters:
@@ -1008,8 +930,20 @@ function common.runner.releaseLock()
 function common.runner.releaseAllLocks()
 ################################################################################
 {
-	# Just destroy the hash
-	common.hash.destroy Locks $CXR_HASH_TYPE_GLOBAL
+	# Get all locks
+	locks="$(common.hash.getValues Locks $CXR_HASH_TYPE_INSTANCE)"
+	
+	oIFS="$IFS"
+	IFS='
+'
+	for lock in $locks
+	do
+		main.log -v "Deleting $lock"
+		rm $lock
+	done
+	
+	# Now destroy the hash
+	common.hash.destroy Locks $CXR_HASH_TYPE_INSTANCE
 }
 
 ################################################################################
