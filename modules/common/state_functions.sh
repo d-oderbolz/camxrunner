@@ -842,6 +842,7 @@ function common.state.cleanup()
 				if [[ $which_day == all ]]
 				then
 					main.log -a "You pre-selected all days for deletion"
+					offset=0
 					all_days=true
 				else
 					offset=$(common.date.toOffset $which_day)
