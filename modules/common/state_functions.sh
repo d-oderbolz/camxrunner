@@ -265,7 +265,7 @@ function common.state.updateInfo()
 						oIFS="$IFS"
 						# Set IFS to newline
 						IFS='
-	'
+'
 						for metafield in $list
 						do
 							# Parse this
