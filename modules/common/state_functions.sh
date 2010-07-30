@@ -50,7 +50,7 @@ function common.state.isRepeatedRun?()
 {
 	local count
 	
-	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO'))
+	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
 	main.log -v  "Counting $count tasks that where already touched"
 	
 	if [[ "$count" -gt 0 ]]
