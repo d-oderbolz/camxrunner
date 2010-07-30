@@ -785,7 +785,7 @@ function common.runner.waitForLock()
 	########################################
 	# We wait until lock is free or Continue file is gone.
 	########################################		
-	while [[ -f "$lockfile" && -f ${CXR_CONTINUE_FILE} ]]
+	while [[ -f "$lockfile" ]]
 	do
 		main.log -v "Waiting for lock $lock."
 		
@@ -800,12 +800,7 @@ function common.runner.waitForLock()
 		fi
 	done # is lock set?
 	
-	if [[ ! -f ${CXR_CONTINUE_FILE} ]]
-	then
-		main.dieGracefully "Continue file is gone."
-	else
-		_retval=true
-	fi
+	_retval=true
 }
 
 ################################################################################
