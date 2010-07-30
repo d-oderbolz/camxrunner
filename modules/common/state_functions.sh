@@ -356,8 +356,11 @@ function common.state.init()
 	-- Get exclusive access
 	PRAGMA main.locking_mode=EXCLUSIVE; 
 	
+	-- Check integrity
+	pragma integrity_check;
+	
 	-- This is a "Oracle like" Dummy table 
-	CREATE TABLE dual (dummy);
+	CREATE TABLE IF NOT EXISTS dual (dummy);
 	DELETE FROM dual;
 	INSERT INTO dual (dummy) VALUES ('X');
 	
