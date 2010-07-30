@@ -732,13 +732,22 @@ function common.state.cleanup()
 		
 		case "$what" in 
 		
+			all-locks)
+				if [[ "$(common.user.getOK "Do you really want to delete all lockfiles stored under ${CXR_STATE_DIR}?" )" == false ]]
+				then
+					# No 
+					main.log -a "Will not delete any state information"
+				else
+					find ${CXR_STATE_DIR} -noleaf -name '*.lock' -exec rm {} \; 2>/dev/null
+				fi
+				;;
+		
 			all-tasks)
 				# Do we do this?
 				if [[ "$(common.user.getOK "Do you really want to delete the whole state database ${CXR_STATE_DB_FILE}?" )" == false  ]]
 				then
 					# No 
 					main.log -a "Will not delete any state information"
-					return 0
 				else
 					# Yes
 					rm -f ${CXR_STATE_DB_FILE}

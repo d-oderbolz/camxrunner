@@ -929,7 +929,7 @@ function common.runner.releaseLock()
 ################################################################################
 # Function: common.runner.releaseAllLocks
 #
-# Releases all locks this instance holds by getting them from the lock hash.
+# Releases all locks this instance holds by looking at the id in them.
 #
 #
 # Parameters:
