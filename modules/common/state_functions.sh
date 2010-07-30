@@ -903,7 +903,7 @@ function common.state.doContinue?()
 	error_count=$(main.countErrors)
 	
 	# Report error count and ReaLoad
-	main.log -v -b "Current Error Count: $error_count\nCurrent ReaLoad: $(common.performance.getReaLoadPercent) %"
+	main.log -a -b "Current Error Count: $error_count\nCurrent ReaLoad: $(common.performance.getReaLoadPercent) %"
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1

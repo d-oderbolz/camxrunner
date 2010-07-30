@@ -42,6 +42,14 @@ CXR_PID=$$
 # Default Behaviour     ########################################################
 ################################################################################
 
+# Statusses that the runner knows
+CXR_STATUS_RUNNING=RUNNING
+CXR_STATUS_SUCCESS=SUCCESS
+CXR_STATUS_FAILURE=FAILURE
+CXR_STATUS_TODO=TODO
+# Only used for workers
+CXR_STATUS_WAITING=WAITING
+
 # Uncomment this for REALLY Verbose messages (directly from bash)
 #set -xv
 
@@ -177,14 +185,6 @@ CXR_ENABLE_STATE_DB=true
 
 # Define the prefix for disabled scripts (no dot please)
 CXR_DISABLED_EXT=disabled
-
-# Stages that the state DB knows
-CXR_STATUS_RUNNING=RUNNING
-CXR_STATUS_SUCCESS=SUCCESS
-CXR_STATUS_FAILURE=FAILURE
-CXR_STATUS_TODO=TODO
-# Only used for workers
-CXR_STATUS_WAITING=WAITING
 
 # Change this in case the name of the runner script changes
 CXR_RUNNER_NAME=CAMxRunner.sh
