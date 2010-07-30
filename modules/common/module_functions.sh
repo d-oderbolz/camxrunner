@@ -88,6 +88,8 @@ function common.module.parseIdentifier()
 # > b=$(common.module.getNumInvocations "$module")
 # The $() construct opens a subshell.
 #
+# TODO: This should be stored in the "modules" table
+#
 # Parameters:
 # $1 - name of a module
 ################################################################################
@@ -114,9 +116,6 @@ function common.module.getNumInvocations()
 	
 	# Call the function
 	numInvocations=$(getNumInvocations)
-	
-	# Add to cache
-	common.hash.put $cache $CXR_HASH_TYPE_UNIVERSAL "$module" "${numInvocations}"
 	
 	echo $numInvocations
 }
@@ -198,7 +197,7 @@ function common.module.isActive?()
 	local count
 
 	# Count entries
-	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM module WHERE module='$1'")
+	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules WHERE module='$1'")
 	
 	if [[ $count -eq 1 ]]
 	then
