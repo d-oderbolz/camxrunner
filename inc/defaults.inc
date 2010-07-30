@@ -575,7 +575,7 @@ CXR_MACHINE="$(uname -n)"
 ########################################
 #  Instance name PID@HOST
 ########################################
-CXR_INSTANCE=${$}@${CXR_MACHINE}
+CXR_INSTANCE=${CXR_PID}@${CXR_MACHINE}
 
 
 ########################################

@@ -94,7 +94,35 @@ function common.math.FloatOperation()
 	else
 		echo ${result}
 	fi
+}
 
+################################################################################
+# Function: common.math.RandomDecimal
+#
+# Returns a random number between 0-1. 
+#
+# Parameters:
+# $1 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
+################################################################################
+function common.math.RandomDecimal()
+################################################################################
+{
+	local maxrnd
+	local rnd
+	local result
+	local scale
+	
+	scale=${2:-$CXR_NUM_DIGITS}
+	
+	maxrnd=32767
+
+	# returns a number 0 - 32767
+	rnd=$RANDOM
+
+	
+	result=$(common.math.FloatOperation "$rnd / $maxrnd" $scale)
+	
+	echo $result
 }
 
 ################################################################################

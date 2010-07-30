@@ -743,9 +743,10 @@ function common.runner.getLockFile()
 ################################################################################
 # Function: common.runner.waitForLock
 #
-# Waits until a lock is released without getting it. 
-# Locks can have three levels (like hashes) 
+# Waits until a lock is free to be aquired.
 # When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false in _retval
+# If the lock is free, we wait for a random time between 0 and 1 sencond in order to separate 
+# eventual concurrent processes.
 #
 # Recommended call:
 # > common.runner.waitForLock NextTask "$CXR_HASH_TYPE_INSTANCE"
@@ -799,6 +800,9 @@ function common.runner.waitForLock()
 			return $CXR_RET_OK
 		fi
 	done # is lock set?
+	
+	# sleep a tiny bit
+	sleep $(common.math.RandomDecimal)
 	
 	_retval=true
 }
@@ -867,11 +871,22 @@ function common.runner.getLock()
 			return $CXR_RET_ERROR
 		fi
 		
-		# We got the lock - touch the file
-		touch "$lockfile"
+		# It seems that the lock was free, we check again (its possible that there was another process
+		# at the same time
 		
-		# Add lock to hash (value is the filename)
-		common.hash.put Locks $CXR_HASH_TYPE_INSTANCE "$lock" "$lockfile"
+		# Wait for the lock, _retval is false if we exceeded the timeout
+		common.runner.waitForLock "$lock" "$level"
+		
+		if [[ $_retval == false ]]
+		then
+			# Took to long...
+			echo false
+			return $CXR_RET_ERROR
+		fi
+		
+		# We got the lock 
+		# write our ID into the lockfile
+		echo $CXR_INSTANCE > "$lockfile"
 	else
 		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
@@ -882,7 +897,7 @@ function common.runner.getLock()
 ################################################################################
 # Function: common.runner.releaseLock
 #
-# Releases a lock by removing the relevant hash entry.
+# Releases a lock by deleting the relevant lock file.
 #
 # Recommended call:
 # > common.runner.releaseLock lockname
@@ -908,9 +923,6 @@ function common.runner.releaseLock()
 	
 	rm -f "$lockfile"
 	
-	# Delete the lock from our own list
-	common.hash.delete Locks "$CXR_HASH_TYPE_INSTANCE" "$lock"
-	
 	main.log -v "lock $lock released."
 }
 
@@ -926,20 +938,17 @@ function common.runner.releaseLock()
 function common.runner.releaseAllLocks()
 ################################################################################
 {
-	# Get all locks
-	locks="$(common.hash.getValues Locks $CXR_HASH_TYPE_INSTANCE)"
+	local dirs
+	local dir
 	
-	oIFS="$IFS"
-	IFS='
-'
-	for lock in $locks
+	dirs="$CXR_INSTANCE_DIR $CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR"
+	
+	# Find all lock files that contain my PID and delete them
+	for dir in $dirs
 	do
-		main.log -v "Deleting $lock"
-		rm "$lock"
+		# Do this on all 3 levels
+		find $dir -noleaf -name '*.lock' -exec grep -l $CXR_INSTANCE {} \; 2>/dev/null | xargs rm
 	done
-	
-	# Now destroy the complete instance hash, since we no longer hold any locks
-	common.hash.destroy Locks $CXR_HASH_TYPE_INSTANCE
 }
 
 ################################################################################
