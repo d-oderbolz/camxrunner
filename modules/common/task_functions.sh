@@ -547,7 +547,7 @@ function common.task.runningWorker()
 	 
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	main.log -v   "common.task.Worker (pid: $pid) changed its state to running"
+	main.log -v "common.task.Worker (pid: $pid) changed its state to running"
 }
 
 
@@ -829,20 +829,6 @@ function common.task.removeAllWorkers()
 }
 
 ################################################################################
-# Function: common.task.cleanTasks
-#
-# Deletes some data of the task DB .
-#
-#
-################################################################################
-function common.task.cleanTasks()
-################################################################################
-{
-	main.log -v "Cleaning DB file ${CXR_STATE_DB_FILE}..."
-	
-	# To be defined.
-}
-################################################################################
 # Function: common.task.waitForWorkers
 #
 # Basically a sleep function: we loop and check if the continue file is there.
@@ -913,12 +899,9 @@ function common.task.init()
 			"$(common.state.countInstances)" -gt 1 ]]
 	then
 		# We are in a non-master multiple runner
-		main.log -a -b "There is already a tasklist - we will use it.\nIf you want to start from scratch, delete all state info using\n ${CXR_CALL} -c\n"
+		main.log -a -b "This is a slave process - we use the pre-existing task infrastructure"
 	else
 		# Redo everything
-		
-		# Delete contents, if any
-		common.task.cleanTasks
 		
 		# Some tempfiles we need
 		dep_file="$(common.runner.createTempFile dependencies)"
