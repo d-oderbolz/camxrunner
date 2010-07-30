@@ -100,7 +100,7 @@ function common.task.getId()
 		invocation="${3:-1}"
 	fi
 	
-	echo "${date}${module}@${invocation}" 
+	echo "${date}@${module}@${invocation}" 
 }
 
 

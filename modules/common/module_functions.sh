@@ -794,7 +794,7 @@ function test_module()
 	
 	# Testing the resolvers for dependencies
 	is "$(common.module.resolveSingleDependency "model-" 0)" "" "common.module.resolveSingleDependency minus on first day"
-	is "$(common.module.resolveSingleDependency "model-" 1)" "${CXR_START_DATE}model@1" "common.module.resolveSingleDependency minus on second day"
+	is "$(common.module.resolveSingleDependency "model-" 1)" "${CXR_START_DATE}@model@1" "common.module.resolveSingleDependency minus on second day"
 
 	########################################
 	# teardown tests if needed
