@@ -720,7 +720,7 @@ function common.runner.removeTempFiles()
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
 ################################################################################
-function common.runner.waitForLock()
+function common.runner.getLockFile()
 ################################################################################
 {
 	local level
@@ -729,12 +729,12 @@ function common.runner.waitForLock()
 	
 	level="$1"
 	lock="$2"
-	file=${lock}.lock
+	file="${lock}.lock"
 	
 	case $level in
-		$CXR_HASH_TYPE_INSTANCE) 	echo $CXR_INSTANCE_DIR/$file ;;
-		$CXR_HASH_TYPE_GLOBAL) 		echo CXR_GLOBAL_DIR/$file ;;
-		$CXR_HASH_TYPE_UNIVERSAL) 	echo $CXR_UNIVERSAL_DIR/$file ;;
+		$CXR_HASH_TYPE_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
+		$CXR_HASH_TYPE_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
+		$CXR_HASH_TYPE_UNIVERSAL) 	echo "$CXR_UNIVERSAL_DIR/$file" ;;
 		*) main.dieGracefully "Lock level $level not supported";;
 	esac
 }
@@ -776,7 +776,7 @@ function common.runner.waitForLock()
 	lock="$1"
 	level="$2"
 	
-	lockfile=$(common.runner.getLockFile $lock $level)
+	lockfile="$(common.runner.getLockFile $lock $level)"
 
 	# how long did we wait?
 	time=0
@@ -784,7 +784,7 @@ function common.runner.waitForLock()
 	########################################
 	# We wait until lock is free or Continue file is gone.
 	########################################		
-	while [[ -f $lockfile && -f ${CXR_CONTINUE_FILE} ]]
+	while [[ -f "$lockfile" && -f ${CXR_CONTINUE_FILE} ]]
 	do
 		main.log -v "Waiting for lock $lock."
 		
@@ -825,9 +825,9 @@ function common.runner.waitForLock()
 # access where we assume concurrency with a lock.
 #
 # Example:
-# > if [[ $(common.runner.getLock NextTask "$CXR_HASH_TYPE_INSTANCE") == false ]]
+# > if [[ $(common.runner.getLock $lock "$CXR_HASH_TYPE_GLOBAL") == false ]]
 # > then
-# > 	main.dieGracefully "Could not get NextTask lock"
+# > 	main.dieGracefully "Could not get lock $lock"
 # > fi
 #
 # Parameters:
@@ -853,7 +853,7 @@ function common.runner.getLock()
 	# If turn is 1 we can get a lock.
 	turn=0
 	
-	lockfile=$(common.runner.getLockFile $lock $level)
+	lockfile="$(common.runner.getLockFile $lock $level)"
 
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false ]]
@@ -872,7 +872,7 @@ function common.runner.getLock()
 		fi
 		
 		# Touch the file
-		touch $lockfile
+		touch "$lockfile"
 		
 		# Add lock to hash (value is the filename)
 		common.hash.put Locks $CXR_HASH_TYPE_INSTANCE "$lock" "$lockfile"
@@ -908,9 +908,9 @@ function common.runner.releaseLock()
 	
 	lock="$1"
 	level="$2"
-	lockfile=$(common.runner.getLockFile $lock $level)
+	lockfile="$(common.runner.getLockFile $lock $level)"
 	
-	rm -f $lockfile
+	rm -f "$lockfile"
 	
 	# Delete the lock from our own list
 	common.hash.delete Locks "$CXR_HASH_TYPE_INSTANCE" "$lock"
@@ -939,10 +939,10 @@ function common.runner.releaseAllLocks()
 	for lock in $locks
 	do
 		main.log -v "Deleting $lock"
-		rm $lock
+		rm "$lock"
 	done
 	
-	# Now destroy the hash
+	# Now destroy the complete instance hash, since we no longer hold any locks
 	common.hash.destroy Locks $CXR_HASH_TYPE_INSTANCE
 }
 
