@@ -727,8 +727,9 @@ function common.runner.getLockFile()
 	local lock
 	local file
 	
-	level="$1"
-	lock="$2"
+	lock="$1"
+	level="$2"
+	
 	file="${lock}.lock"
 	
 	case $level in
@@ -853,7 +854,7 @@ function common.runner.getLock()
 	# If turn is 1 we can get a lock.
 	turn=0
 	
-	lockfile="$(common.runner.getLockFile $lock $level)"
+	lockfile="$(common.runner.getLockFile "$lock" "$level")"
 
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false ]]
