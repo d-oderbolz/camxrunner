@@ -272,7 +272,7 @@ function common.test.all()
 				num_tests="$(expr match "$metafield" '.*=\(.*\)')" || :
 
 				# OK, we want all quoting gone and variables expanded
-				num_tests="$(eval "echo $(echo "$value")")"
+				num_tests="$(eval "echo $(echo "$num_tests")")"
 
 				total_tests=$(( $total_tests + $num_tests ))
 			done
