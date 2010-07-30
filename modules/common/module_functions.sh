@@ -335,7 +335,7 @@ function common.module.resolveSingleDependency()
 			nInvocations=$(common.module.getNumInvocations "$dependency")
 			for iInvocation in $(seq 1 $nInvocations )
 			do
-				resolved_dependency="$(common.task.formatDependency "$dependency" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+				resolved_dependency="$(common.task.getID "$dependency" "$day_offset" "$iInvocation")"
 				
 				if [[ "$first" == true ]]
 				then
@@ -380,7 +380,7 @@ function common.module.resolveSingleDependency()
 		nInvocations=$(common.module.getNumInvocations "$module")
 		for iInvocation in $(seq 1 $nInvocations )
 		do
-			resolved_dependency="$(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+			resolved_dependency="$(common.task.getID "$module" "$day_offset" "$iInvocation")"
 		
 			if [[ "$first" == true ]]
 			then
