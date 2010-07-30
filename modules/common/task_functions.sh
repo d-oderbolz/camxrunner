@@ -83,7 +83,7 @@ function common.task.getId()
 ################################################################################
 {
 	local module
-	local iInvocation
+	local invocation
 	local date
 
 	if [[ $# -lt 3 ]]
@@ -100,7 +100,7 @@ function common.task.getId()
 		invocation="${3:-1}"
 	fi
 	
-	echo "${date}${module}@${iInvocation}" 
+	echo "${date}${module}@${invocation}" 
 }
 
 
