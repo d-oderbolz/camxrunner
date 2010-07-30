@@ -867,7 +867,7 @@ function common.runner.getLock()
 			return $CXR_RET_ERROR
 		fi
 		
-		# Touch the file
+		# We got the lock - touch the file
 		touch "$lockfile"
 		
 		# Add lock to hash (value is the filename)
