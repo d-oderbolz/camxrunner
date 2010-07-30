@@ -41,7 +41,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=1
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -69,7 +69,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Creates a task Id out of several inputs. Can be used to identify a task,
 # be it as a dependency or otherwise.
 #
-# Format: $raw_date@$module@$invocation
+# Format: $date@$module@$invocation
 #
 # Example:
 # > echo "${dependency} $(common.task.getId "$module" "$day_offset" "$iInvocation" )" >> $output_file
@@ -83,21 +83,20 @@ function common.task.getId()
 ################################################################################
 {
 	local module
-	local day_offset
 	local iInvocation
-	local nInvocations
 	local date
 
 	if [[ $# -lt 3 ]]
 	then
 		# Use the environment
 		module="${CXR_META_MODULE_NAME}"
-		date="${CXR_DATE_RAW:-any_date}"
+		# Use CXR_DATE or the start date
+		date="${CXR_DATE:${CXR_STRT_DATE}}"
 		invocation="${CXR_INVOCATION:-1}"
 	else
 		# Use parameters
 		module="${1}"
-		date="$(common.date.toRaw $(common.date.OffsetToDate "${2:-0}"))"
+		date="$(common.date.OffsetToDate "${2:-0}")"
 		invocation="${3:-1}"
 	fi
 	
@@ -192,11 +191,11 @@ function common.task.createDependencyList()
 						# Loop 
 						for dependency in $resolved_dependencies
 						do
-							echo "${dependency} $(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")" >> "$output_file"
+							echo "${dependency} $(common.task.getId "$module" "$day_offset" "$iInvocation")" >> "$output_file"
 						done # Dependencies
 					else
 						# Add the module twice (see header), including all invocations
-						dep_string="$(common.task.formatDependency "$module" "$module_type" "$day_offset" "$iInvocation" "$nInvocations")"
+						dep_string="$(common.task.getId "$module" "$day_offset" "$iInvocation")"
 						echo $dep_string $dep_string >> "$output_file"
 					fi
 				done # invocations
@@ -890,7 +889,6 @@ function common.task.init()
 	local day_offset
 	local invocation
 	local module_type
-	local raw_date
 	local my_stage
 	local dep_file
 	local sorted_file
@@ -961,11 +959,10 @@ function common.task.init()
 			exclusive="$(common.module.getMetaField "$_module" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
 			
 			# Convert date
-			raw_date="$(common.date.toRaw $(common.date.OffsetToDate "${_day_offset:-0}"))"
-			my_stage="$(common.state.getStageName "$module_type" "$_module" "$raw_date" "$_invocation" )"
+			my_stage="$(common.task.getId "$_module" "${_day_offset:-0}" "$_invocation" )"
 			
 			# Is this known to have worked?
-			if [[ "$(common.state.hasFinished? "$my_stage")" == false ]]
+			if [[ "$(common.state.hasFinished? "$_module" "${_day_offset:-0}" "$_invocation")" == false ]]
 			then
 				# estimate the runtime and add to total
 				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module)" -1 false)
@@ -1031,10 +1028,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} 1 2 12)" "test1@2" "common.task.formatDependency normal"
-	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} 1 2 1)" "test1" "common.task.formatDependency only one invocation in total"
-	is "$(common.task.formatDependency test ${CXR_TYPE_MODEL} "" "" "")" "test" "common.task.formatDependency empty parameters"
-	
+	is "$(common.task.getId test 0 2)" "${CXR_START_DATE}@test@2" "common.task.getId normal"
+
 	########################################
 	# teardown tests if needed
 	########################################

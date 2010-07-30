@@ -193,7 +193,7 @@ function avgdif
 		
 		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
-		main.log  "Stage $(common.state.getStageName) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log  "Stage $(common.task.getId) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

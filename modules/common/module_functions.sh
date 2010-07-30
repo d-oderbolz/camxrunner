@@ -539,17 +539,17 @@ function common.module.areDependenciesOk?()
 		# Determine type
 		module_type="$(common.module.getType "$dep_module")"
 		
-		my_stage="$(common.state.getStageName "$dep_module" "$dep_day_offset" "$dep_invocation" )"
+		my_stage="$(common.task.getId "$dep_module" "$dep_day_offset" "$dep_invocation" )"
 		
 		# Is this known to have worked?
-		if [[ "$(common.state.hasFinished? "$my_stage")" == true ]]
+		if [[ "$(common.state.hasFinished? "$dep_module" "$dep_day_offset" "$dep_invocation")" == true ]]
 		then
 			main.log -v "dependency ${dependency} fullfilled at $my_stage"
 		else
 			# dependency NOK, Find out why
 			
 			# Find out if dependency failed - if so, we crash
-			if [[ "$(common.state.hasFailed? "$my_stage")" == true ]]
+			if [[ "$(common.state.hasFailed? "$dep_module" "$dep_day_offset" "$dep_invocation")" == true ]]
 			then
 				# It failed
 				# Destroy run (we used not to do this in dryruns. But this can result in a lockup!
