@@ -358,7 +358,8 @@ function common.state.init()
 	
 	-- This is a "Oracle like" Dummy table 
 	CREATE TABLE dual (dummy);
-	INSERT INTO DUAL (dummy) VALUES ('X');
+	DELETE FROM dual;
+	INSERT INTO dual (dummy) VALUES ('X');
 	
 	-- Here we store all installed stuff (just for installer)
 	CREATE TABLE IF NOT EXISTS installed (item,
