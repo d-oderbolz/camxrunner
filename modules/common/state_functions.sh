@@ -347,7 +347,7 @@ function common.state.init()
 	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE
 	
 	# Creating .continue file
-	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible stage" 1>&2
+	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
 	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	main.log -v "Creating database schema..."
@@ -355,6 +355,10 @@ function common.state.init()
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	-- Get exclusive access
 	PRAGMA main.locking_mode=EXCLUSIVE; 
+	
+	-- This is a "Oracle like" Dummy table 
+	CREATE TABLE dual (dummy);
+	INSERT INTO DUAL (dummy) VALUES ('X');
 	
 	-- Here we store all installed stuff (just for installer)
 	CREATE TABLE IF NOT EXISTS installed (item,
@@ -424,16 +428,16 @@ function common.state.init()
 # Stores the current status of a run, can be either $CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE.
 # In the case of ERROR, we will take note of the fact.
 #
-# If a stage starts, checks if this stage was already executed.
-# The name of the stage is determined via <common.state.getStageName> if it is not passed in.
-# The ability to pass a stage name is used by installers and tests alike, they use a slightly different approach.
+# If a task starts, checks if this task was already executed.
+# The name of the task is determined via <common.task.getId> if it is not passed in.
+# The ability to pass a task name is used by installers and tests alike, they use a slightly different approach.
 #
 # If the user wants to run a specific module (CXR_RUN_LIMITED_PROCESSING=true), we will disregard the fact that
 # the step already ran, but we advise -F
 #
 # Returns:
 # 	$CXR_RET_OK if OK (true)
-# 	$CXR_RET_ALREADY_RUN if this stage was already started (false)
+# 	$CXR_RET_ALREADY_RUN if this task was already started (false)
 #
 # Parameters:
 # $1 - status ($CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE.)
@@ -447,12 +451,13 @@ function common.state.storeStatus()
 	fi
 	
 	local status
-	local stage
+	local task
 	
 	status=$1
 	
 	# Get a nice string describing where we are
-	stage=$(common.state.getStageName)
+	task=$(common.task.getId)
+	
 	
 	# Set the current state data
 	module="${CXR_META_MODULE_NAME}"
@@ -477,11 +482,11 @@ function common.state.storeStatus()
 				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true ]]
 				then
 					# Ran already, but user wants to run specifically this
-					main.log -w  "Task $stage was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
+					main.log -w  "Task $task was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
 					echo true
 				else
-					# Oops, this stage was already started	
-					main.log -w  "Task $stage was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+					# Oops, this task was already started	
+					main.log -w  "Task $task was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 					
 					# false means already run
 					echo false
@@ -493,13 +498,13 @@ function common.state.storeStatus()
 			;;
 	
 			"$CXR_STATUS_SUCCESS")
-				main.log "Task $stage successfully completed."
+				main.log "Task $task successfully completed."
 				echo true
 				;;
 	
 			"$CXR_STATUS_FAILURE")
 				CXR_STATUS=$CXR_STATUS_FAILURE
-				main.log -e "An error has occured during the execution of task $stage!"
+				main.log -e "An error has occured during the execution of task $task!"
 				echo false
 			;;
 			
@@ -559,7 +564,7 @@ function common.state.detectInstances()
 ################################################################################
 # Function: common.state.hasFinished?
 #	
-# Checks if a specific stage has finished.
+# Checks if a specific task has finished.
 #
 # Parameters:	
 # $1 - module name
@@ -575,41 +580,54 @@ function common.state.hasFinished?()
 		echo false
 	fi
 	
-	local stage
-	local start_file
-	local stop_file
+	local module
+	local day_offset
+	local invocation
+	local task
+	local status
 	
-	stage="$1"
-	start_file=$(_common.state.getStateFileName "${CXR_STATUS_RUNNING}" "${stage}")
-	stop_file=$(_common.state.getStateFileName "${CXR_STATUS_SUCCESS}" "${stage}")
+	module="$1"
+	day_offset="$2"
+	invocation="$3"
+	task="$(common.task.getId $module $day_offset $invocation)"
 	
-	main.log -v "Testing stage ${stage}, looking for ${start_file} and ${stop_file}"
+	main.log -v "Testing if task ${task} is done..."
 	
-	if [[ -f "$stop_file" ]]
-	then
+	status=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
 	
-		if [[ -f "$start_file"  ]]
-		then
-			main.log -v  "Found a START file for ${stage}"
-		fi
+	case $status in
+	
+		$CXR_STATUS_SUCCESS) 
+			echo true 
+			;;
+			
+		$CXR_STATUS_FAILURE) 
+			main.log -w "Task $task failed."
+			echo false
+			;;
 		
-		echo true
-	else
-	
-		# There is no stop file. Still there might be a start file:
-		if [[ -f "$start_file"  ]]
-		then
-			main.log -w  "The stage ${stage} was started, but did not (yet) finish."
-		fi
-	
-		echo false
-	fi
+		$CXR_STATUS_RUNNING)
+			main.log -v "Task $task is marked as still running."
+			echo false
+			;;
+			
+		$CXR_STATUS_TODO)
+			main.log -v "Task $task has not started yet."
+			echo false
+			;;
+		
+		*) 
+			main.log -e "Task $task has unknown status: $status"
+			echo false
+			;;
+	esac
 }
 
 ################################################################################
 # Function: common.state.hasFailed?
 #	
-# Check if a specific task has failed.
+# Check if a specific task has failed (similar to the inverse of <common.state.hasFinished?>
+# but with subtle differences.
 #
 # Parameters:	
 # $1 - module name
@@ -625,18 +643,48 @@ function common.state.hasFailed?()
 		echo false
 	fi
 	
-	local stage
-	local error_file
+	local module
+	local day_offset
+	local invocation
+	local task
+	local status
 	
-	stage="$1"
-	error_file=$(_common.state.getStateFileName "${CXR_STATUS_FAILURE}" "${stage}")
+	module="$1"
+	day_offset="$2"
+	invocation="$3"
+	task="$(common.task.getId $module $day_offset $invocation)"
 	
-	if [[ -f "$error_file"  ]]
-	then
-		echo true
-	else
-		echo false
-	fi
+	main.log -v "Testing if task ${task} is done..."
+	
+	status=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	
+	case $status in
+	
+		$CXR_STATUS_SUCCESS) 
+			echo false 
+			;;
+			
+		$CXR_STATUS_FAILURE) 
+			main.log -w "Task $task failed."
+			echo true
+			;;
+		
+		$CXR_STATUS_RUNNING)
+			main.log -v "Task $task is marked as still running."
+			echo false
+			;;
+			
+		$CXR_STATUS_TODO)
+			main.log -v "Task $task has not started yet."
+			echo false
+			;;
+		
+		*) 
+			# Unknown := failed
+			main.log -e "Task $task has unknown status: $status"
+			echo true
+			;;
+	esac
 }
 
 ################################################################################
@@ -645,7 +693,6 @@ function common.state.hasFailed?()
 # Depending on user selection:
 # - Deletes all state information
 # - Deletes only part of the state information
-# - Respects also the task structures
 # All is in a endless loop so one can quickly delete a lot of stuff
 # 
 ################################################################################
@@ -674,30 +721,26 @@ function common.state.cleanup()
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all-non-tasks existing-instances specific tasks none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all-tasks specific-tasks old-instances none" "none")
 		
 		case "$what" in 
 		
-			all-non-tasks)
-				main.log -w  "The following files will be deleted:"
-					
-				find ${CXR_STATE_DIR} -noleaf -maxdepth 1 -type f | xargs -i basename \{\}
-		
+			all-tasks)
 				# Do we do this?
-				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				if [[ "$(common.user.getOK "Do you really want to delete the whole state database ${CXR_STATE_DB_FILE}?" )" == false  ]]
 				then
 					# No 
 					main.log -a "Will not delete any state information"
 					return 0
 				else
 					# Yes
-					rm -rf ${CXR_STATE_DIR}/* 2>/dev/null
+					rm -f ${CXR_STATE_DB_FILE}
 					main.log -a "Done."
 				fi #Delete?
 				
-				;; # all-non-tasks
+				;; # all-tasks
 			
-			existing-instances)
+			old-instances)
 			
 				main.log -w  "The following directories and files therein will be deleted:"
 					
@@ -715,190 +758,125 @@ function common.state.cleanup()
 					main.log -a "Done."
 				fi #Delete?
 			
-				;; # existing-instances
+				;; # old-instances
 					
-			specific)
+			specific-tasks)
 			
-				# Possibilities:
-				# one day 
-				# one step
-				# both
+				# First, we build a select statement,
+				# then we execute it (SELECT & DELETE)
 				
-				what_detail="$(common.user.getMenuChoice "You have 3 options: (1) we delete all state information about one specific day , (2) about one specific step or (3) a combination thereof (none exits this function)?" "day step both none" "none")"
-				
-				case "$what_detail" in
-				
-					day)
-						
-						# To enumerate all days, we use a little grep-magic, also we add none at the end
-						# The basename is needed to strip off the path, because the pattern starts with ^
-						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
-						
-						which_day="$(common.user.getMenuChoice "Which days state information should be deleted  (none exits this function)?" "$days" "none" )"
-						
-						# If this is true, we delete until the end
-						following_days="$(common.user.getOK "Do you want to delete also data of days following this one?" )"
-						
-						if [[ $which_day == none ]]
-						then
-							main.log -w "Will not delete any state information" 
-							return 0
-						fi
-						
-						start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
-								
-						if [[ "$following_days" == true ]]
-						then
-							stop_offset=$((${CXR_NUMBER_OF_SIM_DAYS} -1))
-						else
-							stop_offset=$start_offset
-						fi
-						
-						for iOffset in $(seq $start_offset $stop_offset)
-						do
-							# determine raw date from iOffset
-							current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
-						
-							main.log -w  "The following files will be deleted:"
-					
-							ls ${CXR_STATE_DIR}/${current_date}@*@* | xargs -i basename \{\}
-								
-							if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
-							then
-								# No 
-								main.log -a "Will not delete this information"
-								continue
-							else
-								#Yes
-								rm -f ${CXR_STATE_DIR}/${current_date}@*@* 2>/dev/null
-							fi #Delete?
-						done
-								
-						;; # specific.day
-						
-					step)
-						# To enumerate all steps, we use a little grep-magic
-						# We can tell between module types and steps
-						module_types="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
-						
-						# Count the module types
-						num_module_types=$(echo "$module_types" | wc -l)
-						
-						steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
-						
-						which_step="$(common.user.getMenuChoice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
-						
-						if [[ $which_step == none ]]
-						then
-							main.log -a "Will not delete any state information" 
-							return 0
-						fi
-						
-						main.log -w  "The following files will be deleted:"
-								
-						ls ${CXR_STATE_DIR}/*${which_step}* | xargs -i basename \{\}
-						
-						if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
-						then
-							# No 
-							main.log -a  "Will not delete any state information"
-							return 0
-						else
-							#Yes
-							rm -f ${CXR_STATE_DIR}/*${which_step}* 2>/dev/null
-							main.log -a "Done."
-						fi #Delete?
-
-						;; # specific.step
-						
-					both)
-						# First get the step, then the day(s)
-						# To enumerate all steps, we use a little grep-magic
-						# We can tell between module types and steps
-						module_types="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@' - | sort | uniq) "
-						
-						# Count the module types
-						num_module_types=$(echo "$module_types" | wc -l)
-						
-						steps="$(find ${CXR_STATE_DIR} -noleaf -type f | grep -o '@.*@.*\.' - | sort | uniq) none"
-						
-						which_step="$(common.user.getMenuChoice "Which module types (the first $num_module_types entries in the list) or steps state information should be deleted \n(none exits this function)?" "${module_types}${steps}" "none" )"
-						
-						if [[ $which_step == none ]]
-						then
-							main.log -w "Will not delete any state information" 
-							return 0
-						fi
-						
-						# To enumerate all days, we use a little grep-magic, also we add none at the end
-						# The basename is needed to strip off the path, because the pattern starts with ^
-						days="$(find ${CXR_STATE_DIR} -noleaf -type f | xargs -i basename \{\} |  grep -o '^[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]' - | sort | uniq ) none"
-						
-						which_day="$(common.user.getMenuChoice "Which days state information should be deleted (none exits this function)?" "$days" "none" )"
-
-						if [[ $which_day == none ]]
-						then
-							main.log -w "Will not delete any state information" 
-							return 0
-						fi
-
-						# If this is true, we delete until the end
-						following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
-						
-						start_offset=$(common.date.toOffset $(common.date.toISO ${which_day}))
-
-						if [[ "$following_days" == true ]]
-						then
-							stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
-						else
-							stop_offset=$start_offset
-						fi
-						
-						for iOffset in $(seq $start_offset $stop_offset)
-						do
-							# determine raw date from iOffset
-							current_date=$(common.date.toRaw $(common.date.OffsetToDate $iOffset))
-							
-							main.log -w "The following files will be deleted:"
-					
-							ls ${CXR_STATE_DIR}/${current_date}${which_step}* | xargs -i basename \{\}
-							
-							if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false ]]
-							then
-								# No 
-								main.log -a "Will not delete this information"
-								continue
-							else
-								#Yes
-								rm -f ${CXR_STATE_DIR}/${current_date}${which_step}* 2>/dev/null
-							fi
-							main.log -a "Done."
-						done
-						;; # specific.both
-				
-					none) 
-						main.log -w "Will not delete any state information" 
-						return 0
-						;; # specific.none
-				esac
-				;; # specific
-				
-			tasks)
-				# Do we do this?
-				if [[ "$(common.user.getOK "Do you really want to clean all tasks?" )" == false  ]]
+				# First select the module type or module name
+				if [[ "$(common.user.getOK "Do you want to delete specific module types (otherwise, you get a list of modules)?" )" == true  ]]
 				then
-					# No 
-					main.log -w "Will not delete any state information"
-					return 0
+					# Module types it is.
+					# We add the value "all" to the result
+					steps="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
+					
+					oIFS="$IFS"
+					# set IFS to newline that select parses correctly
+					IFS='
+'
+					which_step="$(common.user.getMenuChoice "Which module types state information should be deleted?" "${steps}" "none" )"
+					# Reset IFS
+					IFS="$oIFS"
+					
+					if [[ $which_step == all ]]
+					then
+						main.log -a "You pre-selected all module types for deletion"
+						where_module=""
+					else
+						where_module="module_type='$which_step'"
+					fi
+					
 				else
-
-					# Yes
-					common.task.cleanTasks
-
-					main.log -a "Done."
+					# Module names
+					
+					# We add the value "all" to the result
+					steps="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
+					
+					oIFS="$IFS"
+					# set IFS to newline that select parses correctly
+					IFS='
+'
+					which_step="$(common.user.getMenuChoice "Which modules state information should be deleted?" "${steps}" "none" )"
+					# Reset IFS
+					IFS="$oIFS"
+					
+					if [[ $which_step == all ]]
+					then
+						main.log -a "You pre-selected all modules for deletion"
+						where_module=""
+					else
+						where_module="module='$which_step'"
+					fi
 				fi
-				;; # Tasks
-			
+				
+				# Get all days and add all as above
+				days="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
+				
+				oIFS="$IFS"
+				# set IFS to newline that select parses correctly
+				IFS='
+'
+				which_day="$(common.user.getMenuChoice "Which days state information should be deleted?" "$days" "none" )"
+				
+				# Reset IFS
+				IFS="$oIFS"
+				
+				if [[ $which_day == all ]]
+				then
+					main.log -a "You pre-selected all days for deletion"
+					all_days=true
+				else
+					offset=$(common.date.toOffset $which_day)
+					all_days=false
+				fi
+
+				# If this is true, we delete until the end
+				following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
+				
+				if [[ "$following_days" == true ]]
+				then
+					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
+				else
+					stop_offset=$offset
+				fi
+				
+				for iOffset in $(seq $offset $stop_offset)
+				do
+					main.log -w "Planning to delete these tasks:"
+					
+					if [[ $all_days == true ]]
+					then
+						# We delete all days
+						where="$where_module"
+					else
+						# Just the current one
+						where="$where_module AND day_offset=$iOffset"
+					fi
+					
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id FROM tasks WHERE $where"
+
+					if [[ "$(common.user.getOK "Do you really want to do this?" )" == false ]]
+					then
+						# No 
+						main.log -a "Will not delete this information"
+						continue
+					else
+						#Yes
+						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM tasks WHERE $where"
+					fi
+					
+					if [[ -z "$where_day" ]]
+					then
+						# all days need to be deleted only once
+						break
+					fi
+				done
+					
+				main.log -a "Done."
+				
+				;; # specific
 			none)
 				main.log -w "Will not delete any state information" 
 				return 0
@@ -916,7 +894,6 @@ function common.state.cleanup()
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
 # ends run if we are too high and toches the alive file
 #
-# TODO: This is a nice place to test system resources...
 ################################################################################
 function common.state.doContinue?()
 ################################################################################
@@ -924,8 +901,8 @@ function common.state.doContinue?()
 	local error_count
 	error_count=$(main.countErrors)
 	
-	# Report error count
-	main.log -v -b "Current Error Count: $error_count"
+	# Report error count and ReaLoad
+	main.log -v -b "Current Error Count: $error_count\nCurrent ReaLoad: $(common.performance.getReaLoadPercent) %"
 
 	# Check error threshold, but only if the value of
 	# of CXR_ERROR_THRESHOLD is not -1
@@ -938,14 +915,14 @@ function common.state.doContinue?()
 	# Set this in tests etc.
 	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
 	then
-		main.log -v   "You disabled the state DB, cannot determine presence of the continue file!"
+		main.log -v "You disabled the state DB, cannot determine presence of the continue file!"
 		return $CXR_RET_OK
 	fi
 	
 	# If the variable is not defined, nothing will happen
-	if [[ "${CXR_CONTINUE_FILE}"  ]]
+	if [[ "${CXR_CONTINUE_FILE}" ]]
 	then
-		if [[ ! -f ${CXR_CONTINUE_FILE}  ]]
+		if [[ ! -f ${CXR_CONTINUE_FILE} ]]
 		then
 			main.log -w  "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING

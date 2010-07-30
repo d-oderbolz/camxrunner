@@ -182,8 +182,8 @@ CXR_DISABLED_EXT=disabled
 CXR_STATUS_RUNNING=RUNNING
 CXR_STATUS_SUCCESS=SUCCESS
 CXR_STATUS_FAILURE=FAILURE
-
 CXR_STATUS_TODO=TODO
+# Only used for workers
 CXR_STATUS_WAITING=WAITING
 
 # Change this in case the name of the runner script changes
