@@ -371,7 +371,9 @@ function common.state.updateInfo()
 		main.log -v "Building tasks..."
 		# Basically this product:
 		# modules x days x invocations
+		# Of course, we must treat the One-Timers separate
 		
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT m.module, d.day_iso, i.value as invocation FROM module m, days d, metadata i WHERE i.module=m.module AND i.field='INVOCATION' AND m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY')"
 		
 		
 		main.log -a "Module data successfully collected."
