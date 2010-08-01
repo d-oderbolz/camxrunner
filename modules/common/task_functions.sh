@@ -879,7 +879,7 @@ function common.task.init()
 	local dep_file
 	local sorted_file
 	
-	main.log -a "Initializing parallel subsystem, might take a while, depending on number of tasks...\n"
+	main.log -a "Initializing task subsystem, might take a while, depending on number of tasks...\n"
 	
 	# Reset the ID counter
 	local current_id

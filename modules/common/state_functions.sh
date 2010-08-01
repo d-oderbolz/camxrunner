@@ -140,6 +140,7 @@ function common.state.updateInfo()
 	local list
 	local field
 	local value
+	local dependency
 	
 	# Only update info if we are not a slave
 	if [[	${CXR_ALLOW_MULTIPLE} == true && \
@@ -244,37 +245,53 @@ function common.state.updateInfo()
 						main.log -a "Module $module is disabled, skipped"
 					fi
 					
-					if [[ "$run_it" == true ]]
-					then
-						# Like mentioned above, only active stuff is added.
-						# Other things are not needed.
-						# Add $file, $module and $type to DB
-						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path) VALUES ('$module','$type','$file')"
+
+					# We mark needed stuff as active
+					# Add $file, $module and $type to DB
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
+
 					
-						# Add metadata
-						# grep the CXR_META_ vars that are not commented out
-						list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
-						
-						oIFS="$IFS"
-						# Set IFS to newline
-						IFS='
+					# Add metadata
+					# grep the CXR_META_ vars that are not commented out
+					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+					
+					oIFS="$IFS"
+					# Set IFS to newline
+					IFS='
 '
-						for metafield in $list
-						do
-							# Parse this
-							# Field is to the left of the = sign
-							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
-							# the value is to the right
-							value="$(expr match "$metafield" '.*=\(.*\)')" || :
-							
-							# OK, we want all quoting gone and variables expanded
-							value="$(eval "echo $(echo "$value")")"
-							
-							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
-						done
+					for metafield in $list
+					do
+						# Parse this
+						# Field is to the left of the = sign
+						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
+						# the value is to the right
+						value="$(expr match "$metafield" '.*=\(.*\)')" || :
 						
-						IFS="$oIFS"
-					fi
+						# OK, we want all quoting gone and variables expanded
+						value="$(eval "echo $(echo "$value")")"
+						
+						# If we are looking at the dependencies, parse further and create one row per dependency
+						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
+						then
+							for dependency in $value
+							do
+								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
+							done
+						else
+							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
+						fi # is it the depends on field?
+					done
+					
+					IFS="$oIFS"
+					
+					# Now also add each invocation as individial row. 
+					nInvocations=$(common.module.getNumInvocations $module)
+					
+					for iInvocation in $(seq 1 $nInvocations)
+					do
+						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation')"
+					done
+
 				done # Loop over files
 			else
 				main.dieGracefully "Tried to add modules in $dir - directory not found."
@@ -284,7 +301,7 @@ function common.state.updateInfo()
 		# Adding any new module types
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
 		
-		# Adding taks data
+		main.log -v "Adding information about simulation days..."
 		
 		# Is this a repetition of an earlier run?
 		if [[ $(common.state.isRepeatedRun?) == true ]]
@@ -324,13 +341,13 @@ function common.state.updateInfo()
 		
 		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 		do
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)',1)"
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true')"
 		done
 		
 		# Correct active if user selected only some days
 		if [[ "$CXR_SINGLE_DAYS" ]]
 		then
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active=0"
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active='false'"
 			
 			# Only activate the wanted ones
 			for wanted in $CXR_SINGLE_DAYS
@@ -342,17 +359,19 @@ function common.state.updateInfo()
 				then
 					# OK
 					main.log -a $wanted
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active=1 WHERE day_iso='$wanted'"
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active='true' WHERE day_iso='$wanted'"
 				else
 					# Mep
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
 				fi
 			
 			done
+		fi # Handle single days
 		
-		fi
+		main.log -v "Building tasks..."
+		# Basically this product:
+		# modules x days x invocations
 		
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT * FROM days"
 		
 		
 		main.log -a "Module data successfully collected."
