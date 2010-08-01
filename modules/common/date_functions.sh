@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=42
+CXR_META_MODULE_NUM_TESTS=43
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some date functions for the CAMxRunner"
@@ -467,21 +467,34 @@ function common.date.EpochToDateTime()
 ################################################################################
 # Function: common.date.WeekOfYear
 # 
-# Returns the one-based week of year (2 digits)
+# Returns the one-based week of year
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
+# $2 - no leading zero (default: false - 2 digits)
 ################################################################################
 function common.date.WeekOfYear() 
 ################################################################################
 {
 
-	if [[ $# -lt 1   ]]
+	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
+		main.dieGracefully "needs a date of the form YYYY-MM-DD and an optional boolean (no leading zero) as input"
 	fi
-
-	date +%V -d $1
+	
+	local date
+	local no_zeroes
+	
+	date=$1
+	no_zeroes=${2:-false}
+	
+	if [[ $no_zeroes == true ]]
+	then
+		# Hyphen turns off padding
+		date +%-V -d $1
+	else
+		date +%V -d $1
+	fi
 }
 
 ################################################################################
@@ -937,14 +950,14 @@ function common.date.WeeksBetween()
 		return $CXR_RET_ERROR
 	fi
 	
-	oldweek=$(common.date.WeekOfYear "$start")
+	oldweek=$(common.date.WeekOfYear "$start" true)
 	
-	# Be careful - by default seq return engineering notation!
+	# Be careful - by default seq returns engineering notation!
 	for iDay in $(seq -f"%.0f" $julstart $julend)
 	do
-		week=$(common.date.WeekOfYear "$(common.date.JulianToDate $iDay)")
+		week=$(common.date.WeekOfYear "$(common.date.JulianToDate $iDay)" true)
 		
-		# Is it a different weex (not necessarily larger across years)?
+		# Is it a different week (not necessarily larger across years)?
 		if [[ $week -ne $oldweek ]]
 		then
 			nWeeks=$(( $nWeeks + 1 ))
@@ -1390,7 +1403,8 @@ function test_module()
 	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
 	
 	is $(common.date.DayOfWeek 2009-12-31) 4 "DOW"
-	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY"
+	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY normal"
+	is $(common.date.WeekOfYear 2009-01-01 true) 1 "WOY no padding"
 	is $(common.date.MonthOfYear 2009-12-31) 12 "MOY"
 	
 	is "$(common.date.humanSeconds 60)" '1 min' "common.date.humanSeconds One minute"
