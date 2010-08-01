@@ -324,7 +324,7 @@ function common.state.updateInfo()
 		
 		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 		do
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,$(common.date.OffsetToDate $iOffset),1)"
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)',1)"
 		done
 		
 		# Correct active if user selected only some days
