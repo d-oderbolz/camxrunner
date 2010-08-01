@@ -297,7 +297,7 @@ CXR_INSTALL=false
 CXR_RUN_TESTS=false
 
 #If non-empty, we will run this day (YYYY-MM-DD)
-CXR_ONE_DAY=
+CXR_SINGLE_DAYS=
 
 # When set to true, CAMx is not run, only other runners on the same rn are stopped
 CXR_STOP_RUN=false

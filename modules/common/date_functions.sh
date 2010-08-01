@@ -76,6 +76,38 @@ function common.date.decompose()
 }
 
 ################################################################################
+# Function: common.date.isSimulationDay?
+#
+# Checks if a date is within the boundaries of CXR_START_DATE and CXR_END_DATE
+# 
+#
+# Parameters:
+# $1 - date in YYYY-MM-DD form
+################################################################################
+function common.date.isSimulationDay?()
+################################################################################
+{
+	local ThisDate
+	local StartJul
+	local StopJul
+	local ThisJul
+	
+	ThisDate=${1}
+	
+	StartJul=$(common.date.toJulian ${CXR_START_DATE})
+	StopJul=$(common.date.toJulian ${CXR_STOP_DATE})
+	ThisJul=$(common.date.toJulian ${ThisDate})
+	
+	if [[ $ThisJul -ge $StartJul && $ThisJul -le $StopJul ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+
+}
+
+################################################################################
 # Function: common.date.isYYYYMMDD?
 #
 # Checks if a date is really in YYYY-MM-DD form.

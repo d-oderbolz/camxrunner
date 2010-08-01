@@ -64,20 +64,14 @@ function common.state.isRepeatedRun?()
 ################################################################################
 # Function: common.state.getLastDayModelled
 #
-# If the run was already done, returns the last day done in ISO Format. If it was not done, 
-# returns the empty string.
+# Returns the last day known in the state DB
 # 
 ################################################################################
 function common.state.getLastDayModelled()
 ################################################################################
 {
-	if [[ $(common.state.isRepeatedRun?) == true  ]]
-	then
-		# Let the database tell it
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM tasks WHERE status='$CXR_STATUS_SUCCESS'"
-	else
-		echo ""
-	fi
+	# Let the database tell it
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -85,20 +79,14 @@ function common.state.getLastDayModelled()
 ################################################################################
 # Function: common.state.getFirstDayModelled
 #
-# If the run was already done, returns the first day done in ISO Format. If it was not done, 
-# returns the empty string.
+# Returns the first day known in the database
 # 
 ################################################################################
 function common.state.getFirstDayModelled()
 ################################################################################
 {
-	if [[ $(common.state.isRepeatedRun?) == true  ]]
-	then
-		# Let the database tell it
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM tasks WHERE status='$CXR_STATUS_SUCCESS'"
-	else
-		echo ""
-	fi
+	# Let the database tell it
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -163,6 +151,12 @@ function common.state.updateInfo()
 		
 		main.log -a "Cleaning Non-Persistent tables..."
 		
+		# For security reasons, we lock all write accesses to the DB
+		if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+		then
+			main.dieGracefully "Could not get lock on $(basename $db_file)"
+		fi
+		
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 		
 			DELETE FROM modules;
@@ -217,7 +211,6 @@ function common.state.updateInfo()
 					disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
 					;;
 					
-	
 				* ) 
 					main.dieGracefully "The module type $type is not relevant here" ;;
 			esac
@@ -291,10 +284,84 @@ function common.state.updateInfo()
 		# Adding any new module types
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
 		
+		# Adding taks data
+		
+		# Is this a repetition of an earlier run?
+		if [[ $(common.state.isRepeatedRun?) == true ]]
+		then
+			main.log "This run has already been started earlier."
+			
+			# Its dangerous if a run has been extended at the beginning
+			# because the mapping of offset to days changed.
+			first="$(common.state.getFirstDayModelled)"
+			
+			# first could be empty
+			if [[ "$first" ]]
+			then
+				if [[ "$first" != ${CXR_START_DATE} ]]
+				then
+					# Relase Lock
+					common.runner.releaseLock "$(basename $db_file)" "$type"
+					
+					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
+				fi
+			fi
+			
+			last="$(common.state.getLastDayModelled)"
+			
+			# last could be empty
+			if [[ "$last" ]]
+			then
+				if [[ "$last" != ${CXR_STOP_DATE} ]]
+				then
+					main.log "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+				fi
+			fi
+		fi # repeated run?
+		
+		# Replace the days
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM days"
+		
+		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
+		do
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,$(common.date.OffsetToDate $iOffset),1)"
+		done
+		
+		# Correct active if user selected only some days
+		if [[ "$CXR_SINGLE_DAYS" ]]
+		then
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active=0"
+			
+			# Only activate the wanted ones
+			for wanted in $CXR_SINGLE_DAYS
+			do
+			
+				main.log -a -b "We run only these days:"
+			
+				if [[ "$(common.date.isSimulationDay? ${wanted})" == true ]]
+				then
+					# OK
+					main.log -a $wanted
+					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active=1 WHERE day_iso='$wanted'"
+				else
+					# Mep
+					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
+				fi
+			
+			done
+		
+		fi
+		
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT * FROM days"
+		
+		
 		main.log -a "Module data successfully collected."
 		
 		# decrease global indent level
 		main.decreaseLogIndent
+		
+		# Relase Lock
+		common.runner.releaseLock "$(basename $db_file)" "$type"
 	
 	fi
 }
@@ -351,6 +418,12 @@ function common.state.init()
 	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	main.log -v "Creating database schema..."
+	
+	# For security reasons, we lock all write accesses to the DB
+	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+	then
+		main.dieGracefully "Could not get lock on $(basename $db_file)"
+	fi
 	
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	-- Use legacy format
@@ -424,6 +497,9 @@ function common.state.init()
 	PRAGMA main.locking_mode=NORMAL; 
 	
 	EOT
+	
+	# Relase Lock
+	common.runner.releaseLock "$(basename $db_file)" "$type"
 	
 	# Update the module path hash and form the lists of active modules
 	common.state.updateInfo

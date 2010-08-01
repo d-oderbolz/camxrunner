@@ -253,7 +253,7 @@ do
 		c) 	CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG:-} ;;
 		s) 	CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		D) 	CXR_USER_TEMP_ONE_DAY=${OPTARG:-} ;;
+		D) 	CXR_USER_TEMP_SINGLE_DAYS=${OPTARG:-} ;;
 		n)	CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
 		P)	CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG:-} ;;
 	
@@ -563,51 +563,9 @@ fi
 
 main.log -H "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
-if [[ "${CXR_ONE_DAY}" ]]
-then
-
-	if [[ "$(common.date.isYYYYMMDD? ${CXR_ONE_DAY})" == true  ]]
-	then
-		main.log -b "We run only day ${CXR_ONE_DAY}!"
-	else
-		main.dieGracefully "the -D option needs a date in YYYY-MM-DD format as input!"
-	fi
-
-fi
-
 ################################################################################
 # Check space requirements if we run a full simulation
 ################################################################################
-
-# Is this a repetition of an earlier run?
-if [[ $(common.state.isRepeatedRun?) == true ]]
-then
-	main.log "This run has already been started earlier."
-	
-	last="$(common.state.getLastDayModelled)"
-	
-	# last could be empty
-	if [[ "$last" ]]
-	then
-		if [[ "$last" != ${CXR_STOP_DATE} ]]
-		then
-			main.log "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
-		fi
-	fi
-	
-	# Its dangerous if a run has been extended at the beginning
-	first="$(common.state.getFirstDayModelled)"
-	
-	# first could be empty
-	if [[ "$first" ]]
-	then
-		if [[ "$first" != ${CXR_START_DATE} ]]
-		then
-			main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
-		fi
-	fi
-	
-fi
 
 # Look at the system load
 load=$(common.performance.getReaLoadPercent)
