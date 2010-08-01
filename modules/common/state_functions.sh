@@ -152,9 +152,9 @@ function common.state.updateInfo()
 		main.log -a "Cleaning Non-Persistent tables..."
 		
 		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL") == false ]]
 		then
-			main.dieGracefully "Could not get lock on $(basename $db_file)"
+			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 		fi
 		
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
@@ -301,7 +301,7 @@ function common.state.updateInfo()
 				if [[ "$first" != ${CXR_START_DATE} ]]
 				then
 					# Relase Lock
-					common.runner.releaseLock "$(basename $db_file)" "$type"
+					common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
 					
 					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
 				fi
@@ -361,7 +361,7 @@ function common.state.updateInfo()
 		main.decreaseLogIndent
 		
 		# Relase Lock
-		common.runner.releaseLock "$(basename $db_file)" "$type"
+		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
 	
 	fi
 }
@@ -420,9 +420,9 @@ function common.state.init()
 	main.log -v "Creating database schema..."
 	
 	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL") == false ]]
 	then
-		main.dieGracefully "Could not get lock on $(basename $db_file)"
+		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 	fi
 	
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
@@ -499,7 +499,7 @@ function common.state.init()
 	EOT
 	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$type"
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
 	
 	# Update the module path hash and form the lists of active modules
 	common.state.updateInfo
