@@ -826,7 +826,7 @@ then
 	if [[ "$CXR_PARALLEL_PROCESSING" == false ]]
 	then
 		# Sequential is "Parallel with one process"
-		$CXR_MAX_PARALLEL_PROCS=1
+		CXR_MAX_PARALLEL_PROCS=1
 	fi
 	
 	# Create a plan
