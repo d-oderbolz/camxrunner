@@ -183,6 +183,8 @@ function common.task.createDependencyList()
 	ignore_last_day=${3:-false}
 	day_offset="${4:-}"
 	
+	# Reset file
+	: > "$output_file"
 	
 	if [[ $ignore_last_day == true ]]
 	then
@@ -192,7 +194,12 @@ function common.task.createDependencyList()
 	
 	if [[ "$day_offset" ]]
 	then
+		# Used for stuff that has dependencies
 		day_where=" AND dependent_day_offset = $day_offset "
+		
+		# Used for stuff w/o dependencies
+		day_where_nodep=" AND dd.day_iso = $day_offset "
+		
 		# We do not want any OT
 		no_ot=" AND 1=2"
 	fi
@@ -216,10 +223,10 @@ function common.task.createDependencyList()
 	FROM tasks t, days di, days dd, modules m
 	WHERE m.module = t.module
 	AND   di.day_offset = t.day_offset
-	AND   m.active='true'
 	AND   di.day_iso = dd.day_iso
+	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY')
-	$where ;
+	$where $day_where_nodep ;
 	
 	-- OT-Pre
 	SELECT $CXR_START_DATE || '@' || t.module || '@' || t.invocation,
@@ -228,7 +235,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
-	$no_ot ;
+	$no_ot day_where_nodep;
 	
 	-- OT-Post
 	SELECT $CXR_STOP_DATE || '@' || t.module || '@' || t.invocation,
@@ -237,7 +244,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	$no_ot ;
+	$no_ot day_where_nodep;
 	
 	------------------------------------
 	-- Then add all the dependencies
@@ -946,7 +953,7 @@ function common.task.init()
 	local sorted_file
 	local iOffset
 	
-	main.log -a "Initializing task subsystem, might take a while, depending on number of tasks...\n"
+	main.log -a -B "Initializing task subsystem, might take a while, depending on number of tasks..."
 	
 	# Reset the ID counter
 	local current_id
@@ -982,7 +989,7 @@ function common.task.init()
 			# In parallel mode, we order all modules together
 			common.task.createDependencyList "$dep_file"
 		
-			main.log -a "\nOrdering tasks...\n"
+			main.log -a "Ordering tasks..."
 			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
 
 		else
@@ -990,11 +997,6 @@ function common.task.init()
 			# then each day 
 			# then the One-Time postprocossors
 			
-			intermediate_file="$(common.runner.createTempFile $FUNCNAME)"
-			another_file="$(common.runner.createTempFile $FUNCNAME)"
-			sed_file="$(common.runner.createTempFile $FUNCNAME)"
-			load_file="$(common.runner.createTempFile $FUNCNAME)"
-
 			# In all of these, we ignore - dependencies
 			
 			# OT-PRE
@@ -1004,35 +1006,16 @@ function common.task.init()
 			
 			# DAILY
 			# This is not very elegant...
+			main.log -a "Ordering daily tasks..."
+			
+			# This is not very elegant...
 			main.log -a "\nOrdering daily tasks...\n"
-			
-			# Create an ordered list for day0
-			common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true 0
-			${CXR_TSORT_EXEC} "$dep_file" > "$intermediate_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-			
-			# Remove dates and invocations
-			cat $intermediate_file | cut -d@ -f2 > $another_file
-			
-			# add linenumbers
-			cat -n $another_file > $sed_file
-			
-			# Remove unneeded spaces
-			sed "s/^ *//;s/ *$//;s/ \{1,\}/ /g" $another_file > $load_file
-			
-			main.log -a "Will load this file:"
-			
-			cat $load_file
-			
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
-			
-			CREATE TEMPORARY TABLE ordered (id, module);
-			
-			.separator " "
-			.import $load_file ordered
-			
-			SELECT * FROM ordered;
-			
-			EOT
+			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
+			do
+				common.user.showProgress
+				common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true $iOffset
+				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			done
 			
 			
 			# OT-POST
@@ -1066,9 +1049,7 @@ function common.task.init()
 		done < "$sorted_file"
 		
 		echo "COMMIT TRANSACTION;" >> $tempfile
-		
-		cat $tempfile
-		
+
 		# Execute all statements at once
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
 		
