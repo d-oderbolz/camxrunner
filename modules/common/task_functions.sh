@@ -967,10 +967,10 @@ function common.task.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -a "\Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
+		main.log -a "Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
 		
-		# First clean the ranks
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks SET rank=NULL"
+		tempfile="$(common.runner.createTempFile $FUNCNAME)"
+		echo "BEGIN" > $tempfile
 		
 		while read line 
 		do
@@ -981,18 +981,19 @@ function common.task.init()
 			# this sets a couple of _variables
 			common.task.parseId "$line"
 
-			# UPDATE
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  <<-EOT
-			
-			UPDATE tasks SET rank=$current_id
-			WHERE status IS NOT '$CXR_STATUS_SUCCESS';
-			
-			EOT
-				
+			# Write Update statement to file
+
+			echo "UPDATE tasks SET rank=$current_id WHERE status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
+
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
 
 		done < "$sorted_file"
+		
+		echo "COMMIT" > $tempfile
+		
+		# Execute all statements at once
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || dieGracefully "Could not update ranks properly"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		
