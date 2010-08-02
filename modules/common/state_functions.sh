@@ -141,6 +141,8 @@ function common.state.updateInfo()
 	local field
 	local value
 	local dependency
+	local dep_arr
+	local iDependency
 	
 	# Only update info if we are not a slave
 	if [[	${CXR_ALLOW_MULTIPLE} == true && \
@@ -269,8 +271,6 @@ function common.state.updateInfo()
 						# the value is to the right
 						value="$(expr match "$metafield" '.*=\(.*\)')" || :
 						
-						set -vx
-						
 						# OK, we want all quoting gone and variables expanded
 						value="$(eval "echo $(echo "$value")")"
 						
@@ -279,8 +279,13 @@ function common.state.updateInfo()
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
 							# If we are looking at the dependencies, parse further and create one row per raw dependency
-							for dependency in $value
+							oIFS="$IFS"
+							dep_arr=($value)
+							IFS="$oIFS"
+							
+							for iDependency in $(seq 0 $(( ${dep_arr[@]} - 1 )) )
 							do
+								dependency=${dep_arr[$iDependency]}
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
 							done
 						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
@@ -291,8 +296,6 @@ function common.state.updateInfo()
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						fi # is it a special meta field
 					done
-					
-					set +vx
 					
 					IFS="$oIFS"
 					
