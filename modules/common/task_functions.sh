@@ -962,6 +962,7 @@ function common.task.init()
 			main.log -a "\nOrdering daily tasks...\n"
 			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 			do
+				common.user.showProgress
 				common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true $iOffset
 				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			done
@@ -978,7 +979,8 @@ function common.task.init()
 		main.log -a "Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
 		
 		tempfile="$(common.runner.createTempFile $FUNCNAME)"
-		echo "BEGIN TRANSACTION;" > $tempfile
+		
+		echo "BEGIN TRANSACTION" > $tempfile
 		
 		while read line 
 		do
@@ -995,10 +997,10 @@ function common.task.init()
 
 		done < "$sorted_file"
 		
-		echo "COMMIT TRANSACTION;" > $tempfile
+		echo "COMMIT TRANSACTION" >> $tempfile
 		
 		# Execute all statements at once
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || dieGracefully "Could not update ranks properly"
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		
