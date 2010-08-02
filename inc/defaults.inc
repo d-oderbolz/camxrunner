@@ -114,10 +114,11 @@ CXR_TEST=test
 
 # Internal type constants for module handlers
 # These are alse used to mark dependencies on whole types
+# Note: a module must never have the same name as a module type!
 CXR_TYPE_COMMON=common
 CXR_TYPE_PREPROCESS_ONCE=preprocess_once
 CXR_TYPE_PREPROCESS_DAILY=preprocess_daily
-CXR_TYPE_MODEL=model
+CXR_TYPE_MODEL=models
 CXR_TYPE_POSTPROCESS_DAILY=postprocess_daily
 CXR_TYPE_POSTPROCESS_ONCE=postprocess_once
 CXR_TYPE_INSTALLER=${CXR_INSTALLER}

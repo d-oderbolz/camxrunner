@@ -235,8 +235,6 @@ function common.task.createSequentialDependencyList()
 	
 	EOT
 	
-	cat $dep_file
-	
 	main.log -v "Removing duplicates..."
 	
 	sort "$dep_file" | uniq > "$nodup_file"

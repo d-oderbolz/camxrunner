@@ -273,9 +273,10 @@ function common.state.updateInfo()
 						value="$(eval "echo $(echo "$value")")"
 						
 						# There are some special Meta fields
-						# If we are looking at the dependencies, parse further and create one row per dependency
+						
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
+							# If we are looking at the dependencies, parse further and create one row per raw dependency
 							for dependency in $value
 							do
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
@@ -307,6 +308,13 @@ function common.state.updateInfo()
 		
 		# Adding any new module types
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
+		
+		# Check if any module is called the same as a type
+		if [[ $(SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type) -gt 0 ]]
+		then
+			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
+		fi
+		
 		
 		main.log -v "Adding information about simulation days..."
 		
