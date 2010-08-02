@@ -210,7 +210,6 @@ function common.task.createDependencyList()
 	-- Prepare proper output
 	.output $output_file
 	.separator ' '
-	.echo on
 	
 	------------------------------------
 	-- First, add all tasks, no matter what
