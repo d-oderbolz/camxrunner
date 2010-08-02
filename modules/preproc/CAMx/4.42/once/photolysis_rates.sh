@@ -22,13 +22,13 @@
 #
 # A process can only start if its dependencies have finished. Only list direct dependencies.
 # There are some special dependencies:
-# ${CXR_DEP_ALL_ONCE_PRE} - all pre_start_preprocessors must have finished
-# ${CXR_DEP_ALL_DAILY_PRE} - all daily_preprocessors must have finished
-# ${CXR_DEP_ALL_MODEL} - all model modules must have finished
-# ${CXR_DEP_ALL_DAILY_POST} - all daily_postprocessors must have finished
-# ${CXR_DEP_ALL_ONCE_POST} - all finish_postprocessors must have finished
+# ${CXR_TYPE_PREPROCESS_ONCE} - all pre_start_preprocessors must have finished
+# ${CXR_TYPE_PREPROCESS_DAILY} - all daily_preprocessors must have finished
+# ${CXR_TYPE_MODEL} - all model modules must have finished
+# ${CXR_TYPE_POSTPROCESS_DAILY} - all daily_postprocessors must have finished
+# ${CXR_TYPE_POSTPROCESS_ONCE} - all finish_postprocessors must have finished
 
-# the predicate "-"refers to the previous model day, so ${CXR_DEP_ALL_MODEL}- means that all model modules of the previous day must be successful. 
+# the predicate "-"refers to the previous model day, so ${CXR_TYPE_MODEL}- means that all model modules of the previous day must be successful. 
 
 CXR_META_MODULE_DEPENDS_ON="albedo_haze_ozone"
 

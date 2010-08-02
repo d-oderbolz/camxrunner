@@ -212,7 +212,7 @@ function common.module.isActive?()
 # Resolves a single dependenency string (containig just one dependency), depending 
 # on the day offset.
 # - turns the predicate "-" into actual day offsets
-# - turn all_* dependecies like "CXR_DEP_ALL_ONCE_PRE" into actual module names
+# - turn all_* dependecies like "CXR_TYPE_PREPROCESS_ONCE" into actual module names
 # - adds the different invocations if needed
 # So "all_model- " becomes "model1@1" at day 2, "albedo_haze_ozone" becomes "albedo_haze_ozone@1 albedo_haze_ozone@2" 
 # if albedo_haze_ozone can be split into two invocations.
@@ -222,7 +222,7 @@ function common.module.isActive?()
 # 
 #
 # Parameters:
-# $1 - name of the dependency like "create_emissions" or a special dependency like "${CXR_DEP_ALL_MODEL}")
+# $1 - name of the dependency like "create_emissions" or a special dependency like "${CXR_TYPE_MODEL}")
 # [$2] - day offset (if not given, we are resolving for a One-Time module)
 ################################################################################
 function common.module.resolveSingleDependency()
@@ -302,15 +302,15 @@ function common.module.resolveSingleDependency()
 	# Check if we look at a special dependency or not
 	case $dependency in
 	
-		$CXR_DEP_ALL_ONCE_PRE) active_hash=$CXR_ACTIVE_ONCE_PRE_HASH;; 
+		$CXR_TYPE_PREPROCESS_ONCE) active_hash=$CXR_ACTIVE_ONCE_PRE_HASH;; 
 			
-		$CXR_DEP_ALL_DAILY_PRE) active_hash=$CXR_ACTIVE_DAILY_PRE_HASH;;
+		$CXR_TYPE_PREPROCESS_DAILY) active_hash=$CXR_ACTIVE_DAILY_PRE_HASH;;
 			
-		$CXR_DEP_ALL_DAILY_POST) active_hash=$CXR_ACTIVE_DAILY_POST_HASH;;
+		$CXR_TYPE_POSTPROCESS_DAILY) active_hash=$CXR_ACTIVE_DAILY_POST_HASH;;
 			
-		$CXR_DEP_ALL_ONCE_POST) active_hash=$CXR_ACTIVE_ONCE_POST_HASH;;
+		$CXR_TYPE_POSTPROCESS_ONCE) active_hash=$CXR_ACTIVE_ONCE_POST_HASH;;
 			
-		$CXR_DEP_ALL_MODEL) active_hash=$CXR_ACTIVE_MODEL_HASH;;
+		$CXR_TYPE_MODEL) active_hash=$CXR_ACTIVE_MODEL_HASH;;
 			
 		*) # A boring standard case
 		
@@ -451,7 +451,7 @@ function common.module.resolveAllDependencies()
 # the run is destroyed, if the depdendency was not yet started, false is returned,
 # if it is OK, true is returned.
 #
-# Can handle dependencies on a whole type (like ${CXR_DEP_ALL_MODEL}) and the predicates + and -
+# Can handle dependencies on a whole type (like ${CXR_TYPE_MODEL}) and the predicates + and -
 #
 # Checks if a dependency is listed in the list of active modules.
 # 

@@ -352,7 +352,6 @@ function common.state.updateInfo()
 			# Only activate the wanted ones
 			for wanted in $CXR_SINGLE_DAYS
 			do
-			
 				main.log -a -b "We run only these days:"
 			
 				if [[ "$(common.date.isSimulationDay? ${wanted})" == true ]]
@@ -368,13 +367,194 @@ function common.state.updateInfo()
 			done
 		fi # Handle single days
 		
-		main.log -v "Building tasks..."
-		# Basically this product:
-		# modules x days x invocations
-		# Of course, we must treat the One-Timers separate
-		
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT m.module, d.day_iso, i.value as invocation FROM modules m, days d, metadata i WHERE i.module=m.module AND i.field='INVOCATION' AND m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY')"
-		
+		if [[ $(common.state.isRepeatedRun?) == false ]]
+		then
+			# Only build tasks if its a new run
+			main.log -v "Building tasks and dependencies..."
+			
+			# Basically this product:
+			# modules x days x invocations
+			# Of course, we must treat the One-Timers separate
+			
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+			
+			-- Daily modules
+			INSERT INTO tasks (
+		           module,
+		           module_type,
+		           exclusive,
+		           day_offset,
+		           invocation,
+		           status,
+		           epoch_m) 
+			SELECT m.module,
+			       m.module_type,
+			       m.exclusive, 
+			       d.day_offset, 
+			       i.value as invocation,
+			       '$CXR_STATUS_TODO',
+			       $(date "+%s")
+			FROM   modules m, days d, metadata i 
+			WHERE  i.module=m.module AND i.field='INVOCATION' 
+			  AND  m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY');
+			       
+			-- One-Time preprocessors
+			
+			INSERT INTO tasks (
+		           module,
+		           module_type,
+		           exclusive,
+		           day_offset,
+		           invocation,
+		           status,
+		           epoch_m) 
+			SELECT m.module,
+			       m.module_type,
+			       m.exclusive, 
+			       0, 
+			       i.value as invocation,
+			       '$CXR_STATUS_TODO',
+			       $(date "+%s")
+			FROM   modules m, metadata i 
+			WHERE  i.module=m.module AND i.field='INVOCATION' 
+			  AND  m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
+			
+			-- One-Time postprocessors
+			
+			INSERT INTO tasks (
+		           module,
+		           module_type,
+		           exclusive,
+		           day_offset,
+		           invocation,
+		           status,
+		           epoch_m) 
+			SELECT m.module,
+			       m.module_type,
+			       m.exclusive, 
+			       $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
+			       i.value as invocation,
+			       '$CXR_STATUS_TODO',
+			       $(date "+%s")
+			FROM   modules m, metadata i 
+			WHERE  i.module=m.module AND i.field='INVOCATION' 
+			  AND  m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
+			
+			-- Collecting dependency data
+			
+			-- all non-special ones
+			INSERT INTO dependencies 
+			      (independent_module, 
+	               independent_day_offset, 
+	               independent_invocation, 
+	               dependent_module, 
+	               dependent_day_offset, 
+	               dependent_invocation)
+             SELECT meta.value,
+                    t.day_offset,
+                    t.invocation,
+                    t.module,
+                    t.day_offset,
+                    t.invocation
+             FROM tasks t,
+                  metadata meta
+             WHERE
+                  t.module = meta.module
+              AND meta.field='CXR_META_MODULE_DEPENDS_ON'
+              AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
+			                      '$CXR_TYPE_PREPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_ONCE',
+			                      '$CXR_TYPE_MODEL')
+			  AND substr(meta.value,-1,1) IS NOT '-' ;
+			  
+			-- Normal ones with -
+			INSERT INTO dependencies 
+			      (independent_module, 
+	               independent_day_offset, 
+	               independent_invocation, 
+	               dependent_module, 
+	               dependent_day_offset, 
+	               dependent_invocation)
+             SELECT meta.value,
+                    t.day_offset - 1,
+                    t.invocation,
+                    t.module,
+                    t.day_offset,
+                    t.invocation
+             FROM tasks t,
+                  metadata meta
+             WHERE
+                  t.module = meta.module
+              AND meta.field='CXR_META_MODULE_DEPENDS_ON'
+              AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
+			                      '$CXR_TYPE_PREPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_ONCE',
+			                      '$CXR_TYPE_MODEL')
+			  AND substr(meta.value,-1,1) IS '-' 
+			  AND t.day_offset > 0;
+			  
+			-- Special ones without -
+			INSERT INTO dependencies 
+			      (independent_module, 
+	               independent_day_offset, 
+	               independent_invocation, 
+	               dependent_module, 
+	               dependent_day_offset, 
+	               dependent_invocation)
+             SELECT m.module,
+                    t.day_offset,
+                    t.invocation,
+                    t.module,
+                    t.day_offset,
+                    t.invocation
+             FROM tasks t,
+                  metadata meta,
+                  modules m
+             WHERE
+                  t.module = meta.module
+              AND m.type = meta.value
+              AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
+			                      '$CXR_TYPE_PREPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_ONCE',
+			                      '$CXR_TYPE_MODEL')
+			  AND substr(meta.value,-1,1) IS NOT '-' ;
+			  
+			  --Special ones with -
+			  INSERT INTO dependencies 
+			      (independent_module, 
+	               independent_day_offset, 
+	               independent_invocation, 
+	               dependent_module, 
+	               dependent_day_offset, 
+	               dependent_invocation)
+             SELECT m.module,
+                    t.day_offset - 1,
+                    t.invocation,
+                    t.module,
+                    t.day_offset,
+                    t.invocation
+             FROM tasks t,
+                  metadata meta,
+                  modules m
+             WHERE
+                  t.module = meta.module
+              AND m.type = meta.value
+              AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
+			                      '$CXR_TYPE_PREPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_DAILY',
+			                      '$CXR_TYPE_POSTPROCESS_ONCE',
+			                      '$CXR_TYPE_MODEL')
+			  AND substr(meta.value,-1,1) IS '-' 
+			  AND t.day_offset > 0 ;
+
+			EOT
+			
+		else
+			main.log -a "We do not replace existing task data. You can do this manually by running the -c option."
+		fi
 		
 		main.log -a "Module data successfully collected."
 		
@@ -461,11 +641,6 @@ function common.state.init()
 	DELETE FROM dual;
 	INSERT INTO dual (dummy) VALUES ('X');
 	
-	-- Here we store all installed stuff (just for installer)
-	CREATE TABLE IF NOT EXISTS installed (item,
-	                                      model,
-	                                      model_version);
-	
 	-- Here we store all known simulation days
 	CREATE TABLE IF NOT EXISTS days (day_offset,
 	                                 day_iso,
@@ -496,8 +671,7 @@ function common.state.init()
 	                                         dependent_invocation);
 	
 	-- Table for all tasks comprising a run (static)
-	CREATE TABLE IF NOT EXISTS tasks (task_id,
-	                                 rank,
+	CREATE TABLE IF NOT EXISTS tasks (rank,
 	                                 module,
 	                                 module_type,
 	                                 exclusive,

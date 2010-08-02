@@ -113,6 +113,7 @@ CXR_INSTALLER=installer
 CXR_TEST=test
 
 # Internal type constants for module handlers
+# These are alse used to mark dependencies on whole types
 CXR_TYPE_COMMON=common
 CXR_TYPE_PREPROCESS_ONCE=preprocess_once
 CXR_TYPE_PREPROCESS_DAILY=preprocess_daily
@@ -251,13 +252,6 @@ CXR_TASK_DESCR_I_PATH=0					# Relative Path to module,
 CXR_TASK_DESCR_I_OFFSET=1				# Day offset
 CXR_TASK_DESCR_I_EXCLUSIVE=2			# Run exclusively (boolean flag)
 CXR_TASK_DESCR_I_DEPENDENCIES=3	# Dependencies
-
-# These are special dependencies
-CXR_DEP_ALL_ONCE_PRE=all_once_preprocessors
-CXR_DEP_ALL_DAILY_PRE=all_daily_preprocessors
-CXR_DEP_ALL_DAILY_POST=all_daily_postprocessors
-CXR_DEP_ALL_ONCE_POST=all_once_postprocessors
-CXR_DEP_ALL_MODEL=all_model
 
 ## End Task control
 
