@@ -207,6 +207,8 @@ function common.task.createDependencyList()
 	-- Duplicates are removed later
 	------------------------------------
 	
+	-- Daily
+	
 	SELECT di.day_iso || '@' || t.module || '@' || t.invocation,
 	       dd.day_iso || '@' || t.module || '@' || t.invocation
 	FROM tasks t, days di, days dd, modules m
@@ -214,6 +216,25 @@ function common.task.createDependencyList()
 	AND   di.day_offset = t.day_offset
 	AND   m.active='true'
 	AND   di.day_iso = dd.day_iso
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY')
+	$where ;
+	
+	-- OT-Pre
+	SELECT 0 || '@' || t.module || '@' || t.invocation,
+	       0 || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m
+	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
+	$where ;
+	
+	-- OT-Post
+	SELECT $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) || '@' || t.module || '@' || t.invocation,
+	       $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m
+	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
 	$where ;
 	
 	------------------------------------
