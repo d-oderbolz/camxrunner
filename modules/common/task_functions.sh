@@ -212,8 +212,8 @@ function common.task.createSequentialDependencyList()
 	
 	-- OT Pre tasks can not have depndencies to toher module 
 	-- types, so we do not need to account for this
-	SELECT $CXR_START_DATE || '@' || t.module || '@' || t.invocation,
-	       $CXR_START_DATE || '@' || t.module || '@' || t.invocation
+	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
+	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
@@ -225,8 +225,8 @@ function common.task.createSequentialDependencyList()
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT $CXR_START_DATE || '@' || independent_module || '@' || independent_invocation,
-	       $CXR_START_DATE || '@' || dependent_module || '@' || dependent_invocation
+	SELECT '$CXR_START_DATE' || '@' || independent_module || '@' || independent_invocation,
+	       '$CXR_START_DATE' || '@' || dependent_module || '@' || dependent_invocation
 	FROM dependencies, modules m
 	WHERE m.module = independent_module
 	AND   independent_day_offset = dependent_day_offset
