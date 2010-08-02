@@ -210,7 +210,7 @@ function common.task.createDependencyList()
 	fi
 	
 	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT &>  tee -a $CXR_LOG
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
 	-- Prepare proper output
 	.output $output_file
