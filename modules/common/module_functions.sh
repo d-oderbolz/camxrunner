@@ -83,7 +83,7 @@ function common.module.areDependenciesOk?()
 	
 	# Find out if any of the dependencies is disabled
 	
-	disabled_modules=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+	disabled_modules=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
 	SELECT d.independent_module
 	FROM dependencies d, modules m
@@ -103,7 +103,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# If any dependency has failed, we stop the run
-	failedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+	failedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t
@@ -123,7 +123,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# If more that 0 taks are non-successful, we return false
-	unfinishedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+	unfinishedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t

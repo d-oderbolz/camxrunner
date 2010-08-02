@@ -210,7 +210,7 @@ function common.task.createDependencyList()
 	fi
 	
 	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT &> | tee -a $CXR_LOG
 	
 	-- Prepare proper output
 	.output $output_file
@@ -989,7 +989,7 @@ function common.task.init()
 		sorted_file="$(common.runner.createTempFile tsort-out)"
 		mixed_file="$(common.runner.createTempFile mixed_tasks)"
 		
-		main.log -a "\nCreating the list of dependencies...\n"
+		main.log -a "Creating the list of dependencies..."
 		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then

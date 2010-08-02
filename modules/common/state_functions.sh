@@ -158,7 +158,7 @@ function common.state.updateInfo()
 			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 		fi
 		
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 		
 			DELETE FROM modules;
 			DELETE FROM metadata;
@@ -378,7 +378,7 @@ function common.state.updateInfo()
 			# modules x days x invocations
 			# Of course, we must treat the One-Timers separate
 			
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 			
 			--------------------------------------------------------------------
 			-- TASKS
@@ -637,7 +637,7 @@ function common.state.init()
 		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 	fi
 	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
 	
