@@ -125,23 +125,31 @@ function common.task.parseId()
 		main.dieGracefully "Needs a non-empty identifier as Input"
 	fi
 	
+	local identifier
+	local -a id_arr
+	
 	identifier="$1"
+
 	
 	main.log -v "Parsing $identifier"
 	
-	# get only the digits at the beginning, must handle the empty case using || : (otherwise we die here)
-	# the @-sign might be missing
-	_date="$(expr match "$identifier" '\(\<\(19\|20\)[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}\)')"  || :
+	oIFS="$IFS"
+	IFS="@"
 	
-	_day_offset=$(common.date.toOffset $_date)
+	id_arr=($identifier)
+	IFS="$oIFS"
 	
-	# Get just the lowercase text between the at signs
-	_module="$(expr match "$identifier" '@\([a-z_]\)@\>')" || :
-			
-	# get invocation - needs the @-sign
-	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
-	
-	main.log -v "module: $_module day_offset: $_day_offset invocation: $_invocation"
+	if [[ ${#id_arr[@]} -ne 3 ]]
+	then
+		main.dieGracefully "Malformed task id $identifier"
+	else
+		_date=${id_arr[0]}
+		_module=${id_arr[1]}
+		_invocation=${id_arr[2]}
+		
+		_day_offset=$(common.date.toOffset $_date)
+		main.log -v "module: $_module date: $_date day_offset: $_day_offset invocation: $_invocation"
+	fi
 }
 
 ################################################################################
@@ -1024,7 +1032,7 @@ function test_module()
 	
 	# Testing parser. 
 	common.task.parseId ${CXR_START_DATE}@convert_emissions@2
-	is "$_module" convert_emissions "common.task.parseId only module - name"
+	is "$_module" convert_emissions "common.task.parseId - module name"
 	is "$_day_offset" 0 "common.task.parseId only module - day offset"
 	is "$_invocation" 2 "common.task.parseId only module - invocation"
 	
