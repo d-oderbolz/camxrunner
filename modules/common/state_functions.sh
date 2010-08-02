@@ -283,7 +283,7 @@ function common.state.updateInfo()
 							dep_arr=($value)
 							IFS="$oIFS"
 							
-							for iDependency in $(seq 0 $(( ${dep_arr[@]} - 1 )) )
+							for iDependency in $(seq 0 $(( ${#dep_arr[@]} - 1 )) )
 							do
 								dependency=${dep_arr[$iDependency]}
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
