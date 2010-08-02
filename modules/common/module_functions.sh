@@ -97,7 +97,7 @@ function common.module.areDependenciesOk?()
 	EOT
 	)
 	
-	if [[ "$disabled_modules" "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
+	if [[ "$disabled_modules" && "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
 	then
 		main.dieGracefully "There are dependencies to disabled modules: $disabled_modules"
 	fi
