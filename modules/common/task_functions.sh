@@ -190,7 +190,7 @@ function common.task.createDependencyList()
 	------------------------------------
 	
 	SELECT d.day_iso || '@' || t.module || '@' || t.invocation,
-	       d.day_iso || '@' || t.module || '@' || t.invocation,
+	       d.day_iso || '@' || t.module || '@' || t.invocation
 	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
 	AND   d.day_offset = t.day_offset
