@@ -467,7 +467,7 @@ function common.state.updateInfo()
              FROM tasks t,
                   metadata meta
              WHERE
-              AND t.module = meta.module
+                  t.module = meta.module
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
@@ -494,7 +494,7 @@ function common.state.updateInfo()
              FROM tasks t,
                   metadata meta
              WHERE
-              AND t.module = meta.module
+                  t.module = meta.module
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
