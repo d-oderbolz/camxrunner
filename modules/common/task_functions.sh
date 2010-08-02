@@ -133,7 +133,7 @@ function common.task.parseId()
 	# the @-sign might be missing
 	_date="$(expr match "$identifier" '\(\<\(19\|20\)[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}\)')"  || :
 	
-	_day_offset=$(common.date.OffsetToDate $_date)
+	_day_offset=$(common.date.toOffset $_date)
 	
 	# Get just the lowercase text between the at signs
 	_module="$(expr match "$identifier" '@\([a-z_]\)@\>')" || :
