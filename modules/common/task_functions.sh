@@ -169,7 +169,7 @@ function common.task.createDependencyList()
 
 	output_file="$1"
 	where=${2:-}
-	ignore_last_day=${3:false}
+	ignore_last_day=${3:-false}
 	
 	if [[ $ignore_last_day == true ]]
 	then
@@ -196,8 +196,8 @@ function common.task.createDependencyList()
 	-- Then add all the dependencies
 	------------------------------------
 	
-	SELECT di.day_iso || independent_module || independent_invocation,
-	       dd.day_iso || dependent_module || dependent_invocation
+	SELECT di.day_iso || '@' || independent_module || '@' || independent_invocation,
+	       dd.day_iso || '@' || dependent_module || '@' || dependent_invocation
 	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
 	AND   di.day_offset = independent_day_offset
