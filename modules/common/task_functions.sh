@@ -175,6 +175,8 @@ function common.task.createSequentialDependencyList()
 
 	output_file="$1"
 	
+	main.log -a "Ordering tasks for sequential execution..."
+	
 	dep_file="$(common.runner.createTempFile dependencies)"
 	nodup_file="$(common.runner.createTempFile nodup)"
 	sorted_file="$(common.runner.createTempFile tsort-out)"
@@ -261,6 +263,8 @@ function common.task.createParallelDependencyList()
 	local day_offset
 	local day_where
 	local day_where_nodep
+	
+	main.log -a "Ordering tasks for parallel execution..."
 	
 	output_file="$1"
 	where=${2:-}
@@ -1068,7 +1072,7 @@ function common.task.init()
 		# Redo
 		
 		# The list of tasks is stred in this file
-		task_file=$(common.runner.createTempFile $FUNCNAME)
+		task_file=$(common.runner.createTempFile task_id_list)
 		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
