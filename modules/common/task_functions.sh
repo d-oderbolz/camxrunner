@@ -177,7 +177,8 @@ function common.task.createDependencyList()
 	local ignore_last_day
 	local day_offset
 	local day_where
-
+	local day_where_nodep
+	
 	output_file="$1"
 	where=${2:-}
 	ignore_last_day=${3:-false}
@@ -185,6 +186,10 @@ function common.task.createDependencyList()
 	
 	# Reset file
 	: > "$output_file"
+	
+	day_where_nodep=""
+	day_where=""
+	no_ot=""
 	
 	if [[ $ignore_last_day == true ]]
 	then
@@ -205,7 +210,7 @@ function common.task.createDependencyList()
 	fi
 	
 	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT 2>&1 | tee -a $CXR_LOG
 	
 	-- Prepare proper output
 	.output $output_file
@@ -225,7 +230,9 @@ function common.task.createDependencyList()
 	AND   di.day_offset = t.day_offset
 	AND   di.day_iso = dd.day_iso
 	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY')
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
+	                 '$CXR_TYPE_MODEL',
+	                 '$CXR_TYPE_POSTPROCESS_DAILY')
 	$where $day_where_nodep ;
 	
 	-- OT-Pre

@@ -129,7 +129,7 @@ function common.hash.init()
 	fi
 	
 	# Create table, no matter what
-	${CXR_SQLITE_EXEC} "$db_file" <<-EOT
+	${CXR_SQLITE_EXEC} "$db_file" <<-EOT 2>&1 | tee -a $CXR_LOG
 	
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;

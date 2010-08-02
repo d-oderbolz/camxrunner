@@ -134,7 +134,7 @@ function split_emissions()
 					main.log  "Calling split_emissions_area - be patient...\n"
 			
 					# Call Processor 
-					${CXR_SPLIT_EMISSIONS_AREA_EXEC} <<-EOT 2>&1 | tee -a $CXR_LOG¨
+					${CXR_SPLIT_EMISSIONS_AREA_EXEC} <<-EOT 2>&1 | tee -a $CXR_LOG
 					# of input files  | 1
 					Input File        | $CXR_SPLIT_EMISSIONS_INPUT_FILE
 					Output File       | $CXR_SPLIT_EMISSIONS_OUTPUT_FILE
