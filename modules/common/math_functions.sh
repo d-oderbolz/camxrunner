@@ -99,7 +99,7 @@ function common.math.FloatOperation()
 ################################################################################
 # Function: common.math.RandomDecimal
 #
-# Returns a random number between 0-1. 
+# Returns a (small) random number between 0-1. 
 #
 # Parameters:
 # $1 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
@@ -120,7 +120,7 @@ function common.math.RandomDecimal()
 	rnd=$RANDOM
 
 	
-	result=$(common.math.FloatOperation "$rnd / $maxrnd" $scale)
+	result=$(common.math.FloatOperation "$rnd / ( 2 * $maxrnd )" $scale)
 	
 	echo $result
 }
