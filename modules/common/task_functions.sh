@@ -235,7 +235,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
-	$no_ot day_where_nodep;
+	$no_ot $day_where_nodep;
 	
 	-- OT-Post
 	SELECT $CXR_STOP_DATE || '@' || t.module || '@' || t.invocation,
@@ -244,7 +244,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	$no_ot day_where_nodep;
+	$no_ot $day_where_nodep;
 	
 	------------------------------------
 	-- Then add all the dependencies
