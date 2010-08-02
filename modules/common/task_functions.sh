@@ -185,12 +185,17 @@ function common.task.createDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all modules, no matter what
+	-- First, add all tasks, no matter what
+	-- Duplicates are removed later
 	------------------------------------
 	
-	SELECT module, module
-	FROM modules
-	WHERE active='true';
+	SELECT d.day_iso || '@' || t.module || '@' || t.invocation,
+	       d.day_iso || '@' || t.module || '@' || t.invocation,
+	FROM tasks t, days d, modules m
+	WHERE m.module = t.module
+	AND   d.day_offset = t.day_offset
+	AND   m.active='true'
+	$where ;
 	
 	------------------------------------
 	-- Then add all the dependencies

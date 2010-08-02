@@ -239,6 +239,7 @@ function main.log()
 	log_level=${CXR_LOG_LEVEL_INF}
 	do_log=${CXR_DO_FILE_LOGGING:-true}
 	
+	stars=""
 	
 	while getopts ":vawebBH" opt
 	do
