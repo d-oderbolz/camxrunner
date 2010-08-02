@@ -459,8 +459,8 @@ function common.state.updateInfo()
 			--------------------------------------------------------------------
 			
 			-- all non-special ones
-			INSERT INTO dependencies 
-			      (independent_module, 
+			INSERT INTO dependencies (
+			           independent_module, 
 	               independent_day_offset, 
 	               independent_invocation, 
 	               dependent_module, 

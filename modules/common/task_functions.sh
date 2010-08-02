@@ -235,15 +235,23 @@ function common.task.createSequentialDependencyList()
 	
 	EOT
 	
-	main.log -v "Removing duplicates..."
+	cat $dep_file
 	
-	: > $nodup_file
+	main.log -v "Removing duplicates..."
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 	
 	main.log -v "Running tsort..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+
+
+	main.log -v "Ordering daily tasks..."
+	
+	
+	
+	main.log -v "Ordering $CXR_TYPE_POSTPROCESS_ONCE tasks..."
+
 
 	# Relase Lock
 	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
@@ -1089,6 +1097,7 @@ function common.task.init()
 		
 		# The list of tasks is stred in this file
 		task_file=$(common.runner.createTempFile task_id_list)
+		tempfile=$(common.runner.createTempFile sql)
 		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
@@ -1096,6 +1105,8 @@ function common.task.init()
 		else
 			common.task.createSequentialDependencyList $task_file
 		fi
+		
+		echo "BEGIN TRANSACTION;" > $tempfile
 		
 		# Generate SQL file to update the ranks of the tasks
 		while read line 
