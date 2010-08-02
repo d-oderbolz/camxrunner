@@ -246,7 +246,7 @@ function common.state.updateInfo()
 					fi
 					
 
-					# We mark needed stuff as active
+					# We mark needed stuff as active, the rest as inactive
 					# Add $file, $module and $type to DB
 					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
 
@@ -378,17 +378,21 @@ function common.state.updateInfo()
 			
 			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 			
+			--------------------------------------------------------------------
+			-- TASKS
+			--------------------------------------------------------------------
+			
 			-- Daily modules
 			INSERT INTO tasks (
 		           module,
-		           module_type,
+		           type,
 		           exclusive,
 		           day_offset,
 		           invocation,
 		           status,
 		           epoch_m) 
 			SELECT m.module,
-			       m.module_type,
+			       m.type,
 			       m.exclusive, 
 			       d.day_offset, 
 			       i.value as invocation,
@@ -402,14 +406,14 @@ function common.state.updateInfo()
 			
 			INSERT INTO tasks (
 		           module,
-		           module_type,
+		           type,
 		           exclusive,
 		           day_offset,
 		           invocation,
 		           status,
 		           epoch_m) 
 			SELECT m.module,
-			       m.module_type,
+			       m.type,
 			       m.exclusive, 
 			       0, 
 			       i.value as invocation,
@@ -423,14 +427,14 @@ function common.state.updateInfo()
 			
 			INSERT INTO tasks (
 		           module,
-		           module_type,
+		           type,
 		           exclusive,
 		           day_offset,
 		           invocation,
 		           status,
 		           epoch_m) 
 			SELECT m.module,
-			       m.module_type,
+			       m.type,
 			       m.exclusive, 
 			       $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
 			       i.value as invocation,
@@ -440,7 +444,9 @@ function common.state.updateInfo()
 			WHERE  i.module=m.module AND i.field='INVOCATION' 
 			  AND  m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 			
-			-- Collecting dependency data
+			--------------------------------------------------------------------
+			-- DEPENCENCIES
+			--------------------------------------------------------------------
 			
 			-- all non-special ones
 			INSERT INTO dependencies 
@@ -457,9 +463,12 @@ function common.state.updateInfo()
                     t.day_offset,
                     t.invocation
              FROM tasks t,
-                  metadata meta
+                  metadata meta,
+                  modules m
              WHERE
-                  t.module = meta.module
+                  m.module = t.module
+              AND t.module = meta.module
+              AND m.active = 'true'
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
@@ -469,6 +478,7 @@ function common.state.updateInfo()
 			  AND substr(meta.value,-1,1) IS NOT '-' ;
 			  
 			-- Normal ones with -
+			
 			INSERT INTO dependencies 
 			      (independent_module, 
 	               independent_day_offset, 
@@ -483,9 +493,12 @@ function common.state.updateInfo()
                     t.day_offset,
                     t.invocation
              FROM tasks t,
-                  metadata meta
+                  metadata meta,
+                  modules m
              WHERE
-                  t.module = meta.module
+                  m.module = t.module
+              AND m.active = 'true'
+              AND t.module = meta.module
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
@@ -496,6 +509,7 @@ function common.state.updateInfo()
 			  AND t.day_offset > 0;
 			  
 			-- Special ones without -
+			
 			INSERT INTO dependencies 
 			      (independent_module, 
 	               independent_day_offset, 
@@ -515,6 +529,7 @@ function common.state.updateInfo()
              WHERE
                   t.module = meta.module
               AND m.type = meta.value
+              AND m.active = 'true'
               AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
 			                      '$CXR_TYPE_POSTPROCESS_DAILY',
@@ -522,7 +537,8 @@ function common.state.updateInfo()
 			                      '$CXR_TYPE_MODEL')
 			  AND substr(meta.value,-1,1) IS NOT '-' ;
 			  
-			  --Special ones with -
+			  -- Special ones with -
+			  
 			  INSERT INTO dependencies 
 			      (independent_module, 
 	               independent_day_offset, 
@@ -542,6 +558,7 @@ function common.state.updateInfo()
              WHERE
                   t.module = meta.module
               AND m.type = meta.value
+              AND m.active = 'true'
               AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
 			                      '$CXR_TYPE_POSTPROCESS_DAILY',
@@ -673,7 +690,7 @@ function common.state.init()
 	-- Table for all tasks comprising a run (static)
 	CREATE TABLE IF NOT EXISTS tasks (rank,
 	                                 module,
-	                                 module_type,
+	                                 type,
 	                                 exclusive,
 	                                 day_offset,
 	                                 invocation,
@@ -1072,7 +1089,7 @@ function common.state.cleanup()
 						main.log -a "You pre-selected all module types for deletion"
 						where_module=""
 					else
-						where_module="module_type='$which_step'"
+						where_module="type='$which_step'"
 					fi
 					
 				else
