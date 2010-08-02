@@ -270,6 +270,7 @@ function common.state.updateInfo()
 						# OK, we want all quoting gone and variables expanded
 						value="$(eval "echo $(echo "$value")")"
 						
+						# There are some special Meta fields
 						# If we are looking at the dependencies, parse further and create one row per dependency
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
@@ -277,9 +278,9 @@ function common.state.updateInfo()
 							do
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
 							done
-						else
-							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
-						fi # is it the depends on field?
+						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
+							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE modules SET exclusive=trim('$value') WHERE module='$module'"
+						fi # is it a special meta field
 					done
 					
 					IFS="$oIFS"
@@ -667,6 +668,7 @@ function common.state.init()
 	CREATE TABLE IF NOT EXISTS modules (module, 
 	                                    type,
 	                                    path,
+	                                    exclusive,
 	                                    active);
 	CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
 
