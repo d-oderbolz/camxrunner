@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=19
+CXR_META_MODULE_NUM_TESTS=1
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains the functions to run modules (only used for installer modules) for the CAMxRunner"
@@ -39,45 +39,112 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-
 ################################################################################
-# Function: common.module.parseIdentifier
-# 
-# Parses an identifier string of the form Module[Offset][@Invocation],
-# e. g. prepare_output_dir0 or convert_output0@1
-# Currently, no correction is done if a value is empty (this is by design)
+# Function: common.module.areDependenciesOk?
 #
-# Output variables:
-# _module
-# _day_offset
-# _invocation
+# Checks if all dependencies of a given task dependencies are fullfilled. 
+# If any dependency has failed, the run is destroyed, 
+# any depdendency was not yet started, false is returned,
+# all are CXR_STATUS_SUCCESS, true is returned.
 #
 # Parameters:
-# $1 - an identifier
+# $1 - module name for which to check
+# $2 - day_offset for which to check
+# $3 - invocation for which to check
 ################################################################################
-function common.module.parseIdentifier()
+function common.module.areDependenciesOk?()
 ################################################################################
 {
-	if [[ $# -ne 1 || -z "$1" ]]
+	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true ]]
 	then
-		main.dieGracefully "Needs a non-empty identifier as Input"
+		main.log  "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
+		echo true
+		return $CXR_RET_OK
 	fi
 	
-	identifier="$1"
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a module name, a day offset and an invocation as input, got $@"
+	fi
 	
-	main.log -v "Parsing $identifier"
+	local module
+	local day_offset
+	local invocation
+	local disabled_modules
+	local unfinishedCount
+	local failedCount
 	
-	# Get just lowercase text at the beginning
-	_module="$(expr match "$identifier" '\(\<[_a-zA-Z]\{1,\}\)')"  || :
-		
-	# get only the digits after the name, must handle the empty case using || : (otherwise we die here)
-	# the @-sign might be missing
-	_day_offset="$(expr match "$identifier" '\<[_a-zA-Z]\{1,\}\([0-9]\{1,\}\)@\{0,\}[0-9]\{0,\}\>')" || :
-		
-	# get invocation - needs the @-sign
-	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
+	module="$1"
+	day_offset="${2}"
+	invocation="${3}"
 	
-	main.log -v "module: $_module day_offset: $_day_offset invocation: $_invocation"
+	
+	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset, invocation $invocation are done."
+	
+	# Find out if any of the dependencies is disabled
+	
+	disabled_modules=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	
+	SELECT d.independent_module
+	FROM dependencies d, modules m
+	WHERE 
+	      m.module = d.independent_module
+	AND   m.active='false'
+	AND   d.dependent_module='$module'
+	AND   d.dependent_day_offset=$day_offset
+	AND   d.dependent_invocation=$invocation;
+	
+	EOT
+	)
+	
+	if [[ "$disabled_modules" "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
+	then
+		main.dieGracefully "There are dependencies to disabled modules: $disabled_modules"
+	fi
+	
+	# If any dependency has failed, we stop the run
+	failedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	
+	SELECT COUNT(*)
+	FROM dependencies d, tasks t
+	WHERE 
+	      t.module = d.independent_module
+	AND   t.status='$CXR_STATUS_FAILURE'
+	AND   d.dependent_module='$module'
+	AND   d.dependent_day_offset=$day_offset
+	AND   d.dependent_invocation=$invocation;
+	
+	EOT
+	)
+	
+	if [[ $failedCount -gt 0 ]]
+	then
+		main.dieGracefully "$failedCount tasks that $@ depends on have failed!"
+	fi
+	
+	# If more that 0 taks are non-successful, we return false
+	unfinishedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	
+	SELECT COUNT(*)
+	FROM dependencies d, tasks t
+	WHERE 
+	      t.module = d.independent_module
+	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
+	AND   d.dependent_module='$module'
+	AND   d.dependent_day_offset=$day_offset
+	AND   d.dependent_invocation=$invocation;
+	
+	EOT
+	)
+	
+	if [[ $unfinishedCount -gt 0 ]]
+	then
+		# Still unfinished stuff
+		echo false
+	else
+		# all OK
+		echo true
+	fi
 }
 
 ################################################################################
@@ -153,31 +220,6 @@ function common.module.getType()
 }
 
 ################################################################################
-# Function: common.module.getMetaField
-# 
-# For a given module name, returns the given meta-data item by looking at the DB.
-#
-# Parameters:
-# $1 - name of a module
-# $2 - the name of the item
-################################################################################
-function common.module.getMetaField()
-################################################################################
-{
-	if [[ $# -ne 2 ]]
-	then
-		main.dieGracefully "needs a module name and a meta item as input"
-	fi
-	
-	local module
-
-	# Do we have this variable?
-	value=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT value FROM metadata WHERE module='$1' and field='$2'")
-	
-	echo "$value"
-}
-
-################################################################################
 # Function: common.module.isActive?
 # 
 # Tests if a given module is active (listed in the modules table)
@@ -205,366 +247,6 @@ function common.module.isActive?()
 	else
 		echo false
 	fi
-}
-################################################################################
-# Function: common.module.resolveSingleDependency
-# 
-# Resolves a single dependenency string (containig just one dependency), depending 
-# on the day offset.
-# - turns the predicate "-" into actual day offsets
-# - turn all_* dependecies like "CXR_TYPE_PREPROCESS_ONCE" into actual module names
-# - adds the different invocations if needed
-# So "all_model- " becomes "model1@1" at day 2, "albedo_haze_ozone" becomes "albedo_haze_ozone@1 albedo_haze_ozone@2" 
-# if albedo_haze_ozone can be split into two invocations.
-#
-# Any dependency that is not relevant (like module- for the first day) is not returned.
-# If a dependency is disabled and this is allowed, we warn the user, otherwise we terminate
-# 
-#
-# Parameters:
-# $1 - name of the dependency like "create_emissions" or a special dependency like "${CXR_TYPE_MODEL}")
-# [$2] - day offset (if not given, we are resolving for a One-Time module)
-################################################################################
-function common.module.resolveSingleDependency()
-################################################################################
-{
-	if [[ $# -lt 1 || $# -gt 2 ]]
-	then
-		main.dieGracefully "Programming error - we need at least a depdendency and an optional day_offset as input"
-	fi
-
-	local dependency
-	local day_offset
-	local our_day_offset
-	local predicate
-	local my_prefix
-	local active_hash
-	local module_type
-	local resolved_dependencies
-	local resolved_dependency
-	local module
-	local first
-	local iKey
-	local iInvocation
-	local nInvocations
-	local arrKeys
-	local keyString
-	
-	
-	dependency="$1"
-	day_offset="${2:-}"
-	our_day_offset="${2:-}"
-	first=true
-	
-	if [[ "$day_offset" ]]
-	then
-		main.log -v "Resolving dependency $dependency for day offset $day_offset"
-	else
-		main.log -v "Resolving dependency $dependency (no day offset)"
-	fi
-	
-	# Is there a predicate?
-	# The last character of a string
-	# We get 1 character at the position $(( ${#dependency} -1)) (length of string minus 1)
-	predicate=${dependency:$(( ${#dependency} -1)):1}
-	
-	case $predicate in
-		-) 
-			# This predicate refers to the same module, executed in the preceding simulation day
-			# if there is no day offset, this dependency is not relevant
-			if [[ "$day_offset" ]]
-			then
-				# Test day offset
-				if [[ $day_offset -le 0 ]]
-				then
-					# At day 0, all previous day predicates are fulfilled
-					main.log -v  "We are at day 0 - previous day dependency $dependency not relevant"
-					echo ""
-					return $CXR_RET_OK
-				fi
-				
-				# Correct offset
-				day_offset=$(( $day_offset - 1 ))
-				
-				# Cut off final -
-				# The actual resolving happens further down.
-				dependency=${dependency%-}
-				
-			else
-				main.log -v  "Dependency $dependency not relevant since there is no day offset"
-				# No offset
-				echo ""
-				return $CXR_RET_OK
-			fi # day_offset present?
-			;;
-	esac
-	
-	# Check if we look at a special dependency or not
-	case $dependency in
-	
-		$CXR_TYPE_PREPROCESS_ONCE) active_hash=$CXR_ACTIVE_ONCE_PRE_HASH;; 
-			
-		$CXR_TYPE_PREPROCESS_DAILY) active_hash=$CXR_ACTIVE_DAILY_PRE_HASH;;
-			
-		$CXR_TYPE_POSTPROCESS_DAILY) active_hash=$CXR_ACTIVE_DAILY_POST_HASH;;
-			
-		$CXR_TYPE_POSTPROCESS_ONCE) active_hash=$CXR_ACTIVE_ONCE_POST_HASH;;
-			
-		$CXR_TYPE_MODEL) active_hash=$CXR_ACTIVE_MODEL_HASH;;
-			
-		*) # A boring standard case
-		
-			# Is the dependency disabled?
-			if [[ $(common.module.isActive? "$dependency") == false ]]
-			then
-				# not active
-				# Do we care?
-				if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true  ]]
-				then
-					# No, user wants to ignore this
-					main.log  -v "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dependency is disabled. We will not check if this module was run"
-				else
-					# Yes, we terminate
-					main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dependency is disabled. The dependency $dependency is not fulfilled!"
-				fi # disabled dependencies allowed?
-			fi # dependency disabled?
-			
-			# We ned the module type to know if we pass a day offset or not
-			module_type=$(common.module.getType $dependency)
-			
-			nInvocations=$(common.module.getNumInvocations "$dependency")
-			for iInvocation in $(seq 1 $nInvocations )
-			do
-				resolved_dependency="$(common.task.getId "$dependency" "$day_offset" "$iInvocation")"
-				
-				if [[ "$first" == true ]]
-				then
-					# First iteration
-					resolved_dependencies="$resolved_dependency"
-					first=false
-				else
-					resolved_dependencies="${resolved_dependencies} ${resolved_dependency}"
-				fi
-			
-			done # invocations
-			
-			echo ${resolved_dependencies}
-			
-			return $CXR_RET_OK
-			;;
-	
-	esac
-	
-	########################################
-	# Here, we handle the special cases
-	########################################	
-	main.log -v  "We resolve the special dependency ${dependency}..."
-	
-	oIFS="$IFS"
-	keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
-	IFS="$CXR_DELIMITER"
-	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-	arrKeys=( $keyString )
-	# Reset Internal Field separator
-	IFS="$oIFS"
-	
-	# looping through keys (safest approach)
-	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
-	do
-		module="${arrKeys[$iKey]}"
-		main.log -v  "Found dependency on $module"
-		
-		# We ned the module type to know if we pass a day offset or not
-		module_type=$(common.module.getType $module)
-		
-		nInvocations=$(common.module.getNumInvocations "$module")
-		for iInvocation in $(seq 1 $nInvocations )
-		do
-			resolved_dependency="$(common.task.getId "$module" "$day_offset" "$iInvocation")"
-		
-			if [[ "$first" == true ]]
-			then
-				# First iteration
-				resolved_dependencies="$resolved_dependency"
-				first=false
-			else
-				# any other iteration
-				resolved_dependencies="$resolved_dependencies $resolved_dependency"
-			fi
-		
-		done # invocations
-		
-	done  # Loop over active modules
-	
-	echo "$resolved_dependencies"
-	return $CXR_RET_OK
-}
-
-################################################################################
-# Function: common.module.resolveAllDependencies
-# 
-# Resolves a complete dependenency string (containig more than one dependency), depending 
-# on the day offset. 
-# 
-# Parameters:
-# $1 - a list of dependencies like "create_emissions all_module-"
-# [$2] - day offset (if not given, we are resolving for a One-Time module)
-################################################################################
-function common.module.resolveAllDependencies()
-################################################################################
-{
-	local dependencies
-	local day_offset
-	local dependency
-	local resolved_dependency
-	local resolved_dependencies
-	local first
-	
-	dependencies="$1"
-	day_offset="${2:-}"
-	resolved_dependency=""
-	resolved_dependencies=""
-	first=true
-	
-	#Loop through dependencies
-	for dependency in $dependencies
-	do
-		resolved_dependency="$(common.module.resolveSingleDependency "$dependency" "$day_offset")"
-		if [[ "$first" == true ]]
-		then
-			# First iteration
-			resolved_dependencies="$resolved_dependency"
-			first=false
-		else
-			# any other iteration
-			resolved_dependencies="$resolved_dependencies $resolved_dependency"
-		fi
-	done
-	
-	echo "$resolved_dependencies"
-}
-
-################################################################################
-# Function: common.module.areDependenciesOk?
-#
-# Checks if all given raw dependencies are fullfilled. If any dependency has failed,
-# the run is destroyed, if the depdendency was not yet started, false is returned,
-# if it is OK, true is returned.
-#
-# Can handle dependencies on a whole type (like ${CXR_TYPE_MODEL}) and the predicates + and -
-#
-# Checks if a dependency is listed in the list of active modules.
-# 
-# We access the state DB using <common.state.hasFinished?> to test if a step has finished.
-#
-# Parameters:
-# $1 - a list of raw dependencies
-# $2 - a day offset used as reference
-################################################################################
-function common.module.areDependenciesOk?()
-################################################################################
-{
-	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true  ]]
-	then
-		main.log  "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
-		echo true
-		return $CXR_RET_OK
-	fi
-	
-	if [[ $# -ne 2 ]]
-	then
-		main.dieGracefully "needs a depdendency list and a day offset as input"
-	fi
-
-	local raw_dependencies
-	local day_offset
-	local dep_day_offset
-	local dep_module
-	local dependency
-	local my_stage
-	local iInvocation
-	local nInvocations
-	local dependencies
-	
-	raw_dependencies="$1"
-	day_offset="${2:-}"
-	
-	if [[ ! "$raw_dependencies" ]]
-	then
-		echo true
-		main.log -v "Dependency empty - OK"
-		return $CXR_RET_OK
-	fi
-		
-	main.log -v  "Evaluating dependencies on $raw_dependencies for day offset ${day_offset:-0}"
-	
-	# Resolve them
-	dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" "$day_offset" )"
-	
-	main.log -v "Resolved dependencies: $dependencies"
-
-	for dependency in $dependencies
-	do
-		# We need to parse the dependency
-		# this sets a couple of _variables
-		common.module.parseIdentifier "$dependency"
-		
-		dep_module="$_module"
-		dep_day_offset="$_day_offset"
-		dep_invocation="$_invocation"
-		
-		# If there is no offset set in to 0 (TODO: Check correctness!)
-		if [[ -z "$(common.string.trim "$dep_day_offset")" ]]
-		then
-			dep_day_offset=0
-		fi
-		
-		# Check if it is disabled
-		if [[ $(common.module.isActive? "$dep_module") == false  ]]
-		then
-			# Do we care?
-			if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == true ]]
-			then
-				# No, user wants to ignore this
-				main.log  -w "You set CXR_IGNORE_DISABLED_DEPENDENCIES to true and $dep_module is disabled. We will not check if this module was run"
-				# Next dependency
-				continue
-			else
-				# Yes, we terminate
-				main.dieGracefully "You set CXR_IGNORE_DISABLED_DEPENDENCIES to false and $dep_module is disabled. The dependency $dep_module cannot be fulfilled!"
-			fi # disabled dependencies allowed?
-		fi # dependency disabled?
-		
-		# Determine type
-		module_type="$(common.module.getType "$dep_module")"
-		
-		my_stage="$(common.task.getId "$dep_module" "$dep_day_offset" "$dep_invocation" )"
-		
-		# Is this known to have worked?
-		if [[ "$(common.state.hasFinished? "$dep_module" "$dep_day_offset" "$dep_invocation")" == true ]]
-		then
-			main.log -v "dependency ${dependency} fullfilled at $my_stage"
-		else
-			# dependency NOK, Find out why
-			
-			# Find out if dependency failed - if so, we crash
-			if [[ "$(common.state.hasFailed? "$dep_module" "$dep_day_offset" "$dep_invocation")" == true ]]
-			then
-				# It failed
-				# Destroy run (we used not to do this in dryruns. But this can result in a lockup!
-				main.dieGracefully "dependency ${dependency} failed at $my_stage !"
-			else
-				# It did not fail, it seems that it was not yet run - we have to wait
-				main.log -v  "${dependency} has not yet finished - we need to wait."
-				echo false
-				return $CXR_RET_OK
-			fi
-		fi
-
-	done # Loop over all dependencies
-	
-	# If we arrive here, all is swell
-	echo true
 }
 
 ################################################################################
@@ -763,38 +445,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	# Testing parser. Always in groups of 3 with a call at the beginning
-	common.module.parseIdentifier convert_emissions
-	is "$_module" convert_emissions "common.module.parseIdentifier only module - name"
-	is "$_day_offset" "" "common.module.parseIdentifier only module - day offset"
-	is "$_invocation" "" "common.module.parseIdentifier only module - invocation"
-	
-	common.module.parseIdentifier some_module0
-	is "$_module" some_module "common.module.parseIdentifier module and day offset - name"
-	is "$_day_offset" 0 "common.module.parseIdentifier module and day offset - day offset"
-	is "$_invocation" "" "common.module.parseIdentifier module and day offset - invocation"
-	
-	common.module.parseIdentifier differentcase@2
-	is "$_module" differentcase "common.module.parseIdentifier module and invocation - name"
-	is "$_day_offset" "" "common.module.parseIdentifier module and invocation - day offset"
-	is "$_invocation" 2 "common.module.parseIdentifier module and invocation - invocation"
-	
-	common.module.parseIdentifier ThatsNowAll3@1
-	is "$_module" ThatsNowAll "common.module.parseIdentifier complete - name"
-	is "$_day_offset" 3 "common.module.parseIdentifier complete - day offset"
-	is "$_invocation" 1 "common.module.parseIdentifier complete - invocation"
-	
-	common.module.parseIdentifier ThatsNowAll123@24
-	is "$_module" ThatsNowAll "common.module.parseIdentifier multidigit - name"
-	is "$_day_offset" 123 "common.module.parseIdentifier multidigit - day offset"
-	is "$_invocation" 24 "common.module.parseIdentifier multidigit - invocation"
-	
 	is $(common.module.getType boundary_conditions) ${CXR_TYPE_PREPROCESS_DAILY} "common.module.getType boundary_conditions"
-	is $(common.module.getMetaField model "CXR_META_MODULE_RUN_EXCLUSIVELY") true "common.module.getMetaField model CXR_META_MODULE_RUN_EXCLUSIVELY"
-	
-	# Testing the resolvers for dependencies
-	is "$(common.module.resolveSingleDependency "model-" 0)" "" "common.module.resolveSingleDependency minus on first day"
-	is "$(common.module.resolveSingleDependency "model-" 1)" "${CXR_START_DATE}@model@1" "common.module.resolveSingleDependency minus on second day"
 
 	########################################
 	# teardown tests if needed

@@ -41,7 +41,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=4
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -103,108 +103,109 @@ function common.task.getId()
 	echo "${date}@${module}@${invocation}" 
 }
 
+################################################################################
+# Function: common.task.parseId
+# 
+# Parses an identifier string of the form date@Module@Invocation,
+# e. g. 2007-01-01@prepare_output_dir@0
+#
+# Output variables:
+# _module
+# _day_offset
+# _invocation
+#
+# Parameters:
+# $1 - a task identifier
+################################################################################
+function common.task.parseId()
+################################################################################
+{
+	if [[ $# -ne 1 || -z "$1" ]]
+	then
+		main.dieGracefully "Needs a non-empty identifier as Input"
+	fi
+	
+	identifier="$1"
+	
+	main.log -v "Parsing $identifier"
+	
+	# get only the digits at the beginning, must handle the empty case using || : (otherwise we die here)
+	# the @-sign might be missing
+	_date="$(expr match "$identifier" '\(\<\(19\|20\)[0-9]\{2\}-[0-9]\{2\}-[0-9]\{2\}\)')"  || :
+	
+	_day_offset=$(common.date.OffsetToDate $_date)
+	
+	# Get just the lowercase text between the at signs
+	_module="$(expr match "$identifier" '@\([a-z_]\)@\>')" || :
+			
+	# get invocation - needs the @-sign
+	_invocation="$(expr match "$identifier" '.*@\([0-9]\{1,\}\>\)')" || :
+	
+	main.log -v "module: $_module day_offset: $_day_offset invocation: $_invocation"
+}
 
 ################################################################################
 # Function: common.task.createDependencyList
 # 
-# Collects all dependencies (resolved) of the modules to be executed in a file of the form
+# Collects module dependencies of the modules to be executed in a file of the form
 # independent_module dependent_module.
-# The actual resolving is done in <common.module.resolveAllDependencies>.
+# 
 # If a module has no dependencies, then the line is
 # independent_module independent_module
-# (see man tsort for details)
+# (see man tsort for details).
 #
 # Parameters:
 # $1 - output_file to write list of dependencies for tsort to sort to
+# $2 - optional where clause including leading logical oerator
+# $3 - optional boolean flag (default false) to ignore - dependencies
 ################################################################################
 function common.task.createDependencyList()
 ################################################################################
 {
 	local output_file
 	local tempfile
-	local module
-	local module_type
-	local active_hashes
-	local active_hash
-	local raw_dependencies
-	local dependency
-	local day_offset
-	local iInvocation
-	local nInvocation
-	local dep_string
-	local active_modules
-	local activeModuleKeys
-	local keyString
-	
+	local where
+	local ignore_last_day
+
 	output_file="$1"
+	where=${2:-}
+	ignore_last_day=${3:false}
 	
-	# Loop through the module types in order
-	for active_hash in $active_hashes
-	do
-		# Get all active modules of the current type
-		oIFS="$IFS"
-		keyString="$(common.hash.getKeys $active_hash $CXR_HASH_TYPE_GLOBAL)"
-		IFS="$CXR_DELIMITER"
-		# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-		activeModuleKeys=( $keyString )
-		# Reset Internal Field separator
-		IFS="$oIFS"
-		
-		active_modules=""
-		
-		# Re-determine module type
-		case $active_hash in
-			${CXR_ACTIVE_ONCE_PRE_HASH}) 		module_type="${CXR_TYPE_PREPROCESS_ONCE}";;
-			${CXR_ACTIVE_DAILY_PRE_HASH}) 	module_type="${CXR_TYPE_PREPROCESS_DAILY}";; 
-			${CXR_ACTIVE_MODEL_HASH}) 			module_type="${CXR_TYPE_MODEL}";;
-			${CXR_ACTIVE_DAILY_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_DAILY}";;
-			${CXR_ACTIVE_ONCE_POST_HASH}) 	module_type="${CXR_TYPE_POSTPROCESS_ONCE}";;
-		esac
-		
-		# Loop through all active modules of this type
-		for iKey in $( seq 0 $(( ${#activeModuleKeys[@]} - 1)) )
-		do
-			module="${activeModuleKeys[$iKey]}"
-
-			# Get the raw dependencies
-			raw_dependencies="$(common.module.getMetaField $module "CXR_META_MODULE_DEPENDS_ON")"
-			
-			main.log -v "$module depedends on ${raw_dependencies:--}"
-			
-			# The number of invocations is not dependent on the day
-			nInvocations=$(common.module.getNumInvocations "$module")
-		
-			# Loop through days
-			for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-			do
-				# Give some visual feedback
-				common.user.showProgress
-
-				# resolve the dependencies
-				resolved_dependencies="$(common.module.resolveAllDependencies "$raw_dependencies" $day_offset )"
-				
-				for iInvocation in $(seq 1 $nInvocations )
-				do
-					# Are there any?
-					if [[ "$resolved_dependencies" ]]
-					then
-						# Loop 
-						for dependency in $resolved_dependencies
-						do
-							echo "${dependency} $(common.task.getId "$module" "$day_offset" "$iInvocation")" >> "$output_file"
-						done # Dependencies
-					else
-						# Add the module twice (see header), including all invocations
-						dep_string="$(common.task.getId "$module" "$day_offset" "$iInvocation")"
-						echo $dep_string $dep_string >> "$output_file"
-					fi
-				done # invocations
-				
-			done # days
-				
-		done # current active modules
-
-	done # hashes of active modules
+	if [[ $ignore_last_day == true ]]
+	then
+		# Add additional where statement to suppress - dependencies
+		where="$where AND di.day_iso = dd.day_iso"
+	fi
+	
+	
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	
+	-- Prepare proper output
+	.output $output_file
+	.separator ' '
+	
+	------------------------------------
+	-- First, add all modules, no matter what
+	------------------------------------
+	
+	SELECT module, module
+	FROM modules
+	WHERE active='true';
+	
+	------------------------------------
+	-- Then add all the dependencies
+	------------------------------------
+	
+	SELECT di.day_iso || independent_module || independent_invocation,
+	       dd.day_iso || dependent_module || dependent_invocation
+	FROM dependencies, days di, days dd, modules m
+	WHERE m.module = independent_module
+	AND   di.day_offset = independent_day_offset
+	AND   dd.day_offset = dependent_day_offset
+	AND   m.active='true'
+	$where ;
+	
+	EOT
 	
 	main.log -v "Removing duplicates..."
 	tempfile="$(common.runner.createTempFile $FUNCNAME)"
@@ -701,7 +702,7 @@ function common.task.Worker()
 				start_epoch=$CXR_EPOCH
 				
 				# We need to wait until all dependencies are ok
-				until [[ "$(common.module.areDependenciesOk? "$raw_dependencies" "$day_offset" )" == true ]]
+				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" "$invocation" )" == true ]]
 				do
 					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
 					
@@ -854,7 +855,8 @@ function common.task.waitForWorkers()
 ################################################################################
 # Function: common.task.init
 # 
-# Modifies the state database by creating a plan to execute.
+# Modifies the state database by assingning a rank to each task depending on the 
+# ordering scheme in use.
 # If we run in parallel, the sorting is done differently that if we run non-parallel
 # 
 # DBs:
@@ -878,6 +880,7 @@ function common.task.init()
 	local my_stage
 	local dep_file
 	local sorted_file
+	local iOffset
 	
 	main.log -a "Initializing task subsystem, might take a while, depending on number of tasks...\n"
 	
@@ -910,16 +913,40 @@ function common.task.init()
 		
 		main.log -a "\nCreating the list of dependencies...\n"
 		
-		main.log -a $(date +%T)
-		common.task.createDependencyList "$dep_file"
-		main.log -a $(date +%T)
-		
-		main.log -a  "\nOrdering tasks...\n"
-		${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file"
-		
-		if [[ $? -ne 0 ]]
+		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
-			main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
+			# In parallel mode, we order all modules together
+			common.task.createDependencyList "$dep_file"
+		
+			main.log -a "\nOrdering tasks...\n"
+			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
+
+		else
+		
+			# In sequential mode, we first sort the One-Time preprocessors,
+			# then each day 
+			# then the One-Time postprocossors
+
+			# In all of these, we ignore - dependencies
+			
+			# OT-PRE
+			common.task.createDependencyList "$dep_file" "AND m.type='$CXR_TYPE_PREPROCESS_ONCE'" true
+			main.log -a "\nOrdering $CXR_TYPE_PREPROCESS_ONCE tasks...\n"
+			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			
+			# DAILY
+			# This is not very elegant...
+			main.log -a "\nOrdering daily tasks...\n"
+			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
+			do
+				common.task.createDependencyList "$dep_file" "AND dependent_day_offset=$iOffset AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true
+				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			done
+			
+			# OT-POST
+			common.task.createDependencyList "$dep_file" "AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
+			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			
 		fi
 		
 		main.log -a -B "We will execute the tasks in this order:"
@@ -936,7 +963,7 @@ function common.task.init()
 			
 			# We need to parse the line
 			# this sets a couple of _variables
-			common.module.parseIdentifier "$line"
+			common.task.parseId "$line"
 
 			module_type="$(common.module.getType "$_module")"
 			exclusive="$(common.module.getMetaField "$_module" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
@@ -1012,6 +1039,13 @@ function test_module()
 	########################################
 	
 	is "$(common.task.getId test 0 2)" "${CXR_START_DATE}@test@2" "common.task.getId normal"
+	
+	# Testing parser. 
+	common.task.parseId ${CXR_START_DATE}@convert_emissions@2
+	is "$_module" convert_emissions "common.task.parseId only module - name"
+	is "$_day_offset" 0 "common.task.parseId only module - day offset"
+	is "$_invocation" 2 "common.task.parseId only module - invocation"
+	
 
 	########################################
 	# teardown tests if needed

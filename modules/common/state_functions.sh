@@ -447,7 +447,7 @@ function common.state.updateInfo()
 			  AND  m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 			
 			--------------------------------------------------------------------
-			-- DEPENCENCIES
+			-- DEPENCENCIES (ALL)
 			--------------------------------------------------------------------
 			
 			-- all non-special ones
@@ -465,12 +465,9 @@ function common.state.updateInfo()
                     t.day_offset,
                     t.invocation
              FROM tasks t,
-                  metadata meta,
-                  modules m
+                  metadata meta
              WHERE
-                  m.module = t.module
               AND t.module = meta.module
-              AND m.active = 'true'
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
@@ -495,11 +492,8 @@ function common.state.updateInfo()
                     t.day_offset,
                     t.invocation
              FROM tasks t,
-                  metadata meta,
-                  modules m
+                  metadata meta
              WHERE
-                  m.module = t.module
-              AND m.active = 'true'
               AND t.module = meta.module
               AND meta.field='CXR_META_MODULE_DEPENDS_ON'
               AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
@@ -531,7 +525,6 @@ function common.state.updateInfo()
              WHERE
                   t.module = meta.module
               AND m.type = meta.value
-              AND m.active = 'true'
               AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
 			                      '$CXR_TYPE_POSTPROCESS_DAILY',
@@ -560,7 +553,6 @@ function common.state.updateInfo()
              WHERE
                   t.module = meta.module
               AND m.type = meta.value
-              AND m.active = 'true'
               AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
 			                      '$CXR_TYPE_POSTPROCESS_DAILY',
