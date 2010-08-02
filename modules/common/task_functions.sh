@@ -970,6 +970,10 @@ function common.task.init()
 			# In sequential mode, we first sort the One-Time preprocessors,
 			# then each day 
 			# then the One-Time postprocossors
+			
+			intermediate_file="$(common.runner.createTempFile $FUNCNAME)"
+			another_file="$(common.runner.createTempFile $FUNCNAME)"
+			load_file="$(common.runner.createTempFile $FUNCNAME)"
 
 			# In all of these, we ignore - dependencies
 			
@@ -981,12 +985,32 @@ function common.task.init()
 			# DAILY
 			# This is not very elegant...
 			main.log -a "\nOrdering daily tasks...\n"
-			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
-			do
-				common.user.showProgress
-				common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true $iOffset
-				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-			done
+			
+			# Create an ordered list for day0
+			common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true 0
+			${CXR_TSORT_EXEC} "$dep_file" >> "$intermediate_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			
+			# Remove dates and invocations
+			cat $intermediate_file | cut -d@ -f2 > $another_file
+			
+			# add linenumbers
+			cat -n $another_file > $load_file
+			
+			
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+			
+			CREATE TEMPORARY TABLE ordered (id, module);
+			
+			.separator " "
+			.import $load_file ordered
+			
+			SELECT * FROM ordered;
+			
+			EOT
+			
+			
+			for module 
+		
 			
 			# OT-POST
 			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
