@@ -1001,7 +1001,7 @@ function common.task.init()
 		
 		tempfile="$(common.runner.createTempFile $FUNCNAME)"
 		
-		echo "BEGIN TRANSACTION" > $tempfile
+		echo "BEGIN TRANSACTION;" > $tempfile
 		
 		while read line 
 		do
@@ -1018,7 +1018,7 @@ function common.task.init()
 
 		done < "$sorted_file"
 		
-		echo "COMMIT TRANSACTION" >> $tempfile
+		echo "COMMIT TRANSACTION;" >> $tempfile
 		
 		cat $tempfile
 		
