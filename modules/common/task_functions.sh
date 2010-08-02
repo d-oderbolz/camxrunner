@@ -193,6 +193,8 @@ function common.task.createDependencyList()
 	if [[ "$day_offset" ]]
 	then
 		day_where=" AND dependent_day_offset = $day_offset "
+		# We do not want any OT
+		no_ot=" AND 1=2"
 	fi
 	
 	
@@ -226,7 +228,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
-	;
+	$no_ot ;
 	
 	-- OT-Post
 	SELECT $CXR_STOP_DATE || '@' || t.module || '@' || t.invocation,
@@ -235,7 +237,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	;
+	$no_ot ;
 	
 	------------------------------------
 	-- Then add all the dependencies
@@ -245,11 +247,13 @@ function common.task.createDependencyList()
 	------------------------------------
 	
 	-- standard dependencies (without -)
-	SELECT d.day_iso || '@' || independent_module || '@' || independent_invocation,
-	       d.day_iso || '@' || dependent_module || '@' || dependent_invocation
-	FROM dependencies, days d, modules m
+	-- we simulate the same structure as above
+	SELECT di.day_iso || '@' || independent_module || '@' || independent_invocation,
+	       dd.day_iso || '@' || dependent_module || '@' || dependent_invocation
+	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
-	AND   d.day_offset = independent_day_offset
+	AND   di.day_offset = independent_day_offset
+	AND   dd.day_offset = dependent_day_offset
 	AND   independent_day_offset = dependent_day_offset
 	AND   m.active='true'
 	$where $day_where ;
