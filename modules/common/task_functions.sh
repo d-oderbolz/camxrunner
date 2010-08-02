@@ -970,13 +970,10 @@ function common.task.init()
 		main.log -a "Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
 		
 		tempfile="$(common.runner.createTempFile $FUNCNAME)"
-		echo "BEGIN" > $tempfile
+		echo "BEGIN TRANSACTION;" > $tempfile
 		
 		while read line 
 		do
-			# Visual feedback
-			common.user.showProgress
-			
 			# We need to parse the line
 			# this sets a couple of _variables
 			common.task.parseId "$line"
@@ -990,7 +987,7 @@ function common.task.init()
 
 		done < "$sorted_file"
 		
-		echo "COMMIT" > $tempfile
+		echo "COMMIT TRANSACTION" > $tempfile
 		
 		# Execute all statements at once
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || dieGracefully "Could not update ranks properly"
