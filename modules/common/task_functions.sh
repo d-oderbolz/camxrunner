@@ -1000,7 +1000,7 @@ function common.task.init()
 			# OT-PRE
 			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_PREPROCESS_ONCE'" true
 			main.log -a "\nOrdering $CXR_TYPE_PREPROCESS_ONCE tasks...\n"
-			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			
 			# DAILY
 			# This is not very elegant...
@@ -1008,7 +1008,7 @@ function common.task.init()
 			
 			# Create an ordered list for day0
 			common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true 0
-			${CXR_TSORT_EXEC} "$dep_file" >> "$intermediate_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+			${CXR_TSORT_EXEC} "$dep_file" > "$intermediate_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			
 			# Remove dates and invocations
 			cat $intermediate_file | cut -d@ -f2 > $another_file
