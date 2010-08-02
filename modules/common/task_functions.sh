@@ -153,22 +153,105 @@ function common.task.parseId()
 }
 
 ################################################################################
-# Function: common.task.createDependencyList
+# Function: common.task.createSequentialDependencyList
 # 
-# Collects module dependencies of the modules to be executed in a file of the form
-# independent_module dependent_module.
+# Performs topological sorting on the dependencies so that the resulting list is
+# suitable for sequential harvesting by a single worker. This means that days are
+# sorted independently, so that no task of day n+1 is executed before all tasks of
+# day n have been executed.
 # 
-# If a module has no dependencies, then the line is
-# independent_module independent_module
-# (see man tsort for details).
+# The output is a file that contains a list of task ids.
 #
 # Parameters:
-# $1 - output_file to write list of dependencies for tsort to sort to
-# $2 - optional where clause including leading logical oerator
-# $3 - optional boolean flag (default false) to ignore - dependencies
-# $4 - optional day_offset (dependent)
+# $1 - output_file to write list of task ids to
 ################################################################################
-function common.task.createDependencyList()
+function common.task.createSequentialDependencyList()
+################################################################################
+{
+	local output_file
+	local dep_file
+	local nodup_file
+	local sorted_file
+
+	output_file="$1"
+	
+	dep_file="$(common.runner.createTempFile dependencies)"
+	nodup_file="$(common.runner.createTempFile nodup)"
+	sorted_file="$(common.runner.createTempFile tsort-out)"
+
+	# Reset file
+	: > "$output_file"
+
+	# In sequential mode, we first sort the One-Time preprocessors,
+	# then each day 
+	# then the One-Time postprocossors
+	
+	# In all of these, we ignore - dependencies
+
+	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
+
+	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	
+	-- Prepare proper output
+	.output $dep_file
+	.separator ' '
+	
+	------------------------------------
+	-- First, add all OT-Pre Tasks because
+	-- otherwise, task w/o dependencies 
+	-- would never be executed.
+	-- Duplicates are removed later
+	------------------------------------
+	
+	-- OT Pre tasks can not have depndencies to toher module 
+	-- types, so we do not need to account for this
+	SELECT $CXR_START_DATE || '@' || t.module || '@' || t.invocation,
+	       $CXR_START_DATE || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m
+	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
+	
+	------------------------------------
+	-- Then add all the dependencies
+	-- We must make user not to introduce any phantoms
+	------------------------------------
+	
+	-- Again, OT Pre tasks cannot depend on other module types
+	SELECT $CXR_START_DATE || '@' || independent_module || '@' || independent_invocation,
+	       $CXR_START_DATE || '@' || dependent_module || '@' || dependent_invocation
+	FROM dependencies, modules m
+	WHERE m.module = independent_module
+	AND   independent_day_offset = dependent_day_offset
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE') ;
+	
+	EOT
+	
+	main.log -v "Removing duplicates..."
+	
+	: > $nodup_file
+	
+	sort "$dep_file" | uniq > "$nodup_file"
+	
+	main.log -v "Running tsort..."
+	
+	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+}
+
+################################################################################
+# Function: common.task.createParallelDependencyList
+# 
+# Performs topological sorting on the dependencies so that the resulting list is
+# suitable for parallel harvesting by a many workers. This means that all tasks are
+# ordered by dependency with not other constraints.
+#
+# The outputfile contains an ordered list of task ids.
+#
+# Parameters:
+# $1 - output_file to write list of task ids to
+################################################################################
+function common.task.createParallelDependencyList()
 ################################################################################
 {
 	local output_file
@@ -504,7 +587,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -982,64 +1065,19 @@ function common.task.init()
 		# We are in a non-master multiple runner
 		main.log -a -b "This is a slave process - we use the pre-existing task infrastructure"
 	else
-		# Redo everything
+		# Redo
 		
-		# Some tempfiles we need
-		dep_file="$(common.runner.createTempFile dependencies)"
-		sorted_file="$(common.runner.createTempFile tsort-out)"
-		mixed_file="$(common.runner.createTempFile mixed_tasks)"
-		
-		main.log -a "Creating the list of dependencies..."
+		# The list of tasks is stred in this file
+		task_file=$(common.runner.createTempFile $FUNCNAME)
 		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
-			# In parallel mode, we order all modules together
-			common.task.createDependencyList "$dep_file"
-		
-			main.log -a "Ordering tasks..."
-			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
-
+			common.task.createParallelDependencyList $task_file
 		else
-			# In sequential mode, we first sort the One-Time preprocessors,
-			# then each day 
-			# then the One-Time postprocossors
-			
-			# In all of these, we ignore - dependencies
-			
-			# OT-PRE
-			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_PREPROCESS_ONCE'" true
-			main.log -a "\nOrdering $CXR_TYPE_PREPROCESS_ONCE tasks...\n"
-			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-			
-			# DAILY
-			# This is not very elegant...
-			main.log -a "Ordering daily tasks..."
-			
-			# This is not very elegant...
-			main.log -a "\nOrdering daily tasks...\n"
-			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
-			do
-				common.user.showProgress
-				common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true $iOffset
-				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-			done
-			
-			
-			# OT-POST
-			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
-			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-			
+			common.task.createSequentialDependencyList $task_file
 		fi
 		
-		main.log -a -B "We will execute the tasks in this order:"
-		cat "$sorted_file" | tee -a "$CXR_LOG" 
-		
-		main.log -a "Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
-		
-		tempfile="$(common.runner.createTempFile $FUNCNAME)"
-		
-		echo "BEGIN TRANSACTION;" > $tempfile
-		
+		# Generate SQL file to update the ranks of the tasks
 		while read line 
 		do
 			# We need to parse the line
@@ -1047,13 +1085,13 @@ function common.task.init()
 			common.task.parseId "$line"
 
 			# Write Update statement to file
-
-			echo "UPDATE tasks SET rank=$current_id WHERE status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
+			# We only give ranks to stuff that was not yet sucessfully done
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND invocation=$_invocation AND status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
 
-		done < "$sorted_file"
+		done < "$task_file"
 		
 		echo "COMMIT TRANSACTION;" >> $tempfile
 
