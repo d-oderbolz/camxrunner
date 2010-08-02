@@ -426,7 +426,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' ORDER BY id ASC LIMIT 1")"
+	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -922,7 +922,6 @@ function common.task.init()
 			${CXR_TSORT_EXEC} "$dep_file" > "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks. Most probably there is a cycle (Module A depends on B which in turn depends on A)"
 
 		else
-		
 			# In sequential mode, we first sort the One-Time preprocessors,
 			# then each day 
 			# then the One-Time postprocossors
@@ -952,62 +951,31 @@ function common.task.init()
 		main.log -a -B "We will execute the tasks in this order:"
 		cat "$sorted_file" | tee -a "$CXR_LOG" 
 		
-		main.log -a "\nFilling task DB $CXR_STATE_DB_FILE...\n"
+		main.log -a "\Updating ranks in tasks DB $CXR_STATE_DB_FILE...\n"
+		
+		# First clean the ranks
+		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks SET rank=NULL"
 		
 		while read line 
 		do
 			# Visual feedback
 			common.user.showProgress
 			
-			# each line contains something like "create_emissions0@1" or "initial_conditions"
-			
 			# We need to parse the line
 			# this sets a couple of _variables
 			common.task.parseId "$line"
 
-			module_type="$(common.module.getType "$_module")"
-			exclusive="$(common.module.getMetaField "$_module" "CXR_META_MODULE_RUN_EXCLUSIVELY")"
+			# UPDATE
+			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  <<-EOT
 			
-			# Convert date
-			my_stage="$(common.task.getId "$_module" "${_day_offset:-0}" "$_invocation" )"
+			UPDATE tasks SET rank=$current_id
+			WHERE status IS NOT '$CXR_STATUS_SUCCESS';
 			
-			# Is this known to have worked?
-			if [[ "$(common.state.hasFinished? "$_module" "${_day_offset:-0}" "$_invocation")" == false ]]
-			then
-				# estimate the runtime and add to total
-				CXR_TIME_TOTAL_ESTIMATED=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED + $(common.performance.estimateRuntime $_module)" -1 false)
+			EOT
 				
-				# we put this information into the DB
-				${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
-				INSERT INTO tasks 
-				(id,
-				module,
-				module_type,
-				exclusive,
-				day_offset,
-				invocation,
-				status,
-				epoch_m)
-				VALUES
-				(
-				 $current_id,
-				'$_module',
-				'$module_type',
-				'$exclusive',
-				${_day_offset:-0},
-				${_invocation:-NULL},
-				'TODO',
-				$(date "+%s")
-				);
-				EOT
-				
-				# Increase ID
-				current_id=$(( $current_id + 1 ))
-				
-			else
-				main.log -v "Task $my_stage already finished."
-			fi
-		
+			# Increase ID
+			current_id=$(( $current_id + 1 ))
+
 		done < "$sorted_file"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
