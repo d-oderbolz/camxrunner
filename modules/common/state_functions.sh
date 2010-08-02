@@ -280,6 +280,7 @@ function common.state.updateInfo()
 						then
 							# If we are looking at the dependencies, parse further and create one row per raw dependency
 							oIFS="$IFS"
+							IFS=" "
 							dep_arr=($value)
 							IFS="$oIFS"
 							
