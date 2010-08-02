@@ -973,6 +973,7 @@ function common.task.init()
 			
 			intermediate_file="$(common.runner.createTempFile $FUNCNAME)"
 			another_file="$(common.runner.createTempFile $FUNCNAME)"
+			sed_file="$(common.runner.createTempFile $FUNCNAME)"
 			load_file="$(common.runner.createTempFile $FUNCNAME)"
 
 			# In all of these, we ignore - dependencies
@@ -994,7 +995,14 @@ function common.task.init()
 			cat $intermediate_file | cut -d@ -f2 > $another_file
 			
 			# add linenumbers
-			cat -n $another_file > $load_file
+			cat -n $another_file > $sed_file
+			
+			# Remove unneeded spaces
+			sed "s/^ *//;s/ *$//;s/ \{1,\}/ /g" $another_file > $load_file
+			
+			main.log -a "Will load this file:"
+			
+			cat $load_file
 			
 			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 			
