@@ -269,6 +269,8 @@ function common.state.updateInfo()
 						# the value is to the right
 						value="$(expr match "$metafield" '.*=\(.*\)')" || :
 						
+						set -vx
+						
 						# OK, we want all quoting gone and variables expanded
 						value="$(eval "echo $(echo "$value")")"
 						
@@ -289,6 +291,8 @@ function common.state.updateInfo()
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						fi # is it a special meta field
 					done
+					
+					set +vx
 					
 					IFS="$oIFS"
 					
@@ -312,6 +316,9 @@ function common.state.updateInfo()
 		# Check if any module is called the same as a type
 		if [[ $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
+			# Relase Lock
+			common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
+		
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
