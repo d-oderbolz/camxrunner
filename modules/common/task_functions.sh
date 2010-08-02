@@ -999,6 +999,8 @@ function common.task.init()
 		
 		echo "COMMIT TRANSACTION" >> $tempfile
 		
+		cat $tempfile
+		
 		# Execute all statements at once
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
 		
