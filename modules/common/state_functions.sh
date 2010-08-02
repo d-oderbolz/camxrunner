@@ -164,6 +164,8 @@ function common.state.updateInfo()
 			DELETE FROM metadata;
 		
 		EOT
+		
+		# Are there any non-todo 
 	
 		# Create a few working arrays we will go through
 		types=($CXR_TYPE_PREPROCESS_ONCE \
@@ -383,6 +385,9 @@ function common.state.updateInfo()
 			--------------------------------------------------------------------
 			-- TASKS
 			--------------------------------------------------------------------
+			
+			DELETE FROM tasks;
+			DELETE FROm dependencies;
 			
 			-- Daily modules
 			INSERT INTO tasks (

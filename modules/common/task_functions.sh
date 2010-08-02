@@ -189,6 +189,11 @@ function common.task.createSequentialDependencyList()
 	# then the One-Time postprocossors
 	
 	# In all of these, we ignore - dependencies
+	
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL") == false ]]
+	then
+		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
+	fi
 
 	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
 
@@ -216,7 +221,7 @@ function common.task.createSequentialDependencyList()
 	
 	------------------------------------
 	-- Then add all the dependencies
-	-- We must make user not to introduce any phantoms
+	-- We must make sure not to introduce any phantoms
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
@@ -239,6 +244,10 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Running tsort..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+
+	# Relase Lock
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
+
 }
 
 ################################################################################
@@ -296,6 +305,10 @@ function common.task.createParallelDependencyList()
 		no_ot=" AND 1=2"
 	fi
 	
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL") == false ]]
+	then
+		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
+	fi
 	
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
@@ -377,6 +390,9 @@ function common.task.createParallelDependencyList()
 	
 	sort "$output_file" | uniq > "$tempfile"
 	mv "$tempfile" "$output_file"
+	
+	# Relase Lock
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
 }
 
 ################################################################################
@@ -1098,9 +1114,18 @@ function common.task.init()
 		done < "$task_file"
 		
 		echo "COMMIT TRANSACTION;" >> $tempfile
+		
+		# For security reasons, we lock all write accesses to the DB
+		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL") == false ]]
+		then
+			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
+		fi
 
 		# Execute all statements at once
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
+		
+		# Relase Lock
+		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_HASH_TYPE_GLOBAL"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		
