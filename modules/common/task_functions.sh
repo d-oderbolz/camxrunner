@@ -189,12 +189,13 @@ function common.task.createDependencyList()
 	-- Duplicates are removed later
 	------------------------------------
 	
-	SELECT d.day_iso || '@' || t.module || '@' || t.invocation,
-	       d.day_iso || '@' || t.module || '@' || t.invocation
-	FROM tasks t, days d, modules m
+	SELECT di.day_iso || '@' || t.module || '@' || t.invocation,
+	       dd.day_iso || '@' || t.module || '@' || t.invocation
+	FROM tasks t, days di, days dd, modules m
 	WHERE m.module = t.module
-	AND   d.day_offset = t.day_offset
+	AND   di.day_offset = t.day_offset
 	AND   m.active='true'
+	AND   di.day_iso = dd.day_iso
 	$where ;
 	
 	------------------------------------
