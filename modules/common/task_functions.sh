@@ -226,7 +226,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
-	$where ;
+	;
 	
 	-- OT-Post
 	SELECT $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) || '@' || t.module || '@' || t.invocation,
@@ -235,7 +235,7 @@ function common.task.createDependencyList()
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	$where ;
+	;
 	
 	------------------------------------
 	-- Then add all the dependencies
