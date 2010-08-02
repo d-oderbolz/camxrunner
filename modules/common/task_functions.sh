@@ -158,6 +158,7 @@ function common.task.parseId()
 # $1 - output_file to write list of dependencies for tsort to sort to
 # $2 - optional where clause including leading logical oerator
 # $3 - optional boolean flag (default false) to ignore - dependencies
+# $4 - optional day_offset (dependent)
 ################################################################################
 function common.task.createDependencyList()
 ################################################################################
@@ -166,15 +167,24 @@ function common.task.createDependencyList()
 	local tempfile
 	local where
 	local ignore_last_day
+	local day_offset
+	local day_where
 
 	output_file="$1"
 	where=${2:-}
 	ignore_last_day=${3:-false}
+	day_offset="${4:-}"
+	
 	
 	if [[ $ignore_last_day == true ]]
 	then
 		# Add additional where statement to suppress - dependencies
 		where="$where AND di.day_iso = dd.day_iso"
+	fi
+	
+	if [[ "$day_offset" ]]
+	then
+		day_where=" AND dependent_day_offset = $day_offset "
 	fi
 	
 	
@@ -209,7 +219,7 @@ function common.task.createDependencyList()
 	AND   di.day_offset = independent_day_offset
 	AND   dd.day_offset = dependent_day_offset
 	AND   m.active='true'
-	$where ;
+	$where $day_where ;
 	
 	EOT
 	
@@ -935,7 +945,7 @@ function common.task.init()
 			# In all of these, we ignore - dependencies
 			
 			# OT-PRE
-			common.task.createDependencyList "$dep_file" "AND m.type='$CXR_TYPE_PREPROCESS_ONCE'" true
+			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_PREPROCESS_ONCE'" true
 			main.log -a "\nOrdering $CXR_TYPE_PREPROCESS_ONCE tasks...\n"
 			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			
@@ -944,12 +954,12 @@ function common.task.init()
 			main.log -a "\nOrdering daily tasks...\n"
 			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 			do
-				common.task.createDependencyList "$dep_file" "AND dependent_day_offset=$iOffset AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true
+				common.task.createDependencyList "$dep_file" " AND m.type NOT IN ('$CXR_TYPE_PREPROCESS_ONCE','$CXR_TYPE_POSTPROCESS_ONCE')" true $iOffset
 				${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			done
 			
 			# OT-POST
-			common.task.createDependencyList "$dep_file" "AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
+			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
 			${CXR_TSORT_EXEC} "$dep_file" >> "$sorted_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 			
 		fi
