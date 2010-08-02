@@ -279,6 +279,7 @@ function common.state.updateInfo()
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
 							done
 						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
+						then
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE modules SET exclusive=trim('$value') WHERE module='$module'"
 						fi # is it a special meta field
 					done
