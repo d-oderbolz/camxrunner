@@ -996,7 +996,6 @@ function common.task.init()
 			# add linenumbers
 			cat -n $another_file > $load_file
 			
-			
 			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 			
 			CREATE TEMPORARY TABLE ordered (id, module);
@@ -1008,9 +1007,6 @@ function common.task.init()
 			
 			EOT
 			
-			
-			for module 
-		
 			
 			# OT-POST
 			common.task.createDependencyList "$dep_file" " AND m.type='$CXR_TYPE_POSTPROCESS_ONCE'" true
