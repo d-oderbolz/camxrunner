@@ -256,7 +256,7 @@ function main.log()
 		esac
 	done
 	
-	if [[ $CXR_TEST_IN_PROGRESS == true ]]
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
 	then
 		# TODO: We need to deal with newlines!!
 		prefix="#${prefix}"
