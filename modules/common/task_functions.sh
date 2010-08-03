@@ -241,8 +241,12 @@ function common.task.createSequentialDependencyList()
 	
 	main.log -v "Running tsort..."
 	
-	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" || main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
-
+	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+	fi
 
 	main.log -v "Ordering daily tasks..."
 	
