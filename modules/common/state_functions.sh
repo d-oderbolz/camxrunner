@@ -279,10 +279,17 @@ function common.state.updateInfo()
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
 							# If we are looking at the dependencies, parse further and create one row per raw dependency
+							echo "IFS before:"
+							echo "$IFS" | cat -vte
+
 							oIFS="$IFS"
 							IFS=" "
 							dep_arr=($value)
 							IFS="$oIFS"
+							
+							echo "IFS after:"
+							echo "$IFS" | cat -vte
+
 							
 							for iDependency in $(seq 0 $(( ${#dep_arr[@]} - 1 )) )
 							do
