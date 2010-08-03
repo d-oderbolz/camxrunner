@@ -265,6 +265,9 @@ function common.state.updateInfo()
 '
 					for metafield in $list
 					do
+						# Reset IFS immediately
+						IFS="$oIFS"
+						
 						# Parse this
 						# Field is to the left of the = sign
 						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
@@ -278,15 +281,9 @@ function common.state.updateInfo()
 						
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
-							# If we are looking at the dependencies, parse further and create one row per raw dependency
-							#oIFS="$IFS"
-							#IFS=" "
-							dep_arr=($value)
-							#IFS="$oIFS"
-							
-							for iDependency in $(seq 0 $(( ${#dep_arr[@]} - 1 )) )
+							# Make sure IFS is correct!
+							for dependency in $value
 							do
-								dependency=${dep_arr[$iDependency]}
 								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
 							done
 						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
@@ -297,8 +294,6 @@ function common.state.updateInfo()
 							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						fi # is it a special meta field
 					done
-					
-					IFS="$oIFS"
 					
 					# Now also add each invocation as individial row. 
 					nInvocations=$(common.module.getNumInvocations $module)
