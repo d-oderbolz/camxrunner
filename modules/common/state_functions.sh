@@ -507,7 +507,7 @@ function common.state.updateInfo()
 	               dependent_module, 
 	               dependent_day_offset, 
 	               dependent_invocation)
-             SELECT meta.value,
+             SELECT substr(meta.value,length(meta.value) - 1), -- cut off -
                     t.day_offset - 1,
                     t.invocation,
                     t.module,
@@ -573,7 +573,7 @@ function common.state.updateInfo()
                   metadata meta,
                   modules m
              WHERE
-                  t.module = meta.module
+                  m.type = substr(meta.value,length(meta.value) - 1) -- cut off -
               AND m.type = meta.value
               AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
 			                      '$CXR_TYPE_PREPROCESS_DAILY',
