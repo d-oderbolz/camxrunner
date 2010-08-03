@@ -752,7 +752,7 @@ function _exit()
 		s= ; (( ${_failed_tests:-0} > 1 )) && s=s
 		diag "Looks like you failed ${_failed_tests:-0} test$s of ${_executed_tests:-0}."
 	else
-		diag "Looks like all tests (${_executed_tests:-0}/${_executed_tests:-0}) passed!."
+		diag "Looks like all tests (${_executed_tests:-0}/${_executed_tests:-0}) passed."
 	fi
 
 	# Reset stuff
