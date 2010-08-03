@@ -60,7 +60,7 @@ function common.test.loadData()
 	local filetype
 	
 	# Need to load test data
-	main.log -B  " Loading test data (CXR_LOAD_TEST_DATA is true)... "
+	main.log -B " Loading test data (CXR_LOAD_TEST_DATA is true)... "
 
 	if [[   "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -d "${CXR_TEST_DATA_OUTPUT_DIR:-}" && -f "${CXR_TEST_DATA_INPUT_FILE:-}"    ]]
 	then
@@ -89,7 +89,7 @@ function common.test.loadData()
 		cd $CXR_RUN_DIR || main.dieGracefully "Could not change back to ${CXR_RUN_DIR}"
 	
 	else
-		main.log -e  "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
+		main.log -e "Cannot load test data, either CXR_TEST_DATA_OUTPUT_DIR or CXR_TEST_DATA_INPUT_FILE not set correctly or permission problem!"
 	fi
 }
 
@@ -178,7 +178,7 @@ function common.test.all()
 		
 		common.check.isVersionSupported? "$version" "$model"
 		
-		main.log "Testing system using modules for $model $version..."
+		main.log -a "Testing system using modules for $model $version..."
 		
 		if [[ "$(common.user.getOK "Do you want to run the extended tests (can run up to 30 minutes)?" )" == true ]]
 		then
@@ -257,7 +257,7 @@ function common.test.all()
 			# ignore comment and blank lines
 			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 	
-			main.log -a "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
+			main.log "Counting tests in ${CURRENT_DIR} (${COMMENT})..."
 			
 			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
@@ -283,7 +283,7 @@ function common.test.all()
 		########################################
 		#  Plan these tests
 		########################################
-		main.log -a "Planning to run $total_tests tests..."
+		main.log "Planning to run $total_tests tests..."
 		
 		# Plan them
 		plan_tests $total_tests
@@ -331,7 +331,7 @@ function common.test.all()
 			# ignore comment and blank lines
 			echo "${CURRENT_DIR}" |egrep -v "^(#|$)" >/dev/null || continue
 	
-			main.log  "Executing ${COMMENT} tests..."
+			main.log "Executing ${COMMENT} tests..."
 			
 			for function_file in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
 			do
@@ -344,7 +344,7 @@ function common.test.all()
 				
 				if [[ ${CXR_META_MODULE_NUM_TESTS:-0} -gt 0  ]]
 				then
-					main.log -b  "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
+					main.log -b "Testing $CXR_META_MODULE_NAME ($CXR_META_MODULE_NUM_TESTS tests)..."
 					
 					test_module
 					

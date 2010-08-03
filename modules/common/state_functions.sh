@@ -1314,7 +1314,7 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	main.log -a  "Initialising state DB in ${CXR_STATE_DIR}"
+	main.log -a "Initialising state DB in ${CXR_STATE_DIR}"
 	common.state.init
 	
 	########################################

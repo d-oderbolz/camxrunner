@@ -174,6 +174,8 @@ function main.countErrors()
 # As an important SIDE EFFECT IN CASE OF AN ERROR, this function adds the error to the error list.
 # Also, the current day (CXR_DATE) is added to a special logfile which shows the failed days.
 #
+# If a test in running (CXR_TEST_IN_PROGRESS), we try to produce a TAP-compatible message.
+#
 # We use STDERR instead of STDOUT in order not to interfere with returning values from functions.
 # If you want a function to return log messages, rotate stderr and stdout:
 # > $(my_function 2>&1)
@@ -191,7 +193,7 @@ function main.countErrors()
 # If the loglevel is greater or equal to the level of a message, the message is shown
 #
 # The function automatically indents its messages according to $CXR_LOG_INDENT.
-# It also infers its caller from the FUNCNAME array
+# It also infers its caller from the FUNCNAME array.
 #
 # For efficiency reasons (it's inefficient already...), call the function only once for multi-line messages
 # use \n to separate lines.
@@ -241,7 +243,7 @@ function main.log()
 	
 	stars=""
 	
-	while getopts ":vawebBH" opt
+	while getopts ":vatwebBH" opt
 	do
 		case $opt in
 		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix=""   ;;
@@ -253,6 +255,12 @@ function main.log()
 		H) stars="${CXR_BOX_HUGE}";;
 		esac
 	done
+	
+	if [[ $CXR_TEST_IN_PROGRESS == true ]]
+	then
+		# TODO: We need to deal with newlines!!
+		prefix="#${prefix}"
+	fi
 	
 	# This is not strictly needed, but it allows to read 
 	# non-named command line options
@@ -323,7 +331,7 @@ function main.log()
 		# If stars are set, we add a line of stars at the beginning and end
 		if [[ "${stars}" ]]
 		then
-			stderr_message="${stars}\n${stderr_message}\n${stars}\n"
+			stderr_message="${prefix}${stars}\n${stderr_message}\n${prefix}${stars}\n"
 		fi
 		
 		# Write a unformatted copy to sterr. 
