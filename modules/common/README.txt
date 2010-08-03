@@ -13,6 +13,8 @@ so for example the function <get_chemparam_file> may be defined more than once.
 If you do this, please give each of the files a UNIQUE name, otherwise the test subsystem 
 will find only one definition (usually the one in the deepest level).
 
+There is no naming convention for file names, expect that they need to have the usual 
+.sh extension.
 
 
 See also http://people.web.psi.ch/oderbolz/CAMxRunner
