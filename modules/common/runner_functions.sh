@@ -791,7 +791,7 @@ function common.runner.waitForLock()
 	while [[ -f "$lockfile" ]]
 	do
 		sleep $CXR_LOCK_SLEEP_SECONDS
-		time=$((common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false ))
+		time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
 		if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 		then
