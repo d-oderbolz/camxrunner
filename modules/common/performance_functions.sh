@@ -367,6 +367,9 @@ function test_module()
 	
 	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0 false))
 	
+	echo $time
+	echo $difference
+	
 	# We test for difference
 	is_less_or_equal $difference $epsilon "common.performance Timing of sleep"
 
