@@ -218,9 +218,12 @@ CXR_TIMEOUT_MINS=10
 # Total timeout is 1 day
 CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
 
-# Number of seconds we wait in each iteration
+# Number of seconds we wait in each task iteration
 # also used in the task functions, number of secods an idle task sleeps
 CXR_WAITING_SLEEP_SECONDS=60
+
+# This time in seconds is waited in each wait iteration for a lock
+CXR_LOCK_SLEEP_SECONDS=0.01
 
 # After this amount of seconds, we should stop to lock
 # We use this lock to keep two processes from getting the same task,

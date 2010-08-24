@@ -45,7 +45,16 @@ CXR_META_MODULE_VERSION='$Id$'
 #
 # Performs FP arithmetic (other than $(()) )
 # If the result is a whole number, a dot is appended at the end (FORTRAN compatibility)
-# TODO: Invert default behaviour (most callers do not expect FT compatibility)
+# 
+# You can also use this function to do FP-safe comparisons:
+# result=$(common.math.FloatOperation "$a > $b" 0 false)
+#
+# if [[ $result -eq 1 ]]
+# then
+#	# a is greater
+# else
+#	# a is not greater
+# fi
 #
 # Parameters:
 # $1 - an expression
@@ -97,30 +106,33 @@ function common.math.FloatOperation()
 }
 
 ################################################################################
-# Function: common.math.RandomDecimal
+# Function: common.math.RandomNumber
 #
-# Returns a (small) random number between 0-1. 
+# Returns a random number between $1 and $2 formatted using $3 as scale.
+# Due to the use of $RANDOM, these numbers are only pseudorandom at best.
 #
 # Parameters:
-# $1 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
+# [$1] - minimum (default 0)
+# [$1] - maximum (default 1)
+# [$3] - an optional scale parameter. -1 Means truncate. Default 
 ################################################################################
-function common.math.RandomDecimal()
+function common.math.RandomNumber()
 ################################################################################
 {
 	local maxrnd
-	local rnd
 	local result
 	local scale
+	local min
+	local max
 	
-	scale=${2:-$CXR_NUM_DIGITS}
+	min=${1:-0}
+	max=${2:-1}
+	scale=${3:-$CXR_NUM_DIGITS}
 	
+	# According to docs, that's the maximum $RANDOM returns
 	maxrnd=32767
-
-	# returns a number 0 - 32767
-	rnd=$RANDOM
-
 	
-	result=$(common.math.FloatOperation "$rnd / ( 2 * $maxrnd )" $scale)
+	result=$(common.math.FloatOperation "$min + (($RANDOM / $maxrnd) * ($max - $min))" $scale)
 	
 	echo $result
 }
@@ -163,6 +175,8 @@ function common.math.abs()
 # Function: common.math.sumVector
 #
 # Calculates the sum of a list of values passed as a string-delimited list (FP)
+# Can be replaced by SQL:
+# SELECT sum(column) FROM table; 
 #
 # Parameters:
 # $1 - a list of numeric values (string-delimited)
@@ -203,7 +217,9 @@ function common.math.sumVector()
 # Function: common.math.meanVector
 #
 # Calculates the arithmetic mean of a list of values passed as a string-delimited list
-# By default we return an integer value (calculation is carried out FP)
+# By default we return an integer value (calculation is carried out FP).
+# Can be replaced by SQL:
+# SELECT avg(column) FROM table; 
 #
 # Parameters:
 # $1 - a list of numeric values (string-delimited)
@@ -246,6 +262,9 @@ function common.math.meanVector()
 # Function: common.math.stdevVector
 #
 # Calculates the standard deviation of a list of values passed as a string-delimited list.
+# Can be replaced by SQL:
+# SELECT load_extension('./libsqlitefunctions.so');
+# SELECT stdev(column) FROM table; 
 #
 # Parameters:
 # $1 - a list of numeric values (string-delimited)

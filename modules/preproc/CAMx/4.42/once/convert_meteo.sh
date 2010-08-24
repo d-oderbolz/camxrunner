@@ -163,7 +163,7 @@ function convert_meteo()
 				# Does the output already exist?
 				if [[ -s "${CXR_OUTPUT_FILES[$DayOffset]}"  ]]
 				then
-					main.log -w   "File ${CXR_OUTPUT_FILES[$DayOffset]} exists - file will skipped."
+					main.log -w "File ${CXR_OUTPUT_FILES[$DayOffset]} exists - file will skipped."
 				else
 					# Call the converter, collect sterr and stout
 					# 0 indicates stdout for logging

@@ -877,8 +877,8 @@ function common.task.Worker()
 						main.dieGracefully "There seeems to be another exclusive task running that takes too long."
 					fi
 				else
-					# If not, just check if it is set
-					common.runner.waitForLock Exclusive "$CXR_HASH_TYPE_GLOBAL"
+					# If not, just check if it is set 
+					common.runner.waitForLock Exclusive "$CXR_HASH_TYPE_GLOBAL" false
 					
 					if [[ $_retval == false ]]
 					then
