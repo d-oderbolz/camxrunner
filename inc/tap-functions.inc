@@ -208,7 +208,7 @@ function okx()
 ################################################################################
 # Function: _equals
 #
-# Internal function to test equality
+# Internal function to test equality (string comparison)
 #
 # Parameters:
 # $1 - the actual result
@@ -241,8 +241,11 @@ function _less_than()
 {
 	local result=${1:-}
 	local expected=${2:-}
-
-	if [[ "$result" -lt "$expected" ]] ; then
+	local comp
+	
+	comp=$(common.math.FloatOperation "$result < $expected" 0 false)
+	
+	if [[ $comp -eq 0 ]] ; then
 		return 0
 	else 
 		return 1
@@ -263,8 +266,11 @@ function _greater_than()
 {
 	local result=${1:-}
 	local expected=${2:-}
-
-	if [[ "$result" -gt "$expected" ]] ; then
+	local comp
+	
+	comp=$(common.math.FloatOperation "$result > $expected" 0 false)
+	
+	if [[ $comp -eq 0 ]] ; then
 		return 0
 	else 
 		return 1
@@ -285,8 +291,11 @@ function _less_than_or_equal()
 {
 	local result=${1:-}
 	local expected=${2:-}
-
-	if [[ "$result" -le "$expected" ]] ; then
+	local comp
+	
+	comp=$(common.math.FloatOperation "$result <= $expected" 0 false)
+	
+	if [[ $comp -eq 0 ]] ; then
 		return 0
 	else 
 		return 1
@@ -307,8 +316,11 @@ function _greater_than_or_equal()
 {
 	local result=${1:-}
 	local expected=${2:-}
-
-	if [[ "$result" -ge "$expected" ]] ; then
+	local comp
+	
+	comp=$(common.math.FloatOperation "$result >= $expected" 0 false)
+	
+	if [[ $comp -eq 0 ]] ; then
 		return 0
 	else 
 		return 1
