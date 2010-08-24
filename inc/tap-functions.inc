@@ -245,7 +245,8 @@ function _less_than()
 	
 	comp=$(common.math.FloatOperation "$result < $expected" 0 false)
 	
-	if [[ $comp -eq 0 ]] ; then
+	# bc uses logic, but this is UNIX, where 0=good
+	if [[ $comp -eq 1 ]] ; then
 		return 0
 	else 
 		return 1
@@ -270,7 +271,8 @@ function _greater_than()
 	
 	comp=$(common.math.FloatOperation "$result > $expected" 0 false)
 	
-	if [[ $comp -eq 0 ]] ; then
+	# bc uses logic, but this is UNIX, where 0=good
+	if [[ $comp -eq 1 ]] ; then
 		return 0
 	else 
 		return 1
@@ -295,7 +297,8 @@ function _less_than_or_equal()
 	
 	comp=$(common.math.FloatOperation "$result <= $expected" 0 false)
 	
-	if [[ $comp -eq 0 ]] ; then
+	# bc uses logic, but this is UNIX, where 0=good
+	if [[ $comp -eq 1 ]] ; then
 		return 0
 	else 
 		return 1
@@ -320,7 +323,8 @@ function _greater_than_or_equal()
 	
 	comp=$(common.math.FloatOperation "$result >= $expected" 0 false)
 	
-	if [[ $comp -eq 0 ]] ; then
+	# bc uses logic, but this is UNIX, where 0=good
+	if [[ $comp -eq 1 ]] ; then
 		return 0
 	else 
 		return 1
@@ -450,7 +454,6 @@ function is_less()
 function is_less_or_equal()
 ################################################################################
 {
-
 	local result="${1:-}"
 	local expected="${2:-}"
 	local name="${3:-''}"
