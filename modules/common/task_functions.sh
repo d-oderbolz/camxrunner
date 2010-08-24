@@ -157,7 +157,7 @@ function common.task.parseId()
 # 
 # Performs topological sorting on the dependencies so that the resulting list is
 # suitable for sequential harvesting by a single worker. This means that days are
-# sorted independently, so that no task of day n+1 is executed before all tasks of
+# sorted individually, so that no task of day n+1 is executed before all tasks of
 # day n have been executed.
 # 
 # The output is a file that contains a list of task ids.
@@ -204,18 +204,25 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all OT-Pre Tasks because
-	-- otherwise, task w/o dependencies 
+	-- First, add all OT-Pre Tasks without 
+	-- deps because otherwise, these tasks
 	-- would never be executed.
-	-- Duplicates are removed later
 	------------------------------------
 	
-	-- OT Pre tasks can not have depndencies to toher module 
-	-- types, so we do not need to account for this
+	-- OT Pre tasks can not have dependencies to other module 
+	-- types, so we do not need to account for these
 	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
 	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
 	FROM tasks t, modules m
 	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
+	EXCEPT
+	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
+	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m, dependencies
+	WHERE m.module = dependent_module
+	AND   m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
 	
