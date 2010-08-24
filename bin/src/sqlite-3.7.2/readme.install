@@ -1,0 +1,14 @@
+CXR_BIN_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
+CXR_LIB_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib
+CXR_TMP_DIR=/afs/psi.ch/user/o/oderbolz/tmp
+HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
+LIBDIR=${CXR_LIB_DIR}/sqlite/$HOSTTYPE
+mkdir -p ${LIBDIR}
+./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${LIBDIR} --includedir=${CXR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-x86_64-linux --disable-readline
+make clean && make && make install
+
+# Cleaner
+gcc -o sqlite3-x86_64-linux src/sqlite/shell.c sqlite3.c -ldl -lpthread
+
+# Build extension
+gcc -fPIC -lm -shared src/sqlite/extension-functions.c -o ../lib/libsqlitefunctions-x86_64-linux.so
