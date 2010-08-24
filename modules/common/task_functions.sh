@@ -246,6 +246,10 @@ function common.task.createSequentialDependencyList()
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 	
+	main.log -v "This is the deduped file:"
+	
+	cat $nodup_file
+	
 	main.log -v "Running tsort..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
@@ -256,8 +260,6 @@ function common.task.createSequentialDependencyList()
 	fi
 
 	main.log -v "Ordering daily tasks..."
-	
-	
 	
 	main.log -v "Ordering $CXR_TYPE_POSTPROCESS_ONCE tasks..."
 
