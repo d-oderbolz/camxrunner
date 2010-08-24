@@ -32,7 +32,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Periodically check CXR_MAX_PARALLEL_PROCS
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -510,6 +510,25 @@ function common.task.countOpenTasks()
 }
 
 ################################################################################
+# Function: common.task.countRunningWorkers
+#
+# Returns the number of running workers.
+#
+################################################################################
+function common.task.countRunningWorkers()
+################################################################################
+{
+	local worker_count
+	
+	# Find only "RUNNING" entries
+	worker_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
+	
+	main.log -v "Found $worker_count running workers"
+	
+	echo "$worker_count"
+}
+
+################################################################################
 # Function: common.task.detectLockup
 #
 # Tests if all workers of a run are in a waiting state. This means that some dependency
@@ -541,7 +560,7 @@ function common.task.detectLockup()
 	fi
 	
 	# Count the running workers
-	numRunning="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
+	numRunning="$(common.task.countRunningWorkers)"
 	
 	if [[ $numRunning -gt 0 ]]
 	then
@@ -1021,23 +1040,40 @@ function common.task.removeAllWorkers()
 }
 
 ################################################################################
-# Function: common.task.waitForWorkers
+# Function: common.task.controller
 #
-# Basically a sleep function: we loop and check if the continue file is there.
+# The main process that started the workers goes into this function to
+# watch the progress periodically.
 #
 ################################################################################
-function common.task.waitForWorkers()
+function common.task.controller()
 ################################################################################
 {
-	main.log  "Entering a wait loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
+	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 	
-	while [ -f "$CXR_CONTINUE_FILE" ]
+	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		sleep $CXR_WAITING_SLEEP_SECONDS
-		common.state.reportEta
+		
+		# Still TODO:
+		# Detect Lockups
+		# Detect stale locks
+		# Look at system load
+		# Find dead workers
+		
+		# touch the continue file
+		if [[ -e "$CXR_CONTINUE_FILE" ]]
+		then
+			# There is a slight possibility
+			# of a race-condition here if
+			# another process deletes the file this very moment.
+			touch "$CXR_CONTINUE_FILE"
+		fi
+		
+		common.performance.reportEta
 	done
 	
-	main.log -B   "The Continue file is gone, all workers will stop asap."
+	main.log -B "The Continue file is gone, all workers will stop asap."
 	
 	# OK, remove the workers now
 	common.task.removeAllWorkers

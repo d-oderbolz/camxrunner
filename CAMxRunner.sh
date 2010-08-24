@@ -839,8 +839,9 @@ then
 	################################################################################
 	# Make sure that all subprocesses are done!
 	################################################################################
-	# parallel_functions.sh
-	common.task.waitForWorkers
+	
+	# control the workers
+	common.task.controller
 	
 	# If we arrive here, we should be done.
 	# We can add a good check later.

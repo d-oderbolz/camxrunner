@@ -1281,25 +1281,6 @@ function common.state.getPercentDone()
 }
 
 ################################################################################
-# Function: common.state.reportEta
-# 
-#  Reports the estimated time of arrival.
-################################################################################
-function common.state.reportEta()
-################################################################################
-{
-	local percentDone
-	local estimatedTimeSeconds
-	
-	percentDone=$(common.state.getPercentDone)
-	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
-	
-	# Only goes to stderr
-	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2
-	common.user.showProgressBar $percentDone
-}
-
-################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please

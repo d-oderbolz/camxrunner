@@ -205,6 +205,28 @@ function common.performance.estimateRuntime()
 }
 
 ################################################################################
+# Function: common.performance.reportEta
+# 
+# Reports the estimated time of arrival together with the number
+# of workers working/total
+################################################################################
+function common.performance.reportEta()
+################################################################################
+{
+	local percentDone
+	local estimatedTimeSeconds
+	
+	percentDone=$(common.state.getPercentDone)
+	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	
+	# Only goes to stderr
+	echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$CXR_MAX_PARALLEL_PROCS" 1>&2
+	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2
+	common.user.showProgressBar $percentDone
+}
+
+
+################################################################################
 # Function: common.performance.getMemUsedPercent
 #
 # Estimates the percentage of used memory from the output of top.
