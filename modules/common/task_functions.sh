@@ -235,7 +235,7 @@ function common.task.createSequentialDependencyList()
 	SELECT '$CXR_START_DATE' || '@' || independent_module || '@' || independent_invocation,
 	       '$CXR_START_DATE' || '@' || dependent_module || '@' || dependent_invocation
 	FROM dependencies, modules m
-	WHERE m.module = independent_module
+	WHERE m.module = dependent_module
 	AND   independent_day_offset = dependent_day_offset
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE') ;
