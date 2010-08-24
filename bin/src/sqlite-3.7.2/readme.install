@@ -8,7 +8,7 @@ mkdir -p ${LIBDIR}
 make clean && make && make install
 
 # Cleaner
-gcc -o sqlite3-x86_64-linux src/sqlite/shell.c sqlite3.c -ldl -lpthread
+gcc -o sqlite3-x86_64-linux src/sqlite/shell.c src/sqlite/sqlite3.c -ldl -lpthread
 
 # Build extension
-gcc -fPIC -lm -shared src/sqlite/extension-functions.c -o ../lib/libsqlitefunctions-x86_64-linux.so
+gcc -fPIC -lm -shared src/sqlite/extension-functions.c -o ../lib/sqlite/x86_64-linux/libsqlitefunctions.so
