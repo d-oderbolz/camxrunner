@@ -597,6 +597,11 @@ CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack
 # In this file, we store the days where issues where detected
 CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
+# In this file, we store temporay files of a run. 
+# (e. g. AHOMAP Control files)
+# These will be deleted after the run
+CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp.list
+
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files
 CXR_CONTINUE=${CXR_RUNNER_NAME}.CONTINUE
@@ -616,16 +621,10 @@ CXR_GLOBAL_HASH_DECOMPRESSED_FILES=Decompressed_Files
 # This is used to compress output if needed or to delete output.
 CXR_INSTANCE_HASH_OUTPUT_FILES=Output_Files
 
-
 # In this hash, we store dummy files of a dry run.
 # These will be deleted after the dry run
 CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
 
-
-# In this file, we store temporay files of a run. 
-# (e. g. AHOMAP Control files)
-# These will be deleted after the run
-CXR_INSTANCE_TEMP_FILE_LIST=Temp_Files
 
 ################################################################################
 # Supported model names.
