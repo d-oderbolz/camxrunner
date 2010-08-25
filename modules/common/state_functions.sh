@@ -396,181 +396,170 @@ function common.state.updateInfo()
 			DELETE FROM dependencies;
 			
 			-- Daily modules
-			INSERT INTO tasks (
-		           module,
-		           type,
-		           exclusive,
-		           day_offset,
-		           invocation,
-		           status,
-		           epoch_m) 
-			SELECT m.module,
-			       m.type,
-			       m.exclusive, 
-			       d.day_offset, 
-			       i.value as invocation,
-			       '$CXR_STATUS_TODO',
-			       $(date "+%s")
-			FROM   modules m, days d, metadata i 
-			WHERE  i.module=m.module AND i.field='INVOCATION' 
-			  AND  m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY');
-			       
+			INSERT 	INTO tasks (
+							module,
+							type,
+							exclusive,
+							day_offset,
+							invocation,
+							status,
+							epoch_m) 
+			SELECT 	m.module,
+							m.type,
+							m.exclusive, 
+							d.day_offset, 
+							i.value as invocation,
+							'$CXR_STATUS_TODO',
+							$(date "+%s")
+			FROM 		modules m, 
+							days d, 
+							metadata i 
+			WHERE 	i.module=m.module AND i.field='INVOCATION' 
+			  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY');
+
 			-- One-Time preprocessors
 			
-			INSERT INTO tasks (
-		           module,
-		           type,
-		           exclusive,
-		           day_offset,
-		           invocation,
-		           status,
-		           epoch_m) 
-			SELECT m.module,
-			       m.type,
-			       m.exclusive, 
-			       0, 
-			       i.value as invocation,
-			       '$CXR_STATUS_TODO',
-			       $(date "+%s")
-			FROM   modules m, metadata i 
-			WHERE  i.module=m.module AND i.field='INVOCATION' 
-			  AND  m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
+			INSERT 	INTO tasks (
+							module,
+							type,
+							exclusive,
+							day_offset,
+							invocation,
+							status,
+							epoch_m) 
+							SELECT 	m.module,
+											m.type,
+											m.exclusive,
+											0,
+											i.value as invocation,
+											'$CXR_STATUS_TODO',
+											$(date "+%s")
+							FROM 		modules m, 
+											metadata i
+							WHERE 	i.module=m.module AND i.field='INVOCATION'
+							  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
 			
 			-- One-Time postprocessors
 			
-			INSERT INTO tasks (
-		           module,
-		           type,
-		           exclusive,
-		           day_offset,
-		           invocation,
-		           status,
-		           epoch_m) 
-			SELECT m.module,
-			       m.type,
-			       m.exclusive, 
-			       $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
-			       i.value as invocation,
-			       '$CXR_STATUS_TODO',
-			       $(date "+%s")
-			FROM   modules m, metadata i 
-			WHERE  i.module=m.module AND i.field='INVOCATION' 
-			  AND  m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
+			INSERT 	INTO tasks (
+							module,
+							type,
+							exclusive,
+							day_offset,
+							invocation,
+							status,
+							epoch_m) 
+							SELECT 	m.module,
+											m.type,
+											m.exclusive, 
+											$(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
+											i.value as invocation,
+											'$CXR_STATUS_TODO',
+											$(date "+%s")
+							FROM 		modules m, 
+											metadata i 
+							WHERE 	i.module=m.module AND i.field='INVOCATION' 
+							  AND 	m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 			
 			--------------------------------------------------------------------
-			-- DEPENCENCIES (ALL)
+			-- DEPENCENCIES
 			--------------------------------------------------------------------
 			
-			-- all non-special ones
-			INSERT INTO dependencies (
-			           independent_module, 
-	               independent_day_offset, 
-	               independent_invocation, 
-	               dependent_module, 
-	               dependent_day_offset, 
-	               dependent_invocation)
-             SELECT meta.value,
-                    t.day_offset,
-                    t.invocation,
-                    t.module,
-                    t.day_offset,
-                    t.invocation
-             FROM tasks t,
-                  metadata meta
-             WHERE
-                  t.module = meta.module
-              AND meta.field='CXR_META_MODULE_DEPENDS_ON'
-              AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
-			                      '$CXR_TYPE_PREPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_ONCE',
-			                      '$CXR_TYPE_MODEL')
-			  AND substr(meta.value,-1,1) IS NOT '-' ;
-			  
-			-- Normal ones with -
-			
-			INSERT INTO dependencies 
-			      (independent_module, 
-	               independent_day_offset, 
-	               independent_invocation, 
-	               dependent_module, 
-	               dependent_day_offset, 
-	               dependent_invocation)
-             SELECT substr(meta.value,length(meta.value) - 1), -- cut off -
-                    t.day_offset - 1,
-                    t.invocation,
-                    t.module,
-                    t.day_offset,
-                    t.invocation
-             FROM tasks t,
-                  metadata meta
-             WHERE
-                  t.module = meta.module
-              AND meta.field='CXR_META_MODULE_DEPENDS_ON'
-              AND meta.value NOT IN ('$CXR_TYPE_PREPROCESS_ONCE',
-			                      '$CXR_TYPE_PREPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_ONCE',
-			                      '$CXR_TYPE_MODEL')
-			  AND substr(meta.value,-1,1) IS '-' 
-			  AND t.day_offset > 0;
-			  
-			-- Special ones without -
-			
-			INSERT INTO dependencies 
-			      (independent_module, 
-	               independent_day_offset, 
-	               independent_invocation, 
-	               dependent_module, 
-	               dependent_day_offset, 
-	               dependent_invocation)
-             SELECT m.module,
-                    t.day_offset,
-                    t.invocation,
-                    t.module,
-                    t.day_offset,
-                    t.invocation
-             FROM tasks t,
-                  metadata meta,
-                  modules m
-             WHERE
-                  t.module = meta.module
-              AND m.type = meta.value
-              AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
-			                      '$CXR_TYPE_PREPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_ONCE',
-			                      '$CXR_TYPE_MODEL')
-			  AND substr(meta.value,-1,1) IS NOT '-' ;
-			  
-			  -- Special ones with -
-			  
-			  INSERT INTO dependencies 
-			      (independent_module, 
-	               independent_day_offset, 
-	               independent_invocation, 
-	               dependent_module, 
-	               dependent_day_offset, 
-	               dependent_invocation)
-             SELECT m.module,
-                    t.day_offset - 1,
-                    t.invocation,
-                    t.module,
-                    t.day_offset,
-                    t.invocation
-             FROM tasks t,
-                  metadata meta,
-                  modules m
-             WHERE
-                  m.type = substr(meta.value,length(meta.value) - 1) -- cut off -
-              AND m.type = meta.value
-              AND meta.value  IN ('$CXR_TYPE_PREPROCESS_ONCE',
-			                      '$CXR_TYPE_PREPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_DAILY',
-			                      '$CXR_TYPE_POSTPROCESS_ONCE',
-			                      '$CXR_TYPE_MODEL')
-			  AND substr(meta.value,-1,1) IS '-' 
-			  AND t.day_offset > 0 ;
+			--
+			-- dependencies on single modules, without - predicate
+			--
+			INSERT 	INTO dependencies (
+							independent_module, 
+							independent_day_offset, 
+							independent_invocation, 
+							dependent_module, 
+							dependent_day_offset, 
+							dependent_invocation)
+							SELECT 	meta.value,
+											t.day_offset,
+											t.invocation,
+											t.module,
+											t.day_offset,
+											t.invocation
+							FROM 		tasks t,
+											metadata meta
+							WHERE		t.module = meta.module
+							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
+							AND 		meta.value NOT IN (SELECT type FROM types)
+							AND 		substr(meta.value,-1,1) IS NOT '-' ;
+
+			--  dependencies on single modules, only - predicate
+			--  here we must be careful not to add dependcies on types with predicate
+			--  thats why the subselect has a UNION
+			INSERT 	INTO dependencies (
+							independent_module, 
+							independent_day_offset, 
+							independent_invocation, 
+							dependent_module, 
+							dependent_day_offset, 
+							dependent_invocation)
+							SELECT 	substr(meta.value,length(meta.value) - 1), -- cut off -
+											t.day_offset - 1,
+											t.invocation,
+											t.module,
+											t.day_offset,
+											t.invocation
+							FROM 		tasks t,
+											metadata meta
+							WHERE		t.module = meta.module
+							 AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
+							 AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
+							 AND 		substr(meta.value,-1,1) IS '-' 
+							 AND 		t.day_offset > 0;
+
+			--
+			-- dependencies on whole types without - predicate
+			--
+			INSERT 	INTO dependencies (
+							independent_module, 
+							independent_day_offset, 
+							independent_invocation, 
+							dependent_module, 
+							dependent_day_offset, 
+							dependent_invocation)
+							SELECT 	independent.module,
+											independent.day_offset,
+											independent.invocation,
+											dependent.module,
+											dependent.day_offset,
+											dependent.invocation
+							FROM 		tasks dependent,
+											task independent,
+											metadata meta,
+											types t
+							WHERE		dependent.module = meta.module
+							AND			independent.type = meta.value
+							AND 		meta.value = t.type;
+
+			--
+			-- dependencies on whole types only with - predicate
+			-- 
+			INSERT 	INTO dependencies (
+							independent_module, 
+							independent_day_offset, 
+							independent_invocation, 
+							dependent_module, 
+							dependent_day_offset, 
+							dependent_invocation)
+							SELECT 	independent.module,
+											independent.day_offset,
+											independent.invocation,
+											dependent.module,
+											dependent.day_offset,
+											dependent.invocation
+							FROM 		tasks dependent,
+											task independent,
+											metadata meta,
+											types t
+							WHERE		dependent.module = meta.module
+							AND			independent.type = meta.value
+							AND 		meta.value = t.type || '-' 
+							AND			independent.day_offset = dependent.day_offset - 1;
 
 			EOT
 			

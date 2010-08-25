@@ -189,6 +189,9 @@ function common.test.all()
 		
 		# When this is true, we know a test is running
 		CXR_TEST_IN_PROGRESS=true
+		
+		# We do not need to see MD5 again
+		CXR_REPORT_MD5=false
 	
 		#source inc/init_test.inc
 		source inc/tap-functions.inc
