@@ -154,11 +154,11 @@ function common.db.getResultSet()
 			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} "$db_file" < cat "$sqlfile"
+		{CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < cat "$statement"
+		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$statement"
 	else
 		# Execute the string
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
@@ -220,11 +220,11 @@ function common.db.change()
 			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} "$db_file" < cat "$sqlfile"
+		{CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		${CXR_SQLITE_EXEC} "$db_file" < cat "$statement"
+		${CXR_SQLITE_EXEC} "$db_file" < "$statement"
 	else
 		# Execute the string
 		${CXR_SQLITE_EXEC} "$db_file" "$statement"
