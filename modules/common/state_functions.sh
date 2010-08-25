@@ -50,7 +50,7 @@ function common.state.isRepeatedRun?()
 {
 	local count
 	
-	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
+	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
 	main.log -v  "Counting $count tasks that where already touched"
 	
 	if [[ "$count" -gt 0 ]]
@@ -71,7 +71,7 @@ function common.state.getLastDayModelled()
 ################################################################################
 {
 	# Let the database tell it
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM days"
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -86,7 +86,7 @@ function common.state.getFirstDayModelled()
 ################################################################################
 {
 	# Let the database tell it
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM days"
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -313,7 +313,7 @@ function common.state.updateInfo()
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
 		
 		# Check if any module is called the same as a type
-		if [[ $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
+		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
 			# Relase Lock
 			common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
@@ -905,7 +905,7 @@ function common.state.hasFinished?()
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
 	
 	case $status in
 	
@@ -968,7 +968,7 @@ function common.state.hasFailed?()
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
 	
 	case $status in
 	
@@ -1091,7 +1091,7 @@ function common.state.cleanup()
 				then
 					# Module types it is.
 					# We add the value "all" to the result
-					steps="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
@@ -1113,7 +1113,7 @@ function common.state.cleanup()
 					# Module names
 					
 					# We add the value "all" to the result
-					steps="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
@@ -1133,7 +1133,7 @@ function common.state.cleanup()
 				fi
 				
 				# Get all days and add all as above
-				days="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
+				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
 				
 				oIFS="$IFS"
 				# set IFS to newline that select parses correctly
@@ -1177,7 +1177,7 @@ function common.state.cleanup()
 						where="$where_module AND day_offset=$iOffset"
 					fi
 					
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id FROM tasks WHERE $where"
+					common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id FROM tasks WHERE $where"
 
 					if [[ "$(common.user.getOK "Do you really want to do this?" )" == false ]]
 					then
@@ -1267,8 +1267,8 @@ function common.state.getPercentDone()
 	local done
 	local total
 	
-	done=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN('$CXR_STATUS_TODO')")
-	total=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")
+	done=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN('$CXR_STATUS_TODO')")
+	total=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")
 	
 	if [[ $total -gt 0 ]]
 	then

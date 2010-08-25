@@ -127,15 +127,15 @@ function common.db.getResultSet()
 #
 # Parameters:
 # $1 - full-path to db_file
-# $2 - either a statement, a filename or - indicating input from stdin
-# $3 - level of the lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $2 - level of the lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $3 - either a statement, a filename or - indicating input from stdin
 ################################################################################
 function common.db.change()
 ################################################################################
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a db file, a statement and a level as input, got $@"
+		main.dieGracefully "needs a db file, a level and a statement as input, got $@"
 	fi
 	
 	local db_file
@@ -146,9 +146,9 @@ function common.db.change()
 	local sqlfile
 	
 	db_file="$1"
-	statement="$2"
-	level="$3"
-
+	level="$2"
+	statement="$3"
+	
 	# For security reasons, we lock all write accesses to any DB
 	if [[ $(common.runner.getLock "$(basename $db_file)" "$level") == false ]]
 	then
@@ -259,7 +259,10 @@ function test_module()
 	# that is only because I use here documents in $()
 	# normally, no-one would do this, but its neat for testing.
 	
-	## Resultsets
+	#################
+	# ResultSet
+	#################
+	
 	# Pass SQL statement directly
 	res="$(common.db.getResultSet $db_file "SELECT * FROM test;")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - simple parameter"
@@ -291,24 +294,29 @@ function test_module()
 	
 	is "$res" "Hallo,Velo" "common.db.getResultSet - here-doc, different delimiter"
 	
+	#################
 	# dump
+	#################
+	
 	common.db.dump $db_file $dumpfile
 	main.log -a "Contents of dump: $(cat $dumpfile)"
 	
 	test -s $dumpfile
 	is "$?" "0" "common.db.dump - simple size check"
 	
-	## change
+	#################
+	# change
+	#################
 	# Pass SQL statement directly
-	common.db.change $db_file "CREATE TABLE x (a,b);" $CXR_LEVEL_INSTANCE
+	common.db.change $db_file $CXR_LEVEL_INSTANCE "CREATE TABLE x (a,b);" 
 	is "$?" "0" "common.db.change - simple parameter"
 	
 	# Use file
-	common.db.change $db_file $ddlfile $CXR_LEVEL_INSTANCE
+	common.db.change $db_file $CXR_LEVEL_INSTANCE $ddlfile
 	is "$?" "0" "common.db.change - use file"
 	
 	# Use here-doc
-	common.db.change $db_file "-" $CXR_LEVEL_INSTANCE <<-EOT
+	common.db.change $db_file $CXR_LEVEL_INSTANCE "-" <<-EOT
 	DROP TABLE y;
 	EOT
 	

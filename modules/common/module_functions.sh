@@ -83,7 +83,7 @@ function common.module.areDependenciesOk?()
 	
 	# Find out if any of the dependencies is disabled
 	
-	disabled_modules=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	disabled_modules=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	SELECT d.independent_module
 	FROM dependencies d, modules m
@@ -103,7 +103,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# If any dependency has failed, we stop the run
-	failedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	failedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t
@@ -123,7 +123,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# If more that 0 taks are non-successful, we return false
-	unfinishedCount=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t
@@ -199,7 +199,7 @@ function common.module.getNumInvocations()
 function common.module.getPath()
 ################################################################################
 {
-	path=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT path FROM modules WHERE module='$1'")
+	path=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT path FROM modules WHERE module='$1'")
 	echo "$path"
 }
 
@@ -215,7 +215,7 @@ function common.module.getPath()
 function common.module.getType()
 ################################################################################
 {
-	type=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT type FROM modules WHERE module='$1'")
+	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT type FROM modules WHERE module='$1'")
 	echo "$type"
 }
 
@@ -239,7 +239,7 @@ function common.module.isActive?()
 	local count
 
 	# Count entries
-	count=$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules WHERE module='$1'")
+	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules WHERE module='$1'")
 	
 	if [[ $count -eq 1 ]]
 	then

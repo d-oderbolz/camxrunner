@@ -197,7 +197,7 @@ function common.task.createSequentialDependencyList()
 
 	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
 
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	-- Prepare proper output
 	.output $dep_file
@@ -324,11 +324,6 @@ function common.task.createParallelDependencyList()
 		no_ot=" AND 1=2"
 	fi
 	
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
-	fi
-	
 	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
 	
 	-- Prepare proper output
@@ -409,9 +404,6 @@ function common.task.createParallelDependencyList()
 	
 	sort "$output_file" | uniq > "$tempfile"
 	mv "$tempfile" "$output_file"
-	
-	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 }
 
 ################################################################################
@@ -490,7 +482,7 @@ function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -511,7 +503,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -530,7 +522,7 @@ function common.task.countRunningWorkers()
 	local worker_count
 	
 	# Find only "RUNNING" entries
-	worker_count="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
+	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
 	
 	main.log -v "Found $worker_count running workers"
 	
@@ -645,7 +637,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -1042,7 +1034,7 @@ function common.task.removeAllWorkers()
 {
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
-	for pid in $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
+	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
 	do
 		common.task.removeWorker "$pid"
 	done
