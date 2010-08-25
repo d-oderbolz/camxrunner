@@ -677,7 +677,7 @@ function common.runner.removeTempFiles()
 	fi
 
 	# remove temporary files, if wanted
-	if [[ "$CXR_REMOVE_TEMP_FILES" == true  ]]
+	if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
 	then
 			main.log  "Removing temporary files..."
 			

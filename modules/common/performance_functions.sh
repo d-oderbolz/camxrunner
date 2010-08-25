@@ -338,7 +338,7 @@ function common.performance.getReaLoadPercent()
 	mem=$(common.performance.getMemUsedPercent)
 	cpu=$(common.performance.getSystemLoadPercent)
 	
-	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1 0)
+	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1 false)
 	
 	echo $load
 }

@@ -543,7 +543,7 @@ function common.task.countRunningWorkers()
 # Tests if all workers of a run are in a waiting state. This means that some dependency
 # is not fullfilled but has not failed, so all Worker will have to wait forever
 # (or until they waited CXR_DEPENDECY_TIMEOUT_SEC seconds).
-# Since it is possible that this happens be coincidence, we keep a counter in
+# Since it is possible that this happens by coincidence, we keep a counter in
 # a hash that we increase when all workers are idle and decrease when they are not.
 # If a threshold is reached, we stop the run.
 #
@@ -1058,16 +1058,28 @@ function common.task.removeAllWorkers()
 function common.task.controller()
 ################################################################################
 {
+	local ReaLoad
+	
 	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 	
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		sleep $CXR_WAITING_SLEEP_SECONDS
 		
-		# Still TODO:
-		# Detect Lockups
-		# Detect stale locks
+		# Detect Lockup (all workers are waiting)
+		common.task.detectLockup
+		
 		# Look at system load
+		ReaLoad=$(common.performance.getReaLoadPercent)
+		
+		if [[ $ReaLoad -gt $CXR_LOAD_WARN_THRESHOLD ]]
+		then
+			# TODO: Safely remove a worker
+			main.log -w "ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
+		fi
+		
+		# Still TODO:
+		# Detect stale locks
 		# Find dead workers
 		
 		# touch the continue file
@@ -1207,6 +1219,8 @@ function test_module()
 	# Setup tests if needed
 	########################################
 
+	# Leave files around
+	CXR_REMOVE_TEMP_FILES=false
 	common.task.init
 	
 	########################################
