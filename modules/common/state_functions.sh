@@ -553,7 +553,7 @@ function common.state.updateInfo()
 											dependent.day_offset,
 											dependent.invocation
 							FROM 		tasks dependent,
-											tasks independent,
+											task independent,
 											metadata meta,
 											types t
 							WHERE		dependent.module = meta.module

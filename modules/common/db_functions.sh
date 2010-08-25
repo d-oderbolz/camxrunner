@@ -15,6 +15,7 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
+# TODO: Reduce redundancy
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
@@ -91,6 +92,9 @@ function common.db.getResultSet()
 		return $CXR_RET_OK
 	fi
 	
+	# We have our own error handler here
+	set -e
+	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
@@ -107,16 +111,36 @@ function common.db.getResultSet()
 		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
+		fi
+		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
 		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$statement"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $(cat $statement)"
+		fi
+		
 	else
 		# Execute the string
 		main.log -v "Executing this SQL on $db_file:\n$statement" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $statement"
+		fi
+		
 	fi
+	
+	# fail-on-error on
+	set -e
 }
 
 ################################################################################
@@ -155,6 +179,9 @@ function common.db.change()
 		main.dieGracefully "Could not get lock on $(basename $db_file)"
 	fi
 	
+	# We have our own error handler here
+	set -e
+	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
@@ -170,19 +197,40 @@ function common.db.change()
 		
 		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
+		fi
+		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
 		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
 		${CXR_SQLITE_EXEC} "$db_file" < "$statement"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $(cat $statement)"
+		fi
+		
 	else
 		# Execute the string
 		main.log -v "Executing this SQL on $db_file:\n$statement" 
 		${CXR_SQLITE_EXEC} "$db_file" "$statement"
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "Error in SQL statement: $statement"
+		fi
+		
 	fi
 	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)" "$level"
+	
+	# fail-on-error on
+	set -e
 }
 
 ################################################################################
