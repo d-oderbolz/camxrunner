@@ -140,7 +140,10 @@ function common.db.getResultSet()
 	fi
 	
 	# fail-on-error on
-	set -e
+	if [[ $CXR_TEST_IN_PROGRESS == false ]]
+	then
+		set -e
+	fi
 }
 
 ################################################################################
