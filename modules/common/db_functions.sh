@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=6
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -133,6 +133,12 @@ function common.db.getResultSet()
 
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$db" "$type")"
+	
+	if [[ ! -r $db_file ]]
+	then
+		main.log -w "DB file $db_file not readable"
+		return $CXR_RET_OK
+	fi
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
@@ -280,18 +286,54 @@ function test_module()
 	db_file="$(_common.db.getDbFile "$db" "$type")"
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
-	CREATE TABLE test (a,b);
+	CREATE OR REPLACE TABLE test (a,b);
 	
 	INSERT INTO test (a,b) VALUES ('Hallo','Velo');
-	INSERT INTO test (a,b) VALUES ('Some','Value');
+	EOT
+	
+	sqlfile=$(common.runner.createTempFile sql)
+	
+	cat <<-EOT > $sqlfile
+	-- This is a simple test-select
+	
+	SELECT * FROM test;
+	
 	EOT
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is 1 1 "Fake"
-	common.db.getResultSet $db $type "SELECT * FROM test;"
+	# Pass SQL statement directly
+	res="$(common.db.getResultSet $db $type "SELECT * FROM test;")"
+	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - simple parameter"
+	
+	res="$(common.db.getResultSet $db $type "SELECT * FROM test;" "," )"
+	is $res Hallo,Velo "common.db.getResultSet - simple parameter, different delimiter"
+	
+	# Use file
+	res="$(common.db.getResultSet $db $type "$sqlfile")"
+	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - file"
+	
+	res="$(common.db.getResultSet $db $type "$sqlfile" "," )"
+	is $res Hallo,Velo "common.db.getResultSet - file, different delimiter"
+	
+	# Use here-doc
+	res="$(common.db.getResultSet $db $type <<-EOT
+	-- This is a simple test-select
+	
+	SELECT * FROM test;
+	EOT)"
+	
+	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - here-doc"
+	
+	res="$(common.db.getResultSet $db $type "," <<-EOT
+	-- This is a simple test-select
+	
+	SELECT * FROM test;
+	EOT)"
+	
+	is $res Hallo,Velo "common.db.getResultSet - here-doc, different delimiter"
 	
 	########################################
 	# teardown tests if needed
