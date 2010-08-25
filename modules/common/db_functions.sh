@@ -155,13 +155,17 @@ function common.db.getResultSet()
 			echo "$currline" >> "$sqlfile"
 		done
 		
+		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
+		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$statement"
 	else
 		# Execute the string
+		main.log -v "Executing this SQL on $db_file:\n$statement" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
 	fi
 }
@@ -221,13 +225,16 @@ function common.db.change()
 			echo "$currline" >> "$sqlfile"
 		done
 		
+		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
+		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
 		${CXR_SQLITE_EXEC} "$db_file" < "$statement"
 	else
 		# Execute the string
+		main.log -v "Executing this SQL on $db_file:\n$statement" 
 		${CXR_SQLITE_EXEC} "$db_file" "$statement"
 	fi
 	
@@ -313,6 +320,10 @@ function test_module()
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
+	
+	# The syntax here looks a little strange, 
+	# that is only because I use here documents in $()
+	# normally, no-one would do this, but its neat for testing.
 	
 	## Resultsets
 	# Pass SQL statement directly
