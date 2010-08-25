@@ -178,6 +178,7 @@ function common.task.createSequentialDependencyList()
 	main.log -a "Ordering tasks for sequential execution..."
 	
 	dep_file="$(common.runner.createTempFile dependencies)"
+	day_file="$(common.runner.createTempFile dependencies)"
 	nodup_file="$(common.runner.createTempFile nodup)"
 	sorted_file="$(common.runner.createTempFile tsort-out)"
 
@@ -190,7 +191,9 @@ function common.task.createSequentialDependencyList()
 	
 	# In all of these, we ignore - dependencies
 	
+	######################################
 	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
+	######################################
 
 	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
@@ -240,12 +243,8 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Removing duplicates..."
 	
 	sort "$dep_file" | uniq > "$nodup_file"
-	
-	main.log -v "This is the deduped file:"
-	
-	cat $nodup_file
-	
-	main.log -v "Running tsort..."
+
+	main.log -v "Running tsort and appending output to list..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
 	
@@ -254,9 +253,158 @@ function common.task.createSequentialDependencyList()
 		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 	fi
 
-	main.log -v "Ordering daily tasks..."
+	######################################
+	main.log -v "Ordering daily tasks. First we create the order for day 0..."
+	######################################
 	
+		common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	
+	-- Prepare proper output
+	.output $dep_file
+	.separator ' '
+	
+	------------------------------------
+	-- First, add all Daily Tasks without 
+	-- deps because otherwise, these tasks
+	-- would never be executed.
+	------------------------------------
+	
+	-- OT Pre tasks can not have dependencies to other module 
+	-- types, so we do not need to account for these
+	SELECT  t.module || '@' || t.invocation,
+	        t.module || '@' || t.invocation
+	FROM tasks t, modules m
+	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
+	                 '$CXR_TYPE_MODEL',
+	                 '$CXR_TYPE_POSTPROCESS_DAILY')
+	EXCEPT
+	SELECT  t.module || '@' || t.invocation,
+	        t.module || '@' || t.invocation
+	FROM tasks t, modules m, dependencies
+	WHERE m.module = dependent_module
+	AND   m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
+	                 '$CXR_TYPE_MODEL',
+	                 '$CXR_TYPE_POSTPROCESS_DAILY');
+	
+	------------------------------------
+	-- Then add all the dependencies
+	-- We must make sure not to introduce any phantoms
+	------------------------------------
+	
+	-- Again, OT Pre tasks cannot depend on other module types
+	SELECT  independent_module || '@' || independent_invocation,
+	        dependent_module || '@' || dependent_invocation
+	FROM dependencies, modules m
+	WHERE m.module = dependent_module
+	AND   independent_day_offset = dependent_day_offset
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
+	                 '$CXR_TYPE_MODEL',
+	                 '$CXR_TYPE_POSTPROCESS_DAILY') ;
+	
+	EOT
+	
+	main.log -v "Removing duplicates..."
+	
+	sort "$dep_file" | uniq > "$nodup_file"
+
+	main.log -v "Running tsort..."
+	
+	${CXR_TSORT_EXEC} "$nodup_file" > "$day_file" 
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+	fi
+	
+	
+	main.log -v "Now filling in data for all other days..."
+	# the day_file now contains a tsorted list of module@invocation entries.
+	
+	# note that change can alo return a resultset...
+	
+	day_list="$(common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	
+	-- First put the data in a TEMPORARY TABLE
+	CREATE TEMPORARY TABLE day_t (module, invocation);
+	
+	.separator '@'
+	.import $day_file day_t
+	
+	-- OK, now create the permutation
+	SELECT d.day_iso || '@' || m.module || '@' || m.invocation
+	FROM 	days d,day_t
+
+	EOT)"
+	
+	main.log -v "Appending day list..."
+	echo "$day_list" >> "$output_file"
+	
+	######################################
 	main.log -v "Ordering $CXR_TYPE_POSTPROCESS_ONCE tasks..."
+	######################################
+	
+	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	
+	-- Prepare proper output
+	.output $dep_file
+	.separator ' '
+	
+	------------------------------------
+	-- First, add all OT-Pre Tasks without 
+	-- deps because otherwise, these tasks
+	-- would never be executed.
+	------------------------------------
+	
+	-- OT Pre tasks can not have dependencies to other module 
+	-- types, so we do not need to account for these
+	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
+	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m
+	WHERE m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
+	EXCEPT
+	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
+	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	FROM tasks t, modules m, dependencies
+	WHERE m.module = dependent_module
+	AND   m.module = t.module
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
+	
+	------------------------------------
+	-- Then add all the dependencies
+	-- We must make sure not to introduce any phantoms
+	------------------------------------
+	
+	-- Again, OT Pre tasks cannot depend on other module types
+	SELECT '$CXR_START_DATE' || '@' || independent_module || '@' || independent_invocation,
+	       '$CXR_START_DATE' || '@' || dependent_module || '@' || dependent_invocation
+	FROM dependencies, modules m
+	WHERE m.module = dependent_module
+	AND   independent_day_offset = dependent_day_offset
+	AND   m.active='true'
+	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
+	
+	EOT
+	
+	main.log -v "Removing duplicates..."
+	
+	sort "$dep_file" | uniq > "$nodup_file"
+
+	main.log -v "Running tsort and appending output to list..."
+	
+	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+	fi
 }
 
 ################################################################################
