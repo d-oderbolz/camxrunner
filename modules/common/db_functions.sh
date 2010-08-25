@@ -309,17 +309,17 @@ function test_module()
 	
 	# Pass SQL statement directly
 	res="$(common.db.getResultSet $db $type "SELECT * FROM test;")"
-	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - simple parameter"
+	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - simple parameter"
 	
 	res="$(common.db.getResultSet $db $type "SELECT * FROM test;" "," )"
-	is $res Hallo,Velo "common.db.getResultSet - simple parameter, different delimiter"
+	is "$res" "Hallo,Velo" "common.db.getResultSet - simple parameter, different delimiter"
 	
 	# Use file
 	res="$(common.db.getResultSet $db $type "$sqlfile")"
-	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - file"
+	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - file"
 	
 	res="$(common.db.getResultSet $db $type "$sqlfile" "," )"
-	is $res Hallo,Velo "common.db.getResultSet - file, different delimiter"
+	is "$res" "Hallo,Velo" "common.db.getResultSet - file, different delimiter"
 	
 	# Use here-doc
 	res="$(common.db.getResultSet $db $type <<-EOT
@@ -328,7 +328,7 @@ function test_module()
 	SELECT * FROM test;
 	EOT)"
 	
-	is $res Hallo${CXR_DELIMITER}Velo "common.db.getResultSet - here-doc"
+	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - here-doc"
 	
 	res="$(common.db.getResultSet $db $type "," <<-EOT
 	-- This is a simple test-select
@@ -336,7 +336,7 @@ function test_module()
 	SELECT * FROM test;
 	EOT)"
 	
-	is $res Hallo,Velo "common.db.getResultSet - here-doc, different delimiter"
+	is "$res" "Hallo,Velo" "common.db.getResultSet - here-doc, different delimiter"
 	
 	########################################
 	# teardown tests if needed
