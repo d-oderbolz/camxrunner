@@ -200,6 +200,7 @@ function common.db.change()
 		
 		if [[ $? -ne 0 ]]
 		then
+			common.runner.releaseLock "$(basename $db_file)" "$level"
 			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 		fi
 		
@@ -211,6 +212,7 @@ function common.db.change()
 		
 		if [[ $? -ne 0 ]]
 		then
+			common.runner.releaseLock "$(basename $db_file)" "$level"
 			main.dieGracefully "Error in SQL statement: $(cat $statement)"
 		fi
 		
@@ -221,6 +223,7 @@ function common.db.change()
 		
 		if [[ $? -ne 0 ]]
 		then
+			common.runner.releaseLock "$(basename $db_file)" "$level"
 			main.dieGracefully "Error in SQL statement: $statement"
 		fi
 		
