@@ -349,7 +349,8 @@ function test_module()
 	common.db.dump $db $type $dumpfile
 	main.log -a "Contents of dump: $(cat $dumpfile)"
 	
-	is "$(test -s $dumpfile)" "0" "common.db.dump - simple size check"
+	test -s $dumpfile
+	is "$?" "0" "common.db.dump - simple size check"
 	
 	## change
 	# Pass SQL statement directly
