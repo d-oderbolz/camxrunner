@@ -265,7 +265,7 @@ function common.db.dump()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$db" "$type")"
 	
-	${CXR_SQLITE_EXEC} "$db_file" ".dump $output_file"
+	${CXR_SQLITE_EXEC} "$db_file" ".dump" > $output_file"
 }
 
 ################################################################################
