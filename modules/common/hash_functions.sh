@@ -403,15 +403,8 @@ function common.hash.delete()
 	then
 		main.log -w "DB $db_file not found!"
 	else
-		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $db_file)" "$level") == false ]]
-		then
-			main.dieGracefully "Could not get lock on $(basename $db_file)"
-		fi
-	
 		# delete entry
 		common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
-
 	fi
 }
 
