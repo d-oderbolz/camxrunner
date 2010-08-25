@@ -278,14 +278,13 @@ function common.db.dump()
 function test_module()
 ################################################################################
 {
-
 	########################################
 	# Setup tests if needed
 	########################################
 	
 	# Create a small test DB
 	db=test
-	type=$CXR_TYPE_UNIVERSAL
+	type=$CXR_TYPE_INSTANCE
 	db_file="$(_common.db.getDbFile "$db" "$type")"
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
@@ -364,7 +363,7 @@ function test_module()
 	is "$?" "0" "common.db.change - use file"
 	
 	# Use here-doc
-	common.db.change $db $type <<-EOT
+	common.db.change $db $type "-" <<-EOT
 	DROP TABLE y;
 	EOT
 	
