@@ -93,7 +93,7 @@ function common.db.getResultSet()
 	fi
 	
 	# We have our own error handler here
-	set -e
+	set +e
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
@@ -180,7 +180,7 @@ function common.db.change()
 	fi
 	
 	# We have our own error handler here
-	set -e
+	set +e
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
