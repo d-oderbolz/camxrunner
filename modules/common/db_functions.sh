@@ -7,7 +7,6 @@
 # Version: $Id$ 
 #
 # These functions provide access to the sqlite DB and provide logging and error handling.
-# We implement the usual 3-layer visibility.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -44,48 +43,6 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
-# Function: _common.db.getDbFile
-#
-# Returns the db_file to use depending on the type.
-#
-# Parameters:
-# $1 - db name
-# $1 - type , either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL" 
-################################################################################
-function _common.db.getDbFile()
-################################################################################
-{
-	if [[ $# -ne 2 ]]
-	then
-		main.dieGracefully "needs a db name and a type as input, got $@"
-	fi
-
-	local db
-	local type
-	local fn
-	
-	db="${1}"
-	type="${2}"
-	
-	if [[ "${type}" ]]
-	then
-		# Work out the directory
-		case $type in
-			$CXR_TYPE_INSTANCE) fn="${CXR_INSTANCE_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_GLOBAL) fn="${CXR_GLOBAL_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_UNIVERSAL) fn="${CXR_UNIVERSAL_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
-			*) main.dieGracefully "Unknown DB type $type" ;;
-		esac
-	else
-		main.dieGracefully "DB type is empty!" 
-	fi
-	
-	# It is poassible that this file does not exist.
-	echo "$fn"
-
-}
-
-################################################################################
 # Function: common.db.init
 #
 # Performs version checks on all visible sqlite DBs. It also checks the integrity of 
@@ -105,37 +62,29 @@ function common.db.init()
 # Do not use this function to alter the database - we aquire no writelock!
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
-# $3 - either a statement, a filename or - indicating input from stdin
-# [$4] - otional separator (default $CXR_DELIMITER)
+# $1 - full-path to db_file
+# $2 - either a statement, a filename or - indicating input from stdin
+# [$3] - otional separator (default $CXR_DELIMITER)
 ################################################################################
 function common.db.getResultSet()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs a db and a valid type and a statement (optional delimiter) as input, got $@"
+		main.dieGracefully "needs a db file and a statement (optional delimiter) as input, got $@"
 	fi
 	
-	local db
-	local type
+	local db_file
 	local statement
 	local separator
 	
 	local currline
 	local sqlfile
 	
-	local db_file
-	
-	db="$1"
-	type="$2"
-	statement="$3"
-	separator="${4:-$CXR_DELIMITER}"
+	db_file="$1"
+	statement="$2"
+	separator="${3:-$CXR_DELIMITER}"
 
-	# Work out the filename
-	db_file="$(_common.db.getDbFile "$db" "$type")"
-	
 	if [[ ! -r $db_file ]]
 	then
 		main.log -w "DB file $db_file not readable"
@@ -177,19 +126,18 @@ function common.db.getResultSet()
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is aqciured.
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
-# $3 - either a statement, a filename or - indicating input from stdin
+# $1 - full-path to db_file
+# $2 - either a statement, a filename or - indicating input from stdin
 ################################################################################
 function common.db.change()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db and a valid type and a statement as input, got $@"
+		main.dieGracefully "needs a db file and a statement as input, got $@"
 	fi
 	
-	local db
+	local db_file
 	local type
 	local statement
 	local separator
@@ -197,16 +145,10 @@ function common.db.change()
 	local currline
 	local sqlfile
 	
-	local db_file
-	
-	db="$1"
-	type="$2"
-	statement="$3"
+	db_file="$1"
+	statement="$2"
 
-	# Work out the filename
-	db_file="$(_common.db.getDbFile "$db" "$type")"
-
-	# For security reasons, we lock all write accesses to the DB
+	# For security reasons, we lock all write accesses to any DB
 	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
 	then
 		main.dieGracefully "Could not get lock on $(basename $db_file)"
@@ -248,30 +190,24 @@ function common.db.change()
 # Dumps the given DB to a given file.
 #
 # Parameters:
-# $1 - name of the db
-# $2 - type of db, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
-# $3 - output filename (recommended extension is .sql)
+# $1 - full-path to db_file
+# $2 - output filename (recommended extension is .sql)
 ################################################################################
 function common.db.dump()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db and a valid type and a filename as input, got $@"
+		main.dieGracefully "needs a db file and a filename as input, got $@"
 	fi
 	
-	local db
+	local db_file
 	local type
 	local output_file
-	local db_file
-	
-	db="$1"
-	type="$2"
-	output_file="$3"
 
-	# Work out the filename
-	db_file="$(_common.db.getDbFile "$db" "$type")"
-	
+	db_file="$1"
+	output_file="$2"
+
 	${CXR_SQLITE_EXEC} "$db_file" ".dump" > $output_file
 }
 
@@ -290,9 +226,7 @@ function test_module()
 	########################################
 	
 	# Create a small test DB
-	db=test
-	type=$CXR_TYPE_INSTANCE
-	db_file="$(_common.db.getDbFile "$db" "$type")"
+	db_file="$(common.runner createTempFile sql)"
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
 	
@@ -327,21 +261,21 @@ function test_module()
 	
 	## Resultsets
 	# Pass SQL statement directly
-	res="$(common.db.getResultSet $db $type "SELECT * FROM test;")"
+	res="$(common.db.getResultSet $db_file "SELECT * FROM test;")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - simple parameter"
 	
-	res="$(common.db.getResultSet $db $type "SELECT * FROM test;" "," )"
+	res="$(common.db.getResultSet $db_file "SELECT * FROM test;" "," )"
 	is "$res" "Hallo,Velo" "common.db.getResultSet - simple parameter, different delimiter"
 	
 	# Use file
-	res="$(common.db.getResultSet $db $type "$sqlfile")"
+	res="$(common.db.getResultSet $db_file "$sqlfile")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - file"
 	
-	res="$(common.db.getResultSet $db $type "$sqlfile" "," )"
+	res="$(common.db.getResultSet $db_file "$sqlfile" "," )"
 	is "$res" "Hallo,Velo" "common.db.getResultSet - file, different delimiter"
 	
 	# Use here-doc
-	res="$(common.db.getResultSet $db $type "-" <<-EOT
+	res="$(common.db.getResultSet $db_file "-" <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
@@ -349,7 +283,7 @@ function test_module()
 	
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - here-doc"
 	
-	res="$(common.db.getResultSet $db $type "-" "," <<-EOT
+	res="$(common.db.getResultSet $db_file "-" "," <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
@@ -358,7 +292,7 @@ function test_module()
 	is "$res" "Hallo,Velo" "common.db.getResultSet - here-doc, different delimiter"
 	
 	# dump
-	common.db.dump $db $type $dumpfile
+	common.db.dump $db_file $dumpfile
 	main.log -a "Contents of dump: $(cat $dumpfile)"
 	
 	test -s $dumpfile
@@ -366,15 +300,15 @@ function test_module()
 	
 	## change
 	# Pass SQL statement directly
-	common.db.change $db $type "CREATE TABLE x (a,b);"
+	common.db.change $db_file "CREATE TABLE x (a,b);"
 	is "$?" "0" "common.db.change - simple parameter"
 	
 	# Use file
-	common.db.change $db $type $ddlfile
+	common.db.change $db_file $ddlfile
 	is "$?" "0" "common.db.change - use file"
 	
 	# Use here-doc
-	common.db.change $db $type "-" <<-EOT
+	common.db.change $db_file "-" <<-EOT
 	DROP TABLE y;
 	EOT
 	
