@@ -104,17 +104,17 @@ function common.db.getResultSet()
 			echo "$currline" >> "$sqlfile"
 		done
 		
-		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+		main.log -a "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
+		main.log -a "Executing this SQL on $db_file:\n$(cat $statement)" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$statement"
 	else
 		# Execute the string
-		main.log -v "Executing this SQL on $db_file:\n$statement" 
+		main.log -a "Executing this SQL on $db_file:\n$statement" 
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
 	fi
 }
