@@ -543,7 +543,7 @@ function main.doCleanup()
 	then
 		rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &>/dev/null
 	else
-		main.log -w "You set CXR_REMOVE_TEMP_FILES to false, the instance files will not be deleted."
+		main.log -w "You set CXR_REMOVE_TEMP_FILES to false, the instance dir ${CXR_INSTANCE_DIR} will not be deleted."
 	fi
 	
 	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
