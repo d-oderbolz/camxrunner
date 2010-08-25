@@ -790,6 +790,11 @@ function common.runner.waitForLock()
 	########################################
 	while [[ -f "$lockfile" ]]
 	do
+		if [[ $time -eq 0 ]]
+		then
+			main.log -a "Waiting for lock $lock (level $level) ..."
+		fi
+		
 		sleep $CXR_LOCK_SLEEP_SECONDS
 		time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
@@ -866,8 +871,6 @@ function common.runner.getLock()
 	# For debug reasons, locking can be turned off
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
-		
-		main.log -v "Waiting to set lock $lock..."
 		
 		# Wait for the lock, _retval is false if we exceeded the timeout
 		common.runner.waitForLock "$lock" "$level"

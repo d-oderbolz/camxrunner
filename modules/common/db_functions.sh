@@ -88,7 +88,8 @@ function _common.db.getDbFile()
 ################################################################################
 # Function: common.db.init
 #
-# Performs version checks on all visible sqlite DBs.
+# Performs version checks on all visible sqlite DBs. It also checks the integrity of 
+# sqlite and if we can load the extensions. (Rember recompilation issue on lcsl4a)
 #
 ################################################################################
 function common.db.init()
