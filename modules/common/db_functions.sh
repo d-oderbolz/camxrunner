@@ -140,7 +140,7 @@ function common.db.getResultSet()
 	fi
 	
 	# fail-on-error on
-	if [[ $CXR_TEST_IN_PROGRESS == false ]]
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
 		set -e
 	fi
@@ -236,7 +236,10 @@ function common.db.change()
 	common.runner.releaseLock "$(basename $db_file)" "$level"
 	
 	# fail-on-error on
-	set -e
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
+	then
+		set -e
+	fi
 }
 
 ################################################################################
@@ -262,8 +265,21 @@ function common.db.dump()
 
 	db_file="$1"
 	output_file="$2"
+	
+	# We have our own error handler here
+	set +e
 
 	${CXR_SQLITE_EXEC} "$db_file" ".dump" > $output_file
+	
+	if [[ $? -ne 0 ]]
+	then
+			main.log -w "Could not dump DB $db_file!"
+		fi
+	
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
+	then
+		set -e
+	fi
 }
 
 ################################################################################
