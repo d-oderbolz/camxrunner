@@ -189,6 +189,7 @@ function common.db.change()
 	local separator
 	local input
 	local currline
+	local sqlfile
 	
 	local db_file
 	
@@ -209,16 +210,16 @@ function common.db.change()
 	if [[ "$statement" == - ]]
 	then
 		# statement is "-" (meaning we read from stdin)
-		input=""
+		# in this case, create a tempfile (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
+		sqlfile="$(common.runner.createTempFile sql)"
+		
+		# Fill stdin into file (there are probably more elegant ways...)
 		while read currline
 		do
-			if [[ "$currline" ]]
-			then
-				input="$input $currline"
-			fi
+			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} "$db_file" < $(echo $input)
+		{CXR_SQLITE_EXEC} "$db_file" < cat "$sqlfile"
 	elif [[ -r "$statement" ]]
 	then
 		# statement is a file, read from there
@@ -294,14 +295,12 @@ function test_module()
 	INSERT INTO test (a,b) VALUES ('Hallo','Velo');
 	EOT
 	
-	sqlfile=$(common.runner.createTempFile sql)
+	sqlfile="$(common.runner.createTempFile sql)"
 	
-	cat <<-EOT > $sqlfile
-	-- This is a simple test-select
+	echo "-- This is a simple test-select" > $sqlfile
+	echo "" >> $sqlfile
+	echo "SELECT * FROM test;" >> $sqlfile
 	
-	SELECT * FROM test;
-	
-	EOT
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
