@@ -10,5 +10,8 @@ make clean && make && make install
 # Cleaner
 gcc -o sqlite3-x86_64-linux src/sqlite/shell.c src/sqlite/sqlite3.c -ldl -lpthread
 
+# Host-srecific
+gcc -o sqlite3-x86_64-linux-$(uname -n) src/sqlite/shell.c src/sqlite/sqlite3.c -ldl -lpthread
+
 # Build extension
 gcc -fPIC -lm -shared src/sqlite/extension-functions.c -o ../lib/sqlite/x86_64-linux/libsqlitefunctions.so

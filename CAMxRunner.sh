@@ -31,6 +31,7 @@
 #
 ################################################################################
 # TODO: Rewrite detectRunningInstances: local via ps, remote via time of CONTINUE
+# TODO: each -eq -gt -lt -le and == must be made FP safe if numeric
 ################################################################################
 # Define a few variables we need early, will be potentially overwritten by 
 # base.conf and run-specific conf.

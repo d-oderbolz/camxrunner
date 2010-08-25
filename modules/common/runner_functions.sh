@@ -775,10 +775,12 @@ function common.runner.waitForLock()
 	local level
 	local lockfile
 	local time
+	local shown
 
 	lock="$1"
 	level="$2"
 	wanted="${3:-true}"
+	shown=false
 	
 	# how long did we wait so far
 	time="${4:-0}"
@@ -790,9 +792,11 @@ function common.runner.waitForLock()
 	########################################
 	while [[ -f "$lockfile" ]]
 	do
-		if [[ $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
+		if [[ $shown == false && $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
+			# Safe time thanks to short-cicuit logic
+			shown=true
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
