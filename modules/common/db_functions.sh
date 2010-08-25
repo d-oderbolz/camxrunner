@@ -147,14 +147,14 @@ function common.db.getResultSet()
 			fi
 		done
 		
-		{CXR_SQLITE_EXEC} -separator '${separator}' "$db_file" < $(echo $input)
+		{CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < $(echo $input)
 	elif [[ -r "$statement" ]]
 	then
 		# statement is a file, read from there
-		${CXR_SQLITE_EXEC} -separator '${separator}' "$db_file" < $(cat "$statement")
+		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < $(cat "$statement")
 	else
 		# Execute the string
-		${CXR_SQLITE_EXEC} -separator '${separator}' "$db_file" "$statement"
+		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
 	fi
 }
 
