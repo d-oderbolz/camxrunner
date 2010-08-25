@@ -349,26 +349,23 @@ function test_module()
 	common.db.dump $db $type $dumpfile
 	main.log -a "Contents of dump: $(cat $dumpfile)"
 	
-	is $(test -s $dumpfile) 0 "common.db.dump - simple size check"
+	is "$(test -s $dumpfile)" "0" "common.db.dump - simple size check"
 	
 	## change
 	# Pass SQL statement directly
 	common.db.change $db $type "CREATE TABLE x (a,b);"
-	is $0 0 "common.db.change - simple parameter"
+	is "$?" "0" "common.db.change - simple parameter"
 	
 	# Use file
 	common.db.change $db $type $ddlfile
-	is $0 0 "common.db.change - use file"
+	is "$?" "0" "common.db.change - use file"
 	
 	# Use here-doc
 	common.db.change $db $type <<-EOT
 	DROP TABLE y;
 	EOT
 	
-	is $0 0 "common.db.change - here-doc"
-	
-	
-	
+	is "$?" "0" "common.db.change - here-doc"
 	
 	########################################
 	# teardown tests if needed
