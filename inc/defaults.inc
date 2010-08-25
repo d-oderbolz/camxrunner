@@ -622,10 +622,10 @@ CXR_INSTANCE_HASH_OUTPUT_FILES=Output_Files
 CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
 
 
-# In this hash, we store temporay files of a run. 
+# In this file, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
 # These will be deleted after the run
-CXR_INSTANCE_HASH_TEMP_FILES=Temp_Files
+CXR_INSTANCE_TEMP_FILE_LIST=Temp_Files
 
 ################################################################################
 # Supported model names.

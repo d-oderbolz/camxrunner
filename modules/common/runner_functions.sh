@@ -574,6 +574,8 @@ function common.runner.createDummyFile()
 #
 # Returns the name of a temporary file with random name, shows a message and adds the file
 # to the temp file list if this is needed. 
+# Note that we cannot use a hash to store tempfiles since otherwise a deadlock would occur
+#
 # Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
 # <common.runner.removeTempFiles>
 #
@@ -615,10 +617,10 @@ function common.runner.createTempFile()
 	filename=$(mktemp $template)
 	main.log -v "Creating temporary file $filename"
 	
-	if [[ "${store}" == true  ]]
+	if [[ "${store}" == true ]]
 	then
-		# Add to hash (value is a dummy)
-		common.hash.put $CXR_INSTANCE_HASH_TEMP_FILES $CXR_LEVEL_INSTANCE $filename dummy
+		# Add to list
+		echo $filename >> $CXR_INSTANCE_FILE_TEMP_LIST
 	fi
 	
 	echo $filename
@@ -681,29 +683,13 @@ function common.runner.removeTempFiles()
 	then
 			main.log  "Removing temporary files..."
 			
-			# common.hash.getKeys returns a CXR_DELIMITER delimited string
-			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_LEVEL_INSTANCE)"
-			IFS="$CXR_DELIMITER"
-			
-			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			arrKeys=( $keyString )
-			
-			# Reset Internal Field separator
-			IFS="$oIFS"
-			
 			# Clean files away
-			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+			while read temp_file
 			do
-				temp_file=${arrKeys[$iKey]}
-			
 				main.log -v "Deleting $temp_file"
 				
 				rm -f "$temp_file" &>/dev/null
-				
-				# Remove from hash
-				common.hash.delete $CXR_INSTANCE_HASH_TEMP_FILES $CXR_LEVEL_INSTANCE "$temp_file"
-			done
+			done < ${CXR_INSTANCE_FILE_TEMP_LIST:-/dev/null}
 			
 			IFS="$oIFS"
 	else

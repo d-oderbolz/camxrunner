@@ -629,9 +629,6 @@ function common.state.init()
 	# In this hash, we store dummy files of a dry run.
 	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
 	
-	# In this hash, we store temporay files of a run. 
-	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_LEVEL_INSTANCE
-	
 	# Creating .continue file
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
 	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}

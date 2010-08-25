@@ -14,7 +14,7 @@
 # -> its faster (a simple test showed sqlite is about four to five times faster than my plain old filedb)
 # - storage of additional metadata is easy
 # - we can easily get lists of (key,value) tuples out (even faster!)
-# - only one file per hash type needed (even better for the file cache)
+# - only one file per hash level needed (even better for the file cache)
 # - storage of more than one value per key (versioning) is possible
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
@@ -56,7 +56,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: _common.hash.getDbFile
 #
-# Returns the db_file to use depending on the type.
+# Returns the db_file to use depending on the level.
 #
 # Parameters:
 # $1 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL" 
@@ -66,23 +66,23 @@ function _common.hash.getDbFile()
 {
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a hash-type as input"
+		main.dieGracefully "needs a hash-level as input"
 	fi
 
-	local type
-	type="${1}"
+	local level
+	level="${1}"
 	
-	if [[ "${type}" ]]
+	if [[ "${level}" ]]
 	then
 		# Work out the directory
-		case $type in
+		case $level in
 			$CXR_LEVEL_INSTANCE) echo "${CXR_INSTANCE_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
 			$CXR_LEVEL_GLOBAL) echo "${CXR_GLOBAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
 			$CXR_LEVEL_UNIVERSAL) echo "${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
-			*) main.dieGracefully "Unknown DB type $type" ;;
+			*) main.dieGracefully "Unknown DB level $level" ;;
 		esac
 	else
-		main.dieGracefully "Hash type is empty!" 
+		main.dieGracefully "Hash level is empty!" 
 	fi
 }
 
@@ -106,24 +106,24 @@ function common.hash.init()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash name and a valid hash-type as input"
+		main.dieGracefully "needs a hash name and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Creating DB $db_file"
 	
 	# Create table, no matter what
-	common.db.change "$db_file" "$type" - <<-EOT 
+	common.db.change "$db_file" "$level" - <<-EOT 
 	
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
@@ -160,23 +160,23 @@ function common.hash.destroy()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash and a valid hash-type as input"
+		main.dieGracefully "needs a hash and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Deleting all entries of Hash ${hash}.."
 	
-	common.db.change "$db_file" "$type" "DELETE FROM hash WHERE hash='$hash'"
+	common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash'"
 }
 
 ################################################################################
@@ -196,40 +196,40 @@ function common.hash.put()
 {
 	if [[ $# -ne 4 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type, a key and a value as input. Got $@"
+		main.dieGracefully "needs a hash, a valid hash-level, a key and a value as input. Got $@"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	local value
 
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	value="$4"
 	
 	local db_file
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
 		main.log -w "DB $db_file not found!"
-		common.hash.init "$hash" "$type"
+		common.hash.init "$hash" "$level"
 	else
 		# Change the update time
 		touch "$db_file"
 	fi
 	
 	# Write value to DB
-	common.db.change "$db_file" "$type" "INSERT INTO hash (hash, key, value , epoch_c) VALUES ('$hash','$key','$value',$(date "+%s"))" || :
+	common.db.change "$db_file" "$level" "INSERT INTO hash (hash, key, value , epoch_c) VALUES ('$hash','$key','$value',$(date "+%s"))" || :
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"
-	CXR_CACHE_H_TYPE="$type"
+	CXR_CACHE_H_LEVEL="$level"
 	CXR_CACHE_H_KEY="$key"
 	CXR_CACHE_H_VALUE="$value"
 }
@@ -239,7 +239,7 @@ function common.hash.put()
 #
 # Gets a certain single value from a hash.
 # Be careful, values might contain spaces and other nasties. Use like this:
-# > value="$(common.hash.get "$hash" "$type" "$key")"
+# > value="$(common.hash.get "$hash" "$level" "$key")"
 # Returns the empty string on error or if this key does not exist.
 #
 # Often, the same items are accessed several times in a row. For this reason,
@@ -258,33 +258,33 @@ function common.hash.get()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	
 	local value
 	
 	if [[ "$hash" == "${CXR_CACHE_H_HASH:-}" &&\
-	      "$type" == "${CXR_CACHE_H_TYPE:-}" &&\
+	      "$level" == "${CXR_CACHE_H_LEVEL:-}" &&\
 	      "$key" == "${CXR_CACHE_H_KEY:-}" ]]
 	then
 		# Match in Cache
 		echo "$CXR_CACHE_H_VALUE"
 	else
 		# Lookup needed
-		main.log -v "Getting $key out of hash $hash $type"
+		main.log -v "Getting $key out of hash $hash $level"
 		
 		local db_file
 	
 		# Work out the filename
-		db_file="$(_common.hash.getDbFile "$type")"
+		db_file="$(_common.hash.getDbFile "$level")"
 		
 		# Get value
 		if [[ ! -f "$db_file" ]]
@@ -297,7 +297,7 @@ function common.hash.get()
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
-			CXR_CACHE_H_TYPE="$type"
+			CXR_CACHE_H_LEVEL="$level"
 			CXR_CACHE_H_KEY="$key"
 			CXR_CACHE_H_VALUE="$value"
 			
@@ -317,7 +317,7 @@ function common.hash.get()
 # > # Set IFS to newline
 # > IFS='
 # > '
-# > for value in $(common.hash.getAll "$hash" "$type" "$key")
+# > for value in $(common.hash.getAll "$hash" "$level" "$key")
 # > do
 # > echo "$value"
 # > done
@@ -335,25 +335,25 @@ function common.hash.getAll()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 
 	local value
 	
-	main.log -v "Getting al values for $key out of hash $hash $type"
+	main.log -v "Getting al values for $key out of hash $hash $level"
 	
 	local db_file
 
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	# Get value
 	if [[ ! -f "$db_file" ]]
@@ -383,20 +383,20 @@ function common.hash.delete()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	# Just delete
 	if [[ ! -f "$db_file" ]]
@@ -404,13 +404,13 @@ function common.hash.delete()
 		main.log -w "DB $db_file not found!"
 	else
 		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+		if [[ $(common.runner.getLock "$(basename $db_file)" "$level") == false ]]
 		then
 			main.dieGracefully "Could not get lock on $(basename $db_file)"
 		fi
 	
 		# delete entry
-		common.db.change "$db_file" "$type" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
+		common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
 
 	fi
 }
@@ -431,19 +431,19 @@ function common.hash.remove()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	
-	common.hash.get "$hash" "$type" "$key"
-	common.hash.delete "$hash" "$type" "$key"
+	common.hash.get "$hash" "$level" "$key"
+	common.hash.delete "$hash" "$level" "$key"
 }
 
 ################################################################################
@@ -460,18 +460,18 @@ function common.hash.getMtime()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash and a valid hash-type as input"
+		main.dieGracefully "needs a hash and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	# Get the mtime
 	common.fs.getMtime "$db_file"
@@ -493,22 +493,22 @@ function common.hash.getValueMtime()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	local mtime
 	
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	# Get the value
 	mtime=$(common.db.getResultSet "$db_file" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
@@ -537,21 +537,21 @@ function common.hash.has?()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	local key
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
 	if [[ ! -f "$db_file" ]]
 	then
@@ -568,7 +568,7 @@ function common.hash.has?()
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
-			CXR_CACHE_H_TYPE="$type"
+			CXR_CACHE_H_LEVEL="$level"
 			CXR_CACHE_H_KEY="$key"
 			CXR_CACHE_H_VALUE="$value"
 			_has=true
@@ -598,26 +598,26 @@ function common.hash.isNew?()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-type and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
 	fi
 	
 	
 	local hash
-	local type
+	local level
 	local key
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	key="$3"
 	
 	local res
 	
 	# Is it in the hash?
-	if [[ $(common.hash.has? "$hash" "$type" "$key") == true ]]
+	if [[ $(common.hash.has? "$hash" "$level" "$key") == true ]]
 	then
 		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(common.hash.getValueMtime "$hash" "$type" "$key")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(common.hash.getValueMtime "$hash" "$level" "$key")" -lt "$CXR_EPOCH" ]]
 		then
 			res=false
 		else
@@ -669,11 +669,11 @@ function common.hash.getKeys()
 {
 	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "needs a hash and a valid hash-type as input"
+		main.dieGracefully "needs a hash and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	
 	local found
 	local key
@@ -682,14 +682,14 @@ function common.hash.getKeys()
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
-	main.log -v "Getting keys for $hash $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
@@ -750,11 +750,11 @@ function common.hash.getValues()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash and a valid hash-type as input"
+		main.dieGracefully "needs a hash and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	
 	local found
 	local value
@@ -763,14 +763,14 @@ function common.hash.getValues()
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
-	main.log -v "Getting keys for $hash $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
@@ -811,7 +811,7 @@ function common.hash.getValues()
 # Recommended use:
 #
 # > # looping through pairs
-# > for pair in $(common.hash.getKeysAndValues $hash $type)
+# > for pair in $(common.hash.getKeysAndValues $hash $level)
 # > do
 # > 	oIFS="$IFS"
 # >		IFS="$CXR_DELIMITER"
@@ -830,11 +830,11 @@ function common.hash.getKeysAndValues()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a hash and a valid hash-type as input"
+		main.dieGracefully "needs a hash and a valid hash-level as input"
 	fi
 	
 	local hash
-	local type
+	local level
 	
 	local found
 	local key
@@ -843,14 +843,14 @@ function common.hash.getKeysAndValues()
 	local db_file
 	
 	hash="$1"
-	type="$2"
+	level="$2"
 	
 	found=false
 	
 	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$type")"
+	db_file="$(_common.hash.getDbFile "$level")"
 	
-	main.log -v "Getting keys for $hash $type out of ${db_file}..."
+	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
 	if [[ -f ${db_file} ]]
 	then
