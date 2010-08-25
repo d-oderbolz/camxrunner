@@ -243,7 +243,7 @@ function common.db.change()
 # Parameters:
 # $1 - name of the db
 # $2 - type of db, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
-# $3 - output filename (remcommended extension is .sql)
+# $3 - output filename (recommended extension is .sql)
 ################################################################################
 function common.db.dump()
 ################################################################################
@@ -265,7 +265,7 @@ function common.db.dump()
 	# Work out the filename
 	db_file="$(_common.db.getDbFile "$db" "$type")"
 	
-	${CXR_SQLITE_EXEC} "$db_file" ".dump" > $output_file"
+	${CXR_SQLITE_EXEC} "$db_file" ".dump" > $output_file
 }
 
 ################################################################################
