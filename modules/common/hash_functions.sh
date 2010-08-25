@@ -122,14 +122,8 @@ function common.hash.init()
 	
 	main.log -v "Creating DB $db_file"
 	
-	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $db_file)"
-	fi
-	
 	# Create table, no matter what
-	${CXR_SQLITE_EXEC} "$db_file" <<-EOT 
+	common.db.change "$db_file" "$type" - <<-EOT 
 	
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
@@ -147,10 +141,7 @@ function common.hash.init()
 	CREATE INDEX IF NOT EXISTS key_idx ON hash(key);
 	
 	EOT
-	
-	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$type"
-	
+
 	# Nobody else must modify this file
 	chmod 600 "$db_file"
 }
@@ -185,16 +176,7 @@ function common.hash.destroy()
 	
 	main.log -v "Deleting all entries of Hash ${hash}.."
 	
-	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $db_file)"
-	fi
-	
-	${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash'"
-	
-	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$type"
+	common.db.change "$db_file" "$type" "DELETE FROM hash WHERE hash='$hash'"
 }
 
 ################################################################################
@@ -242,17 +224,8 @@ function common.hash.put()
 		touch "$db_file"
 	fi
 	
-	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $db_file)"
-	fi
-	
 	# Write value to DB
-	${CXR_SQLITE_EXEC} "$db_file" "INSERT INTO hash (hash, key, value , epoch_c) VALUES ('$hash','$key','$value',$(date "+%s"))" || :
-	
-	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$type"
+	common.db.change "$db_file" "$type" "INSERT INTO hash (hash, key, value , epoch_c) VALUES ('$hash','$key','$value',$(date "+%s"))" || :
 	
 	# Fill cache
 	CXR_CACHE_H_HASH="$hash"
@@ -437,10 +410,8 @@ function common.hash.delete()
 		fi
 	
 		# delete entry
-		${CXR_SQLITE_EXEC} "$db_file" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
-		
-		# Relase Lock
-		common.runner.releaseLock "$(basename $db_file)" "$type"
+		common.db.change "$db_file" "$type" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
+
 	fi
 }
 

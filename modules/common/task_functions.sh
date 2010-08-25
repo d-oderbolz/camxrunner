@@ -190,11 +190,6 @@ function common.task.createSequentialDependencyList()
 	
 	# In all of these, we ignore - dependencies
 	
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
-	fi
-
 	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
 
 	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
@@ -262,11 +257,6 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Ordering daily tasks..."
 	
 	main.log -v "Ordering $CXR_TYPE_POSTPROCESS_ONCE tasks..."
-
-
-	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
-
 }
 
 ################################################################################
@@ -324,7 +314,7 @@ function common.task.createParallelDependencyList()
 		no_ot=" AND 1=2"
 	fi
 	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	-- Prepare proper output
 	.output $output_file
@@ -608,7 +598,7 @@ function common.task.setNextTask()
 ################################################################################
 {
 	# Acquire lock
-	if [[ $(common.runner.getLock NextTask "$CXR_LEVEL_INSTANCE") == false ]]
+	if [[ $(common.runner.getLock NextTask "$CXR_LEVEL_GLOBAL") == false ]]
 	then
 		main.dieGracefully "Waiting for NextTask lock took too long"
 	fi
@@ -628,7 +618,7 @@ function common.task.setNextTask()
 		sleep $CXR_WAITING_SLEEP_SECONDS
 		
 		common.state.deleteContinueFiles
-		common.runner.releaseLock NextTask "$CXR_LEVEL_INSTANCE"
+		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
 		echo ""
 		return $CXR_RET_OK
 		
@@ -667,13 +657,13 @@ function common.task.setNextTask()
 		_invocation="$6"
 		
 		# Assign it by an update
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set  STATUS='${CXR_STATUS_RUNNING}' WHERE id=$id"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set  STATUS='${CXR_STATUS_RUNNING}' WHERE id=$id"
 		
 		main.log -v "New task has id $id"
 	fi
 	
 	# Release lock
-	common.runner.releaseLock NextTask "$CXR_LEVEL_INSTANCE"
+	common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
 }
 
 ################################################################################
@@ -705,7 +695,7 @@ function common.task.changeTaskStatus()
 	case $status in
 	
 		$CXR_STATUS_SUCCESS|$CXR_STATUS_FAILURE) 
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set status='${status}' WHERE id=$id"
+			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='${status}' WHERE id=$id"
 			;;
 
 		*)
@@ -733,7 +723,7 @@ function common.task.waitingWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v   "common.task.Worker (pid: $pid) changed its state to waiting"
 }
@@ -757,7 +747,7 @@ function common.task.runningWorker()
 	local pid
 	pid=$1
 	 
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
 	main.log -v "common.task.Worker (pid: $pid) changed its state to running"
 }
@@ -787,7 +777,7 @@ function common.task.removeWorker()
 	kill $pid 2>/dev/null
 	
 	# Remove from DB
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 }
 
 ################################################################################
@@ -837,7 +827,7 @@ function common.task.Worker()
 	pid=$(cat $tmp)
 	
 	# Insert this worker
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
 	main.log -a -B  "parallel worker (pid ${pid}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
 
@@ -1177,17 +1167,8 @@ function common.task.init()
 		
 		echo "COMMIT TRANSACTION;" >> $tempfile
 		
-		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
-		then
-			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
-		fi
-
 		# Execute all statements at once
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
-		
-		# Relase Lock
-		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $tempfile || main.dieGracefully "Could not update ranks properly"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		

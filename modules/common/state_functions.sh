@@ -154,13 +154,8 @@ function common.state.updateInfo()
 		
 		main.log -a "Cleaning Non-Persistent tables..."
 		
-		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
-		then
-			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
-		fi
-		
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 		
 			DELETE FROM modules;
 			DELETE FROM metadata;
@@ -252,7 +247,7 @@ function common.state.updateInfo()
 
 					# We mark needed stuff as active, the rest as inactive
 					# Add $file, $module and $type to DB
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
+					common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
 
 					
 					# Add metadata
@@ -284,14 +279,14 @@ function common.state.updateInfo()
 							# Make sure IFS is correct!
 							for dependency in $value
 							do
-								${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
+								common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
 							done
 						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
 						then
-							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE modules SET exclusive=trim('$value') WHERE module='$module'"
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE modules SET exclusive=trim('$value') WHERE module='$module'"
 						else
 							# Nothing special
-							${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
 						fi # is it a special meta field
 					done
 					
@@ -300,7 +295,7 @@ function common.state.updateInfo()
 					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
-						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation')"
+						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation')"
 					done
 
 				done # Loop over files
@@ -310,14 +305,11 @@ function common.state.updateInfo()
 		done # loop over type-index
 		
 		# Adding any new module types
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
 		
 		# Check if any module is called the same as a type
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
-			# Relase Lock
-			common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
-		
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
@@ -338,9 +330,6 @@ function common.state.updateInfo()
 			then
 				if [[ "$first" != ${CXR_START_DATE} ]]
 				then
-					# Relase Lock
-					common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
-					
 					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
 				fi
 			fi
@@ -358,17 +347,17 @@ function common.state.updateInfo()
 		fi # repeated run?
 		
 		# Replace the days
-		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM days"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM days"
 		
 		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 		do
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true')"
+			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true')"
 		done
 		
 		# Correct active if user selected only some days
 		if [[ "$CXR_SINGLE_DAYS" ]]
 		then
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active='false'"
+			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='false'"
 			
 			# Only activate the wanted ones
 			for wanted in $CXR_SINGLE_DAYS
@@ -379,7 +368,7 @@ function common.state.updateInfo()
 				then
 					# OK
 					main.log -a $wanted
-					${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE days SET active='true' WHERE day_iso='$wanted'"
+					common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='true' WHERE day_iso='$wanted'"
 				else
 					# Mep
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
@@ -397,7 +386,7 @@ function common.state.updateInfo()
 			# modules x days x invocations
 			# Of course, we must treat the One-Timers separate
 			
-			${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 			
 			--------------------------------------------------------------------
 			-- TASKS
@@ -593,10 +582,6 @@ function common.state.updateInfo()
 		
 		# decrease global indent level
 		main.decreaseLogIndent
-		
-		# Relase Lock
-		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
-	
 	fi
 }
 
@@ -653,13 +638,7 @@ function common.state.init()
 	
 	main.log -v "Creating database schema..."
 	
-	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
-	fi
-	
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" <<-EOT
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
 	
@@ -726,9 +705,6 @@ function common.state.init()
 	PRAGMA main.locking_mode=NORMAL; 
 	
 	EOT
-	
-	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 	
 	# Update the module path hash and form the lists of active modules
 	common.state.updateInfo
@@ -829,7 +805,7 @@ function common.state.storeStatus()
 	esac
 	
 	# Update the database
-	${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
 	
 	return $CXR_RET_OK
 }
@@ -1186,7 +1162,7 @@ function common.state.cleanup()
 						continue
 					else
 						#Yes
-						${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "DELETE FROM tasks WHERE $where"
+						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
 					fi
 					
 					if [[ -z "$where_day" ]]

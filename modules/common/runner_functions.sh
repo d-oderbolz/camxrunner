@@ -751,7 +751,7 @@ function common.runner.getLockFile()
 #
 #
 # Recommended call:
-# > common.runner.waitForLock NextTask "$CXR_LEVEL_INSTANCE"
+# > common.runner.waitForLock NextTask "$CXR_LEVEL_GLOBAL"
 # > if [[ $_retval == false ]]
 # > then
 # > 	main.dieGracefully "Waiting for NextTask lock took too long"
