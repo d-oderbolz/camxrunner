@@ -157,7 +157,7 @@ function common.db.getResultSet()
 	elif [[ -r "$statement" ]]
 	then
 		# statement is a file, read from there
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < $(cat "$statement")
+		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < cat "$statement"
 	else
 		# Execute the string
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
@@ -222,7 +222,7 @@ function common.db.change()
 	elif [[ -r "$statement" ]]
 	then
 		# statement is a file, read from there
-		${CXR_SQLITE_EXEC} "$db_file" < $(cat "$statement")
+		${CXR_SQLITE_EXEC} "$db_file" < cat "$statement"
 	else
 		# Execute the string
 		${CXR_SQLITE_EXEC} "$db_file" "$statement"
@@ -322,7 +322,7 @@ function test_module()
 	is "$res" "Hallo,Velo" "common.db.getResultSet - file, different delimiter"
 	
 	# Use here-doc
-	res="$(common.db.getResultSet $db $type <<-EOT
+	res="$(common.db.getResultSet $db $type - <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
@@ -330,7 +330,7 @@ function test_module()
 	
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - here-doc"
 	
-	res="$(common.db.getResultSet $db $type "," <<-EOT
+	res="$(common.db.getResultSet $db $type - "," <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
