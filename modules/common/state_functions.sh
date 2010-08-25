@@ -517,8 +517,7 @@ function common.state.updateInfo()
 							AND			dependent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
-							AND 		substr(meta.value,-1,1) IS '-' 
-							AND 		t.day_offset > 0;
+							AND 		substr(meta.value,-1,1) IS '-' ;
 
 			--
 			-- dependencies on whole types without - predicate
