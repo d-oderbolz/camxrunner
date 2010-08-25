@@ -790,7 +790,7 @@ function common.runner.waitForLock()
 	########################################
 	while [[ -f "$lockfile" ]]
 	do
-		if [[ $time -eq 0 ]]
+		if [[ $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
 		fi
