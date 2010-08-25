@@ -121,8 +121,9 @@ function common.db.getResultSet()
 	local type
 	local statement
 	local separator
-	local input
+	
 	local currline
+	local sqlfile
 	
 	local db_file
 	
@@ -144,17 +145,17 @@ function common.db.getResultSet()
 	if [[ "$statement" == - ]]
 	then
 		# statement is "-" (meaning we read from stdin)
-		input=""
+		# in this case, create a tempfile (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
+		sqlfile="$(common.runner.createTempFile sql)"
+		
+		# Fill stdin into file (there are probably more elegant ways...)
 		while read currline
 		do
-			if [[ "$currline" ]]
-			then
-				input="$input $currline"
-			fi
+			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < $(echo $input)
-	elif [[ -r "$statement" ]]
+		{CXR_SQLITE_EXEC} "$db_file" < cat "$sqlfile"
+	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < cat "$statement"
@@ -187,7 +188,7 @@ function common.db.change()
 	local type
 	local statement
 	local separator
-	local input
+
 	local currline
 	local sqlfile
 	
@@ -220,7 +221,7 @@ function common.db.change()
 		done
 		
 		{CXR_SQLITE_EXEC} "$db_file" < cat "$sqlfile"
-	elif [[ -r "$statement" ]]
+	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
 		${CXR_SQLITE_EXEC} "$db_file" < cat "$statement"
