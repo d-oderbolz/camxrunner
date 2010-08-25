@@ -564,7 +564,7 @@ function common.runner.createDummyFile()
 	fi
 	
 	# Store Dummy file in the file hash (dummy value)
-	common.hash.put $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_HASH_TYPE_INSTANCE $filename dummy
+	common.hash.put $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_TYPE_INSTANCE $filename dummy
 
 	return 0
 }
@@ -618,7 +618,7 @@ function common.runner.createTempFile()
 	if [[ "${store}" == true  ]]
 	then
 		# Add to hash (value is a dummy)
-		common.hash.put $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE $filename dummy
+		common.hash.put $CXR_INSTANCE_HASH_TEMP_FILES $CXR_TYPE_INSTANCE $filename dummy
 	fi
 	
 	echo $filename
@@ -651,7 +651,7 @@ function common.runner.removeTempFiles()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL)"
+			keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
@@ -665,7 +665,7 @@ function common.runner.removeTempFiles()
 			do
 				compressed_filename=${arrKeys[$iKey]}
 				# the value is the name of the decompressed file
-				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "$compressed_filename")"
+				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL "$compressed_filename")"
 				
 				main.log -v "Deleting $filename"
 				rm -f "${filename}" &>/dev/null
@@ -683,7 +683,7 @@ function common.runner.removeTempFiles()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE)"
+			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_TEMP_FILES $CXR_TYPE_INSTANCE)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
@@ -702,7 +702,7 @@ function common.runner.removeTempFiles()
 				rm -f "$temp_file" &>/dev/null
 				
 				# Remove from hash
-				common.hash.delete $CXR_INSTANCE_HASH_TEMP_FILES $CXR_HASH_TYPE_INSTANCE "$temp_file"
+				common.hash.delete $CXR_INSTANCE_HASH_TEMP_FILES $CXR_TYPE_INSTANCE "$temp_file"
 			done
 			
 			IFS="$oIFS"
@@ -718,7 +718,7 @@ function common.runner.removeTempFiles()
 #
 # Parameters:
 # $1 - the name of the lock to get
-# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $2 - the level of the lock, either of "$CXR_TYPE_INSTANCE", "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
 ################################################################################
 function common.runner.getLockFile()
 ################################################################################
@@ -733,9 +733,9 @@ function common.runner.getLockFile()
 	file="${lock}.lock"
 	
 	case $level in
-		$CXR_HASH_TYPE_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
-		$CXR_HASH_TYPE_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
-		$CXR_HASH_TYPE_UNIVERSAL) 	echo "$CXR_UNIVERSAL_DIR/$file" ;;
+		$CXR_TYPE_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
+		$CXR_TYPE_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
+		$CXR_TYPE_UNIVERSAL) 	echo "$CXR_UNIVERSAL_DIR/$file" ;;
 		*) main.dieGracefully "Lock level $level not supported";;
 	esac
 }
@@ -751,7 +751,7 @@ function common.runner.getLockFile()
 #
 #
 # Recommended call:
-# > common.runner.waitForLock NextTask "$CXR_HASH_TYPE_INSTANCE"
+# > common.runner.waitForLock NextTask "$CXR_TYPE_INSTANCE"
 # > if [[ $_retval == false ]]
 # > then
 # > 	main.dieGracefully "Waiting for NextTask lock took too long"
@@ -759,7 +759,7 @@ function common.runner.getLockFile()
 #
 # Parameters:
 # $1 - the name of the lock to get
-# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $2 - the level of the lock, either of "$CXR_TYPE_INSTANCE", "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
 # [$3] - an optinal boolean (default true) indicating if we want to aquire the lock.
 # [$4] - the time in decimal seconds waited so far (only relevant in the recursion case)
 ################################################################################
@@ -833,14 +833,14 @@ function common.runner.waitForLock()
 # access where we assume concurrency with a lock.
 #
 # Example:
-# > if [[ $(common.runner.getLock $lock "$CXR_HASH_TYPE_GLOBAL") == false ]]
+# > if [[ $(common.runner.getLock $lock "$CXR_TYPE_GLOBAL") == false ]]
 # > then
 # > 	main.dieGracefully "Could not get lock $lock"
 # > fi
 #
 # Parameters:
 # $1 - the name of the lock to get
-# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $2 - the level of the lock, either of "$CXR_TYPE_INSTANCE", "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
 ################################################################################
 function common.runner.getLock()
 ################################################################################
@@ -912,7 +912,7 @@ function common.runner.getLock()
 #
 # Parameters:
 # $1 - the name of the lock to release
-# $2 - the level of the lock, either of "$CXR_HASH_TYPE_INSTANCE", "$CXR_HASH_TYPE_GLOBAL" or "$CXR_HASH_TYPE_UNIVERSAL"
+# $2 - the level of the lock, either of "$CXR_TYPE_INSTANCE", "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
 ################################################################################
 function common.runner.releaseLock()
 ################################################################################
@@ -1604,17 +1604,17 @@ function test_module()
 	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s. The warning you get is expected."
 	
 	# Get an instance lock
-	common.runner.getLock "$lock" "$CXR_HASH_TYPE_INSTANCE" > /dev/null
+	common.runner.getLock "$lock" "$CXR_TYPE_INSTANCE" > /dev/null
 	
 	# Other processes want it
-	common.runner.waitForLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
-	common.runner.waitForLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	common.runner.waitForLock "$lock" "$CXR_TYPE_INSTANCE"
+	common.runner.waitForLock "$lock" "$CXR_TYPE_INSTANCE"
 	
 	# Restore old settings
 	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
 	
 	# Release it
-	common.runner.releaseLock "$lock" "$CXR_HASH_TYPE_INSTANCE"
+	common.runner.releaseLock "$lock" "$CXR_TYPE_INSTANCE"
 	
 	
 	########################################

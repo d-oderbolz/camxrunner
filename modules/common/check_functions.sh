@@ -480,20 +480,20 @@ function common.check.reportMD5()
 		fi
 		
 		# Is this file already in the cache?
-		if [[ "$(common.hash.has? MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}" )" == true ]]
+		if [[ "$(common.hash.has? MD5 $CXR_TYPE_UNIVERSAL "${hash_file}" )" == true ]]
 		then
 		
 			# Did we encounter it recently?
-			if [[ "$(common.hash.isNew? MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")" == false ]]
+			if [[ "$(common.hash.isNew? MD5 $CXR_TYPE_UNIVERSAL "${hash_file}")" == false ]]
 			then
 				# it must be older, check if hash has changed.
 				new_hash="$(main.getMD5 "$file")"
-				old_hash="$(common.hash.get MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}")"
+				old_hash="$(common.hash.get MD5 $CXR_TYPE_UNIVERSAL "${hash_file}")"
 				
 				if [[ "$new_hash" != "$old_hash" ]]
 				then
 					# Get the old mtime
-					old_mtime="$(common.hash.getValueMtime MD5 $CXR_HASH_TYPE_UNIVERSAL "${hash_file}" )"
+					old_mtime="$(common.hash.getValueMtime MD5 $CXR_TYPE_UNIVERSAL "${hash_file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
 					main.log -w "File ${file} has changed since ${old_datetime}. Old MD5 hash: ${old_hash}, new MD5 hash: ${new_hash}"
 					# Currently, we do not store the new hash, so user will see this message
@@ -507,7 +507,7 @@ function common.check.reportMD5()
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
 			# Store in Cache
-			common.hash.put MD5 $CXR_HASH_TYPE_UNIVERSAL "$hash_file" "$hash"
+			common.hash.put MD5 $CXR_TYPE_UNIVERSAL "$hash_file" "$hash"
 		fi
 	fi
 }
@@ -1092,7 +1092,7 @@ function common.check.postconditions()
 			main.log -v  "Output File ${output_file} has non-zero size, OK."
 			
 			# Add the file to CXR_INSTANCE_HASH_OUTPUT_FILES value is the module that created it
-			common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE  "${output_file}" "${CXR_META_MODULE_NAME}"
+			common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_TYPE_INSTANCE  "${output_file}" "${CXR_META_MODULE_NAME}"
 			
 		else
 			main.log -e "File $(basename ${output_file}) was not created properly"

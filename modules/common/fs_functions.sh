@@ -482,7 +482,7 @@ function common.fs.CompressOutput()
 	then
 	
 		# looping through filename|module pairs
-		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE)
+		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_TYPE_INSTANCE)
 		do
 			# Parse the DB string
 			oIFS="$IFS"
@@ -652,7 +652,7 @@ function common.fs.TryDecompressingFile()
 		main.log -v -B "Testing compression on $(basename ${input_file})..."
 	
 		# Check first if we already have decompressed this file
-		common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" > /dev/null
+		common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL "${input_file}" > /dev/null
 		
 		if [[ "$_has" == true ]]
 		then
@@ -744,7 +744,7 @@ function common.fs.TryDecompressingFile()
 		if [[ "$was_compressed" == true  ]]
 		then
 			# Put into Hash with new_file as value
-			common.hash.put $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_HASH_TYPE_GLOBAL "${input_file}" "$new_file"
+			common.hash.put $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL "${input_file}" "$new_file"
 		
 			echo "$new_file"
 		else
@@ -927,10 +927,10 @@ function test_module()
 	CXR_COMPRESS_THRESHOLD_MB=0
 	
 	# Destroy output file hash
-	common.hash.destroy $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE
+	common.hash.destroy $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_TYPE_INSTANCE
 	
 	# Add this file to the output file list
-	common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_HASH_TYPE_INSTANCE  "${a}" "path_functions"
+	common.hash.put $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_TYPE_INSTANCE  "${a}" "path_functions"
 	
 	# Change Mtime of $a
 	touch $a
