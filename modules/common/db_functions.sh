@@ -21,7 +21,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=6
+CXR_META_MODULE_NUM_TESTS=10
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -303,11 +303,17 @@ function test_module()
 	echo "" >> $sqlfile
 	echo "SELECT * FROM test;" >> $sqlfile
 	
+	ddlfile="$(common.runner.createTempFile sql)"
+	echo "ALTER TABLE x RENAME to y;" > $ddlfile
+	
+	dumpfile="$(common.runner.createTempFile sqldump)"
+	
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
+	## Resultsets
 	# Pass SQL statement directly
 	res="$(common.db.getResultSet $db $type "SELECT * FROM test;")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - simple parameter"
@@ -338,6 +344,31 @@ function test_module()
 	EOT)"
 	
 	is "$res" "Hallo,Velo" "common.db.getResultSet - here-doc, different delimiter"
+	
+	# dump
+	common.db.dump $db $type $dumpfile
+	main.log -a "Contents of dump: $(cat $dumpfile)"
+	
+	is $(test -s $dumpfile) 0 "common.db.dump - simple size check"
+	
+	## change
+	# Pass SQL statement directly
+	common.db.change $db $type "CREATE TABLE x (a,b);"
+	is $0 0 "common.db.change - simple parameter"
+	
+	# Use file
+	common.db.change $db $type $ddlfile
+	is $0 0 "common.db.change - use file"
+	
+	# Use here-doc
+	common.db.change $db $type <<-EOT
+	DROP TABLE y;
+	EOT
+	
+	is $0 0 "common.db.change - here-doc"
+	
+	
+	
 	
 	########################################
 	# teardown tests if needed
