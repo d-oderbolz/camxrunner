@@ -250,9 +250,24 @@ function main.log()
 		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix=""   ;;
 		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
 		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
-		b) stars="${CXR_BOX_SMALL}";;
-		B) stars="${CXR_BOX_LARGE}";;
-		H) stars="${CXR_BOX_HUGE}";;
+		b) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
+			then
+				stars="${CXR_BOX_SMALL_T}"
+			else
+				stars="${CXR_BOX_SMALL}"
+			fi ;;
+		B) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
+			then
+				stars="${CXR_BOX_LARGE_T}"
+			else
+				stars="${CXR_BOX_LARGE}"
+			fi ;;
+		H) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
+			then
+				stars="${CXR_BOX_HUGE_T}"
+			else
+				stars="${CXR_BOX_HUGE}"
+			fi ;;
 		esac
 	done
 	

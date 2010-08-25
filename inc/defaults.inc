@@ -86,16 +86,20 @@ CXR_MAX_LOG_INDENT=8
 
 # Sign to use to draw boxes (in log)
 CXR_STAR='*'
+CXR_STAR_T='#'
 
 # We define 3 box sizes
 # 20
 CXR_BOX_SMALL="********************"
+CXR_BOX_SMALL_T="####################"
 
 # 40
 CXR_BOX_LARGE="****************************************"
+CXR_BOX_LARGE_T="########################################"
 	
 # 80
 CXR_BOX_HUGE="********************************************************************************"
+CXR_BOX_HUGE_T="################################################################################"
 
 
 # These are needed for the user functions
