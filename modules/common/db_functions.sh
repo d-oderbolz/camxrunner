@@ -286,7 +286,10 @@ function test_module()
 	db_file="$(_common.db.getDbFile "$db" "$type")"
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
-	CREATE OR REPLACE TABLE test (a,b);
+	
+	DROP TABLE test;
+	
+	CREATE TABLE test (a,b);
 	
 	INSERT INTO test (a,b) VALUES ('Hallo','Velo');
 	EOT
