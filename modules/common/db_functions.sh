@@ -323,7 +323,7 @@ function test_module()
 	is "$res" "Hallo,Velo" "common.db.getResultSet - file, different delimiter"
 	
 	# Use here-doc
-	res="$(common.db.getResultSet $db $type - <<-EOT
+	res="$(common.db.getResultSet $db $type "-" <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
@@ -331,7 +331,7 @@ function test_module()
 	
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - here-doc"
 	
-	res="$(common.db.getResultSet $db $type - "," <<-EOT
+	res="$(common.db.getResultSet $db $type "-" "," <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
