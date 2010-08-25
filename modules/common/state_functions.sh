@@ -475,15 +475,19 @@ function common.state.updateInfo()
 							dependent_module, 
 							dependent_day_offset, 
 							dependent_invocation)
-							SELECT 	meta.value,
-											t.day_offset,
-											t.invocation,
-											t.module,
-											t.day_offset,
-											t.invocation
-							FROM 		tasks t,
+							SELECT 	independent.module,
+											independent.day_offset,
+											independent.invocation,
+											dependent.module,
+											dependent.day_offset,
+											dependent.invocation
+							FROM 		tasks dependent,
+											tasks independent,
 											metadata meta
-							WHERE		t.module = meta.module
+							WHERE		independent.module = meta.value
+							AND			dependent.module = meta.module
+							AND			independent.day_offset = dependent.day_offset
+							AND			dependent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types)
 							AND 		substr(meta.value,-1,1) IS NOT '-' ;
@@ -498,19 +502,23 @@ function common.state.updateInfo()
 							dependent_module, 
 							dependent_day_offset, 
 							dependent_invocation)
-							SELECT 	substr(meta.value,length(meta.value) - 1), -- cut off -
-											t.day_offset - 1,
-											t.invocation,
-											t.module,
-											t.day_offset,
-											t.invocation
-							FROM 		tasks t,
+							SELECT 	independent.module,
+											independent.day_offset,
+											independent.invocation,
+											dependent.module,
+											dependent.day_offset,
+											dependent.invocation
+							FROM 		tasks dependent,
+											tasks independent,
 											metadata meta
-							WHERE		t.module = meta.module
-							 AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
-							 AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
-							 AND 		substr(meta.value,-1,1) IS '-' 
-							 AND 		t.day_offset > 0;
+							WHERE		independent.module = meta.value
+							AND			dependent.module = meta.module
+							AND			independent.day_offset = dependent.day_offset - 1
+							AND			dependent.invocation = 1
+							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
+							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
+							AND 		substr(meta.value,-1,1) IS '-' 
+							AND 		t.day_offset > 0;
 
 			--
 			-- dependencies on whole types without - predicate
@@ -534,6 +542,8 @@ function common.state.updateInfo()
 											types t
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value
+							AND			independent.day_offset = dependent.day_offset
+							AND			dependent.invocation = 1
 							AND 		meta.value = t.type;
 
 			--
@@ -558,8 +568,10 @@ function common.state.updateInfo()
 											types t
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value
-							AND 		meta.value = t.type || '-' 
-							AND			independent.day_offset = dependent.day_offset - 1;
+							AND			independent.day_offset = dependent.day_offset - 1
+							AND			dependent.invocation = 1
+							AND 		meta.value = t.type || '-' ;
+							
 
 			EOT
 			
