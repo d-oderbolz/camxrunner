@@ -393,7 +393,7 @@ function common.state.updateInfo()
 			--------------------------------------------------------------------
 			
 			DELETE FROM tasks;
-			DELETE FROm dependencies;
+			DELETE FROM dependencies;
 			
 			-- Daily modules
 			INSERT INTO tasks (
