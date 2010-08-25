@@ -519,7 +519,7 @@ function main.doCleanup()
 			
 			# common.hash.getKeys returns a CXR_DELIMITER delimited string
 			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_TYPE_INSTANCE)"
+			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)"
 			IFS="$CXR_DELIMITER"
 			
 			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
@@ -538,7 +538,7 @@ function main.doCleanup()
 				rm -f "$dummy_file" &>/dev/null
 				
 				# Remove from hash
-				common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_TYPE_INSTANCE "$dummy_file"
+				common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE "$dummy_file"
 			done
 			
 			IFS="$oIFS"

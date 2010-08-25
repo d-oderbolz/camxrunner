@@ -155,7 +155,7 @@ function common.state.updateInfo()
 		main.log -a "Cleaning Non-Persistent tables..."
 		
 		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL") == false ]]
+		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
 		then
 			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 		fi
@@ -316,7 +316,7 @@ function common.state.updateInfo()
 		if [[ $(${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
 			# Relase Lock
-			common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+			common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 		
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
@@ -339,7 +339,7 @@ function common.state.updateInfo()
 				if [[ "$first" != ${CXR_START_DATE} ]]
 				then
 					# Relase Lock
-					common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+					common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 					
 					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
 				fi
@@ -595,7 +595,7 @@ function common.state.updateInfo()
 		main.decreaseLogIndent
 		
 		# Relase Lock
-		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 	
 	fi
 }
@@ -629,23 +629,23 @@ function common.state.init()
 	# Init a few Hashes
 	##################
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
-	common.hash.init MD5 $CXR_TYPE_UNIVERSAL
+	common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
 	
 	# Stores Timing information
-	common.hash.init Timing $CXR_TYPE_UNIVERSAL
+	common.hash.init Timing $CXR_LEVEL_UNIVERSAL
 	
 	# In this hash, we store files that where decompressed (for all instances)
 	# Implies that all instances see the same CXR_TEMP_DIR
-	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL
+	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
 	
 	# In this hash, we store all output files that have been generated
-	common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_TYPE_INSTANCE
+	common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE
 	
 	# In this hash, we store dummy files of a dry run.
-	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_TYPE_INSTANCE
+	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
 	
 	# In this hash, we store temporay files of a run. 
-	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_TYPE_INSTANCE
+	common.hash.init $CXR_INSTANCE_HASH_TEMP_FILES $CXR_LEVEL_INSTANCE
 	
 	# Creating .continue file
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
@@ -654,7 +654,7 @@ function common.state.init()
 	main.log -v "Creating database schema..."
 	
 	# For security reasons, we lock all write accesses to the DB
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL") == false ]]
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
 	then
 		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 	fi
@@ -728,7 +728,7 @@ function common.state.init()
 	EOT
 	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 	
 	# Update the module path hash and form the lists of active modules
 	common.state.updateInfo

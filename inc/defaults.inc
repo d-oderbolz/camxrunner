@@ -527,15 +527,15 @@ CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 
 
 # Supported Types of Hashes/DBs
-CXR_TYPE_UNIVERSAL=universal
-CXR_TYPE_GLOBAL=global
-CXR_TYPE_INSTANCE=instance
+CXR_LEVEL_UNIVERSAL=universal
+CXR_LEVEL_GLOBAL=global
+CXR_LEVEL_INSTANCE=instance
 
 # Suffix for sqlite files
 CXR_DB_SUFFIX=sqlite
 
 # Some state data is global to all runs (e. g. the hash used for change detection)
-CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_TYPE_UNIVERSAL
+CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_LEVEL_UNIVERSAL
 
 
 ########################################
@@ -544,7 +544,7 @@ CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_TYPE_UNIVERSAL
 
 # Directory where the global stuff goes
 # Global data is normally not deleted
-CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_TYPE_GLOBAL
+CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_LEVEL_GLOBAL
 
 
 ########################################

@@ -128,28 +128,29 @@ function common.db.getResultSet()
 # Parameters:
 # $1 - full-path to db_file
 # $2 - either a statement, a filename or - indicating input from stdin
+# $3 - level of the lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.db.change()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a db file and a statement as input, got $@"
+		main.dieGracefully "needs a db file, a statement and a level as input, got $@"
 	fi
 	
 	local db_file
-	local type
 	local statement
-	local separator
+	local level
 
 	local currline
 	local sqlfile
 	
 	db_file="$1"
 	statement="$2"
+	level="$3"
 
 	# For security reasons, we lock all write accesses to any DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$type") == false ]]
+	if [[ $(common.runner.getLock "$(basename $db_file)" "$level") == false ]]
 	then
 		main.dieGracefully "Could not get lock on $(basename $db_file)"
 	fi
@@ -181,7 +182,7 @@ function common.db.change()
 	fi
 	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$type"
+	common.runner.releaseLock "$(basename $db_file)" "$level"
 }
 
 ################################################################################
@@ -249,7 +250,6 @@ function test_module()
 	echo "ALTER TABLE x RENAME to y;" > $ddlfile
 	
 	dumpfile="$(common.runner.createTempFile sqldump)"
-	
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -300,15 +300,15 @@ function test_module()
 	
 	## change
 	# Pass SQL statement directly
-	common.db.change $db_file "CREATE TABLE x (a,b);"
+	common.db.change $db_file "CREATE TABLE x (a,b);" $CXR_LEVEL_INSTANCE
 	is "$?" "0" "common.db.change - simple parameter"
 	
 	# Use file
-	common.db.change $db_file $ddlfile
+	common.db.change $db_file $ddlfile $CXR_LEVEL_INSTANCE
 	is "$?" "0" "common.db.change - use file"
 	
 	# Use here-doc
-	common.db.change $db_file "-" <<-EOT
+	common.db.change $db_file "-" $CXR_LEVEL_INSTANCE <<-EOT
 	DROP TABLE y;
 	EOT
 	

@@ -123,9 +123,9 @@ function common.performance.stopTiming()
 		
 			# Get time array, if any
 			# then add our time as new element
-			if [[ $(common.hash.has? Timing $CXR_TYPE_UNIVERSAL "$key") == true ]]
+			if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "$key") == true ]]
 			then
-				time_array=( $(common.hash.get Timing $CXR_TYPE_UNIVERSAL "$key") )
+				time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "$key") )
 			else
 				time_array=()
 			fi
@@ -144,7 +144,7 @@ function common.performance.stopTiming()
 			arr_string="${time_array[@]}"
 			
 			# Store in Hash
-			common.hash.put Timing $CXR_TYPE_UNIVERSAL "$key" "$arr_string"
+			common.hash.put Timing $CXR_LEVEL_UNIVERSAL "$key" "$arr_string"
 		
 		done
 		
@@ -179,13 +179,13 @@ function common.performance.estimateRuntime()
 	
 	module=${1}
 	
-	if [[ $(common.hash.has? Timing $CXR_TYPE_UNIVERSAL "$module") == true ]]
+	if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "$module") == true ]]
 	then
-		time_array=( $(common.hash.get Timing $CXR_TYPE_UNIVERSAL "$module") )
+		time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "$module") )
 	else
-		if [[ $(common.hash.has? Timing $CXR_TYPE_UNIVERSAL "all") == true ]]
+		if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "all") == true ]]
 		then
-			time_array=( $(common.hash.get Timing $CXR_TYPE_UNIVERSAL "all") )
+			time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "all") )
 		else
 			main.log -w "Cannot find any timing data."
 			echo 0
@@ -199,7 +199,7 @@ function common.performance.estimateRuntime()
 	estimate=$(common.math.FloatOperation "($mean + $stddev) * $CXR_TIME_NORM_FACTOR" -1 )
 	
 	# Add to cache
-	common.hash.put Cache_Performance $CXR_TYPE_UNIVERSAL "$module" "$estimate"
+	common.hash.put Cache_Performance $CXR_LEVEL_UNIVERSAL "$module" "$estimate"
 	
 	echo $estimate
 }
@@ -382,7 +382,7 @@ function test_module()
 	main.log "ReaLoad: $(common.performance.getReaLoadPercent) %"
 	
 	# Load the performance array
-	arr=( $(common.hash.get Timing $CXR_TYPE_UNIVERSAL test) )
+	arr=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL test) )
 	
 	# Measured time is in the last entry
 	time=${arr[$(( ${#arr[@]} - 1 ))]}

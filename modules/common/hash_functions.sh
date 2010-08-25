@@ -59,7 +59,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Returns the db_file to use depending on the type.
 #
 # Parameters:
-# $1 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL" 
+# $1 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL" 
 ################################################################################
 function _common.hash.getDbFile()
 ################################################################################
@@ -76,9 +76,9 @@ function _common.hash.getDbFile()
 	then
 		# Work out the directory
 		case $type in
-			$CXR_TYPE_INSTANCE) echo "${CXR_INSTANCE_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_GLOBAL) echo "${CXR_GLOBAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_UNIVERSAL) echo "${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_LEVEL_INSTANCE) echo "${CXR_INSTANCE_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_LEVEL_GLOBAL) echo "${CXR_GLOBAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_LEVEL_UNIVERSAL) echo "${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
 			*) main.dieGracefully "Unknown DB type $type" ;;
 		esac
 	else
@@ -91,15 +91,15 @@ function _common.hash.getDbFile()
 #
 # Creates a hash with a given name, if it already exists, nothing happens.
 # We distinguish three visibility levels: 
-# $CXR_TYPE_INSTANCE - only visible for this instance
-# $CXR_TYPE_GLOBAL - visible for all instances of this run
-# $CXR_TYPE_UNIVERSAL - visible for all instances of all runs
+# $CXR_LEVEL_INSTANCE - only visible for this instance
+# $CXR_LEVEL_GLOBAL - visible for all instances of this run
+# $CXR_LEVEL_UNIVERSAL - visible for all instances of all runs
 # Usage note: since we can store metadata in a hash, it is not recommended to encode
 # information in the name of the hash (like it was done before).
 #
 # Parameters:
 # $1 - name of the hash (must be usable as a filename)
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL" 
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL" 
 ################################################################################
 function common.hash.init()
 ################################################################################
@@ -162,7 +162,7 @@ function common.hash.init()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.hash.destroy()
 ################################################################################
@@ -205,7 +205,7 @@ function common.hash.destroy()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 # $4 - value
 ################################################################################
@@ -277,7 +277,7 @@ function common.hash.put()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.get()
@@ -354,7 +354,7 @@ function common.hash.get()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.getAll()
@@ -402,7 +402,7 @@ function common.hash.getAll()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.delete()
@@ -452,7 +452,7 @@ function common.hash.delete()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.remove()
@@ -482,7 +482,7 @@ function common.hash.remove()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.hash.getMtime()
 ################################################################################
@@ -514,7 +514,7 @@ function common.hash.getMtime()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.getValueMtime()
@@ -552,13 +552,13 @@ function common.hash.getValueMtime()
 # and sets _has and _value (to avoid having to call <common.hash.get> again)
 #
 # If you use the "non-functional form" redirect output to /dev/null:
-# > common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_TYPE_GLOBAL "${input_file}" > /dev/null
+# > common.hash.has? $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL "${input_file}" > /dev/null
 # > if [[ "$_has" == true ]]
 # > then ...
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.has?()
@@ -619,7 +619,7 @@ function common.hash.has?()
 #
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 ################################################################################
 function common.hash.isNew?()
@@ -675,7 +675,7 @@ function common.hash.isNew?()
 # 
 # Recommended use:
 # > oIFS="$IFS"
-# > keyString="$(common.hash.getKeys $hash $CXR_TYPE_GLOBAL)"
+# > keyString="$(common.hash.getKeys $hash $CXR_LEVEL_GLOBAL)"
 # > IFS="$CXR_DELIMITER"
 # > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 # > arrKeys=( $keyString )
@@ -691,7 +691,7 @@ function common.hash.isNew?()
 # 
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.hash.getKeys()
 ################################################################################
@@ -756,7 +756,7 @@ function common.hash.getKeys()
 # 
 # Recommended use:
 # > oIFS="$IFS"
-# > valueString="$(common.hash.getValues $hash $CXR_TYPE_GLOBAL)"
+# > valueString="$(common.hash.getValues $hash $CXR_LEVEL_GLOBAL)"
 # > IFS="$CXR_DELIMITER"
 # > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 # > arrVal=( $valueString )
@@ -772,7 +772,7 @@ function common.hash.getKeys()
 # 
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.hash.getValues()
 ################################################################################
@@ -852,7 +852,7 @@ function common.hash.getValues()
 # 
 # Parameters:
 # $1 - name of the hash
-# $2 - type of hash, either "$CXR_TYPE_INSTANCE" , "$CXR_TYPE_GLOBAL" or "$CXR_TYPE_UNIVERSAL"
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
 function common.hash.getKeysAndValues()
 ################################################################################
@@ -925,43 +925,43 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	# Instance hash
-	common.hash.init test_instance $CXR_TYPE_INSTANCE
-	common.hash.put test_instance $CXR_TYPE_INSTANCE /hallo/gugs SomeOtherValue
-	common.hash.put test_instance $CXR_TYPE_INSTANCE /hallo/velo SomeOtherValue
+	common.hash.init test_instance $CXR_LEVEL_INSTANCE
+	common.hash.put test_instance $CXR_LEVEL_INSTANCE /hallo/gugs SomeOtherValue
+	common.hash.put test_instance $CXR_LEVEL_INSTANCE /hallo/velo SomeOtherValue
 	
 	# DB of arrays
-	common.hash.init test_array $CXR_TYPE_INSTANCE
-	common.hash.put test_array $CXR_TYPE_INSTANCE array1 "1 2 3 4 5"
+	common.hash.init test_array $CXR_LEVEL_INSTANCE
+	common.hash.put test_array $CXR_LEVEL_INSTANCE array1 "1 2 3 4 5"
 	
 	# Read again
-	a=( $(common.hash.get test_array $CXR_TYPE_INSTANCE array1) )
+	a=( $(common.hash.get test_array $CXR_LEVEL_INSTANCE array1) )
 	
 	# Glabal DB with strange keys
-	common.hash.init test_global $CXR_TYPE_GLOBAL
-	common.hash.put test_global $CXR_TYPE_GLOBAL "This key has spaces" "a value"
-	common.hash.put test_global $CXR_TYPE_GLOBAL "This key also has spaces" "another value"
+	common.hash.init test_global $CXR_LEVEL_GLOBAL
+	common.hash.put test_global $CXR_LEVEL_GLOBAL "This key has spaces" "a value"
+	common.hash.put test_global $CXR_LEVEL_GLOBAL "This key also has spaces" "another value"
 	
 	# Universal DB
-	common.hash.init test_universal $CXR_TYPE_UNIVERSAL
-	common.hash.put test_universal $CXR_TYPE_UNIVERSAL /hallo/gugs SomeOtherValue
-	common.hash.put test_universal  $CXR_TYPE_UNIVERSAL /hallo/velo SomeOtherValue
+	common.hash.init test_universal $CXR_LEVEL_UNIVERSAL
+	common.hash.put test_universal $CXR_LEVEL_UNIVERSAL /hallo/gugs SomeOtherValue
+	common.hash.put test_universal  $CXR_LEVEL_UNIVERSAL /hallo/velo SomeOtherValue
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.hash.get test_instance $CXR_TYPE_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
-	is "$(common.hash.has? test_instance $CXR_TYPE_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
-	is "$(common.hash.getKeys test_instance $CXR_TYPE_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
+	is "$(common.hash.get test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
+	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
+	is "$(common.hash.getKeys test_instance $CXR_LEVEL_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
 	is ${#a[@]} 5 "DB of arrays"
 	
 	# testing the faster way to call common.hash.has? (has and get in one call)
-	common.hash.has? test_instance $CXR_TYPE_INSTANCE "/hallo/velo" > /dev/null
+	common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo" > /dev/null
 	is $_has true "common.hash.has? non-functional approach I"
 	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
 	
 	oIFS="$IFS"
-	keyString="$(common.hash.getKeys test_instance $CXR_TYPE_INSTANCE)"
+	keyString="$(common.hash.getKeys test_instance $CXR_LEVEL_INSTANCE)"
 	IFS="$CXR_DELIMITER"
 	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
 	arrKeys=( $keyString )
@@ -972,26 +972,26 @@ function test_module()
 	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
 	do
 		key="${arrKeys[$iKey]}"
-		is "$(common.hash.get test_instance $CXR_TYPE_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
+		is "$(common.hash.get test_instance $CXR_LEVEL_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
-	is "$(common.hash.get test_global $CXR_TYPE_GLOBAL "This key has spaces")" "a value" "common.hash.get test_instance - key with spaces"
+	is "$(common.hash.get test_global $CXR_LEVEL_GLOBAL "This key has spaces")" "a value" "common.hash.get test_instance - key with spaces"
 	
-	common.hash.delete test_instance $CXR_TYPE_INSTANCE "/hallo/velo"
-	is "$(common.hash.has? test_instance $CXR_TYPE_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
+	common.hash.delete test_instance $CXR_LEVEL_INSTANCE "/hallo/velo"
+	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
 
-	is "$(common.hash.get test_universal $CXR_TYPE_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
-	is "$(common.hash.has? test_universal $CXR_TYPE_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
+	is "$(common.hash.get test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
+	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
 	
-	common.hash.delete test_universal $CXR_TYPE_UNIVERSAL "/hallo/velo" 
-	is "$(common.hash.has? test_universal $CXR_TYPE_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
+	common.hash.delete test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo" 
+	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
 	
 	########################################
 	# teardown tests if needed
 	########################################
-	common.hash.destroy test_instance $CXR_TYPE_INSTANCE
-	common.hash.destroy test_array $CXR_TYPE_INSTANCE
-	common.hash.destroy test_global $CXR_TYPE_GLOBAL
-	common.hash.destroy test_universal $CXR_TYPE_UNIVERSAL
+	common.hash.destroy test_instance $CXR_LEVEL_INSTANCE
+	common.hash.destroy test_array $CXR_LEVEL_INSTANCE
+	common.hash.destroy test_global $CXR_LEVEL_GLOBAL
+	common.hash.destroy test_universal $CXR_LEVEL_UNIVERSAL
 }

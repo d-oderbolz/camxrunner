@@ -190,7 +190,7 @@ function common.task.createSequentialDependencyList()
 	
 	# In all of these, we ignore - dependencies
 	
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL") == false ]]
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
 	then
 		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 	fi
@@ -265,7 +265,7 @@ function common.task.createSequentialDependencyList()
 
 
 	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 
 }
 
@@ -324,7 +324,7 @@ function common.task.createParallelDependencyList()
 		no_ot=" AND 1=2"
 	fi
 	
-	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL") == false ]]
+	if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
 	then
 		main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 	fi
@@ -411,7 +411,7 @@ function common.task.createParallelDependencyList()
 	mv "$tempfile" "$output_file"
 	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+	common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 }
 
 ################################################################################
@@ -560,7 +560,7 @@ function common.task.detectLockup()
 	local count
 	local numRunning
 	
-	common.hash.has? Lockup $CXR_TYPE_GLOBAL LockupCount
+	common.hash.has? Lockup $CXR_LEVEL_GLOBAL LockupCount
 	if [[ $_has == true ]]
 	then
 		count=$_value
@@ -589,7 +589,7 @@ function common.task.detectLockup()
 	fi
 	
 	# Store new count
-	common.hash.put Lockup $CXR_TYPE_GLOBAL LockupCount $count
+	common.hash.put Lockup $CXR_LEVEL_GLOBAL LockupCount $count
 }
 
 
@@ -616,7 +616,7 @@ function common.task.setNextTask()
 ################################################################################
 {
 	# Acquire lock
-	if [[ $(common.runner.getLock NextTask "$CXR_TYPE_INSTANCE") == false ]]
+	if [[ $(common.runner.getLock NextTask "$CXR_LEVEL_INSTANCE") == false ]]
 	then
 		main.dieGracefully "Waiting for NextTask lock took too long"
 	fi
@@ -636,7 +636,7 @@ function common.task.setNextTask()
 		sleep $CXR_WAITING_SLEEP_SECONDS
 		
 		common.state.deleteContinueFiles
-		common.runner.releaseLock NextTask "$CXR_TYPE_INSTANCE"
+		common.runner.releaseLock NextTask "$CXR_LEVEL_INSTANCE"
 		echo ""
 		return $CXR_RET_OK
 		
@@ -681,7 +681,7 @@ function common.task.setNextTask()
 	fi
 	
 	# Release lock
-	common.runner.releaseLock NextTask "$CXR_TYPE_INSTANCE"
+	common.runner.releaseLock NextTask "$CXR_LEVEL_INSTANCE"
 }
 
 ################################################################################
@@ -900,13 +900,13 @@ function common.task.Worker()
 				if [[ "$exclusive" == true ]]
 				then
 					# If exclusive, try to get lock
-					if [[ $(common.runner.getLock Exclusive "$CXR_TYPE_GLOBAL") == false ]]
+					if [[ $(common.runner.getLock Exclusive "$CXR_LEVEL_GLOBAL") == false ]]
 					then
 						main.dieGracefully "There seeems to be another exclusive task running that takes too long."
 					fi
 				else
 					# If not, just check if it is set 
-					common.runner.waitForLock Exclusive "$CXR_TYPE_GLOBAL" false
+					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL" false
 					
 					if [[ $_retval == false ]]
 					then
@@ -975,7 +975,7 @@ function common.task.Worker()
 				if [[ "$_exclusive" == true ]]
 				then
 					main.log  "Activating the assignment of new tasks again."
-					common.runner.releaseLock Exclusive "$CXR_TYPE_GLOBAL"
+					common.runner.releaseLock Exclusive "$CXR_LEVEL_GLOBAL"
 				fi
 			else
 				main.log -v  "Worker $pid did not receive an assignment - maybe there are too many workers around"
@@ -1186,7 +1186,7 @@ function common.task.init()
 		echo "COMMIT TRANSACTION;" >> $tempfile
 		
 		# For security reasons, we lock all write accesses to the DB
-		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL") == false ]]
+		if [[ $(common.runner.getLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL") == false ]]
 		then
 			main.dieGracefully "Could not get lock on $(basename $CXR_STATE_DB_FILE)"
 		fi
@@ -1195,7 +1195,7 @@ function common.task.init()
 		${CXR_SQLITE_EXEC} "$CXR_STATE_DB_FILE"  < $tempfile || main.dieGracefully "Could not update ranks properly"
 		
 		# Relase Lock
-		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_TYPE_GLOBAL"
+		common.runner.releaseLock "$(basename $CXR_STATE_DB_FILE)" "$CXR_LEVEL_GLOBAL"
 		
 		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
 		
