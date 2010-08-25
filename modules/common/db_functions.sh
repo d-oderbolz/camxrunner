@@ -154,7 +154,7 @@ function common.db.getResultSet()
 			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
@@ -220,7 +220,7 @@ function common.db.change()
 			echo "$currline" >> "$sqlfile"
 		done
 		
-		{CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
