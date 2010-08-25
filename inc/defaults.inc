@@ -518,7 +518,6 @@ CXR_RUN_MODEL=true
 # Logs go here
 CXR_LOG_OUTPUT_DIR=${CXR_RUN_DIR}/log
 
-
 #State information is stored here
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 
