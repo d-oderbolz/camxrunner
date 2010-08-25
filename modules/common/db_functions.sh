@@ -226,7 +226,7 @@ function test_module()
 	########################################
 	
 	# Create a small test DB
-	db_file="$(common.runner createTempFile sql)"
+	db_file="$(common.runner.createTempFile sql)"
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
 	
