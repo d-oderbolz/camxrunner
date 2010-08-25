@@ -71,9 +71,9 @@ function _common.db.getDbFile()
 	then
 		# Work out the directory
 		case $type in
-			$CXR_TYPE_INSTANCE) fn="${CXR_INSTANCE_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_GLOBAL) fn="${CXR_GLOBAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
-			$CXR_TYPE_UNIVERSAL) fn="${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}" ;;
+			$CXR_TYPE_INSTANCE) fn="${CXR_INSTANCE_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			$CXR_TYPE_GLOBAL) fn="${CXR_GLOBAL_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
+			$CXR_TYPE_UNIVERSAL) fn="${CXR_UNIVERSAL_DIR}/${db}.${CXR_DB_SUFFIX}" ;;
 			*) main.dieGracefully "Unknown DB type $type" ;;
 		esac
 	else
@@ -290,7 +290,9 @@ function test_module()
 	
 	${CXR_SQLITE_EXEC} $db_file <<-EOT
 	
-	DROP TABLE test;
+	DROP TABLE IF EXISTS test;
+	DROP TABLE IF EXISTS x ;
+	DROP TABLE IF EXISTS y ;
 	
 	CREATE TABLE test (a,b);
 	
