@@ -336,7 +336,7 @@ function common.task.createSequentialDependencyList()
 	
 	-- OK, now create the permutation
 	SELECT d.day_iso || '@' || t.module 
-	FROM 	days d,day_t t
+	FROM 	days d,day_t t;
 
 	EOT)"
 	
