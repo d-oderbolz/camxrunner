@@ -187,7 +187,6 @@ function common.task.createSequentialDependencyList()
 	local output_file
 	local dep_file
 	local nodup_file
-	local sorted_file
 
 	output_file="$1"
 	
@@ -196,7 +195,6 @@ function common.task.createSequentialDependencyList()
 	dep_file="$(common.runner.createTempFile dependencies)"
 	day_file="$(common.runner.createTempFile dependencies)"
 	nodup_file="$(common.runner.createTempFile nodup)"
-	sorted_file="$(common.runner.createTempFile tsort-out)"
 
 	# Reset file
 	: > "$output_file"
@@ -382,7 +380,7 @@ function common.task.createSequentialDependencyList()
 # 
 # Performs topological sorting on the dependencies so that the resulting list is
 # suitable for parallel harvesting by a many workers. This means that all tasks are
-# ordered by dependency with not other constraints.
+# ordered by increasing dependency.
 #
 # The outputfile contains an ordered list of task ids.
 #
@@ -393,69 +391,41 @@ function common.task.createParallelDependencyList()
 ################################################################################
 {
 	local output_file
-	local tempfile
-	local where
-	local ignore_last_day
-	local day_offset
-	local day_where
-	local day_where_nodep
 	
+	local dep_file
+	local nodup_file
+
 	main.log -a "Ordering tasks for parallel execution..."
 	
 	output_file="$1"
-	where=${2:-}
-	ignore_last_day=${3:-false}
-	day_offset="${4:-}"
+	
+	dep_file="$(common.runner.createTempFile dependencies)"
+	nodup_file="$(common.runner.createTempFile nodup)"
 	
 	# Reset file
 	: > "$output_file"
 	
-	day_where_nodep=""
-	day_where=""
-	no_ot=""
-	
-	if [[ $ignore_last_day == true ]]
-	then
-		# Add additional where statement to suppress - dependencies
-		where="$where AND di.day_iso = dd.day_iso"
-	fi
-	
-	if [[ "$day_offset" ]]
-	then
-		# Used for stuff that has dependencies
-		day_where=" AND dependent_day_offset = $day_offset "
-		
-		# Used for stuff w/o dependencies
-		day_where_nodep=" AND dd.day_iso = $day_offset "
-		
-		# We do not want any OT
-		no_ot=" AND 1=2"
-	fi
-	
 	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	-- Prepare proper output
-	.output $output_file
+	.output $dep_file
 	.separator ' '
 	
 	------------------------------------
 	-- First, add all tasks, no matter what
-	-- Duplicates are removed later
 	------------------------------------
 	
 	-- Daily. 
 	
-	SELECT di.day_iso || '@' || t.module,
-	       dd.day_iso || '@' || t.module
-	FROM tasks t, days di, days dd, modules m
+	SELECT d.day_iso || '@' || t.module,
+	       d.day_iso || '@' || t.module
+	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
-	AND   di.day_offset = t.day_offset
-	AND   di.day_iso = dd.day_iso
+	AND   d.day_offset = t.day_offset
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
-	                 '$CXR_TYPE_POSTPROCESS_DAILY')
-	$where $day_where_nodep ;
+	                 '$CXR_TYPE_POSTPROCESS_DAILY');
 	
 	-- OT-Pre
 	SELECT $CXR_START_DATE || '@' || t.module,
@@ -508,10 +478,17 @@ function common.task.createParallelDependencyList()
 	EOT
 	
 	main.log -v "Removing duplicates..."
-	tempfile="$(common.runner.createTempFile $FUNCNAME)"
 	
-	sort "$output_file" | uniq > "$tempfile"
-	mv "$tempfile" "$output_file"
+	sort "$dep_file" | uniq > "$nodup_file"
+
+	main.log -v "Running tsort and appending output to list..."
+	
+	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
+	fi
 }
 
 ################################################################################
@@ -1244,7 +1221,6 @@ function common.task.init()
 	local module_type
 	local my_stage
 	local dep_file
-	local sorted_file
 	local iOffset
 	
 	main.log -a -B "Initializing task subsystem, might take a while, depending on number of tasks..."
