@@ -774,7 +774,7 @@ function common.task.setNextTask()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
-		main.log  "All tasks have been processed, notifying system after security pause..."
+		main.log "All tasks have been processed, notifying system after security pause..."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all tasks are past their check for do_we_continue

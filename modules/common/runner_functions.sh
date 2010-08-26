@@ -735,7 +735,6 @@ function common.runner.getLockFile()
 # eventual concurrent processes and then may call this fuction again.
 # We do not take any action if the lock is not free, this is up to tho user.
 #
-#
 # Recommended call:
 # > common.runner.waitForLock NextTask "$CXR_LEVEL_GLOBAL"
 # > if [[ $_retval == false ]]
@@ -746,7 +745,7 @@ function common.runner.getLockFile()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - an optinal boolean (default true) indicating if we want to aquire the lock.
+# [$3] - an optional boolean (default true) indicating if we want to aquire the lock.
 # [$4] - the time in decimal seconds waited so far (only relevant in the recursion case)
 ################################################################################
 function common.runner.waitForLock()
@@ -766,10 +765,10 @@ function common.runner.waitForLock()
 	lock="$1"
 	level="$2"
 	wanted="${3:-true}"
-	shown=false
-	
 	# how long did we wait so far
 	time="${4:-0}"
+	
+	shown=false
 	
 	lockfile="$(common.runner.getLockFile $lock $level)"
 
@@ -796,17 +795,25 @@ function common.runner.waitForLock()
 		fi
 	done # is lock set?
 	
-	# sleep some time between 0.001 and 0.02 seconds
-	sleep $(common.math.RandomNumber 0.001 0.02 5)
-	
-	# There is a slight chance another process was faster
-	if [[ -f "$lockfile" ]]
+	if [[ $wanted == false ]]
 	then
-		# Recursive call (retval is set internally)
-		# it will set _retval itself
-		common.runner.waitForLock $lock $level $wanted $time
-	else
 		_retval=true
+	else
+		# We want to acquire the lock, we need to rule out 
+		# competition
+	
+		# sleep some time between 0.001 and 0.02 seconds
+		sleep $(common.math.RandomNumber 0.001 0.02 5)
+		
+		# There is a slight chance another process was faster
+		if [[ -f "$lockfile" ]]
+		then
+			# Recursive call (retval is set internally)
+			# it will set _retval itself
+			common.runner.waitForLock $lock $level $wanted $time
+		else
+			_retval=true
+		fi
 	fi
 }
 
