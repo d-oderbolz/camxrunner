@@ -836,7 +836,7 @@ function common.task.runningWorker()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "needs a pid as input"
+		main.dieGracefully "needs a pid as input, got $@"
 	fi
 	
 	local pid
@@ -851,7 +851,7 @@ function common.task.runningWorker()
 ################################################################################
 # Function: common.task.removeWorker
 #
-# kills the common.task.Worker of the given task_pid and alse removes it from the process list.
+# kills the common.task.Worker of the given pid and alse removes it from the process list.
 # 
 # Parameters:
 # $1 - the workers pid
@@ -861,7 +861,7 @@ function common.task.removeWorker()
 {
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a task_pid as input"
+		main.dieGracefully "needs a pid as input"
 	fi
 	
 	local pid
@@ -899,7 +899,7 @@ function common.task.Worker()
 	CXR_WORKER_ID=${1}
 	
 	local tmp
-	local task_pid
+	local pid
 	local new_task_descriptor
 	local new_task
 	local oIFS
@@ -917,7 +917,7 @@ function common.task.Worker()
 	# The pid is the parent of the awk process
 	# and the 4th field of /proc/self/stat is the Parent PID
 	awk '{print $4}' /proc/self/stat > $tmp
-	# We add the machine name so that it is unique among all machines
+	# read pid from file
 	pid=$(cat $tmp)
 	
 	# Insert this worker
@@ -929,7 +929,7 @@ function common.task.Worker()
 	# If so, define process-specific stuff
 	if [[ -f "$CXR_LOG" && "$CXR_MAX_PARALLEL_PROCS" -gt 1 ]]
 	then
-		# Set task_pid-dependent logfile to disentangle things
+		# Set pid-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${pid}.log
 		
 		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}"
@@ -1000,7 +1000,7 @@ function common.task.Worker()
 					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
 					
 					# Tell the system we wait, then sleep
-					common.task.waitingWorker $task_pid
+					common.task.waitingWorker $pid
 					sleep $CXR_WAITING_SLEEP_SECONDS
 					
 					if [[ $(( $(date "+%s") - $start_epoch )) -gt $CXR_DEPENDECY_TIMEOUT_SEC ]]
@@ -1010,14 +1010,14 @@ function common.task.Worker()
 				done
 				
 				# Time to work
-				common.task.runningWorker $task_pid
+				common.task.runningWorker $pid
 				
 				main.log -v "module: $module day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
 				
-				main.log -a -B "common.task.Worker $task_pid assigned to $module for $CXR_DATE"
+				main.log -a -B "common.task.Worker $pid assigned to $module for $CXR_DATE"
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
@@ -1056,7 +1056,7 @@ function common.task.Worker()
 				
 				# This means that someone wants exclusive access
 				# Tell the system we wait, then sleep
-				common.task.waitingWorker $task_pid
+				common.task.waitingWorker $pid
 				sleep $CXR_WAITING_SLEEP_SECONDS
 				
 				# It's possible that we have been "shot" in the meantime
@@ -1071,7 +1071,7 @@ function common.task.Worker()
 		
 		else
 			# Not enough memory
-			main.log -w "Worker $task_pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
+			main.log -w "Worker $pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
 			
 			# Tell the system we wait, then sleep
 			common.task.waitingWorker $pid
