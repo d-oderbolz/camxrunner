@@ -229,16 +229,15 @@ function common.task.createSequentialDependencyList()
 	       '$CXR_START_DATE' || '@' || t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
+	AND   m.active = 'true'
+	AND   m.type = '$CXR_TYPE_PREPROCESS_ONCE'
 	EXCEPT
 	SELECT '$CXR_START_DATE' || '@' || t.module ,
 	       '$CXR_START_DATE' || '@' || t.module 
-	FROM tasks t, modules m, dependencies
-	WHERE m.module = dependent_module
-	AND   m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
+	FROM  tasks t, 
+	      dependencies d
+	WHERE t.module = d.dependent_module
+	AND   t.type = '$CXR_TYPE_PREPROCESS_ONCE';
 	
 	------------------------------------
 	-- Then add all the dependencies
@@ -246,11 +245,12 @@ function common.task.createSequentialDependencyList()
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT '$CXR_START_DATE' || '@' || independent_module ,
-	       '$CXR_START_DATE' || '@' || dependent_module 
-	FROM dependencies, modules m
-	WHERE m.module = dependent_module
-	AND   independent_day_offset = dependent_day_offset
+	SELECT '$CXR_START_DATE' || '@' || d.independent_module ,
+	       '$CXR_START_DATE' || '@' || d.dependent_module 
+	FROM  dependencies d, 
+	      modules m
+	WHERE m.module = d.dependent_module
+	AND   d.independent_day_offset = d.dependent_day_offset
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE') ;
 	
