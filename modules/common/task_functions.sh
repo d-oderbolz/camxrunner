@@ -341,8 +341,7 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Now filling in data for all other days..."
 	# the day_file now contains a tsorted list of module entries.
 	
-	# note that change can also return a resultset...
-	
+	# note that common.db.change also returns a resultset if needed.
 	day_list="$(common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	-- First put the data in a temp table
@@ -1130,6 +1129,14 @@ function common.task.Worker()
 				common.task.waitingWorker $task_pid
 				sleep $CXR_WAITING_SLEEP_SECONDS
 				
+				# It's possible that we have been "shot" in the meantime
+				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+				then
+					# We have done our duty
+					common.task.removeWorker $pid
+					return $CXR_RET_OK
+				fi
+				
 			fi # Got a task?
 		
 		else
@@ -1139,14 +1146,22 @@ function common.task.Worker()
 			# Tell the system we wait, then sleep
 			common.task.waitingWorker $pid
 			sleep $CXR_WAITING_SLEEP_SECONDS
+			
+			# It's possible that we have been "shot" in the meantime
+			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+			then
+				# We have done our duty
+				common.task.removeWorker $pid
+				return $CXR_RET_OK
+			fi
+				
 		fi # Enough Memory?
 			
 	done
 	
 	# We have done our duty
 	common.task.removeWorker $pid
-
-	exit $CXR_RET_OK
+	return $CXR_RET_OK
 }
 
 ################################################################################
@@ -1219,13 +1234,14 @@ function common.task.controller()
 		
 		if [[ $ReaLoad -gt $CXR_LOAD_WARN_THRESHOLD ]]
 		then
-			# TODO: Safely remove a worker
+			# TODO: Safely remove a sleeping worker before it wakes up
+			# when a worker gets status CXR_STATUS_KILLED, it will remove itself
 			main.log -w "ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
 		fi
 		
 		# Still TODO:
 		# Detect stale locks
-		# Find dead workers
+		# Check if all known workers still run
 		
 		# touch the continue file
 		if [[ -e "$CXR_CONTINUE_FILE" ]]
@@ -1322,7 +1338,7 @@ function common.task.init()
 
 			# Write Update statement to file
 			# We only give ranks to stuff that was not yet sucessfully done
-			# note that all invocatons of a given (module, day) pair get the same ID.
+			# note that all invocations of a given (module, day) pair get the same ID.
 			# This is by design and correct.
 			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
 

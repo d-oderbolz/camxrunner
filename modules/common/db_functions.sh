@@ -150,8 +150,9 @@ function common.db.getResultSet()
 ################################################################################
 # Function: common.db.change
 #
-# Use this function (procedure) for all SQL statements containing DML (INSERT,UPDATE,DELETE)
+# Use this function  for all SQL statements containing DML (INSERT,UPDATE,DELETE)
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is aqciured.
+# Of course you can also use it to read data, but you will lock out others.
 #
 # Parameters:
 # $1 - full-path to db_file

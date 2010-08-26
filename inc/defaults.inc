@@ -48,7 +48,8 @@ CXR_STATUS_SUCCESS=SUCCESS
 CXR_STATUS_FAILURE=FAILURE
 CXR_STATUS_TODO=TODO
 # Only used for workers
-CXR_STATUS_WAITING=WAITING
+CXR_STATUS_WAITING=WAITING 
+CXR_STATUS_KILLED=KILLED	# Used to signal a worker that it must terminate
 
 # Uncomment this for REALLY Verbose messages (directly from bash)
 #set -xv
