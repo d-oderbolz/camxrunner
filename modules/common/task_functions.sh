@@ -335,8 +335,8 @@ function common.task.createSequentialDependencyList()
 	.import $day_file day_t
 	
 	-- OK, now create the permutation
-	SELECT d.day_iso || '@' || m.module 
-	FROM 	days d,day_t
+	SELECT d.day_iso || '@' || t.module 
+	FROM 	days d,day_t t
 
 	EOT)"
 	

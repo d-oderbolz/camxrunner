@@ -530,14 +530,13 @@ function common.state.updateInfo()
 											dependent.day_offset
 							FROM 		tasks dependent,
 											tasks independent,
-											metadata meta,
-											types t
+											metadata meta
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value
 							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = '1'
 							AND			independent.invocation = '1'
-							AND 		meta.value = t.type;
+							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON';
 
 			--
 			-- dependencies on whole types only with - predicate
