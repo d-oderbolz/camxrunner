@@ -218,33 +218,20 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all OT-Pre Tasks without 
-	-- deps because otherwise, these tasks
-	-- would never be executed.
+	-- First, add all active OT-Pre Tasks 
+	-- otherwise tasks without deps would
+	-- be skipped
 	------------------------------------
-	
-	-- OT Pre tasks can not have dependencies to other module 
-	-- types, so we do not need to account for these
 	SELECT '$CXR_START_DATE' || '@' || t.module ,
 	       '$CXR_START_DATE' || '@' || t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active = 'true'
-	AND   m.type = '$CXR_TYPE_PREPROCESS_ONCE'
-	EXCEPT
-	SELECT '$CXR_START_DATE' || '@' || t.module ,
-	       '$CXR_START_DATE' || '@' || t.module 
-	FROM  tasks t, 
-	      dependencies d
-	WHERE t.module = d.dependent_module
-	AND   t.type = '$CXR_TYPE_PREPROCESS_ONCE';
+	AND   m.type = '$CXR_TYPE_PREPROCESS_ONCE';
 	
 	------------------------------------
-	-- Then add all the dependencies
-	-- We must make sure not to introduce any phantoms
+	-- Then add all active dependencies
 	------------------------------------
-	
-	-- Again, OT Pre tasks cannot depend on other module types
 	SELECT '$CXR_START_DATE' || '@' || d.independent_module ,
 	       '$CXR_START_DATE' || '@' || d.dependent_module 
 	FROM  dependencies d, 
@@ -280,13 +267,10 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all Daily Tasks without 
-	-- deps because otherwise, these tasks
-	-- would never be executed.
+	-- First, add all active Daily Tasks 
+	-- otherwise tasks without deps would
+	-- be skipped
 	------------------------------------
-	
-	-- OT Pre tasks can not have dependencies to other module 
-	-- types, so we do not need to account for these
 	SELECT  t.module ,
 	        t.module 
 	FROM tasks t, modules m
@@ -294,24 +278,11 @@ function common.task.createSequentialDependencyList()
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
-	                 '$CXR_TYPE_POSTPROCESS_DAILY')
-	EXCEPT
-	SELECT  t.module,
-	        t.module
-	FROM tasks t, modules m, dependencies
-	WHERE m.module = dependent_module
-	AND   m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
-	                 '$CXR_TYPE_MODEL',
 	                 '$CXR_TYPE_POSTPROCESS_DAILY');
 	
 	------------------------------------
-	-- Then add all the dependencies
-	-- We must make sure not to introduce any phantoms
+	-- Then add all the active dependencies
 	------------------------------------
-	
-	-- Again, OT Pre tasks cannot depend on other module types
 	SELECT  independent_module,
 	        dependent_module
 	FROM dependencies, modules m
@@ -336,7 +307,6 @@ function common.task.createSequentialDependencyList()
 	then
 		main.dieGracefully "I could not figure out the correct order to execute the tasks.\nMost probably there is a cycle (Module A depends on B which in turn depends on A)"
 	fi
-	
 	
 	main.log -v "Now filling in data for all other days..."
 	# the day_file now contains a tsorted list of module entries.
@@ -369,39 +339,25 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all OT-Pre Tasks without 
-	-- deps because otherwise, these tasks
-	-- would never be executed.
+	-- First, add all active OT-Pre Tasks 
+	-- otherwise tasks without deps would
+	-- be skipped
 	------------------------------------
-	
-	-- OT Pre tasks can not have dependencies to other module 
-	-- types, so we do not need to account for these
-	SELECT '$CXR_START_DATE' || '@' || t.module,
-	       '$CXR_START_DATE' || '@' || t.module
+	SELECT '$CXR_STOP_DATE' || '@' || t.module,
+	       '$CXR_STOP_DATE' || '@' || t.module
 	FROM tasks t, modules m
 	WHERE m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	EXCEPT
-	SELECT '$CXR_START_DATE' || '@' || t.module,
-	       '$CXR_START_DATE' || '@' || t.module
-	FROM tasks t, modules m, dependencies
-	WHERE m.module = dependent_module
-	AND   m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 	
 	------------------------------------
-	-- Then add all the dependencies
-	-- We must make sure not to introduce any phantoms
+	-- Then add all active dependencies
 	------------------------------------
-	
-	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT '$CXR_START_DATE' || '@' || independent_module,
-	       '$CXR_START_DATE' || '@' || dependent_module
-	FROM dependencies, modules m
-	WHERE m.module = dependent_module
-	AND   independent_day_offset = dependent_day_offset
+	SELECT '$CXR_STOP_DATE' || '@' || d.independent_module,
+	       '$CXR_STOP_DATE' || '@' || d.dependent_module
+	FROM  dependencies d, modules m
+	WHERE m.module = d.dependent_module
+	AND   d.independent_day_offset = d.dependent_day_offset
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
 	
