@@ -906,7 +906,6 @@ function common.task.Worker()
 	local descriptor
 	local task
 	local exclusive
-	local raw_dependencies
 	local invocation
 	local module
 	local day_offset
@@ -992,8 +991,6 @@ function common.task.Worker()
 				fi
 				
 				module_path="$(common.module.getPath "$module")"
-
-				raw_dependencies="$(common.module.getMetaField $module "CXR_META_MODULE_DEPENDS_ON")"
 				
 				start_epoch=$CXR_EPOCH
 				
