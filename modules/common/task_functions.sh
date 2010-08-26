@@ -752,9 +752,9 @@ function common.task.setNextTask()
 		_invocation="$6"
 		
 		# Assign it by an update
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set  STATUS='${CXR_STATUS_RUNNING}' WHERE id=$id"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set  STATUS='${CXR_STATUS_RUNNING}' WHERE id=$_id"
 		
-		main.log -v "New task has id $id"
+		main.log -v "New task has id $_id"
 	fi
 	
 	# Release lock
