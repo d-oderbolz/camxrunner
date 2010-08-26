@@ -116,20 +116,22 @@ function common.task.getId()
 #
 # Parameters:
 # $1 - a task identifier
+# [$2] - no_invocation optional boolean (default false), if true, we accept strings withoin invocation 
 ################################################################################
 function common.task.parseId()
 ################################################################################
 {
-	if [[ $# -ne 1 || -z "$1" ]]
+	if [[ $# -lt 1 || -z "$1" || $# -gt 2 ]]
 	then
-		main.dieGracefully "Needs a non-empty identifier as Input"
+		main.dieGracefully "Needs a non-empty identifier and the optional flag no_invocation as Input, got $@"
 	fi
 	
 	local identifier
+	local no_invocation
 	local -a id_arr
 	
 	identifier="$1"
-
+	no_invocation="${2:-false}"
 	
 	main.log -v "Parsing $identifier"
 	
@@ -139,17 +141,31 @@ function common.task.parseId()
 	id_arr=($identifier)
 	IFS="$oIFS"
 	
-	if [[ ${#id_arr[@]} -ne 3 ]]
+	if [[ $no_invocation == true ]]
 	then
-		main.dieGracefully "Malformed task id $identifier"
+		if [[ ${#id_arr[@]} -ne 2 ]]
+		then
+			main.dieGracefully "Malformed task id $identifier"
+		else
+			_date=${id_arr[0]}
+			_module=${id_arr[1]}
+			
+			_day_offset=$(common.date.toOffset $_date)
+			main.log -v "module: $_module date: $_date day_offset: $_day_offset (no invocation)"
+		fi
 	else
-		_date=${id_arr[0]}
-		_module=${id_arr[1]}
-		_invocation=${id_arr[2]}
-		
-		_day_offset=$(common.date.toOffset $_date)
-		main.log -v "module: $_module date: $_date day_offset: $_day_offset invocation: $_invocation"
-	fi
+		if [[ ${#id_arr[@]} -ne 3 ]]
+		then
+			main.dieGracefully "Malformed task id $identifier"
+		else
+			_date=${id_arr[0]}
+			_module=${id_arr[1]}
+			_invocation=${id_arr[2]}
+			
+			_day_offset=$(common.date.toOffset $_date)
+			main.log -v "module: $_module date: $_date day_offset: $_day_offset invocation: $_invocation"
+		fi
+	if
 }
 
 ################################################################################
@@ -1301,8 +1317,8 @@ function common.task.init()
 		do
 			# We need to parse the line
 			# this sets a couple of _variables
-			# we add a fake invocation
-			common.task.parseId "${line}@1"
+			# we set the flag that there is no invocation
+			common.task.parseId "${line}" true
 
 			# Write Update statement to file
 			# We only give ranks to stuff that was not yet sucessfully done
