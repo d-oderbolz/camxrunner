@@ -47,7 +47,8 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.db.init
 #
 # Performs version checks on all visible sqlite DBs. It also checks the integrity of 
-# sqlite and if we can load the extensions. (Rember recompilation issue on lcsl4a)
+# sqlite and if we can load the extensions. (Rember recompilation issue on lcsl4a).
+# Performs vacuum and backup if needed.
 #
 ################################################################################
 function common.db.init()

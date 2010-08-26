@@ -462,7 +462,10 @@ function common.state.updateInfo()
 							  AND 	m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 			
 			--------------------------------------------------------------------
-			-- DEPENCENCIES
+			-- DEPENCENCIES. 
+			-- It is important to understand that dependencies are
+			-- NOT on invocation ond therefore task level. Dependencies exist
+			-- between tuples of (module,day_offset).
 			--------------------------------------------------------------------
 			
 			--
@@ -488,6 +491,7 @@ function common.state.updateInfo()
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types)
 							AND 		substr(meta.value,-1,1) IS NOT '-' ;
@@ -515,6 +519,7 @@ function common.state.updateInfo()
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset - 1
 							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
 							AND 		substr(meta.value,-1,1) IS '-' ;
@@ -543,6 +548,7 @@ function common.state.updateInfo()
 							AND			independent.type = meta.value
 							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.value = t.type;
 
 			--
@@ -566,9 +572,10 @@ function common.state.updateInfo()
 											metadata meta,
 											types t
 							WHERE		dependent.module = meta.module
-							AND			independent.type = meta.value
+							AND			independent.type = t.type
 							AND			independent.day_offset = dependent.day_offset - 1
 							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.value = t.type || '-' ;
 							
 
