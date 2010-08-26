@@ -474,16 +474,12 @@ function common.state.updateInfo()
 			INSERT 	INTO dependencies (
 							independent_module, 
 							independent_day_offset, 
-							independent_invocation, 
 							dependent_module, 
-							dependent_day_offset, 
-							dependent_invocation)
+							dependent_day_offset)
 							SELECT 	independent.module,
 											independent.day_offset,
-											independent.invocation,
 											dependent.module,
 											dependent.day_offset,
-											dependent.invocation
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta
@@ -502,16 +498,12 @@ function common.state.updateInfo()
 			INSERT 	INTO dependencies (
 							independent_module, 
 							independent_day_offset, 
-							independent_invocation, 
 							dependent_module, 
-							dependent_day_offset, 
-							dependent_invocation)
+							dependent_day_offset)
 							SELECT 	independent.module,
 											independent.day_offset,
-											independent.invocation,
 											dependent.module,
-											dependent.day_offset,
-											dependent.invocation
+											dependent.day_offset
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta
@@ -530,16 +522,12 @@ function common.state.updateInfo()
 			INSERT 	INTO dependencies (
 							independent_module, 
 							independent_day_offset, 
-							independent_invocation, 
 							dependent_module, 
-							dependent_day_offset, 
-							dependent_invocation)
+							dependent_day_offset)
 							SELECT 	independent.module,
 											independent.day_offset,
-											independent.invocation,
 											dependent.module,
-											dependent.day_offset,
-											dependent.invocation
+											dependent.day_offset
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta,
@@ -563,10 +551,8 @@ function common.state.updateInfo()
 							dependent_invocation)
 							SELECT 	independent.module,
 											independent.day_offset,
-											independent.invocation,
 											dependent.module,
-											dependent.day_offset,
-											dependent.invocation
+											dependent.day_offset
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta,
@@ -682,10 +668,8 @@ function common.state.init()
 	-- Table to store dependencies
 	CREATE TABLE IF NOT EXISTS dependencies (independent_module, 
 	                                         independent_day_offset, 
-	                                         independent_invocation, 
 	                                         dependent_module, 
-	                                         dependent_day_offset, 
-	                                         dependent_invocation);
+	                                         dependent_day_offset);
 	
 	-- Table for all tasks comprising a run (static)
 	CREATE TABLE IF NOT EXISTS tasks (rank,

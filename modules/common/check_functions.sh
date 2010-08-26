@@ -495,7 +495,7 @@ function common.check.reportMD5()
 					# Get the old mtime
 					old_mtime="$(common.hash.getValueMtime MD5 $CXR_LEVEL_UNIVERSAL "${hash_file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
-					main.log -w "File ${file} has changed since ${old_datetime}. New MD5 hash: ${new_hash}"
+					main.log -w "File ${file} changed since ${old_datetime}. New MD5: ${new_hash}"
 					# Currently, we do not store the new hash, so user will see this message
 					# more than once (wanted by design)
 				fi

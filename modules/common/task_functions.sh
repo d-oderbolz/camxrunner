@@ -209,15 +209,15 @@ function common.task.createSequentialDependencyList()
 	
 	-- OT Pre tasks can not have dependencies to other module 
 	-- types, so we do not need to account for these
-	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
-	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	SELECT '$CXR_START_DATE' || '@' || t.module ,
+	       '$CXR_START_DATE' || '@' || t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
 	EXCEPT
-	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
-	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	SELECT '$CXR_START_DATE' || '@' || t.module ,
+	       '$CXR_START_DATE' || '@' || t.module 
 	FROM tasks t, modules m, dependencies
 	WHERE m.module = dependent_module
 	AND   m.module = t.module
@@ -230,8 +230,8 @@ function common.task.createSequentialDependencyList()
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT '$CXR_START_DATE' || '@' || independent_module || '@' || independent_invocation,
-	       '$CXR_START_DATE' || '@' || dependent_module || '@' || dependent_invocation
+	SELECT '$CXR_START_DATE' || '@' || independent_module ,
+	       '$CXR_START_DATE' || '@' || dependent_module 
 	FROM dependencies, modules m
 	WHERE m.module = dependent_module
 	AND   independent_day_offset = dependent_day_offset
@@ -271,8 +271,8 @@ function common.task.createSequentialDependencyList()
 	
 	-- OT Pre tasks can not have dependencies to other module 
 	-- types, so we do not need to account for these
-	SELECT  t.module || '@' || t.invocation,
-	        t.module || '@' || t.invocation
+	SELECT  t.module ,
+	        t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
@@ -280,8 +280,8 @@ function common.task.createSequentialDependencyList()
 	                 '$CXR_TYPE_MODEL',
 	                 '$CXR_TYPE_POSTPROCESS_DAILY')
 	EXCEPT
-	SELECT  t.module || '@' || t.invocation,
-	        t.module || '@' || t.invocation
+	SELECT  t.module,
+	        t.module
 	FROM tasks t, modules m, dependencies
 	WHERE m.module = dependent_module
 	AND   m.module = t.module
@@ -296,8 +296,8 @@ function common.task.createSequentialDependencyList()
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT  independent_module || '@' || independent_invocation,
-	        dependent_module || '@' || dependent_invocation
+	SELECT  independent_module,
+	        dependent_module
 	FROM dependencies, modules m
 	WHERE m.module = dependent_module
 	AND   independent_day_offset = dependent_day_offset
@@ -323,20 +323,19 @@ function common.task.createSequentialDependencyList()
 	
 	
 	main.log -v "Now filling in data for all other days..."
-	# the day_file now contains a tsorted list of module@invocation entries.
+	# the day_file now contains a tsorted list of module entries.
 	
-	# note that change can alo return a resultset...
+	# note that change can also return a resultset...
 	
 	day_list="$(common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
-	-- First put the data in a TEMPORARY TABLE
-	CREATE TEMPORARY TABLE day_t (module, invocation);
+	-- First put the data in a temp table
+	CREATE TEMPORARY TABLE day_t (module);
 	
-	.separator '@'
 	.import $day_file day_t
 	
 	-- OK, now create the permutation
-	SELECT d.day_iso || '@' || m.module || '@' || m.invocation
+	SELECT d.day_iso || '@' || m.module 
 	FROM 	days d,day_t
 
 	EOT)"
@@ -362,15 +361,15 @@ function common.task.createSequentialDependencyList()
 	
 	-- OT Pre tasks can not have dependencies to other module 
 	-- types, so we do not need to account for these
-	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
-	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	SELECT '$CXR_START_DATE' || '@' || t.module,
+	       '$CXR_START_DATE' || '@' || t.module
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
 	EXCEPT
-	SELECT '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation,
-	       '$CXR_START_DATE' || '@' || t.module || '@' || t.invocation
+	SELECT '$CXR_START_DATE' || '@' || t.module,
+	       '$CXR_START_DATE' || '@' || t.module
 	FROM tasks t, modules m, dependencies
 	WHERE m.module = dependent_module
 	AND   m.module = t.module
@@ -383,8 +382,8 @@ function common.task.createSequentialDependencyList()
 	------------------------------------
 	
 	-- Again, OT Pre tasks cannot depend on other module types
-	SELECT '$CXR_START_DATE' || '@' || independent_module || '@' || independent_invocation,
-	       '$CXR_START_DATE' || '@' || dependent_module || '@' || dependent_invocation
+	SELECT '$CXR_START_DATE' || '@' || independent_module,
+	       '$CXR_START_DATE' || '@' || dependent_module
 	FROM dependencies, modules m
 	WHERE m.module = dependent_module
 	AND   independent_day_offset = dependent_day_offset
@@ -475,8 +474,8 @@ function common.task.createParallelDependencyList()
 	
 	-- Daily. 
 	
-	SELECT di.day_iso || '@' || t.module || '@' || t.invocation,
-	       dd.day_iso || '@' || t.module || '@' || t.invocation
+	SELECT di.day_iso || '@' || t.module,
+	       dd.day_iso || '@' || t.module
 	FROM tasks t, days di, days dd, modules m
 	WHERE m.module = t.module
 	AND   di.day_offset = t.day_offset
@@ -488,8 +487,8 @@ function common.task.createParallelDependencyList()
 	$where $day_where_nodep ;
 	
 	-- OT-Pre
-	SELECT $CXR_START_DATE || '@' || t.module || '@' || t.invocation,
-	       $CXR_START_DATE || '@' || t.module || '@' || t.invocation
+	SELECT $CXR_START_DATE || '@' || t.module,
+	       $CXR_START_DATE || '@' || t.module
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
@@ -497,8 +496,8 @@ function common.task.createParallelDependencyList()
 	$no_ot;
 	
 	-- OT-Post
-	SELECT $CXR_STOP_DATE || '@' || t.module || '@' || t.invocation,
-	       $CXR_STOP_DATE || '@' || t.module || '@' || t.invocation
+	SELECT $CXR_STOP_DATE || '@' || t.module,
+	       $CXR_STOP_DATE || '@' || t.module
 	FROM tasks t, modules m
 	WHERE m.module = t.module
 	AND   m.active='true'
@@ -514,8 +513,8 @@ function common.task.createParallelDependencyList()
 	
 	-- standard dependencies (without -)
 	-- we simulate the same structure as above
-	SELECT di.day_iso || '@' || independent_module || '@' || independent_invocation,
-	       dd.day_iso || '@' || dependent_module || '@' || dependent_invocation
+	SELECT di.day_iso || '@' || independent_module,
+	       dd.day_iso || '@' || dependent_module
 	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
 	AND   di.day_offset = independent_day_offset
@@ -525,8 +524,8 @@ function common.task.createParallelDependencyList()
 	$where $day_where ;
 	
 	-- - dependencies
-	SELECT di.day_iso || '@' || independent_module || '@' || independent_invocation,
-	       dd.day_iso || '@' || dependent_module || '@' || dependent_invocation
+	SELECT di.day_iso || '@' || independent_module,
+	       dd.day_iso || '@' || dependent_module
 	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
 	AND   di.day_offset = independent_day_offset
@@ -1302,11 +1301,14 @@ function common.task.init()
 		do
 			# We need to parse the line
 			# this sets a couple of _variables
-			common.task.parseId "$line"
+			# we add a fake invocation
+			common.task.parseId "${line}@1"
 
 			# Write Update statement to file
 			# We only give ranks to stuff that was not yet sucessfully done
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND invocation=$_invocation AND status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
+			# note that all invocatons of a given (module, day) pair get the same ID.
+			# This is by design and correct.
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS';" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))

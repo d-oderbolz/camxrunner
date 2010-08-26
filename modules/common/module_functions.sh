@@ -111,8 +111,7 @@ function common.module.areDependenciesOk?()
 	      t.module = d.independent_module
 	AND   t.status='$CXR_STATUS_FAILURE'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset
-	AND   d.dependent_invocation=$invocation;
+	AND   d.dependent_day_offset=$day_offset;
 	
 	EOT
 	)
@@ -131,8 +130,7 @@ function common.module.areDependenciesOk?()
 	      t.module = d.independent_module
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset
-	AND   d.dependent_invocation=$invocation;
+	AND   d.dependent_day_offset=$day_offset;
 	
 	EOT
 	)
