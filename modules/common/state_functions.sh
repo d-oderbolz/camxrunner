@@ -51,7 +51,7 @@ function common.state.isRepeatedRun?()
 	local count
 	
 	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
-	main.log -v  "Counting $count tasks that where already touched"
+	main.log -v  "Counted $count tasks that where ano longer in status $CXR_STATUS_TODO"
 	
 	if [[ "$count" -gt 0 ]]
 	then
@@ -162,8 +162,6 @@ function common.state.updateInfo()
 		
 		EOT
 		
-		# Are there any non-todo 
-	
 		# Create a few working arrays we will go through
 		types=($CXR_TYPE_PREPROCESS_ONCE \
 		       $CXR_TYPE_PREPROCESS_DAILY \
@@ -307,7 +305,7 @@ function common.state.updateInfo()
 		# Adding any new module types
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
 		
-		# Check if any module is called the same as a type
+		# Check if any module is called the same as a type (not allowed)
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
@@ -492,9 +490,9 @@ function common.state.updateInfo()
 							AND 		meta.value NOT IN (SELECT type FROM types)
 							AND 		substr(meta.value,-1,1) IS NOT '-' ;
 
-			--  dependencies on single modules, only - predicate
-			--  here we must be careful not to add dependcies on types with predicate
-			--  thats why the subselect has a UNION
+			-- dependencies on single modules, only - predicate
+			-- here we must be careful not to add dependcies on types with predicate
+			-- thats why the subselect has a UNION
 			INSERT 	INTO dependencies (
 							independent_module, 
 							independent_day_offset, 
