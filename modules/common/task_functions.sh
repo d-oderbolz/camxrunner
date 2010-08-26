@@ -91,7 +91,7 @@ function common.task.getId()
 		# Use the environment
 		module="${CXR_META_MODULE_NAME}"
 		# Use CXR_DATE or the start date
-		date="${CXR_DATE:${CXR_STRT_DATE}}"
+		date="${CXR_DATE:${CXR_START_DATE}}"
 		invocation="${CXR_INVOCATION:-1}"
 	else
 		# Use parameters
