@@ -995,7 +995,7 @@ function common.task.Worker()
 				start_epoch=$CXR_EPOCH
 				
 				# We need to wait until all dependencies are ok
-				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" "$invocation" )" == true ]]
+				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" )" == true ]]
 				do
 					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
 					

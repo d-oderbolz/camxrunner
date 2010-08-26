@@ -50,7 +50,6 @@ CXR_META_MODULE_VERSION='$Id$'
 # Parameters:
 # $1 - module name for which to check
 # $2 - day_offset for which to check
-# $3 - invocation for which to check
 ################################################################################
 function common.module.areDependenciesOk?()
 ################################################################################
@@ -62,24 +61,22 @@ function common.module.areDependenciesOk?()
 		return $CXR_RET_OK
 	fi
 	
-	if [[ $# -ne 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a module name, a day offset and an invocation as input, got $@"
+		main.dieGracefully "needs a module name and a day offset as input, got $@"
 	fi
 	
 	local module
 	local day_offset
-	local invocation
 	local disabled_modules
 	local unfinishedCount
 	local failedCount
 	
 	module="$1"
 	day_offset="${2}"
-	invocation="${3}"
 	
 	
-	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset, invocation $invocation are done."
+	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset are done."
 	
 	# Find out if any of the dependencies is disabled
 	
@@ -91,8 +88,7 @@ function common.module.areDependenciesOk?()
 	      m.module = d.independent_module
 	AND   m.active='false'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset
-	AND   d.dependent_invocation=$invocation;
+	AND   d.dependent_day_offset=$day_offset;
 	
 	EOT
 	)
