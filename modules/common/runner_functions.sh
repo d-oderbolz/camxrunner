@@ -646,8 +646,7 @@ function common.runner.removeTempFiles()
 	local keyString
 	
 	# remove decompressed files, if wanted
-	# each removed file is also removed from the global list
-	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true  ]]
+	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
 	then
 			main.log  "Removing temporarily decompressed files..."
 			
@@ -678,26 +677,32 @@ function common.runner.removeTempFiles()
 		main.log  "The temporarily decompressed files will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 	
-	# Make sure the list exists
-	touch ${CXR_INSTANCE_FILE_TEMP_LIST}
-
-	# remove temporary files, if wanted
-	if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
+	# It is possible that 
+	# the instance files where already deleted by another process
+	
+	if [[ -d "${CXR_INSTANCE_DIR}" ]]
 	then
-			main.log "Removing temporary files..."
-			
-			# Clean files away
-			while read temp_file
-			do
-				main.log -v "Deleting $temp_file"
+		#Make sure the list exists. 
+		touch ${CXR_INSTANCE_FILE_TEMP_LIST}
+	
+		# remove temporary files, if wanted
+		if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
+		then
+				main.log "Removing temporary files..."
 				
-				rm -f "$temp_file" &>/dev/null
-			done < ${CXR_INSTANCE_FILE_TEMP_LIST}
-			
-			IFS="$oIFS"
-	else
-		main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
-	fi
+				# Clean files away
+				while read temp_file
+				do
+					main.log -v "Deleting $temp_file"
+					
+					rm -f "$temp_file" &>/dev/null
+				done < ${CXR_INSTANCE_FILE_TEMP_LIST}
+				
+				IFS="$oIFS"
+		else
+			main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
+		fi
+	fi # is the instance dir still there
 }
 
 ################################################################################

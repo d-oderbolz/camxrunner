@@ -600,8 +600,9 @@ CXR_INSTANCE_FILE_FAILED_DAYS=${CXR_INSTANCE_DIR}/failed.days
 
 # In this file, we store temporay files of a run. 
 # (e. g. AHOMAP Control files)
-# These will be deleted after the run
-CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp.list
+# These will be deleted after the run. To avoid any attacks,
+# we use a random filename
+CXR_INSTANCE_FILE_TEMP_LIST=${CXR_INSTANCE_DIR}/temp.list${RANDOM}
 
 # Determine the name of the Continue file (must be this early because of lock manager)
 # This is used to search for any continue files

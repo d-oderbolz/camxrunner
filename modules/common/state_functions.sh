@@ -395,6 +395,7 @@ function common.state.updateInfo()
 			
 			-- Daily modules
 			INSERT 	INTO tasks (
+							id,
 							module,
 							type,
 							exclusive,
@@ -402,7 +403,8 @@ function common.state.updateInfo()
 							invocation,
 							status,
 							epoch_m) 
-			SELECT 	m.module,
+			SELECT 	d.day_iso || '@' || m.module || '@' || i.value,
+							m.module,
 							m.type,
 							m.exclusive, 
 							d.day_offset, 
@@ -418,6 +420,7 @@ function common.state.updateInfo()
 			-- One-Time preprocessors
 			
 			INSERT 	INTO tasks (
+							id,
 							module,
 							type,
 							exclusive,
@@ -425,7 +428,8 @@ function common.state.updateInfo()
 							invocation,
 							status,
 							epoch_m) 
-							SELECT 	m.module,
+							SELECT 	'$CXR_START_DATE' || '@' || m.module || '@' || i.value,
+											m.module,
 											m.type,
 											m.exclusive,
 											0,
@@ -440,6 +444,7 @@ function common.state.updateInfo()
 			-- One-Time postprocessors
 			
 			INSERT 	INTO tasks (
+							id,
 							module,
 							type,
 							exclusive,
@@ -447,7 +452,8 @@ function common.state.updateInfo()
 							invocation,
 							status,
 							epoch_m) 
-							SELECT 	m.module,
+							SELECT 	'$CXR_STOP_DATE' || '@' || m.module || '@' || i.value,
+											m.module,
 											m.type,
 											m.exclusive, 
 											$(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
@@ -595,7 +601,7 @@ function common.state.init()
 	# Create the global dirs
 	mkdir -p "${CXR_GLOBAL_DIR}"
 	
-	# Create any instance dirs
+	# Create instance dir
 	mkdir -p "${CXR_INSTANCE_DIR}"
 	
 	##################
@@ -667,7 +673,8 @@ function common.state.init()
 	                                         dependent_day_offset);
 	
 	-- Table for all tasks comprising a run (static)
-	CREATE TABLE IF NOT EXISTS tasks (rank,
+	CREATE TABLE IF NOT EXISTS tasks (id,
+	                                 rank,
 	                                 module,
 	                                 type,
 	                                 exclusive,
