@@ -677,11 +677,14 @@ function common.runner.removeTempFiles()
 	else
 		main.log  "The temporarily decompressed files will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
+	
+	# Make sure the list exists
+	touch ${CXR_INSTANCE_FILE_TEMP_LIST}
 
 	# remove temporary files, if wanted
 	if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
 	then
-			main.log  "Removing temporary files..."
+			main.log "Removing temporary files..."
 			
 			# Clean files away
 			while read temp_file
@@ -689,7 +692,7 @@ function common.runner.removeTempFiles()
 				main.log -v "Deleting $temp_file"
 				
 				rm -f "$temp_file" &>/dev/null
-			done < ${CXR_INSTANCE_FILE_TEMP_LIST:-/dev/null}
+			done < ${CXR_INSTANCE_FILE_TEMP_LIST}
 			
 			IFS="$oIFS"
 	else
