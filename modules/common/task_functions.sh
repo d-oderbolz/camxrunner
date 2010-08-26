@@ -722,7 +722,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id,module,module_type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
