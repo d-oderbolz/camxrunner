@@ -479,15 +479,15 @@ function common.state.updateInfo()
 							SELECT 	independent.module,
 											independent.day_offset,
 											dependent.module,
-											dependent.day_offset,
+											dependent.day_offset
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
+							AND			dependent.invocation = '1'
+							AND			independent.invocation = '1'
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types)
 							AND 		substr(meta.value,-1,1) IS NOT '-' ;
@@ -510,8 +510,8 @@ function common.state.updateInfo()
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset - 1
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
+							AND			dependent.invocation = '1'
+							AND			independent.invocation = '1'
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
 							AND 		substr(meta.value,-1,1) IS '-' ;
@@ -535,8 +535,8 @@ function common.state.updateInfo()
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value
 							AND			independent.day_offset = dependent.day_offset
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
+							AND			dependent.invocation = '1'
+							AND			independent.invocation = '1'
 							AND 		meta.value = t.type;
 
 			--
@@ -560,8 +560,8 @@ function common.state.updateInfo()
 							WHERE		dependent.module = meta.module
 							AND			independent.type = t.type
 							AND			independent.day_offset = dependent.day_offset - 1
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
+							AND			dependent.invocation = '1'
+							AND			independent.invocation = '1'
 							AND 		meta.value = t.type || '-' ;
 							
 
