@@ -543,12 +543,10 @@ function common.state.updateInfo()
 			-- dependencies on whole types only with - predicate
 			-- 
 			INSERT 	INTO dependencies (
-							independent_module, 
-							independent_day_offset, 
-							independent_invocation, 
+							independent_module,
+							independent_day_offset,
 							dependent_module, 
-							dependent_day_offset, 
-							dependent_invocation)
+							dependent_day_offset)
 							SELECT 	independent.module,
 											independent.day_offset,
 											dependent.module,
