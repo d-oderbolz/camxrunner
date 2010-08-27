@@ -668,8 +668,11 @@ function common.runner.removeTempFiles()
 				# the value is the name of the decompressed file
 				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL "$compressed_filename")"
 				
-				main.log -v "Deleting $filename"
-				rm -f "${filename}" &>/dev/null
+				if [[ "$filename" ]]
+				then
+					main.log -v "Deleting $filename"
+					rm -f "${filename}" &>/dev/null
+				fi
 			done
 			
 			IFS="$oIFS"
