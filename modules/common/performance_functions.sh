@@ -198,9 +198,6 @@ function common.performance.estimateRuntime()
 	# We use mean + 1 sigma as estimate, we need to multply with cell factor to get it right
 	estimate=$(common.math.FloatOperation "($mean + $stddev) * $CXR_TIME_NORM_FACTOR" -1 )
 	
-	# Add to cache
-	common.hash.put Cache_Performance $CXR_LEVEL_UNIVERSAL "$module" "$estimate"
-	
 	echo $estimate
 }
 

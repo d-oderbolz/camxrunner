@@ -493,8 +493,8 @@ function common.state.updateInfo()
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset
-							AND			dependent.invocation = '1'
-							AND			independent.invocation = '1'
+							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types)
 							AND 		substr(meta.value,-1,1) IS NOT '-' ;
@@ -517,8 +517,8 @@ function common.state.updateInfo()
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset - 1
-							AND			dependent.invocation = '1'
-							AND			independent.invocation = '1'
+							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
 							AND 		substr(meta.value,-1,1) IS '-' ;
@@ -541,8 +541,8 @@ function common.state.updateInfo()
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value
 							AND			independent.day_offset = dependent.day_offset
-							AND			dependent.invocation = '1'
-							AND			independent.invocation = '1'
+							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON';
 
 			--
@@ -564,8 +564,8 @@ function common.state.updateInfo()
 							WHERE		dependent.module = meta.module
 							AND			independent.type = t.type
 							AND			independent.day_offset = dependent.day_offset - 1
-							AND			dependent.invocation = '1'
-							AND			independent.invocation = '1'
+							AND			dependent.invocation = 1
+							AND			independent.invocation = 1
 							AND 		meta.value = t.type || '-' ;
 							
 
@@ -643,57 +643,57 @@ function common.state.init()
 	pragma integrity_check;
 	
 	-- This is a "Oracle like" Dummy table 
-	CREATE TABLE IF NOT EXISTS dual (dummy);
+	CREATE TABLE IF NOT EXISTS dual (dummy TEXT);
 	DELETE FROM dual;
 	INSERT INTO dual (dummy) VALUES ('X');
 	
 	-- Here we store all known simulation days
-	CREATE TABLE IF NOT EXISTS days (day_offset,
-	                                 day_iso,
-	                                 active);
+	CREATE TABLE IF NOT EXISTS days (day_offset INTEGER,
+	                                 day_iso 		TEXT,
+	                                 active 		TEXT);
 
 	-- All modules go here
-	CREATE TABLE IF NOT EXISTS modules (module, 
-	                                    type,
-	                                    path,
-	                                    exclusive,
-	                                    active);
+	CREATE TABLE IF NOT EXISTS modules (module		TEXT, 
+	                                    type			TEXT,
+	                                    path			TEXT,
+	                                    exclusive	TEXT,
+	                                    active		TEXT);
 	CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
 
 	-- List of module types
-	CREATE TABLE IF NOT EXISTS types (type);
+	CREATE TABLE IF NOT EXISTS types (type	TEXT);
 	CREATE UNIQUE INDEX IF NOT EXISTS type_idx ON types(type);
 	
 	-- Storage of module metadata
-	CREATE TABLE IF NOT EXISTS metadata (module,
-	                                     field,
-	                                     value);
+	CREATE TABLE IF NOT EXISTS metadata (module	TEXT,
+	                                     field	TEXT,
+	                                     value	TEXT);
 
 	-- Table to store dependencies
-	CREATE TABLE IF NOT EXISTS dependencies (independent_module, 
-	                                         independent_day_offset, 
-	                                         dependent_module, 
-	                                         dependent_day_offset);
+	CREATE TABLE IF NOT EXISTS dependencies (independent_module			TEXT, 
+	                                         independent_day_offset	TEXT, 
+	                                         dependent_module				TEXT, 
+	                                         dependent_day_offset		TEXT);
 	
 	-- Table for all tasks comprising a run (static)
-	CREATE TABLE IF NOT EXISTS tasks (id,
-	                                 rank,
-	                                 module,
-	                                 type,
-	                                 exclusive,
-	                                 day_offset,
-	                                 invocation,
-	                                 status,
-	                                 seconds_estimated,
-	                                 seconds_real,
-	                                 epoch_m);
+	CREATE TABLE IF NOT EXISTS tasks (id								TEXT,
+	                                 rank								INTEGER,
+	                                 module							TEXT,
+	                                 type								TEXT,
+	                                 exclusive					TEXT,
+	                                 day_offset					INTEGER,
+	                                 invocation					INTEGER,
+	                                 status							TEXT,
+	                                 seconds_estimated	INTEGER,
+	                                 seconds_real				INTEGER,
+	                                 epoch_m						INTEGER);
 	
 	-- Table for workers
-	CREATE TABLE IF NOT EXISTS workers (pid,
-	                                    hostname,
-	                                    status,
-	                                    current_task,
-	                                    epoch_m);
+	CREATE TABLE IF NOT EXISTS workers (pid							INTEGER,
+	                                    hostname				TEXT,
+	                                    status					TEXT,
+	                                    current_task		TEXT,
+	                                    epoch_m					INTEGER);
 	
 	PRAGMA main.locking_mode=NORMAL; 
 	

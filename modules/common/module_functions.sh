@@ -149,8 +149,6 @@ function common.module.areDependenciesOk?()
 # > b=$(common.module.getNumInvocations "$module")
 # The $() construct opens a subshell.
 #
-# TODO: This should be stored in the "modules" table
-#
 # Parameters:
 # $1 - name of a module
 ################################################################################
