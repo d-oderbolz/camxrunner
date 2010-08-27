@@ -57,6 +57,7 @@ function common.state.isRepeatedRun?()
 	then
 		echo true
 	else
+		# No "touched" tasks found
 		echo false
 	fi
 }
@@ -303,7 +304,7 @@ function common.state.updateInfo()
 		done # loop over type-index
 		
 		# Adding any new module types
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE'"
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';"
 		
 		# Check if any module is called the same as a type (not allowed)
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
@@ -311,6 +312,8 @@ function common.state.updateInfo()
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
+		main.log -v "Removing any traces of running tasks..."
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status='$CXR_STATUS_RUNNING';"
 		
 		main.log -v "Adding information about simulation days..."
 		
@@ -904,8 +907,8 @@ function common.state.hasFinished?()
 ################################################################################
 # Function: common.state.hasFailed?
 #	
-# Check if a specific task has failed (similar to the inverse of <common.state.hasFinished?>
-# but with subtle differences.
+# Check if a specific task has failed (similar to <common.state.hasFinished?>
+# but with subtle differences).
 #
 # Parameters:	
 # $1 - module name
