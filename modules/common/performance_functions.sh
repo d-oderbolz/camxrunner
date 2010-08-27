@@ -27,7 +27,7 @@ CXR_META_MODULE_NUM_TESTS=1
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
 # If a requirement is not binding, optional is added at the end
-CXR_META_MODULE_REQ_SPECIAL="exec|dos2unix exec|unix2dos"
+CXR_META_MODULE_REQ_SPECIAL=""
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains filesystem functions for the CAMxRunner"
