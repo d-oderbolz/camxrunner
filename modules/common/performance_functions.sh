@@ -104,7 +104,8 @@ function common.performance.stopTiming()
 		# Normalize by cells
 		time_norm=$(common.math.FloatOperation "$diff / $CXR_TIME_NORM_FACTOR" 1 false)
 		
-		if [[ $time_norm -lt 1 ]]
+		# Is the normalized time very small?
+		if [[ $(common.math.FloatOperation "$time_norm < 1.0" 0 false) == 1 ]]
 		then
 			main.log -v "Normalized difference $time_norm is small. That might be a hint that CXR_TIME_PER_CELLS ($CXR_TIME_PER_CELLS) is too small"
 		fi
