@@ -70,12 +70,10 @@ function common.performance.startTiming()
 ################################################################################
 # Function: common.performance.stopTiming
 # 
-# Measures the time difference in seconds, adds it to the universal timing hash
-# (a hash of arrays). Once, we use the given module name as key, the second time,
-# we use "all" - this can later be used to estimate unknown rumtimes.
+# Measures the time difference in seconds, adds it to the universal timing db. 
+# At the moment, we use a standardized problem size.
 #
-# Hashes:
-# Timing (Universal)
+# DB: $CXR_UNIVERSAL_TIMING_DB
 #
 # Parameters:
 # $1 - module name (can be any string)
@@ -87,8 +85,7 @@ function common.performance.stopTiming()
 	local time_norm
 	local start_time
 	local stop_time
-	local keys
-	
+
 	module=${1}
 	
 	# Get the current epoch
@@ -99,57 +96,43 @@ function common.performance.stopTiming()
 	# Get value via indirection
 	start_time=${!var:-}
 	
-	# We will later loop through this
-	keys="$module all"
-	
 	if [[ "$start_time" ]]
 	then
-		
 		# Calculate difference
 		diff=$(( $stop_time - $start_time ))
 		
 		# Normalize by cells
-		time_norm=$(common.math.FloatOperation "$diff / $CXR_TIME_NORM_FACTOR" -1 false)
+		time_norm=$(common.math.FloatOperation "$diff / $CXR_TIME_NORM_FACTOR" 1 false)
 		
 		if [[ $time_norm -lt 1 ]]
 		then
 			main.log -v "Normalized difference $time_norm is small. That might be a hint that CXR_TIME_PER_CELLS ($CXR_TIME_PER_CELLS) is too small"
 		fi
 		
+		# Store data
+		common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" - <<-EOT
 		
-		# Do a few things for two hashes
-		for key in $keys
-		do
+			INSERT INTO timing 	(model,
+													version,
+													module,
+													problem_size,
+													machine,
+													ReaLoad,
+													elapsed_seconds)
+							VALUES			(
+														'$CXR_MODEL',
+														'$CXR_MODEL_VERSION',
+														'$model',
+														'$CXR_TIME_PER_CELLS',
+														'$CXR_MACHINE',
+														$(common.performance.getReaLoadPercent),
+														$time_norm
+													);
 		
-			# Get time array, if any
-			# then add our time as new element
-			if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "$key") == true ]]
-			then
-				time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "$key") )
-			else
-				time_array=()
-			fi
-			
-			# Get last index
-			last_index=${#time_array[@]}
-			
-			# There is a limit on the number of entries
-			if [[ $last_index -eq $CXR_TIME_MAX_ENTRIES ]]
-			then
-				# Then we add this one at the beginning (normally, we add at the end)
-				last_index=0
-			fi
-			
-			time_array[$last_index]=$time_norm
-			arr_string="${time_array[@]}"
-			
-			# Store in Hash
-			common.hash.put Timing $CXR_LEVEL_UNIVERSAL "$key" "$arr_string"
-		
-		done
+		EOT
 		
 	else
-		# Was not in hash
+		# No start value found
 		main.log -e "Module $module has no start time information. Maybe common.performance.startTiming was not run?"
 	fi
 }
@@ -158,13 +141,11 @@ function common.performance.stopTiming()
 # Function: common.performance.estimateRuntime
 # 
 # Estimates the runtime in seconds of a given module for the current problem size.
-# This estimation is based on the mean and standard deviation of the runtimes of the
-# given module measured so far (we just add 1 sigma).
+# This estimation is based on the mean. TODO: estimate STDEV and add 1 sigma.
 #
-# If this module has no performance data yet, we use the "all" entry.
+# If this module has no performance data yet, we use the a mean over all data.
 #
-# Hashes:
-# Timing (Universal)
+# DB: $CXR_UNIVERSAL_TIMING_DB
 #
 # Parameters:
 # $1 - module name
@@ -174,29 +155,32 @@ function common.performance.estimateRuntime()
 {
 	local module
 	local mean
-	local stddev
 	local estimate
 	
 	module=${1}
 	
-	if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "$module") == true ]]
+	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module' AND machine='$CXR_MACHINE';")
+
+	if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
 	then
-		time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "$module") )
-	else
-		if [[ $(common.hash.has? Timing $CXR_LEVEL_UNIVERSAL "all") == true ]]
+		# No data yet, try an average over more
+		mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module';")
+		
+		if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
 		then
-			time_array=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL "all") )
-		else
-			main.log -w "Cannot find any timing data."
-			echo 0
-			return $CXR_RET_OK
+			# Still nothing, get avg over all
+			mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing;")
+		
+			if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
+			then
+				# Still nothing, use default
+				mean=600
+			fi
 		fi
 	fi
 
-	mean=$(common.math.meanVector "${time_array[@]}")
-	stddev=$(common.math.stdevVector "${time_array[@]}" "$mean")
-	# We use mean + 1 sigma as estimate, we need to multply with cell factor to get it right
-	estimate=$(common.math.FloatOperation "($mean + $stddev) * $CXR_TIME_NORM_FACTOR" -1 )
+	# we need to multply with cell factor to get it right
+	estimate=$(common.math.FloatOperation "$mean * $CXR_TIME_NORM_FACTOR" -1 false)
 	
 	echo $estimate
 }

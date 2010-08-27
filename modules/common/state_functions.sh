@@ -613,9 +613,6 @@ function common.state.init()
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
 	common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
 	
-	# Stores Timing information
-	common.hash.init Timing $CXR_LEVEL_UNIVERSAL
-	
 	# In this hash, we store files that where decompressed (for all instances)
 	# Implies that all instances see the same CXR_TEMP_DIR
 	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
@@ -630,7 +627,30 @@ function common.state.init()
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
 	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
-	main.log -v "Creating database schema..."
+	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
+	
+	common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" - <<-EOT
+	
+		-- Use legacy format
+		PRAGMA legacy_file_format = on;
+		
+		-- Get exclusive access
+		PRAGMA main.locking_mode=EXCLUSIVE; 
+	
+		-- Check integrity
+		PRAGMA integrity_check;
+		
+		CREATE TABLE IF NOT EXISTS timing (	model 	TEXT,
+																				version	TEXT,
+																				module TEXT,
+																				problem_size INTEGER,
+																				machine	TEXT,
+																				ReaLoad	NUMERIC,
+																				elapsed_seconds NUMERIC);
+		
+	EOT
+	
+	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	-- Use legacy format
@@ -640,7 +660,7 @@ function common.state.init()
 	PRAGMA main.locking_mode=EXCLUSIVE; 
 	
 	-- Check integrity
-	pragma integrity_check;
+	PRAGMA integrity_check;
 	
 	-- This is a "Oracle like" Dummy table 
 	CREATE TABLE IF NOT EXISTS dual (dummy TEXT);

@@ -538,6 +538,9 @@ CXR_DB_SUFFIX=sqlite
 # Some state data is global to all runs (e. g. the hash used for change detection)
 CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_LEVEL_UNIVERSAL
 
+# This universal DB file stores timing information
+CXR_UNIVERSAL_TIMING_DB=${CXR_UNIVERSAL_DIR}/timing.sqlite
+
 
 ########################################
 # Data that is global to all instances of a given run
