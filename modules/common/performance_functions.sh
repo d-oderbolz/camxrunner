@@ -180,7 +180,7 @@ function common.performance.estimateRuntime()
 		fi
 	fi
 
-	# we need to multply with cell factor to get it right
+	# we need to multply with normalisation factor to get it right
 	estimate=$(common.math.FloatOperation "$mean * $CXR_TIME_NORM_FACTOR" -1 false)
 	
 	echo $estimate
