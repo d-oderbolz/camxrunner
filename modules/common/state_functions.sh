@@ -629,7 +629,7 @@ function common.state.init()
 	
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
-	common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" - <<-EOT
+	common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" - <<-EOT
 	
 		-- Use legacy format
 		PRAGMA legacy_file_format = on;

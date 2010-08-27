@@ -110,7 +110,7 @@ function common.performance.stopTiming()
 		fi
 		
 		# Store data
-		common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" - <<-EOT
+		common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" - <<-EOT
 		
 			INSERT INTO timing 	(model,
 													version,
