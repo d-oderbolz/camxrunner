@@ -650,23 +650,27 @@ function common.runner.removeTempFiles()
 	then
 			main.log  "Removing temporarily decompressed files..."
 			
-			# common.hash.getKeys returns a CXR_DELIMITER delimited string
+				# common.hash.getKeysAndValues returns a newline-separated list
 			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)"
-			IFS="$CXR_DELIMITER"
+			IFS='
+'
 			
-			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			arrKeys=( $keyString )
-			
-			# Reset Internal Field separator
-			IFS="$oIFS"
-			
-			# Clean files away
-			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+			# loop through compressed_filename|filename pairs
+			for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
 			do
-				compressed_filename=${arrKeys[$iKey]}
-				# the value is the name of the decompressed file
-				filename="$(common.hash.get $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL "$compressed_filename")"
+				# Reset IFS
+				IFS="$oIFS"
+				
+				# Parse the DB string
+				oIFS="$IFS"
+				IFS="$CXR_DELIMITER"
+				
+				set $pair
+				
+				compressed_filename="$1"
+				filename="$2"
+				# Reset IFS
+				IFS="$oIFS"
 				
 				if [[ "$filename" ]]
 				then

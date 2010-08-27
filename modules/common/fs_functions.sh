@@ -480,10 +480,17 @@ function common.fs.CompressOutput()
 	
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
-	
+			# common.hash.getKeysAndValues returns a newline-separated list
+			oIFS="$IFS"
+			IFS='
+'
 		# looping through filename|module pairs
 		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE)
 		do
+			
+			# Reset IFS
+			IFS="$oIFS"
+			
 			# Parse the DB string
 			oIFS="$IFS"
 			IFS="$CXR_DELIMITER"

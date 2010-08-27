@@ -517,21 +517,15 @@ function main.doCleanup()
 		then
 			main.log -a "Dryrun: removing the dummy files..."
 			
-			# common.hash.getKeys returns a CXR_DELIMITER delimited string
+			# common.hash.getKeys returns a newline delimited string
 			oIFS="$IFS"
-			keyString="$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)"
-			IFS="$CXR_DELIMITER"
-			
-			 # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-			arrKeys=( $keyString )
-			
-			# Reset Internal Field separator
-			IFS="$oIFS"
-			
+			IFS='
+'
 			# Clean files away
-			for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+			for dummy_file in $(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)
 			do
-				dummy_file=${arrKeys[$iKey]}
+				# Reset IFS
+				IFS="$oIFS"
 
 				main.log -v "Deleting $dummy_file"
 				

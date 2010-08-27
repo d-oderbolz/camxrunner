@@ -627,30 +627,24 @@ function common.hash.isNew?()
 ################################################################################
 # Function: common.hash.getKeys
 #
-# Returns a unique list of keys of the given hash as a quoted CXR_DELIMITER separated list.
+# Returns a unique list of keys of the given hash as newline-separated list.
 # Do not assume any particular order, it depends on the order the hash imposes on the
 # data. 
-# If the DB does not exist, returns the empty string.
 #
 # Use this function only if you are not interested in the actual values in the hash
 # (if you merely need to know something exists). 
-# The functions <common.hash.getValues> and <common.hash.getKeysAndValuesValues> 
-# also provide you with the data in one call.
+# The function <common.hash.getKeysAndValues> also provides you with the data in one call.
 # 
 # Recommended use:
+# > # Set IFS to newline only
 # > oIFS="$IFS"
-# > keyString="$(common.hash.getKeys $hash $CXR_LEVEL_GLOBAL)"
-# > IFS="$CXR_DELIMITER"
-# > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-# > arrKeys=( $keyString )
-# > # Reset Internal Field separator
-# > IFS="$oIFS"
-# > 
-# > # looping through keys (safest approach)
-# > for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+# > IFS='
+# >'
+# > for key in $(common.hash.getKeys $hash $CXR_LEVEL_GLOBAL)
 # > do
-# > 	key=${arrKeys[$iKey]}
-# > 	# Whatever more
+# > 	# Reset IFS
+# > 	IFS="$oIFS"
+# > 	# Whatever
 # > done
 # 
 # Parameters:
@@ -660,87 +654,6 @@ function common.hash.isNew?()
 function common.hash.getKeys()
 ################################################################################
 {
-	if [[ $# -ne 2  ]]
-	then
-		main.dieGracefully "needs a hash and a valid hash-level as input"
-	fi
-	
-	local hash
-	local level
-	
-	local found
-	local key
-	local list
-
-	local db_file
-	
-	hash="$1"
-	level="$2"
-
-	found=false
-	
-	# Work out the filename
-	db_file="$(_common.hash.getDbFile "$level")"
-	
-	main.log -v "Getting keys for $hash $level out of ${db_file}..."
-	
-	if [[ -f ${db_file} ]]
-	then
-		# DB exists, get data
-		for key in $(common.db.getResultSet "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash'")
-		do
-			found=true
-
-			list="${list}${key}$CXR_DELIMITER"
-		done
-		
-		# Remove last delimiter
-		list="${list/%${CXR_DELIMITER}/}"
-	
-	else
-		main.log -w "DB ${db_file} does not exist."
-		list=""
-	fi
-	
-	if [[ $found == false ]]
-	then
-		main.log -w "DB ${db_file} is empty..."
-	fi
-	
-	echo $list
-}
-
-################################################################################
-# Function: common.hash.getValues
-#
-# Returns all valuos of the given hash as a quoted CXR_DELIMITER separated list.
-# Do not assume any particular order, it depends on the order the hash imposes on the
-# data. 
-# If the DB does not exist, returns the empty string.
-# 
-# Recommended use:
-# > oIFS="$IFS"
-# > valueString="$(common.hash.getValues $hash $CXR_LEVEL_GLOBAL)"
-# > IFS="$CXR_DELIMITER"
-# > # Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-# > arrVal=( $valueString )
-# > # Reset Internal Field separator
-# > IFS="$oIFS"
-# > 
-# > # looping through keys (safest approach)
-# > for iVal in $( seq 0 $(( ${#arrVal[@]} - 1)) )
-# > do
-# > 	val=${arrVal[$iVal]}
-# > 	# Whatever more
-# > done
-# 
-# Parameters:
-# $1 - name of the hash
-# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-################################################################################
-function common.hash.getValues()
-################################################################################
-{
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash and a valid hash-level as input"
@@ -748,47 +661,19 @@ function common.hash.getValues()
 	
 	local hash
 	local level
-	
-	local found
-	local value
-	local list
 
 	local db_file
 	
 	hash="$1"
 	level="$2"
-	
-	found=false
-	
+
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
-	if [[ -f ${db_file} ]]
-	then
-		# DB exists, get data
-		for value in $(common.db.getResultSet "$db_file" "SELECT value FROM hash WHERE hash='$hash'")
-		do
-			found=true
-
-			list="${list}${value}$CXR_DELIMITER"
-		done
-		
-		# Remove last delimiter
-		list="${list/%${CXR_DELIMITER}/}"
-	
-	else
-		main.log -w "DB ${db_file} does not exist."
-		list=""
-	fi
-	
-	if [[ $found == false ]]
-	then
-		main.log -w "DB ${db_file} is empty..."
-	fi
-	
-	echo $list
+	# get data
+	common.db.getResultSet "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash';")
 }
 
 ################################################################################
@@ -798,14 +683,20 @@ function common.hash.getValues()
 # key1|value1
 # key2|value2
 # Do not assume any particular order, it depends on the order the hash imposes on the
-# data. We ensure that for each key we return only one value (the most recet one).
-# If the DB does not exist, returns the empty string.
+# data. We ensure that for each key we return only one value (the most recent one).
 # 
 # Recommended use:
 #
 # > # looping through pairs
+# > # Set IFS to newline only
+# > oIFS="$IFS"
+# > IFS='
+# >'
 # > for pair in $(common.hash.getKeysAndValues $hash $level)
 # > do
+# > 	# Reset IFS
+# > 	IFS="$oIFS"
+# >
 # > 	oIFS="$IFS"
 # >		IFS="$CXR_DELIMITER"
 # > 	set $pair
@@ -844,31 +735,8 @@ function common.hash.getKeysAndValues()
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
-	
-	if [[ -f ${db_file} ]]
-	then
-		# DB exists, get data
-		for key in $(common.db.getResultSet "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)")
-		do
-			found=true
+	common.db.getResultSet "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
 
-			list="${list}${key}$CXR_DELIMITER"
-		done
-		
-		# Remove last delimiter
-		list="${list/%${CXR_DELIMITER}/}"
-	
-	else
-		main.log -w "DB ${db_file} does not exist."
-		list=""
-	fi
-	
-	if [[ $found == false ]]
-	then
-		main.log -w "DB ${db_file} is empty..."
-	fi
-	
-	echo $list
 }
 
 ################################################################################
