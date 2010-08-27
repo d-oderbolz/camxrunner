@@ -123,7 +123,7 @@ function common.performance.stopTiming()
 							VALUES			(
 														'$CXR_MODEL',
 														'$CXR_MODEL_VERSION',
-														'$model',
+														'$module',
 														'$CXR_TIME_PER_CELLS',
 														'$CXR_MACHINE',
 														$(common.performance.getReaLoadPercent),
