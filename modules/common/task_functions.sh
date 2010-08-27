@@ -900,7 +900,6 @@ function common.task.Worker()
 	
 	local tmp
 	local pid
-	local new_task_descriptor
 	local new_task
 	local oIFS
 	local descriptor
@@ -1036,11 +1035,10 @@ function common.task.Worker()
 				# We use the return status to determine if it was successful
 				
 				# we pass the invocation as argument
-				# most modules simply ignore this.
 				# If invocation is unset, we pass 1
 				$CXR_META_MODULE_NAME ${invocation:-1} \
-				&& common.task.changeTaskStatus $new_task_descriptor $CXR_STATUS_SUCCESS \
-				|| common.task.changeTaskStatus $new_task_descriptor $CXR_STATUS_FAILURE
+				&& common.task.changeTaskStatus $id $CXR_STATUS_SUCCESS \
+				|| common.task.changeTaskStatus $id $CXR_STATUS_FAILURE
 							
 				# Stop Timing 
 				common.performance.stopTiming $CXR_META_MODULE_NAME
