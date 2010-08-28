@@ -646,7 +646,8 @@ function common.state.init()
 																				problem_size INTEGER,
 																				machine	TEXT,
 																				ReaLoad	NUMERIC,
-																				elapsed_seconds NUMERIC);
+																				elapsed_seconds NUMERIC,
+																				epoch_m				  INTEGER);
 		
 	EOT
 	

@@ -119,7 +119,8 @@ function common.performance.stopTiming()
 													problem_size,
 													machine,
 													ReaLoad,
-													elapsed_seconds)
+													elapsed_seconds,
+													epoch_m)
 							VALUES			(
 														'$CXR_MODEL',
 														'$CXR_MODEL_VERSION',
@@ -127,7 +128,8 @@ function common.performance.stopTiming()
 														'$CXR_TIME_PER_CELLS',
 														'$CXR_MACHINE',
 														$(common.performance.getReaLoadPercent),
-														$time_norm
+														$time_norm,
+														$(date "+%s")
 													);
 		
 		EOT
@@ -363,11 +365,9 @@ function test_module()
 	main.log "System Load: $(common.performance.getSystemLoadPercent) %"
 	main.log "ReaLoad: $(common.performance.getReaLoadPercent) %"
 	
-	# Load the performance array
-	arr=( $(common.hash.get Timing $CXR_LEVEL_UNIVERSAL test) )
-	
-	# Measured time is in the last entry
-	time=${arr[$(( ${#arr[@]} - 1 ))]}
+	# Measured time is in the DB,
+	# we get the row that was added last
+	time=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "SELECT elapsed_seconds FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='test' GROUP BY epoch_m HAVING MAX(epoch_m);" )
 	
 	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0 false))
 	
