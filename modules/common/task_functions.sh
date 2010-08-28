@@ -228,7 +228,7 @@ function common.task.createSequentialDependencyList()
 	AND   m.type = '$CXR_TYPE_PREPROCESS_ONCE';
 	
 	------------------------------------
-	-- Then add all active dependencies
+	-- Then add all active dependencies.
 	------------------------------------
 	SELECT '$CXR_START_DATE' || '@' || d.independent_module ,
 	       '$CXR_START_DATE' || '@' || d.dependent_module 
@@ -280,16 +280,22 @@ function common.task.createSequentialDependencyList()
 	
 	------------------------------------
 	-- Then add all the active dependencies
+	-- we need to restrict the dependencies to
+	-- the daily modules.
 	------------------------------------
 	SELECT  independent_module,
 	        dependent_module
-	FROM dependencies, modules m
+	FROM dependencies, modules m, modules im
 	WHERE m.module = dependent_module
+	AND im.module = independent_module
 	AND   independent_day_offset = dependent_day_offset
 	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
-	                 '$CXR_TYPE_POSTPROCESS_DAILY') ;
+	                 '$CXR_TYPE_POSTPROCESS_DAILY')
+	AND   im.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
+	                 '$CXR_TYPE_MODEL',
+	                 '$CXR_TYPE_POSTPROCESS_DAILY');
 	
 	EOT
 	
@@ -350,14 +356,18 @@ function common.task.createSequentialDependencyList()
 	
 	------------------------------------
 	-- Then add all active dependencies
+	-- we need to restrict the dependencies to
+	-- the daily modules.
 	------------------------------------
 	SELECT '$CXR_STOP_DATE' || '@' || d.independent_module,
 	       '$CXR_STOP_DATE' || '@' || d.dependent_module
-	FROM  dependencies d, modules m
+	FROM  dependencies d, modules m, modules im
 	WHERE m.module = d.dependent_module
+	AND   im.module = d.independent_module
 	AND   d.independent_day_offset = d.dependent_day_offset
 	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
+	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
+	AND   im.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
 	
 	EOT
 	
