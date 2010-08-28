@@ -1646,6 +1646,10 @@ function test_module()
 	
 	done
 	
+	# remove the barrier
+	rm $barrier
+	sleep $CXR_LOCK_TIMEOUT_SEC
+	
 	
 	# Restore old settings
 	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
