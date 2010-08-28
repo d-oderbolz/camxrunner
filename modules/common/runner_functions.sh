@@ -1618,7 +1618,7 @@ function test_module()
 	CXR_LOCK_TIMEOUT_SEC=5
 	
 	# How many processes?
-	nProcs=5
+	nProcs=20
 	
 	# This file saves as a barrier
 	barrier=$(common.runner.createTempFile lock-barrier)
