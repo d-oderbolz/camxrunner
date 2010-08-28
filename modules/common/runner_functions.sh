@@ -1608,7 +1608,8 @@ function test_module()
 	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $CXR_IGRID 3)") domain001 "common.runner.evaluateRule with formatting"
 	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
 	
-	# Test Locking
+	# Test Locking. We simulate the case that many processes want the same lock at the same instant.
+	# This will not occur (hopefully) and is a pretty difficult situation.
 	local lock
 	lock=test
 	
@@ -1616,20 +1617,39 @@ function test_module()
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
 	CXR_LOCK_TIMEOUT_SEC=5
 	
-	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s. The warning you get is expected."
+	# How many processes?
+	nProcs=5
 	
-	# Get an instance lock
-	common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
+	# This file saves as a barrier
+	barrier=$(common.runner.createTempFile lock-barrier)
 	
-	# Other processes want it
-	common.runner.waitForLock "$lock" "$CXR_LEVEL_INSTANCE"
-	common.runner.waitForLock "$lock" "$CXR_LEVEL_INSTANCE"
+	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
+	
+	for iter in $(seq 1 $nProcs)
+	do
+	
+		# These are the proceses that carry out the test
+		(
+			# Wait until barrier is gone
+			while [[ -f $barrier ]]
+			do
+				:
+			done
+			
+			# Get an instance lock
+			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
+			echo "Process $iter got the lock"
+			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
+			echo "Process $iter released the lock"
+		
+		) &
+	
+	done
+	
 	
 	# Restore old settings
 	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
-	
-	# Release it
-	common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
+
 	
 	
 	########################################

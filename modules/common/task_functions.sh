@@ -193,7 +193,7 @@ function common.task.createSequentialDependencyList()
 	main.log -a "Ordering tasks for sequential execution..."
 	
 	dep_file="$(common.runner.createTempFile dependencies)"
-	day_file="$(common.runner.createTempFile dependencies)"
+	day_file="$(common.runner.createTempFile dependencies-daily)"
 	nodup_file="$(common.runner.createTempFile nodup)"
 
 	# Reset file
@@ -1254,7 +1254,7 @@ function common.task.init()
 		
 		# The list of tasks is stred in this file
 		task_file=$(common.runner.createTempFile task_id_list)
-		tempfile=$(common.runner.createTempFile sql)
+		tempfile=$(common.runner.createTempFile sql-rank)
 		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
