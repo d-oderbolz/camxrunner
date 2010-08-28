@@ -673,7 +673,7 @@ function common.hash.getKeys()
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
 	# get data
-	common.db.getResultSet "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash';")
+	common.db.getResultSet "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash';"
 }
 
 ################################################################################
