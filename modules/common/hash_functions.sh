@@ -31,7 +31,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=13
+CXR_META_MODULE_NUM_TESTS=12
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -758,8 +758,8 @@ function test_module()
 	########################################
 	# Instance hash
 	common.hash.init test_instance $CXR_LEVEL_INSTANCE
-	common.hash.put test_instance $CXR_LEVEL_INSTANCE /hallo/gugs SomeOtherValue
-	common.hash.put test_instance $CXR_LEVEL_INSTANCE /hallo/velo SomeOtherValue
+	common.hash.put test_instance $CXR_LEVEL_INSTANCE "/hallo/gugs" SomeOtherValue
+	common.hash.put test_instance $CXR_LEVEL_INSTANCE "a key with spaces" SomeOtherValue
 	
 	# DB of arrays
 	common.hash.init test_array $CXR_LEVEL_INSTANCE
@@ -776,48 +776,44 @@ function test_module()
 	# Universal DB
 	common.hash.init test_universal $CXR_LEVEL_UNIVERSAL
 	common.hash.put test_universal $CXR_LEVEL_UNIVERSAL /hallo/gugs SomeOtherValue
-	common.hash.put test_universal  $CXR_LEVEL_UNIVERSAL /hallo/velo SomeOtherValue
+	common.hash.put test_universal  $CXR_LEVEL_UNIVERSAL "a key with spaces" SomeOtherValue
 
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.hash.get test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" SomeOtherValue "common.hash.get test_instance with path as key"
-	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" true "common.hash.has? test_instance with path as key"
-	is "$(common.hash.getKeys test_instance $CXR_LEVEL_INSTANCE)" "/hallo/gugs${CXR_DELIMITER}/hallo/velo" "common.hash.getKeys test_instance with path as key"
+	is "$(common.hash.get test_instance $CXR_LEVEL_INSTANCE "a key with spaces")" SomeOtherValue "common.hash.get test_instance with path as key"
+	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "a key with spaces")" true "common.hash.has? test_instance with path as key"
 	is ${#a[@]} 5 "DB of arrays"
 	
 	# testing the faster way to call common.hash.has? (has and get in one call)
-	common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo" > /dev/null
+	common.hash.has? test_instance $CXR_LEVEL_INSTANCE "a key with spaces" > /dev/null
 	is $_has true "common.hash.has? non-functional approach I"
 	is $_value SomeOtherValue "common.hash.has? non-functional approach II"
 	
 	oIFS="$IFS"
-	keyString="$(common.hash.getKeys test_instance $CXR_LEVEL_INSTANCE)"
-	IFS="$CXR_DELIMITER"
-	# Turn string into array (we cannot call <common.hash.getKeys> directly here!)
-	arrKeys=( $keyString )
-	# Reset Internal Field separator
-	IFS="$oIFS"
-	
+	IFS='
+'
+
 	# looping through keys (safest approach)
-	for iKey in $( seq 0 $(( ${#arrKeys[@]} - 1)) )
+	for key in $(common.hash.getKeys test_instance $CXR_LEVEL_INSTANCE)
 	do
-		key="${arrKeys[$iKey]}"
+		IFS="$oIFS"
+		
 		is "$(common.hash.get test_instance $CXR_LEVEL_INSTANCE "$key")" SomeOtherValue "Going through keys in an interator"
 	done
 	
 	# Lets retrieve those with spaces
 	is "$(common.hash.get test_global $CXR_LEVEL_GLOBAL "This key has spaces")" "a value" "common.hash.get test_instance - key with spaces"
 	
-	common.hash.delete test_instance $CXR_LEVEL_INSTANCE "/hallo/velo"
-	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "/hallo/velo")" false "common.hash.delete test_instance with path as key"
+	common.hash.delete test_instance $CXR_LEVEL_INSTANCE "a key with spaces"
+	is "$(common.hash.has? test_instance $CXR_LEVEL_INSTANCE "a key with spaces")" false "common.hash.delete test_instance with path as key"
 
-	is "$(common.hash.get test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" SomeOtherValue "common.hash.get test_universal with path as key"
-	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" true "common.hash.has? test_universal with path as key"
+	is "$(common.hash.get test_universal $CXR_LEVEL_UNIVERSAL "a key with spaces")" SomeOtherValue "common.hash.get test_universal with path as key"
+	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "a key with spaces")" true "common.hash.has? test_universal with path as key"
 	
-	common.hash.delete test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo" 
-	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "/hallo/velo")" false "common.hash.delete test_universal with path as key"
+	common.hash.delete test_universal $CXR_LEVEL_UNIVERSAL "a key with spaces" 
+	is "$(common.hash.has? test_universal $CXR_LEVEL_UNIVERSAL "a key with spaces")" false "common.hash.delete test_universal with path as key"
 	
 	########################################
 	# teardown tests if needed
