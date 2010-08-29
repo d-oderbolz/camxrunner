@@ -422,69 +422,29 @@ function common.task.createParallelDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all tasks, no matter what
+	-- First, add all active tasks, no matter what
 	------------------------------------
-	
-	-- Daily. 
 	
 	SELECT d.day_iso || '@' || t.module,
 	       d.day_iso || '@' || t.module
 	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
 	AND   d.day_offset = t.day_offset
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
-	                 '$CXR_TYPE_MODEL',
-	                 '$CXR_TYPE_POSTPROCESS_DAILY');
-	
-	-- OT-Pre
-	SELECT $CXR_START_DATE || '@' || t.module,
-	       $CXR_START_DATE || '@' || t.module
-	FROM tasks t, modules m
-	WHERE m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE')
-	$no_ot;
-	
-	-- OT-Post
-	SELECT $CXR_STOP_DATE || '@' || t.module,
-	       $CXR_STOP_DATE || '@' || t.module
-	FROM tasks t, modules m
-	WHERE m.module = t.module
-	AND   m.active='true'
-	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
-	$no_ot;
-	
+	AND   m.active='true';
+
 	------------------------------------
 	-- Then add all the dependencies
-	-- We must make user not to introduce any phantoms
-	-- (OT modules that run on any day!)
-	-- Starting point is the dependent task
 	------------------------------------
 	
 	-- standard dependencies (without -)
-	-- we simulate the same structure as above
 	SELECT di.day_iso || '@' || independent_module,
 	       dd.day_iso || '@' || dependent_module
 	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
 	AND   di.day_offset = independent_day_offset
 	AND   dd.day_offset = dependent_day_offset
-	AND   independent_day_offset = dependent_day_offset
-	AND   m.active='true'
-	$where $day_where ;
-	
-	-- - dependencies
-	SELECT di.day_iso || '@' || independent_module,
-	       dd.day_iso || '@' || dependent_module
-	FROM dependencies, days di, days dd, modules m
-	WHERE m.module = independent_module
-	AND   di.day_offset = independent_day_offset
-	AND   dd.day_offset = dependent_day_offset
-	AND   independent_day_offset = dependent_day_offset - 1
-	AND   m.active='true'
-	$where $day_where ;
-	
+	AND   m.active='true';
+
 	EOT
 	
 	main.log -v "Removing duplicates..."
