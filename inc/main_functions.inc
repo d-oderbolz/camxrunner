@@ -25,9 +25,12 @@ function main.isNumeric?()
 ################################################################################
 { 
 	# If this returns 0, this is a number
-	echo "${1:-}" | grep '\<-\?\([0-9]\+\.\)\?[0-9]*\>' >/dev/null
+	# This is harder than it seems...
+	echo "${1:-}" | egrep -x '\-?[0-9]+(\.[0-9]*)?' >/dev/null
+	#                     |
+	#                  Very important option: only accept matches where the whole string matches!
 	
-	if [[ -z "$1" || "$?" -ne 0 ]]
+	if [[ "$?" -ne 0 ]]
 	then
 			echo false
 	else
