@@ -369,10 +369,14 @@ function test_module()
 	# we get the row that was added last
 	time=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "SELECT elapsed_seconds FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='test' GROUP BY epoch_m HAVING MAX(epoch_m);" )
 	
+	set -xv
+	
 	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0 false))
 	
 	# We test for difference
 	is_less_or_equal $difference $epsilon "common.performance Timing of sleep"
+	
+	set +xv
 
 	########################################
 	# teardown tests if needed
