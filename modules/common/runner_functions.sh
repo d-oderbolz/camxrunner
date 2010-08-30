@@ -795,7 +795,7 @@ function common.runner.waitForLock()
 		if [[ $shown == false && $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
-			# Safe time thanks to short-cicuit logic
+			# Safe time thanks to short-circuit logic
 			shown=true
 		fi
 		
@@ -817,8 +817,8 @@ function common.runner.waitForLock()
 		# We want to acquire the lock, we need to rule out 
 		# competition
 	
-		# sleep some time between 0.001 and 0.02 seconds
-		sleep $(common.math.RandomNumber 1 2 5)
+		# sleep some time between 0.01 and 0.5 seconds
+		sleep $(common.math.RandomNumber 0.01 0.5 5)
 		
 		# There is a slight chance another process was faster
 		if [[ -f "$lockfile" ]]
@@ -843,7 +843,7 @@ function common.runner.waitForLock()
 #
 # The problem is that here, locking is not atomic, so 2 processes could try
 # to get the same lock...
-# TODO: Implement a general (n concurrent procs) Lmports Bakery, Peterson's or Dekkers algorithm
+# TODO: Implement a general (n concurrent procs) Lamports Bakery, Peterson's or Dekkers algorithm
 #
 # Since SQLite seems to have some issues with locking, we must guard all write 
 # access where we assume concurrency with a lock.
@@ -874,8 +874,6 @@ function common.runner.getLock()
 	
 	lock="$1"
 	level="$2"
-	# If turn is 1 we can get a lock.
-	turn=0
 	
 	lockfile="$(common.runner.getLockFile "$lock" "$level")"
 
