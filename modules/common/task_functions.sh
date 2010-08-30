@@ -245,7 +245,7 @@ function common.task.createSequentialDependencyList()
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 
-	main.log -v "Running tsort and appending output to list..."
+	main.log -a "Running tsort on $nodup_file and appending output to $output_file..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
 	
@@ -303,7 +303,7 @@ function common.task.createSequentialDependencyList()
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 
-	main.log -v "Running tsort..."
+	main.log -v "Running tsort on $nodup_file > $day_file"
 	
 	${CXR_TSORT_EXEC} "$nodup_file" > "$day_file" 
 	
@@ -375,7 +375,7 @@ function common.task.createSequentialDependencyList()
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 
-	main.log -v "Running tsort and appending output to list..."
+	main.log -v "Running tsort on $nodup_file and appending output to $output_file..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
 	
@@ -451,7 +451,7 @@ function common.task.createParallelDependencyList()
 	
 	sort "$dep_file" | uniq > "$nodup_file"
 
-	main.log -v "Running tsort and appending output to list..."
+	main.log -v "Running tsort on $nodup_file and appending output to $output_file..."
 	
 	${CXR_TSORT_EXEC} "$nodup_file" >> "$output_file" 
 	
