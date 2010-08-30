@@ -672,7 +672,7 @@ function common.runner.removeTempFiles()
 				# Reset IFS
 				IFS="$oIFS"
 				
-				if [[ "$filename" ]]
+				if [[ -e "$filename" ]]
 				then
 					main.log -v "Deleting $filename"
 					rm -f "${filename}" &>/dev/null
@@ -700,9 +700,12 @@ function common.runner.removeTempFiles()
 				# Clean files away
 				while read temp_file
 				do
-					main.log -v "Deleting $temp_file"
-					
-					rm -f "$temp_file" &>/dev/null
+					if [[ -e "$temp_file" ]]
+					then
+						main.log -v "Deleting $temp_file"
+						
+						rm -f "$temp_file" &>/dev/null
+					fi
 				done < ${CXR_INSTANCE_FILE_TEMP_LIST}
 				
 				IFS="$oIFS"
