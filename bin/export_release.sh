@@ -16,7 +16,7 @@
 # dco 17.10.08	Added new options
 
 DEFAULT_SVNREPOS='file:///afs/psi.ch/project/MM5V3-7-4/svn'
-DEFAULT_PROJECT=CAMx-runner
+DEFAULT_PROJECT=CAMxRunner
 DEFAULT_FROM=tags
 
 # Contral variables for options
@@ -39,7 +39,7 @@ function usage()
 
 	Usage: $progname [options] 
 	
-	$progname - Script to tag a revision of a SVN repository.
+	$progname - Script to export a tag of a SVN repository for release.
 	
 	Written by Daniel C. Oderbolz (dco)
 	CAMxRunner@psi.ch
