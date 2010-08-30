@@ -843,8 +843,7 @@ function common.runner.waitForLock()
 #
 # The problem is that here, locking is not atomic, so 2 processes could try
 # to get the same lock...
-# TODO: Implement a general (n concurrent procs) Peterson's or Dekkers algorithm
-# or use a probobilistic approach (wait 0..1 sec)
+# TODO: Implement a general (n concurrent procs) Lmports Bakery, Peterson's or Dekkers algorithm
 #
 # Since SQLite seems to have some issues with locking, we must guard all write 
 # access where we assume concurrency with a lock.
@@ -894,22 +893,12 @@ function common.runner.getLock()
 			return $CXR_RET_ERROR
 		fi
 		
-		# It seems that the lock was free, we check again (its possible that there was another process
-		# at the same time
-		
-		# Wait for the lock, _retval is false if we exceeded the timeout
-		common.runner.waitForLock "$lock" "$level"
-		
-		if [[ $_retval == false ]]
-		then
-			# Took to long...
-			echo false
-			return $CXR_RET_ERROR
-		fi
-		
 		# We got the lock 
 		# write our ID into the lockfile
 		echo $CXR_INSTANCE > "$lockfile"
+		
+		main.log -v "lock $lock acquired."
+		
 	else
 		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
