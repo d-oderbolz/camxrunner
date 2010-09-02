@@ -123,6 +123,56 @@ function common.map.indexesToModelCoordinates()
 }
 
 ################################################################################
+# Function: common.map.indexesToLonLat
+#
+# Converts given domain indexes (in the given domain) to Lon/Lat.
+# 
+# Output is given as a CXR_DELIMITER delimited list of the form Lon|Lat
+#
+# Parameters:
+# $1 - x-index (1-based), may be fractionals
+# $2 - y-index (1-based), may be fractionals
+# $3 - domain-index (1-based), integer
+################################################################################
+function common.map.indexesToLonLat()
+################################################################################
+{
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "Needs x and y index plus domain number as input. Got $@"
+	fi
+	
+	local x_in
+	local y_in
+	local domain
+	
+	local converted_model
+	local converted_lonlat
+	
+	local x_out
+	local y_out
+	
+	x_in="$1"
+	y_in="$2"
+	domain="$3"
+	
+	# Convert to Model-Coord
+	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
+	
+	# Parse result
+	oIFS="$IFS"
+	IFS=$CXR_DELIMITER
+	set $converted_model
+	
+	# Convert to Lon/Lat
+	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $1 $2)
+	set $converted_model
+	
+	echo ${1}${CXR_DELIMITER}${2}
+	
+}
+
+################################################################################
 # Function: common.map.LonLatToIndexes
 #
 # Converts Lon/Lat coordinates to fractional indexes of the given Model domain.
@@ -330,13 +380,17 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
+	set -xv
 	# The first cell of the first domain must be at the origin
-	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD}${CXR_DELIMITER}${CXR_MASTER_ORIGIN_YCOORD}"
+	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD}${CXR_DELIMITER}${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
-	echo "Payerne grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
+	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
 	echo "South West corner in LonLat: $(common.map.ModelCoordinatesToLonLat $CXR_MASTER_ORIGIN_XCOORD $CXR_MASTER_ORIGIN_YCOORD)"
-
+	echo "South West corner in LonLat: $(common.map.indexesToLonLat 1 1 1)"
+	
+	set +xv
+	
 	########################################
 	# teardown tests if needed
 	########################################
