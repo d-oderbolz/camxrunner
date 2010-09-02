@@ -300,7 +300,7 @@ function common.map.LonLatToModelCoordinates()
 	esac
 	
 	# Call converter
-	result="$(${CXR_CS2CS_EXEC} $inv_string +proj=latlon +to $proj_string <<-EOT
+	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=latlon +to $proj_string <<-EOT
 	$lon $lat
 	EOT)"
 	
