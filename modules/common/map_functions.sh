@@ -55,7 +55,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Given integer indexes, the lower left corner of the cell in question is returned.
 # Inner domains are resolved using one additional recursive call to this function.
 # 
-# Output is given as a CXR_DELIMITER delimited list of the form x|y
+# Output is given as a space delimited list of the form "x y"
 #
 # Parameters:
 # $1 - x-index (1-based), may be fractionals
@@ -119,7 +119,7 @@ function common.map.indexesToModelCoordinates()
 	x_out=$(common.math.FloatOperation "$first_cell_x + (($x_in - 1 ) * $resolution_x)" $CXR_NUM_DIGITS false)
 	y_out=$(common.math.FloatOperation "$first_cell_y + (($y_in - 1 ) * $resolution_y)" $CXR_NUM_DIGITS false)
 	
-	echo ${x_out}${CXR_DELIMITER}${y_out}
+	echo "${x_out} ${y_out}"
 }
 
 ################################################################################
@@ -127,7 +127,7 @@ function common.map.indexesToModelCoordinates()
 #
 # Converts given domain indexes (in the given domain) to Lon/Lat.
 # 
-# Output is given as a CXR_DELIMITER delimited list of the form Lon|Lat
+# Output is given as a space delimited list of the form "Lon Lat"
 #
 # Parameters:
 # $1 - x-index (1-based), may be fractionals
@@ -166,9 +166,8 @@ function common.map.indexesToLonLat()
 	
 	# Convert to Lon/Lat
 	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $1 $2)
-	set "$converted_model"
 	
-	echo ${1}${CXR_DELIMITER}${2}
+	echo "$converted_lonlat"
 	
 }
 
@@ -180,7 +179,7 @@ function common.map.indexesToLonLat()
 # program of Proj.4 <http://proj.osgeo.org/>.
 #
 # Supports the same cooordinate systems as CAMx.
-# Output is given as a CXR_DELIMITER delimited list of the form x_ind|y_ind
+# Output is given as a space delimited list of the form "x_ind y_ind"
 #
 # Parameters:
 # $1 - Lon coordinate
@@ -219,12 +218,9 @@ function common.map.LonLatToIndexes()
 	converted="$(common.map.LonLatToModelCoordinates $lon $lat)"
 	
 	# Parse result
-	oIFS="$IFS"
-	IFS=$CXR_DELIMITER
-	set "$converted"
-	x_in=$1
-	y_in=$2
-	IFS="$oIFS"
+	x_in=$(echo "$converted" | awk '{ print $1 }')
+	y_in=$(echo "$converted" | awk '{ print $2 }')
+
 	
 	if [[ $domain -eq 1 ]]
 	then
@@ -244,11 +240,8 @@ function common.map.LonLatToIndexes()
 		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
 	
 		# Parse result
-		oIFS="$IFS"
-		IFS=$CXR_DELIMITER
-		set "$first_cell"
-		first_cell_x=$1
-		first_cell_y=$2
+		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
+		first_cell_y=$(echo "$first_cell" | awk '{ print $2 }')
 		IFS="$oIFS"
 	else
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
@@ -257,7 +250,7 @@ function common.map.LonLatToIndexes()
 	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1" $CXR_NUM_DIGITS false)
 	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS false)
 
-	echo ${x_out}${CXR_DELIMITER}${y_out}
+	echo "${x_out} ${y_out}"
 }
 
 ################################################################################
@@ -293,10 +286,11 @@ function common.map.LonLatToModelCoordinates()
 	
 	case $CXR_MAP_PROJECTION in
 		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="(+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
+		POLAR) proj_string="+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
 		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
 		LATLON) 
-			echo ${lon}${CXR_DELIMITER}${lat}
+			# No need to convert.
+			echo "${lon} ${lat}"
 			return $CXR_RET_OK
 			;;
 	esac
@@ -306,10 +300,8 @@ function common.map.LonLatToModelCoordinates()
 	$lon $lat
 	EOT)"
 	
-	# Parse it
-	set "$result"
-	
-	echo ${1}${CXR_DELIMITER}${2}
+	# Parse and return it
+	echo "$(echo "$result" | awk '{ print $1 }') $(echo "$result" | awk '{ print $2 }')"
 }
 
 ################################################################################
@@ -342,9 +334,10 @@ function common.map.ModelCoordinatesToLonLat()
 	
 	case $CXR_MAP_PROJECTION in
 		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="(+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
+		POLAR) proj_string="+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
 		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
 		LATLON) 
+			# no need to convert
 			echo ${lon}${CXR_DELIMITER}${lat}
 			return $CXR_RET_OK
 			;;
@@ -355,10 +348,8 @@ function common.map.ModelCoordinatesToLonLat()
 	$x $y
 	EOT)"
 	
-	# Parse it
-	set "$result"
-	
-	echo ${1}${CXR_DELIMITER}${2}
+	# Parse and return it
+	echo "$(echo "$result" | awk '{ print $1 }') $(echo "$result" | awk '{ print $2 }')"
 }
 
 
@@ -381,7 +372,7 @@ function test_module()
 	########################################
 
 	# The first cell of the first domain must be at the origin
-	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD}${CXR_DELIMITER}${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
+	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
 	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
