@@ -94,7 +94,7 @@ function common.map.indexesToModelCoordinates()
 		
 		first_cell_x=$CXR_MASTER_ORIGIN_XCOORD
 		first_cell_y=$CXR_MASTER_ORIGIN_YCOORD
-	elif [[ $domain -gt 1 -le $CXR_NUMBER_OF_GRIDS ]]
+	elif [[ $domain -gt 1 || $domain -le $CXR_NUMBER_OF_GRIDS ]]
 	then
 		# calculate resolution of target grid
 		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1 false)
@@ -183,7 +183,7 @@ function common.map.LonLatToIndexes()
 		
 		first_cell_x=$CXR_MASTER_ORIGIN_XCOORD
 		first_cell_y=$CXR_MASTER_ORIGIN_YCOORD
-	elif [[ $domain -gt 1 -le $CXR_NUMBER_OF_GRIDS ]]
+	elif [[ $domain -gt 1 || $domain -le $CXR_NUMBER_OF_GRIDS ]]
 	then
 		# calculate resolution of target grid
 		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1 false)
