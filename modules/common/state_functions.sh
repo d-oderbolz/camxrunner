@@ -25,7 +25,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 CXR_META_MODULE_NUM_TESTS=2
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the functions to manage the (simple) state Database of the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains the functions to manage the state Database of the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"

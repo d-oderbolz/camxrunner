@@ -39,7 +39,7 @@ CXR_META_MODULE_NUM_TESTS=12
 CXR_META_MODULE_REQ_SPECIAL="exec|sqlite3"
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the Hash functions (using sqlite) for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains the Hash functions (using <db_functions.sh>) for the CAMxRunner"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"

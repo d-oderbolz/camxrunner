@@ -49,7 +49,7 @@ CXR_META_MODULE_NUM_TESTS=4
 CXR_META_MODULE_REQ_SPECIAL="exec|dot|optional exec|tsort"
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the functions to manage parallel task execution"
+CXR_META_MODULE_DESCRIPTION="Contains the functions to manage task execution"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"

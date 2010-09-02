@@ -46,7 +46,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_MODEL}"
 CXR_META_MODULE_NUM_TESTS=1
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the functions to call CAMx"
+CXR_META_MODULE_DESCRIPTION="Contains the functions to call PMCAMx"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"

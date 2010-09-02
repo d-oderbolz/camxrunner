@@ -25,7 +25,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 CXR_META_MODULE_NUM_TESTS=4
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains functions for the CAMxRunner (creation of new runs, module calls, process management)"
+CXR_META_MODULE_DESCRIPTION="Contains support functions for the CAMxRunner (creation of new runs, module calls, process management, temporary file management)"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"

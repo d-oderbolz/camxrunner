@@ -25,7 +25,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 CXR_META_MODULE_NUM_TESTS=21
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains some date functions for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contains some math functions for the CAMxRunner, mostly to add floating point features to bash"
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
