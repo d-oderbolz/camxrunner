@@ -709,16 +709,18 @@ CXR_API_DOC_EXEC=${CXR_BIN_DIR}/generate-api-doc.sh
 # wget to download stuff (needed for installation and AHOMAP)
 CXR_WGET_EXEC=$(main.getBinaryName wget true)
 
-# needed to convert dos-unix and back
-CXR_DOS2UNIX_EXEC=$(main.getBinaryName dos2unix true)
-CXR_UNIX2DOS_EXEC=$(main.getBinaryName unix2dos true)
+# needed for coordinate transformations
+CXR_CS2CS_EXEC="$(main.getBinaryName cs2cs)"
 
-# This is important for parallel processing,
-# we sort or tasks with it according to the dependencies
-CXR_TSORT_EXEC=$(main.getBinaryName tsort true)
+# needed to convert dos-unix and back
+CXR_DOS2UNIX_EXEC="$(main.getBinaryName dos2unix true)"
+CXR_UNIX2DOS_EXEC="$(main.getBinaryName unix2dos true)"
+
+# This is central to determine execution order
+CXR_TSORT_EXEC="$(main.getBinaryName tsort)"
 
 # this can be used to draw graphs
-CXR_DOT_EXEC=$(main.getBinaryName dot true)
+CXR_DOT_EXEC="$(main.getBinaryName dot true)"
 
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name
