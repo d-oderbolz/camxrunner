@@ -159,13 +159,8 @@ function common.map.indexesToLonLat()
 	# Convert to Model-Coord
 	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
 	
-	# Parse result
-	oIFS="$IFS"
-	IFS=$CXR_DELIMITER
-	set "$converted_model"
-	
 	# Convert to Lon/Lat
-	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $1 $2)
+	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $converted_model)
 	
 	echo "$converted_lonlat"
 	
@@ -256,7 +251,7 @@ function common.map.LonLatToIndexes()
 ################################################################################
 # Function: common.map.LonLatToModelCoordinates
 #
-# Converts Lon/Lat to model coordinates.
+# Converts Lon/Lat to model coordinates and back (with switch)
 # Input coordinates must be given in any format supported by the cs2cs 
 # program of Proj.4 <http://proj.osgeo.org/>.
 #
@@ -265,29 +260,38 @@ function common.map.LonLatToIndexes()
 # Output is given as a CXR_DELIMITER delimited list of the form x|y.
 #
 # Parameters:
-# $1 -Lon coordinate
-# $2 - Lat coordinate
+# $1 -Lon or x coordinate
+# $2 - Lat or y coordinate
+# [$3] - boolean inverse if true (default false), we convert from Model to Lon Lat 
 ################################################################################
 function common.map.LonLatToModelCoordinates()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "Needs x and y coordinates as input. Got $@"
+		main.dieGracefully "Needs x and y coordinates and an optional boolean as input. Got $@"
 	fi
 	
 	local lon
 	local lat
 	local proj_string
 	local result
+	local inverse
 	
 	lon="$1"
 	lat="$2"
+	inverse="${3:-false}"
+	inv_string=""
+	
+	if [[ $inverse == true ]]
+	then
+		inv_string="-l"
+	fi
 	
 	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
-		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
+		LAMBERT) proj_string="+proj=lcc +unit=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
+		POLAR) proj_string="+proj=stere +unit=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
+		UTM) proj_string="+proj=utm +unit=km +zone=$CXR_UTM_ZONE";;
 		LATLON) 
 			# No need to convert.
 			echo "${lon} ${lat}"
@@ -296,7 +300,7 @@ function common.map.LonLatToModelCoordinates()
 	esac
 	
 	# Call converter
-	result="$(${CXR_CS2CS_EXEC} +proj=latlon +to $proj_string <<-EOT
+	result="$(${CXR_CS2CS_EXEC} $inv_string +proj=latlon +to $proj_string <<-EOT
 	$lon $lat
 	EOT)"
 	
@@ -307,7 +311,7 @@ function common.map.LonLatToModelCoordinates()
 ################################################################################
 # Function: common.map.ModelCoordinatesToLonLat
 #
-# Converts model coordinates to Lon/Lat (DMS).
+# Converts model coordinates to Lon/Lat. (Wrapper for <common.map.LonLatToModelCoordinates>)
 #
 # Supports the same cooordinate systems as CAMx.
 # Output is given as a CXR_DELIMITER delimited list  of the form lon|lat
@@ -324,32 +328,7 @@ function common.map.ModelCoordinatesToLonLat()
 		main.dieGracefully "Needs x and y coordinates as input. Got $@"
 	fi
 	
-	local x
-	local y
-	local proj_string
-	local result
-	
-	x="$1"
-	y="$2"
-	
-	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
-		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
-		LATLON) 
-			# no need to convert
-			echo ${lon}${CXR_DELIMITER}${lat}
-			return $CXR_RET_OK
-			;;
-	esac
-	
-	# Call converter
-	result="$(${CXR_CS2CS_EXEC} $proj_string +to +proj=latlon   <<-EOT
-	$x $y
-	EOT)"
-	
-	# Parse and return it
-	echo "$(echo "$result" | awk '{ print $1 }') $(echo "$result" | awk '{ print $2 }')"
+	common.map.LonLatToModelCoordinates $@ true
 }
 
 
