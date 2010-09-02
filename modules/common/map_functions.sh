@@ -379,8 +379,7 @@ function test_module()
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
-	
-	set -xv
+
 	# The first cell of the first domain must be at the origin
 	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD}${CXR_DELIMITER}${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
@@ -388,9 +387,7 @@ function test_module()
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
 	echo "South West corner in LonLat: $(common.map.ModelCoordinatesToLonLat $CXR_MASTER_ORIGIN_XCOORD $CXR_MASTER_ORIGIN_YCOORD)"
 	echo "South West corner in LonLat: $(common.map.indexesToLonLat 1 1 1)"
-	
-	set +xv
-	
+
 	########################################
 	# teardown tests if needed
 	########################################
