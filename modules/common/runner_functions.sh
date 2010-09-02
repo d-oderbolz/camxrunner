@@ -281,7 +281,7 @@ function common.runner.countCells2D()
 ################################################################################
 # Function: common.runner.reportDimensions
 # 
-# Prints the dimensions of all the defined grids.
+# Prints the dimensions and locations of all the defined grids.
 #
 ################################################################################
 function common.runner.reportDimensions()
@@ -289,10 +289,27 @@ function common.runner.reportDimensions()
 {
 	local iGrid
 	local nCells
+	local sw
+	local ne
+	local x
+	local y
+	local z
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		main.log -B "Grid dimensions domain ${iGrid}:\nX: $(common.runner.getX ${iGrid})\nY: $(common.runner.getY ${iGrid})\nZ: $(common.runner.getZ ${iGrid})"
+		# Get extent
+		x=$(common.runner.getX ${iGrid})
+		y=$(common.runner.getY ${iGrid})
+		z=$(common.runner.getZ ${iGrid})
+		
+		main.log -a -B "Grid dimensions domain ${iGrid}:"
+		main.log -a "X: ${x}\nY: ${y}\nZ: ${z}\n"
+		
+		main.log -a -B "Lon/Lat Corners ${iGrid}:"
+		sw="$(common.map.ModelCoordinatesToLonLat 1 1 $iGrid)"
+		ne="$(common.map.ModelCoordinatesToLonLat $x $y $iGrid)"
+		
+		main.log -a "south-west corner: $sw\nnorth-east corner: $ne"
 	done
 	
 	nCells="$(common.runner.countCells3D)"
