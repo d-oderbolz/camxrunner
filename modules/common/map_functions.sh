@@ -13,6 +13,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
+# TODO: Add plausibility checks (boundaries)
 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
