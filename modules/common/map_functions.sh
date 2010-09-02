@@ -103,14 +103,10 @@ function common.map.indexesToModelCoordinates()
 		# Offsets such as CXR_NEST_BEG_I_INDEX ar relative to master grid
 		# recursive call for the cell (1,1) of the inner domain
 		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
-	
+
 		# Parse result
-		oIFS="$IFS"
-		IFS=$CXR_DELIMITER
-		set "$first_cell"
-		first_cell_x=$1
-		first_cell_y=$2
-		IFS="$oIFS"
+		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
+		first_cell_y=$(echo "$first_cell" | awk '{ print $2 }')
 	else
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
 	fi
@@ -234,7 +230,6 @@ function common.map.LonLatToIndexes()
 		# Parse result
 		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
 		first_cell_y=$(echo "$first_cell" | awk '{ print $2 }')
-		IFS="$oIFS"
 	else
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
 	fi
