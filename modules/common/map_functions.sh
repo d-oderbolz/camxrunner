@@ -282,7 +282,7 @@ function common.map.LonLatToModelCoordinates()
 	
 	if [[ $inverse == true ]]
 	then
-		inv_string="-l"
+		inv_string="-I"
 	fi
 	
 	case $CXR_MAP_PROJECTION in
