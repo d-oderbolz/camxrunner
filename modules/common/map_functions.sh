@@ -107,7 +107,7 @@ function common.map.indexesToModelCoordinates()
 		# Parse result
 		oIFS="$IFS"
 		IFS=$CXR_DELIMITER
-		set $first_cell
+		set "$first_cell"
 		first_cell_x=$1
 		first_cell_y=$2
 		IFS="$oIFS"
@@ -162,11 +162,11 @@ function common.map.indexesToLonLat()
 	# Parse result
 	oIFS="$IFS"
 	IFS=$CXR_DELIMITER
-	set $converted_model
+	set "$converted_model"
 	
 	# Convert to Lon/Lat
 	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $1 $2)
-	set $converted_model
+	set "$converted_model"
 	
 	echo ${1}${CXR_DELIMITER}${2}
 	
@@ -221,7 +221,7 @@ function common.map.LonLatToIndexes()
 	# Parse result
 	oIFS="$IFS"
 	IFS=$CXR_DELIMITER
-	set $converted
+	set "$converted"
 	x_in=$1
 	y_in=$2
 	IFS="$oIFS"
@@ -246,7 +246,7 @@ function common.map.LonLatToIndexes()
 		# Parse result
 		oIFS="$IFS"
 		IFS=$CXR_DELIMITER
-		set $first_cell
+		set "$first_cell"
 		first_cell_x=$1
 		first_cell_y=$2
 		IFS="$oIFS"
@@ -254,8 +254,8 @@ function common.map.LonLatToIndexes()
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
 	fi
 	
-	x_out=$(common.math.FloatOperation "($x_in - $first_cell_x)/$resolution_x) + 1" $CXR_NUM_DIGITS false)
-	y_out=$(common.math.FloatOperation "($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS false)
+	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1" $CXR_NUM_DIGITS false)
+	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS false)
 
 	echo ${x_out}${CXR_DELIMITER}${y_out}
 }
@@ -292,7 +292,7 @@ function common.map.LonLatToModelCoordinates()
 	lat="$2"
 	
 	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE1";;
+		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
 		POLAR) proj_string="(+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
 		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
 		LATLON) 
@@ -307,7 +307,7 @@ function common.map.LonLatToModelCoordinates()
 	EOT)"
 	
 	# Parse it
-	set $result
+	set "$result"
 	
 	echo ${1}${CXR_DELIMITER}${2}
 }
@@ -341,7 +341,7 @@ function common.map.ModelCoordinatesToLonLat()
 	y="$2"
 	
 	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE1";;
+		LAMBERT) proj_string="+proj=lcc +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
 		POLAR) proj_string="(+proj=stere +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
 		UTM) proj_string="+proj=utm +zone=$CXR_UTM_ZONE";;
 		LATLON) 
@@ -356,7 +356,7 @@ function common.map.ModelCoordinatesToLonLat()
 	EOT)"
 	
 	# Parse it
-	set $result
+	set "$result"
 	
 	echo ${1}${CXR_DELIMITER}${2}
 }
