@@ -147,7 +147,7 @@ function check_input()
 		do
 			
 			# Put call into this file
-			EXEC_TMP_FILE=$(common.runner.createTempFile $FUNCNAME)
+			EXEC_TMP_FILE=$(common.runner.createJobFile SRFLND)
 			
 			# Build tempfile
 			# The 3rd argument is just the filename without extension
@@ -156,9 +156,6 @@ function check_input()
 			${CXR_LANDUSE_FILES[$iGrid]}
 			${CXR_LANDUSE_FILES[$iGrid]%\.*}
 			EOF
-			
-			main.log "Checking Landuse files using this script..."
-			cat ${EXEC_TMP_FILE} | tee -a $CXR_LOG
 			
 			# Run SRFLND
 			if [[ "$CXR_DRY" == false  ]]

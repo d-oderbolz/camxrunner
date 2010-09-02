@@ -476,7 +476,7 @@ function albedo_haze_ozone()
 			# weird, better produce a file
 			# This function (I know, one should avoid side effects!) 
 			# also downloads/caches satellite data
-			ahomap_control_file=$(common.runner.createTempFile $FUNCNAME)
+			ahomap_control_file=$(common.runner.createJobFile AHOMAP)
 			
 			if [[ "$CXR_DRY" == false  ]]
 			then

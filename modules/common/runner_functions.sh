@@ -574,7 +574,9 @@ function common.runner.createDummyFile()
 #
 # Returns the name of a temporary file with random name, shows a message and adds the file
 # to the temp file list if this is needed. 
-# Note that we cannot use a hash to store tempfiles since otherwise a deadlock would occur
+# Note that we cannot use a hash to store tempfiles since otherwise a deadlock would occur.
+# 
+# If your tempfile is used to call an executable like AHOMAP, use the wrapper <common.runner.createJobFile>
 #
 # Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
 # <common.runner.removeTempFiles>
@@ -625,6 +627,42 @@ function common.runner.createTempFile()
 	
 	echo $filename
 	return 0
+}
+
+################################################################################
+# Function: common.runner.createJobFile
+#
+# A special variety of <common.runner.createTempFile> that sould be used whenever
+# a jobfile for an application (such as AHOMAP) is needed. These tempfiles
+# are stored in $CXR_JOBFILE_DIR.
+# These are not put into the templist, becase we want to keep them.
+#
+# Recommended call:
+# >exec_temp_file=$(common.runner.createJobFile AHOMAP)
+#
+# Parameters:
+# [$1] - identifier of tempfile, use name of target executable if possible
+################################################################################
+function common.runner.createJobFile()
+################################################################################
+{
+	local job
+	local jobfile
+	
+	if [[ ! -d "$CXR_JOBFILE_DIR" ]]
+	then
+		mkdir -p "$CXR_JOBFILE_DIR"
+	fi
+	
+	job="$1"
+	jobfile=$(common.runner.createTempFile "$job" false)
+	
+	mv $jobfile "$CXR_JOBFILE_DIR" || main.dieGracefully "Could not move $jobfile to $CXR_JOBFILE_DIR"
+	jobfile=$CXR_JOBFILE_DIR/$(basename $jobfile)
+	
+	main.log -v "Created this jobfile for $job: $(cat $jobfile)"
+	
+	echo $jobfile
 }
 
 ################################################################################

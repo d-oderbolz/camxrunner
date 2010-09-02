@@ -550,6 +550,10 @@ CXR_UNIVERSAL_TIMING_DB=${CXR_UNIVERSAL_DIR}/timing.sqlite
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_LEVEL_GLOBAL
 
+# In this directory, we store all files used to call
+# executables (except for the model)
+CXR_JOBFILE_DIR=$CXR_GLOBAL_DIR/jobfiles
+
 
 ########################################
 # Parallel Task execution. 

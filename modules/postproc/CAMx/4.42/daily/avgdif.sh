@@ -157,7 +157,7 @@ function avgdif
 		main.log  "Comparing ${CXR_REFERENCE_INPUT_FILE} and ${CXR_TEST_INPUT_FILE}\nOutput will be in $CXR_AVGDIF_OUTPUT_FILE"
 			
 		# Put call into this file
-		exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
+		exec_tmp_file=$(common.runner.createJobFile AVGDIF)
 		
 		# Build tempfile
 		cat <<-EOF > $exec_tmp_file

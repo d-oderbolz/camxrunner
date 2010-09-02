@@ -312,7 +312,7 @@ function initial_conditions()
 					fi
 					
 					# We will write the IDL call into a temporary file
-					exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
+					exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
 					
 					# Go there
 					cd $(dirname ${CXR_IC_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
@@ -353,9 +353,6 @@ function initial_conditions()
 					exit
 					EOF
 					
-					# Get a copy of the call
-					cat ${exec_tmp_file} | tee -a $CXR_LOG
-		
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						

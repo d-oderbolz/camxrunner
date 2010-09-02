@@ -159,7 +159,7 @@ function create_emissions()
 			main.increaseLogIndent
 
 			# We will write the IDL call into a temporary file
-			exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
+			exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
 			
 			main.log  "Creating a temporary IDL command file in $exec_tmp_file"
 			
@@ -204,9 +204,6 @@ function create_emissions()
 			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR}'
 			exit
 			EOF
-			
-			# Get a copy of the call
-			cat ${exec_tmp_file} | tee -a $CXR_LOG
 			
 			# Only run if we are not in a dry run
 			if [[ "$CXR_DRY" == false  ]]

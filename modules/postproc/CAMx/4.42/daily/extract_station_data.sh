@@ -186,7 +186,7 @@ function extract_station_data
 		fi
 		
 		# Generate Temp file name
-		exec_tmp_file=$(common.runner.createTempFile $FUNCNAME)
+		exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
 		
 		# Calculate extension of grid to extract
 		xdim=$(common.runner.getX $CXR_STATION_DOMAIN)
@@ -313,10 +313,7 @@ function extract_station_data
 				;;
 		
 		esac
-		
-		# Get a copy of the call
-		cat ${exec_tmp_file} | tee -a $CXR_LOG
-			
+
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			
