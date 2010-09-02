@@ -160,10 +160,7 @@ function common.map.indexesToLonLat()
 	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
 	
 	# Convert to Lon/Lat
-	converted_lonlat=$(common.map.ModelCoordinatesToLonLat $converted_model)
-	
-	echo "$converted_lonlat"
-	
+	common.map.ModelCoordinatesToLonLat $converted_model
 }
 
 ################################################################################
@@ -323,11 +320,6 @@ function common.map.LonLatToModelCoordinates()
 function common.map.ModelCoordinatesToLonLat()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
-	then
-		main.dieGracefully "Needs x and y coordinates as input. Got $@"
-	fi
-	
 	common.map.LonLatToModelCoordinates $@ true
 }
 
@@ -353,8 +345,10 @@ function test_module()
 	# The first cell of the first domain must be at the origin
 	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
+	set -xv
 	# Test inverse
 	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
+	set +xv
 
 	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
