@@ -341,10 +341,8 @@ function test_module()
 	# The first cell of the first domain must be at the origin
 	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
-	set -xv
 	# Test inverse
 	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
-	set +xv
 
 	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
