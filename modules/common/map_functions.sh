@@ -354,7 +354,7 @@ function test_module()
 	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
 
 	# Another inverse
-	is "$(common.map.LonLatToIndexes $(common.map.indexesToLonLat 10 10 1))" "10 10" "inverse tost of common.map.LonLatToIndexes"
+	is "$(common.map.LonLatToIndexes $(common.map.indexesToLonLat 10 10 1) 1)" "10 10" "inverse tost of common.map.LonLatToIndexes"
 
 	# Center must be correct
 	is "$(common.map.LonLatToModelCoordinates $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToModelCoordinates" 
