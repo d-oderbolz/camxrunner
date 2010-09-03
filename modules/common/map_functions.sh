@@ -138,7 +138,7 @@ function common.map.indexesToLonLat()
 	then
 		main.dieGracefully "Needs x and y index plus domain number as input. Got $*"
 	fi
-	
+
 	local x_in
 	local y_in
 	local domain
@@ -153,11 +153,15 @@ function common.map.indexesToLonLat()
 	y_in="$2"
 	domain="$3"
 	
+	set -xv
+	
 	# Convert to Model-Coord
 	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
 	
 	# Convert to Lon/Lat
 	common.map.ModelCoordinatesToLonLat $converted_model
+	
+	set +xv
 }
 
 ################################################################################
