@@ -282,9 +282,9 @@ function common.map.LonLatToModelCoordinates()
 	fi
 	
 	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +unit=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="+proj=stere +unit=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
-		UTM) proj_string="+proj=utm +unit=km +zone=$CXR_UTM_ZONE";;
+		LAMBERT) proj_string="+proj=lcc +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
+		POLAR) proj_string="+proj=stere +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
+		UTM) proj_string="+proj=utm +units=km +zone=$CXR_UTM_ZONE";;
 		LATLON) 
 			# No need to convert.
 			echo "${lon} ${lat}"
