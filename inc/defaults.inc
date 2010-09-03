@@ -302,6 +302,9 @@ CXR_INSTALL=false
 # When set to true, we only test the CAMxRunner
 CXR_RUN_TESTS=false
 
+# When true, we disable set -e
+CXR_TEST_IN_PROGRESS=false
+
 #If non-empty, we will run this day (YYYY-MM-DD)
 CXR_SINGLE_DAYS=
 
