@@ -73,7 +73,7 @@ function common.db.getResultSet()
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs a db file and a statement (optional delimiter) as input, got $@"
+		main.dieGracefully "needs a db file and a statement (optional delimiter) as input, got $*"
 	fi
 	
 	local db_file
@@ -164,7 +164,7 @@ function common.db.change()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a db file, a level and a statement as input, got $@"
+		main.dieGracefully "needs a db file, a level and a statement as input, got $*"
 	fi
 	
 	local db_file
@@ -258,7 +258,7 @@ function common.db.dump()
 {
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a db file and a filename as input, got $@"
+		main.dieGracefully "needs a db file and a filename as input, got $*"
 	fi
 	
 	local db_file

@@ -123,7 +123,7 @@ function common.task.parseId()
 {
 	if [[ $# -lt 1 || $# -gt 2 || -z "$1" ]]
 	then
-		main.dieGracefully "Needs a non-empty identifier and the optional flag no_invocation as Input, got $@"
+		main.dieGracefully "Needs a non-empty identifier and the optional flag no_invocation as Input, got $*"
 	fi
 	
 	local identifier
@@ -806,7 +806,7 @@ function common.task.runningWorker()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "needs a pid as input, got $@"
+		main.dieGracefully "needs a pid as input, got $*"
 	fi
 	
 	local pid

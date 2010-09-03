@@ -63,7 +63,7 @@ function common.module.areDependenciesOk?()
 	
 	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs a module name and a day offset as input, got $@"
+		main.dieGracefully "needs a module name and a day offset as input, got $*"
 	fi
 	
 	local module
@@ -114,7 +114,7 @@ function common.module.areDependenciesOk?()
 	
 	if [[ $failedCount -gt 0 ]]
 	then
-		main.dieGracefully "$failedCount tasks that $@ depends on have failed!"
+		main.dieGracefully "$failedCount tasks that $* depends on have failed!"
 	fi
 	
 	# If more that 0 taks are non-successful, we return false

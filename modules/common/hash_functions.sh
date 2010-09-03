@@ -196,7 +196,7 @@ function common.hash.put()
 {
 	if [[ $# -ne 4 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-level, a key and a value as input. Got $@"
+		main.dieGracefully "needs a hash, a valid hash-level, a key and a value as input. Got $*"
 	fi
 	
 	local hash

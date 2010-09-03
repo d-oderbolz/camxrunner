@@ -68,7 +68,7 @@ function common.map.indexesToModelCoordinates()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "Needs x and y index plus domain number as input. Got $@"
+		main.dieGracefully "Needs x and y index plus domain number as input. Got $*"
 	fi
 	
 	local x_in
@@ -113,8 +113,8 @@ function common.map.indexesToModelCoordinates()
 	fi
 	
 	# Calculate
-	x_out=$(common.math.FloatOperation "$first_cell_x + (($x_in - 1 ) * $resolution_x)" $CXR_NUM_DIGITS false)
-	y_out=$(common.math.FloatOperation "$first_cell_y + (($y_in - 1 ) * $resolution_y)" $CXR_NUM_DIGITS false)
+	x_out=$(common.math.FloatOperation "$first_cell_x + (( $x_in - 1 ) * $resolution_x)" $CXR_NUM_DIGITS false)
+	y_out=$(common.math.FloatOperation "$first_cell_y + (( $y_in - 1 ) * $resolution_y)" $CXR_NUM_DIGITS false)
 	
 	echo "${x_out} ${y_out}"
 }
@@ -136,7 +136,7 @@ function common.map.indexesToLonLat()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "Needs x and y index plus domain number as input. Got $@"
+		main.dieGracefully "Needs x and y index plus domain number as input. Got $*"
 	fi
 	
 	local x_in
@@ -180,7 +180,7 @@ function common.map.LonLatToIndexes()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "Needs x and y coordinates plus domain number as input. Got $@"
+		main.dieGracefully "Needs x and y coordinates plus domain number as input. Got $*"
 	fi
 	
 	local lon
@@ -262,7 +262,7 @@ function common.map.LonLatToModelCoordinates()
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "Needs x and y coordinates and an optional boolean as input. Got $@"
+		main.dieGracefully "Needs x and y coordinates and an optional boolean as input. Got $*"
 	fi
 	
 	local lon

@@ -150,7 +150,7 @@ function common.math.abs()
 {
 	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false ]]
 	then
-		main.log -e  "needs a number as input, got $@"
+		main.log -e  "needs a number as input, got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi

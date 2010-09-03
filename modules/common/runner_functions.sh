@@ -875,7 +875,7 @@ function common.runner.waitForLock()
 {
 	if [[ $# -lt 2 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs at least the name of a lock and a level as input, got $@"
+		main.dieGracefully "needs at least the name of a lock and a level as input, got $*"
 	fi
 
 	local lock
