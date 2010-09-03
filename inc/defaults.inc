@@ -287,6 +287,9 @@ CXR_DRY=false
 # When set to true, CAMx is not run, only state information is cleared
 CXR_CLEANUP=false
 
+# When set to true, we show only info and quit
+CXR_LIST_INFO=false
+
 # When true, we display all modules
 CXR_LIST_MODULES=false
 

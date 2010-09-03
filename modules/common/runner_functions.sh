@@ -330,6 +330,55 @@ function common.runner.reportDimensions()
 }
 
 ################################################################################
+# Function: common.runner.printSummary
+# 
+# Lists any relevant data on this run.
+#
+################################################################################
+function common.runner.printSummary()
+################################################################################
+{
+	##################
+	# Revision control
+	##################
+	
+	# Get revisions of configuration and the CAMxRunner.sh
+	# The other variables are set in main.readConfig
+	CXR_RUNNER_REV=$(main.getRevision $0)
+	
+	main.log -v -B "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
+	
+	if [[ "$CXR_BASECONFIG_REV" -gt "$CXR_CONFIG_REV" ]]
+	then
+		main.log -w "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
+	fi
+	
+	# Look at the system load
+	load=$(common.performance.getReaLoadPercent)
+	main.log -a "System Load (Memory & CPU): $load %"
+
+	mb_needed=$(common.check.PredictModelOutputMb)
+	main.log "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
+
+	# Show grid dimensions
+	common.runner.reportDimensions
+	
+	main.log -B "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
+	
+	if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
+	then
+		common.variables.list
+		
+		common.variables.listSystemVars
+		
+		main.log -v -b "Bash stack size: $(ulimit -s)" 
+	fi
+	
+	# Check if the selected binary supports our settings
+	common.check.ModelLimits
+}
+
+################################################################################
 # Function: common.runner.evaluateRule
 # 
 # Evaluates a filerule and returns its expansion. 

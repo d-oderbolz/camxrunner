@@ -79,22 +79,24 @@ function main.usage()
 	  ----------------------------------------------------------------------------
 	  Options:
 	  -h    shows this screen (quit by pressing 'q')
+	  
+	  -S    Shows a Summary of this run
 
 	  -I    Starts the installation of CAMxRunner (interactive)
 	  
 	  -T    Starts a test of the current Installation
 
 	  -d    causes a dry run
+	  
+	  -l    Log even if in dryrun
 
 	  -F    overwrites existing output files (force)
 
 	  -w    wait for missing input files
 
-	  -l    writes a logfile for dry-runs as well
+	  -v    verbose screen: talkative script (if given more than once you get even more information)
 
-	  -v    verbose screen: talkative script (if given twice you get even more information)
-
-	  -V    verbose logfile: talkative script (if given twice you get even more information)
+	  -V    verbose logfile: talkative script (if given more than once you get even more information)
 
 	  -c    cleanup: removes state information
 
@@ -241,18 +243,19 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dlvVFwmct:sD:nP:ITr:xioCR:pfLh" opt
+while getopts ":dSlvVFwmct:sD:nP:ITr:xioCR:pfLh" opt
 do
 	case "${opt}" in
 		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
-		l) 	CXR_USER_TEMP_FORCE_LOG=true ;;
+		S) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_INFO=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		l) 	CXR_USER_TEMP_FORCE_LOG=true;;
 		v) 	CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
 		V) 	CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
 		F) 	CXR_USER_TEMP_FORCE=true ;;
 		w) 	CXR_USER_TEMP_WAIT_4_INPUT=true ;;
 		m) 	CXR_USER_TEMP_ALLOW_MULTIPLE=true ;;
 		c) 	CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		t) CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG:-} ;;
+		t) 	CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG:-} ;;
 		s) 	CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		D) 	CXR_USER_TEMP_SINGLE_DAYS=${OPTARG:-} ;;
 		n)	CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
@@ -419,6 +422,7 @@ main.log -v -B "Selected options are valid."
 # Fewer checks if we are hollow
 if [[ "${CXR_HOLLOW}" == false ]] 
 then
+
 	if [[ ${CXR_RUN} == ${CXR_RUNNER_NAME}  ]]
 	then
 		main.dieGracefully "You are not using the system properly - use \n \t ${CXR_CALL} -C to create a new run and then call the run instead!"
@@ -440,29 +444,14 @@ then
 		# check_functions.sh
 		common.check.RunName ${CXR_RUN} || main.dieGracefully "Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 
-	fi
+	fi # Check of run name
 	
 	################################################################################
 
 	# Extend stacksize
 	ulimit -s unlimited
-	
-	################################################################################
-	# Revision control
-	################################################################################
-	
-	# Get revisions of configuration and the CAMxRunner.sh
-	# The other variables are set in main.readConfig
-	CXR_RUNNER_REV=$(main.getRevision $0)
-	
-	main.log -v -B "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
-	
-	if [[ "$CXR_BASECONFIG_REV" -gt "$CXR_CONFIG_REV" ]]
-	then
-		main.log -w "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
-	fi
-	
-fi
+
+fi # Are we hollow?
 
 ################################################################################
 # Is the configuration OK?
@@ -538,6 +527,10 @@ then
 		then
 			common.state.deleteContinueFiles
 		fi
+	elif [[ "${CXR_LIST_INFO}" == true ]]
+	then
+		# show summary
+		common.runner.printSummary
 	elif [[ "${CXR_INSTALL}" == true ]]
 	then
 		# Run the installation
@@ -564,14 +557,18 @@ fi
 
 main.log -H "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
 
+
 ################################################################################
-# Check space requirements if we run a full simulation
+# Show a summary of the configuration
 ################################################################################
 
-# Look at the system load
+common.runner.ListInfo
+
+################################################################################
+# Check resource requirements if we run a full simulation
+################################################################################
+
 load=$(common.performance.getReaLoadPercent)
-main.log -a "System Load (Memory & CPU): $load %"
-
 if [[ $load -gt $CXR_LOAD_EXIT_THRESHOLD ]]
 then
 	main.log -a "This load exceeds CXR_LOAD_EXIT_THRESHOLD (${CXR_LOAD_EXIT_THRESHOLD}%). We stop!"
@@ -581,9 +578,6 @@ then
 fi
 
 mb_needed=$(common.check.PredictModelOutputMb)
-
-main.log "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
-
 if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
 then
 	# Full simulation, do the space check if user has not disabled it
@@ -725,19 +719,11 @@ then
 				esac
 			done
 		else
-			main.log -v "No -r argument found"
+			main.log -v "The option -r needs at least one module name as argument!"
 		fi
 		
 	
 fi # Limited Processing?
-
-# Show grid dimensions
-common.runner.reportDimensions
-
-main.log -B "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
-
-# Check if the selected binary supports our settings
-common.check.ModelLimits
 
 ################################################################################
 # Print out the variables and their settings
@@ -748,37 +734,27 @@ INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname
 main.sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
 main.log "$INFO"
 
-if [[  "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true   ]]
+if [[ "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true ]]
 then
 	main.log "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
 fi
 
-if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD}  ]]
+if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ]]
 then
 	main.log "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
 else
 	main.log "We ignore the number of errors occurring and keep going because the option -t${CXR_NO_ERROR_THRESHOLD} was used\n"
 fi
 
-if [[ ${CXR_SKIP_EXISTING} == true  ]]
+if [[ ${CXR_SKIP_EXISTING} == true ]]
 then
 	main.log -w "Existing output files will be skipped."
 fi
 
-if [[ ${CXR_FORCE} == true  ]]
+if [[ ${CXR_FORCE} == true ]]
 then
 	main.log -w "Existing output files will be deleted."
 fi
-
-if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
-then
-	common.variables.list
-	
-	common.variables.listSystemVars
-	
-	main.log -v -b "Bash stack size: $(ulimit -s)" 
-fi
-
 
 ################################################################################
 # Detect other instances #######################################################
@@ -789,7 +765,7 @@ if [[ "$CXR_HOLLOW" == false ]]
 then
 
 	main.log -v -B "Checking if another instance is running on this run..." 
-	 
+	
 	common.state.detectInstances
 	
 	main.log -v -B "No other instances found." 
