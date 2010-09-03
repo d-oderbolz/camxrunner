@@ -128,12 +128,6 @@ function common.hash.init()
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
 	
-	-- Get exclusive access
-	PRAGMA main.locking_mode=EXCLUSIVE; 
-	
-	-- Check integrity
-	pragma integrity_check;
-	
 	CREATE TABLE IF NOT EXISTS hash (hash, key, value, epoch_c);
 	
 	-- Create two indexes

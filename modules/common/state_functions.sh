@@ -640,12 +640,6 @@ function common.state.init()
 		-- Use legacy format
 		PRAGMA legacy_file_format = on;
 		
-		-- Get exclusive access
-		PRAGMA main.locking_mode=EXCLUSIVE; 
-	
-		-- Check integrity
-		PRAGMA integrity_check;
-		
 		CREATE TABLE IF NOT EXISTS timing (	model 	TEXT,
 																				version	TEXT,
 																				module TEXT,
@@ -660,14 +654,9 @@ function common.state.init()
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	
 	-- Use legacy format
 	PRAGMA legacy_file_format = on;
-	
-	-- Get exclusive access
-	PRAGMA main.locking_mode=EXCLUSIVE; 
-	
-	-- Check integrity
-	PRAGMA integrity_check;
 	
 	-- This is a "Oracle like" Dummy table 
 	CREATE TABLE IF NOT EXISTS dual (dummy TEXT);

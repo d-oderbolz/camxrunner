@@ -691,6 +691,16 @@ CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
 # SQLite db engine (needed for Hashes)
 CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
 
+# This is a SQLITE Library for statistical functions
+CXR_SQLITE_LIBFUNCTIONS=$CXR_LIB_DIR/sqlite/$HOSTTYPE/libsqlitefunctions.so
+
+if [[ -e $CXR_SQLITE_LIBFUNCTIONS ]]
+then
+	CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=true
+else
+	CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=false
+fi
+
 # The compressor we use to compress output
 CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
 

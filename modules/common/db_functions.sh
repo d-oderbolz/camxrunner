@@ -47,16 +47,100 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.db.init
 #
 # Performs version checks on all visible sqlite DBs. It also checks the integrity of 
-# sqlite and if we can load the extensions. (Rember recompilation issue on lcsl4a).
-# Performs vacuum and backup if needed.
+# sqlite and if we can load the extensions.
+# Performs vacuum and checks the integrity. TODO: do backup?
 #
 ################################################################################
 function common.db.init()
 ################################################################################
 {
+	local x
+	local directories
+	local dir
+	local dbs
+	local db
+	
+	
 	main.log -v "Initialising databases..."
 	
+	# Testing integrity of sqlite itself
+	x=$(common.runner.createTempFile sqlite-test)
 	
+	# turn off errexit
+	set +e
+	
+	${CXR_SQLITE_EXEC} $x <<-EOT
+	
+	SELECT * FROM sqlite_master WHERE 1=2;
+	
+	EOT
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "It seems that the binary sqlite must be recompiled, even the simplest query failed."
+	fi
+	
+	# Test if we have libfunctions
+	if [[ -e $CXR_SQLITE_LIBFUNCTIONS ]]
+	then
+		CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=true
+		
+		# Test it
+		${CXR_SQLITE_EXEC} $x <<-EOT
+		
+		SELECT load_extension('$CXR_SQLITE_LIBFUNCTIONS');
+		select cos(radians(45));
+		
+		EOT
+		
+		if [[ $? -ne 0 ]]
+		then
+			CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=false
+		fi
+		
+	else
+		CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=false
+	fi
+	
+	if [[ $CXR_TEST_IN_PROGRESS == false ]]
+	then
+		# Turn errexit back on, if needed
+		set -e
+	fi
+	
+	# Loop through directories and files
+	directories="$CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR"
+	
+	for dir in $directories
+	do
+	
+		if [[ -d "$dir" ]]
+		then
+			dbs="$(find $dir -noleaf -maxdepth 1 -name '*.sqlite')"
+			
+			for db in $dbs
+			do
+				main.log -v "Housekeeping on DB $db..."
+				
+				# Do some basic maintenance
+				${CXR_SQLITE_EXEC} $db <<-EOT
+				
+				-- Get exclusive access
+				PRAGMA main.locking_mode=EXCLUSIVE; 
+	
+				-- Check integrity
+				PRAGMA integrity_check;
+				
+				-- Remove defragmentation
+				VACUUM;
+				
+				EOT
+			done # db-files
+			
+		fi # does dir exist?
+		
+	done # directories
+
 }
 
 ################################################################################
@@ -153,8 +237,10 @@ function common.db.getResultSet()
 # Function: common.db.change
 #
 # Use this function  for all SQL statements containing DML (INSERT,UPDATE,DELETE)
-# or DDL (CREATE, ALTER, DROP) statements. A writelock is aqciured.
+# or DDL (CREATE, ALTER, DROP) statements. A writelock is acquired.
 # Of course you can also use it to read data, but you will lock out others.
+# Is is recommended that you issue "PRAGMA legacy_file_format = on;" on each fresh DB file
+# first.
 #
 # Parameters:
 # $1 - full-path to db_file
