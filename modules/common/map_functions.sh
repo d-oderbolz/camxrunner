@@ -50,10 +50,13 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.map.indexesToModelCoordinates
 #
 # Converts given domain indexes (in the given domain) to the models coordinate system.
-# The user must know the unit o the result (given be the configuration)
-# This is done using simple addition since all cells have the same dx and dy.
+# The user must be aware of the unit of the result (given in the configuration)
+#
+# The calculation is done using simple addition since all cells have the same dx and dy.
 # Note that indexes for inner domains always include buffer cells.
-# Given integer indexes, the lower left corner of the cell in question is returned.
+# Given integer indexes, the lower left corner of the cell in question is returned,
+# Meaning that the center point is found by adding 0.5 in each direction and the upper right
+# corner is found by adding 1 in each direction.
 # Inner domains are resolved using one additional recursive call to this function.
 # 
 # Output is given as a space delimited list of the form "x y"
@@ -123,6 +126,8 @@ function common.map.indexesToModelCoordinates()
 # Function: common.map.indexesToLonLat
 #
 # Converts given domain indexes (in the given domain) to Lon/Lat.
+# Given integer indexes, the lower left corner of the cell in question is returned
+# Refer to <common.map.indexesToModelCoordinates> for further details.
 # 
 # Output is given as a space delimited list of the form "Lon Lat"
 #
@@ -250,7 +255,7 @@ function common.map.LonLatToIndexes()
 #
 # Supports the same cooordinate systems as CAMx.
 # Attention: When using UTM in the southern hemisphere, an additional +south might be needed.
-# Output is given as a CXR_DELIMITER delimited list of the form x|y.
+# Output is given as a space delimited list of the form "x y".
 #
 #
 # Parameters:
@@ -308,7 +313,7 @@ function common.map.LonLatToModelCoordinates()
 # Converts model coordinates to Lon/Lat. (Wrapper for <common.map.LonLatToModelCoordinates>)
 #
 # Supports the same cooordinate systems as CAMx.
-# Output is given as a CXR_DELIMITER delimited list  of the form lon|lat
+# Output is given as a space delimited list of the form "x y".
 #
 # Parameters:
 # $1 - x-model coordinate
