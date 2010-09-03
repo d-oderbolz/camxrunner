@@ -608,6 +608,12 @@ function common.state.init()
 	mkdir -p "${CXR_INSTANCE_DIR}"
 	
 	##################
+	# Init Db subsystem
+	##################
+	
+	common.db.init
+	
+	##################
 	# Init a few Hashes
 	##################
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation

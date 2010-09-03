@@ -310,7 +310,7 @@ function common.runner.reportDimensions()
 		
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToLonLat>)
-		ne="$(common.map.indexesToLonLat $(( $x + 1 )) $(( $y + 1 ))$iGrid)"
+		ne="$(common.map.indexesToLonLat $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
 		
 		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
 	done
