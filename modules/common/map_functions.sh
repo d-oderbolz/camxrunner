@@ -23,7 +23,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=2
+CXR_META_MODULE_NUM_TESTS=3
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -343,6 +343,9 @@ function test_module()
 
 	# Test inverse
 	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
+
+	# Center must be correct
+	is "$(common.map.LonLatToModelCoordinates $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToModelCoordinates" 
 
 	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
 	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
