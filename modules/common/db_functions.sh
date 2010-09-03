@@ -61,7 +61,7 @@ function common.db.init()
 	local db
 	
 	
-	main.log -v "Initialising databases..."
+	main.log -a "Initialising databases..."
 	
 	# Testing integrity of sqlite itself
 	x=$(common.runner.createTempFile sqlite-test)
@@ -89,7 +89,7 @@ function common.db.init()
 		${CXR_SQLITE_EXEC} $x <<-EOT
 		
 		SELECT load_extension('$CXR_SQLITE_LIBFUNCTIONS');
-		select cos(radians(45));
+		select cos(radians(45)) FROM sqlite_master WHERE 1=2;
 		
 		EOT
 		

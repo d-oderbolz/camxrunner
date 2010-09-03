@@ -252,6 +252,9 @@ function common.map.LonLatToIndexes()
 # Converts Lon/Lat to model coordinates and back (with switch)
 # Input coordinates must be given in any format supported by the cs2cs 
 # program of Proj.4 <http://proj.osgeo.org/>.
+# Note that we use a spherical earth (R=6370 km) as datum because that is what the 
+# underlying meteo models (MM5/WRF) use. Check if the results are correct for your case!
+# We detected offsets in the km region when using WGS84 as datum!
 #
 # Supports the same cooordinate systems as CAMx.
 # Attention: When using UTM in the southern hemisphere, an additional +south might be needed.
