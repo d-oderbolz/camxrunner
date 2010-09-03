@@ -353,16 +353,8 @@ function test_module()
 	# Test inverse
 	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
 
-	# Another inverse
-	is "$(common.map.LonLatToIndexes $(common.map.indexesToLonLat 10 10 1) 1)" "10 10" "inverse tost of common.map.LonLatToIndexes"
-
 	# Center must be correct
 	is "$(common.map.LonLatToModelCoordinates $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToModelCoordinates" 
-
-	echo "Payerne indexes grid 3: $(common.map.LonLatToIndexes 6.944476 46.81306 3)"
-	echo "Payerne in LCC: $(common.map.LonLatToModelCoordinates 6.944476 46.81306)"
-	echo "South West corner in LonLat: $(common.map.ModelCoordinatesToLonLat $CXR_MASTER_ORIGIN_XCOORD $CXR_MASTER_ORIGIN_YCOORD)"
-	echo "South West corner in LonLat: $(common.map.indexesToLonLat 1 1 1)"
 
 	########################################
 	# teardown tests if needed
