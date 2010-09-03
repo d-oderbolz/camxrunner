@@ -316,7 +316,7 @@ function common.map.LonLatToModelCoordinates()
 function common.map.ModelCoordinatesToLonLat()
 ################################################################################
 {
-	common.map.LonLatToModelCoordinates $@ true
+	common.map.LonLatToModelCoordinates $1 $2 true
 }
 
 

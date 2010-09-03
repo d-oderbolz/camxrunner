@@ -306,8 +306,8 @@ function common.runner.reportDimensions()
 		main.log -a "X: ${x}\nY: ${y}\nZ: ${z}\n"
 		
 		main.log -a -B "Lon/Lat Corners ${iGrid}:"
-		sw="$(common.map.ModelCoordinatesToLonLat 1 1 $iGrid)"
-		ne="$(common.map.ModelCoordinatesToLonLat $x $y $iGrid)"
+		sw="$(common.map.indexesToLonLat 1 1 $iGrid)"
+		ne="$(common.map.indexesToLonLat $x $y $iGrid)"
 		
 		main.log -a "south-west corner: $sw\nnorth-east corner: $ne"
 	done
