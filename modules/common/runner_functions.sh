@@ -309,7 +309,7 @@ function common.runner.reportDimensions()
 		sw="$(common.map.indexesToLonLat 1 1 $iGrid)"
 		ne="$(common.map.indexesToLonLat $x $y $iGrid)"
 		
-		main.log -a "south-west corner: $sw\nnorth-east corner: $ne"
+		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
 	done
 	
 	nCells="$(common.runner.countCells3D)"
