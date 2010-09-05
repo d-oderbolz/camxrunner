@@ -256,7 +256,8 @@ function common.map.LonLatToIndexes()
 # underlying meteo models (MM5/WRF) use. Check if the results are correct for your case!
 # We detected offsets in the km region when using WGS84 as datum!
 #
-# Supports the same cooordinate systems as CAMx.
+# Supports the same cooordinate systems as CAMx plus Swiss coordinates.
+#
 # Attention: When using UTM in the southern hemisphere, an additional +south might be needed.
 # Output is given as a space delimited list of the form "x y".
 #
@@ -265,7 +266,7 @@ function common.map.LonLatToIndexes()
 # $1 -Lon or x coordinate
 # $2 - Lat or y coordinate
 # [$3] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
-# [$4] - boolean inverse if true (default false), we convert from Model to Lon Lat 
+# [$4] - boolean inverse if true (default false), we convert from Model to Lon Lat
 ################################################################################
 function common.map.LonLatToProjection()
 ################################################################################
@@ -297,7 +298,7 @@ function common.map.LonLatToProjection()
 		LAMBERT) proj_string="+proj=lcc +R=6370000 +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2 +no_defs";;
 		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
 		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE +no_defs";;
-		SWISS) proj_string="+proj=somerc +lat_0=46d57’8.660"N +lon_0=7d26’22.500"E +ellps=bessel +x_0=600000 +y_0=200000 +k_0=1. no_defs";;
+		SWISS) proj_string="+proj=somerc +lat_0=46d57'8.660''N +lon_0=7d26'22.500''E +ellps=bessel +x_0=600000 +y_0=200000 +k_0=1. +no_defs";;
 		LATLON) 
 			# No need to convert.
 			echo "${lon} ${lat}"
@@ -363,6 +364,7 @@ function test_module()
 	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
 
 	echo "Rigi: $(common.map.ProjectionToLonLat 212273.44 679520.05 SWISS)"
+	echo "Rigi (ca.): $(common.map.LonLatToProjection 8.5 47)"
 
 	########################################
 	# teardown tests if needed
