@@ -363,8 +363,12 @@ function test_module()
 	# Center must be correct
 	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
 
-	echo "Rigi: $(common.map.ProjectionToLonLat 679520.05 212273.44  SWISS)"
-	echo "Rigi (ca.): $(common.map.LonLatToProjection 8.5 47)"
+	echo "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44  SWISS)"
+	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47)"
+	
+	# Get the index of Payerne
+	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775) 3)"
+	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775)"
 
 	########################################
 	# teardown tests if needed
