@@ -162,7 +162,7 @@ function common.map.indexesToLonLat()
 	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
 	
 	# Convert to Lon/Lat
-	common.map.ModelCoordinatesToLonLat $converted_model
+	common.map.ProjectionToLonLat $converted_model
 }
 
 ################################################################################
@@ -209,7 +209,7 @@ function common.map.LonLatToIndexes()
 	domain="$3"
 	
 	# Convert coordinates to Model Coordinates
-	converted="$(common.map.LonLatToModelCoordinates $lon $lat)"
+	converted="$(common.map.LonLatToProjection $lon $lat)"
 	
 	# Parse result
 	x_in=$(echo "$converted" | awk '{ print $1 }')
@@ -247,7 +247,7 @@ function common.map.LonLatToIndexes()
 }
 
 ################################################################################
-# Function: common.map.LonLatToModelCoordinates
+# Function: common.map.LonLatToProjection
 #
 # Converts Lon/Lat to model coordinates and back (with switch)
 # Input coordinates must be given in any format supported by the cs2cs 
@@ -264,9 +264,10 @@ function common.map.LonLatToIndexes()
 # Parameters:
 # $1 -Lon or x coordinate
 # $2 - Lat or y coordinate
-# [$3] - boolean inverse if true (default false), we convert from Model to Lon Lat 
+# [$3] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
+# [$4] - boolean inverse if true (default false), we convert from Model to Lon Lat 
 ################################################################################
-function common.map.LonLatToModelCoordinates()
+function common.map.LonLatToProjection()
 ################################################################################
 {
 	if [[ $# -lt 2 || $# -gt 3 ]]
@@ -279,10 +280,12 @@ function common.map.LonLatToModelCoordinates()
 	local proj_string
 	local result
 	local inverse
+	local projection
 	
 	lon="$1"
 	lat="$2"
-	inverse="${3:-false}"
+	projection="$(common.string.toUpper "${3:-${3:-$CXR_MAP_PROJECTION}}")"
+	inverse="${4:-false}"
 	inv_string=""
 	
 	if [[ $inverse == true ]]
@@ -290,19 +293,21 @@ function common.map.LonLatToModelCoordinates()
 		inv_string="-I"
 	fi
 	
-	case $CXR_MAP_PROJECTION in
-		LAMBERT) proj_string="+proj=lcc +R=6370000 +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2";;
-		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE";;
-		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE";;
+	case $projection in
+		LAMBERT) proj_string="+proj=lcc +R=6370000 +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2 +no_defs";;
+		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
+		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE +no_defs";;
+		SWISS) proj_string="+proj=somerc +lat_0=46d57’8.660"N +lon_0=7d26’22.500"E +ellps=bessel +x_0=600000 +y_0=200000 +k_0=1. no_defs"
 		LATLON) 
 			# No need to convert.
 			echo "${lon} ${lat}"
 			return $CXR_RET_OK
 			;;
+		*) main.dieGracefully "Projection $projection not supported" ;;
 	esac
 	
 	# Call converter
-	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=lonlat +to $proj_string <<-EOT
+	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=lonlat +R=6370000 +to $proj_string <<-EOT
 	$lon $lat
 	EOT)"
 	
@@ -311,9 +316,9 @@ function common.map.LonLatToModelCoordinates()
 }
 
 ################################################################################
-# Function: common.map.ModelCoordinatesToLonLat
+# Function: common.map.ProjectionToLonLat
 #
-# Converts model coordinates to Lon/Lat. (Wrapper for <common.map.LonLatToModelCoordinates>)
+# Converts model coordinates to Lon/Lat. (Wrapper for <common.map.LonLatToProjection>)
 #
 # Supports the same cooordinate systems as CAMx.
 # Output is given as a space delimited list of the form "x y".
@@ -321,11 +326,12 @@ function common.map.LonLatToModelCoordinates()
 # Parameters:
 # $1 - x-model coordinate
 # $2 - y-model coordinate
+# [$3] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
 ################################################################################
-function common.map.ModelCoordinatesToLonLat()
+function common.map.ProjectionToLonLat()
 ################################################################################
 {
-	common.map.LonLatToModelCoordinates $1 $2 true
+	common.map.LonLatToProjection $1 $2 ${3:-$CXR_MAP_PROJECTION} true
 }
 
 
@@ -351,10 +357,12 @@ function test_module()
 	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
 	# Test inverse
-	is "$(common.map.LonLatToModelCoordinates $(common.map.ModelCoordinatesToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToModelCoordinates inverse testing"
+	is "$(common.map.LonLatToProjection $(common.map.ProjectionToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToProjection inverse testing"
 
 	# Center must be correct
-	is "$(common.map.LonLatToModelCoordinates $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToModelCoordinates" 
+	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
+
+	echo "Rigi: $(common.map.ProjectionToLonLat 212273.44 679520.05 SWISS)"
 
 	########################################
 	# teardown tests if needed
