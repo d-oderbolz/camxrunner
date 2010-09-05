@@ -270,9 +270,9 @@ function common.map.LonLatToIndexes()
 function common.map.LonLatToProjection()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -lt 2 || $# -gt 4 ]]
 	then
-		main.dieGracefully "Needs x and y coordinates and an optional boolean as input. Got $*"
+		main.dieGracefully "Needs x and y coordinates, an optional projection name and an optional boolean as input. Got $*"
 	fi
 	
 	local lon
