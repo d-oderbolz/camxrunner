@@ -367,8 +367,8 @@ function test_module()
 	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47)"
 	
 	# Get the index of Payerne
-	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775) 3)"
-	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775)"
+	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
+	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
 	########################################
 	# teardown tests if needed
