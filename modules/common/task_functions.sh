@@ -838,11 +838,11 @@ function common.task.removeWorker()
 	
 	pid=$1
 	
-	# Kill the process
-	kill $pid 2>/dev/null
-	
 	# Remove from DB
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	
+	# Kill the process
+	kill $pid 2>/dev/null
 }
 
 ################################################################################
