@@ -836,11 +836,15 @@ CXR_STATION_NORMALIZE_CONCENTRATIONS=true
 CXR_STATION_NORMALIZE_TEMPERATURE_K=293
 CXR_STATION_NORMALIZE_PRESSURE_PA=101300
 
-# When true, coordinates are logitude/latitude, when false coordinates are grid-indices (0-based)
-CXR_STATION_LATLON_COORDINATES=false
+# Station coordinates can be expressed in any projection
+# supported by <common.map.LonLatToProjection>. 
+CXR_STATION_PROJECTION="SWISS"
 
-# extracting from this grid (currently, only one is supported)
-CXR_STATION_DOMAIN=3
+# Which grid(s) do we extract on
+# make sure your CXR_STATION_FILE_RULE supports CXR_IGRID if you have more than one station here.
+CXR_RUN_EXTRACTION_ON_GRID="3"
+
+
 
 ########################################
 # Preparation of IC/BC/TC

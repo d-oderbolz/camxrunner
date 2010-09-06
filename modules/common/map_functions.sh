@@ -299,7 +299,7 @@ function common.map.LonLatToProjection()
 		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
 		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE +no_defs";;
 		SWISS) proj_string="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +x_0=600000 +y_0=200000 +ellps=bessel +units=m +no_defs";;
-		LATLON) 
+		LATLON|LONLAT) 
 			# No need to convert.
 			echo "${lon} ${lat}"
 			return $CXR_RET_OK
@@ -363,7 +363,7 @@ function test_module()
 	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
 
 	echo "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44 SWISS)"
-	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47)"
+	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47 SWISS)"
 	
 	# Get the index of Payerne
 	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"

@@ -98,7 +98,9 @@ function set_variables()
 	########################################################################
 	
 	# Grid specific - we need to define CXR_IGRID
-	CXR_IGRID=$CXR_INVOCATION
+	# Read it from the variable
+	run_on=($CXR_RUN_EMIFAD_ON_GRID)
+	CXR_IGRID=${run_on[$(( $CXR_INVOCATION - 1 ))]}
 	
 	########################################################################
 	# per day-per grid settings
@@ -129,7 +131,7 @@ function set_variables()
 function run_emifad() 
 ################################################################################
 {
-	# In this module, CXR_INVOCATION corresponds to the grid number.
+	# In this module, CXR_INVOCATION corresponds corresponds to the entry in CXR_RUN_EMIFAD_ON_GRID
 	CXR_INVOCATION=${1}
 	
 	#Was this stage already completed?
@@ -153,7 +155,7 @@ function run_emifad()
 		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
 		
 		# We loop through all the grids we need
-		main.log "Running emifad on grid $CXR_INVOCATION"
+		main.log "Running emifad on grid $CXR_IGRID"
 
 		# First we need to create links (if not existing)
 		main.log "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
@@ -177,7 +179,7 @@ function run_emifad()
 			ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}
 		fi
 		
-		main.log "Running emifad on grid ${CXR_INVOCATION}..."
+		main.log "Running emifad on grid ${CXR_IGRID}..."
 		main.log  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
 
 		if [[ "$CXR_DRY" == false  ]]

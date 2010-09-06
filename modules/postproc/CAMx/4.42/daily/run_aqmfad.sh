@@ -100,7 +100,9 @@ function set_variables()
 	########################################################################
 	
 	# Grid specific - we need to define CXR_IGRID
-	CXR_IGRID=$CXR_INVOCATION
+	# Read it from the variable
+	run_on=($CXR_RUN_AQMFAD_ON_GRID)
+	CXR_IGRID=${run_on[$(( $CXR_INVOCATION - 1 ))]}
 	
 	#aqmfad needs ASCII Input
 	CXR_AVG_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
@@ -142,7 +144,7 @@ function set_variables()
 function run_aqmfad() 
 ################################################################################
 {
-	# In this module, CXR_INVOCATION corresponds to the grid number.
+	# In this module, CXR_INVOCATION corresponds to the entry in CXR_RUN_AQMFAD_ON_GRID
 	CXR_INVOCATION=${1}
 
 	#Was this stage already completed?
@@ -165,9 +167,9 @@ function run_aqmfad()
 		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
 		
 		# Do it.
-		if [[ "$CXR_DRY" == false  ]]
+		if [[ "$CXR_DRY" == false ]]
 		then
-			main.log   "Running aqmfad on grid ${CXR_INVOCATION}..."
+			main.log   "Running aqmfad on grid ${CXR_IGRID}..."
 			main.log   "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE})"    
 
 			# Call aqmfad while collecting stderr only

@@ -78,11 +78,8 @@ CXR_META_MODULE_VERSION='$Id$'
 function getNumInvocations()
 ################################################################################
 {
-	# This module needs one invocation per step
-	# TODO: We want to run this on any grid later (similar to aqmfad)
-	# One approach would be to convert the IDs of the fine domain to the others
-	# (otherwise we again need to specify the coordinates for each domain)
-	echo 1
+	# This module needs one invocation per grid the user wants to precoss per step
+	echo  $(main.countDelimitedElements "$CXR_RUN_EXTRACTION_ON_GRID" " ")
 }
 
 ################################################################################
@@ -108,7 +105,12 @@ function set_variables()
 	
 	# IDL-based extraction of NABEL data needs just the 
 	# data from this specific grid in ASCII data
-	CXR_IGRID=${CXR_STATION_DOMAIN}
+	
+	# Grid specific - we need to define CXR_IGRID
+	# Read it from the variable
+	run_on=($CXR_RUN_EXTRACTION_ON_GRID)
+	CXR_IGRID=${run_on[$(( $CXR_INVOCATION - 1 ))]}
+	
 	CXR_STATION_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
 
 	# the MM5 file to use
@@ -149,8 +151,8 @@ function set_variables()
 function extract_station_data
 ################################################################################
 {
-	# We do not need this variable here (exept implicit for the stage name)
-	CXR_INVOCATION=${1:-1}
+	# In this module, CXR_INVOCATION corresponds to the entry in CXR_RUN_EXTRACTION_ON_GRID
+	CXR_INVOCATION=${1}
 	
 	local exec_tmp_file
 	local xdim
@@ -189,14 +191,14 @@ function extract_station_data
 		exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
 		
 		# Calculate extension of grid to extract
-		xdim=$(common.runner.getX $CXR_STATION_DOMAIN)
-		ydim=$(common.runner.getY $CXR_STATION_DOMAIN)
+		xdim=$(common.runner.getX $CXR_IGRID)
+		ydim=$(common.runner.getY $CXR_IGRID)
 		
 		# The Z dim depends on wether we use 3D output
-		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true  ]]
+		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true ]]
 		then
 			# 3D
-			zdim=$(common.runner.getZ $CXR_STATION_DOMAIN)
+			zdim=$(common.runner.getZ $CXR_IGRID)
 		else
 			# Only 1 layer
 			zdim=1
@@ -224,9 +226,16 @@ function extract_station_data
 				common.runner.createDummyFile ${CXR_STATION_OUTPUT_DIR}/${station_file}
 			fi
 			
-			# The position of this station
-			x=${CXR_STATION_X[${iStation}]}
-			y=${CXR_STATION_Y[${iStation}]}
+			# The position of this station in grid indexes
+			# Must be calculated here.
+			# In the inner bracket, we convert to LonLat, in the outer to indexes.
+			xy="$(common.map.LonLatToIndexes "$(common.map.ProjectionToLonLat ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_STATION_PROJECTION)" $CXR_IGRID)"
+			
+			main.loc -v "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID"
+			
+			# Parse the rosult
+			x="$(echo "$xy" | awk '{ print $1 }')"
+			y="$(echo "$xy" | awk '{ print $2 }')"
 			
 			# We pass all in a string array, IDL then does the conversion
 			station="['${x}','${y}','${station_file}']"
@@ -321,7 +330,7 @@ function extract_station_data
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
 		else
-			main.log   "This is a dry-run, no action required"    
+			main.log   "This is a dry-run, no action required"
 		fi
 		
 		# Get back
