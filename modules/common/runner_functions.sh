@@ -1067,7 +1067,7 @@ function common.runner.releaseAllLocks()
 	for dir in $dirs
 	do
 		# Do this on all 3 levels
-		find $dir -noleaf -name '*.lock' -exec grep -l $CXR_INSTANCE {} \; 2>/dev/null | xargs rm
+		find $dir -noleaf -name '*.lock' -exec grep -l $CXR_INSTANCE {} \; 2>/dev/null | xargs rm -f
 	done
 }
 
