@@ -217,6 +217,7 @@ function common.module.getType()
 # For a given module name, returns the type of the module. Slower than 
 # <common.module.getType> because the file itself is queried, but no need
 # for a DB. Similar code is used in <common.state.updateInfo>.
+# Only use this function if needed.
 #
 # Parameters:
 # $1 - name of a module
@@ -226,8 +227,12 @@ function common.module.getTypeSlow()
 {
 	local metafield
 	local value
+	local file
 	
-	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $1)
+	# We ASSUME that each instance of this file is of the same type
+	file="$(find $CXR_RUN_DIR -noleaf -name ${1}.sh | head -n1)"
+	
+	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $file)
 	value="$(expr match "$metafield" '.*=\(.*\)')" || :
 	
 	echo "$value"
