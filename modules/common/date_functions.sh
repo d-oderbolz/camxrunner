@@ -164,7 +164,7 @@ function common.date.toRaw()
 	
 	if [[ $# -ne 1 || $(common.date.isYYYYMMDD? "$1") == false ]]
 	then
-		main.dieGracefully "needs a date as input"
+		main.dieGracefully "needs a date as input. Got $*"
 	fi
 	
 	# Replace - by nothing
@@ -187,7 +187,7 @@ function common.date.toISO()
 {
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully "needs 1 date as input"
+		main.dieGracefully "needs 1 date as input. Got $*"
 	fi
 	
 	# If we got the empty string, return the empty string
@@ -217,7 +217,7 @@ function common.date.humanSeconds()
 {
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "Programming error: needs 1 time interval in seconds as input"
+		main.dieGracefully "Programming error: needs 1 time interval in seconds as input. Got $*"
 	fi
 	
 	local secondsLeft
@@ -390,9 +390,9 @@ function common.date.JulianToDate()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false ]]
 	then
-		main.dieGracefully "needs one number as input"
+		main.dieGracefully "needs one number as input. Got $*"
 	fi
 	
 	j2d_tmpday=$(( $1 - 1721119 ))
@@ -428,7 +428,7 @@ function common.date.EpochToDate()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.dieGracefully  "needs one number as input"
+		main.dieGracefully  "needs one number as input. Got $*"
 	fi
 	
 	local epoch_seconds
@@ -453,7 +453,7 @@ function common.date.EpochToDateTime()
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
-		main.dieGracefully "needs one number as input"
+		main.dieGracefully "needs one number as input. Got $*"
 	fi
 	
 	local epoch_seconds
@@ -479,7 +479,7 @@ function common.date.WeekOfYear()
 
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.dieGracefully "needs a date of the form YYYY-MM-DD and an optional boolean (no leading zero) as input"
+		main.dieGracefully "needs a date of the form YYYY-MM-DD and an optional boolean (no leading zero) as input. Got $*"
 	fi
 	
 	local date
@@ -511,7 +511,7 @@ function common.date.MonthOfYear()
 
 	if [[ $# -lt 1   ]]
 	then
-		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
+		main.dieGracefully "needs a date of the form YYYY-MM-DD as input. Got $*"
 	fi
 
 	date +%m -d $1
@@ -539,7 +539,7 @@ function common.date.DayOfYear()
 	
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.dieGracefully "needs a date of the form YYYY-MM-DD as input"
+		main.dieGracefully "needs a date of the form YYYY-MM-DD as input. Got $*"
 	fi
 
 	year=${1:0:4}
@@ -576,7 +576,7 @@ function common.date.DaysInMonth()
 	
 	if [[ $# -lt 2  ]]
 	then
-		main.dieGracefully "needs a month and a year as input"
+		main.dieGracefully "needs a month and a year as input. Got $*"
 	fi
 	
 	dim_m=${1}
@@ -603,7 +603,7 @@ function common.date.DayOfWeek()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.dieGracefully  "needs a date as input"
+		main.dieGracefully  "needs a date as input. Got $*"
 	fi
 	
 	dim_d=${1}
@@ -631,7 +631,7 @@ function common.date.DaysLeftInWeek()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.dieGracefully "needs a date as input"
+		main.dieGracefully "needs a date as input. Got $*"
 	fi
 	
 	dim_d=${1}
@@ -661,7 +661,7 @@ function common.date.DaysLeftInMonth()
 	
 	if [[ $# -lt 1  ]]
 	then
-		main.dieGracefully "needs a date as input"
+		main.dieGracefully "needs a date as input. Got $*"
 	fi
 	
 	dim_d=${1}
@@ -691,7 +691,7 @@ function common.date.isLeapYear?
 	
 	if [[ $# -ne 1  ]]
 	then
-		main.dieGracefully  "needs a year as input"
+		main.dieGracefully  "needs a year as input. Got $*"
 	fi
 	
 	year=$1
@@ -725,8 +725,7 @@ function common.date.isLeapYear?
 # 
 # Takes a valid date (YYYY-MM-DD) as input and converts it to a simulation day offset.
 # It does so by calculating the difference of the julian dates.
-#
-#
+# 
 # Example (assuming the simulation starts 2007-01-01):
 # > $ common.date.toOffset 2007-01-02
 # > 1
@@ -737,7 +736,6 @@ function common.date.isLeapYear?
 function common.date.toOffset()
 ################################################################################
 {
-	
 	# Define & Initialize local vars
 	local start
 	local wanted
@@ -746,7 +744,7 @@ function common.date.toOffset()
 	# Check input
 	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs one YYYY-MM-DD date as input"
+		main.dieGracefully "needs one YYYY-MM-DD date as input, got $*"
 	fi
 	
 	start=$(common.date.toJulian ${CXR_START_DATE})
@@ -756,13 +754,13 @@ function common.date.toOffset()
 	
 	if [[ ${offset} -lt 0  ]]
 	then
-		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
-		echo false
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
+		echo ""
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
-		echo false
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
+		echo ""
 		return $CXR_RET_ERROR
 	else
 		echo ${offset}
@@ -794,9 +792,9 @@ function common.date.OffsetToDate()
 	local offset
 	
 	# Check input
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.log -e  "needs a number as input"
+		main.log -e  "needs a day offset as input. Got *"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -814,14 +812,15 @@ function common.date.OffsetToDate()
 # 
 # Calculates the number of hours since model start (the current day does not count, since
 # we are at the very beginning of it. Considers CXR_START_HOUR.
+# Noteh tha CAMx gives hours in hhhh format, this function returns truncated hh fomat.
 #
 #
-# Example (assuming the simulation starts 2007-01-01):
-# > $ common.date.getModelHour 2007-01-02
+# Example:
+# > $ common.date.getModelHour 1
 # > 24
 #
 # Parameters:
-# $1 - date in YYYY-MM-DD format
+# $1 - day offset
 ################################################################################
 function common.date.getModelHour()
 ################################################################################
@@ -830,27 +829,31 @@ function common.date.getModelHour()
 	local offset
 	
 	# Check for numeric input
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.log -e  "needs one YYYY-MM-DD date as input"
-		echo false
+		main.log -e  "needs a day offset as input, got $*"
+		echo ""
 		return $CXR_RET_ERROR
 	fi
 
-	offset=$(common.date.toOffset $1)
+	offset="$1"
 	
-	if [[ ${offset} -lt 0  ]]
+	if [[ "${offset}" -lt 0 ]]
 	then
-		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form."
-		echo false
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form. Got $*"
+		echo ""
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form."
-		echo false
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
+		echo ""
 		return $CXR_RET_ERROR
+	elif [[ ${offset} -eq 0 ]]
+		# First day
+		echo $(( ( 2400 - ${CXR_START_HOUR} ) / 100 )
+		return $CXR_RET_OK
 	else
-		echo $(( ( ${offset} * 24 ) - ${CXR_START_HOUR} ))
+		echo $(( ( ( ${offset} * 2400 ) - ${CXR_START_HOUR} ) / 100 )
 		return $CXR_RET_OK
 	fi
 	
@@ -875,7 +878,7 @@ function common.date.DaysBetween()
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
-		main.log -e  "needs 2 dates as input"
+		main.log -e  "needs 2 dates as input. Got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -929,7 +932,7 @@ function common.date.WeeksBetween()
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
-		main.log -e  "needs 2 dates as input"
+		main.log -e  "needs 2 dates as input. Got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -945,7 +948,7 @@ function common.date.WeeksBetween()
 	
 	if [[ $diff -lt 0 ]]
 	then
-		main.log -e  "Date2 is smaller than Date1"
+		main.log -e  "Date2 is smaller than Date1. Got $*"
 		echo 0
 		return $CXR_RET_ERROR
 	fi
@@ -1000,7 +1003,7 @@ function common.date.MonthsBetween()
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
-		main.log -e  "needs 2 dates as input"
+		main.log -e  "needs 2 dates as input. Got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -1016,7 +1019,7 @@ function common.date.MonthsBetween()
 	
 	if [[ $diff -lt 0 ]]
 	then
-		main.log -e  "Date2 is smaller than Date1"
+		main.log -e  "Date2 is smaller than Date1. Got $*"
 		echo 0
 		return $CXR_RET_ERROR
 	fi
@@ -1059,7 +1062,7 @@ function common.date.addDays()
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
-		main.log -e  "needs one date and one number as input"
+		main.log -e  "needs one date and one number as input. Got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -1093,7 +1096,7 @@ function common.date.subtractDays()
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
-		main.log -e  "needs one date and one number as input"
+		main.log -e  "needs one date and one number as input. Got $*"
 		echo false
 		return $CXR_RET_ERROR
 	fi
@@ -1193,7 +1196,7 @@ function common.date.setVars()
 	CXR_DAY=$(common.string.leftPadZero $day 2)
 	
 	# Modelling hour
-	CXR_MODEL_HOUR=$(common.date.getModelHour $CXR_DATE)
+	CXR_MODEL_HOUR=$(common.date.getModelHour $CXR_DAY_OFFSET)
 	
 	# Day of year
 	CXR_DOY=$(common.date.DayOfYear $CXR_DATE)
