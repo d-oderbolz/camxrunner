@@ -136,10 +136,12 @@ function set_variables()
 		
 		# Checks
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
-	
+		
+		set -x
 		xy="$(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_STATION_PROJECTION) $CXR_IGRID)"
+		set +x
 		main.log -a "Station $station has indexes $xy in domain $CXR_IGRID"
-	
+		
 	done
 
 }
