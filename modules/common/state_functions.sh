@@ -1174,7 +1174,7 @@ function common.state.cleanup()
 						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
 					fi
 					
-					if [[ -z "$where_day" ]]
+					if [[ $all_days == true ]]
 					then
 						# all days need to be deleted only once
 						break
