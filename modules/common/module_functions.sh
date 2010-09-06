@@ -199,16 +199,39 @@ function common.module.getPath()
 # Function: common.module.getType
 # 
 # For a given module name, returns the type of the module.
+# Needs a fully updated CXR_STATE_DB_FILE!
 #
 # Parameters:
 # $1 - name of a module
-# $2 - the name of the item
 ################################################################################
 function common.module.getType()
 ################################################################################
 {
 	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT type FROM modules WHERE module='$1'")
 	echo "$type"
+}
+
+################################################################################
+# Function: common.module.getTypeSlow
+# 
+# For a given module name, returns the type of the module. Slower than 
+# <common.module.getType> because the file itself is queried, but no need
+# for a DB. Similar code is used in <common.state.updateInfo>.
+#
+# Parameters:
+# $1 - name of a module
+################################################################################
+function common.module.getTypeSlow()
+################################################################################
+{
+	local metafield
+	local value
+	
+	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $1)
+	value="$(expr match "$metafield" '.*=\(.*\)')" || :
+	
+	echo "$value"
+	
 }
 
 ################################################################################

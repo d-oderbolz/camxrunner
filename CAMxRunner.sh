@@ -689,8 +689,9 @@ then
 			# Decode arguments
 			for module in $CXR_RUN_LIST
 			do
-				# Determine type
-				module_type="$(common.module.getType "$module")"
+				# Determine type. 
+				# Due to CATCH-22 we cannot use <common.module.getType> here
+				module_type="$(common.module.getTypeSlow "$module")"
 				
 				case "$module_type" in
 				
@@ -724,7 +725,6 @@ then
 		
 	
 fi # Limited Processing?
-
 ################################################################################
 # Print out the variables and their settings
 ################################################################################
