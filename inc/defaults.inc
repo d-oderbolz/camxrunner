@@ -259,6 +259,9 @@ CXR_IGNORE_DISABLED_DEPENDENCIES="${CXR_IGNORE_DISABLED_DEPENDENCIES:-true}"
 # If this is true, we ignore dependecies altogether
 CXR_IGNORE_ANY_DEPENDENCIES="${CXR_IGNORE_ANY_DEPENDENCIES:-false}"
 
+print "CXR_IGNORE_ANY_DEPENDENCIES: $CXR_IGNORE_ANY_DEPENDENCIES"
+exit
+
 ## End Task control
 
 # Names of modules already checked
