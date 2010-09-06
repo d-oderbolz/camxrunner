@@ -1,5 +1,7 @@
 #
 # This file contains defaults for CAMxRunner. 
+# For most variables, we check if it is already set,
+# if not, we set it.
 # 
 # Leave the next line intact, it is used for change detection
 # Version: $Id$ 
@@ -107,6 +109,18 @@ CXR_BOX_HUGE_T="################################################################
 CXR_SINGLE_LINE="-----------------------------------------------------------------------------"
 CXR_DOUBLE_LINE="============================================================================="
 
+# Delimiter for ask and playfiles and other "DB-like" files
+CXR_DELIMITER="|"
+
+
+# A space used to delimit list elements
+CXR_SPACE=" "
+
+
+# This refix is added to all tempfiles
+CXR_TMP_PREFIX=cxr_
+
+
 # Max Parallel Procs
 CXR_MAX_PARALLEL_PROCS=1
 
@@ -150,13 +164,13 @@ CXR_LOG_LEVEL_ERR=1
 CXR_LOG_LEVEL_ALW=0
 
 # Here we set the default filter for screen and file messages
-CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_ERR}
-CXR_LOG_LEVEL_FILE=${CXR_LOG_LEVEL_INF}
+CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_SCREEN:-$CXR_LOG_LEVEL_ERR}
+CXR_LOG_LEVEL_FILE=${CXR_LOG_LEVEL_FILE:-$CXR_LOG_LEVEL_INF}
 
 # This is used for twitter, SMS and Mail
 # Which channels are used are controlled by
 # CXR_SEND_SMS, CXR_SEND_TWITTER and CXR_SEND_EMAIL
-CXR_LOG_LEVEL_EXTERNAL=${CXR_LOG_LEVEL_ERR}
+CXR_LOG_LEVEL_EXTERNAL=${CXR_LOG_LEVEL_EXTERNAL:-$CXR_LOG_LEVEL_ERR}
 
 # Note that you can configure the log-level 
 # CXR_LOG_LEVEL_EXTERNAL
@@ -164,34 +178,23 @@ CXR_LOG_LEVEL_EXTERNAL=${CXR_LOG_LEVEL_ERR}
 # As a minimum, you get a message when the run starts and when the run ends.
 
 # If this Variable is true,Email will be sent
-CXR_SEND_EMAIL=true
+CXR_SEND_EMAIL=${CXR_SEND_EMAIL:-true}
 
 #If this Variable is true, SMS will be sent
-CXR_SEND_SMS=false
+CXR_SEND_SMS=${CXR_SEND_SMS:-false}
 
 # If this Variable is true, twitter wil be used
 # Twitter allows us to publish our logs to a whole group of people
 # To use it, create a ~/.twitterrc file (readable only to you)
 # that sets the variables ACCOUNT and PASS
-CXR_SEND_TWITTER=false
-
-# Delimiter for ask and playfiles and other "DB-like" files
-CXR_DELIMITER="|"
-
-
-# A space used to delimit list elements
-CXR_SPACE=" "
-
-
-# This refix is added te all tempfiles
-CXR_TMP_PREFIX=cxr_
+CXR_SEND_TWITTER=${CXR_SEND_TWITTER:-false}
 
 
 #Normally, the state DB is in use
-CXR_ENABLE_STATE_DB=true
+CXR_ENABLE_STATE_DB=${CXR_ENABLE_STATE_DB:-true}
 
 # Define the prefix for disabled scripts (no dot please)
-CXR_DISABLED_EXT=disabled
+CXR_DISABLED_EXT=${CXR_DISABLED_EXT:-disabled}
 
 # Change this in case the name of the runner script changes
 CXR_RUNNER_NAME=CAMxRunner.sh
@@ -208,42 +211,42 @@ CXR_RUN_ALL=${CXR_ALL}
 
 # Warning level for system load in percent
 # (as determined by ReaLoad)
-CXR_LOAD_WARN_THRESHOLD=80
+CXR_LOAD_WARN_THRESHOLD=${CXR_LOAD_WARN_THRESHOLD:-80}
 
 # Level where we bail out
-CXR_LOAD_EXIT_THRESHOLD=90
+CXR_LOAD_EXIT_THRESHOLD="${CXR_LOAD_EXIT_THRESHOLD:-90}"
 
 # Percentage of Memory that should be free upon starting a new task
-CXR_MEM_FREE_PERCENT=20
+CXR_MEM_FREE_PERCENT="${CXR_MEM_FREE_PERCENT:-20}"
 
 # Parametes that control waiting
 # Minutes we wait on a single event (file)
-CXR_TIMEOUT_MINS=10
+CXR_TIMEOUT_MINS="${CXR_TIMEOUT_MINS:-10}"
 
 # Total timeout is 1 day
-CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
+CXR_TOTAL_WAITING_MINS="${CXR_TOTAL_WAITING_MINS:-$(( 24 * 60 ))}"
 
 # Number of seconds we wait in each task iteration
 # also used in the task functions, number of secods an idle task sleeps
-CXR_WAITING_SLEEP_SECONDS=60
+CXR_WAITING_SLEEP_SECONDS="${CXR_WAITING_SLEEP_SECONDS:-60}"
 
 # This time in seconds is waited in each wait iteration for a lock
-CXR_LOCK_SLEEP_SECONDS=0.01
+CXR_LOCK_SLEEP_SECONDS="${CXR_LOCK_SLEEP_SECONDS:-0.01}"
 
 # After this amount of seconds, we should stop to lock
 # We use this lock to keep two processes from getting the same task,
 # but also to keep exclusive, often long running modules alone.
 # This must be at least as long as a single model task takes
-CXR_LOCK_TIMEOUT_SEC=7200
+CXR_LOCK_TIMEOUT_SEC="${CXR_LOCK_TIMEOUT_SEC:-7200}"
 
 # After this amount of seconds, a arallel worker gives up if
 # dependencies are not satisfied
-CXR_DEPENDECY_TIMEOUT_SEC=7200
+CXR_DEPENDECY_TIMEOUT_SEC="${CXR_DEPENDECY_TIMEOUT_SEC:-7200}"
 
 # This is the max number of times all werkers can be idle
 # (consecutively)
 # This mechanism allows to detect a locked up run faster than aboves timeouts
-CXR_MAX_LOCKUP_COUNT=10
+CXR_MAX_LOCKUP_COUNT="${CXR_MAX_LOCKUP_COUNT:-10}"
 
 
 # Variables:  Parallel Task control
@@ -251,16 +254,10 @@ CXR_MAX_LOCKUP_COUNT=10
 
 # If this is false, modules that depend on disabled modules
 # will never be able to run. 
-CXR_IGNORE_DISABLED_DEPENDENCIES=true
+CXR_IGNORE_DISABLED_DEPENDENCIES="${CXR_IGNORE_DISABLED_DEPENDENCIES:-true}"
 
 # If this is true, we ignore dependecies altogether
-CXR_IGNORE_ANY_DEPENDENCIES=false
-
-# These are the indexes of the task descriptor structure
-CXR_TASK_DESCR_I_PATH=0					# Relative Path to module,
-CXR_TASK_DESCR_I_OFFSET=1				# Day offset
-CXR_TASK_DESCR_I_EXCLUSIVE=2			# Run exclusively (boolean flag)
-CXR_TASK_DESCR_I_DEPENDENCIES=3	# Dependencies
+CXR_IGNORE_ANY_DEPENDENCIES="${CXR_IGNORE_ANY_DEPENDENCIES:-false}"
 
 ## End Task control
 
@@ -269,112 +266,112 @@ CXR_ANNOUNCED_MODULES=" "
 
 # If this is false, the temporary files will not be deleted
 # Debug only!
-CXR_REMOVE_TEMP_FILES=true
+CXR_REMOVE_TEMP_FILES="${CXR_REMOVE_TEMP_FILES:-true}"
 
 # If this is false, the temporarily decompressed files will not be deleted
 # For the -L feature
-CXR_REMOVE_DECOMPRESSED_FILES=true
+CXR_REMOVE_DECOMPRESSED_FILES="${CXR_REMOVE_DECOMPRESSED_FILES:-true}"
 
 # When set to true, the script logs even in a dry run
-CXR_FORCE_LOG=false
+CXR_FORCE_LOG="${CXR_FORCE_LOG:-false}"
 
 # When set to true, the script logs
-CXR_DO_FILE_LOGGING=true
+CXR_DO_FILE_LOGGING="${CXR_DO_FILE_LOGGING:-true}"
 
 # When set to true, CAMx is not run, only Input data is checked
-CXR_DRY=false
+CXR_DRY="${CXR_DRY:-false}"
 
 # When set to true, CAMx is not run, only state information is cleared
-CXR_CLEANUP=false
+CXR_CLEANUP="${CXR_CLEANUP:-false}"
 
 # When set to true, we show only info and quit
-CXR_LIST_INFO=false
+CXR_LIST_INFO="${CXR_LIST_INFO:-false}"
 
 # When true, we display all modules
-CXR_LIST_MODULES=false
+CXR_LIST_MODULES="${CXR_LIST_MODULES:-false}"
 
 # When set to true, CAMx is not run, only a rew run is created
-CXR_CREATE_NEW_RUN=false
+CXR_CREATE_NEW_RUN="${CXR_CREATE_NEW_RUN:-false}"
 
 # When set to true,CAMx is not run, only the installation is run
-CXR_INSTALL=false
+CXR_INSTALL="${CXR_INSTALL:-false}"
 
 # When set to true, we only test the CAMxRunner
-CXR_RUN_TESTS=false
+CXR_RUN_TESTS="${CXR_RUN_TESTS:-false}"
 
 # When true, we disable set -e
-CXR_TEST_IN_PROGRESS=false
+CXR_TEST_IN_PROGRESS="${CXR_TEST_IN_PROGRESS:-false}"
 
 #If non-empty, we will run this day (YYYY-MM-DD)
-CXR_SINGLE_DAYS=
+CXR_SINGLE_DAYS="${CXR_SINGLE_DAYS:-}"
 
 # When set to true, CAMx is not run, only other runners on the same rn are stopped
-CXR_STOP_RUN=false
+CXR_STOP_RUN="${CXR_STOP_RUN:-false}"
 
 # When set to true, existing Output files are overwritten (see also CXR_SKIP_EXISTING)
-CXR_FORCE=false
+CXR_FORCE="${CXR_FORCE:-false}"
 
 # If this is true, we wait for missing input
-CXR_WAIT_4_INPUT=false
+CXR_WAIT_4_INPUT="${CXR_WAIT_4_INPUT:-false}"
 
 # When set to false, existing Output files are not skipped (we stop if they exist, unless -F is given)
-CXR_SKIP_EXISTING=true
+CXR_SKIP_EXISTING="${CXR_SKIP_EXISTING:-true}"
 
 # When set to false, we no longer do change detection of input files.
 # This is done by keeping MD5 Hashes of all input files encountered in a global place
-CXR_INPUT_CHANGE_DETECTION=true
+CXR_INPUT_CHANGE_DETECTION="${CXR_INPUT_CHANGE_DETECTION:-true}"
 
 # When set to false, disables check for disk space for model runs
-CXR_CHECK_MODEL_SPACE_REQUIRED=true
+CXR_CHECK_MODEL_SPACE_REQUIRED="${CXR_CHECK_MODEL_SPACE_REQUIRED:-true}"
 
 # When set to false, we no longer check the lengths of the paths of filenames
 # This check is important for programs that are compiled with a certain pathlenght
 # Most often, these values are mugh lower than the maximum allowed e. g. ( grep MAX_PATH /usr/include/linux/limits.h)
-CXR_CHECK_MAX_PATH=true
+CXR_CHECK_MAX_PATH="${CXR_CHECK_MAX_PATH:-true}"
 
 # Currently we assume this limit
-CXR_MAX_PATH=240
+CXR_MAX_PATH="${CXR_MAX_PATH:-240}"
 
 # When set to true, muliple instances of CAMx Runner 
 # on the same run are allowed (experts only)
-CXR_ALLOW_MULTIPLE=false
+CXR_ALLOW_MULTIPLE="${CXR_ALLOW_MULTIPLE:-false}"
 
 # If true, run CAMx , otherwise don't
-CXR_RUN_MODEL=true
+CXR_RUN_MODEL="${CXR_RUN_MODEL:-true}"
 
 # If true, compress the output files upon completion
 # The compressor CXR_COMPRESSOR_EXEC used is selected later
-CXR_COMPRESS_OUTPUT=true
+CXR_COMPRESS_OUTPUT="${CXR_COMPRESS_OUTPUT:-true}"
 
 # This is a pattern that can be used to limit compression either to 
 # specific files or specific modules that created the files
 # is tested using "expr match"
 # If it is empty, it has no effect
-CXR_COMPRESS_OUTPUT_PATTERN=
+CXR_COMPRESS_OUTPUT_PATTERN="${CXR_COMPRESS_OUTPUT_PATTERN:-}"
 
 # Sets the minimal size threshold for compression in MB
 # Files smaller than this will note be compressed,
 # even if the pattern matches
-CXR_COMPRESS_THRESHOLD_MB=500
+CXR_COMPRESS_THRESHOLD_MB="${CXR_COMPRESS_THRESHOLD_MB:-500}"
 
 # If true, CAMxRunner will report the MD5 Hash of each input file
 # We use MD5 instead of SHA1 because of speed reasons
 # While it takes more time, this can save a lot of headache when comparing files
-CXR_REPORT_MD5=true
+CXR_REPORT_MD5="${CXR_REPORT_MD5:-true}"
 
 # If true, only specfied parts if pre- ar postprocessing are run
-CXR_RUN_LIMITED_PROCESSING=false
+CXR_RUN_LIMITED_PROCESSING="${CXR_RUN_LIMITED_PROCESSING:-false}"
 
 # If one of these is false, the sub-system will not be run
 # Must be false here, gets changed after option processing is done
-CXR_RUN_PRE_DAILY=false
-CXR_RUN_PRE_ONCE=false
-CXR_RUN_POST_DAILY=false
-CXR_RUN_POST_ONCE=false
+CXR_RUN_PRE_DAILY="${CXR_RUN_PRE_DAILY:-false}"
+CXR_RUN_PRE_ONCE="${CXR_RUN_PRE_ONCE:-false}"
+CXR_RUN_POST_DAILY="${CXR_RUN_POST_DAILY:-false}"
+CXR_RUN_POST_ONCE="${CXR_RUN_POST_ONCE:-false}"
 
 
 # This Check variable makes sure certain things are only checked once and not for each day
-CXR_CHECKED_ONCE=false
+CXR_CHECKED_ONCE="${CXR_CHECKED_ONCE:-false}"
 
 # Contains an explanatory extension for the logfile name
 # is set according to the options set
@@ -393,33 +390,33 @@ CXR_LOG_EXT=""
 # Disabled Modules (space-separated module names, ${CXR_SKIP_ALL} disables whole class)
 ################################################################################
 
-CXR_DISABLED_DAILY_PREPROC=""
+CXR_DISABLED_DAILY_PREPROC="${CXR_DISABLED_DAILY_PREPROC:-""}"
 
-CXR_DISABLED_ONCE_PREPROC=""
+CXR_DISABLED_ONCE_PREPROC="${CXR_DISABLED_ONCE_PREPROC:-""}"
 
-CXR_DISABLED_DAILY_POSTPROC=""
+CXR_DISABLED_DAILY_POSTPROC="${CXR_DISABLED_DAILY_POSTPROC:-""}"
 
-CXR_DISABLED_ONCE_POSTPROC=""
+CXR_DISABLED_ONCE_POSTPROC="${CXR_DISABLED_ONCE_POSTPROC:-""}"
 
-CXR_DISABLED_MODEL=""
+CXR_DISABLED_MODEL="${CXR_DISABLED_MODEL:-""}"
 
-CXR_DISABLED_INSTALLER=""
+CXR_DISABLED_INSTALLER="${CXR_DISABLED_INSTALLER:-""}"
 
 ################################################################################
 # Enabled Modules (space-separated module names, stronger counterpart of the former variables)
 ################################################################################
 
-CXR_ENABLED_DAILY_PREPROC=""
+CXR_ENABLED_DAILY_PREPROC="${CXR_ENABLED_DAILY_PREPROC:-""}"
 
-CXR_ENABLED_ONCE_PREPROC=""
+CXR_ENABLED_ONCE_PREPROC="${CXR_ENABLED_ONCE_PREPROC:-""}"
 
-CXR_ENABLED_DAILY_POSTPROC=""
+CXR_ENABLED_DAILY_POSTPROC="${CXR_ENABLED_DAILY_POSTPROC:-""}"
 
-CXR_ENABLED_ONCE_POSTPROC=""
+CXR_ENABLED_ONCE_POSTPROC="${CXR_ENABLED_ONCE_POSTPROC:-""}"
 
-CXR_ENABLED_MODEL=""
+CXR_ENABLED_MODEL="${CXR_ENABLED_MODEL:-""}"
 
-CXR_ENABLED_INSTALLER=""
+CXR_ENABLED_INSTALLER="${CXR_ENABLED_INSTALLER:-""}"
 
 ################################################################################
 # Directories 
@@ -434,7 +431,7 @@ CXR_ENABLED_INSTALLER=""
 # If you plan to use more than one machine in parallel, all need to use the same
 # directory (hence it must be on a network FS)
 # This is for efficiency reasons (to avoid decompressing the same files more than once)
-CXR_TMP_DIR=~/tmp
+CXR_TMP_DIR="${CXR_TMP_DIR:-~/tmp}"
 
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
@@ -463,16 +460,16 @@ CXR_INSTALLER_INPUT_DIR=${CXR_MODULES_DIR}/${CXR_INSTALLER}
 
 # MB per 10^5 cells/species/timestep
 # If no source apportionment is selected
-CXR_C_SPACE_NONE=2.2046 
+CXR_C_SPACE_NONE="${CXR_C_SPACE_NONE:-2.2046}"
 
 # The actual selection must be based on options
-CXR_C_SPACE=${CXR_C_SPACE_NONE}
+CXR_C_SPACE="${CXR_C_SPACE:-${CXR_C_SPACE_NONE}"
 
 # Safety factor
-CXR_F_MARGIN=1.1
+CXR_F_MARGIN="${CXR_F_MARGIN:-1.1}"
 
 # Fraction of space (of total run) we need in the tmp dir
-CXR_TMP_SPACE_FACTOR=0.05
+CXR_TMP_SPACE_FACTOR="${CXR_TMP_SPACE_FACTOR:-0.05}"
 
 ################################################################################
 # Parameters to estimate time needed
@@ -482,19 +479,16 @@ CXR_TMP_SPACE_FACTOR=0.05
 # when storing times.
 # Increase when normalized times are too small - but changing this
 # setting invalidates all data in the state/universal/hashes/Timing Hash!
-CXR_TIME_PER_CELLS=100000
+CXR_TIME_PER_CELLS="${CXR_TIME_PER_CELLS:-100000}"
 
 # This factor is re-calculated later
-CXR_TIME_NORM_FACTOR=1
-
-# We do not store more than this number of timing infos per module
-CXR_TIME_MAX_ENTRIES=1000
+CXR_TIME_NORM_FACTOR="${CXR_TIME_NORM_FACTOR:-1}"
 
 # This variable will hold the estimated total time
 CXR_TIME_TOTAL_ESTIMATED=0
 
 # This is graphical - the max with of the progress bar
-CXR_MAX_BAR_WIDTH=80
+CXR_MAX_BAR_WIDTH="${CXR_MAX_BAR_WIDTH:-80}"
 
 ################################################################################
 # Installer - specific settings (find more in the CAMx version specific .conf files)
@@ -681,21 +675,21 @@ CXR_ASC_EXT=asc
 ################################################################################
 
 # Decompression
-CXR_GUNZIP_EXEC="$(main.getBinaryName gunzip true)"
-CXR_BUNZIP2_EXEC="$(main.getBinaryName bunzip2 true)"
+CXR_GUNZIP_EXEC="${CXR_GUNZIP_EXEC:-$(main.getBinaryName gunzip true)}"
+CXR_BUNZIP2_EXEC="${CXR_BUNZIP2_EXEC:-$(main.getBinaryName bunzip2 true)}"
 
 # Compression
-CXR_GZIP_EXEC="$(main.getBinaryName gzip true)"
-CXR_BZIP2_EXEC="$(main.getBinaryName bzip2 true)"
+CXR_GZIP_EXEC="${CXR_GZIP_EXEC:-$(main.getBinaryName gzip true)}"
+CXR_BZIP2_EXEC="${CXR_BZIP2_EXEC:-$(main.getBinaryName bzip2 true)}"
 
 # Hash generation
-CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
+CXR_MD5_EXEC="${CXR_MD5_EXEC:-$(main.getBinaryName md5sum true)}"
 
 # SQLite db engine (needed for Hashes)
-CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
+CXR_SQLITE_EXEC="${CXR_SQLITE_EXEC:-$(main.getBinaryName sqlite3 true)}"
 
 # This is a SQLITE Library for statistical functions
-CXR_SQLITE_LIBFUNCTIONS=$CXR_LIB_DIR/sqlite/$HOSTTYPE/libsqlitefunctions.so
+CXR_SQLITE_LIBFUNCTIONS="${CXR_SQLITE_LIBFUNCTIONS:-$CXR_LIB_DIR/sqlite/$HOSTTYPE/libsqlitefunctions.so}"
 
 if [[ -e $CXR_SQLITE_LIBFUNCTIONS ]]
 then
@@ -705,38 +699,38 @@ else
 fi
 
 # The compressor we use to compress output
-CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
+CXR_COMPRESSOR_EXEC="${CXR_COMPRESSOR_EXEC:-${CXR_BZIP2_EXEC}}"
 
 # Fortran-77 Compiler (only needed when installing)
-CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
+CXR_FORTRAN77_COMPILER_EXEC="${CXR_FORTRAN77_COMPILER_EXEC:-$(main.getBinaryName pgf77 true)}"
 
 # Fortran-90 Compiler (only needed when installing)
-CXR_FORTRAN90_COMPILER_EXEC="$(main.getBinaryName pgf90 true)"
+CXR_FORTRAN90_COMPILER_EXEC="${CXR_FORTRAN90_COMPILER_EXEC:-$(main.getBinaryName pgf90 true)}"
 
 # The C Compiler (used sparingly)
-CXR_C_COMPILER_EXEC="$(main.getBinaryName gcc true)"
+CXR_C_COMPILER_EXEC="${CXR_C_COMPILER_EXEC:-$(main.getBinaryName gcc true)}"
 
 # This is the default FORTRAN compiler
-CXR_FORTRAN_COMPILER_EXEC="$CXR_FORTRAN77_COMPILER_EXEC"
+CXR_FORTRAN_COMPILER_EXEC="${CXR_FORTRAN_COMPILER_EXEC:-$CXR_FORTRAN77_COMPILER_EXEC}"
 
 # API GENERATOR
-CXR_API_DOC_EXEC=${CXR_BIN_DIR}/generate-api-doc.sh
+CXR_API_DOC_EXEC="${CXR_API_DOC_EXEC:-${CXR_BIN_DIR}/generate-api-doc.sh}"
 
 # wget to download stuff (needed for installation and AHOMAP)
-CXR_WGET_EXEC=$(main.getBinaryName wget true)
+CXR_WGET_EXEC="${CXR_WGET_EXEC:-$(main.getBinaryName wget true)}"
 
 # needed for coordinate transformations
-CXR_CS2CS_EXEC="$(main.getBinaryName cs2cs)"
+CXR_CS2CS_EXEC="${CXR_CS2CS_EXEC:-$(main.getBinaryName cs2cs)}"
 
 # needed to convert dos-unix and back
-CXR_DOS2UNIX_EXEC="$(main.getBinaryName dos2unix true)"
-CXR_UNIX2DOS_EXEC="$(main.getBinaryName unix2dos true)"
+CXR_DOS2UNIX_EXEC="${CXR_DOS2UNIX_EXEC:-$(main.getBinaryName dos2unix true)}"
+CXR_UNIX2DOS_EXEC="${CXR_UNIX2DOS_EXEC:-$(main.getBinaryName unix2dos true)}"
 
 # This is central to determine execution order
-CXR_TSORT_EXEC="$(main.getBinaryName tsort)"
+CXR_TSORT_EXEC="${CXR_TSORT_EXEC:-$(main.getBinaryName tsort)}"
 
 # this can be used to draw graphs
-CXR_DOT_EXEC="$(main.getBinaryName dot true)"
+CXR_DOT_EXEC="${CXR_DOT_EXEC:-$(main.getBinaryName dot true)}"
 
 #### It is recommended to compile the binaries
 #### into binaries that carry the machine type in their name
@@ -746,56 +740,56 @@ CXR_DOT_EXEC="$(main.getBinaryName dot true)"
 #### replace with literal for your own choice
 
 # Checker for landuse
-CXR_SRFLND_EXEC=$(main.getBinaryName srflnd)
+CXR_SRFLND_EXEC="${CXR_SRFLND_EXEC:-$(main.getBinaryName srflnd)}"
 
 # The binary to convert bin2asc
-CXR_BIN2ASC_EXEC=$(main.getBinaryName bin2asc)
+CXR_BIN2ASC_EXEC="${CXR_BIN2ASC_EXEC:-$(main.getBinaryName bin2asc)}"
 
 # The binary to convert asc2bin
-CXR_ASC2IBN_EXEC=$(main.getBinaryName asc2bin)
+CXR_ASC2IBN_EXEC="${CXR_ASC2IBN_EXEC:-$(main.getBinaryName asc2bin)}"
 
 # The binary to convert Emission ascii to Bin
-CXR_AIRCONV_EXEC=$(main.getBinaryName airconv)
+CXR_AIRCONV_EXEC="${CXR_AIRCONV_EXEC:-$(main.getBinaryName airconv)}"
 
 # The binary to convert MM5 Input
-CXR_UAMVASCII_EXEC=$(main.getBinaryName uamvascii)
+CXR_UAMVASCII_EXEC="${CXR_UAMVASCII_EXEC:-$(main.getBinaryName uamvascii)}"
 
 # Binary to convert the other way
-CXR_UAMVBINR_EXEC=$(main.getBinaryName uamvbinr)
+CXR_UAMVBINR_EXEC="${CXR_UAMVBINR_EXEC:-$(main.getBinaryName uamvbinr)}"
 
 # Yet another binary to convert MM5 Input
-CXR_AIRASCII_EXEC=$(main.getBinaryName airascii)
+CXR_AIRASCII_EXEC="${CXR_AIRASCII_EXEC:-$(main.getBinaryName airascii)}"
 
 # Needed to create constant IC/BC fields
-CXR_ICBCPREP_EXEC=$(main.getBinaryName icbcprep)
+CXR_ICBCPREP_EXEC="${CXR_ICBCPREP_EXEC:-$(main.getBinaryName icbcprep)}"
 
 # Avgdif
-CXR_AVGDIF_EXEC=$(main.getBinaryName avgdif)
+CXR_AVGDIF_EXEC="${CXR_AVGDIF_EXEC:-$(main.getBinaryName avgdif)}"
 
 ########################################
 # Preprocessors
 ########################################	
-CXR_AHOMAP_EXEC=$(main.getBinaryName ahomap)
+CXR_AHOMAP_EXEC="${CXR_AHOMAP_EXEC:-$(main.getBinaryName ahomap)}"
 
-CXR_TUV_EXEC=$(main.getBinaryName tuv)
+CXR_TUV_EXEC="${CXR_TUV_EXEC:-$(main.getBinaryName tuv)}"
 
 ################################################################################
 # Advanced Input check
 ################################################################################
 
 # If this is true, the we will look for compressed versions of missing files
-CXR_DETECT_COMPRESSED_INPUT_FILES=true
+CXR_DETECT_COMPRESSED_INPUT_FILES="${CXR_DETECT_COMPRESSED_INPUT_FILES:-true}"
 
 # If this is true, files will be decompressed where they are.
 # This is not recommended, because the user might not have write permission in all
 # source directories.
 # If it is false, make sure that the directory CXR_TMP_DIR has enough space free...
-CXR_DECOMPRESS_IN_PLACE=false
+CXR_DECOMPRESS_IN_PLACE="${CXR_DECOMPRESS_IN_PLACE:-false}"
 
 # These extensions are searched with the automatic capability
 # CAMxRunner does not determine the compression type from the suffix,
 # this is done using "file"
-CXR_COMPRESSED_EXT=".gz .bz2 .zip"
+CXR_COMPRESSED_EXT="${CXR_COMPRESSED_EXT:-".gz .bz2 .zip"}"
 
 
 ################################################################################
@@ -818,31 +812,31 @@ CXR_MODEL_CTRL_FILE_RULE='${CXR_STATE_DIR}/CAMx.${CXR_DATE_RAW}.in'
 ########################################
 
 # Which species should be extracted (all does all, otherwise, provide a space separated list)
-CXR_STATION_SPECIES=${CXR_ALL}
+CXR_STATION_SPECIES="${CXR_STATION_SPECIES:-${CXR_ALL}}"
 
 # How should we normalize the concentrations? (nabel, physical, none)
-CXR_NORM_METHOD=physical
+CXR_NORM_METHOD="${CXR_NORM_METHOD:-physical}"
 
 # Format can be either CSV or IDL
-CXR_STATION_FILE_FORMAT=IDL
+CXR_STATION_FILE_FORMAT="${CXR_STATION_FILE_FORMAT:-IDL}"
 
 # The format of the numbers to use
-CXR_STATION_NUMBER_FORMAT=(5e14.7)
+CXR_STATION_NUMBER_FORMAT="${CXR_STATION_NUMBER_FORMAT:-(5e14.7)}"
 
 # when true, concentrations will be normalized
-CXR_STATION_NORMALIZE_CONCENTRATIONS=true
+CXR_STATION_NORMALIZE_CONCENTRATIONS="${CXR_STATION_NORMALIZE_CONCENTRATIONS:-true}"
 
 # Using these values for normalization
-CXR_STATION_NORMALIZE_TEMPERATURE_K=293
-CXR_STATION_NORMALIZE_PRESSURE_PA=101300
+CXR_STATION_NORMALIZE_TEMPERATURE_K="${CXR_STATION_NORMALIZE_TEMPERATURE_K:-293}"
+CXR_STATION_NORMALIZE_PRESSURE_PA="${CXR_STATION_NORMALIZE_PRESSURE_PA:-101300}"
 
 # Station coordinates can be expressed in any projection
 # supported by <common.map.LonLatToProjection>. 
-CXR_STATION_PROJECTION="SWISS"
+CXR_STATION_PROJECTION="${CXR_STATION_PROJECTION:-SWISS}"
 
 # Which grid(s) do we extract on
 # make sure your CXR_STATION_FILE_RULE supports CXR_IGRID if you have more than one station here.
-CXR_RUN_EXTRACTION_ON_GRID="3"
+CXR_RUN_EXTRACTION_ON_GRID="${CXR_RUN_EXTRACTION_ON_GRID:-3}"
 
 
 
@@ -858,7 +852,7 @@ CXR_RUN_EXTRACTION_ON_GRID="3"
 # MOZART_INCREMENT allows to selectively increment certain species by a specified value (in PPM)
 # ICBCPREP uses the ENVIRON preprocessor icbcprep (resulting in constant IC and BC data)
 
-CXR_IC_BC_TC_METHOD=MOZART
+CXR_IC_BC_TC_METHOD="${CXR_IC_BC_TC_METHOD:-MOZART}"
 
 if [[ "$CXR_IC_BC_TC_METHOD" != MOZART  ]]
 then
@@ -923,22 +917,22 @@ CXR_NUM_MOZART_SPECIES=$(( ${#CXR_CAMX_MOZART_MAPPING[@]} ))
 ####################
 
 # If true, diagnostic plots are done
-CXR_IC_BC_TC_DO_PLOT=true
+CXR_IC_BC_TC_DO_PLOT="${CXR_IC_BC_TC_DO_PLOT:-true}"
 # Where to put the plots
-CXR_IC_BC_TC_PLOT_BASE_DIR=~/@plot
+CXR_IC_BC_TC_PLOT_BASE_DIR="${CXR_IC_BC_TC_PLOT_BASE_DIR:-~/@plot}"
 # Which time to plot (times 3 gives real time, so 3 is 15UTC)
-CXR_IC_BC_TC_PLOT_TIME=5
+CXR_IC_BC_TC_PLOT_TIME="${CXR_IC_BC_TC_PLOT_TIME:-5}"
 # Create PNGs 
-CXR_IC_BC_TC_DO_PNG=true
+CXR_IC_BC_TC_DO_PNG="${CXR_IC_BC_TC_DO_PNG:-true}"
 # Delete intermediate PS
-CXR_IC_BC_TC_RM_PS=true
+CXR_IC_BC_TC_RM_PS="${CXR_IC_BC_TC_RM_PS:-true}"
 
 ################################################################################
 # Module set_permissions
 ################################################################################
 
 # These permissions are used on the output
-CXR_OUTPUT_DIR_PERMISSIONS=0755
+CXR_OUTPUT_DIR_PERMISSIONS="${CXR_OUTPUT_DIR_PERMISSIONS:-0755}"
 
 
 ################################################################################
