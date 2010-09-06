@@ -234,7 +234,7 @@ function extract_station_data
 			# "-1 -1" is returned
 			xy="$(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_STATION_PROJECTION) $CXR_IGRID)"
 			
-			main.log -v "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID (Input: ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]})"
+			main.log -a "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID (Input: ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]})"
 			
 			if [[ $xy == "-1 -1" ]]
 			then
