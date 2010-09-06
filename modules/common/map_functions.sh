@@ -125,7 +125,7 @@ function common.map.indexesToModelCoordinates()
 ################################################################################
 # Function: common.map.indexesToLonLat
 #
-# Converts given domain indexes (in the given domain) to Lon/Lat.
+# Converts given domain indexes (in the given domain) to decimal Lon/Lat.
 # Given integer indexes, the lower left corner of the cell in question is returned
 # Refer to <common.map.indexesToModelCoordinates> for further details.
 # 
@@ -161,7 +161,7 @@ function common.map.indexesToLonLat()
 	# Convert to Model-Coord
 	converted_model=$(common.map.indexesToModelCoordinates $x_in $y_in $domain)
 	
-	# Convert to Lon/Lat
+	# Convert to decimal Lon/Lat
 	common.map.ProjectionToLonLat $converted_model
 }
 
@@ -285,7 +285,7 @@ function common.map.LonLatToProjection()
 	
 	lon="$1"
 	lat="$2"
-	projection="$(common.string.toUpper "${3:-${3:-$CXR_MAP_PROJECTION}}")"
+	projection="$(common.string.toUpper "${3:-$CXR_MAP_PROJECTION}")"
 	inverse="${4:-false}"
 	inv_string=""
 	
@@ -319,10 +319,9 @@ function common.map.LonLatToProjection()
 ################################################################################
 # Function: common.map.ProjectionToLonLat
 #
-# Converts model coordinates to Lon/Lat. (Wrapper for <common.map.LonLatToProjection>)
+# Converts model coordinates to decimal Lon/Lat. (Wrapper for <common.map.LonLatToProjection>)
 #
-# Supports the same cooordinate systems as CAMx.
-# Output is given as a space delimited list of the form "x y".
+# Output is given as a space delimited list of the form "Lon Lat".
 #
 # Parameters:
 # $1 - x-model coordinate
@@ -363,7 +362,7 @@ function test_module()
 	# Center must be correct
 	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
 
-	echo "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44  SWISS)"
+	echo "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44 SWISS)"
 	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47)"
 	
 	# Get the index of Payerne
