@@ -45,7 +45,8 @@ CXR_META_MODULE_VERSION='$Id$'
 # Checks if all dependencies of a given task dependencies are fullfilled. 
 # If any dependency has failed, the run is destroyed, 
 # any depdendency was not yet started, false is returned,
-# all are CXR_STATUS_SUCCESS, true is returned.
+# if all are CXR_STATUS_SUCCESS, true is returned.
+# If a dependency is not active, we stop the run (unless CXR_IGNORE_ANY_DEPENDENCIES is true)
 #
 # Parameters:
 # $1 - module name for which to check
@@ -82,20 +83,25 @@ function common.module.areDependenciesOk?()
 	
 	disabled_modules=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
-	SELECT d.independent_module
+	SELECT COUNT(*)
 	FROM dependencies d, modules m
 	WHERE 
 	      m.module = d.independent_module
 	AND   m.active='false'
-	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset;
+	AND   d.dependent_module='$module';
 	
 	EOT
 	)
 	
-	if [[ "$disabled_modules" && "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
+	if [[ $disabled_modules -gt 0 ]]
 	then
-		main.dieGracefully "There are dependencies to disabled modules: $disabled_modules"
+		# There are some disabled ones
+		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
+		then
+			main.dieGracefully "There are dependencies to disabled modules: $disabled_modules"
+		else
+			main.log -w "Some dependencies of $module are disabled. Since CXR_IGNORE_DISABLED_DEPENDENCIES is false, we ignore this, but its possible that we cannot proceed."
+		fi
 	fi
 	
 	# If any dependency has failed, we stop the run

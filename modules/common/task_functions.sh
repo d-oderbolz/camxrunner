@@ -790,7 +790,7 @@ function common.task.waitingWorker()
 	 
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
 	
-	main.log -v   "common.task.Worker (pid: $pid) changed its state to waiting"
+	main.log -v  "common.task.Worker (pid: $pid) changed its state to waiting"
 }
 
 ################################################################################
