@@ -850,10 +850,10 @@ function common.date.getModelHour()
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -eq 0 ]]
 		# First day
-		echo $(( ( 2400 - ${CXR_START_HOUR} ) / 100 )
+		echo $(( ( 2400 - ${CXR_START_HOUR} ) / 100 ))
 		return $CXR_RET_OK
 	else
-		echo $(( ( ( ${offset} * 2400 ) - ${CXR_START_HOUR} ) / 100 )
+		echo $(( ( ( ${offset} * 2400 ) - ${CXR_START_HOUR} ) / 100 ))
 		return $CXR_RET_OK
 	fi
 	
