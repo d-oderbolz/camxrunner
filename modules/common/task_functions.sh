@@ -1237,7 +1237,9 @@ function common.task.init()
 			# We only give ranks to stuff that was not yet sucessfully done
 			# note that all invocations of a given (module, day) pair get the same ID.
 			# This is by design and correct.
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL;" >> $tempfile
+			# Since if is possible that non-active tasks are listed (due to dependencies),
+			# We will update only active ones
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FORM modules WHERE active='true');" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
