@@ -1241,7 +1241,7 @@ function common.task.init()
 			# This is by design and correct.
 			# Since if is possible that non-active tasks are listed (due to dependencies),
 			# We will update only active ones
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FORM modules WHERE active='true');" >> $tempfile
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules WHERE active='true');" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
