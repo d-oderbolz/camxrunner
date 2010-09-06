@@ -130,12 +130,14 @@ function common.module.areDependenciesOk?()
 	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	SELECT COUNT(*)
-	FROM dependencies d, tasks t
+	FROM dependencies d, tasks t, modules m
 	WHERE 
 	      t.module = d.independent_module
+	AND   m.module = d.independent_module
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset;
+	AND   d.dependent_day_offset=$day_offset
+	AND   m.active='false';
 	
 	EOT
 	)
