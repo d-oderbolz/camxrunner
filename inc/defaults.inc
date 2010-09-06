@@ -245,16 +245,16 @@ CXR_DEPENDECY_TIMEOUT_SEC=7200
 # This mechanism allows to detect a locked up run faster than aboves timeouts
 CXR_MAX_LOCKUP_COUNT=10
 
-
+########################################
 # Variables:  Parallel Task control
-#
+########################################
 
-# If this is false, modules that depend on disabled modules
-# will never be able to run. 
+# If this is true, we allow a module to depend on 
+# a module that is currently incative and has not yet finished
 CXR_IGNORE_DISABLED_DEPENDENCIES=true
 
-# If this is true, we ignore dependecies altogether
-CXR_IGNORE_ANY_DEPENDENCIES=true
+# If this is true, we ignore dependecies altogether (not recommended)
+CXR_IGNORE_ANY_DEPENDENCIES=false
 
 ## End Task control
 
