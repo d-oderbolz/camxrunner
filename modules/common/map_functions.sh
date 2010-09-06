@@ -319,15 +319,10 @@ function common.map.LonLatToProjection()
 		*) main.dieGracefully "Projection $projection not supported" ;;
 	esac
 	
-	exec_tmp_file=$(common.runner.createJobFile cs2cs)
-	
-	cat <<-EOT > $exec_tmp_file
-	$inv_string -f "%.4f" +proj=lonlat +R=6370000 +to $proj_string
-	$lon $lat
-	EOT
-	
 	# Call converter
-	result="$(${CXR_CS2CS_EXEC} < $exec_tmp_file)"
+	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=lonlat +R=6370000 +to $proj_string <<-EOT
+	$lon $lat
+	EOT)"
 	
 	# Parse and return it
 	echo "$(echo "$result" | awk '{ print $1 }') $(echo "$result" | awk '{ print $2 }')"
