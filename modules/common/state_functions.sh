@@ -223,7 +223,7 @@ function common.state.updateInfo()
 	
 				for file in $files
 				do
-					#common.check.reportMD5 $file
+					common.check.reportMD5 $file
 					
 					module="$(main.getModuleName $file)"
 					
@@ -243,12 +243,10 @@ function common.state.updateInfo()
 						main.log -a "Module $module is disabled, skipped"
 					fi
 					
-
 					# We mark needed stuff as active, the rest as inactive
 					# Add $file, $module and $type to DB
 					common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
 
-					
 					# Add metadata
 					# grep the CXR_META_ vars that are not commented out
 					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
