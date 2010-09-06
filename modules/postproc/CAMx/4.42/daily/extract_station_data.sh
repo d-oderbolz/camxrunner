@@ -229,11 +229,19 @@ function extract_station_data
 			# The position of this station in grid indexes
 			# Must be calculated here.
 			# In the inner bracket, we convert to LonLat, in the outer to indexes.
+			# It is possible that the coordinates are outside this grid. If so,
+			# "-1 -1" is returned
 			xy="$(common.map.LonLatToIndexes "$(common.map.ProjectionToLonLat ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_STATION_PROJECTION)" $CXR_IGRID)"
 			
-			main.loc -v "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID"
+			main.log -v "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID"
 			
-			# Parse the rosult
+			if [[ $xy == "-1 -1" ]]
+			then
+				main.log -a "It seems that station $(basename $station_file) is outside grid $CXR_IGRID. This station is skipped."
+				continue
+			fi
+			
+			# Parse the result
 			x="$(echo "$xy" | awk '{ print $1 }')"
 			y="$(echo "$xy" | awk '{ print $2 }')"
 			

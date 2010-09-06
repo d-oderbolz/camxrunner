@@ -49,7 +49,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.map.indexesToModelCoordinates
 #
-# Converts given domain indexes (in the given domain) to the models coordinate system.
+# Converts given domain 1-based indexes (in the given domain) to the models coordinate system.
 # The user must be aware of the unit of the result (given in the configuration)
 #
 # The calculation is done using simple addition since all cells have the same dx and dy.
@@ -125,7 +125,7 @@ function common.map.indexesToModelCoordinates()
 ################################################################################
 # Function: common.map.indexesToLonLat
 #
-# Converts given domain indexes (in the given domain) to decimal Lon/Lat.
+# Converts given 1-based domain indexes (in the given domain) to decimal Lon/Lat.
 # Given integer indexes, the lower left corner of the cell in question is returned
 # Refer to <common.map.indexesToModelCoordinates> for further details.
 # 
@@ -168,9 +168,11 @@ function common.map.indexesToLonLat()
 ################################################################################
 # Function: common.map.LonLatToIndexes
 #
-# Converts Lon/Lat coordinates to fractional indexes of the given Model domain.
+# Converts Lon/Lat coordinates to 1-based fractional indexes of the given Model domain.
 # Input coordinates must be given in any format supported by the cs2cs 
 # program of Proj.4 <http://proj.osgeo.org/>.
+#
+# If indexes are beyond the dimensions of this domain, "-1 -1" is returned.
 #
 # Supports the same cooordinate systems as CAMx.
 # Output is given as a space delimited list of the form "x_ind y_ind"
@@ -243,7 +245,17 @@ function common.map.LonLatToIndexes()
 	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1" $CXR_NUM_DIGITS false)
 	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS false)
 
-	echo "${x_out} ${y_out}"
+	# Test dimensions
+	if [[ $(common.math.FloatOperation "$x_out > $(common.runner.getX $domain)" 0 false) == true || \
+	      $(common.math.FloatOperation "$y_out > $(common.runner.getY $domain)" 0 false) == true || \
+	      $(common.math.FloatOperation "$x_out < 0" 0 false) == true || \
+	      $(common.math.FloatOperation "$y_out < 0" 0 false) == true ]]
+	then
+		main.log -v "cell indexes $x_out/$y_out exceed dimensions of domain $domain."
+		echo "-1 -1"
+	else
+		echo "${x_out} ${y_out}"
+	fi # output checks
 }
 
 ################################################################################
