@@ -467,8 +467,8 @@ function main.doCleanup()
 	
 	#Relax
 	set +e
-	set -v
-	set -x
+	set +v
+	set +x
 	
 	main.log -a -B "Cleaning up $CXR_RUN and Terminating processes..."
 	
