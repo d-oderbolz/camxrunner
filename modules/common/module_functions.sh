@@ -69,43 +69,14 @@ function common.module.areDependenciesOk?()
 	
 	local module
 	local day_offset
-	local disabled_modules
+	local disabled_count
 	local unfinishedCount
 	local failedCount
 	
 	module="$1"
 	day_offset="${2}"
 	
-	
 	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset are done."
-	
-	# Find out if any of the dependencies is disabled and not done
-	disabled_modules=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
-	
-	SELECT COUNT(*)
-	FROM dependencies d, modules m, tasks t
-	WHERE 
-	      t.module = m.module
-	AND   t.day_offset = d.independent_day_offset
-	AND   m.module = d.independent_module
-	AND   m.active='false'
-	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=day_offset
-	AND   t.status NOT IN ('$CXR_STATUS_SUCCESS','$CXR_STATUS_RUNNING');
-	
-	EOT
-	)
-	
-	if [[ $disabled_modules -gt 0 ]]
-	then
-		# There are some disabled ones
-		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
-		then
-			main.dieGracefully "There are unfinished dependencies to disabled modules: $disabled_modules"
-		else
-			main.log -w "Some dependencies of $module are disabled and unfinished. Since CXR_IGNORE_DISABLED_DEPENDENCIES is false, we ignore this, but its possible that we cannot proceed."
-		fi
-	fi
 	
 	# If any dependency has failed, we stop the run
 	failedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
@@ -126,7 +97,35 @@ function common.module.areDependenciesOk?()
 		main.dieGracefully "$failedCount tasks that $* depends on have failed!"
 	fi
 	
-	# If more that 0 taks are non-successful, we return false
+	# Find out if any of the dependencies is disabled and not done
+	disabled_count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	
+	SELECT COUNT(*)
+	FROM dependencies d, modules m, tasks t
+	WHERE 
+	      t.module = m.module
+	AND   t.day_offset = d.independent_day_offset
+	AND   m.module = d.independent_module
+	AND   m.active='false'
+	AND   d.dependent_module='$module'
+	AND   d.dependent_day_offset=day_offset
+	AND   t.status NOT IN ('$CXR_STATUS_SUCCESS','$CXR_STATUS_RUNNING');
+	
+	EOT
+	)
+	
+	if [[ $disabled_count -gt 0 ]]
+	then
+		# There are some disabled ones
+		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
+		then
+			main.dieGracefully "There are unfinished dependencies to disabled modules: $disabled_modules"
+		else
+			main.log -w "Some dependencies of $module are disabled and unfinished. Since CXR_IGNORE_DISABLED_DEPENDENCIES is true, we ignore this, but its possible that we cannot proceed."
+		fi
+	fi
+	
+	# If more than 0 tasks are active and non-successful, we return false
 	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
 	
 	SELECT COUNT(*)
