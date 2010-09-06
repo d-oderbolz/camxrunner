@@ -431,7 +431,7 @@ CXR_ENABLED_INSTALLER="${CXR_ENABLED_INSTALLER:-""}"
 # If you plan to use more than one machine in parallel, all need to use the same
 # directory (hence it must be on a network FS)
 # This is for efficiency reasons (to avoid decompressing the same files more than once)
-CXR_TMP_DIR="${CXR_TMP_DIR:-~/tmp}"
+CXR_TMP_DIR=~/tmp
 
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
