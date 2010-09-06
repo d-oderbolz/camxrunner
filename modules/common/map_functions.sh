@@ -298,7 +298,7 @@ function common.map.LonLatToProjection()
 		LAMBERT) proj_string="+proj=lcc +R=6370000 +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2 +no_defs";;
 		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
 		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE +no_defs";;
-		SWISS) proj_string="+proj=lonlat +R=6370000 +to +proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +x_0=600000 +y_0=200000 +ellps=bessel +units=m +no_defs";;
+		SWISS) proj_string="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +x_0=600000 +y_0=200000 +ellps=bessel +units=m +no_defs";;
 		LATLON) 
 			# No need to convert.
 			echo "${lon} ${lat}"
