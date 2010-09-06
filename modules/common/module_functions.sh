@@ -234,6 +234,8 @@ function common.module.getTypeSlow()
 	
 	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $file)
 	value="$(expr match "$metafield" '.*=\(.*\)')" || :
+	# Do expansion
+	value="$(eval "echo $(echo "$value")")"
 	
 	echo "$value"
 	
