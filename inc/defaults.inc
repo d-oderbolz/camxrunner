@@ -254,7 +254,7 @@ CXR_MAX_LOCKUP_COUNT=10
 CXR_IGNORE_DISABLED_DEPENDENCIES=true
 
 # If this is true, we ignore dependecies altogether
-CXR_IGNORE_ANY_DEPENDENCIES=false
+CXR_IGNORE_ANY_DEPENDENCIES=true
 
 ## End Task control
 
