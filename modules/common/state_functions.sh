@@ -223,7 +223,7 @@ function common.state.updateInfo()
 	
 				for file in $files
 				do
-					common.check.reportMD5 $file
+					#common.check.reportMD5 $file
 					
 					module="$(main.getModuleName $file)"
 					
