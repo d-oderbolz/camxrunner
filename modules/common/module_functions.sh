@@ -136,7 +136,7 @@ function common.module.areDependenciesOk?()
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
 	AND   d.dependent_day_offset=$day_offset
-	AND   m.active='false';
+	AND   m.active='true';
 	
 	EOT
 	)
