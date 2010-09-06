@@ -246,10 +246,10 @@ function common.map.LonLatToIndexes()
 	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS false)
 
 	# Test dimensions
-	if [[ $(common.math.FloatOperation "$x_out > $(common.runner.getX $domain)" 0 false) == true || \
-	      $(common.math.FloatOperation "$y_out > $(common.runner.getY $domain)" 0 false) == true || \
-	      $(common.math.FloatOperation "$x_out < 0" 0 false) == true || \
-	      $(common.math.FloatOperation "$y_out < 0" 0 false) == true ]]
+	if [[ $(common.math.FloatOperation "$x_out > $(common.runner.getX $domain)" 0 false) -eq 1 || \
+	      $(common.math.FloatOperation "$y_out > $(common.runner.getY $domain)" 0 false) -eq 1 || \
+	      $(common.math.FloatOperation "$x_out < 0" 0 false) -eq 1 || \
+	      $(common.math.FloatOperation "$y_out < 0" 0 false) -eq 1 ]]
 	then
 		main.log -v "cell indexes $x_out/$y_out exceed dimensions of domain $domain."
 		echo "-1 -1"

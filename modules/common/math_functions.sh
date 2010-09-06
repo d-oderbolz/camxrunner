@@ -47,7 +47,8 @@ CXR_META_MODULE_VERSION='$Id$'
 # If the result is a whole number, a dot is appended at the end (FORTRAN compatibility)
 # 
 # You can also use this function to do FP-safe comparisons:
-# result=$(common.math.FloatOperation "$a > $b" 0 false)
+# > result=$(common.math.FloatOperation "$a > $b" 0 false)
+# > if [[ $result -eq 1 ]] ; then # true
 #
 # if [[ $result -eq 1 ]]
 # then
