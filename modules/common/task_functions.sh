@@ -1116,6 +1116,8 @@ function common.task.removeAllWorkers()
 function common.task.controller()
 ################################################################################
 {
+	set -x
+	
 	local ReaLoad
 	
 	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
