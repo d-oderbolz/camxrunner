@@ -562,7 +562,7 @@ main.log -H "$progname - running stage\nLoading external modules from ${CXR_COMM
 # Show a summary of the configuration
 ################################################################################
 
-common.runner.ListInfo
+common.runner.printSummary
 
 ################################################################################
 # Check resource requirements if we run a full simulation
