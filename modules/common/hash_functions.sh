@@ -177,13 +177,16 @@ function common.hash.destroy()
 # Function: common.hash.put
 #
 # Puts a value into a key of a given hash. Alos touches the DB file (needed to
-# determine the last access)
+# determine the last access).
+# By default, only one entry of the same key is allowed, but if allow_multiple is true,
+# we allow to store history.
 #
 # Parameters:
 # $1 - name of the hash
 # $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
 # $4 - value
+# [$5] - boolean allow_multiple (default false), if true, allows more than 1 value per key 
 ################################################################################
 function common.hash.put()
 ################################################################################
@@ -197,12 +200,14 @@ function common.hash.put()
 	local level
 	local key
 	local value
+	local allow_multiple
 
 	
 	hash="$1"
 	level="$2"
 	key="$3"
 	value="$4"
+	allow_multiple="${5:-false}"
 	
 	local db_file
 	
@@ -216,6 +221,12 @@ function common.hash.put()
 	else
 		# Change the update time
 		touch "$db_file"
+	fi
+	
+	# Delete if not allow_multiple
+	if [[ $allow_multiple == false ]]
+	then
+		common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' and key='$key'" || :
 	fi
 	
 	# Write value to DB

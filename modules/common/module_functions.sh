@@ -42,7 +42,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.module.areDependenciesOk?
 #
-# Checks if all dependencies of a given task dependencies are fullfilled. 
+# Checks if all dependencies of a given task  are fullfilled. 
 # If any dependency has failed, the run is destroyed, 
 # any depdendency was not yet started, false is returned,
 # if all are CXR_STATUS_SUCCESS, true is returned.

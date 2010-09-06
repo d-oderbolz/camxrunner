@@ -506,8 +506,8 @@ function common.check.reportMD5()
 			hash="$(main.getMD5 "$file")"
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
-			# Store in Cache
-			common.hash.put MD5 $CXR_LEVEL_UNIVERSAL "$hash_file" "$hash"
+			# Store in Cache (allowing history)
+			common.hash.put MD5 $CXR_LEVEL_UNIVERSAL "$hash_file" "$hash" true
 		fi
 	fi
 }

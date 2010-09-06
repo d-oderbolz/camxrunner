@@ -591,7 +591,7 @@ function common.task.countRunningWorkers()
 # is not fullfilled but has not failed, so all Worker will have to wait forever
 # (or until they waited CXR_DEPENDECY_TIMEOUT_SEC seconds).
 # Since it is possible that this happens by coincidence, we keep a counter in
-# a hash that we increase when all workers are idle and decrease when they are not.
+# an instance hash that we increase when all workers are idle and decrease when they are not.
 # If a threshold is reached, we stop the run.
 #
 # Variables:
@@ -607,7 +607,7 @@ function common.task.detectLockup()
 	local count
 	local numRunning
 	
-	common.hash.has? Lockup $CXR_LEVEL_GLOBAL LockupCount > /dev/null
+	common.hash.has? Lockup $CXR_LEVEL_INSTANCE LockupCount > /dev/null
 	if [[ $_has == true ]]
 	then
 		count=$_value
@@ -636,7 +636,7 @@ function common.task.detectLockup()
 	fi
 	
 	# Store new count
-	common.hash.put Lockup $CXR_LEVEL_GLOBAL LockupCount $count
+	common.hash.put Lockup $CXR_LEVEL_INSTANCE LockupCount $count
 }
 
 
