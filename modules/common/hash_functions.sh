@@ -191,9 +191,9 @@ function common.hash.destroy()
 function common.hash.put()
 ################################################################################
 {
-	if [[ $# -ne 4 ]]
+	if [[ $# -lt 4  || $# -gt 5 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-level, a key and a value as input. Got $*"
+		main.dieGracefully "needs a hash, a valid hash-level, a key, a value and an optiotal boolean allow_multiple as input. Got $*"
 	fi
 	
 	local hash
