@@ -232,7 +232,7 @@ function extract_station_data
 			# In the inner bracket, we convert to LonLat, in the outer to indexes.
 			# It is possible that the coordinates are outside this grid. If so,
 			# "-1 -1" is returned
-			xy="$(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_STATION_PROJECTION) $CXR_IGRID)"
+			xy="$(common.map.ProjectionToIndexes ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]} $CXR_IGRID $CXR_STATION_PROJECTION)"
 			
 			main.log -a "Station $(basename $station_file) has indexes $xy in domain $CXR_IGRID (Input: ${CXR_STATION_X[${iStation}]} ${CXR_STATION_Y[${iStation}]})"
 			
@@ -252,6 +252,18 @@ function extract_station_data
 			# Here we need not single quotes, because we have a 2D array
 			stations_array="${stations_array}${station},"
 		done
+		
+		# If the stations array is empty (eg. because all indexes are beyond the given domain) we quit
+		if [[ "$stations_array" == "[" ]]
+		then
+			main.log -w "It seems that all indexes where outside domain $CXR_IGRID!"
+			
+			# Still we count this as success
+			common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
+			
+			# Exit
+			return $CXR_RET_OK
+		fi
 		
 		# Close brackets and remove last ","
 		stations_array="${stations_array%,}]"
@@ -339,7 +351,7 @@ function extract_station_data
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
 		else
-			main.log   "This is a dry-run, no action required"
+			main.log "This is a dry-run, no action required"
 		fi
 		
 		# Get back
