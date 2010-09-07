@@ -1117,6 +1117,10 @@ function common.task.controller()
 ################################################################################
 {
 	local ReaLoad
+	# Counter needed to find out wher to show ETA
+	local i
+	
+	i=0
 	
 	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
 	
@@ -1139,7 +1143,7 @@ function common.task.controller()
 		
 		# Still TODO:
 		# Detect stale locks
-		# Check if all known workers still run
+		# Check if all known workers still run (just this machine)
 		
 		# touch the continue file
 		if [[ -e "$CXR_CONTINUE_FILE" ]]
@@ -1150,7 +1154,15 @@ function common.task.controller()
 			touch "$CXR_CONTINUE_FILE"
 		fi
 		
-		common.performance.reportEta
+		# Report the Estimated Time of arrival every now and then
+		i=$(( $i + 1 ))
+		i=$(( $i % $CXR_REPORT_INTERVAL ))
+		
+		if [[ $i -eq 0 ]]
+		then
+			common.performance.reportEta
+		fi
+		
 	done
 	
 	main.log -B "The Continue file is gone, all workers will stop asap."
