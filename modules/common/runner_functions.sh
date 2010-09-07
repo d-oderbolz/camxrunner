@@ -305,14 +305,14 @@ function common.runner.reportDimensions()
 		main.log -a -B "Grid dimensions domain ${iGrid}:"
 		main.log -a "X: ${x}\nY: ${y}\nZ: ${z}\n"
 		
-		main.log -a -B "Lon/Lat Corners ${iGrid}:"
+		main.log -a -b "Lon/Lat Corners ${iGrid}:"
 		sw="$(common.map.indexesToLonLat 1 1 $iGrid)"
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToLonLat>)
 		ne="$(common.map.indexesToLonLat $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
 		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
 		
-		main.log -a -B "Model Coordinates Corners ${iGrid}:"
+		main.log -a -b "Model Coordinates Corners ${iGrid}:"
 		sw="$(common.map.indexesToModelCoordinates 1 1 $iGrid)"
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToModelCoordinates>)
