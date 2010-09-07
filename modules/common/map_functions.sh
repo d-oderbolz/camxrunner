@@ -346,6 +346,34 @@ function common.map.ProjectionToLonLat()
 	common.map.LonLatToProjection $1 $2 ${3:-$CXR_MAP_PROJECTION} true
 }
 
+################################################################################
+# Function: common.map.ProjectionToIndexes
+#
+# Converts model coordinates to decimal indexes. (Wrapper for <common.map.ProjectionToLonLat>
+# and <common.map.LonLatToIndexes>)
+#
+# Output is given as a space delimited list of the form "x y". (See <common.map.LonLatToIndexes>
+# for details).
+#
+# Parameters:
+# $1 - x-coordinate in projection
+# $2 - x-coordinate in projection
+# $3 - domain in which indexes are needed
+# [$4] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
+
+################################################################################
+function common.map.ProjectionToIndexes()
+################################################################################
+{
+	local lonlat_xy
+
+	# Lonlat is the "Lingua franca" here
+	lonlat_xy=$(common.map.ProjectionToLonLat $1 $2 ${4:-$CXR_MAP_PROJECTION})
+	
+	# Now do the conversion to indexes
+	common.map.LonLatToIndexes $lonlat_xy $3
+}
+
 
 ################################################################################
 # Function: test_module
@@ -379,6 +407,7 @@ function test_module()
 	
 	# Get the index of Payerne
 	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
+	echo "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
 	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
 	########################################
