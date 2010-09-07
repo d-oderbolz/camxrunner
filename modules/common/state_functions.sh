@@ -310,8 +310,8 @@ function common.state.updateInfo()
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
-		main.log -v "Removing any traces of running tasks..."
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status='$CXR_STATUS_RUNNING';"
+		main.log -v "Removing any traces of running/failed tasks..."
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');"
 		
 		main.log -v "Adding information about simulation days..."
 		
