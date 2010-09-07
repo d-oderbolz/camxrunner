@@ -132,6 +132,7 @@ function common.module.areDependenciesOk?()
 	FROM dependencies d, tasks t, modules m
 	WHERE 
 	      t.module = d.independent_module
+	AND   t.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'

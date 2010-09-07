@@ -43,9 +43,9 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.runner.getX
 # 
-# Returns the x dimension  of a given grid (in grid cells of this grid)
+# Returns the x dimension of a given calculation grid (in grid cells of this grid)
 # Hides the fact that the configuration is different for master and non-master grids.
-# Note that for nested domains, the 2 buffer cells are added
+# Note that for nested domains, the 2 buffer cells are added.
 #
 # Parameters:
 #
@@ -82,9 +82,9 @@ function common.runner.getX()
 ################################################################################
 # Function: common.runner.getY
 # 
-# Returns the y dimension  of a given grid (in grid cells of this grid)
+# Returns the y dimension  of a given calculation grid (in grid cells of this grid)
 # Hides the fact that the configuration is different for master and non-master grids
-# Note that for nested domains, the 2 buffer cells are added
+# Note that for nested domains, the 2 buffer cells are added.
 #
 # Parameters:
 #
@@ -122,8 +122,8 @@ function common.runner.getY()
 ################################################################################
 # Function: common.runner.getZ
 # 
-# Returns the z dimension  of a given grid (in grid cells of this grid)
-# Hides the fact that the configuration is different for master and non-master grids
+# Returns the z dimension  of a given grid (in grid cells of this grid).
+# 
 #
 # Parameters:
 #
@@ -297,22 +297,22 @@ function common.runner.reportDimensions()
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		# Get extent
+		# Get extent including buffer cells
 		x=$(common.runner.getX ${iGrid})
 		y=$(common.runner.getY ${iGrid})
 		z=$(common.runner.getZ ${iGrid})
 		
-		main.log -a -B "Grid dimensions domain ${iGrid}:"
+		main.log -a -B "Grid dimensions domain ${iGrid} (incl. buffer cells):"
 		main.log -a "X: ${x}\nY: ${y}\nZ: ${z}\n"
 		
-		main.log -a -b "Lon/Lat Corners ${iGrid}:"
+		main.log -a -b "Lon/Lat Corners ${iGrid} (incl. buffer cells):"
 		sw="$(common.map.indexesToLonLat 1 1 $iGrid)"
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToLonLat>)
 		ne="$(common.map.indexesToLonLat $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
 		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
 		
-		main.log -a -b "Model Coordinates Corners ${iGrid}:"
+		main.log -a -b "Model Coordinates Corners ${iGrid} (incl. buffer cells):"
 		sw="$(common.map.indexesToModelCoordinates 1 1 $iGrid)"
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToModelCoordinates>)
