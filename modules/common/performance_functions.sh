@@ -141,7 +141,30 @@ function common.performance.stopTiming()
 }
 
 ################################################################################
-# Function: common.performance.estimateRuntime
+# Function: common.performance.estimateTotalRuntimeSeconds
+# 
+# Estimates the runtime in seconds of a run. Currently very simple and very incorrect.
+#
+# DB: $CXR_UNIVERSAL_TIMING_DB
+#
+################################################################################
+function common.performance.estimateTotalRuntimeSeconds()
+################################################################################
+{
+	local n_tasks
+	local mean
+	local result
+	
+	n_tasks=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")
+	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "select avg(elapsed_seconds) from timing;")
+	
+	result=$(common.math.FloatOperation "$n_tasks * $mean" -1 false)
+	
+	echo $result
+}
+
+################################################################################
+# Function: common.performance.estimateModuleRuntimeSeconds
 # 
 # Estimates the runtime in seconds of a given module for the current problem size.
 # This estimation is based on the mean. TODO: estimate STDEV and add 1 sigma.
@@ -153,7 +176,7 @@ function common.performance.stopTiming()
 # Parameters:
 # $1 - module name
 ################################################################################
-function common.performance.estimateRuntime()
+function common.performance.estimateModuleRuntimeSeconds()
 ################################################################################
 {
 	local module
@@ -199,14 +222,28 @@ function common.performance.reportEta()
 {
 	local percentDone
 	local estimatedTimeSeconds
+	local elapsed
+	local left
 	
-	percentDone=$(common.state.getPercentDone)
-	estimatedTimeSeconds=$(common.math.FloatOperation "( (100 - $percentDone) / 100) * $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	# How many seconds have elapsed?
+	elapsed=$(( $(date "+%s") - $CXR_EPOCH ))
+	left=$(( $CXR_TIME_TOTAL_ESTIMATED - $elapsed ))
 	
-	# Only goes to stderr
-	echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$CXR_MAX_PARALLEL_PROCS" 1>&2
-	echo "Estimated remaining time of this run: $(common.date.humanSeconds $estimatedTimeSeconds)" 1>&2
-	common.user.showProgressBar $percentDone
+	if [[ $left -gt 0 ]]
+	then
+		# OK, we are within estimation
+		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+	
+		# Only goes to stderr
+		echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$CXR_MAX_PARALLEL_PROCS" 1>&2
+		echo "Estimated remaining time of this run: $(common.date.humanSeconds $left)" 1>&2
+		common.user.showProgressBar $percentDone
+	else
+		# Duh, our time is up...
+		:
+	fi
+	
+	
 }
 
 

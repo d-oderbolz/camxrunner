@@ -1239,31 +1239,6 @@ function common.state.doContinue?()
 }
 
 ################################################################################
-# Function: common.state.getPercentDone
-# 
-# Calculates the % of tasks done
-################################################################################
-function common.state.getPercentDone()
-################################################################################
-{
-	local percentDone
-	local done
-	local total
-	
-	done=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN('$CXR_STATUS_TODO')")
-	total=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")
-	
-	if [[ $total -gt 0 ]]
-	then
-		percentDone=$(common.math.FloatOperation "($done / $total) * 100" -1 false )
-	else
-		percentDone=0
-	fi
-	
-	echo $percentDone
-}
-
-################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module. If you add or remove tests, please
