@@ -935,25 +935,6 @@ function model()
 			#  --- Execute the model and write stderr and stdout to CXR_LOG ---
 			set_variables
 			
-			# Test if any of the average file pre-exists
-			for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
-			do
-				if [[ -e "${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}" ]]
-				then
-					if [[ "${CXR_SKIP_EXISTING}" == true ]]
-					then
-						# Ups, we skip this one
-						main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
-						common.state.storeStatus ${CXR_STATUS_SUCCESS}
-						return $CXR_RET_OK
-					else
-						main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-						common.state.storeStatus ${CXR_STATUS_FAILURE}
-						return $CXR_RET_ERROR
-					fi
-				fi
-			done
-			
 			if [[ "$CXR_DRY" == true ]]
 			then
 				main.log  "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode"
@@ -979,6 +960,25 @@ function model()
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
+			
+			# Test if any of the average file pre-exists
+			for iGrid in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+			do
+				if [[ -e "${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]}" ]]
+				then
+					if [[ "${CXR_SKIP_EXISTING}" == true ]]
+					then
+						# Ups, we skip this one
+						main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
+						common.state.storeStatus ${CXR_STATUS_SUCCESS}
+						return $CXR_RET_OK
+					else
+						main.log -e  "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists - to force the re-creation run ${CXR_CALL} -F"
+						common.state.storeStatus ${CXR_STATUS_FAILURE}
+						return $CXR_RET_ERROR
+					fi
+				fi
+			done
 			
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
