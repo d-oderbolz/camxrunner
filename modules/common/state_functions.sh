@@ -469,8 +469,9 @@ function common.state.updateInfo()
 			--------------------------------------------------------------------
 			-- DEPENCENCIES. 
 			-- It is important to understand that dependencies are
-			-- NOT on invocation ond therefore task level. Dependencies exist
+			-- NOT on invocation and therefore task level. Dependencies exist
 			-- between tuples of (module,day_offset).
+			-- In principle, we could implement a -<n> predicate, for example: "update test set number=substr(test,-1,1) where test glob '*-[0-9]'"
 			--------------------------------------------------------------------
 			
 			--
