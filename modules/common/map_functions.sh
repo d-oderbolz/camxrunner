@@ -418,6 +418,9 @@ function test_module()
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
 		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 3
+		echo
+		echo
+		echo
 	done
 	
 	########################################
