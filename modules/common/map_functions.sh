@@ -410,21 +410,6 @@ function test_module()
 	echo "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
 	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
-
-	# Convert the co5 stations
-	source $CXR_CONF_DIR/CAMx-v4.51-co5-s173-sem065-aug-2003-tumconst.conf
-	
-	main.log -a "Determining indexes of co5 stations in domain 3..."
-	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
-	do
-		echo "${CXR_STATION[$iStation]}"
-		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 3
-		echo
-		echo
-	done
-	
-	exit
-	
 	########################################
 	# teardown tests if needed
 	########################################
