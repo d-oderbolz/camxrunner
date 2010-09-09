@@ -417,8 +417,8 @@ function test_module()
 	main.log -a "Determining indexes of co5 stations in domain 3..."
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
+		echo "${CXR_STATION[$iStation]}"
 		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 3
-		echo
 		echo
 		echo
 	done
