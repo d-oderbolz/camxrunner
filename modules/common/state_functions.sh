@@ -519,13 +519,14 @@ function common.state.updateInfo()
 							FROM 		tasks dependent,
 											tasks independent,
 											metadata meta
-							WHERE		independent.module = meta.value
+							WHERE		independent.module = substr(meta.value,1,length(meta.value)-2)
 							AND			dependent.module = meta.module
 							AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
-							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
+							AND 		meta.value NOT IN (SELECT type FROM types) -- it should not be a type
+							AND 		substr(meta.value,1,length(meta.value)-2) NOT IN (SELECT type FROM types) -- and no -<n> type
 							AND 		meta.value GLOB '*-[0-9]' ;  -- Test for - followed by one digit
 
 			--
