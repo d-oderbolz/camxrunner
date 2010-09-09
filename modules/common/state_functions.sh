@@ -310,6 +310,13 @@ function common.state.updateInfo()
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
+		# Check if a module name or a type looks like a -<n> dependency
+		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT SUM(cnt) FROM (SELECT COUNT(*) AS cnt FROM modules WHERE module GLOB '*-[0-9]'  UNION ALL SELECT COUNT(*) AS cnt FROM types WHERE type GLOB '*-[0-9]')" ) -gt 0 ]]
+		then
+			main.dieGracefully "It seems that a type or a module has a name that ends in - followed by a number.\nThis is the syntax of the -<n> predicate for dependencies and not supported for names!"
+		fi
+		
+		
 		main.log -v "Removing any traces of running/failed tasks..."
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');"
 		
@@ -471,7 +478,6 @@ function common.state.updateInfo()
 			-- It is important to understand that dependencies are
 			-- NOT on invocation and therefore task level. Dependencies exist
 			-- between tuples of (module,day_offset).
-			-- In principle, we could implement a -<n> predicate, for example: "update test set number=substr(test,-1,1) where test glob '*-[0-9]'"
 			--------------------------------------------------------------------
 			
 			--
