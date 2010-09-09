@@ -521,7 +521,7 @@ function common.state.updateInfo()
 											metadata meta
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
-							AND			independent.day_offset = dependent.day_offset - substr(meta.value,-1,1) -- we subtract the digit after the -
+							AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
@@ -568,11 +568,11 @@ function common.state.updateInfo()
 											types t
 							WHERE		dependent.module = meta.module
 							AND			independent.type = t.type
-							AND			independent.day_offset = dependent.day_offset - substr(meta.value,-1,1) -- we subtract the digit after the -
+							AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND			meta.value GLOB '*-[0-9]'   -- Test for - followed by one digit
-							AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ;
+							AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ; -- remove the -n at the end 
 			EOT
 			
 		else
