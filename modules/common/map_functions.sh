@@ -414,10 +414,10 @@ function test_module()
 	# Convert the co5 stations
 	source ${CXR_CONF_DIR}/co5_stations.conf
 	
-	main.log -a "Determining indexes of co5 stations..."
+	main.log -a "Determining indexes of co5 stations in domain 3..."
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
 	do
-		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 
+		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 3
 	done
 	
 	########################################
