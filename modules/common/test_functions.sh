@@ -187,21 +187,21 @@ function common.test.all()
 			extended=false
 		fi
 		
-		# When this is true, we know a test is running
-		CXR_TEST_IN_PROGRESS=true
+		# Prepare environment
+		source $CXR_RUN_DIR/inc/defaults.inc
+		main.readConfig "${CXR_TEST}" "${model}" "${version}" "${CXR_RUN_DIR}"
 		
-		# We do not need to see MD5 again
-		CXR_REPORT_MD5=false
-	
-		#source inc/init_test.inc
 		source inc/tap-functions.inc
 		
 		# For the time being, we turn off errexit
 		# Because tap-functions uses non-0 returns
 		set +e
 		
-		# Prepare environment
-		main.readConfig "${CXR_TEST}" "${model}" "${version}" "${CXR_RUN_DIR}"
+		# When this is true, we know a test is running
+		CXR_TEST_IN_PROGRESS=true
+		
+		# We do not need to see MD5 again
+		CXR_REPORT_MD5=false
 		
 		#Disable state DB (we want no logging of what has been done and not)
 		CXR_ENABLE_STATE_DB=false
