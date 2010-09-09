@@ -187,9 +187,12 @@ function common.test.all()
 			extended=false
 		fi
 		
+		CXR_RUN=${model}-v${version}-test
+		
 		# Prepare environment
+		main.setModelAndVersion ${CXR_RUN}
 		source $CXR_RUN_DIR/inc/defaults.inc
-		main.readConfig "${CXR_TEST}" "${model}" "${version}" "${CXR_RUN_DIR}"
+		main.readConfig "${CXR_RUN}" "${model}" "${version}" "${CXR_RUN_DIR}"
 		
 		source inc/tap-functions.inc
 		

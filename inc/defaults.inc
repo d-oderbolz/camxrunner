@@ -113,9 +113,9 @@ CXR_MAX_PARALLEL_PROCS=1
 # If this variable is true, we are not really running (help etc.)
 CXR_HOLLOW=false
 
-# This ariable allows to use the state DB for the installer and to test
+# This variable allows to use the state DB for the installer
 CXR_INSTALLER=installer
-CXR_TEST=test
+
 
 # Internal type constants for module handlers
 # These are alse used to mark dependencies on whole types
