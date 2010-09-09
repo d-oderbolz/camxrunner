@@ -410,6 +410,16 @@ function test_module()
 	echo "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
 	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
+
+	# Convert the co5 stations
+	source ${CXR_CONF_DIR}/co5_stations.conf
+	
+	main.log -a "Determining indexes of co5 stations..."
+	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
+	do
+		common.map.LonLatToIndexes ${CXR_STATION_X[$iStation]} ${CXR_STATION_Y[$iStation]} 
+	done
+	
 	########################################
 	# teardown tests if needed
 	########################################
