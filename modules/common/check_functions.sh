@@ -990,9 +990,9 @@ function common.check.ModuleRequirements()
 								
 								if [[ "$wanted_name" && "${!executable}" ]]
 								then
-									if [[ "$(basename ${!executable})" == "$(basename "$wanted_name")" ]]
+									if [[ "$(basename ${!executable})" == "$(basename "$wanted_name")" && -x ${!executable} ]]
 									then
-										main.log -v "${!executable} matches $what"
+										main.log -v "${!executable} matches $what and is executable"
 										found=true
 										break
 									fi
