@@ -1361,12 +1361,12 @@ function common.runner.getModelId()
 function common.runner.getNewRunName() 
 ################################################################################
 {
-	model
-	model_id
-	supported
-	version
-	run
-	addition
+	local model
+	local model_id
+	local supported
+	local version
+	local run
+	local addition
 	
 	model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
 	
@@ -1408,6 +1408,7 @@ function common.runner.getNewRunName()
 function common.runner.createNewRun() 
 ################################################################################
 {
+	local run
 	run="$(common.runner.getNewRunName)"
 
 	# Extract and export model name and version 
