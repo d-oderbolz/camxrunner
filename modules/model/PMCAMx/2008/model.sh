@@ -32,7 +32,7 @@
 
 # the predicate "-<n>" refers to some previous model day, so ${CXR_TYPE_MODEL}-1 means that all model modules of the previous day must be successful before this module may run. 
 
-CXR_META_MODULE_DEPENDS_ON="${CXR_TYPE_MODEL}- ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_TYPE_PREPROCESS_DAILY}"
+CXR_META_MODULE_DEPENDS_ON="${CXR_TYPE_MODEL}-1 ${CXR_TYPE_PREPROCESS_ONCE} ${CXR_TYPE_PREPROCESS_DAILY}"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
