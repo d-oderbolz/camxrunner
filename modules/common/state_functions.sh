@@ -475,7 +475,7 @@ function common.state.updateInfo()
 			--------------------------------------------------------------------
 			
 			--
-			-- dependencies on single modules, without - predicate
+			-- dependencies on single modules, without -<n> predicate
 			--
 			INSERT 	INTO dependencies (
 							independent_module, 
@@ -496,9 +496,9 @@ function common.state.updateInfo()
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types)
-							AND 		substr(meta.value,-1,1) IS NOT '-' ;
+							AND 		meta.value NOT GLOB '*-[0-9]' ; -- Test for - followed by one digit
 
-			-- dependencies on single modules, only - predicate
+			-- dependencies on single modules, only -<n> predicate
 			-- here we must be careful not to add dependcies on types with predicate
 			-- thats why the subselect has a UNION
 			INSERT 	INTO dependencies (
@@ -515,12 +515,12 @@ function common.state.updateInfo()
 											metadata meta
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
-							AND			independent.day_offset = dependent.day_offset - 1
+							AND			independent.day_offset = dependent.day_offset - substr(meta.value,-1,1) -- we subtract the digit after the -
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
 							AND 		meta.value NOT IN (SELECT type FROM types UNION SELECT type || '-' FROM types)
-							AND 		substr(meta.value,-1,1) IS '-' ;
+							AND 		meta.value GLOB '*-[0-9]' ;  -- Test for - followed by one digit
 
 			--
 			-- dependencies on whole types without - predicate
@@ -538,7 +538,7 @@ function common.state.updateInfo()
 											tasks independent,
 											metadata meta
 							WHERE		dependent.module = meta.module
-							AND			independent.type = meta.value
+							AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
 							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
@@ -562,12 +562,11 @@ function common.state.updateInfo()
 											types t
 							WHERE		dependent.module = meta.module
 							AND			independent.type = t.type
-							AND			independent.day_offset = dependent.day_offset - 1
+							AND			independent.day_offset = dependent.day_offset - substr(meta.value,-1,1) -- we subtract the digit after the -
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
-							AND 		meta.value = t.type || '-' ;
-							
-
+							AND			meta.value GLOB '*-[0-9]'   -- Test for - followed by one digit
+							AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ;
 			EOT
 			
 		else

@@ -31,7 +31,7 @@
 # ${CXR_TYPE_POSTPROCESS_ONCE} - all finish_postprocessors must have finished
 
 
-# the predicate "-"refers to the previous model day, so ${CXR_TYPE_MODEL}- means that all model modules of the previous day must be successful. 
+# the predicate "-<n>" refers to some previous model day, so ${CXR_TYPE_MODEL}-1 means that all model modules of the previous day must be successful before this module may run. 
 
 CXR_META_MODULE_DEPENDS_ON="concatenate_station_data"
 

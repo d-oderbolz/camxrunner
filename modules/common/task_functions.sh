@@ -436,7 +436,6 @@ function common.task.createParallelDependencyList()
 	-- Then add all the dependencies
 	------------------------------------
 	
-	-- standard dependencies (without -)
 	SELECT di.day_iso || '@' || independent_module,
 	       dd.day_iso || '@' || dependent_module
 	FROM dependencies, days di, days dd, modules m
