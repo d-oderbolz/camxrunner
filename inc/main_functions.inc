@@ -589,8 +589,11 @@ function main.doCleanup()
 	# Change Back to rundir
 	cd ${CXR_RUN_DIR} 
 	
-	# OK, remove the workers now
-	common.task.removeAllWorkers
+	if [[ "${CXR_HOLLOW}" == false ]]
+	then
+		# OK, remove the workers now
+		common.task.removeAllWorkers
+	fi
 	
 	# What we do is kill the CAMxRunner processes (whole process group by giving negative PID)
 	# See <http://stackoverflow.com/questions/392022/best-way-to-kill-all-child-processes>
