@@ -505,8 +505,6 @@ fi
 
 if [[ "${CXR_HOLLOW}" == true ]]
 then
-	#Hollow functions neeed init too
-	common.state.init
 
 	if [[ "${CXR_CLEANUP}" == true ]]
 	then
@@ -514,10 +512,16 @@ then
 		common.state.cleanup
 	elif [[ "${CXR_CREATE_NEW_RUN}" == true ]]
 	then
+		#Initialize state DB
+		common.state.init
+		
 		# Create a new run
 		common.runner.createNewRun
 	elif [[ "${CXR_REPEAT_RUN:-}" == true ]]
 	then
+		#Initialize state DB
+		common.state.init
+		
 		# Re-create existing run
 		common.runner.recreateRun "${CXR_REPEAT_THIS_RUN:-}"
 	elif [[ "${CXR_STOP_RUN}" == true ]]
@@ -533,6 +537,9 @@ then
 		common.runner.printSummary
 	elif [[ "${CXR_INSTALL}" == true ]]
 	then
+		#Initialize state DB
+		common.state.init
+		
 		# Run the installation
 		common.install.init
 	elif [[ "${CXR_LIST_MODULES}" == true ]]

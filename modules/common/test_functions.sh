@@ -203,7 +203,7 @@ function common.test.all()
 		# Prepare environment
 		main.readConfig "${CXR_TEST}" "${model}" "${version}" "${CXR_RUN_DIR}"
 		
-		#Disable state DB
+		#Disable state DB (we want no logging of what has been done and not)
 		CXR_ENABLE_STATE_DB=false
 		
 		# No Notification etc.
