@@ -30,7 +30,9 @@
 
 # the predicate "-<n>" refers to some previous model day, so ${CXR_TYPE_MODEL}-1 means that all model modules of the previous day must be successful before this module may run. 
 
-CXR_META_MODULE_DEPENDS_ON=""
+# To run successfully, the first 7 days must be processed. This dependency is more strict than that,
+# but since the following days are faster, its OK this way.
+CXR_META_MODULE_DEPENDS_ON="create_emissions-7"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
