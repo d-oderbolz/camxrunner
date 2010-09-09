@@ -412,7 +412,7 @@ function test_module()
 
 
 	# Convert the co5 stations
-	source ${CXR_CONF_DIR}/co5_stations.conf
+	source CAMx-v4.51-co5-s173-sem065-aug-2003-tumconst.conf
 	
 	main.log -a "Determining indexes of co5 stations in domain 3..."
 	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
@@ -422,6 +422,8 @@ function test_module()
 		echo
 		echo
 	done
+	
+	exit
 	
 	########################################
 	# teardown tests if needed
