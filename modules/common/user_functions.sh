@@ -794,7 +794,7 @@ function test_module()
 	########################################
 	
 	# To test this function, we must redirect stderr to stdout
-	is "$(common.user.showProgressBar 10 2>&1)" '|=======>........................................................................|\n' "common.user.showProgressBar"
+	is "$(common.user.showProgressBar 10 2>&1)" '|=======>........................................................................|' "common.user.showProgressBar"
 
 	########################################
 	# teardown tests if needed
