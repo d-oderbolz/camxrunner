@@ -565,9 +565,34 @@ function common.task.countOpenTasks()
 }
 
 ################################################################################
+# Function: common.task.countAllWorkers
+#
+# Returns the number of all workers (on any machine).
+#
+################################################################################
+function common.task.countAllWorkers()
+################################################################################
+{
+	local worker_count
+	
+	# Find only "RUNNING" entries
+	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers;")"
+	
+	# Set to 0 if empty
+	if [[ -z "$worker_count" ]]
+	then
+		worker_count=0
+	fi
+	
+	main.log -v "Found $worker_count workers"
+	
+	echo "$worker_count"
+}
+
+################################################################################
 # Function: common.task.countRunningWorkers
 #
-# Returns the number of running workers.
+# Returns the number of running workers (on any machine).
 #
 ################################################################################
 function common.task.countRunningWorkers()
@@ -576,7 +601,13 @@ function common.task.countRunningWorkers()
 	local worker_count
 	
 	# Find only "RUNNING" entries
-	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}'")"
+	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}';")"
+	
+	# Set to 0 if empty
+	if [[ -z "$worker_count" ]]
+	then
+		worker_count=0
+	fi
 	
 	main.log -v "Found $worker_count running workers"
 	
@@ -867,11 +898,10 @@ function common.task.removeWorker()
 function common.task.Worker()
 ################################################################################
 {
-	# The ID is global
+	# The ID is global, but it is not unique across servers
 	CXR_WORKER_ID=${1}
 	
 	local tmp
-	local pid
 	local new_task
 	local oIFS
 	local descriptor
@@ -889,12 +919,12 @@ function common.task.Worker()
 	# and the 4th field of /proc/self/stat is the Parent PID
 	awk '{print $4}' /proc/self/stat > $tmp
 	# read pid from file
-	pid=$(cat $tmp)
+	CXR_WORKER_PID=$(cat $tmp)
 	
 	# Insert this worker
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($pid,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
-	main.log -a -B  "parallel worker (pid ${pid}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
+	main.log -a -B  "parallel worker (pid ${CXR_WORKER_PID}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
 
 	# Do we have more than 1 process?
 	# If so, define process-specific stuff
@@ -913,7 +943,7 @@ function common.task.Worker()
 		common.state.doContinue? || main.dieGracefully "Continue file no longer present."
 		
 		# We are not yet busy
-		common.task.waitingWorker $pid
+		common.task.waitingWorker $CXR_WORKER_PID
 		
 		# Is there enough free memory?
 		if [[ "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
@@ -953,7 +983,7 @@ function common.task.Worker()
 					fi
 				else
 					# If not, just check if it is set 
-					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL" false
+					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL"
 					
 					if [[ $_retval == false ]]
 					then
@@ -971,7 +1001,7 @@ function common.task.Worker()
 					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
 					
 					# Tell the system we wait, then sleep
-					common.task.waitingWorker $pid
+					common.task.waitingWorker $CXR_WORKER_PID
 					sleep $CXR_WAITING_SLEEP_SECONDS
 					
 					if [[ $(( $(date "+%s") - $start_epoch )) -gt $CXR_DEPENDECY_TIMEOUT_SEC ]]
@@ -981,14 +1011,14 @@ function common.task.Worker()
 				done
 				
 				# Time to work
-				common.task.runningWorker $pid
+				common.task.runningWorker $CXR_WORKER_PID
 				
 				main.log -v "module: $module day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
 				
-				main.log -a -B "common.task.Worker $pid assigned to $module for $CXR_DATE"
+				main.log -a -B "common.task.Worker $CXR_WORKER_PID assigned to $module for $CXR_DATE"
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
@@ -1022,18 +1052,18 @@ function common.task.Worker()
 					common.runner.releaseLock Exclusive "$CXR_LEVEL_GLOBAL"
 				fi
 			else
-				main.log -v  "Worker $pid did not receive an assignment - maybe there are too many workers around"
+				main.log -v  "Worker $CXR_WORKER_PID did not receive an assignment - maybe there are too many workers around"
 				
 				# This means that someone wants exclusive access
 				# Tell the system we wait, then sleep
-				common.task.waitingWorker $pid
+				common.task.waitingWorker $CXR_WORKER_PID
 				sleep $CXR_WAITING_SLEEP_SECONDS
 				
 				# It's possible that we have been "shot" in the meantime
-				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
 				then
 					# We have done our duty
-					common.task.removeWorker $pid
+					common.task.removeWorker $CXR_WORKER_PID
 					return $CXR_RET_OK
 				fi
 				
@@ -1041,17 +1071,17 @@ function common.task.Worker()
 		
 		else
 			# Not enough memory
-			main.log -w "Worker $pid detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
+			main.log -w "Worker $CXR_WORKER_PID detected that we have less than ${CXR_MEM_FREE_PERCENT} % of free memory.\nReaLoad: $(common.performance.getReaLoadPercent) %. We wait..."
 			
 			# Tell the system we wait, then sleep
-			common.task.waitingWorker $pid
+			common.task.waitingWorker $CXR_WORKER_PID
 			sleep $CXR_WAITING_SLEEP_SECONDS
 			
 			# It's possible that we have been "shot" in the meantime
-			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
 			then
 				# We have done our duty
-				common.task.removeWorker $pid
+				common.task.removeWorker $CXR_WORKER_PID
 				return $CXR_RET_OK
 			fi
 				
@@ -1060,7 +1090,7 @@ function common.task.Worker()
 	done
 	
 	# We have done our duty
-	common.task.removeWorker $pid
+	common.task.removeWorker $CXR_WORKER_PID
 	return $CXR_RET_OK
 }
 
