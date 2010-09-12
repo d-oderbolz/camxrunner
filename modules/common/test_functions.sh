@@ -201,7 +201,7 @@ function common.test.all()
 		set +e
 		
 		# Store my PID
-		common.runner.createPidFile $$
+		common.runner.createPidFile ${CXR_PID}
 		
 		# When this is true, we know a test is running
 		CXR_TEST_IN_PROGRESS=true

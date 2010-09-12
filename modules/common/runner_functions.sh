@@ -1090,6 +1090,9 @@ function common.runner.getLock()
 	local other_rank
 	local my_pid
 	
+	# The PID is either the workers one or the master PID
+	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
+	
 	max=0
 	time=0
 	my_rank=0
@@ -1232,14 +1235,11 @@ function common.runner.releaseLock()
 	local numberfile
 	local my_pid
 	
-	# The PID is either the workers one or the master PID
-	my_pid=${CXR_WORKER_PID:-$$}
-	
 	lock="$1"
 	level="$2"
 	
 	# The PID is either the workers one or the master PID
-	my_pid=${CXR_WORKER_PID:-$$}
+	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
 	
 	lockfile="$(common.runner.getLockFile $lock $level)"
 	numberfile="$(common.runner.getLockNumberFile $lock $level $my_pid)"

@@ -636,7 +636,7 @@ function common.state.init()
 	
 	# Creating .continue file
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
-	echo "If you remove this file, the instance $$ on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
+	echo "If you remove this file, the instance ${CXR_PID} on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
