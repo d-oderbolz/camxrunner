@@ -200,6 +200,9 @@ function common.test.all()
 		# Because tap-functions uses non-0 returns
 		set +e
 		
+		# Store my PID
+		common.runner.createPidFile $$
+		
 		# When this is true, we know a test is running
 		CXR_TEST_IN_PROGRESS=true
 		
