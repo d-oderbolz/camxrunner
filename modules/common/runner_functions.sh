@@ -1102,6 +1102,11 @@ function common.runner.getLock()
 	# If there is only one worker and one controller, there is not much point in waiting...
 	if [[ $CXR_NO_LOCKING == false || $(common.runner.countAllPids) -lt 3 ]]
 	then
+	
+		if [[ ! -d $CXR_PID_DIR ]]
+		then
+			mkdir -p $CXR_PID_DIR
+		fi
 		
 		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		# We add it to the tempfilelist (safety only)
