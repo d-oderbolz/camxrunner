@@ -1131,9 +1131,9 @@ function common.runner.getLock()
 		number=$(( $max + 1 ))
 		
 		numberfile="$(common.runner.getLockNumberFile $lock $level ${my_pid}@${CXR_MACHINE})"
+		
 		# We add it to the tempfilelist (safety only)
 		echo $numberfile >> $CXR_INSTANCE_FILE_TEMP_LIST
-		
 		# Save the number
 		echo $number > $numberfile
 		
@@ -1141,7 +1141,7 @@ function common.runner.getLock()
 		for pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 			
-			if [[ $pid == ${my_pid}@${CXR_MACHINE} ]]
+			if [[ $(basename $pid) == ${my_pid}@${CXR_MACHINE} ]]
 			then
 				# OK, found my rank
 				break
@@ -1156,7 +1156,9 @@ function common.runner.getLock()
 		# Looping through all processes to find out who can lock
 		for pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
-		
+			# We want the filename
+			pid=$(basename $pid)
+			
 			# Is process pid choosing?
 			while [[ -f $(common.runner.getLockChoosingFile $lock $level $pid) ]]
 			do
@@ -1192,7 +1194,10 @@ function common.runner.getLock()
 		done # looping trough pids
 		
 		lockfile="$(common.runner.getLockFile "$lock" "$level")"
-		touch $lockfile
+		
+		# Claim the lockfile
+		echo $CXR_INSTANCE > $lockfile
+		
 		main.log -v "lock $lock acquired."
 		
 	else
