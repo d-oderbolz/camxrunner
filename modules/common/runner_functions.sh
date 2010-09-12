@@ -1054,12 +1054,9 @@ function common.runner.waitForLock()
 # Here, we use a file-based implementation of Lamports Bakery <http://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm>,
 # it is one of the few algorithms that do not require an atomic operation for locking.
 #
-# The basic idea is that each process has its unique id (we use CXR_WORKER_PID). When it wants to buy bread (aka lock the resource),
+# When a process wants to buy bread (aka lock the resource),
 # it needs to get a number (sum of all other numbers + 1). We then check who has the smallest number or in case of a tie, the lower
 # id - this process wins.
-# We use these files:
-# - ${CXR_WORKER_PID}_CHOOSING - the presence of this file means that process CXR_WORKER_PID is choosing its number
-# - ${CXR_WORKER_PID}_NUMBER - here the nunber of process CXR_WORKER_PID is stored
 #
 # Since SQLite seems to have some issues with locking, we must guard all write 
 # access where we assume concurrency with a lock.
@@ -1091,6 +1088,7 @@ function common.runner.getLock()
 	local max
 	local my_rank
 	local other_rank
+	local my_pid
 	
 	max=0
 	time=0
@@ -1105,7 +1103,7 @@ function common.runner.getLock()
 	if [[ $CXR_NO_LOCKING == false || $(common.runner.countAllPids) -lt 3 ]]
 	then
 		
-		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${CXR_WORKER_PID}@${CXR_MACHINE})"
+		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		# We add it to the tempfilelist (safety only)
 		echo $choosingfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 	
@@ -1127,7 +1125,7 @@ function common.runner.getLock()
 		# plus one
 		number=$(( $max + 1 ))
 		
-		numberfile="$(common.runner.getLockNumberFile $lock $level ${CXR_WORKER_PID}@${CXR_MACHINE})"
+		numberfile="$(common.runner.getLockNumberFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		# We add it to the tempfilelist (safety only)
 		echo $numberfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
@@ -1138,7 +1136,7 @@ function common.runner.getLock()
 		for pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 			
-			if [[ $pid == ${CXR_WORKER_PID}@${CXR_MACHINE} ]]
+			if [[ $pid == ${my_pid}@${CXR_MACHINE} ]]
 			then
 				# OK, found my rank
 				break
@@ -1222,11 +1220,19 @@ function common.runner.releaseLock()
 	local lock
 	local level
 	local numberfile
+	local my_pid
+	
+	# The PID is either the workers one or the master PID
+	my_pid=${CXR_WORKER_PID:-$$}
 	
 	lock="$1"
 	level="$2"
+	
+	# The PID is either the workers one or the master PID
+	my_pid=${CXR_WORKER_PID:-$$}
+	
 	lockfile="$(common.runner.getLockFile $lock $level)"
-	numberfile="$(common.runner.getLockNumberFile $lock $level $CXR_WORKER_PID)"
+	numberfile="$(common.runner.getLockNumberFile $lock $level $my_pid)"
 	
 	rm -f "$lockfile"
 	rm -f "$numberfile"
