@@ -724,6 +724,12 @@ function common.runner.createPidFile()
 		mkdir -p $CXR_PID_DIR
 	fi
 	
+	# This is not elegant at all...
+	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
+	then
+		mkdir -p $(dirname $CXR_INSTANCE_FILE_TEMP_LIST)
+	fi
+		
 	filename=$CXR_PID_DIR/${pid}@${CXR_MACHINE}
 	echo $filename >> $CXR_INSTANCE_FILE_TEMP_LIST
 	
