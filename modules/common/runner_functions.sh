@@ -705,6 +705,53 @@ function common.runner.createTempFile()
 }
 
 ################################################################################
+# Function: common.runner.createPidFile
+#
+# Creates a PID file in the PID directory and stores it in the templist.
+#
+# Parameters:
+# $1 - pid without hostname
+################################################################################
+function common.runner.createPidFile()
+################################################################################
+{
+	local pid
+	local filename
+	pid="$1"
+	
+	if [[ ! -d $CXR_PID_DIR ]]
+	then
+		mkdir -p $CXR_PID_DIR
+	fi
+	
+	filename=$CXR_PID_DIR/${pid}@${CXR_MACHINE}
+	echo $filename >> $CXR_INSTANCE_FILE_TEMP_LIST
+	
+	touch $filename
+}
+
+################################################################################
+# Function: common.runner.countAllPids
+#
+# Counts all Pids in the PID directory
+#
+# Parameters:
+# $1 - pid without hostname
+################################################################################
+function common.runner.countAllPids()
+################################################################################
+{
+	if [[ ! -d $CXR_PID_DIR ]]
+	then
+		echo 0
+	else
+		count=$(find $CXR_PID_DIR -noleaf -type f | wc -l)
+		echo $count
+	fi
+}
+
+
+################################################################################
 # Function: common.runner.createJobFile
 #
 # A special variety of <common.runner.createTempFile> that sould be used whenever
@@ -1035,38 +1082,70 @@ function common.runner.getLock()
 	local numberfile
 	local pid
 	local time
+	local max
+	local my_rank
+	local other_rank
 	
+	max=0
 	time=0
+	my_rank=0
+	other_rank=0
 	
 	lock="$1"
 	level="$2"
 	
 	# For debug reasons, locking can be turned off.
-	# If there is only one worker, there is not much point in waiting...
-	if [[ $CXR_NO_LOCKING == false || $(common.task.countAllWorkers) -lt 2 ]]
+	# If there is only one worker and one controller, there is not much point in waiting...
+	if [[ $CXR_NO_LOCKING == false || $(common.runner.countAllPids) -lt 3 ]]
 	then
 		
-		choosingfile="$(common.runner.getLockChoosingFile $lock $level $CXR_WORKER_PID)"
+		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${CXR_WORKER_PID}@${CXR_MACHINE})"
+		# We add it to the tempfilelist (safety only)
+		echo $choosingfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 	
 		# Kind of a pre-lock
 		touch $choosingfile
 		
-		numberfile="$(common.runner.getLockNumberFile $lock $level $CXR_WORKER_PID)"
-		
 		# Now choose our number
-		for file in ..
+		for file in $(find $(dirname $choosingfile) -noleaf -name '*_${lock}_NUMBER')
 		do
 			newnumber=$(cat $file)
-			number=$(( $number + $newnumber ))
+			
+			# we seek the maximum
+			if [[ $newnumber -gt $max ]]
+			then
+				max=$newnumber
+			fi
 		done
-		number=$(( $number + 1 ))
+		
+		# plus one
+		number=$(( $max + 1 ))
+		
+		numberfile="$(common.runner.getLockNumberFile $lock $level ${CXR_WORKER_PID}@${CXR_MACHINE})"
+		# We add it to the tempfilelist (safety only)
+		echo $numberfile >> $CXR_INSTANCE_FILE_TEMP_LIST
+		
 		# Save the number
 		echo $number > $numberfile
+		
+		# Find my rank
+		for pid in $(find $CXR_PID_DIR -noleaf -type f)
+		do
+			
+			if [[ $pid == ${CXR_WORKER_PID}@${CXR_MACHINE} ]]
+			then
+				# OK, found my rank
+				break
+			fi
+			
+			my_rank=$(( $my_rank + 1 ))
+		done
+		
 		# we have chosen
 		rm $choosingfile
 		
-		# Looping through all processes
-		for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT pid FROM workrs;"))
+		# Looping through all processes to find out who can lock
+		for pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 		
 			# Is process pid choosing?
@@ -1078,14 +1157,15 @@ function common.runner.getLock()
 		
 				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 				then
-					main.dieGracefully "Could not get $lock"
+					echo false
+					return $CXR_RET_OK
 				fi
 		
-			done
+			done # loop if process pid is choosing
 			
 			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $pid)
 			
-			while [[ -f $pidnumberfile && $(cat $pidnumberfile) -lt $number || ( ($(cat $pidnumberfile) -eq $number) && $pid -lt $CXR_WORKER_PID ) ]]
+			while [[ -f $pidnumberfile && $(cat $pidnumberfile) -lt $number || ( ($(cat $pidnumberfile) -eq $number) && $other_rank -lt $my_rank ) ]]
 			do
 				# We are not yet top priority
 				sleep $CXR_LOCK_SLEEP_SECONDS
@@ -1093,10 +1173,14 @@ function common.runner.getLock()
 		
 				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 				then
-					main.dieGracefully "Could not get $lock"
+					echo false
+					return $CXR_RET_OK
 				fi
-			done
-		done
+			done # "The loop"
+			
+			other_rank=$(( $other_rank + 1 ))
+			
+		done # looping trough pids
 		
 		lockfile="$(common.runner.getLockFile "$lock" "$level")"
 		touch $lockfile
@@ -1818,6 +1902,7 @@ function test_module()
 	
 	# This file saves as a barrier
 	barrier=$(common.runner.createTempFile lock-barrier)
+	tmp=$(common.runner.createTempFile awk)
 	
 	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
 	
@@ -1826,6 +1911,12 @@ function test_module()
 	
 		# These are the proceses that carry out the test
 		(
+			# determine pid
+			awk '{print $4}' /proc/self/stat > $tmp
+
+			# read pid from file & store
+			common.runner.createPidFile $(cat $tmp)
+			
 			# Wait until barrier is gone
 			while [[ -f $barrier ]]
 			do
