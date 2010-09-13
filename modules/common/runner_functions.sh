@@ -1942,7 +1942,7 @@ function test_module()
 	
 	# save & lower timeout
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-	CXR_LOCK_TIMEOUT_SEC=5
+	CXR_LOCK_TIMEOUT_SEC=10
 	
 	# How many processes?
 	nProcs=5
