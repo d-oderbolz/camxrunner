@@ -1078,10 +1078,8 @@ function common.runner.releaseLock()
 	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
 	
 	lockfile="$(common.runner.getLockFile $lock $level)"
-	numberfile="$(common.runner.getLockNumberFile $lock $level $my_pid)"
 	
 	rm -f "$lockfile"
-	rm -f "$numberfile"
 	
 	main.log -v "lock $lock released."
 }
