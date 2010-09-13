@@ -982,8 +982,8 @@ function common.runner.waitForLock()
 		# We want to acquire the lock, we need to rule out 
 		# competition
 	
-		# sleep some time between 0.01 and 0.5 seconds
-		sleep $(common.math.RandomNumber 0.01 0.5 5)
+		# sleep some time between 0.1 and 0.5 seconds
+		sleep $(common.math.RandomNumber 0.1 0.5 5)
 		
 		# There is a slight chance another process was faster
 		if [[ -f "$lockfile" ]]
