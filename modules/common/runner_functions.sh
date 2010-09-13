@@ -1104,7 +1104,7 @@ function common.runner.getLock()
 	
 	# For debug reasons, locking can be turned off.
 	# If there is only one worker and one controller, there is not much point in waiting...
-	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -ge 3 ]]
+	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -gt 2 ]]
 	then
 	
 		if [[ ! -d $CXR_PID_DIR ]]
@@ -1118,7 +1118,7 @@ function common.runner.getLock()
 		# We add it to the tempfilelist (safety only)
 		echo $choosingfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 	
-		# Kind of a pre-lock
+		# Aqcuire a kind of a pre-lock
 		touch $choosingfile
 		
 		# Now choose our number, its the max of all numbers plus 1
@@ -1162,7 +1162,7 @@ function common.runner.getLock()
 			
 			if [[ "$(basename $pid)" == ${my_pid}@${CXR_MACHINE} ]]
 			then
-				# OK, found my rank
+				# OK, found my rank (its in my_rank)
 				break
 			fi
 			
@@ -1172,7 +1172,7 @@ function common.runner.getLock()
 		# we have chosen
 		rm -f $choosingfile
 		
-		# Looping through all processes to find out who can lock
+		# Looping through all processes to find out whose turn it is
 		for other_pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 			# We want the filename
@@ -1184,7 +1184,7 @@ function common.runner.getLock()
 				continue
 			fi
 			
-			# Is process pid choosing?
+			# Is process other_pid choosing?
 			while [[ -f $(common.runner.getLockChoosingFile $lock $level $other_pid) ]]
 			do
 				# Process $other_pid is choosing
@@ -1198,6 +1198,7 @@ function common.runner.getLock()
 		
 			done # loop if process pid is choosing
 			
+			# Get the others number
 			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $other_pid)
 
 			if [[ ! -e $pidnumberfile ]]
@@ -1212,7 +1213,9 @@ function common.runner.getLock()
 				fi
 			fi
 			
-			while [[ -e $pidnumberfile && ( $other_number -lt $my_number || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
+			# Wait until all threads with smaller numbers or with the same
+ 			# number, but with higher priority, finish their work:
+			while [[ ($other_number -gt 0) && ( ($other_number -lt $my_number) || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
 			do
 				# We are not yet top priority
 				sleep $CXR_LOCK_SLEEP_SECONDS
