@@ -1121,7 +1121,7 @@ function common.runner.getLock()
 		# Kind of a pre-lock
 		touch $choosingfile
 		
-		# Now choose our number, its tha max of all numbers plus 1
+		# Now choose our number, its the max of all numbers plus 1
 		for file in $(find $(dirname $choosingfile) -noleaf -type f -name '*_${lock}_NUMBER')
 		do
 			
@@ -1178,6 +1178,12 @@ function common.runner.getLock()
 			# We want the filename
 			other_pid=$(basename $other_pid)
 			
+			if [[ -z "$other_pid" ]]
+			then
+				# Somehow an empty filename haunts this code...
+				continue
+			fi
+			
 			# Is process pid choosing?
 			while [[ -f $(common.runner.getLockChoosingFile $lock $level $other_pid) ]]
 			do
@@ -1193,14 +1199,20 @@ function common.runner.getLock()
 			done # loop if process pid is choosing
 			
 			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $other_pid)
-			other_number=$(cat $pidnumberfile)
-			
-			if [[ -z "other_number" ]]
+
+			if [[ ! -e $pidnumberfile ]]
 			then
 				other_number=0
+			else
+				other_number=$(cat $pidnumberfile)
+				
+				if [[ -z "$other_number" ]]
+				then
+					other_number=0
+				fi
 			fi
 			
-			while [[ -f $pidnumberfile && ( $other_number -lt $my_number || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
+			while [[ -e $pidnumberfile && ( $other_number -lt $my_number || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
 			do
 				# We are not yet top priority
 				sleep $CXR_LOCK_SLEEP_SECONDS
