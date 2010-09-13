@@ -844,8 +844,6 @@ function common.runner.removeTempFiles()
 					rm -f "${filename}" &>/dev/null
 				fi
 			done
-			
-			IFS="$oIFS"
 	else
 		main.log  "The temporarily decompressed files will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
@@ -873,8 +871,6 @@ function common.runner.removeTempFiles()
 						rm -f "$temp_file" &>/dev/null
 					fi
 				done < ${CXR_INSTANCE_FILE_TEMP_LIST}
-				
-				IFS="$oIFS"
 		else
 			main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 		fi
@@ -1047,8 +1043,7 @@ function common.runner.waitForLock()
 # Tries to get a lock. 
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a file in the appropiate directory is created and
-# the path to the file is stored in the Instance Hash "Locks"
-# These files can be purged by <common.runner.releaseAllLocks>
+# the path to the file is stored in the CXR_INSTANCE_FILE_TEMP_LIST
 #
 # We do not lock if there are less than 2 workers around.
 # Here, we use a file-based implementation of Lamports Bakery <http://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm>,
@@ -1218,6 +1213,7 @@ function common.runner.getLock()
 		done # looping trough pids
 		
 		lockfile="$(common.runner.getLockFile "$lock" "$level")"
+		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
 		# Claim the lockfile
 		echo $CXR_INSTANCE > $lockfile

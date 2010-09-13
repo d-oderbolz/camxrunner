@@ -544,9 +544,6 @@ function main.doCleanup()
 		
 		# Remove all tempfiles
 		common.runner.removeTempFiles
-		
-		# Release Locks
-		common.runner.releaseAllLocks
 
 	fi # Hollow?
 	
