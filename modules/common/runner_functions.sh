@@ -1169,6 +1169,8 @@ function common.runner.getLock()
 			my_rank=$(( $my_rank + 1 ))
 		done
 		
+		main.log -a "PID: $my_pid rank: $my_rank number: $my_number"
+		
 		# we have chosen
 		rm -f $choosingfile
 		
