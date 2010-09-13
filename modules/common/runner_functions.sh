@@ -1124,7 +1124,15 @@ function common.runner.getLock()
 		# Now choose our number, its tha max of all numbers plus 1
 		for file in $(find $(dirname $choosingfile) -noleaf -type f -name '*_${lock}_NUMBER')
 		do
-			newnumber=$(cat "$file")
+			
+			if [[ -z "$file" || ! -e "$file" ]]
+			then
+				main.log -a "File $file not around?"
+				# Somehow an empty filename haunts this code...
+				continue
+			fi
+			
+			newnumber=$(cat "$file" 2>/dev/null)
 			
 			if [[ -z "$newnumber" ]]
 			then
