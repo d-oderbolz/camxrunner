@@ -1111,6 +1111,8 @@ function common.runner.getLock()
 			mkdir -p $CXR_PID_DIR
 		fi
 		
+		set -x
+		
 		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		# We add it to the tempfilelist (safety only)
 		echo $choosingfile >> $CXR_INSTANCE_FILE_TEMP_LIST
@@ -1206,6 +1208,8 @@ function common.runner.getLock()
 	else
 		main.log -w "Either CXR_NO_LOCKING is false or only one worker around - no lock acquired."
 	fi
+	
+	set +x
 	
 	echo true
 }
