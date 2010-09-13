@@ -188,8 +188,6 @@ function common.test.all()
 			extended=false
 		fi
 		
-		# We want to save the old tempfiles
-		oTempfiles="$CXR_INSTANCE_FILE_TEMP_LIST"
 		# We delete the old instance files and the pids
 		oInstanceDir="$CXR_INSTANCE_DIR"
 		oPidDir="$CXR_PID_DIR"
@@ -206,9 +204,6 @@ function common.test.all()
 		# For the time being, we turn off errexit
 		# Because tap-functions uses non-0 returns
 		set +e
-		
-		# Store old tempfiles
-		cat $oTempfiles >> $CXR_INSTANCE_FILE_TEMP_LIST &>/dev/null
 		
 		# Delete old instance dir and PIDs
 		rm -rf "${oInstanceDir}" &>/dev/null
