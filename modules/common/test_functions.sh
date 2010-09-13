@@ -189,7 +189,9 @@ function common.test.all()
 		fi
 		
 		# We want to save the old tempfiles
-		oTempfiles=$CXR_INSTANCE_FILE_TEMP_LIST
+		oTempfiles="$CXR_INSTANCE_FILE_TEMP_LIST"
+		# We delete the old instance files
+		oInstanceDir="$CXR_INSTANCE_DIR"
 		
 		CXR_RUN=${model}-v${version}-test
 		
@@ -206,6 +208,9 @@ function common.test.all()
 		
 		# Store old tempfiles
 		cat $oTempfiles >> $CXR_INSTANCE_FILE_TEMP_LIST
+		
+		# Delete old instance dir
+		rm -rf "${oInstanceDir}" &>/dev/null
 		
 		# Store my PID
 		common.runner.createPidFile ${CXR_PID}
