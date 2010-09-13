@@ -907,72 +907,6 @@ function common.runner.getLockFile()
 }
 
 ################################################################################
-# Function: common.runner.getLockNumberFile
-#
-# Returns the name of a numberfile to use for a lock
-#
-# Parameters:
-# $1 - the name of the lock to get
-# $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# $3 - the number of a process
-################################################################################
-function common.runner.getLockNumberFile()
-################################################################################
-{
-	local level
-	local lock
-	local id
-	local file
-	
-	lock="$1"
-	level="$2"
-	id="$3"
-	
-	file="${id}_${lock}_NUMBER"
-	
-	case $level in
-		$CXR_LEVEL_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
-		$CXR_LEVEL_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
-		$CXR_LEVEL_UNIVERSAL) 	echo "$CXR_UNIVERSAL_DIR/$file" ;;
-		*) main.dieGracefully "Lock level $level not supported";;
-	esac
-
-}
-
-################################################################################
-# Function: common.runner.getLockChoosingFile
-#
-# Returns the name of a choosing to use for a lock
-#
-# Parameters:
-# $1 - the name of the lock to get
-# $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# $3 - the number of a process
-################################################################################
-function common.runner.getLockChoosingFile()
-################################################################################
-{
-	local level
-	local lock
-	local id
-	local file
-	
-	lock="$1"
-	level="$2"
-	id="$3"
-	
-	file="${id}_${lock}_CHOOSING"
-	
-	case $level in
-		$CXR_LEVEL_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
-		$CXR_LEVEL_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
-		$CXR_LEVEL_UNIVERSAL) 	echo "$CXR_UNIVERSAL_DIR/$file" ;;
-		*) main.dieGracefully "Lock level $level not supported";;
-	esac
-
-}
-
-################################################################################
 # Function: common.runner.waitForLock
 #
 # Waits until a lock is no longer held (only for observers)
@@ -1040,216 +974,76 @@ function common.runner.waitForLock()
 ################################################################################
 # Function: common.runner.getLock
 #
-# Blocking call that tries to get a lock. If we exceed the time, we die. 
+# Tries to get a lock. 
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a file in the appropiate directory is created and
-# the path to the file is stored in the CXR_INSTANCE_FILE_TEMP_LIST
+# the path to the file is stored in the Instance Hash "Locks"
+# These files can be purged by <common.runner.releaseAllLocks>
 #
-# We do not lock if there are less than 2 workers around.
-# Here, we use a file-based implementation of Lamports Bakery <http://en.wikipedia.org/wiki/Lamport%27s_bakery_algorithm>,
-# it is one of the few algorithms that do not require an atomic operation for locking.
-#
-# When a process wants to buy bread (aka lock the resource),
-# it needs to get a number (sum of all other numbers + 1). We then check who has the smallest number or in case of a tie, the lower
-# id - this process wins.
+# The problem is that here, locking is not atomic, so 2 processes could try
+# to get the same lock...
+# TODO: Implement a general (n concurrent procs) Lamports Bakery, Peterson's or Dekkers algorithm
 #
 # Since SQLite seems to have some issues with locking, we must guard all write 
 # access where we assume concurrency with a lock.
 #
 # Example:
-# > common.runner.getLock $lock "$CXR_LEVEL_GLOBAL"
+# > if [[ $(common.runner.getLock $lock "$CXR_LEVEL_GLOBAL") == false ]]
+# > then
+# > 	main.dieGracefully "Could not get lock $lock"
+# > fi
 #
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - an optional PID (for testing. Normally, we work it out ourselves) 
 ################################################################################
 function common.runner.getLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs the name of a lock, a level and an optional PID as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
 	local lock
 	local level
-	local choosingfile
-	local numberfile
-	
-	local time
-	local max
-	
-	local my_rank
-	local other_rank
-	
-	local pid
-	local my_pid
-	local other_pid
-	
-	local my_number
-	local other_number
-	
-	# The PID is either given, the workers one or the master PID
-	my_pid=${3:-${CXR_WORKER_PID:-${CXR_PID}}}
-	
-	max=0
-	time=0
-	
-	my_rank=0
-	other_rank=0
+	local turn
+	local wait_array
+	local arr_string
 	
 	lock="$1"
 	level="$2"
 	
+	lockfile="$(common.runner.getLockFile "$lock" "$level")"
+
 	# For debug reasons, locking can be turned off.
 	# If there is only one worker and one controller, there is not much point in waiting...
 	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -gt 2 ]]
 	then
-	
-		if [[ ! -d $CXR_PID_DIR ]]
+		
+		# Wait for the lock, _retval is false if we exceeded the timeout
+		common.runner.waitForLock "$lock" "$level"
+		
+		if [[ $_retval == false ]]
 		then
-			mkdir -p $CXR_PID_DIR
+			main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 		fi
 		
-		#set -x
-		
-		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${my_pid}@${CXR_MACHINE})"
-		# We add it to the tempfilelist (safety only)
-		echo $choosingfile >> $CXR_INSTANCE_FILE_TEMP_LIST
-	
-		# Aqcuire a kind of a pre-lock
-		touch $choosingfile
-		
-		# Now choose our number, its the max of all numbers plus 1
-		for file in $(find $(dirname $choosingfile) -noleaf -type f -name '*_${lock}_NUMBER')
-		do
-			
-			if [[ -z "$file" || ! -e "$file" ]]
-			then
-				main.log -a "File $file not around?"
-				# Somehow an empty filename haunts this code...
-				continue
-			fi
-			
-			newnumber=$(cat "$file" 2>/dev/null)
-			
-			if [[ -z "$newnumber" ]]
-			then
-				newnumber=0
-			fi
-			
-			# we seek the maximum
-			if [[ $newnumber -gt $max ]]
-			then
-				max=$newnumber
-			fi
-		done
-		
-		# plus one
-		my_number=$(( $max + 1 ))
-		
-		numberfile="$(common.runner.getLockNumberFile $lock $level ${my_pid}@${CXR_MACHINE})"
-		
-		# We add it to the tempfilelist (safety only)
-		echo $numberfile >> $CXR_INSTANCE_FILE_TEMP_LIST
-		# Save the number
-		echo $my_number > $numberfile
-		
-		# Find my rank
-		for pid in $(find $CXR_PID_DIR -noleaf -type f)
-		do
-			
-			if [[ "$(basename $pid)" == ${my_pid}@${CXR_MACHINE} ]]
-			then
-				# OK, found my rank (its in my_rank)
-				break
-			fi
-			
-			my_rank=$(( $my_rank + 1 ))
-		done
-		
-		main.log -a "PID: $my_pid rank: $my_rank number: $my_number"
-		
-		# we have chosen
-		rm -f $choosingfile
-		
-		# Looping through all processes to find out whose turn it is
-		for other_pid in $(find $CXR_PID_DIR -noleaf -type f)
-		do
-			# We want the filename
-			other_pid=$(basename $other_pid)
-			
-			if [[ -z "$other_pid" ]]
-			then
-				# Somehow an empty filename haunts this code...
-				continue
-			fi
-			
-			# Is process other_pid choosing?
-			while [[ -f $(common.runner.getLockChoosingFile $lock $level $other_pid) ]]
-			do
-				# Process $other_pid is choosing
-				sleep $CXR_LOCK_SLEEP_SECONDS
-				time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
-		
-				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
-				then
-					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
-				fi
-		
-			done # loop if process pid is choosing
-			
-			# Get the others number
-			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $other_pid)
-
-			if [[ ! -e $pidnumberfile ]]
-			then
-				other_number=0
-			else
-				other_number=$(cat $pidnumberfile)
-				
-				if [[ -z "$other_number" ]]
-				then
-					other_number=0
-				fi
-			fi
-			
-			# Wait until all threads with smaller numbers or with the same
- 			# number, but with higher priority, finish their work:
-			while [[ ($other_number -gt 0) && ( ($other_number -lt $my_number) || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
-			do
-				# We are not yet top priority
-				sleep $CXR_LOCK_SLEEP_SECONDS
-				time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
-		
-				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
-				then
-					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
-				fi
-			done # "The loop"
-			
-			other_rank=$(( $other_rank + 1 ))
-			
-		done # looping trough pids
-		
-		# OK, we can get the lock
-		lockfile="$(common.runner.getLockFile "$lock" "$level")"
+		# We got the lock 
 		
 		# Save it in the templist
 		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
-		# Claim the lockfile
-		echo $CXR_INSTANCE > $lockfile
+		# write our ID into the lockfile
+		echo $CXR_INSTANCE > "$lockfile"
 		
-		main.log -v "lock $lock acquired."
+		main.log -v "Lock $lock (${level}) acquired."
 		
 	else
-		main.log -w "Either CXR_NO_LOCKING is false or only one worker around - no lock acquired."
+		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
 	
-	#set +x
-	
+	echo true
 }
 
 ################################################################################
