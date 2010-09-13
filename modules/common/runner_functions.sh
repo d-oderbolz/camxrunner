@@ -1042,8 +1042,6 @@ function common.runner.getLock()
 	else
 		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
 	fi
-	
-	echo true
 }
 
 ################################################################################
