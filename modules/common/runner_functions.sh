@@ -1058,7 +1058,7 @@ function common.runner.getLock()
 		# We got the lock 
 		
 		# Save it in the templist
-		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
+		#echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
 		# write our ID into the lockfile
 		echo $CXR_INSTANCE > "$lockfile"
