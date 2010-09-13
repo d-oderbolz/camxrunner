@@ -1782,7 +1782,7 @@ function test_module()
 			done
 			
 			# Get an instance lock using PID
-			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" "$my_pid" > /dev/null
+			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
 			echo "Process $iter got the lock"
 			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
 			echo "Process $iter released the lock"
