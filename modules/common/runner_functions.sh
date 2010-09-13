@@ -752,6 +752,7 @@ function common.runner.countAllPids()
 		echo 0
 	else
 		count=$(find $CXR_PID_DIR -noleaf -type f | wc -l)
+		main.log -a "Found $count pids in $CXR_PID_DIR"
 		echo $count
 	fi
 }
