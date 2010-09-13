@@ -117,6 +117,7 @@ function common.test.all()
 	local function_file
 	local metafield
 	local extended
+	local oTempfiles
 	
 	iput_model="${1:-}"
 	input_version="${2:-}"
@@ -187,6 +188,9 @@ function common.test.all()
 			extended=false
 		fi
 		
+		# We want to save the old tempfiles
+		oTempfiles=$CXR_INSTANCE_FILE_TEMP_LIST
+		
 		CXR_RUN=${model}-v${version}-test
 		
 		# Prepare environment
@@ -199,6 +203,9 @@ function common.test.all()
 		# For the time being, we turn off errexit
 		# Because tap-functions uses non-0 returns
 		set +e
+		
+		# Store old tempfiles
+		cat $oTempfiles >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
 		# Store my PID
 		common.runner.createPidFile ${CXR_PID}
