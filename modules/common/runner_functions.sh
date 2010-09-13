@@ -752,7 +752,6 @@ function common.runner.countAllPids()
 		echo 0
 	else
 		count=$(find $CXR_PID_DIR -noleaf -type f | wc -l)
-		main.log -a "Found $count pids in $CXR_PID_DIR"
 		echo $count
 	fi
 }
@@ -1115,7 +1114,7 @@ function common.runner.getLock()
 			mkdir -p $CXR_PID_DIR
 		fi
 		
-		set -x
+		#set -x
 		
 		choosingfile="$(common.runner.getLockChoosingFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		# We add it to the tempfilelist (safety only)
@@ -1228,7 +1227,7 @@ function common.runner.getLock()
 		main.log -w "Either CXR_NO_LOCKING is false or only one worker around - no lock acquired."
 	fi
 	
-	set +x
+	#set +x
 	
 	echo true
 }
