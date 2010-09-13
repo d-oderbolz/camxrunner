@@ -1062,13 +1062,14 @@ function common.runner.waitForLock()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - an optional PID (for testing. Normally, we work it out ourselves) 
 ################################################################################
 function common.runner.getLock()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level as input"
+		main.dieGracefully "needs the name of a lock, a level and an optional PID as input"
 	fi
 	
 	local lock
@@ -1089,8 +1090,8 @@ function common.runner.getLock()
 	local my_number
 	local other_number
 	
-	# The PID is either the workers one or the master PID
-	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
+	# The PID is either given, the workers one or the master PID
+	my_pid=${3:-${CXR_WORKER_PID:-${CXR_PID}}}
 	
 	max=0
 	time=0
@@ -1949,11 +1950,15 @@ function test_module()
 	
 		# These are the proceses that carry out the test
 		(
+			local my_pid
+			
 			# determine pid
 			awk '{print $4}' /proc/self/stat > $tmp
+			
+			my_pid="$(cat $tmp)"
 
 			# read pid from file & store
-			common.runner.createPidFile $(cat $tmp)
+			common.runner.createPidFile "$my_pid"
 			
 			# Wait until barrier is gone
 			while [[ -f $barrier ]]
@@ -1961,8 +1966,8 @@ function test_module()
 				:
 			done
 			
-			# Get an instance lock
-			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
+			# Get an instance lock using PID
+			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" "$my_pid" > /dev/null
 			echo "Process $iter got the lock"
 			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
 			echo "Process $iter released the lock"
