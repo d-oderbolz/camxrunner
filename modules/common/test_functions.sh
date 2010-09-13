@@ -208,7 +208,7 @@ function common.test.all()
 		set +e
 		
 		# Store old tempfiles
-		cat $oTempfiles >> $CXR_INSTANCE_FILE_TEMP_LIST
+		cat $oTempfiles >> $CXR_INSTANCE_FILE_TEMP_LIST &>/dev/null
 		
 		# Delete old instance dir and PIDs
 		rm -rf "${oInstanceDir}" &>/dev/null

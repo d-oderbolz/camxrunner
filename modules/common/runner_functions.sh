@@ -1107,7 +1107,7 @@ function common.runner.getLock()
 	
 	# For debug reasons, locking can be turned off.
 	# If there is only one worker and one controller, there is not much point in waiting...
-	if [[ $CXR_NO_LOCKING == false || $(common.runner.countAllPids) -lt 3 ]]
+	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -ge 3 ]]
 	then
 	
 		if [[ ! -d $CXR_PID_DIR ]]
