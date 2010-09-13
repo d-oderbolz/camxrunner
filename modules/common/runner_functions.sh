@@ -1123,10 +1123,10 @@ function common.runner.getLock()
 		# Kind of a pre-lock
 		touch $choosingfile
 		
-		# Now choose our number
-		for file in $(find $(dirname $choosingfile) -noleaf -name '*_${lock}_NUMBER')
+		# Now choose our number, its tha max of all numbers plus 1
+		for file in $(find $(dirname $choosingfile) -noleaf -type f -name '*_${lock}_NUMBER')
 		do
-			newnumber=$(cat $file)
+			newnumber=$(cat "$file")
 			
 			if [[ -z "$newnumber" ]]
 			then
@@ -1141,14 +1141,14 @@ function common.runner.getLock()
 		done
 		
 		# plus one
-		number=$(( $max + 1 ))
+		my_number=$(( $max + 1 ))
 		
 		numberfile="$(common.runner.getLockNumberFile $lock $level ${my_pid}@${CXR_MACHINE})"
 		
 		# We add it to the tempfilelist (safety only)
 		echo $numberfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		# Save the number
-		echo $number > $numberfile
+		echo $my_number > $numberfile
 		
 		# Find my rank
 		for pid in $(find $CXR_PID_DIR -noleaf -type f)
@@ -1195,7 +1195,7 @@ function common.runner.getLock()
 				other_number=0
 			fi
 			
-			while [[ -f $pidnumberfile && ( $other_number -lt $number || ( ($other_number -eq $number) && ($other_rank -lt $my_rank) )) ]]
+			while [[ -f $pidnumberfile && ( $other_number -lt $my_number || ( ($other_number -eq $my_number) && ($other_rank -lt $my_rank) )) ]]
 			do
 				# We are not yet top priority
 				sleep $CXR_LOCK_SLEEP_SECONDS
@@ -1212,7 +1212,10 @@ function common.runner.getLock()
 			
 		done # looping trough pids
 		
+		# OK, we can get the lock
 		lockfile="$(common.runner.getLockFile "$lock" "$level")"
+		
+		# Save it in the templist
 		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
 		# Claim the lockfile
