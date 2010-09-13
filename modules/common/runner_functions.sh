@@ -1133,6 +1133,11 @@ function common.runner.getLock()
 		do
 			newnumber=$(cat $file)
 			
+			if [[ -z "$newnumber" ]]
+			then
+				newnumber=0
+			fi
+			
 			# we seek the maximum
 			if [[ $newnumber -gt $max ]]
 			then
@@ -1154,7 +1159,7 @@ function common.runner.getLock()
 		for pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 			
-			if [[ $(basename $pid) == ${my_pid}@${CXR_MACHINE} ]]
+			if [[ "$(basename $pid)" == ${my_pid}@${CXR_MACHINE} ]]
 			then
 				# OK, found my rank
 				break
