@@ -402,13 +402,13 @@ function test_module()
 	# Center must be correct
 	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
 
-	echo "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44 SWISS)"
-	echo "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47 SWISS)"
+	main.log -a "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44 SWISS)"
+	main.log -a "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47 SWISS)"
 	
 	# Get the index of Payerne
-	echo "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
-	echo "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
-	echo "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
+	main.log -a "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
+	main.log -a "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
+	main.log -a "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
 	########################################
 	# teardown tests if needed
