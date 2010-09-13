@@ -909,8 +909,11 @@ function common.runner.getLockFile()
 ################################################################################
 # Function: common.runner.waitForLock
 #
-# Waits until a lock is no longer held (only for observers)
+# Waits until a lock is free to be aquired and acquries it if needed.
 # When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false in _retval
+# If the lock is free, we wait for a random time between 0 and 1 sencond in order to separate 
+# eventual concurrent processes and then may call this fuction again.
+# We do not take any action if the lock is not free, this is up to tho user.
 #
 # Recommended call:
 # > common.runner.waitForLock NextTask "$CXR_LEVEL_GLOBAL"
@@ -920,27 +923,31 @@ function common.runner.getLockFile()
 # > fi
 #
 # Parameters:
-# $1 - the name of the lock to observe
+# $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - an optional boolean (default true) indicating if we want to aquire the lock.
+# [$4] - the time in decimal seconds waited so far (only relevant in the recursion case)
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -lt 2 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level as input, got $*"
+		main.dieGracefully "needs at least the name of a lock and a level as input, got $*"
 	fi
 
 	local lock
 	local level
 	local lockfile
-	local shown
 	local time
+	local shown
 
 	lock="$1"
 	level="$2"
-
-	time=0
+	wanted="${3:-true}"
+	# how long did we wait so far
+	time="${4:-0}"
+	
 	shown=false
 	
 	lockfile="$(common.runner.getLockFile $lock $level)"
@@ -962,13 +969,32 @@ function common.runner.waitForLock()
 		
 		if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 		then
-			main.dieGracefully "Lock $lock (${level}) was blocked longer than CXR_MAX_LOCK_TIME"
+			main.log -w "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 			_retval=false
 			return $CXR_RET_OK
 		fi
 	done # is lock set?
 	
-	_retval=true
+	if [[ $wanted == false ]]
+	then
+		_retval=true
+	else
+		# We want to acquire the lock, we need to rule out 
+		# competition
+	
+		# sleep some time between 0.01 and 0.5 seconds
+		sleep $(common.math.RandomNumber 0.01 0.5 5)
+		
+		# There is a slight chance another process was faster
+		if [[ -f "$lockfile" ]]
+		then
+			# Recursive call (retval is set internally)
+			# it will set _retval itself
+			common.runner.waitForLock $lock $level $wanted $time
+		else
+			_retval=true
+		fi
+	fi
 }
 
 ################################################################################
@@ -1765,16 +1791,6 @@ function test_module()
 	
 		# These are the proceses that carry out the test
 		(
-			local my_pid
-			
-			# determine pid
-			awk '{print $4}' /proc/self/stat > $tmp
-			
-			my_pid="$(cat $tmp)"
-
-			# read pid from file & store
-			common.runner.createPidFile "$my_pid"
-			
 			# Wait until barrier is gone
 			while [[ -f $barrier ]]
 			do
