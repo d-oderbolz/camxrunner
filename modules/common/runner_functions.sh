@@ -1003,15 +1003,11 @@ function common.runner.waitForLock()
 # Tries to get a lock. 
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a file in the appropiate directory is created and
-# the path to the file is stored in the Instance Hash "Locks"
-# These files can be purged by <common.runner.releaseAllLocks>
+# the path to the file is stored in the Tempfile list.
 #
 # The problem is that here, locking is not atomic, so 2 processes could try
 # to get the same lock...
-# TODO: Implement a general (n concurrent procs) Lamports Bakery, Peterson's or Dekkers algorithm
-#
-# Since SQLite seems to have some issues with locking, we must guard all write 
-# access where we assume concurrency with a lock.
+# TODO: Implement Lamports Bakery algorithm
 #
 # Example:
 # > if [[ $(common.runner.getLock $lock "$CXR_LEVEL_GLOBAL") == false ]]
@@ -1058,7 +1054,7 @@ function common.runner.getLock()
 		# We got the lock 
 		
 		# Save it in the templist
-		#echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
+		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
 		# write our ID into the lockfile
 		echo $CXR_INSTANCE > "$lockfile"
@@ -1768,52 +1764,52 @@ function test_module()
 	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $CXR_IGRID 3)") domain001 "common.runner.evaluateRule with formatting"
 	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
 	
-	# Test Locking. We simulate the case that many processes want the same lock at the same instant.
-	# This will not occur (hopefully) and is a pretty difficult situation.
-	local lock
-	lock=test
-	
-	# save & lower timeout
-	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-	CXR_LOCK_TIMEOUT_SEC=10
-	
-	# How many processes?
-	nProcs=5
-	
-	# This file saves as a barrier
-	barrier=$(common.runner.createTempFile lock-barrier)
-	tmp=$(common.runner.createTempFile awk)
-	
-	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
-	
-	for iter in $(seq 1 $nProcs)
-	do
-	
-		# These are the proceses that carry out the test
-		(
-			# Wait until barrier is gone
-			while [[ -f $barrier ]]
-			do
-				:
-			done
-			
-			# Get an instance lock using PID
-			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
-			echo "Process $iter got the lock"
-			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
-			echo "Process $iter released the lock"
-		
-		) &
-	
-	done
-	
-	# remove the barrier
-	rm $barrier
-	sleep $CXR_LOCK_TIMEOUT_SEC
-	
-	
-	# Restore old settings
-	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
+#	# Test Locking. We simulate the case that many processes want the same lock at the same instant.
+#	# This will not occur (hopefully) and is a pretty difficult situation.
+#	local lock
+#	lock=test
+#	
+#	# save & lower timeout
+#	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
+#	CXR_LOCK_TIMEOUT_SEC=10
+#	
+#	# How many processes?
+#	nProcs=5
+#	
+#	# This file saves as a barrier
+#	barrier=$(common.runner.createTempFile lock-barrier)
+#	tmp=$(common.runner.createTempFile awk)
+#	
+#	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
+#	
+#	for iter in $(seq 1 $nProcs)
+#	do
+#	
+#		# These are the proceses that carry out the test
+#		(
+#			# Wait until barrier is gone
+#			while [[ -f $barrier ]]
+#			do
+#				:
+#			done
+#			
+#			# Get an instance lock using PID
+#			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
+#			echo "Process $iter got the lock"
+#			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
+#			echo "Process $iter released the lock"
+#		
+#		) &
+#	
+#	done
+#	
+#	# remove the barrier
+#	rm $barrier
+#	sleep $CXR_LOCK_TIMEOUT_SEC
+#	
+#	
+#	# Restore old settings
+#	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
 
 	
 	
