@@ -1083,18 +1083,26 @@ function common.runner.getLock()
 	local level
 	local choosingfile
 	local numberfile
-	local pid
+	
 	local time
 	local max
+	
 	local my_rank
 	local other_rank
+	
+	local pid
 	local my_pid
+	local other_pid
+	
+	local my_number
+	local other_number
 	
 	# The PID is either the workers one or the master PID
 	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
 	
 	max=0
 	time=0
+	
 	my_rank=0
 	other_rank=0
 	
@@ -1156,18 +1164,18 @@ function common.runner.getLock()
 		done
 		
 		# we have chosen
-		rm $choosingfile
+		rm -f $choosingfile
 		
 		# Looping through all processes to find out who can lock
-		for pid in $(find $CXR_PID_DIR -noleaf -type f)
+		for other_pid in $(find $CXR_PID_DIR -noleaf -type f)
 		do
 			# We want the filename
-			pid=$(basename $pid)
+			other_pid=$(basename $other_pid)
 			
 			# Is process pid choosing?
-			while [[ -f $(common.runner.getLockChoosingFile $lock $level $pid) ]]
+			while [[ -f $(common.runner.getLockChoosingFile $lock $level $other_pid) ]]
 			do
-				# Process $pid is choosing
+				# Process $other_pid is choosing
 				sleep $CXR_LOCK_SLEEP_SECONDS
 				time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
@@ -1179,9 +1187,15 @@ function common.runner.getLock()
 		
 			done # loop if process pid is choosing
 			
-			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $pid)
+			pidnumberfile=$(common.runner.getLockNumberFile $lock $level $other_pid)
+			other_number=$(cat $pidnumberfile)
 			
-			while [[ -f $pidnumberfile && $(cat $pidnumberfile) -lt $number || ( ($(cat $pidnumberfile) -eq $number) && $other_rank -lt $my_rank ) ]]
+			if [[ -z "other_number" ]]
+			then
+				other_number=0
+			fi
+			
+			while [[ -f $pidnumberfile && ( $other_number -lt $number || ( ($other_number -eq $number) && ($other_rank -lt $my_rank) )) ]]
 			do
 				# We are not yet top priority
 				sleep $CXR_LOCK_SLEEP_SECONDS
