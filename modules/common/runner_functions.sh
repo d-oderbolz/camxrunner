@@ -814,7 +814,7 @@ function common.runner.removeTempFiles()
 	# remove decompressed files, if wanted
 	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
 	then
-			main.log  "Removing temporarily decompressed files..."
+			main.log -a "Removing temporarily decompressed files..."
 			
 				# common.hash.getKeysAndValues returns a newline-separated list
 			oIFS="$IFS"
@@ -859,7 +859,7 @@ function common.runner.removeTempFiles()
 		# remove temporary files, if wanted
 		if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
 		then
-				main.log "Removing temporary files..."
+				main.log -a "Removing temporary files..."
 				
 				# Clean files away
 				while read temp_file

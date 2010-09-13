@@ -550,7 +550,8 @@ function main.doCleanup()
 	# Delete the instance files if Tempfiles are to be deleted
 	if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
 	then
-		rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &>/dev/null
+		#rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &>/dev/null
+		:
 	else
 		main.log -w "You set CXR_REMOVE_TEMP_FILES to false, the instance dir ${CXR_INSTANCE_DIR} will not be deleted."
 	fi
