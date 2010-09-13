@@ -1028,7 +1028,7 @@ function common.runner.waitForLock()
 		
 		if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 		then
-			main.log -w "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+			main.dieGracefully "Lock $lock (${level}) was blocked longer than CXR_MAX_LOCK_TIME"
 			_retval=false
 			return $CXR_RET_OK
 		fi
@@ -1040,7 +1040,7 @@ function common.runner.waitForLock()
 ################################################################################
 # Function: common.runner.getLock
 #
-# Tries to get a lock. 
+# Blocking call that tries to get a lock. If we exceed the time, we die. 
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a file in the appropiate directory is created and
 # the path to the file is stored in the CXR_INSTANCE_FILE_TEMP_LIST
@@ -1057,10 +1057,7 @@ function common.runner.waitForLock()
 # access where we assume concurrency with a lock.
 #
 # Example:
-# > if [[ $(common.runner.getLock $lock "$CXR_LEVEL_GLOBAL") == false ]]
-# > then
-# > 	main.dieGracefully "Could not get lock $lock"
-# > fi
+# > common.runner.getLock $lock "$CXR_LEVEL_GLOBAL"
 #
 # Parameters:
 # $1 - the name of the lock to get
@@ -1181,8 +1178,7 @@ function common.runner.getLock()
 		
 				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 				then
-					echo false
-					return $CXR_RET_OK
+					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 				fi
 		
 			done # loop if process pid is choosing
@@ -1203,8 +1199,7 @@ function common.runner.getLock()
 		
 				if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 				then
-					echo false
-					return $CXR_RET_OK
+					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 				fi
 			done # "The loop"
 			

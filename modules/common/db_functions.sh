@@ -267,10 +267,7 @@ function common.db.change()
 	statement="$3"
 	
 	# For security reasons, we lock all write accesses to any DB
-	if [[ $(common.runner.getLock "$(basename $db_file)" "$level") == false ]]
-	then
-		main.dieGracefully "Could not get lock on $(basename $db_file)"
-	fi
+	common.runner.getLock "$(basename $db_file)" "$level"
 	
 	# We have our own error handler here
 	set +e

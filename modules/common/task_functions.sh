@@ -693,10 +693,7 @@ function common.task.setNextTask()
 ################################################################################
 {
 	# Acquire lock
-	if [[ $(common.runner.getLock NextTask "$CXR_LEVEL_GLOBAL") == false ]]
-	then
-		main.dieGracefully "Waiting for NextTask lock took too long"
-	fi
+	common.runner.getLock NextTask "$CXR_LEVEL_GLOBAL"
 	
 	local task_count
 	local potential_task_data
@@ -980,10 +977,8 @@ function common.task.Worker()
 				if [[ "$exclusive" == true ]]
 				then
 					# If exclusive, try to get lock
-					if [[ $(common.runner.getLock Exclusive "$CXR_LEVEL_GLOBAL") == false ]]
-					then
-						main.dieGracefully "There seeems to be another exclusive task running that takes too long."
-					fi
+					common.runner.getLock Exclusive "$CXR_LEVEL_GLOBAL"
+					
 				else
 					# If not, just check if it is set 
 					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL"
