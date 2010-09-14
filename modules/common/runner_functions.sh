@@ -878,15 +878,15 @@ function common.runner.removeTempFiles()
 }
 
 ################################################################################
-# Function: common.runner.getLockFile
+# Function: common.runner.getLockLinkName
 #
-# Returns the name of a lockfile to use.
+# Returns the name of a lock-link to use.
 #
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 ################################################################################
-function common.runner.getLockFile()
+function common.runner.getLockLinkName()
 ################################################################################
 {
 	local level
@@ -909,13 +909,10 @@ function common.runner.getLockFile()
 ################################################################################
 # Function: common.runner.waitForLock
 #
-# Waits until a lock is free to be aquired and acquries it if needed.
+# Waits until a lock is free.
 # When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false in _retval
-# If the lock is free, we wait for a random time between 0 and 1 sencond in order to separate 
-# eventual concurrent processes and then may call this fuction again.
-# We do not take any action if the lock is not free, this is up to tho user.
 #
-# Recommended call:
+# Example:
 # > common.runner.waitForLock NextTask "$CXR_LEVEL_GLOBAL"
 # > if [[ $_retval == false ]]
 # > then
@@ -925,8 +922,6 @@ function common.runner.getLockFile()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - an optional boolean (default true) indicating if we want to aquire the lock.
-# [$4] - the time in decimal seconds waited so far (only relevant in the recursion case)
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
@@ -938,24 +933,21 @@ function common.runner.waitForLock()
 
 	local lock
 	local level
-	local lockfile
+	local locklink
 	local time
 	local shown
 
 	lock="$1"
 	level="$2"
-	wanted="${3:-true}"
-	# how long did we wait so far
-	time="${4:-0}"
 	
 	shown=false
 	
-	lockfile="$(common.runner.getLockFile $lock $level)"
+	locklink="$(common.runner.getLockLinkName $lock $level)"
 
 	########################################
 	# We wait until lock is free
 	########################################
-	while [[ -f "$lockfile" ]]
+	while [[ -e "$locklink" ]]
 	do
 		if [[ $shown == false && $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
 		then
@@ -975,45 +967,28 @@ function common.runner.waitForLock()
 		fi
 	done # is lock set?
 	
-	if [[ $wanted == false ]]
-	then
-		_retval=true
-	else
-		# We want to acquire the lock, we need to rule out 
-		# competition
-	
-		# sleep some time between 0.1 and 0.5 seconds
-		sleep $(common.math.RandomNumber 0.1 0.5 5)
-		
-		# There is a slight chance another process was faster
-		if [[ -f "$lockfile" ]]
-		then
-			# Recursive call (retval is set internally)
-			# it will set _retval itself
-			common.runner.waitForLock $lock $level $wanted $time
-		else
-			_retval=true
-		fi
-	fi
+	_retval=true
 }
 
 ################################################################################
 # Function: common.runner.getLock
 #
-# Tries to get a lock. 
+# Tries to get a lock, if we must wait longer than $CXR_MAX_LOCK_TIME, we die.
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a file in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list.
 #
-# The problem is that here, locking is not atomic, so 2 processes could try
-# to get the same lock...
-# TODO: Implement Lamports Bakery algorithm
+# Locking in general is harder than one thinks. We use an operation that generally
+# is atomic on most filesystems (check yours!): symlink.
+# I experimented a bit with Lamports Bakery algoritm, but its not trivial to implement
+# in bash.
+# Refer to <http://stackoverflow.com/questions/218451/locking-nfs-files-in-php> or
+# <http://mywiki.wooledge.org/BashFAQ/045> or 
+# <http://stackoverflow.com/questions/185451/quick-and-dirty-way-to-ensure-only-one-instance-of-a-shell-script-is-running-at-a>
+# for details.
 #
 # Example:
-# > if [[ $(common.runner.getLock $lock "$CXR_LEVEL_GLOBAL") == false ]]
-# > then
-# > 	main.dieGracefully "Could not get lock $lock"
-# > fi
+# > common.runner.getLock SomeLock "$CXR_LEVEL_GLOBAL"
 #
 # Parameters:
 # $1 - the name of the lock to get
@@ -1027,37 +1002,63 @@ function common.runner.getLock()
 		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
+	# We create a symlink to a temporary file.
+	# Since tempfiles are local to an instance, the link will be broken should this process
+	# die. This allows us to detect stale loks.
+	
+	
 	local lock
 	local level
-	local turn
-	local wait_array
-	local arr_string
+	local seconds_waited
+	local shown
+	local sleeptime
 	
 	lock="$1"
 	level="$2"
 	
-	lockfile="$(common.runner.getLockFile "$lock" "$level")"
+	seconds_waited=0
+	shown=false
+	
+	tempfile="$(common.runner.createTempFile lock)"
+	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 
 	# For debug reasons, locking can be turned off.
 	# If there is only one worker and one controller, there is not much point in waiting...
 	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -gt 2 ]]
 	then
 		
-		# Wait for the lock, _retval is false if we exceeded the timeout
-		common.runner.waitForLock "$lock" "$level"
-		
-		if [[ $_retval == false ]]
-		then
-			main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
-		fi
+		while [[ ! ln -s ${tempfile} ${locklink} ]]
+		do
+			
+			# -e is false if the link is broken
+			# in this case we delete the link
+			if [[ ! -e ${locklink} ]]
+			then
+				main.log -w "Removing stale lock ${locklink}..."
+				rm ${locklink}
+			fi
+			
+			
+			# We sleep a random amount of time
+			sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
+			sleep $sleeptime
+			
+			time=$(common.math.FloatOperation "$time + $sleeptime" $CXR_NUM_DIGITS false )
+			
+			if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
+			then
+				main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+			fi
+		done
+
 		
 		# We got the lock 
 		
 		# Save it in the templist
-		echo $lockfile >> $CXR_INSTANCE_FILE_TEMP_LIST
+		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
 		
-		# write our ID into the lockfile
-		echo $CXR_INSTANCE > "$lockfile"
+		# write our ID into the locklink
+		echo $CXR_INSTANCE > "$locklink"
 		
 		main.log -v "Lock $lock (${level}) acquired."
 		
@@ -1069,7 +1070,7 @@ function common.runner.getLock()
 ################################################################################
 # Function: common.runner.releaseLock
 #
-# Releases a lock by deleting the relevant lock file.
+# Releases a lock atomically by a rename and unlink.
 #
 # Recommended call:
 # > common.runner.releaseLock lockname
@@ -1097,9 +1098,9 @@ function common.runner.releaseLock()
 	# The PID is either the workers one or the master PID
 	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
 	
-	lockfile="$(common.runner.getLockFile $lock $level)"
+	locklink="$(common.runner.getLockLinkName $lock $level)"
 	
-	rm -f "$lockfile"
+	rm -f "$locklink"
 	
 	main.log -v "lock $lock released."
 }
@@ -1764,52 +1765,51 @@ function test_module()
 	is $(common.runner.evaluateRule "domain$(common.string.leftPadZero $CXR_IGRID 3)") domain001 "common.runner.evaluateRule with formatting"
 	is $(common.runner.evaluateRule "$(uname -n)") $(uname -n) "common.runner.evaluateRule with uname"
 	
-#	# Test Locking. We simulate the case that many processes want the same lock at the same instant.
-#	# This will not occur (hopefully) and is a pretty difficult situation.
-#	local lock
-#	lock=test
-#	
-#	# save & lower timeout
-#	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-#	CXR_LOCK_TIMEOUT_SEC=10
-#	
-#	# How many processes?
-#	nProcs=5
-#	
-#	# This file saves as a barrier
-#	barrier=$(common.runner.createTempFile lock-barrier)
-#	tmp=$(common.runner.createTempFile awk)
-#	
-#	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
-#	
-#	for iter in $(seq 1 $nProcs)
-#	do
-#	
-#		# These are the proceses that carry out the test
-#		(
-#			# Wait until barrier is gone
-#			while [[ -f $barrier ]]
-#			do
-#				:
-#			done
-#			
-#			# Get an instance lock using PID
-#			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
-#			echo "Process $iter got the lock"
-#			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
-#			echo "Process $iter released the lock"
-#		
-#		) &
-#	
-#	done
-#	
-#	# remove the barrier
-#	rm $barrier
-#	sleep $CXR_LOCK_TIMEOUT_SEC
-#	
-#	
-#	# Restore old settings
-#	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
+	# Test Locking. We simulate the case that many processes want the same lock at the same instant.
+	# This will not occur (hopefully) and is a pretty difficult situation.
+	local lock
+	lock=test
+	
+	# save & lower timeout
+	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
+	CXR_LOCK_TIMEOUT_SEC=10
+	
+	# How many processes?
+	nProcs=5
+	
+	# This file saves as a barrier
+	barrier=$(common.runner.createTempFile lock-barrier)
+	
+	main.log -a "Testing Locking - using a timeout of $CXR_LOCK_TIMEOUT_SEC s."
+	
+	for iter in $(seq 1 $nProcs)
+	do
+	
+		# These are the proceses that carry out the test
+		(
+			# Wait until barrier is gone
+			while [[ -f $barrier ]]
+			do
+				:
+			done
+			
+			# Get an instance lock using PID
+			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
+			echo "Process $iter got the lock"
+			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
+			echo "Process $iter released the lock"
+		
+		) &
+	
+	done
+	
+	# remove the barrier
+	rm $barrier
+	sleep $CXR_LOCK_TIMEOUT_SEC
+	
+	
+	# Restore old settings
+	CXR_LOCK_TIMEOUT_SEC=$oCXR_LOCK_TIMEOUT_SEC
 
 	
 	

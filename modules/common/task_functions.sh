@@ -981,7 +981,7 @@ function common.task.Worker()
 					
 				else
 					# If not, just check if it is set 
-					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL" false
+					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL"
 					
 					if [[ $_retval == false ]]
 					then
