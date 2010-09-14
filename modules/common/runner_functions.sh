@@ -1027,7 +1027,7 @@ function common.runner.getLock()
 	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -gt 2 ]]
 	then
 		
-		while [[ ! ln -s ${tempfile} ${locklink} ]]
+		while ! ln -s ${tempfile} ${locklink} 
 		do
 			
 			# -e is false if the link is broken
