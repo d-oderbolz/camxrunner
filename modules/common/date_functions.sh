@@ -962,7 +962,7 @@ function common.date.WeeksBetween()
 		week=$(common.date.WeekOfYear "$(common.date.JulianToDate $iDay)" true)
 		
 		# Is it a different week (not necessarily larger across years)?
-		if [[ $week -ne $oldweek ]]
+		if [[ "$week" != "$oldweek" ]]
 		then
 			nWeeks=$(( $nWeeks + 1 ))
 		fi
@@ -1033,7 +1033,7 @@ function common.date.MonthsBetween()
 		month=$(common.date.MonthOfYear "$(common.date.JulianToDate $iDay)")
 		
 		# Is it a different month (not necessarily larger across years)?
-		if [[ $month -ne $oldmonth ]]
+		if [[ "$month" != "$oldmonth" ]]
 		then
 			nMonths=$(( $nMonths + 1 ))
 		fi
