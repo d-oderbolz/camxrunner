@@ -1062,7 +1062,7 @@ function common.runner.getLock()
 		main.log -v "Lock $lock (${level}) acquired."
 		
 	else
-		main.log -w "CXR_NO_LOCKING is false, logging is turned off - no lock acquired."
+		main.log -w "CXR_NO_LOCKING is false, or locking id not needed. No lock acqired."
 	fi
 }
 
