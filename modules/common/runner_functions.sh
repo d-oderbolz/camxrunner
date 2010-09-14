@@ -1023,8 +1023,7 @@ function common.runner.getLock()
 	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 
 	# For debug reasons, locking can be turned off.
-	# If there is only one worker and one controller, there is not much point in waiting...
-	if [[ $CXR_NO_LOCKING == false && $(common.runner.countAllPids) -gt 2 ]]
+	if [[ $CXR_NO_LOCKING == false ]]
 	then
 		
 		while ! ln -s ${tempfile} ${locklink} 
@@ -1063,7 +1062,7 @@ function common.runner.getLock()
 		main.log -v "Lock $lock (${level}) acquired."
 		
 	else
-		main.log -w "CXR_NO_LOCKING is false, or locking id not needed. No lock acqired."
+		main.log -w "CXR_NO_LOCKING is true. No lock acquired."
 	fi
 }
 
