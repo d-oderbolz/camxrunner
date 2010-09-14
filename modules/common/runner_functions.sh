@@ -1026,7 +1026,7 @@ function common.runner.getLock()
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
 		
-		while ! ln -s ${tempfile} ${locklink} 
+		while ! ln -s ${tempfile} ${locklink} 2> /dev/null
 		do
 			
 			# -e is false if the link is broken
@@ -1042,9 +1042,9 @@ function common.runner.getLock()
 			sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
 			sleep $sleeptime
 			
-			time=$(common.math.FloatOperation "$time + $sleeptime" $CXR_NUM_DIGITS false )
+			seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS false )
 			
-			if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
+			if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 			then
 				main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
 			fi
