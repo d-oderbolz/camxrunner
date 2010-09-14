@@ -1721,7 +1721,7 @@ function test_module()
 	CXR_LOCK_TIMEOUT_SEC=10
 	
 	# How many processes?
-	nProcs=5
+	nProcs=50
 	
 	# This file saves as a barrier
 	barrier=$(common.runner.createTempFile lock-barrier)
@@ -1742,7 +1742,7 @@ function test_module()
 			# Get an instance lock using PID
 			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
 			echo "Process $iter got the lock"
-			sleep 0.5
+			sleep 0.1
 			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
 			echo "Process $iter released the lock"
 		
