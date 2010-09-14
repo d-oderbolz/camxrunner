@@ -918,9 +918,6 @@ function common.task.Worker()
 	# read pid from file
 	CXR_WORKER_PID=$(cat $tmp)
 	
-	# Store the pid
-	common.runner.createPidFile $CXR_WORKER_PID
-	
 	# Insert this worker
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
@@ -1177,7 +1174,7 @@ function common.task.controller()
 		
 		# Still TODO:
 		# Detect stale locks
-		# Check if all known workers still run (just this machine)
+		# Check if all known workers still run (just this machine), using kill -0
 		
 		# touch the continue file
 		if [[ -e "$CXR_CONTINUE_FILE" ]]

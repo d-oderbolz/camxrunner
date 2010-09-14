@@ -309,9 +309,6 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 # count simulation days
 CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
-# Store my PID
-common.runner.createPidFile ${CXR_PID}
-
 ################################################################################
 # Determine name of model exec                                      ############
 ################################################################################

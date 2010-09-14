@@ -705,59 +705,6 @@ function common.runner.createTempFile()
 }
 
 ################################################################################
-# Function: common.runner.createPidFile
-#
-# Creates a PID file in the PID directory and stores it in the templist.
-#
-# Parameters:
-# $1 - pid without hostname
-################################################################################
-function common.runner.createPidFile()
-################################################################################
-{
-	local pid
-	local filename
-	pid="$1"
-	
-	if [[ ! -d $CXR_PID_DIR ]]
-	then
-		mkdir -p $CXR_PID_DIR
-	fi
-	
-	# This is not elegant at all...
-	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
-	then
-		mkdir -p $(dirname $CXR_INSTANCE_FILE_TEMP_LIST)
-	fi
-		
-	filename=$CXR_PID_DIR/${pid}@${CXR_MACHINE}
-	echo $filename >> $CXR_INSTANCE_FILE_TEMP_LIST
-	
-	touch $filename
-}
-
-################################################################################
-# Function: common.runner.countAllPids
-#
-# Counts all Pids in the PID directory
-#
-# Parameters:
-# $1 - pid without hostname
-################################################################################
-function common.runner.countAllPids()
-################################################################################
-{
-	if [[ ! -d $CXR_PID_DIR ]]
-	then
-		echo 0
-	else
-		count=$(find $CXR_PID_DIR -noleaf -type f | wc -l)
-		echo $count
-	fi
-}
-
-
-################################################################################
 # Function: common.runner.createJobFile
 #
 # A special variety of <common.runner.createTempFile> that sould be used whenever

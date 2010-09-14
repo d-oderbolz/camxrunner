@@ -188,9 +188,8 @@ function common.test.all()
 			extended=false
 		fi
 		
-		# We delete the old instance files and the pids
+		# We delete the old instance files
 		oInstanceDir="$CXR_INSTANCE_DIR"
-		oPidDir="$CXR_PID_DIR"
 		
 		CXR_RUN=${model}-v${version}-test
 		
@@ -205,13 +204,9 @@ function common.test.all()
 		# Because tap-functions uses non-0 returns
 		set +e
 		
-		# Delete old instance dir and PIDs
+		# Delete old instance dir
 		rm -rf "${oInstanceDir}" &>/dev/null
-		rm -f "${oPidDir}/*"
-		
-		# Store my PID
-		common.runner.createPidFile ${CXR_PID}
-		
+
 		# When this is true, we know a test is running
 		CXR_TEST_IN_PROGRESS=true
 		

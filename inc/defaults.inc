@@ -558,10 +558,6 @@ CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_LEVEL_GLOBAL
 # executables (except for the model)
 CXR_JOBFILE_DIR=$CXR_GLOBAL_DIR/jobfiles
 
-# In this directory, we store a file for each controller
-# or worker process (needed for locking)
-CXR_PID_DIR=$CXR_GLOBAL_DIR/pid
-
 ########################################
 # Parallel Task execution. 
 # This is global to all instances
