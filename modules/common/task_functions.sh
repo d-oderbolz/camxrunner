@@ -1113,9 +1113,13 @@ function common.task.spawnWorkers()
 		# Create a worker and send it to background
 		common.task.Worker $iWorker &
 		
-		# Wait a bit to avoid congestion
-		main.log -a "We wait 60 seconds until we launch the next worker to see the memory demand"
-		sleep 60
+		if [[ "$1" -gt 1 ]]
+		then
+			# Wait a bit to avoid congestion
+			main.log -a "We wait 60 seconds until we launch the next worker to see the memory demand"
+			sleep 60
+		fi
+		
 	done
 }
 
