@@ -1046,7 +1046,7 @@ function common.runner.releaseLock()
 	
 	locklink="$(common.runner.getLockLinkName $lock $level)"
 	
-	rm -f "$locklink"
+	rm -f "$locklink" 2> /dev/null
 	
 	main.log -v "lock $lock released."
 }
@@ -1718,10 +1718,10 @@ function test_module()
 	
 	# save & lower timeout
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-	CXR_LOCK_TIMEOUT_SEC=10
+	CXR_LOCK_TIMEOUT_SEC=20
 	
 	# How many processes?
-	nProcs=50
+	nProcs=10
 	
 	# This file saves as a barrier
 	barrier=$(common.runner.createTempFile lock-barrier)
@@ -1742,7 +1742,7 @@ function test_module()
 			# Get an instance lock using PID
 			common.runner.getLock "$lock" "$CXR_LEVEL_INSTANCE" > /dev/null
 			echo "Process $iter got the lock"
-			sleep 0.1
+			sleep 0.5
 			common.runner.releaseLock "$lock" "$CXR_LEVEL_INSTANCE"
 			echo "Process $iter released the lock"
 		
