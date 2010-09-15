@@ -278,8 +278,8 @@ function common.db.change()
 	level="$2"
 	statement="$3"
 	
-	# Before acquiring the writelock, we must wait for any readlocks
-	common.runner.waitForLock "$(basename $db_file)-read" "$level"
+	# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
+	common.runner.waitForLock "$(basename $db_file)-read" "$level" 10
 	
 	if [[ $_retval == false ]]
 	then

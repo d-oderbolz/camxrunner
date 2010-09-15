@@ -863,7 +863,7 @@ function common.runner.getLockLinkName()
 # Function: common.runner.waitForLock
 #
 # Waits until a lock is free.
-# When the lock is not free, we wait up to CXR_MAX_LOCK_TIME seconds, then return false in _retval
+# When the lock is not free, we wait up to $3 or CXR_LOCK_TIMEOUT_SEC seconds, then return false in _retval
 #
 # Example:
 # > common.runner.waitForLock NextTask "$CXR_LEVEL_GLOBAL"
@@ -875,13 +875,14 @@ function common.runner.getLockLinkName()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - max_wait_seconds (default CXR_LOCK_TIMEOUT_SEC)
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 4 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs at least the name of a lock and a level as input, got $*"
+		main.dieGracefully "needs at least the name of a lock and a level as input (optional max_wait_seconds), got $*"
 	fi
 
 	local lock
@@ -889,9 +890,11 @@ function common.runner.waitForLock()
 	local locklink
 	local time
 	local shown
+	local max_wait_seconds
 
 	lock="$1"
 	level="$2"
+	max_wait_seconds="${3:-${CXR_LOCK_TIMEOUT_SEC}}"
 	
 	shown=false
 	
@@ -912,9 +915,9 @@ function common.runner.waitForLock()
 		sleep $CXR_LOCK_SLEEP_SECONDS
 		time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
-		if [[ $(common.math.FloatOperation "$time > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
+		if [[ $(common.math.FloatOperation "$time > $max_wait_seconds" 0 false ) -eq 1 ]]
 		then
-			main.log -w "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+			main.log -w "Lock $lock (${level}) took longer than $max_wait_seconds to get!"
 			_retval=false
 			return $CXR_RET_OK
 		fi
@@ -926,7 +929,7 @@ function common.runner.waitForLock()
 ################################################################################
 # Function: common.runner.getLock
 #
-# Tries to get a lock, if we must wait longer than $CXR_MAX_LOCK_TIME, we die.
+# Tries to get a lock, if we must wait longer than $CXR_LOCK_TIMEOUT_SEC, we die.
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a link in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list.
@@ -999,7 +1002,7 @@ function common.runner.getLock()
 				
 				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
 				then
-					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+					main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
 				fi
 			done
 	
