@@ -273,6 +273,7 @@ function common.performance.getMemUsedPercent()
 		then
 			found=true
 			MemColumn=$iColumn
+			break
 		fi
 		
 		iColumn=$(( $iColumn + 1 ))
