@@ -155,8 +155,8 @@ function common.performance.estimateTotalRuntimeSeconds()
 	local mean
 	local result
 	
-	n_tasks=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")
-	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing;")
+	n_tasks=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")
+	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 	
 	result=$(common.math.FloatOperation "$n_tasks * $mean" -1 false)
 	
@@ -185,17 +185,17 @@ function common.performance.estimateModuleRuntimeSeconds()
 	
 	module=${1}
 	
-	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module' AND machine='$CXR_MACHINE';")
+	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module' AND machine='$CXR_MACHINE';")
 
 	if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
 	then
 		# No data yet, try an average over more
-		mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module';")
+		mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module';")
 		
 		if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
 		then
 			# Still nothing, get avg over all
-			mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_UNIVERSAL_TIMING_DB" "SELECT AVG(elapsed_seconds) FROM timing;")
+			mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 		
 			if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
 			then
@@ -404,7 +404,7 @@ function test_module()
 	
 	# Measured time is in the DB,
 	# we get the row that was added last
-	time=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "SELECT elapsed_seconds FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='test' ORDER BY epoch_m DESC LIMIT 1;" )
+	time=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT elapsed_seconds FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='test' ORDER BY epoch_m DESC LIMIT 1;" )
 
 	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0 false))
 	

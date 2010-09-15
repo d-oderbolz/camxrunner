@@ -79,7 +79,7 @@ function common.module.areDependenciesOk?()
 	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset are done."
 	
 	# If any dependency has failed, we stop the run
-	failedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	failedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t
@@ -98,7 +98,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# Find out if any of the dependencies is disabled and not done
-	disabled_count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	disabled_count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, modules m, tasks t
@@ -126,7 +126,7 @@ function common.module.areDependenciesOk?()
 	fi
 	
 	# If more than 0 tasks are active and non-successful, we return false
-	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT COUNT(*)
 	FROM dependencies d, tasks t, modules m
@@ -202,7 +202,7 @@ function common.module.getNumInvocations()
 function common.module.getPath()
 ################################################################################
 {
-	path=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT path FROM modules WHERE module='$1'")
+	path=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT path FROM modules WHERE module='$1'")
 	echo "$path"
 }
 
@@ -218,7 +218,7 @@ function common.module.getPath()
 function common.module.getType()
 ################################################################################
 {
-	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT type FROM modules WHERE module='$1'")
+	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM modules WHERE module='$1'")
 	echo "$type"
 }
 
@@ -272,7 +272,7 @@ function common.module.isActive?()
 	local count
 
 	# Count entries
-	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules WHERE module='$1'")
+	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules WHERE module='$1'")
 	
 	if [[ $count -eq 1 ]]
 	then

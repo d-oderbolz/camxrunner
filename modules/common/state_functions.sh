@@ -50,7 +50,7 @@ function common.state.isRepeatedRun?()
 {
 	local count
 	
-	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
+	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
 	main.log -v  "Counted $count tasks that where ano longer in status $CXR_STATUS_TODO"
 	
 	if [[ "$count" -gt 0 ]]
@@ -72,7 +72,7 @@ function common.state.getLastDayModelled()
 ################################################################################
 {
 	# Let the database tell it
-	common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT MAX(day_iso) FROM days"
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -87,7 +87,7 @@ function common.state.getFirstDayModelled()
 ################################################################################
 {
 	# Let the database tell it
-	common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT MIN(day_iso) FROM days"
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MIN(day_iso) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -305,13 +305,13 @@ function common.state.updateInfo()
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';"
 		
 		# Check if any module is called the same as a type (not allowed)
-		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
+		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
 		then
 			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
 		fi
 		
 		# Check if a module name or a type looks like a -<n> dependency
-		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT SUM(cnt) FROM (SELECT COUNT(*) AS cnt FROM modules WHERE module GLOB '*-[0-9]'  UNION ALL SELECT COUNT(*) AS cnt FROM types WHERE type GLOB '*-[0-9]')" ) -gt 0 ]]
+		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT SUM(cnt) FROM (SELECT COUNT(*) AS cnt FROM modules WHERE module GLOB '*-[0-9]'  UNION ALL SELECT COUNT(*) AS cnt FROM types WHERE type GLOB '*-[0-9]')" ) -gt 0 ]]
 		then
 			main.dieGracefully "It seems that a type or a module has a name that ends in - followed by a number.\nThis is the syntax of the -<n> predicate for dependencies and not supported for names!"
 		fi
@@ -895,7 +895,7 @@ function common.state.hasFinished?()
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
 	
 	case $status in
 	
@@ -958,7 +958,7 @@ function common.state.hasFailed?()
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
 	
 	case $status in
 	
@@ -1081,7 +1081,7 @@ function common.state.cleanup()
 				then
 					# Module types it is.
 					# We add the value "all" to the result
-					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
@@ -1103,7 +1103,7 @@ function common.state.cleanup()
 					# Module names
 					
 					# We add the value "all" to the result
-					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
@@ -1123,7 +1123,7 @@ function common.state.cleanup()
 				fi
 				
 				# Get all days and add all as above
-				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
+				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
 				
 				oIFS="$IFS"
 				# set IFS to newline that select parses correctly
@@ -1167,7 +1167,7 @@ function common.state.cleanup()
 						where="$where_module AND day_offset=$iOffset"
 					fi
 					
-					common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id FROM tasks WHERE $where"
+					common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 
 					if [[ "$(common.user.getOK "Do you really want to do this?" )" == false ]]
 					then

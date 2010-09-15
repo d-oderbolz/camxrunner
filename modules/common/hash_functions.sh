@@ -298,7 +298,7 @@ function common.hash.get()
 			echo ""
 		else
 			# Read the contents
-			value="$(common.db.getResultSet "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")"
+			value="$(common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")"
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -369,7 +369,7 @@ function common.hash.getAll()
 		# Dummy for the parser
 		:
 		# get the contents
-		common.db.getResultSet "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c ASC"
+		common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c ASC"
 	fi
 }
 
@@ -509,7 +509,7 @@ function common.hash.getValueMtime()
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	# Get the value
-	mtime=$(common.db.getResultSet "$db_file" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
+	mtime=$(common.db.getResultSet "$db_file" "$level" "SELECT epoch_c FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 	
 	echo $mtime
 }
@@ -557,12 +557,12 @@ function common.hash.has?()
 		_has=false
 	else
 		# get the rowcount
-		rowcount=$(common.db.getResultSet "$db_file" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
+		rowcount=$(common.db.getResultSet "$db_file" "$level" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 
 		if [[ $rowcount -gt 0 ]]
 		then
 			# Get the value
-			value=$(common.db.getResultSet "$db_file" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
+			value=$(common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 			
 			# Fill cache
 			CXR_CACHE_H_HASH="$hash"
@@ -678,7 +678,7 @@ function common.hash.getKeys()
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	
 	# get data
-	common.db.getResultSet "$db_file" "SELECT DISTINCT key FROM hash WHERE hash='$hash';"
+	common.db.getResultSet "$db_file" "$level" "SELECT DISTINCT key FROM hash WHERE hash='$hash';"
 }
 
 ################################################################################
@@ -740,7 +740,7 @@ function common.hash.getKeysAndValues()
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
-	common.db.getResultSet "$db_file" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+	common.db.getResultSet "$db_file" "$level" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
 
 }
 

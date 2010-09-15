@@ -675,6 +675,12 @@ function common.runner.createTempFile()
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
+	# Not elegant...
+	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
+	then
+		mkdir -p $(dirname $CXR_INSTANCE_FILE_TEMP_LIST)
+	fi
+	
 	# Check if that worked!
 	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
@@ -1069,12 +1075,12 @@ function common.runner.releaseLock()
 			main.log -v "lock $lock released."
 			
 		else
-			# I need to check $?
+			# We have our own error handler here
 			set +e
 			target=$(dirname ${locklink})/remove-$(basename ${locklink})
 			# We need to reduce the linkcount by 1 "as atomically as possible"
 			# mv is an atomic operation
-			mv "$(ls ${locklink}_* | head -n1)" "$target" 2> /dev/null
+			mv "$(ls ${locklink}_* 2> /dev/null | head -n1)" "$target" 2> /dev/null
 			
 			if [[ $? -ne 0 ]]
 			then

@@ -153,18 +153,20 @@ function common.db.init()
 #
 # Parameters:
 # $1 - full-path to db_file
-# $2 - either a statement, a filename or - indicating input from stdin
-# [$3] - otional separator (default $CXR_DELIMITER)
+# $2 - level of the shared lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $3 - either a statement, a filename or - indicating input from stdin
+# [$4] - otional separator (default $CXR_DELIMITER)
 ################################################################################
 function common.db.getResultSet()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db file and a statement (optional delimiter) as input, got $*"
+		main.dieGracefully "needs a db file, a statement and a level for the share-lock (optional delimiter) as input, got $*"
 	fi
 	
 	local db_file
+	local level
 	local statement
 	local separator
 	
@@ -172,8 +174,10 @@ function common.db.getResultSet()
 	local sqlfile
 	
 	db_file="$1"
-	statement="$2"
-	separator="${3:-$CXR_DELIMITER}"
+	level="$2"
+	statement="$3"
+	
+	separator="${4:-$CXR_DELIMITER}"
 
 	if [[ ! -r $db_file ]]
 	then
@@ -252,7 +256,7 @@ function common.db.getResultSet()
 #
 # Parameters:
 # $1 - full-path to db_file
-# $2 - level of the lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $2 - level of the exclusive lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - either a statement, a filename or - indicating input from stdin
 ################################################################################
 function common.db.change()
@@ -437,21 +441,21 @@ function test_module()
 	#################
 	
 	# Pass SQL statement directly
-	res="$(common.db.getResultSet $db_file "SELECT * FROM test;")"
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "SELECT * FROM test;")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - simple parameter"
 	
-	res="$(common.db.getResultSet $db_file "SELECT * FROM test;" "," )"
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "SELECT * FROM test;" "," )"
 	is "$res" "Hallo,Velo" "common.db.getResultSet - simple parameter, different delimiter"
 	
 	# Use file
-	res="$(common.db.getResultSet $db_file "$sqlfile")"
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "$sqlfile")"
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - file"
 	
-	res="$(common.db.getResultSet $db_file "$sqlfile" "," )"
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "$sqlfile" "," )"
 	is "$res" "Hallo,Velo" "common.db.getResultSet - file, different delimiter"
 	
 	# Use here-doc
-	res="$(common.db.getResultSet $db_file "-" <<-EOT
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "-" <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;
@@ -459,7 +463,7 @@ function test_module()
 	
 	is "$res" "Hallo${CXR_DELIMITER}Velo" "common.db.getResultSet - here-doc"
 	
-	res="$(common.db.getResultSet $db_file "-" "," <<-EOT
+	res="$(common.db.getResultSet $db_file "$CXR_LEVEL_INSTANCE" "-" "," <<-EOT
 	-- This is a simple test-select
 	
 	SELECT * FROM test;

@@ -209,7 +209,7 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Ordering $CXR_TYPE_PREPROCESS_ONCE tasks..."
 	######################################
 
-	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	-- Prepare proper output
 	.output $dep_file
@@ -258,7 +258,7 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Ordering daily tasks. First we create the order for day 0..."
 	######################################
 	
-		common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+		common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	-- Prepare proper output
 	.output $dep_file
@@ -336,7 +336,7 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Ordering $CXR_TYPE_POSTPROCESS_ONCE tasks..."
 	######################################
 	
-	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	-- Prepare proper output
 	.output $dep_file
@@ -415,7 +415,7 @@ function common.task.createParallelDependencyList()
 	# Reset file
 	: > "$output_file"
 	
-	common.db.getResultSet "$CXR_STATE_DB_FILE" - <<-EOT
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	-- Prepare proper output
 	.output $dep_file
@@ -536,7 +536,7 @@ function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -557,7 +557,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -576,7 +576,7 @@ function common.task.countAllWorkers()
 	local worker_count
 	
 	# Find only "RUNNING" entries
-	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers;")"
+	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM workers;")"
 	
 	# Set to 0 if empty
 	if [[ -z "$worker_count" ]]
@@ -601,7 +601,7 @@ function common.task.countRunningWorkers()
 	local worker_count
 	
 	# Find only "RUNNING" entries
-	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}';")"
+	worker_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM workers WHERE STATUS='${CXR_STATUS_RUNNING}';")"
 	
 	# Set to 0 if empty
 	if [[ -z "$worker_count" ]]
@@ -719,7 +719,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# If we find no task, this means that we are done.
 	# This is not an error and we should handle it without dieGracefully
@@ -1055,7 +1055,7 @@ function common.task.Worker()
 				sleep $CXR_WAITING_SLEEP_SECONDS
 				
 				# It's possible that we have been "shot" in the meantime
-				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
 				then
 					# We have done our duty
 					common.task.removeWorker $CXR_WORKER_PID
@@ -1073,7 +1073,7 @@ function common.task.Worker()
 			sleep $CXR_WAITING_SLEEP_SECONDS
 			
 			# It's possible that we have been "shot" in the meantime
-			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
 			then
 				# We have done our duty
 				common.task.removeWorker $CXR_WORKER_PID
@@ -1131,7 +1131,7 @@ function common.task.removeAllWorkers()
 {
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
-	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
+	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
 	do
 		common.task.removeWorker "$pid"
 	done
