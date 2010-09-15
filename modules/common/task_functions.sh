@@ -928,7 +928,7 @@ function common.task.Worker()
 	if [[ -f "$CXR_LOG" && "$CXR_MAX_PARALLEL_PROCS" -gt 1 ]]
 	then
 		# Set pid-dependent logfile to disentangle things
-		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${CXR_WORKER_PID}.log
+		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${CXR_WORKER_ID}_${CXR_WORKER_PID}.log
 		
 		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}"
 	fi
