@@ -1752,10 +1752,10 @@ function test_module()
 	
 	# save & lower timeout
 	oCXR_LOCK_TIMEOUT_SEC=$CXR_LOCK_TIMEOUT_SEC
-	CXR_LOCK_TIMEOUT_SEC=20
+	CXR_LOCK_TIMEOUT_SEC=40
 	
 	# How many processes?
-	nProcs=10
+	nProcs=80
 	
 	# This file saves as a barrier
 	barrier=$(common.runner.createTempFile lock-barrier)
