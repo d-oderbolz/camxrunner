@@ -922,8 +922,9 @@ function common.runner.waitForLock()
 #
 # Tries to get a lock, if we must wait longer than $CXR_MAX_LOCK_TIME, we die.
 # Locks can have three levels (similar to hashes) 
-# If we get the lock, a file in the appropiate directory is created and
+# If we get the lock, a link in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list.
+# Shared locks work a bit different, here we store a lock-count in the file the link points to.
 #
 # Locking in general is harder than one thinks. We use an operation that generally
 # is atomic on most filesystems (check yours!): symlink.
@@ -940,73 +941,87 @@ function common.runner.waitForLock()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
 ################################################################################
 function common.runner.getLock()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level as input"
+		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
 	fi
 	
 	# We create a symlink to a temporary file.
 	# Since tempfiles are local to an instance, the link will be broken should this process
-	# die. This allows us to detect stale loks.
+	# die. This in principle allows us to detect stale locks, but the problem is that
+	# we must do this check atomically! [[ -e $link ]] is not an atomic operation!
 	
 	
 	local lock
 	local level
+	local shared
+	
 	local seconds_waited
 	local shown
 	local sleeptime
 	
 	lock="$1"
 	level="$2"
+	shared="${3:-false}"
 	
 	seconds_waited=0
 	shown=false
 	
 	tempfile="$(common.runner.createTempFile lock)"
 	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
-
-	# For debug reasons, locking can be turned off.
-	if [[ $CXR_NO_LOCKING == false ]]
+	
+	if [[ "$shared" == false ]]
 	then
-		
-		while ! ln -s ${tempfile} ${locklink} 2> /dev/null
-		do
-			
-			# -e is false if the link is broken
-			# in this case we delete the link
-			if [[ ! -e ${locklink} ]]
-			then
-				main.log -w "Removing stale lock ${locklink}..."
-				rm ${locklink}
-			fi
-			
-			
-			# We sleep a random amount of time
-			sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
-			sleep $sleeptime
-			
-			seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS false )
-			
-			if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
-			then
-				main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
-			fi
-		done
+		# Normal, exclusive case
 
+		# For debug reasons, locking can be turned off.
+		if [[ $CXR_NO_LOCKING == false ]]
+		then
+			
+			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
+			do
+				# We sleep a random amount of time
+				sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
+				sleep $sleeptime
+				
+				seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS false )
+				
+				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
+				then
+					main.dieGracefully "Lock $lock (${level}) took longer than CXR_MAX_LOCK_TIME to get!"
+				fi
+			done
+	
+			# We got the lock 
+			
+			# Save it in the templist
+			echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
+			
+			# write our ID into the locklink
+			echo $CXR_INSTANCE > "$locklink"
+			
+			main.log -v "Lock $lock (${level}) acquired."
+		else
 		
-		# We got the lock 
-		
-		# Save it in the templist
-		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
-		
-		# write our ID into the locklink
-		echo $CXR_INSTANCE > "$locklink"
-		
-		main.log -v "Lock $lock (${level}) acquired."
+			# We need a shared lock
+			# we do this by adding a hardlink to a file of known name (the name is the linkname)
+			# The linkcount is then equivalent to the number of processes that hold this lock
+			# There is a potential race condition here, 
+			# but we can afford loosing a readlock
+			if [[ ! -e $locklink ]]
+			then
+				touch $locklink
+			else
+				# Add hardlink
+				ln $locklink ${locklink}_${RANDOM}
+			fi # Does linkfile exist?
+			
+		fi # exclusive?
 		
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock acquired."
@@ -1024,56 +1039,66 @@ function common.runner.getLock()
 # Parameters:
 # $1 - the name of the lock to release
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - optional boolean "shared" (default false), if true, many processes may hold the lock
 ################################################################################
 function common.runner.releaseLock()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
-		main.dieGracefully "needs the name of a lock  and a lock-level as input"
+		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
 	fi
 	
 	local lock
 	local level
-	local numberfile
-	local my_pid
+	local shared
 	
 	lock="$1"
 	level="$2"
+	shared="${3:-false}"
 	
-	# The PID is either the workers one or the master PID
-	my_pid=${CXR_WORKER_PID:-${CXR_PID}}
+	if [[ $CXR_NO_LOCKING == false ]]
+	then
 	
-	locklink="$(common.runner.getLockLinkName $lock $level)"
+		locklink="$(common.runner.getLockLinkName $lock $level)"
 	
-	rm -f "$locklink" 2> /dev/null
-	
-	main.log -v "lock $lock released."
-}
-
-################################################################################
-# Function: common.runner.releaseAllLocks
-#
-# Releases all locks this instance holds by looking at the id in them.
-#
-#
-# Parameters:
-# None.
-################################################################################
-function common.runner.releaseAllLocks()
-################################################################################
-{
-	local dirs
-	local dir
-	
-	dirs="$CXR_INSTANCE_DIR $CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR"
-	
-	# Find all lock files that contain my PID and delete them
-	for dir in $dirs
-	do
-		# Do this on all 3 levels
-		find $dir -noleaf -name '*.lock' -exec grep -l $CXR_INSTANCE {} \; 2>/dev/null | xargs rm -f
-	done
+		if [[ "$shared" == false ]]
+		then
+			# Normal, exclusive case
+			rm -f "$locklink" 2> /dev/null
+			main.log -v "lock $lock released."
+			
+		else
+			# I need to check $?
+			set +e
+			target=$(dirname ${locklink})/remove-$(basename ${locklink})
+			# We need to reduce the linkcount by 1 "as atomically as possible"
+			# mv is an atomic operation
+			mv "$(ls ${locklink}_* | head -n1)" "$target" 2> /dev/null
+			
+			if [[ $? -ne 0 ]]
+			then
+				# Move of haldlink failed, we can assume that there are no links left
+				rm -f "${locklink}"
+			fi
+			
+			if [[ -e "$target" ]]
+			then
+				rm -f "$target" 
+			fi
+			
+			#Turn strict checks back on unles we are testing
+			if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
+			then
+				set -e
+			fi
+		
+		fi # exclusive?
+		
+		
+	else
+		main.log -w "CXR_NO_LOCKING is true. No lock released."
+	fi
 }
 
 ################################################################################

@@ -148,6 +148,8 @@ function common.db.init()
 #
 # Function that returns a resultset on stdout. 
 # Do not use this function to alter the database - we aquire no writelock!
+# However, we do aquire a readlock, which prevents writers from getting a writelock.
+# 
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -182,6 +184,9 @@ function common.db.getResultSet()
 	# We have our own error handler here
 	set +e
 	
+	# Acquire shared lock
+	common.runner.getLock "$(basename $db_file)-read" "$level" true
+	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
@@ -197,7 +202,7 @@ function common.db.getResultSet()
 		
 		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
-		
+
 		if [[ $? -ne 0 ]]
 		then
 			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
@@ -225,6 +230,9 @@ function common.db.getResultSet()
 		fi
 		
 	fi
+	
+	# Release Lock
+	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
@@ -266,8 +274,16 @@ function common.db.change()
 	level="$2"
 	statement="$3"
 	
+	# Before acquiring the writelock, we must wait for any readlocks
+	common.runner.waitForLock "$(basename $db_file)-read" "$level"
+	
+	if [[ $_retval == false ]]
+	then
+		main.log -w "There are still shared locks on the file $db_file. We are going in anyway"
+	fi
+	
 	# For security reasons, we lock all write accesses to any DB
-	common.runner.getLock "$(basename $db_file)" "$level"
+	common.runner.getLock "$(basename $db_file)-write" "$level"
 	
 	# We have our own error handler here
 	set +e
@@ -320,7 +336,7 @@ function common.db.change()
 	fi
 	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)" "$level"
+	common.runner.releaseLock "$(basename $db_file)-write" "$level"
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
