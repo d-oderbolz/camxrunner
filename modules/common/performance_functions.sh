@@ -343,7 +343,7 @@ function common.performance.getSystemLoadPercent()
 ################################################################################
 # Function: common.performance.getReaLoadPercent
 #
-# A performance metrich that takes both Memory and CPU into account.
+# A performance metric that takes both Memory and CPU into account.
 # We calculate the length of the vector determined by memory and CPU use.
 # This metrich could be extended by an arbitrary number of metrics :-)
 #
