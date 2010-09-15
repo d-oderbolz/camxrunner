@@ -260,6 +260,7 @@ function common.performance.getMemUsedPercent()
 	local iColumn
 	local MemColumn
 	local found
+	local used
 	
 	usedPercent=0
 	iColumn=1
@@ -283,7 +284,7 @@ function common.performance.getMemUsedPercent()
 	then
 		# The first 7 lines are header
 		for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
-		#                                                    ^ Espace awk $ for shell
+		#                                                    ^ Escape awk $ for shell
 		do
 			usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
 		done

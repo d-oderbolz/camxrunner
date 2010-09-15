@@ -943,7 +943,7 @@ function common.task.Worker()
 		common.task.waitingWorker $CXR_WORKER_PID
 		
 		# Is there enough free memory?
-		if [[ "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
+		if [[ "$CXR_CHECK_MEMORY_USAGE" == true && "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
 		then
 			# Enough Memory
 			
