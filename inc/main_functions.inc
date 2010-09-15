@@ -128,7 +128,7 @@ function main.addError()
 
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
-	if [[ ! -d ${CXR_STATE_DIR:-}  ]]
+	if [[ "${CXR_STATE_DIR:-}" && ! -d ${CXR_STATE_DIR:-} ]]
 	then
 		mkdir -p ${CXR_STATE_DIR}
 	fi
