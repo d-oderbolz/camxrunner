@@ -129,7 +129,7 @@ function common.db.init()
 			
 			for db_file in $dbs
 			do
-				main.log -v "Housekeeping on DB $db..."
+				main.log -v "Housekeeping on DB ${db_file}..."
 				
 				common.runner.getLock "$(basename $db_file)-write" "$level"
 				
