@@ -235,6 +235,8 @@ function common.db.getResultSet()
 	
 		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 		retval=$?
+		
+		bzip2 ${stracefile}
 	else
 		# no trace
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
@@ -246,7 +248,7 @@ function common.db.getResultSet()
 	# Release Lock
 	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
 	
-	bzip2 ${stracefile}
+	
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
@@ -351,6 +353,8 @@ function common.db.change()
 	
 		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 		retval=$?
+		
+		bzip2 ${stracefile}
 	else
 		# no trace
 		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
