@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=21
+CXR_META_MODULE_NUM_TESTS=23
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some math functions for the CAMxRunner, mostly to add floating point features to bash"
@@ -60,7 +60,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Parameters:
 # $1 - an expression
 # $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
-# $3 - an optional boolean parameter indicating if a trailing decimal should be added (default: true)
+# $3 - an optional boolean parameter indicating if a trailing decimal point should be added (default: true)
 ################################################################################
 function common.math.FloatOperation()
 ################################################################################
@@ -92,8 +92,14 @@ function common.math.FloatOperation()
 	
 	if [[ "$resolution" -eq -1 ]]
 	then
-		# Chop off the decimals
+		# Chop off the decimals and dot (might result in the empty string!)
 		result=${result%%\.*}
+		
+		if [[ -z "$result" ]]
+		then
+			result=0
+		fi
+		
 	fi
 	
 	# The scale function counts digits after the decimal point
@@ -350,6 +356,8 @@ function test_module()
 	is "$(common.math.FloatOperation "5" )"  5. "common.math.FloatOperation 5 (trailing .)"
 	is "$(common.math.FloatOperation "5" "" false )"  5 "common.math.FloatOperation 5 false (no trailing .)"
 	is "$(common.math.FloatOperation "0.0000224784 * 300000" -1 false)" 6 "common.math.FloatOperation Truncation"
+	is "$(common.math.FloatOperation ".01 + 0.2" -1 false)" 0 "common.math.FloatOperation Truncation to 0"
+	is "$(common.math.FloatOperation ".01 + 0.2" -1)" "0." "common.math.FloatOperation Truncation to 0 with dp"
 
 	is "$(common.math.sumVector "1 -1 1")" 1 "common.math.sumVector - alternating signs"
 	is "$(common.math.sumVector "10.4" 1)" 10.4 "common.math.sumVector - single fp"
