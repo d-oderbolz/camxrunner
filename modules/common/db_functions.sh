@@ -217,8 +217,11 @@ function common.db.getResultSet()
 		cat "$statement" >> "$sqlfile"
 	else
 		# Add string to file the string
-		echo "$statement" >> "$sqlfile"
+		echo "${statement} ;" >> "$sqlfile"
 	fi # type-of-statement
+	
+	# add ; in case it was forgotten
+	echo ";" >> "$sqlfile"
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
@@ -228,7 +231,7 @@ function common.db.getResultSet()
 	# We have our own error handler here
 	set +e
 	
-	strace -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+	strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 	retval=$?
 	
 	# Release Lock
@@ -318,6 +321,9 @@ function common.db.change()
 		# Add string to file the string
 		echo "$statement" >> "$sqlfile"
 	fi # type-of-statement
+	
+	# add ; in case it was forgotten
+	echo ";" >> "$sqlfile"
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
