@@ -153,44 +153,6 @@ function common.module.areDependenciesOk?()
 }
 
 ################################################################################
-# Function: common.module.getNumInvocations
-# 
-# For a given module name, returns the value of getNumInvocations
-# Caveat: This function modifies the environment - always call like this:
-# > b=$(common.module.getNumInvocations "$module")
-# The $() construct opens a subshell.
-#
-# Parameters:
-# $1 - name of a module
-################################################################################
-function common.module.getNumInvocations()
-################################################################################
-{
-	local module
-	local numInvocations
-	
-	module="$1"
-	
-	module_path="$(common.module.getPath "$module")"
-	
-	# Before sourcing, set this Meta var
-	CXR_META_MODULE_NAME=$module
-	
-	# source module
-	source "$module_path"
-	
-	if [[ $? -ne 0 ]]
-	then
-		main.dieGracefully "could not source $module ($module_path)"
-	fi
-	
-	# Call the function
-	numInvocations=$(getNumInvocations)
-	
-	echo $numInvocations
-}
-
-################################################################################
 # Function: common.module.getPath
 # 
 # For a given module name, returns the whole path of its file out of the state DB.

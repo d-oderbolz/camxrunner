@@ -70,8 +70,34 @@ CXR_META_MODULE_VERSION='$Id$'
 function getNumInvocations()
 ################################################################################
 {
-	# we depend totally on AHOMAP
-	common.module.getNumInvocations "albedo_haze_ozone"
+	# This depends on the interval
+	case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
+	
+		once )
+			# Just once
+			echo 1
+			;;
+			
+		daily )
+			# One for each day
+			echo $CXR_NUMBER_OF_SIM_DAYS
+			;;
+			
+		weekly )
+			# One for each unique week
+			common.date.WeeksBetween $CXR_START_DATE $CXR_STOP_DATE
+			;;
+			
+		
+		monthly )
+			# One for each unique week
+			common.date.MonthsBetween $CXR_START_DATE $CXR_STOP_DATE
+			;;
+	
+		*)
+			main.dieGracefully "Unknown interval for TUV in variable CXR_RUN_AHOMAP_TUV_INTERVAL, we suport once,daily,weekly or monthly! Exiting." 
+			;;
+	esac
 }
 
 ################################################################################
