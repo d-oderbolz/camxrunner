@@ -63,16 +63,16 @@ function common.state.isRepeatedRun?()
 }
 
 ################################################################################
-# Function: common.state.getLastDayModelled
+# Function: common.state.getLastDayOffsetModelled
 #
-# Returns the last day known in the state DB
+# Returns the last day_offset known in the state DB
 # 
 ################################################################################
-function common.state.getLastDayModelled()
+function common.state.getLastDayOffsetModelled()
 ################################################################################
 {
 	# Let the database tell it
-	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_iso) FROM days"
+	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM days"
 	
 	return $CXR_RET_OK
 }
@@ -80,7 +80,7 @@ function common.state.getLastDayModelled()
 ################################################################################
 # Function: common.state.getFirstDayModelled
 #
-# Returns the first day known in the database
+# Returns the first day (ISO) known in the database
 # 
 ################################################################################
 function common.state.getFirstDayModelled()
@@ -144,6 +144,9 @@ function common.state.updateInfo()
 	local dependency
 	local dep_arr
 	local iDependency
+	local longer
+	
+	longer=false
 	
 	# Only update info if we are not a slave
 	if [[	${CXR_ALLOW_MULTIPLE} == true && \
@@ -336,18 +339,27 @@ function common.state.updateInfo()
 			then
 				if [[ "$first" != ${CXR_START_DATE} ]]
 				then
-					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option!"
+					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option or create a new run!"
 				fi
 			fi
 			
-			last="$(common.state.getLastDayModelled)"
+			last="$(common.state.getLastDayOffsetModelled)"
 			
 			# last could be empty
 			if [[ "$last" ]]
 			then
-				if [[ "$last" != ${CXR_STOP_DATE} ]]
+				if [[ ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
 				then
-					main.log "It seems that the number of simulation days changed since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+					main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+					longer=true
+					
+					# we need to safe the IDs of all tasks that have status then CXR_STATUS_SUCCESS
+					success_file=$(common.createTempFile sql-success)
+					
+					# we build our SQL statements
+					# Don't get confused, '' is an escaped ' (see <http://sqlite.org/lang_expr.html>)
+					common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT 'UPDATE tasks SET status=''$CXR_STATUS_SUCCESS'' WHERE id=''' || id || '''' || ';' FROM tasks WHERE status='$CXR_STATUS_SUCCESS';" > $success_file
+
 				fi
 			fi
 		fi # repeated run?
@@ -383,9 +395,9 @@ function common.state.updateInfo()
 			done
 		fi # Handle single days
 		
-		if [[ $(common.state.isRepeatedRun?) == false ]]
+		if [[ $longer == true || $(common.state.isRepeatedRun?) == false ]]
 		then
-			# Only build tasks if its a new run
+			# Only build all tasks if its a new run
 			main.log -v "Building tasks and dependencies..."
 			
 			# Basically this product:
@@ -576,6 +588,12 @@ function common.state.updateInfo()
 							AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ; -- remove the -n at the end 
 			EOT
 			
+			# resurrect old success data if needed
+			if [[ $longer == true ]]
+			then
+				common.db.change "$CXR_STATE_DB_FILE" $success_file
+			fi
+			
 		else
 			main.log -a "We do not replace existing task data. You can do this manually by running the -c option."
 		fi
@@ -584,7 +602,8 @@ function common.state.updateInfo()
 		
 		# decrease global indent level
 		main.decreaseLogIndent
-	fi
+		
+	fi # repeated or prolonged run?
 }
 
 ################################################################################
