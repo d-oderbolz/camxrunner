@@ -250,7 +250,8 @@ function common.performance.reportEta()
 ################################################################################
 # Function: common.performance.getMemUsedPercent
 #
-# Estimates the percentage of used memory from the output of top.
+# Estimates the percentage of used memory from the output of top by sampling
+# CXR_CHECK_MEMORY_SAMPLES times
 #
 ################################################################################
 function common.performance.getMemUsedPercent()
@@ -265,6 +266,12 @@ function common.performance.getMemUsedPercent()
 	usedPercent=0
 	iColumn=1
 	found=false
+	
+	if [[ $CXR_CHECK_MEMORY_SAMPLES -lt 1 ]]
+	then
+		main.log -w "CXR_CHECK_MEMORY_SAMPLES has an invalid value of $CXR_CHECK_MEMORY_SAMPLES. Using 1"
+		CXR_CHECK_MEMORY_SAMPLES=1
+	fi
 	
 	headers=$(top -b -n1 | head -n7 | tail -n1)
 	for item in $headers
@@ -283,11 +290,14 @@ function common.performance.getMemUsedPercent()
 	if [[ $found == true ]]
 	then
 		# The first 7 lines are header
-		for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
-		#                                                    ^ Escape awk $ for shell
+		for used in $(top -b -n$CXR_CHECK_MEMORY_SAMPLES | sed '1,7d' | awk "{ print \$$MemColumn }")
+		#                                                                            ^ Escape awk $ for shell
 		do
-			usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 0)"
+			usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 false)"
 		done
+		
+		# Divide by sample size
+		usedPercent="$(common.math.FloatOperation "$usedPercent / $CXR_CHECK_MEMORY_SAMPLES" 1 false)"
 		
 		main.log -v "Currently $usedPercent % of memory are in use"
 		
@@ -311,7 +321,7 @@ function common.performance.getMemFreePercent()
 	local usedPercent
 	
 	usedPercent=$(common.performance.getMemUsedPercent)
-	free="$(common.math.FloatOperation "100 - $usedPercent" -1 0)"
+	free="$(common.math.FloatOperation "100 - $usedPercent" -1 false)"
 	
 	main.log -v "Found $free % free memory"
 	

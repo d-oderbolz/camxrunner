@@ -214,7 +214,10 @@ CXR_LOAD_WARN_THRESHOLD=80
 CXR_LOAD_EXIT_THRESHOLD=90
 
 # If this is true, we check memory availability
-CXR_CHECK_MEMORY_USAGE=tre
+CXR_CHECK_MEMORY_USAGE=true
+
+# How many times do we sample (each sample takes 1 second)
+CXR_CHECK_MEMORY_SAMPLES=3
 
 # Percentage of Memory that should be free upon starting a new task
 CXR_MEM_FREE_PERCENT=20

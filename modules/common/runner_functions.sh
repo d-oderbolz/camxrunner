@@ -932,7 +932,7 @@ function common.runner.waitForLock()
 # Tries to get a lock, if we must wait longer than $CXR_LOCK_TIMEOUT_SEC, we die.
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a link in the appropiate directory is created and
-# the path to the file is stored in the Tempfile list.
+# the path to the file is stored in the Tempfile list. (Thanks to Stefan Tramm for the symlink idea)
 # Shared locks work a bit different, here we store a lock-count in the file the link points to.
 #
 # Locking in general is harder than one thinks. We use an operation that generally
