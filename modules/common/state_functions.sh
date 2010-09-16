@@ -128,6 +128,7 @@ function common.state.updateInfo()
 	# Increase global indent level
 	main.increaseLogIndent
 	
+	local sqlfile
 	local iIteration
 	local dirs
 	local dir
@@ -219,6 +220,14 @@ function common.state.updateInfo()
 			
 			main.log -v "Adding $type modules..."
 			
+			# For performance reasons we collect all SQL change statements in a file and
+			# execute it later
+			
+			sqlfile=$(common.runner.createTempFile sql-updateInfo)
+			
+			# We let the DB do all in one TRX
+			echo "BEGIN TRANSACTION;" > $sqlfile
+			
 			if [[ -d "$dir" ]]
 			then
 				# Find all *.sh files in this dir (no descent!)
@@ -248,7 +257,7 @@ function common.state.updateInfo()
 					
 					# We mark needed stuff as active, the rest as inactive
 					# Add $file, $module and $type to DB
-					common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it')"
+					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
 
 					# Add metadata
 					# grep the CXR_META_ vars that are not commented out
@@ -279,14 +288,14 @@ function common.state.updateInfo()
 							# Make sure IFS is correct!
 							for dependency in $value
 							do
-								common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency')"
+								echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency');" >> $sqlfile
 							done
 						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
 						then
-							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE modules SET exclusive=trim('$value') WHERE module='$module'"
+							echo "UPDATE modules SET exclusive=trim('$value') WHERE module='$module';" >> $sqlfile
 						else
 							# Nothing special
-							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value')"
+							echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value');" >> $sqlfile
 						fi # is it a special meta field
 					done
 					
@@ -295,7 +304,7 @@ function common.state.updateInfo()
 					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
-						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation')"
+						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
 					done
 
 				done # Loop over files
@@ -305,7 +314,16 @@ function common.state.updateInfo()
 		done # loop over type-index
 		
 		# Adding any new module types
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';"
+		echo "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';" >> $sqlfile
+		
+		main.log -v "Removing any traces of running/failed tasks..."
+		echo "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');" >> $sqlfile
+		
+		# Mark end of TRX
+		echo "COMMIT TRANSACTION;" >> $sqlfile
+		
+		# Execute the file
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
 		
 		# Check if any module is called the same as a type (not allowed)
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
@@ -318,10 +336,6 @@ function common.state.updateInfo()
 		then
 			main.dieGracefully "It seems that a type or a module has a name that ends in - followed by a number.\nThis is the syntax of the -<n> predicate for dependencies and not supported for names!"
 		fi
-		
-		
-		main.log -v "Removing any traces of running/failed tasks..."
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');"
 		
 		main.log -v "Adding information about simulation days..."
 		
@@ -364,18 +378,21 @@ function common.state.updateInfo()
 			fi
 		fi # repeated run?
 		
+		# We let the DB do all in one new TRX
+		echo "BEGIN TRANSACTION;" > $sqlfile
+		
 		# Replace the days
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM days"
+		echo "DELETE FROM days;" >> $sqlfile
 		
 		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
 		do
-			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true')"
+			echo  "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true');" >> $sqlfile
 		done
 		
 		# Correct active if user selected only some days
 		if [[ "$CXR_SINGLE_DAYS" ]]
 		then
-			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='false'"
+			echo  "UPDATE days SET active='false';" >> $sqlfile
 			
 			# Only activate the wanted ones
 			for wanted in $CXR_SINGLE_DAYS
@@ -386,7 +403,7 @@ function common.state.updateInfo()
 				then
 					# OK
 					main.log -a $wanted
-					common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='true' WHERE day_iso='$wanted'"
+					echo "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='true' WHERE day_iso='$wanted';" >> $sqlfile
 				else
 					# Mep
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
@@ -394,6 +411,12 @@ function common.state.updateInfo()
 			
 			done
 		fi # Handle single days
+		
+		# Mark end of TRX
+		echo "COMMIT TRANSACTION;" >> $sqlfile
+		
+		# Execute the file
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
 		
 		if [[ $longer == true || $(common.state.isRepeatedRun?) == false ]]
 		then
