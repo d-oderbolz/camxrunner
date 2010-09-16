@@ -547,7 +547,6 @@ function common.state.updateInfo()
 											metadata meta
 							WHERE		dependent.module = meta.module
 							AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
-							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON';
