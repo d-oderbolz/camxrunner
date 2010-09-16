@@ -364,7 +364,7 @@ function common.state.updateInfo()
 					longer=true
 					
 					# we need to safe the IDs of all tasks that have status then CXR_STATUS_SUCCESS
-					success_file=$(common.createTempFile sql-success)
+					success_file=$(common.runner.createTempFile sql-success)
 					
 					# we build our SQL statements
 					# Don't get confused, '' is an escaped ' (see <http://sqlite.org/lang_expr.html>)

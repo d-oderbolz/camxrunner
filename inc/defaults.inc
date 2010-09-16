@@ -543,7 +543,7 @@ CXR_LEVEL_GLOBAL=global
 CXR_LEVEL_INSTANCE=instance
 
 # If this is true, we trace all DB calls (slow!)
-CXR_STRACE_DB=true
+CXR_STRACE_DB=false
 
 
 # Suffix for sqlite files
