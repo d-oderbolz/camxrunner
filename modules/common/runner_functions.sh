@@ -635,7 +635,8 @@ function common.runner.createDummyFile()
 	# Create file
 	if [[ ! -f "$filename" ]]
 	then
-		dd bs=${size}M if=/dev/zero of=$filename count=1
+		# we turn output off
+		dd bs=${size}M if=/dev/zero of=$filename count=1 &>/dev/null
 	fi
 	
 	# Store Dummy file in the file hash (dummy value)
