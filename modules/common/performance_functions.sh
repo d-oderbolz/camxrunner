@@ -81,15 +81,15 @@ function common.performance.startTiming()
 function common.performance.stopTiming()
 ################################################################################
 {
+	# Get the current epoch
+	stop_time="$(date "+%s")"
+	
 	local module
 	local time_norm
 	local start_time
 	local stop_time
 
 	module=${1}
-	
-	# Get the current epoch
-	stop_time="$(date "+%s")"
 	
 	var=CXR_TEMP_START_TIME_${module}
 	
@@ -262,6 +262,7 @@ function common.performance.getMemUsedPercent()
 	local MemColumn
 	local found
 	local used
+	local iIter
 	
 	usedPercent=0
 	iColumn=1
@@ -289,12 +290,25 @@ function common.performance.getMemUsedPercent()
 	
 	if [[ $found == true ]]
 	then
-		# The first 7 lines are header
-		for used in $(top -b -n$CXR_CHECK_MEMORY_SAMPLES | sed '1,7d' | awk "{ print \$$MemColumn }")
-		#                                                                            ^ Escape awk $ for shell
+		# Sample
+		for iIter in $(seq 1 $CXR_CHECK_MEMORY_SAMPLES)
 		do
-			usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 false)"
-		done
+			# The first 7 lines are header
+			for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
+			#                                                                            ^ Escape awk $ for shell
+			do
+				if [[ "$(main.isNumeric $used)" == true ]]
+				then
+					usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 false)"
+				else
+					main.log -w "Non-numerig output of top: $used"
+				fi
+			done
+			
+			# We wait 1 second before resampling
+			sleep 1
+		
+		done # Iterate over samples
 		
 		# Divide by sample size
 		usedPercent="$(common.math.FloatOperation "$usedPercent / $CXR_CHECK_MEMORY_SAMPLES" 1 false)"
