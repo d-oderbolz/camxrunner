@@ -433,7 +433,7 @@ function common.task.createParallelDependencyList()
 	AND   m.active='true';
 
 	------------------------------------
-	-- Then add all the dependencies
+	-- Then add all the dependencies. 
 	------------------------------------
 	
 	SELECT di.day_iso || '@' || independent_module,

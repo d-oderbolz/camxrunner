@@ -478,6 +478,8 @@ function common.state.updateInfo()
 			-- It is important to understand that dependencies are
 			-- NOT on invocation and therefore task level. Dependencies exist
 			-- between tuples of (module,day_offset).
+			-- Make sure that if a daiy module depends on a non-daily that it is 
+			-- replicated!
 			--------------------------------------------------------------------
 			
 			--
@@ -497,7 +499,6 @@ function common.state.updateInfo()
 											metadata meta
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
-							AND			independent.day_offset = dependent.day_offset
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
