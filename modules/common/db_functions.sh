@@ -62,7 +62,7 @@ function common.db.init()
 	local dir
 	local iDir
 	local dbs
-	local db
+	local db_file
 	local level
 	
 	
@@ -127,14 +127,14 @@ function common.db.init()
 		then
 			dbs="$(find $dir -noleaf -maxdepth 1 -name '*.sqlite')"
 			
-			for db in $dbs
+			for db_file in $dbs
 			do
 				main.log -v "Housekeeping on DB $db..."
 				
 				common.runner.getLock "$(basename $db_file)-write" "$level"
 				
 				# Do some basic maintenance
-				${CXR_SQLITE_EXEC} $db <<-EOT
+				${CXR_SQLITE_EXEC} $db_file <<-EOT
 				
 				-- Get exclusive access
 				PRAGMA main.locking_mode=EXCLUSIVE; 
@@ -150,7 +150,7 @@ function common.db.init()
 				# Relase Lock
 				common.runner.releaseLock "$(basename $db_file)-write" "$level"
 				
-			done # db-files
+			done # db_files
 			
 		fi # does dir exist?
 		
