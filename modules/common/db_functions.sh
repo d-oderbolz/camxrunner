@@ -193,11 +193,6 @@ function common.db.getResultSet()
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
 	
-	# Temporarily, we observe all calls to sqlite
-	stracefile="$(common.runner.createJobFile sql-strace)"
-	
-	main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
-	
 	# Add pragma
 	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
 	
@@ -231,7 +226,21 @@ function common.db.getResultSet()
 	# We have our own error handler here
 	set +e
 	
-	strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+	if [[ "$CXR_STRACE_DB" == true ]]
+	then
+		# Temporarily, we observe all calls to sqlite
+		stracefile="$(common.runner.createJobFile sql-strace)"
+	
+		main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
+	
+		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+		retval=$?
+	else
+		# no trace
+		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+		retval=$?
+	fi
+	
 	retval=$?
 	
 	# Release Lock
@@ -333,8 +342,20 @@ function common.db.change()
 	# We have our own error handler here
 	set +e
 	
-	${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
-	retval=$?
+	if [[ "$CXR_STRACE_DB" == true ]]
+	then
+		# Temporarily, we observe all calls to sqlite
+		stracefile="$(common.runner.createJobFile sql-strace)"
+	
+		main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
+	
+		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+		retval=$?
+	else
+		# no trace
+		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+		retval=$?
+	fi
 	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)-write" "$level"
