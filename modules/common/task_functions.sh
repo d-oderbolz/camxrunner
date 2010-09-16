@@ -1041,7 +1041,7 @@ function common.task.Worker()
 				common.performance.stopTiming $CXR_META_MODULE_NAME
 				
 				#Release resources if needed
-				if [[ "$_exclusive" == true ]]
+				if [[ "$exclusive" == true ]]
 				then
 					main.log  "Activating the assignment of new tasks again."
 					common.runner.releaseLock Exclusive "$CXR_LEVEL_GLOBAL"

@@ -156,16 +156,7 @@ function common.state.updateInfo()
 		# We are in a non-master multiple runner
 		main.log -a -b "This is a slave process - we will not collect new information"
 	else
-		
-		main.log -a "Cleaning Non-Persistent tables..."
-		
-
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
-		
-			DELETE FROM modules;
-			DELETE FROM metadata;
-		
-		EOT
+		# we are alone
 		
 		# Create a few working arrays we will go through
 		types=($CXR_TYPE_PREPROCESS_ONCE \
@@ -220,7 +211,7 @@ function common.state.updateInfo()
 			
 			main.log -v "Adding $type modules..."
 			
-			# For performance reasons we collect all SQL change statements in a file and
+			# For performance reasons, we collect all SQL change statements in a file and
 			# execute it later
 			
 			sqlfile=$(common.runner.createTempFile sql-updateInfo)
@@ -228,6 +219,11 @@ function common.state.updateInfo()
 			# We let the DB do all in one TRX
 			echo "BEGIN TRANSACTION;" > $sqlfile
 			
+			main.log -a "Cleaning Non-Persistent tables..."
+		
+			echo "DELETE FROM modules;" >> $sqlfile
+			echo "DELETE FROM metadata;" >> $sqlfile
+
 			if [[ -d "$dir" ]]
 			then
 				# Find all *.sh files in this dir (no descent!)
