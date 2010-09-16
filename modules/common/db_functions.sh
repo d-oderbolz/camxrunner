@@ -225,7 +225,8 @@ function common.db.getResultSet()
 	
 	# We have our own error handler here
 	set +e
-	
+	set -x
+
 	if [[ "$CXR_STRACE_DB" == true ]]
 	then
 		# Temporarily, we observe all calls to sqlite
@@ -241,7 +242,7 @@ function common.db.getResultSet()
 		# no trace
 		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 		retval=$?
-	fi
+	fi # strace?
 	
 	retval=$?
 	
@@ -249,7 +250,7 @@ function common.db.getResultSet()
 	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
 	
 	
-	
+	set +x
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
@@ -359,7 +360,7 @@ function common.db.change()
 		# no trace
 		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
 		retval=$?
-	fi
+	fi # strace?
 	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)-write" "$level"
