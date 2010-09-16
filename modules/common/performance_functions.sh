@@ -85,6 +85,7 @@ function common.performance.stopTiming()
 	local time_norm
 	local start_time
 	local stop_time
+	local load
 	
 	# Get the current epoch
 	stop_time="$(date "+%s")"
@@ -110,6 +111,18 @@ function common.performance.stopTiming()
 			main.log -v "Normalized difference $time_norm is small. That might be a hint that CXR_TIME_PER_CELLS ($CXR_TIME_PER_CELLS) is too small"
 		fi
 		
+		# Get current load
+		set -xv 
+		
+		load="$(common.performance.getReaLoadPercent)"
+		
+		set +xv
+		
+		if [[ -z "$load" ]]
+		then
+			load=0
+		fi
+		
 		# Store data
 		common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" - <<-EOT
 		
@@ -127,7 +140,7 @@ function common.performance.stopTiming()
 														'$module',
 														'$CXR_TIME_PER_CELLS',
 														'$CXR_MACHINE',
-														$(common.performance.getReaLoadPercent),
+														$load,
 														$time_norm,
 														$(date "+%s")
 													);
