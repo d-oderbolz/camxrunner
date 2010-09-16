@@ -194,7 +194,7 @@ function create_emissions()
 			#	bionly=2 : calculate only biogenic Emissions, use existing anthropogenic for the current weekday - we use this after offset 6
 			if [[ "${CXR_DAY_OFFSET}" -gt 6 ]]
 			then
-				main.log -a "We already have 7 days worth of emission data, anthropoginc data will be taken corresponding to tho current weekday..."
+				main.log -a "We already have 7 days worth of emission data, anthropoginc data will be taken corresponding to the current weekday..."
 				bionly=2
 			else
 				main.log -a "We have less than 7 days worth of emission data, will calculate anthropogenic data..."

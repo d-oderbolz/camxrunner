@@ -985,13 +985,13 @@ function common.runner.getLock()
 	tempfile="$(common.runner.createTempFile lock)"
 	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 	
-	if [[ "$shared" == false ]]
+	# For debug reasons, locking can be turned off.
+	if [[ $CXR_NO_LOCKING == false ]]
 	then
-		# Normal, exclusive case
-
-		# For debug reasons, locking can be turned off.
-		if [[ $CXR_NO_LOCKING == false ]]
+		
+		if [[ "$shared" == false ]]
 		then
+		# Normal, exclusive case
 			
 			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
 			do
@@ -1035,7 +1035,7 @@ function common.runner.getLock()
 		
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock acquired."
-	fi
+	fi # Lockinc turned off?
 }
 
 ################################################################################
