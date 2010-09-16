@@ -149,6 +149,9 @@ function common.db.init()
 # Function that returns a resultset on stdout. 
 # Do not use this function to alter the database - we aquire no writelock!
 # However, we do aquire a readlock, which prevents writers from getting a writelock.
+#
+# We add a pragma in front of the statement (PRAGMA temp_store = MEMORY;)
+# to test if AFS has a problem with the tempfiles...
 # 
 #
 # Parameters:
@@ -172,6 +175,7 @@ function common.db.getResultSet()
 	
 	local currline
 	local sqlfile
+	local retval
 	
 	db_file="$1"
 	level="$2"
@@ -184,56 +188,43 @@ function common.db.getResultSet()
 		main.log -w "DB file $db_file not readable"
 		return $CXR_RET_OK
 	fi
-	
-	# We have our own error handler here
-	set +e
-	
+
 	# Acquire shared lock
 	common.runner.getLock "$(basename $db_file)-read" "$level" true
+	
+	# We do all over tempfile. Not fast, but solid.
+	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
+	sqlfile="$(common.runner.createTempFile sql)"
+	
+	# Add pragma
+	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
 		# statement is "-" (meaning we read from stdin)
-		# in this case, create a tempfile (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-		sqlfile="$(common.runner.createTempFile sql)"
 		
-		# Fill stdin into file (there are probably more elegant ways...)
+		# Fill stdin into file (there are probably more elegant ways for this...)
 		while read currline
 		do
 			echo "$currline" >> "$sqlfile"
 		done
-		
-		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
-
-		if [[ $? -ne 0 ]]
-		then
-			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
-		fi
-		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$statement"
-		
-		if [[ $? -ne 0 ]]
-		then
-			main.dieGracefully "Error in SQL statement: $(cat $statement)"
-		fi
-		
+		cat "$statement" >> "$sqlfile"
 	else
-		# Execute the string
-		main.log -v "Executing this SQL on $db_file:\n$statement" 
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" "$statement"
-		
-		if [[ $? -ne 0 ]]
-		then
-			main.dieGracefully "Error in SQL statement: $statement"
-		fi
-		
-	fi
+		# Add string to file the string
+		echo "$statement" >> "$sqlfile"
+	fi # type-of-statement
+	
+	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+	
+	# We have our own error handler here
+	set +e
+	
+	${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+	retval=$?
 	
 	# Release Lock
 	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
@@ -242,6 +233,11 @@ function common.db.getResultSet()
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
 		set -e
+	fi
+	
+	if [[ $retval -ne 0 ]]
+	then
+		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 	fi
 }
 
@@ -253,6 +249,9 @@ function common.db.getResultSet()
 # Of course you can also use it to read data, but you will lock out others.
 # Is is recommended that you issue "PRAGMA legacy_file_format = on;" on each fresh DB file
 # first.
+#
+# We add a pragma in front of the statement (PRAGMA temp_store = MEMORY;)
+# to test if AFS has a problem with the tempfiles...
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -273,10 +272,18 @@ function common.db.change()
 
 	local currline
 	local sqlfile
+	local retval
 	
 	db_file="$1"
 	level="$2"
 	statement="$3"
+	
+	# We do all over tempfile. Not fast, but solid.
+	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
+	sqlfile="$(common.runner.createTempFile sql)"
+	
+	# Add pragma
+	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
 	
 	# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
 	common.runner.waitForLock "$(basename $db_file)-read" "$level" 10
@@ -289,55 +296,32 @@ function common.db.change()
 	# For security reasons, we lock all write accesses to any DB
 	common.runner.getLock "$(basename $db_file)-write" "$level"
 	
-	# We have our own error handler here
-	set +e
-	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
 		# statement is "-" (meaning we read from stdin)
-		# in this case, create a tempfile (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-		sqlfile="$(common.runner.createTempFile sql)"
 		
-		# Fill stdin into file (there are probably more elegant ways...)
+		# Fill stdin into file (there are probably more elegant ways for this...)
 		while read currline
 		do
 			echo "$currline" >> "$sqlfile"
 		done
-		
-		main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
-		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
-		
-		if [[ $? -ne 0 ]]
-		then
-			common.runner.releaseLock "$(basename $db_file)" "$level"
-			main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
-		fi
-		
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		main.log -v "Executing this SQL on $db_file:\n$(cat $statement)" 
-		${CXR_SQLITE_EXEC} "$db_file" < "$statement"
-		
-		if [[ $? -ne 0 ]]
-		then
-			common.runner.releaseLock "$(basename $db_file)" "$level"
-			main.dieGracefully "Error in SQL statement: $(cat $statement)"
-		fi
-		
+		cat "$statement" >> "$sqlfile"
 	else
-		# Execute the string
-		main.log -v "Executing this SQL on $db_file:\n$statement" 
-		${CXR_SQLITE_EXEC} "$db_file" "$statement"
-		
-		if [[ $? -ne 0 ]]
-		then
-			common.runner.releaseLock "$(basename $db_file)" "$level"
-			main.dieGracefully "Error in SQL statement: $statement"
-		fi
-		
-	fi
+		# Add string to file the string
+		echo "$statement" >> "$sqlfile"
+	fi # type-of-statement
+	
+	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+	
+	# We have our own error handler here
+	set +e
+	
+	${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
+	retval=$?
 	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)-write" "$level"
@@ -346,6 +330,11 @@ function common.db.change()
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
 		set -e
+	fi
+
+	if [[ $retval -ne 0 ]]
+	then
+		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 	fi
 }
 
