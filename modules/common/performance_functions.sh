@@ -81,13 +81,13 @@ function common.performance.startTiming()
 function common.performance.stopTiming()
 ################################################################################
 {
-	# Get the current epoch
-	stop_time="$(date "+%s")"
-	
 	local module
 	local time_norm
 	local start_time
 	local stop_time
+	
+	# Get the current epoch
+	stop_time="$(date "+%s")"
 
 	module=${1}
 	
@@ -290,7 +290,7 @@ function common.performance.getMemUsedPercent()
 	
 	if [[ $found == true ]]
 	then
-		# Sample
+		# Sample. We cannot use -n$CXR_CHECK_MEMORY_SAMPLES because of the headers
 		for iIter in $(seq 1 $CXR_CHECK_MEMORY_SAMPLES)
 		do
 			# The first 7 lines are header
