@@ -189,12 +189,14 @@ function common.db.getResultSet()
 		return $CXR_RET_OK
 	fi
 
-	# Acquire shared lock
-	common.runner.getLock "$(basename $db_file)-read" "$level" true
-	
 	# We do all over tempfile. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
+	
+	# Temporarily, we observe all calls to sqlite
+	stracefile="$(common.runner.createJobFile sql-strace)"
+	
+	main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
 	
 	# Add pragma
 	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
@@ -220,14 +222,19 @@ function common.db.getResultSet()
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
+	# Acquire shared lock
+	common.runner.getLock "$(basename $db_file)-read" "$level" true
+	
 	# We have our own error handler here
 	set +e
 	
-	${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
+	strace -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
 	retval=$?
 	
 	# Release Lock
 	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
+	
+	bzip2 ${stracefile}
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
@@ -293,9 +300,6 @@ function common.db.change()
 		main.log -w "There are still shared locks on the file $db_file. We are going in anyway"
 	fi
 	
-	# For security reasons, we lock all write accesses to any DB
-	common.runner.getLock "$(basename $db_file)-write" "$level"
-	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
@@ -316,6 +320,9 @@ function common.db.change()
 	fi # type-of-statement
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+	
+	# For security reasons, we lock all write accesses to any DB
+	common.runner.getLock "$(basename $db_file)-write" "$level"
 	
 	# We have our own error handler here
 	set +e
