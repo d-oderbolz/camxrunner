@@ -542,6 +542,9 @@ CXR_LEVEL_UNIVERSAL=universal
 CXR_LEVEL_GLOBAL=global
 CXR_LEVEL_INSTANCE=instance
 
+# If this is true, we trace all DB calls (slow!)
+CXR_STRACE_DB=true
+
 # Suffix for sqlite files
 CXR_DB_SUFFIX=sqlite
 
