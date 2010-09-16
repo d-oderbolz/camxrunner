@@ -86,7 +86,7 @@ function main.usage()
 	  
 	  -T    Starts a test of the current Installation
 
-	  -d    causes a dry run
+	  -d    causes a dry run (always uses a single worker)
 	  
 	  -l    Log even if in dryrun
 
@@ -246,7 +246,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 while getopts ":dSlvVFwmct:sD:nP:ITr:xioCR:pfLh" opt
 do
 	case "${opt}" in
-		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_LOG_EXT="-dry" ;;
+		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_PARALLEL_PROCESSING=false ; CXR_USER_TEMP_LOG_EXT="-dry" ;;
 		S) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_INFO=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		l) 	CXR_USER_TEMP_FORCE_LOG=true;;
 		v) 	CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
