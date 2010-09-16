@@ -112,11 +112,7 @@ function common.performance.stopTiming()
 		fi
 		
 		# Get current load
-		set -xv 
-		
 		load="$(common.performance.getReaLoadPercent)"
-		
-		set +xv
 		
 		if [[ -z "$load" ]]
 		then

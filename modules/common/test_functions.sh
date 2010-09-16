@@ -439,7 +439,6 @@ function test_module()
 	is $(main.getRevision "$test_file1") 2605 "main.getRevision normal"
 	is $(main.getRevision "$test_file2") 2605 "main.getRevision double-contradiction"
 	
-	main.log -a  "We provoke an error message here - you can ignore this..."
 	is $(main.getRevision "$test_file3") 0 "main.getRevision missing revision"
 	is $(main.getRevision "$test_file4") 12345 "main.getRevision with garbage at end"
 	
