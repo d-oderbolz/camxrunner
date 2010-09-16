@@ -995,6 +995,13 @@ function common.runner.getLock()
 			
 			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
 			do
+				if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 false ) -eq 1 ]]
+				then
+					main.log -a "Waiting for lock $lock (level $level) ..."
+					# Safe time thanks to short-circuit logic
+					shown=true
+				fi
+			
 				# We sleep a random amount of time
 				sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
 				sleep $sleeptime
