@@ -254,10 +254,13 @@ function common.state.updateInfo()
 					# We mark needed stuff as active, the rest as inactive
 					# Add $file, $module and $type to DB
 					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
+					
+					# Here we source the file to get additional info
+					source $file
 
 					# Add metadata
-					# grep the CXR_META_ vars that are not commented out
-					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+					# grep the CXR_META_ vars 
+					list=$(set | grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*')
 					
 					oIFS="$IFS"
 					# Set IFS to newline
@@ -273,12 +276,8 @@ function common.state.updateInfo()
 						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
 						# the value is to the right
 						value="$(expr match "$metafield" '.*=\(.*\)')" || :
-						
-						# OK, we want all quoting gone and variables expanded
-						value="$(eval "echo $(echo "$value")")"
-						
-						# There are some special Meta fields
-						
+
+						# Treat some special Meta fields
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
 						then
 							# Make sure IFS is correct!
@@ -296,7 +295,9 @@ function common.state.updateInfo()
 					done
 					
 					# Now also add each invocation as individial row. 
-					nInvocations=$(common.module.getNumInvocations $module)
+					# Here we call a function each module must supply
+					# TODO: grep file first to see if fct is defined
+					nInvocations=$(getNumInvocations)
 					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
