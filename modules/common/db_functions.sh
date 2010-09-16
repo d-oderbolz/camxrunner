@@ -55,8 +55,12 @@ function common.db.init()
 ################################################################################
 {
 	local x
-	local directories
+	
+	local -a directories
+	local -a levels
+	
 	local dir
+	local iDir
 	local dbs
 	local db
 	local level
@@ -109,11 +113,15 @@ function common.db.init()
 		set -e
 	fi
 	
-	# Loop through directories and files
-	directories="$CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR"
+	# Loop through directories/levels and files
+	directories=($CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR)
+	levels=($CXR_LEVEL_GLOBAL $CXR_LEVEL_UNIVERSAL)
 	
-	for dir in $directories
+	for iDir in $(seq 0 $(( ${#directories[@]} - 1 )) )
 	do
+	
+		dir=${directories[$iDir]}
+		level=${levels[$iDir]}
 	
 		if [[ -d "$dir" ]]
 		then
@@ -196,7 +204,7 @@ function common.db.getResultSet()
 		return $CXR_RET_OK
 	fi
 
-	# We do all over tempfile. Not fast, but solid.
+	# We use a tempfile for all types of calls. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
 	
@@ -307,7 +315,7 @@ function common.db.change()
 	level="$2"
 	statement="$3"
 	
-	# We do all over tempfile. Not fast, but solid.
+	# We use a tempfile for all types of calls. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
 	
