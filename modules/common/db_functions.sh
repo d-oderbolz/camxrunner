@@ -59,6 +59,7 @@ function common.db.init()
 	local dir
 	local dbs
 	local db
+	local level
 	
 	
 	main.log -a "Initialising databases..."
@@ -122,6 +123,8 @@ function common.db.init()
 			do
 				main.log -v "Housekeeping on DB $db..."
 				
+				common.runner.getLock "$(basename $db_file)-write" "$level"
+				
 				# Do some basic maintenance
 				${CXR_SQLITE_EXEC} $db <<-EOT
 				
@@ -135,6 +138,10 @@ function common.db.init()
 				VACUUM;
 				
 				EOT
+				
+				# Relase Lock
+				common.runner.releaseLock "$(basename $db_file)-write" "$level"
+				
 			done # db-files
 			
 		fi # does dir exist?
