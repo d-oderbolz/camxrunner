@@ -297,7 +297,7 @@ function common.performance.getMemUsedPercent()
 			for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
 			#                                                                            ^ Escape awk $ for shell
 			do
-				if [[ "$(main.isNumeric $used)" == true ]]
+				if [[ "$(main.isNumeric? $used)" == true ]]
 				then
 					usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 false)"
 				else
