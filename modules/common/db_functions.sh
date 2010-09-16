@@ -240,7 +240,6 @@ function common.db.getResultSet()
 	
 	# We have our own error handler here
 	set +e
-	set -x
 
 	if [[ "$CXR_STRACE_DB" == true ]]
 	then
@@ -264,8 +263,6 @@ function common.db.getResultSet()
 	# Release Lock
 	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
 	
-	
-	set +x
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
