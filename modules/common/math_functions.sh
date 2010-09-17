@@ -79,6 +79,12 @@ function common.math.FloatOperation()
 	resolution=${2:-$CXR_NUM_DIGITS}
 	add_trailing_dp=${3:-true}
 	
+	# error handling is not easy here.
+	# we cannot test $? not PIPESTATUS in the subshell.
+	# we use a tempfile to catch stderr
+	
+	std_errfile=$(common.runner.createTempFile sterr-bc)
+	
 	# Fix resolution (-1 is just a marker)
 	if [[ "$resolution" -eq -1 ]]
 	then
@@ -88,12 +94,12 @@ function common.math.FloatOperation()
 	fi
 	
 	# Set resolution & pass expression
-	result=$( echo "scale=$bc_res; $1" | bc )
+	result=$( echo "scale=$bc_res; $1" | bc 2> $std_errfile )
 	
 	# Test status
-	if [[ $? -ne 0 ]]
+	if [[ -s $std_errfile ]]
 	then
-		main.dieGracefully "bc could not execute this statement: $1"
+		main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
 	fi
 	
 	if [[ "$resolution" -eq -1 ]]
