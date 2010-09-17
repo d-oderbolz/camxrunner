@@ -65,7 +65,8 @@ function common.state.isRepeatedRun?()
 ################################################################################
 # Function: common.state.getLastDayOffsetModelled
 #
-# Returns the last day_offset known in the state DB
+# Returns the last day_offset known in the state DB. Returns -1 on error or
+# if there is no data
 # 
 ################################################################################
 function common.state.getLastDayOffsetModelled()
@@ -77,7 +78,7 @@ function common.state.getLastDayOffsetModelled()
 	
 	if [[ -z "$result" ]]
 	then
-		result=0
+		result=-1
 	fi
 	
 	echo "$result"
@@ -372,12 +373,13 @@ function common.state.updateInfo()
 				fi
 			fi
 			
+			# Returns -1 on error
 			last="$(common.state.getLastDayOffsetModelled)"
 			
 			# last could be empty
 			if [[ "$last" ]]
 			then
-				if [[ $last -ge 0 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
+				if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
 				then
 					main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 					longer=true
