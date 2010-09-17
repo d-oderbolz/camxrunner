@@ -91,7 +91,7 @@ function common.math.FloatOperation()
 	result=$( echo "scale=$bc_res; $1" | bc )
 	
 	# Test status
-	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+	if [[ $? -ne 0 ]]
 	then
 		main.dieGracefully "bc could not execute this statement: $1"
 	fi
