@@ -939,7 +939,7 @@ function model()
 			
 			if [[ "$CXR_DRY" == true ]]
 			then
-				main.log -a "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode.\nShould $CXR_MODEL fail because of mising files, this can have mainly these reasons:\n-the file was not put there by you\n-the file was created by an earlier step (dryruns produce only dummy files!)\n-the file was not attempted to be created."
+				main.log -a "This is a dry run, $CXR_MODEL is run, but only in diagnostic mode.\nShould $CXR_MODEL fail because of missing files, this can have mainly these reasons:\n-the file was not put there by you\n-the file was created by an earlier step (dryruns produce only dummy files!)\n-the file was not attempted to be created."
 				main.log -a "These files where created as dummies so far:\n$(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)"
 				CXR_DIAGNOSTIC_ERROR_CHECK=true
 			fi

@@ -528,9 +528,11 @@ function common.state.updateInfo()
 			-- It is important to understand that dependencies are
 			-- NOT on invocation and therefore task level. Dependencies exist
 			-- between tuples of (module,day_offset).
-			-- Wee add dependencies whether they are active or not.
+			-- We add dependencies whether they are active or not.
 			-- it is up to <common.task.createParallelDependencyList> or 
 			-- <common.task.createSequentialDependencyLis> to hanlde incative dependencies
+			-- a challenge is the fact that we must replicate daily dependencies on OT Pre
+			-- tasks (requiring equality of the day_offsets returns too few dependencies)
 			--------------------------------------------------------------------
 			
 			--
@@ -550,6 +552,8 @@ function common.state.updateInfo()
 											metadata meta
 							WHERE		independent.module = meta.value
 							AND			dependent.module = meta.module
+							AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+											OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
 							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
@@ -597,6 +601,8 @@ function common.state.updateInfo()
 											tasks independent,
 											metadata meta
 							WHERE		dependent.module = meta.module
+							AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+											OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
 							AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
 							AND			dependent.invocation = 1
 							AND			independent.invocation = 1
