@@ -79,12 +79,6 @@ function common.math.FloatOperation()
 	resolution=${2:-$CXR_NUM_DIGITS}
 	add_trailing_dp=${3:-true}
 	
-	# error handling is not easy here.
-	# we cannot test $? not PIPESTATUS in the subshell.
-	# we use a tempfile to catch stderr
-	
-	std_errfile=$(common.runner.createTempFile sterr-bc)
-	
 	# Fix resolution (-1 is just a marker)
 	if [[ "$resolution" -eq -1 ]]
 	then
@@ -93,16 +87,33 @@ function common.math.FloatOperation()
 		bc_res=$resolution
 	fi
 	
+	# error handling is not easy here.
+	# we cannot test $? not PIPESTATUS in the subshell.
+	# we use a tempfile to catch stderr
+	
+	if [[ ${CXR_DBG_BC:-false} == true ]]
+	then
+		std_errfile=$(common.runner.createTempFile sterr-bc)
+	else
+		std_errfile=/dev/null
+	fi
+	
 	# Set resolution & pass expression
 	result=$( echo "scale=$bc_res; $1" | bc 2> $std_errfile )
 	
 	# Test status
-	if [[ -s $std_errfile ]]
+	if [[ ${CXR_DBG_BC:-false} == true ]]
 	then
-		main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
-	fi
+		rm $std_errfile
+		
+		# if there was something on stderr, we fail
+		if [[ -s $std_errfile ]]
+		then
+			main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
+		fi # error?
+	fi # caring about errors?
 	
-	rm $std_errfile
+	
 	
 	if [[ "$resolution" -eq -1 ]]
 	then
