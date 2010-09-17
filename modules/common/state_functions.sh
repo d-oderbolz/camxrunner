@@ -265,12 +265,15 @@ function common.state.updateInfo()
 						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
 					fi
 					
+					#unset all meta info
+					unset ${!CXR_META_MODULE_*}
+					
 					# Here we source the file to get additional info
 					source $file
 
 					# Add metadata
-					# grep the CXR_META_ vars 
-					list=$(set | grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*')
+					# grep the CXR_META_ vars out of env
+					list=$(set | grep '^[[:space:]]\{0,\}CXR_META_MODULE_[_A-Z]\{1,\}=.*')
 					
 					oIFS="$IFS"
 					# Set IFS to newline
@@ -315,6 +318,9 @@ function common.state.updateInfo()
 					do
 						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
 					done
+					
+					#unset all meta info again
+					unset ${!CXR_META_MODULE_*}
 
 				done # Loop over files
 			else
@@ -331,8 +337,14 @@ function common.state.updateInfo()
 		# Mark end of TRX
 		echo "COMMIT TRANSACTION;" >> $sqlfile
 		
+		 increase loglevel (dbg)
+		 CXR_LOG_LEVEL_SCREEN=0
+		
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
+		
+		# reset
+		CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_ERR}
 		
 		# Check if any module is called the same as a type (not allowed)
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
