@@ -112,7 +112,7 @@ function split_emissions()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeStatus ${CXR_STATUS_FAILURE}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -151,7 +151,7 @@ function split_emissions()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS

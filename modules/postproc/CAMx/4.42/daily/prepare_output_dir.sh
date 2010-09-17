@@ -194,7 +194,7 @@ function prepare_output_dir()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-			common.state.storeStatus ${CXR_STATUS_FAILURE}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS

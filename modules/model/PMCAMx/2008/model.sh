@@ -645,7 +645,7 @@ function model()
 			if [[ $(common.check.preconditions) == false  ]]
 			then
 				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_PRECONDITIONS
@@ -660,11 +660,11 @@ function model()
 					then
 						# Ups, we skip this one
 						main.log -w "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists, model will not be run"
-						common.state.storeStatus ${CXR_STATUS_SUCCESS}
+						common.state.storeStatus ${CXR_STATUS_SUCCESS}  > /dev/null
 						return $CXR_RET_OK
 					else
 						main.log -e  "File ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} exists - to force the re-creation run ${CXR_CALL} -F"
-						common.state.storeStatus ${CXR_STATUS_FAILURE}
+						common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 						return $CXR_RET_ERROR
 					fi
 				fi
@@ -681,7 +681,7 @@ function model()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log  "$CXR_MODEL Run was not successful!"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 				
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS

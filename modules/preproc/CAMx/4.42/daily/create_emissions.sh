@@ -147,7 +147,7 @@ function create_emissions()
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeStatus ${CXR_STATUS_FAILURE}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -226,7 +226,7 @@ function create_emissions()
 			if [[ $(common.check.postconditions) == false  ]]
 			then
 				main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met!"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 				# We notify the caller of the problem
 				return $CXR_RET_ERR_POSTCONDITIONS
@@ -242,7 +242,7 @@ function create_emissions()
 			else
 				# Fail!
 				main.log -e  "File $CXR_EMISSION_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}
+				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 				return $CXR_RET_ERROR
 			fi
 		fi

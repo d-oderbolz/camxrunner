@@ -117,7 +117,7 @@ function set_permissions
 		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeStatus ${CXR_STATUS_FAILURE}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
@@ -146,7 +146,7 @@ function set_permissions
 		else
 			# Nope, we need an octal permision string
 			main.log  "We need an octal permission string in CXR_OUTPUT_DIR_PERMISSIONS, got ${CXR_OUTPUT_DIR_PERMISSIONS}"
-			common.state.storeStatus ${CXR_STATUS_FAILURE}
+			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
