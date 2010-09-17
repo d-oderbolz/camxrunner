@@ -621,7 +621,7 @@ function common.state.updateInfo()
 			# resurrect old success data if needed
 			if [[ $longer == true ]]
 			then
-				common.db.change "$CXR_STATE_DB_FILE" $success_file
+				common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $success_file
 			fi
 			
 		else
