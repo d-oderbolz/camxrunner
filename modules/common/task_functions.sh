@@ -910,6 +910,7 @@ function common.task.Worker()
 	local module
 	local day_offset
 	local start_epoch
+	local shown
 	
 	#Getting the pid is not easy, we do not want to create unnecessary processes...
 	tmp=$(common.runner.createTempFile $FUNCNAME)
@@ -943,7 +944,6 @@ function common.task.Worker()
 		
 		# We are not yet busy
 		common.task.waitingWorker $CXR_WORKER_PID
-		set -x
 		
 		# Is there enough free memory?
 		if [[ "$CXR_CHECK_MEMORY_USAGE" == false || "$(common.performance.getMemFreePercent)" -gt ${CXR_MEM_FREE_PERCENT:-0} ]]
@@ -993,10 +993,19 @@ function common.task.Worker()
 				
 				start_epoch=$CXR_EPOCH
 				
+				shown=false
+				
 				# We need to wait until all dependencies are ok
 				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" )" == true ]]
 				do
-					main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
+					# At least show once that we wait
+					if [[ $shown == false  ]]
+					then
+						shown=true
+						main.log -a "Waiting for dependencies of $module to be done for day $day_offset"
+					else
+						main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
+					fi
 					
 					# Tell the system we wait, then sleep
 					common.task.waitingWorker $CXR_WORKER_PID
