@@ -784,26 +784,6 @@ then
 
 	common.state.init || main.dieGracefully "Could not initialize state DB"
 	
-	# If we do a dry run, we want to show the detected pre- and postprocessors
-	if [[ "$CXR_DRY" == true  ]]
-	then
-		main.log -v -b "Listing all detected pre- and postprocessors...\n"
-		
-		# Increase global indent level
-		main.increaseLogIndent
-		
-		main.log -v "If you just want to run just a part of either the input or the output preparation\nrun it like\n"
-	
-		# Increase global indent level
-		main.increaseLogIndent
-	
-		main.log -v "${CXR_CALL} -r"module_list"\n"
-		common.module.listAllModules
-
-		# Decrease global indent level
-		main.decreaseLogIndent
-	fi
-	
 	# Here we really start things. Note that the execution of tasks is no longer sequential
 	# if not needed 
 	

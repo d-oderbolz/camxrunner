@@ -149,7 +149,11 @@ CXR_LOG_LEVEL_WRN=2
 CXR_LOG_LEVEL_ERR=1
 CXR_LOG_LEVEL_ALW=0
 
+
 # Here we set the default filter for screen and file messages
+# Do not set these to CXR_LOG_LEVEL_ALW, it will not have
+# the desired effect. (CXR_LOG_LEVEL_ALW is only used to report 
+# messages)
 CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_ERR}
 CXR_LOG_LEVEL_FILE=${CXR_LOG_LEVEL_INF}
 

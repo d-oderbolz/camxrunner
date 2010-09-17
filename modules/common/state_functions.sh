@@ -309,11 +309,6 @@ function common.state.updateInfo()
 					# Here we call a function each module must supply
 					nInvocations=$(source $file &> /dev/null; getNumInvocations)
 					
-					main.log -a "$file has $nInvocations invocations"
-					
-					
-
-					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
 						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
