@@ -71,8 +71,16 @@ function common.state.isRepeatedRun?()
 function common.state.getLastDayOffsetModelled()
 ################################################################################
 {
-	# Let the database tell it
-	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM days"
+	local result
+	
+	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM days")
+	
+	if [[ -z "$result" ]]
+	then
+		result=0
+	fi
+	
+	echo "$result"
 	
 	return $CXR_RET_OK
 }
@@ -149,6 +157,7 @@ function common.state.updateInfo()
 	local iDependency
 	local longer
 	
+	# Marker for a run that was extended at the end (more days)
 	longer=false
 	
 	# Only update info if we are not a slave
@@ -368,7 +377,7 @@ function common.state.updateInfo()
 			# last could be empty
 			if [[ "$last" ]]
 			then
-				if [[ ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
+				if [[ $last -ge 0 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
 				then
 					main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 					longer=true
