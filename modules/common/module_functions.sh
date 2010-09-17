@@ -25,7 +25,7 @@ CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 CXR_META_MODULE_NUM_TESTS=1
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Contains the functions to run modules (only used for installer modules) for the CAMxRunner"
+CXR_META_MODULE_DESCRIPTION="Contain module-related functions for the CAMxRunner."
 
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
@@ -57,7 +57,7 @@ function common.module.areDependenciesOk?()
 {
 	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true ]]
 	then
-		main.log  "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
+		main.log  -w "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
 		echo true
 		return $CXR_RET_OK
 	fi
@@ -69,9 +69,9 @@ function common.module.areDependenciesOk?()
 	
 	local module
 	local day_offset
-	local disabled_count
-	local unfinishedCount
-	local failedCount
+	local disabledIds
+	local unfinishedIds
+	local failedIds
 	
 	module="$1"
 	day_offset="${2}"
@@ -79,9 +79,9 @@ function common.module.areDependenciesOk?()
 	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset are done."
 	
 	# If any dependency has failed, we stop the run
-	failedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	failedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
-	SELECT COUNT(*)
+	SELECT t.id
 	FROM dependencies d, tasks t
 	WHERE 
 	      t.module = d.independent_module
@@ -92,15 +92,15 @@ function common.module.areDependenciesOk?()
 	EOT
 	)
 	
-	if [[ $failedCount -gt 0 ]]
+	if [[ ! -z "$failedIds" ]]
 	then
-		main.dieGracefully "$failedCount tasks that $* depends on have failed!"
+		main.dieGracefully "Task $* depends on these failed tasks:\n$failedIds"
 	fi
 	
 	# Find out if any of the dependencies is disabled and not done
-	disabled_count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	disabledIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
-	SELECT COUNT(*)
+	SELECT t.id
 	FROM dependencies d, modules m, tasks t
 	WHERE 
 	      t.module = m.module
@@ -114,21 +114,21 @@ function common.module.areDependenciesOk?()
 	EOT
 	)
 	
-	if [[ $disabled_count -gt 0 ]]
+	if [[ ! -z "$disabledIds" ]]
 	then
 		# There are some disabled ones
 		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
 		then
-			main.dieGracefully "There are unfinished dependencies to disabled modules: $disabled_modules"
+			main.dieGracefully "Task $* depends on disabled modules that are unfinished:\n$disabledIds"
 		else
-			main.log -w "Some dependencies of $module are disabled and unfinished. Since CXR_IGNORE_DISABLED_DEPENDENCIES is true, we ignore this, but its possible that we cannot proceed."
+			main.log -w "Task $* depends on disabled modules that are unfinished:\n${disabledIds}.\nSince CXR_IGNORE_DISABLED_DEPENDENCIES is true, we ignore this, but its possible that $* will fail."
 		fi
 	fi
 	
-	# If more than 0 tasks are active and non-successful, we return false
-	unfinishedCount=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	# If more than 0 tasks are active and still to be done, we return false
+	unfinishedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
-	SELECT COUNT(*)
+	SELECT t.id
 	FROM dependencies d, tasks t, modules m
 	WHERE 
 	      t.module = d.independent_module
@@ -142,9 +142,10 @@ function common.module.areDependenciesOk?()
 	EOT
 	)
 	
-	if [[ $unfinishedCount -gt 0 ]]
+	if [[ ! -z "$unfinishedIds" ]]
 	then
 		# Still unfinished stuff
+		main.log -a "Task $* depends on these tasks that are not yet finished:\n$unfinishedIds"
 		echo false
 	else
 		# all OK
