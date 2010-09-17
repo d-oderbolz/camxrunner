@@ -889,7 +889,7 @@ function common.runner.waitForLock()
 	local lock
 	local level
 	local locklink
-	local time
+	local seconds_waited
 	local shown
 	local max_wait_seconds
 
@@ -898,6 +898,7 @@ function common.runner.waitForLock()
 	max_wait_seconds="${3:-${CXR_LOCK_TIMEOUT_SEC}}"
 	
 	shown=false
+	seconds_waited=0
 	
 	locklink="$(common.runner.getLockLinkName $lock $level)"
 
@@ -906,7 +907,7 @@ function common.runner.waitForLock()
 	########################################
 	while [[ -e "$locklink" ]]
 	do
-		if [[ $shown == false && $(common.math.FloatOperation "$time == 0" 0 false ) -eq 1 ]]
+		if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 false ) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
 			# Safe time thanks to short-circuit logic
@@ -914,9 +915,9 @@ function common.runner.waitForLock()
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
-		time=$(common.math.FloatOperation "$time + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
+		time=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
-		if [[ $(common.math.FloatOperation "$time > $max_wait_seconds" 0 false ) -eq 1 ]]
+		if [[ $(common.math.FloatOperation "$seconds_waited > $max_wait_seconds" 0 false ) -eq 1 ]]
 		then
 			main.log -w "Lock $lock (${level}) took longer than $max_wait_seconds to get!"
 			_retval=false

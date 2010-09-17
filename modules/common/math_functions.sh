@@ -102,6 +102,8 @@ function common.math.FloatOperation()
 		main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
 	fi
 	
+	rm $std_errfile
+	
 	if [[ "$resolution" -eq -1 ]]
 	then
 		# Chop off the decimals and dot (might result in the empty string!)
