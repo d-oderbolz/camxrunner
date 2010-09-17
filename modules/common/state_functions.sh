@@ -160,6 +160,19 @@ function common.state.updateInfo()
 	else
 		# we are alone
 		
+		# For performance reasons, we collect all SQL change statements in a file and
+		# execute it later
+		
+		sqlfile=$(common.runner.createTempFile sql-updateInfo)
+		
+		# We let the DB do all in one TRX
+		echo "BEGIN TRANSACTION;" > $sqlfile
+		
+		main.log -a "Cleaning Non-Persistent tables..."
+		
+		echo "DELETE FROM modules;" >> $sqlfile
+		echo "DELETE FROM metadata;" >> $sqlfile
+		
 		# Create a few working arrays we will go through
 		types=($CXR_TYPE_PREPROCESS_ONCE \
 		       $CXR_TYPE_PREPROCESS_DAILY \
@@ -213,19 +226,6 @@ function common.state.updateInfo()
 			
 			main.log -v "Adding $type modules..."
 			
-			# For performance reasons, we collect all SQL change statements in a file and
-			# execute it later
-			
-			sqlfile=$(common.runner.createTempFile sql-updateInfo)
-			
-			# We let the DB do all in one TRX
-			echo "BEGIN TRANSACTION;" > $sqlfile
-			
-			main.log -a "Cleaning Non-Persistent tables..."
-		
-			echo "DELETE FROM modules;" >> $sqlfile
-			echo "DELETE FROM metadata;" >> $sqlfile
-
 			if [[ -d "$dir" ]]
 			then
 				# Find all *.sh files in this dir (no descent!)
