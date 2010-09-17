@@ -290,6 +290,7 @@ function common.task.createSequentialDependencyList()
 	AND im.module = independent_module
 	AND   independent_day_offset = dependent_day_offset
 	AND   m.active='true'
+	AND   im.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
 	                 '$CXR_TYPE_POSTPROCESS_DAILY')
@@ -366,6 +367,7 @@ function common.task.createSequentialDependencyList()
 	AND   im.module = d.independent_module
 	AND   d.independent_day_offset = d.dependent_day_offset
 	AND   m.active='true'
+	AND   im.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
 	AND   im.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
 	
@@ -433,7 +435,7 @@ function common.task.createParallelDependencyList()
 	AND   m.active='true';
 
 	------------------------------------
-	-- Then add all the dependencies. 
+	-- Then add all the active dependencies. 
 	------------------------------------
 	
 	SELECT di.day_iso || '@' || independent_module,
@@ -1266,7 +1268,7 @@ function common.task.init()
 			common.task.createSequentialDependencyList $task_file
 		fi
 		
-		main.log -a "Got this taskfile:\n$(cat $task_file)"
+		main.log -v "Got this taskfile:\n$(cat $task_file)"
 		
 		echo "BEGIN TRANSACTION;" > $tempfile
 		

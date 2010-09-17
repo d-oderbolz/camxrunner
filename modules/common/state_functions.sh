@@ -248,7 +248,7 @@ function common.state.updateInfo()
 						# Module was not explicitly disabled and we did not disable all
 						run_it=true
 					else
-						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
+						# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
 						run_it=false
 						main.log -a "Module $module is disabled."
 					fi
@@ -404,7 +404,7 @@ function common.state.updateInfo()
 		# Correct active if user selected only some days
 		if [[ "$CXR_SINGLE_DAYS" ]]
 		then
-			echo  "UPDATE days SET active='false';" >> $sqlfile
+			echo "UPDATE days SET active='false';" >> $sqlfile
 			
 			# Only activate the wanted ones
 			for wanted in $CXR_SINGLE_DAYS
@@ -415,7 +415,7 @@ function common.state.updateInfo()
 				then
 					# OK
 					main.log -a $wanted
-					echo "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE days SET active='true' WHERE day_iso='$wanted';" >> $sqlfile
+					echo "UPDATE days SET active='true' WHERE day_iso='$wanted';" >> $sqlfile
 				else
 					# Mep
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
@@ -525,8 +525,9 @@ function common.state.updateInfo()
 			-- It is important to understand that dependencies are
 			-- NOT on invocation and therefore task level. Dependencies exist
 			-- between tuples of (module,day_offset).
-			-- Make sure that if a daiy module depends on a non-daily that it is 
-			-- replicated!
+			-- Wee add dependencies whether they are active or not.
+			-- it is up to <common.task.createParallelDependencyList> or 
+			-- <common.task.createSequentialDependencyLis> to hanlde incative dependencies
 			--------------------------------------------------------------------
 			
 			--
