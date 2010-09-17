@@ -54,6 +54,10 @@ CXR_STATUS_KILLED=KILLED	# Used to signal a worker that it must terminate
 # Uncomment this for REALLY Verbose messages (directly from bash)
 #set -xv
 
+# If you see strange errors like "(standard_in) 1: parse error", activate this option
+# it will slow everything down because we create a lot of tempfiles to track the error
+CXR_DBG_BC=false
+
 # Set this to true to disable locking.
 # Dangerous, especially in parallel mode; should only be used when debugging
 CXR_NO_LOCKING=false
