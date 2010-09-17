@@ -138,6 +138,8 @@ function common.state.updateInfo()
 	local file
 	local module
 	local run_it
+	local fctlist
+	local list
 	local metafiled
 	local list
 	local field
@@ -255,6 +257,14 @@ function common.state.updateInfo()
 					# Add $file, $module and $type to DB
 					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
 					
+					# find out if we have a function called getNumInvocations
+					fctlist=$(grep 'getNumInvocations' $file)
+					
+					if [[ -z "$fctlist" ]]
+					then
+						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
+					fi
+					
 					# Here we source the file to get additional info
 					source $file
 
@@ -276,6 +286,9 @@ function common.state.updateInfo()
 						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
 						# the value is to the right
 						value="$(expr match "$metafield" '.*=\(.*\)')" || :
+						
+						# OK, we want all quoting gone and variables expanded
+						value="$(eval "echo $(echo "$value")")"
 
 						# Treat some special Meta fields
 						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
@@ -296,7 +309,6 @@ function common.state.updateInfo()
 					
 					# Now also add each invocation as individial row. 
 					# Here we call a function each module must supply
-					# TODO: grep file first to see if fct is defined
 					nInvocations=$(getNumInvocations)
 					
 					for iInvocation in $(seq 1 $nInvocations)
