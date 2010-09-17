@@ -892,6 +892,7 @@ function common.runner.waitForLock()
 	local seconds_waited
 	local shown
 	local max_wait_seconds
+	local mtime
 
 	lock="$1"
 	level="$2"
@@ -907,11 +908,20 @@ function common.runner.waitForLock()
 	########################################
 	while [[ -e "$locklink" ]]
 	do
+	
 		if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 false ) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
 			# Safe time thanks to short-circuit logic
 			shown=true
+		fi
+		
+		# is it an older lock?
+		mtime=$(common.fs.getMtime $locklink)
+		if [[ ${CXR_ALLOW_MULTIPLE} == false && $mtime -gt 0 && $mtime -lt "$CXR_EPOCH" ]]
+		then
+			main.log -w "Removing old lock $locklink"
+			rm -f $locklink
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
@@ -975,6 +985,7 @@ function common.runner.getLock()
 	local seconds_waited
 	local shown
 	local sleeptime
+	local mtime
 	
 	lock="$1"
 	level="$2"
@@ -1001,6 +1012,14 @@ function common.runner.getLock()
 					main.log -a "Waiting for lock $lock (level $level) ..."
 					# Safe time thanks to short-circuit logic
 					shown=true
+				fi
+
+				# is it an older lock?
+				mtime=$(common.fs.getMtime $locklink)
+				if [[ ${CXR_ALLOW_MULTIPLE} == false && $mtime -gt 0 && $mtime -lt "$CXR_EPOCH" ]]
+				then
+					main.log -w "Removing old lock $locklink"
+					rm -f $locklink
 				fi
 			
 				# We sleep a random amount of time
