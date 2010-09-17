@@ -250,7 +250,7 @@ function common.state.updateInfo()
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it is in the enabled list)
 						run_it=false
-						main.log -a "Module $module is disabled, skipped"
+						main.log -a "Module $module is disabled."
 					fi
 					
 					# We mark needed stuff as active, the rest as inactive
