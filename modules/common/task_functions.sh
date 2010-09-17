@@ -1273,6 +1273,12 @@ function common.task.init()
 		# Generate SQL file to update the ranks of the tasks
 		while read line 
 		do
+			if [[ -z "$line" ]]
+			then
+				main.log -w "Detected empty line in $task_file"
+				continue
+			fi
+			
 			# We need to parse the line
 			# this sets a couple of _variables
 			# we set the flag that there is no invocation
