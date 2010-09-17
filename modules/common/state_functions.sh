@@ -265,15 +265,9 @@ function common.state.updateInfo()
 						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
 					fi
 					
-					#unset all meta info
-					unset ${!CXR_META_MODULE_*}
-					
-					# Here we source the file to get additional info
-					source $file
-
 					# Add metadata
-					# grep the CXR_META_ vars out of env
-					list=$(set | grep '^[[:space:]]\{0,\}CXR_META_MODULE_[_A-Z]\{1,\}=.*')
+					# grep the CXR_META_ vars that are not commented out
+					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
 					
 					oIFS="$IFS"
 					# Set IFS to newline
@@ -310,18 +304,20 @@ function common.state.updateInfo()
 						fi # is it a special meta field
 					done
 					
-					# Now also add each invocation as individial row. 
+					# Now also add each invocation as individial row.
+					# Here we need to source the file to call getNumInvocations
 					# Here we call a function each module must supply
-					nInvocations=$(getNumInvocations)
+					nInvocations=$(source $file &> /dev/null; getNumInvocations)
+					
+					main.log -a "$file has $nInvocations invocations"
+					
+					
+
 					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
 						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
 					done
-					
-					#unset all meta info again
-					unset ${!CXR_META_MODULE_*}
-
 				done # Loop over files
 			else
 				main.dieGracefully "Tried to add modules in $dir - directory not found."
@@ -338,7 +334,7 @@ function common.state.updateInfo()
 		echo "COMMIT TRANSACTION;" >> $sqlfile
 		
 		 #increase loglevel (dbg)
-		 CXR_LOG_LEVEL_SCREEN=0
+		 CXR_LOG_LEVEL_SCREEN=8
 		
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
