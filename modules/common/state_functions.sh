@@ -328,14 +328,8 @@ function common.state.updateInfo()
 		# Mark end of TRX
 		echo "COMMIT TRANSACTION;" >> $sqlfile
 		
-		 #increase loglevel (dbg)
-		 CXR_LOG_LEVEL_SCREEN=8
-		
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
-		
-		# reset
-		CXR_LOG_LEVEL_SCREEN=${CXR_LOG_LEVEL_ERR}
 		
 		# Check if any module is called the same as a type (not allowed)
 		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
