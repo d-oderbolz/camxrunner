@@ -1266,6 +1266,8 @@ function common.task.init()
 			common.task.createSequentialDependencyList $task_file
 		fi
 		
+		main.log -a "Got this taskfile:\n$(cat $task_file)"
+		
 		echo "BEGIN TRANSACTION;" > $tempfile
 		
 		# Generate SQL file to update the ranks of the tasks
