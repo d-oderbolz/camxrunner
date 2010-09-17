@@ -1253,7 +1253,7 @@ function common.state.cleanup()
 #	
 # Checks if the .continue file still exists,
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
-# ends run if we are too high and toches the alive file
+# ends run if we are too high and toches the CONTINUE file
 #
 ################################################################################
 function common.state.doContinue?()
