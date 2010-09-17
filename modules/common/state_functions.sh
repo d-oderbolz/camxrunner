@@ -337,7 +337,7 @@ function common.state.updateInfo()
 		# Mark end of TRX
 		echo "COMMIT TRANSACTION;" >> $sqlfile
 		
-		 increase loglevel (dbg)
+		 #increase loglevel (dbg)
 		 CXR_LOG_LEVEL_SCREEN=0
 		
 		# Execute the file
