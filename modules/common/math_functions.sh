@@ -90,6 +90,12 @@ function common.math.FloatOperation()
 	# Set resolution & pass expression
 	result=$( echo "scale=$bc_res; $1" | bc )
 	
+	# Test status
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+	then
+		main.dieGracefully "bc could not execute this statement: $1"
+	fi
+	
 	if [[ "$resolution" -eq -1 ]]
 	then
 		# Chop off the decimals and dot (might result in the empty string!)
