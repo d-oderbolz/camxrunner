@@ -421,7 +421,7 @@ fi
 # Test if we may run other processes while CAMx runs
 if [[ ${CXR_MAX_PARALLEL_PROCS} -le $(( $NCPUS - $OMP_NUM_THREADS + 1 )) ]]
 then
-	main.log -a "Since OMP_NUM_THREADS is set to $OMP_NUM_THREADS and we have $NCPUS, we allow other processes besides the model"
+	main.log -a "Since OMP_NUM_THREADS is set to $OMP_NUM_THREADS, we have $NCPUS CPUS and you want ${CXR_MAX_PARALLEL_PROCS} CAMxRunner processes, we allow other processes besides the model"
 	CXR_ALLOW_MODEL_CONCURRENCY=true
 else
 	CXR_ALLOW_MODEL_CONCURRENCY=false
