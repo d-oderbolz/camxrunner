@@ -412,6 +412,21 @@ then
 	CXR_PARALLEL_PROCESSING=false
 fi
 
+if [[ ${OMP_NUM_THREADS} -gt ${NCPUS} ]]
+then
+	main.log -e "It makes no sense to start more OMP threads than you have CPUS. Using ${NCPUS}"
+	export OMP_NUM_THREADS=${NCPUS}
+fi
+
+# Test if we may run other processes while CAMx runs
+if [[ ${CXR_MAX_PARALLEL_PROCS} -le $(( $NCPUS - $OMP_NUM_THREADS + 1 )) ]]
+then
+	main.log -a "Since OMP_NUM_THREADS is set to $OMP_NUM_THREADS and we have $NCPUS, we allow other processes besides the model"
+	CXR_ALLOW_MODEL_CONCURRENCY=true
+else
+	CXR_ALLOW_MODEL_CONCURRENCY=false
+fi
+
 main.log -v -B "Selected options are valid." 
 
 

@@ -974,19 +974,23 @@ function common.task.Worker()
 				
 				main.log -v "module: $module day_offset: $day_offset invocation: $invocation"
 				
-				if [[ "$exclusive" == true ]]
+				if [[ ${CXR_ALLOW_MODEL_CONCURRENCY:-false} == false ]]
 				then
-					# If exclusive, try to get lock
-					common.runner.getLock Exclusive "$CXR_LEVEL_GLOBAL"
-					
-				else
-					# If not, just check if it is set 
-					common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL"
-					
-					if [[ $_retval == false ]]
+					if [[ "$exclusive" == true ]]
 					then
-						main.dieGracefully "There seeems to be another exclusive task running that takes too long."
-					fi
+						# If exclusive, try to get lock
+						common.runner.getLock Exclusive "$CXR_LEVEL_GLOBAL"
+						
+					else
+						# If not, just check if it is set 
+						common.runner.waitForLock Exclusive "$CXR_LEVEL_GLOBAL"
+						
+						if [[ $_retval == false ]]
+						then
+							main.dieGracefully "There seeems to be another exclusive task running that takes too long."
+						fi
+
+					fi # do we allow other processes while CAMx runs?
 				fi
 				
 				module_path="$(common.module.getPath "$module")"
@@ -1053,7 +1057,7 @@ function common.task.Worker()
 				common.performance.stopTiming $CXR_META_MODULE_NAME
 				
 				#Release resources if needed
-				if [[ "$exclusive" == true ]]
+				if [[ "$exclusive" == true && ${CXR_ALLOW_MODEL_CONCURRENCY:-false} == false ]]
 				then
 					main.log  "Activating the assignment of new tasks again."
 					common.runner.releaseLock Exclusive "$CXR_LEVEL_GLOBAL"
