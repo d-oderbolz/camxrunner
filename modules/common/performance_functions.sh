@@ -235,7 +235,7 @@ function common.performance.reportEta()
 	local left
 	
 	# How many seconds have elapsed?
-	elapsed=$(( $(date "+%s") - $CXR_EPOCH ))
+	elapsed=$(( $(date "+%s") - $CXR_START_EPOCH ))
 	left=$(( $CXR_TIME_TOTAL_ESTIMATED - $elapsed ))
 	
 	if [[ $left -gt 0 ]]

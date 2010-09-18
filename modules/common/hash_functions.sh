@@ -613,9 +613,9 @@ function common.hash.isNew?()
 	# Is it in the hash?
 	if [[ $(common.hash.has? "$hash" "$level" "$key") == true ]]
 	then
-		# Exists, test age. CXR_EPOCH is the Epoch we started this run in
+		# Exists, test age. CXR_START_EPOCH is the Epoch we started this run in
 		# if the hash's epoch is smaller, it is older
-		if [[ "$(common.hash.getValueMtime "$hash" "$level" "$key")" -lt "$CXR_EPOCH" ]]
+		if [[ "$(common.hash.getValueMtime "$hash" "$level" "$key")" -lt "$CXR_START_EPOCH" ]]
 		then
 			res=false
 		else

@@ -262,6 +262,8 @@ function common.fs.sameDevice?()
 # Returns the files mtime (modification time, last update of the data, or touch)
 # As seconds since epoch (January 1, 1970).
 # Returns 0 on error.
+# Since we use this function to detect stale locks, it quite possible that we 
+# call it with non-existing filenames
 #
 # Parameters:
 # $1 - filename to analyse
@@ -274,12 +276,12 @@ function common.fs.getMtime()
 	
 	file=$1
 	
-	if [[ -e "${file}" ]]
+	# Dereference symlink, if needed
+	mtime="$(stat -L "${file}" -c"%Y" 2>/dev/null)"
+	
+	if [[ -z "$mtime" ]]
 	then
-		# Dereference symlink, if needed
-		mtime="$(stat -L "${file}" -c"%Y")"
-	else
-		main.log -w "No valid filename passed: ${file} !"
+		main.log -v "Could not stat ${file}"
 		mtime=0
 	fi
 	

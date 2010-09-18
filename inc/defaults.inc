@@ -33,7 +33,7 @@ set -o nounset
 HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 
 # This is our internal reference time (in Unix Epoch), used for Chacing etc.
-CXR_EPOCH="$(date "+%s")"
+CXR_START_EPOCH="$(date "+%s")"
 
 # This is our porecess number (to be used when exiting on error)
 CXR_PID=$$

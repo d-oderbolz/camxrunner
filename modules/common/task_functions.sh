@@ -995,7 +995,7 @@ function common.task.Worker()
 				
 				module_path="$(common.module.getPath "$module")"
 				
-				start_epoch=$CXR_EPOCH
+				start_epoch=$CXR_START_EPOCH
 				
 				shown=false
 				

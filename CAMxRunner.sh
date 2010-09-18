@@ -842,7 +842,7 @@ fi
 # Do compression if needed
 common.fs.CompressOutput
 
-elapsed_seconds=$(( $(date "+%s") - $CXR_EPOCH ))
+elapsed_seconds=$(( $(date "+%s") - $CXR_START_EPOCH ))
 main.log -a "$CXR_RUN finished at $(date), we ran $elapsed_seconds s - $(common.date.humanSeconds $elapsed_seconds)"
 
 # Echo the "Finish message"
