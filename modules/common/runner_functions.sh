@@ -834,23 +834,39 @@ function common.runner.removeTempFiles()
 ################################################################################
 # Function: common.runner.getLockLinkName
 #
-# Returns the name of a lock-link to use.
+# Returns the name of a lock-link to use, depending on the lock level (directory),
+# and the mode (basename)
 #
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
 ################################################################################
 function common.runner.getLockLinkName()
 ################################################################################
 {
+	if [[ $# -lt 2 || $# -gt 3 ]]
+	then
+		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
+	fi
+	
 	local level
 	local lock
 	local file
+	local shared
 	
 	lock="$1"
 	level="$2"
+	shared="${3:-false}"
 	
-	file="${lock}.lock"
+	if [[ "$shared" == true ]]
+	then
+		file="${lock}-shared.lock"
+	else
+		file="${lock}-exclusive.lock"
+	fi
+	
+	
 	
 	case $level in
 		$CXR_LEVEL_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
@@ -876,32 +892,37 @@ function common.runner.getLockLinkName()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - max_wait_seconds (default CXR_LOCK_TIMEOUT_SEC)
+# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
+# [$4] - max_wait_seconds (default CXR_LOCK_TIMEOUT_SEC)
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -lt 2 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs at least the name of a lock and a level as input (optional max_wait_seconds), got $*"
+		main.dieGracefully "needs at least the name of a lock and a level as input (optional shared, max_wait_seconds), got $*"
 	fi
 
 	local lock
 	local level
+	local shared
+	local max_wait_seconds
+	
 	local locklink
 	local seconds_waited
 	local shown
-	local max_wait_seconds
 	local mtime
 
 	lock="$1"
 	level="$2"
-	max_wait_seconds="${3:-${CXR_LOCK_TIMEOUT_SEC}}"
+	shared="${3:-false}"
+	
+	max_wait_seconds="${4:-${CXR_LOCK_TIMEOUT_SEC}}"
 	
 	shown=false
 	seconds_waited=0
 	
-	locklink="$(common.runner.getLockLinkName $lock $level)"
+	locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
 
 	########################################
 	# We wait until lock is free
@@ -920,8 +941,15 @@ function common.runner.waitForLock()
 		mtime=$(common.fs.getMtime $locklink)
 		if [[ ${CXR_ALLOW_MULTIPLE} == false && $mtime -gt 0 && $mtime -lt "$CXR_EPOCH" ]]
 		then
-			main.log -w "Removing old lock $locklink"
-			rm -f $locklink
+			if [[ "$shared" == true ]]
+			then
+				# in the shared case, delete all similar files
+				main.log -w "Removing old shared locks $locklink"
+				rm -f ${locklink}*
+			else
+				main.log -w "Removing old exclusive lock $locklink"
+				rm -f $locklink
+			fi
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
@@ -946,6 +974,9 @@ function common.runner.waitForLock()
 # If we get the lock, a link in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list. (Thanks to Stefan Tramm for the symlink idea)
 # Shared locks work a bit different, here we store a lock-count in the file the link points to.
+#
+# It is the callers duty to check further locks (e.g. whether relevant shared locks are held before getting 
+# a readlock)
 #
 # Locking in general is harder than one thinks. We use an operation that generally
 # is atomic on most filesystems (check yours!): symlink.
@@ -995,7 +1026,7 @@ function common.runner.getLock()
 	shown=false
 	
 	tempfile="$(common.runner.createTempFile lock)"
-	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
+	locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
 	
 	# For debug reasons, locking can be turned off.
 	if [[ $CXR_NO_LOCKING == false ]]
@@ -1097,7 +1128,7 @@ function common.runner.releaseLock()
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
 	
-		locklink="$(common.runner.getLockLinkName $lock $level)"
+		locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
 	
 		if [[ "$shared" == false ]]
 		then

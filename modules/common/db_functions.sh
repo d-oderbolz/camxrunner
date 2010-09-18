@@ -131,7 +131,7 @@ function common.db.init()
 			do
 				main.log -v "Housekeeping on DB ${db_file}..."
 				
-				common.runner.getLock "$(basename $db_file)-write" "$level"
+				common.runner.getLock "$(basename $db_file)" "$level"
 				
 				# Do some basic maintenance
 				${CXR_SQLITE_EXEC} $db_file <<-EOT
@@ -148,7 +148,7 @@ function common.db.init()
 				EOT
 				
 				# Relase Lock
-				common.runner.releaseLock "$(basename $db_file)-write" "$level"
+				common.runner.releaseLock "$(basename $db_file)" "$level"
 				
 			done # db_files
 			
@@ -235,8 +235,14 @@ function common.db.getResultSet()
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
-	# Acquire shared lock
-	common.runner.getLock "$(basename $db_file)-read" "$level" true
+	if [[ $CXR_DB_SHARE_LOCKS == true ]]
+	then
+		# Before acquiring the sharelock, we wait for any writelocks 
+		common.runner.waitForLock "$(basename $db_file)" "$level"
+		
+		# Acquire shared lock
+		common.runner.getLock "$(basename $db_file)" "$level" true
+	fi # do we use sharelocks?
 	
 	# We have our own error handler here
 	set +e
@@ -260,8 +266,14 @@ function common.db.getResultSet()
 	
 	retval=$?
 	
-	# Release Lock
-	common.runner.releaseLock "$(basename $db_file)-read" "$level" true
+	# remove file
+	rm -f "$sqlfile"
+	
+	if [[ $CXR_DB_SHARE_LOCKS == true ]]
+	then
+		# Release Lock
+		common.runner.releaseLock "$(basename $db_file)" "$level" true
+	fi
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
@@ -319,8 +331,11 @@ function common.db.change()
 	# Add pragma
 	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
 	
-	# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
-	common.runner.waitForLock "$(basename $db_file)-read" "$level" 10
+	if [[ $CXR_DB_SHARE_LOCKS == true ]]
+	then
+		# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
+		common.runner.waitForLock "$(basename $db_file)" "$level" true 10
+	fi
 	
 	if [[ $_retval == false ]]
 	then
@@ -352,7 +367,7 @@ function common.db.change()
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
 	# For security reasons, we lock all write accesses to any DB
-	common.runner.getLock "$(basename $db_file)-write" "$level"
+	common.runner.getLock "$(basename $db_file)" "$level"
 	
 	# We have our own error handler here
 	set +e
@@ -374,8 +389,11 @@ function common.db.change()
 		retval=$?
 	fi # strace?
 	
+	# remove file
+	rm -f "$sqlfile"
+	
 	# Relase Lock
-	common.runner.releaseLock "$(basename $db_file)-write" "$level"
+	common.runner.releaseLock "$(basename $db_file)" "$level"
 	
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
