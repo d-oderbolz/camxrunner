@@ -1029,7 +1029,7 @@ function common.task.Worker()
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
 				
-				main.log -a -B "Worker $CXR_WORKER_ID (PID: $CXR_WORKER_PID on $CXR_MACHINE) assigned to $module for $CXR_DATE"
+				main.log -a -B "Worker $CXR_WORKER_ID (PID: $CXR_WORKER_PID on $CXR_MACHINE) assigned to $module (invocation $invocation) for $CXR_DATE"
 				
 				# Before loading a new module, remove old meta variables
 				unset ${!CXR_META_MODULE*}
