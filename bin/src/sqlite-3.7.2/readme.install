@@ -1,18 +1,15 @@
 EXEC=sqlite
 CXR_BIN_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin
 CXR_LIB_DIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib
-CXR_TMP_DIR=/afs/psi.ch/user/o/oderbolz/tmp
 HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 LIBDIR=${CXR_LIB_DIR}/${EXEC}/$HOSTTYPE
 mkdir -p ${LIBDIR}
-./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${LIBDIR} --includedir=${CXR_TMP_DIR} --datarootdir=${CXR_TMP_DIR} --program-suffix=-${HOSTTYPE} --disable-readline
-make clean && make && make install
 
 # Cleaner
-gcc -o sqlite3-${HOSTTYPE} src/${EXEC}/shell.c src/${EXEC}/sqlite3.c -ldl -lpthread
+gcc -o sqlite3-${HOSTTYPE} -DDSQLITE_ENABLE_LOCKING_STYLE src/${EXEC}/shell.c src/${EXEC}/sqlite3.c -ldl -lpthread
 
-# Host-srecific
-gcc -o sqlite3-${HOSTTYPE}-$(uname -n) src/${EXEC}/shell.c src/${EXEC}/sqlite3.c -ldl -lpthread
+# Host-specific
+gcc -o sqlite3-${HOSTTYPE}-$(uname -n) -DDSQLITE_ENABLE_LOCKING_STYLE src/${EXEC}/shell.c src/${EXEC}/sqlite3.c -ldl -lpthread
 
 # Build extension
 gcc -fPIC -lm -shared src/${EXEC}/extension-functions.c -o ${LIBDIR}/libsqlitefunctions.so
