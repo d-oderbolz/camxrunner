@@ -917,6 +917,8 @@ function common.runner.waitForLock()
 	level="$2"
 	shared="${3:-false}"
 	
+	_retval=false
+	
 	max_wait_seconds="${4:-${CXR_LOCK_TIMEOUT_SEC}}"
 	
 	shown=false

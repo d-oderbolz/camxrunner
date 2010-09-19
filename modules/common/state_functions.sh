@@ -885,7 +885,7 @@ function common.state.storeStatus()
 	esac
 	
 	# Update the database
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation ;"
 	
 	return $CXR_RET_OK
 }
