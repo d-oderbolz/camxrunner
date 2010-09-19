@@ -335,11 +335,11 @@ function common.db.change()
 	then
 		# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
 		common.runner.waitForLock "$(basename $db_file)" "$level" true 10
-	fi
-	
-	if [[ $_retval == false ]]
-	then
-		main.log -w "There are still shared locks on the file $db_file. We are going in anyway"
+		
+		if [[ $_retval == false ]]
+		then
+			main.log -w "There are still shared locks on the file $db_file. We are going in anyway"
+		fi
 	fi
 	
 	# Detect type of statement
