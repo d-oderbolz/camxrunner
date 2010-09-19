@@ -164,6 +164,8 @@ function common.db.init()
 # Function that returns a resultset on stdout. 
 # Do not use this function to alter the database - we aquire no writelock!
 # However, we do aquire a readlock, which prevents writers from getting a writelock.
+# On error, we try to re-execute the statement (we had some transient issues with 
+# file system errors).
 #
 # We add a pragma in front of the statement (PRAGMA temp_store = MEMORY;)
 # to test if AFS has a problem with the tempfiles...
@@ -266,9 +268,6 @@ function common.db.getResultSet()
 	
 	retval=$?
 	
-	# remove file
-	rm -f "$sqlfile"
-	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
 		# Release Lock
@@ -285,6 +284,9 @@ function common.db.getResultSet()
 	then
 		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 	fi
+	
+	# remove file
+	rm -f "$sqlfile"
 }
 
 ################################################################################
@@ -293,11 +295,10 @@ function common.db.getResultSet()
 # Use this function  for all SQL statements containing DML (INSERT,UPDATE,DELETE)
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is acquired.
 # Of course you can also use it to read data, but you will lock out others.
-# Is is recommended that you issue "PRAGMA legacy_file_format = on;" on each fresh DB file
-# first.
 #
-# We add a pragma in front of the statement (PRAGMA temp_store = MEMORY;)
-# to test if AFS has a problem with the tempfiles...
+# We add the following pragmas in front of the statement 
+# PRAGMA legacy_file_format = on; to ensure compatibility with older sqlite3 systems
+# PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -328,8 +329,9 @@ function common.db.change()
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
 	
-	# Add pragma
-	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
+	# Add pragmas
+	echo "PRAGMA legacy_file_format = on;" > $sqlfile"
+	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
@@ -389,9 +391,6 @@ function common.db.change()
 		retval=$?
 	fi # strace?
 	
-	# remove file
-	rm -f "$sqlfile"
-	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)" "$level"
 	
@@ -405,6 +404,9 @@ function common.db.change()
 	then
 		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 	fi
+	
+	# remove file
+	rm -f "$sqlfile"
 }
 
 ################################################################################

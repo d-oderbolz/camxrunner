@@ -699,6 +699,12 @@ function common.runner.createTempFile()
 	template=${template// /_}
 	
 	filename=$(mktemp $template)
+	
+	if [[ $? -ne 0 ]]
+	then
+		main.dieGracefully "Could not create tempfile $template. Maybe there are too many files in ${CXR_TMP_DIR}!"
+	fi
+	
 	main.log -v "Creating temporary file $filename"
 	
 	if [[ "${store}" == true ]]

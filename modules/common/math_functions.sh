@@ -88,7 +88,7 @@ function common.math.FloatOperation()
 	fi
 	
 	# error handling is not easy here.
-	# we cannot test $? not PIPESTATUS in the subshell.
+	# we cannot test $? nor PIPESTATUS in the subshell.
 	# we use a tempfile to catch stderr
 	
 	if [[ ${CXR_DBG_BC:-false} == true ]]
@@ -112,7 +112,6 @@ function common.math.FloatOperation()
 			main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
 		fi # error?
 	fi # caring about errors?
-	
 	
 	
 	if [[ "$resolution" -eq -1 ]]
