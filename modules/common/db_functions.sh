@@ -330,7 +330,7 @@ function common.db.change()
 	sqlfile="$(common.runner.createTempFile sql)"
 	
 	# Add pragmas
-	echo "PRAGMA legacy_file_format = on;" > $sqlfile"
+	echo "PRAGMA legacy_file_format = on;" > "$sqlfile"
 	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]

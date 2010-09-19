@@ -707,9 +707,6 @@ function common.state.init()
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
 	common.db.change "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" - <<-EOT
-	
-		-- Use legacy format
-		PRAGMA legacy_file_format = on;
 		
 		CREATE TABLE IF NOT EXISTS timing (	model 	TEXT,
 																				version	TEXT,
@@ -725,9 +722,6 @@ function common.state.init()
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
 	
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
-	
-	-- Use legacy format
-	PRAGMA legacy_file_format = on;
 	
 	-- This is a "Oracle like" Dummy table 
 	CREATE TABLE IF NOT EXISTS dual (dummy TEXT);

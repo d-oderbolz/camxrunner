@@ -125,9 +125,6 @@ function common.hash.init()
 	# Create table, no matter what
 	common.db.change "$db_file" "$level" - <<-EOT 
 	
-	-- Use legacy format
-	PRAGMA legacy_file_format = on;
-	
 	CREATE TABLE IF NOT EXISTS hash (hash, key, value, epoch_c);
 	
 	-- Create two indexes
