@@ -63,8 +63,8 @@ CXR_DBG_BC=false
 CXR_NO_LOCKING=false
 
 # If this is true, we will use share-locks for readers (writers always use exclusive locks).
-# Paranoid users set this to true, degrades performance somewhat.
-CXR_DB_SHARE_LOCKS=true
+# Paranoid users set this to true, degrades performance somewhat and causes many tempfiles.
+CXR_DB_SHARE_LOCKS=false
 
 # Just for main.usage
 progname=CAMxRunner.sh

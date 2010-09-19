@@ -235,11 +235,11 @@ function common.db.getResultSet()
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
+	# Before accessing the DB, we wait for any writelocks 
+	common.runner.waitForLock "$(basename $db_file)" "$level"
+	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
-		# Before acquiring the sharelock, we wait for any writelocks 
-		common.runner.waitForLock "$(basename $db_file)" "$level"
-		
 		# Acquire shared lock
 		common.runner.getLock "$(basename $db_file)" "$level" true
 	fi # do we use sharelocks?
