@@ -175,12 +175,11 @@ function common.state.updateInfo()
 		
 		sqlfile=$(common.runner.createTempFile sql-updateInfo)
 		
-		# We let the DB do all in one TRX
-		echo "BEGIN TRANSACTION;" > $sqlfile
+		# db_functions put a whole file into one TRX
 		
 		main.log -a "Cleaning Non-Persistent tables..."
 		
-		echo "DELETE FROM modules;" >> $sqlfile
+		echo "DELETE FROM modules;" > $sqlfile
 		echo "DELETE FROM metadata;" >> $sqlfile
 		
 		# Create a few working arrays we will go through
@@ -335,9 +334,6 @@ function common.state.updateInfo()
 		main.log -v "Removing any traces of running/failed tasks..."
 		echo "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');" >> $sqlfile
 		
-		# Mark end of TRX
-		echo "COMMIT TRANSACTION;" >> $sqlfile
-		
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
 		
@@ -395,8 +391,7 @@ function common.state.updateInfo()
 			fi
 		fi # repeated run?
 		
-		# We let the DB do all in one new TRX
-		echo "BEGIN TRANSACTION;" > $sqlfile
+		# db_functions automatically create a single TRX per file
 		
 		# Replace the days
 		echo "DELETE FROM days;" >> $sqlfile
@@ -428,9 +423,6 @@ function common.state.updateInfo()
 			
 			done
 		fi # Handle single days
-		
-		# Mark end of TRX
-		echo "COMMIT TRANSACTION;" >> $sqlfile
 		
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile

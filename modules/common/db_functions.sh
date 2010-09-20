@@ -65,6 +65,10 @@ function common.db.init()
 	local db_file
 	local level
 	
+	if [[ ${CXR_DB_TRY_TIMES:-0} -lt 1 ]]
+	then
+		main.dieGracefully "CXR_DB_TRY_TIMES ($CXR_DB_TRY_TIMES) must be at least 1, otherwise no DB operations will happen."
+	fi
 	
 	main.log -a "Initialising databases..."
 	
@@ -167,9 +171,8 @@ function common.db.init()
 # On error, we try to re-execute the statement (we had some transient issues with 
 # file system errors).
 #
-# We add a pragma in front of the statement (PRAGMA temp_store = MEMORY;)
-# to test if AFS has a problem with the tempfiles...
-# 
+# We add the following pragmas in front of the statement 
+# PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -193,6 +196,7 @@ function common.db.getResultSet()
 	local currline
 	local sqlfile
 	local retval
+	local result
 	
 	db_file="$1"
 	level="$2"
@@ -248,25 +252,36 @@ function common.db.getResultSet()
 	
 	# We have our own error handler here
 	set +e
-
-	if [[ "$CXR_STRACE_DB" == true ]]
-	then
-		# Temporarily, we observe all calls to sqlite
-		stracefile="$(common.runner.createJobFile sql-strace)"
 	
-		main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
-	
-		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
-		retval=$?
+	# we retry $CXR_DB_RETRY_TIMES times
+	while [[ $retval -ne 0 && $trial -le $CXR_DB_TRY_TIMES ]]
+	do
 		
-		bzip2 ${stracefile}
-	else
-		# no trace
-		${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile"
-		retval=$?
-	fi # strace?
-	
-	retval=$?
+		if [[ $trial -gt 1 ]]
+		then
+			main.log -w "Retrying SQL statement: $(cat $sqlfile)"
+		fi
+		
+		if [[ "$CXR_STRACE_DB" == true ]]
+		then
+			# Temporarily, we observe all calls to sqlite
+			stracefile="$(common.runner.createJobFile sql-strace)"
+		
+			main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
+		
+			result="$(strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile")"
+			retval=$?
+			
+			bzip2 ${stracefile}
+		else
+			# no trace
+			result="$(${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile")"
+			retval=$?
+		fi # strace?
+		
+		trial=$(( $trial + 1 ))
+		
+	done # retry loop
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
@@ -287,6 +302,7 @@ function common.db.getResultSet()
 	
 	# remove file
 	rm -f "$sqlfile"
+	echo "$result"
 }
 
 ################################################################################
@@ -296,9 +312,15 @@ function common.db.getResultSet()
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is acquired.
 # Of course you can also use it to read data, but you will lock out others.
 #
+# On error, we try to re-execute the statement (we had some transient issues with 
+# file system errors).
+#
 # We add the following pragmas in front of the statement 
 # PRAGMA legacy_file_format = on; to ensure compatibility with older sqlite3 systems
 # PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
+#
+# All statements are grouped into one single, immediate transaction (see <http://www.sqlite.org/lang_transaction.html>
+# This means that the DB will rollback any changes in case of an error, and we can retry.
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -319,11 +341,17 @@ function common.db.change()
 
 	local currline
 	local sqlfile
+	local trial
 	local retval
+	local result
 	
 	db_file="$1"
 	level="$2"
 	statement="$3"
+	
+	# count number of trials
+	trial=1
+	retval=1
 	
 	# We use a tempfile for all types of calls. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
@@ -332,6 +360,9 @@ function common.db.change()
 	# Add pragmas
 	echo "PRAGMA legacy_file_format = on;" > "$sqlfile"
 	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
+	
+	# Start TRX
+	echo "BEGIN IMMEDIATE TRANSACTION;" > "$sqlfile"
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
@@ -366,6 +397,9 @@ function common.db.change()
 	# add ; in case it was forgotten
 	echo ";" >> "$sqlfile"
 	
+	# End TRX
+	echo "COMMIT TRANSACTION;" >> $sqlfile
+	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
 	# For security reasons, we lock all write accesses to any DB
@@ -374,22 +408,34 @@ function common.db.change()
 	# We have our own error handler here
 	set +e
 	
-	if [[ "$CXR_STRACE_DB" == true ]]
-	then
-		# Temporarily, we observe all calls to sqlite
-		stracefile="$(common.runner.createJobFile sql-strace)"
+	# we retry $CXR_DB_RETRY_TIMES times
+	while [[ $retval -ne 0 && $trial -le $CXR_DB_TRY_TIMES ]]
+	do
+		if [[ $trial -gt 1 ]]
+		then
+			main.log -w "Retrying SQL statement: $(cat $sqlfile)"
+		fi
 	
-		main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
-	
-		strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
-		retval=$?
+		if [[ "$CXR_STRACE_DB" == true ]]
+		then
+			# Temporarily, we observe all calls to sqlite
+			stracefile="$(common.runner.createJobFile sql-strace)"
 		
-		bzip2 ${stracefile}
-	else
-		# no trace
-		${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile"
-		retval=$?
-	fi # strace?
+			main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
+		
+			result="$(strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
+			retval=$?
+			
+			bzip2 ${stracefile}
+		else
+			# no trace
+			result="$(${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
+			retval=$?
+		fi # strace?
+		
+		trial=$(( $trial + 1 ))
+	
+	done # retry loop
 	
 	# Relase Lock
 	common.runner.releaseLock "$(basename $db_file)" "$level"
@@ -402,11 +448,13 @@ function common.db.change()
 
 	if [[ $retval -ne 0 ]]
 	then
+		# Even after retrying, we failed
 		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
 	fi
 	
 	# remove file
 	rm -f "$sqlfile"
+	echo "$result"
 }
 
 ################################################################################

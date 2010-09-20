@@ -1283,9 +1283,8 @@ function common.task.init()
 		
 		main.log -v "Got this taskfile:\n$(cat $task_file)"
 		
-		echo "BEGIN TRANSACTION;" > $tempfile
-		
 		# Generate SQL file to update the ranks of the tasks
+		# db_functions will put all in the same TRX
 		while read line 
 		do
 			if [[ -z "$line" ]]
@@ -1311,8 +1310,6 @@ function common.task.init()
 			current_id=$(( $current_id + 1 ))
 
 		done < "$task_file"
-		
-		echo "COMMIT TRANSACTION;" >> $tempfile
 		
 		# Execute all statements at once
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $tempfile || main.dieGracefully "Could not update ranks properly"

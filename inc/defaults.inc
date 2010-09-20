@@ -63,8 +63,13 @@ CXR_DBG_BC=false
 CXR_NO_LOCKING=false
 
 # If this is true, we will use share-locks for readers (writers always use exclusive locks).
-# Paranoid users set this to true, degrades performance somewhat and causes many tempfiles.
+# This is an experimental feature.
 CXR_DB_SHARE_LOCKS=false
+
+# If set >1, failed SQL statements are retried.
+# We had to implement this because of weird AFS errors.
+# Must be at least 1, otherwise no SQ is executed.
+CXR_DB_TRY_TIMES=3
 
 # Just for main.usage
 progname=CAMxRunner.sh
