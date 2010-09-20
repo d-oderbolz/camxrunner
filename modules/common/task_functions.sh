@@ -723,20 +723,18 @@ function common.task.setNextTask()
 	# get first relevant entry in the DB
 	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
-	# If we find no task, this means that we are done.
-	# This is not an error and we should handle it without dieGracefully
-	
 	# Check status
 	if [[ $? -ne 0 ]]
 	then
-		main.dieGracefully "could not find next task!"
+		main.dieGracefully "An error ocurred when selecting the next task!" 
 	fi
 	
 	# we might not get a string
 	if [[ -z "$potential_task_data" ]]
 	then
 		# No task!
-		main.dieGracefully "could not find next task!"
+		main.log -a "It seems that all tasks are done. Worker ${CXR_WORKER_ID} stops now.
+		return $CXR_RET_OK
 	else
 		# We got a task
 		# parse
