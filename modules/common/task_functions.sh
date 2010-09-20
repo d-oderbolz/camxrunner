@@ -1277,6 +1277,9 @@ function common.task.init()
 		task_file=$(common.runner.createTempFile task_id_list)
 		tempfile=$(common.runner.createTempFile sql-rank)
 		
+		# Clean tempfile
+		: > $tempfile
+		
 		if [[ $CXR_PARALLEL_PROCESSING == true ]]
 		then
 			common.task.createParallelDependencyList $task_file
