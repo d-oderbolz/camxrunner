@@ -650,6 +650,7 @@ function common.fs.TryDecompressingFile()
 	local filetype
 	local new_file
 	local a_cxr_compressed_ext
+	local tempfile
 	
 	
 	input_file=$1
