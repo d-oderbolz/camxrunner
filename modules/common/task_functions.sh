@@ -316,19 +316,22 @@ function common.task.createSequentialDependencyList()
 	main.log -v "Now filling in data for all other days..."
 	# the day_file now contains a tsorted list of module entries.
 	
-	# note that common.db.change also returns a resultset if needed.
-	day_list="$(common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
-	
-	-- First put the data in a temp table
-	CREATE TEMPORARY TABLE day_t (module);
-	
+	# Import data
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	DROP TABLE IF EXITST day_t;
+	CREATE TABLE day_t (module);
 	.import $day_file day_t
+	EOT
 	
-	-- OK, now create the permutation
+	# now create the permutation
+	day_list="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	SELECT d.day_iso || '@' || t.module 
 	FROM 	days d,day_t t;
-
 	EOT)"
+	
+	# Drop temp table
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DROP TABLE IF EXISTS day_t;"
+	
 	
 	main.log -v "Appending day list..."
 	echo "$day_list" >> "$output_file"
