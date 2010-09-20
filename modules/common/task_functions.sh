@@ -957,7 +957,7 @@ function common.task.Worker()
 			# This is a blocking call (we wait until we get a task)
 			common.task.setNextTask
 			
-			id=$_id
+			id=${_id:-}
 			
 			# The task id might be empty
 			if [[ "$id" ]]
