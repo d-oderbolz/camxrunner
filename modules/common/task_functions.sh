@@ -1248,6 +1248,7 @@ function common.task.init()
 	local my_stage
 	local dep_file
 	local iOffset
+	local tempfile
 	
 	main.log -a -B "Initializing task subsystem, might take a while, depending on number of tasks..."
 	

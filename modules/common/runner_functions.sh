@@ -961,7 +961,7 @@ function common.runner.waitForLock()
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
-		time=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
+		seconds_waited=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
 		
 		if [[ $(common.math.FloatOperation "$seconds_waited > $max_wait_seconds" 0 false ) -eq 1 ]]
 		then
@@ -1022,9 +1022,12 @@ function common.runner.getLock()
 	local shared
 	
 	local seconds_waited
+	local sleeptime
 	local shown
 	local sleeptime
 	local mtime
+	local tempfile
+	local locklink
 	
 	lock="$1"
 	level="$2"
@@ -1128,6 +1131,7 @@ function common.runner.releaseLock()
 	local lock
 	local level
 	local shared
+	local locklink
 	
 	lock="$1"
 	level="$2"
