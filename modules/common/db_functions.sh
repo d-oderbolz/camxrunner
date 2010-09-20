@@ -202,6 +202,10 @@ function common.db.getResultSet()
 	level="$2"
 	statement="$3"
 	
+	# count number of trials
+	trial=1
+	retval=1
+	
 	separator="${4:-$CXR_DELIMITER}"
 
 	if [[ ! -r $db_file ]]
