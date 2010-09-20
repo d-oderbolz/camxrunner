@@ -265,9 +265,10 @@ CXR_LOCK_TIMEOUT_SEC=7200
 
 # After this amount of seconds, a arallel worker gives up if
 # dependencies are not satisfied
-CXR_DEPENDECY_TIMEOUT_SEC=7200
+# If set to -1, we wait forever
+CXR_DEPENDENCY_TIMEOUT_SEC=-1
 
-# This is the max number of times all werkers can be idle
+# This is the max number of times all workers can be idle
 # (consecutively)
 # This mechanism allows to detect a locked up run faster than aboves timeouts
 CXR_MAX_LOCKUP_COUNT=10

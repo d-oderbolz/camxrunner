@@ -624,7 +624,7 @@ function common.task.countRunningWorkers()
 #
 # Tests if all workers of a run are in a waiting state. This means that some dependency
 # is not fullfilled but has not failed, so all Worker will have to wait forever
-# (or until they waited CXR_DEPENDECY_TIMEOUT_SEC seconds).
+# (or until they waited CXR_DEPENDENCY_TIMEOUT_SEC seconds).
 # Since it is possible that this happens by coincidence, we keep a counter in
 # an instance hash that we increase when all workers are idle and decrease when they are not.
 # If a threshold is reached, we stop the run.
@@ -914,6 +914,9 @@ function common.task.Worker()
 	local day_offset
 	local shown
 	local start_epoch
+	local waited_seconds
+	
+	waited_seconds=0
 	
 	#Getting the pid is not easy, we do not want to create unnecessary processes...
 	tmp=$(common.runner.createTempFile $FUNCNAME)
@@ -1019,9 +1022,12 @@ function common.task.Worker()
 					common.task.waitingWorker $CXR_WORKER_PID
 					sleep $CXR_WAITING_SLEEP_SECONDS
 					
-					if [[ $(( $(date "+%s") - $start_epoch )) -gt $CXR_DEPENDECY_TIMEOUT_SEC ]]
+					waited_seconds=$(( $(date "+%s") - $start_epoch ))
+					
+					# Test of we waited to long (not if CXR_DEPENDENCY_TIMEOUT_SEC is -1)
+					if [[ $CXR_DEPENDENCY_TIMEOUT_SEC -ne -1 && $waited_seconds -gt $CXR_DEPENDENCY_TIMEOUT_SEC ]]
 					then
-						main.dieGracefully "It took longer than CXR_DEPENDECY_TIMEOUT_SEC ($CXR_DEPENDECY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_offset"
+						main.dieGracefully "It took longer than CXR_DEPENDENCY_TIMEOUT_SEC ($CXR_DEPENDENCY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_offset"
 					fi
 					
 					# It's possible that we have been "shot" in the meantime
@@ -1037,7 +1043,7 @@ function common.task.Worker()
 				# Time to work
 				common.task.runningWorker $CXR_WORKER_PID
 				
-				main.log -v "module: $module day_offset: $day_offset invocation: $invocation exclusive: $_exclusive"
+				main.log -a "module: $module\nday_offset: $day_offset\ninvocation: $invocation\nexclusive: $_exclusive\nwait time for dependencies: $waited_seconds s"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
