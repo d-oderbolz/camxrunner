@@ -733,7 +733,7 @@ function common.task.setNextTask()
 	if [[ -z "$potential_task_data" ]]
 	then
 		# No task!
-		main.log -a "It seems that all tasks are done. Worker ${CXR_WORKER_ID} stops now.
+		main.log -a "It seems that all tasks are done..."
 		return $CXR_RET_OK
 	else
 		# We got a task
@@ -907,8 +907,8 @@ function common.task.Worker()
 	local invocation
 	local module
 	local day_offset
-	local start_epoch
 	local shown
+	local start_epoch
 	
 	#Getting the pid is not easy, we do not want to create unnecessary processes...
 	tmp=$(common.runner.createTempFile $FUNCNAME)
@@ -935,6 +935,7 @@ function common.task.Worker()
 	fi
 
 	# We stay in this loop as long as the continue file exists
+	# or until no more tasks are around
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
@@ -956,7 +957,7 @@ function common.task.Worker()
 			
 			id=$_id
 			
-			# The task id might be empty due to errors
+			# The task id might be empty
 			if [[ "$id" ]]
 			then
 				main.log -v "New task received: $id"
@@ -993,9 +994,8 @@ function common.task.Worker()
 				
 				module_path="$(common.module.getPath "$module")"
 				
-				start_epoch=$CXR_START_EPOCH
-				
 				shown=false
+				start_epoch="$(date "+%s")"
 				
 				# We need to wait until all dependencies are ok
 				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" )" == true ]]
@@ -1017,6 +1017,15 @@ function common.task.Worker()
 					then
 						main.dieGracefully "It took longer than CXR_DEPENDECY_TIMEOUT_SEC ($CXR_DEPENDECY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_offset"
 					fi
+					
+					# It's possible that we have been "shot" in the meantime
+					if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+					then
+						# We have done our duty
+						common.task.removeWorker $CXR_WORKER_PID
+						return $CXR_RET_OK
+					fi
+					
 				done
 				
 				# Time to work
@@ -1061,21 +1070,10 @@ function common.task.Worker()
 					common.runner.releaseLock Exclusive "$CXR_LEVEL_GLOBAL"
 				fi
 			else
-				main.log -v  "Worker $CXR_WORKER_PID did not receive an assignment - maybe there are too many workers around"
-				
-				# This means that someone wants exclusive access
-				# Tell the system we wait, then sleep
-				common.task.waitingWorker $CXR_WORKER_PID
-				sleep $CXR_WAITING_SLEEP_SECONDS
-				
-				# It's possible that we have been "shot" in the meantime
-				if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
-				then
-					# We have done our duty
-					common.task.removeWorker $CXR_WORKER_PID
-					return $CXR_RET_OK
-				fi
-				
+				main.log -v "Worker $CXR_WORKER_PID did not receive an assignment - it seems that we are done."
+				# Get out of loop
+				break
+
 			fi # Got a task?
 		
 		else
