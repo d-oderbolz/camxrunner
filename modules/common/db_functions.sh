@@ -314,7 +314,7 @@ function common.db.getResultSet()
 #
 # Use this function  for all SQL statements containing DML (INSERT,UPDATE,DELETE)
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is acquired.
-# Of course you can also use it to read data, but you will lock out others.
+# DO NOT USE THIS TO QUERY THE DB (SELECT), use <common.db.getResultSet> for this purpose.
 #
 # On error, we try to re-execute the statement (we had some transient issues with 
 # file system errors).
@@ -330,13 +330,14 @@ function common.db.getResultSet()
 # $1 - full-path to db_file
 # $2 - level of the exclusive lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - either a statement, a filename or - indicating input from stdin
+# [$4] - boolean do_trx if false (default true), no transaction is started (use for example for .import)
 ################################################################################
 function common.db.change()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a db file, a level and a statement as input, got $*"
+		main.dieGracefully "needs a db file, a level, a statement and an optinal do_trx as input, got $*"
 	fi
 	
 	local db_file
@@ -348,10 +349,12 @@ function common.db.change()
 	local trial
 	local retval
 	local result
+	local do_trx
 	
 	db_file="$1"
 	level="$2"
 	statement="$3"
+	do_trx="${4:-true}"
 	
 	# count number of trials
 	trial=1
@@ -365,8 +368,11 @@ function common.db.change()
 	echo "PRAGMA legacy_file_format = on;" > "$sqlfile"
 	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
 	
-	# Start TRX
-	echo "BEGIN IMMEDIATE TRANSACTION;" > "$sqlfile"
+	# Start TRX if needed
+	if [[ "$do_trx" == true ]]
+	then
+		echo "BEGIN IMMEDIATE TRANSACTION;" > "$sqlfile"
+	fi
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
 	then
@@ -401,8 +407,11 @@ function common.db.change()
 	# add ; in case it was forgotten
 	echo ";" >> "$sqlfile"
 	
-	# End TRX
-	echo "COMMIT TRANSACTION;" >> $sqlfile
+	# End TRX, if needed
+	if [[ "$do_trx" == true ]]
+	then
+		echo "COMMIT TRANSACTION;" >> $sqlfile
+	fi
 	
 	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
 	
@@ -458,7 +467,6 @@ function common.db.change()
 	
 	# remove file
 	rm -f "$sqlfile"
-	echo "$result"
 }
 
 ################################################################################

@@ -317,8 +317,9 @@ function common.task.createSequentialDependencyList()
 	# the day_file now contains a tsorted list of module entries.
 	
 	# Import data
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
-	DROP TABLE IF EXITST day_t;
+	# .Import seems to do at implicit (undocumented!) commit...
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" -  false <<-EOT
+	DROP TABLE IF EXISTS day_t;
 	CREATE TABLE day_t (module);
 	.import $day_file day_t
 	EOT
@@ -331,7 +332,6 @@ function common.task.createSequentialDependencyList()
 	
 	# Drop temp table
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DROP TABLE IF EXISTS day_t;"
-	
 	
 	main.log -v "Appending day list..."
 	echo "$day_list" >> "$output_file"
