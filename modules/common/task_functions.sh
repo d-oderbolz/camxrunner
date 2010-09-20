@@ -708,9 +708,11 @@ function common.task.setNextTask()
 		main.log "All tasks have been processed, notifying system after security pause..."
 		
 		# there are no more tasks, remove all continue files after some waiting
-		# The waiting should ensure that all tasks are past their check for do_we_continue
-		sleep $CXR_WAITING_SLEEP_SECONDS
+		# The waiting should ensure that all workers are past their check for do_we_continue
+		sleep $(( 2 * $CXR_WAITING_SLEEP_SECONDS ))
 		
+		# It is safe to do this because the test for the continue file comes 
+		# very early in the worker 
 		common.state.deleteContinueFiles
 		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
 		echo ""
@@ -995,6 +997,7 @@ function common.task.Worker()
 				module_path="$(common.module.getPath "$module")"
 				
 				shown=false
+				# Store befor-wait epoch to test timeout
 				start_epoch="$(date "+%s")"
 				
 				# We need to wait until all dependencies are ok
