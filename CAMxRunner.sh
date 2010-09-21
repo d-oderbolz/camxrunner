@@ -117,7 +117,7 @@ function main.usage()
 
 	  -C    Create a new run, you are guided through the process.
 	  
-	  -R[name]  Creates a configuration to repeat an existing run. If no run is passed, asks user.
+	  -R    Creates a configuration to repeat an this run. User may select another run later.
 
 	  The following options allow to run a subset of the modules that make up a run.
 	  One approach is to select all modules of a module type (these options can be combined):
@@ -269,7 +269,7 @@ do
 	
 		# Creation or re-creation of configuration
 		C) 	CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
-		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_REPEAT_THIS_RUN=${OPTARG:-}; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
+		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_RUN_LIST="${OPTARG:-}" ;;
 		p) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
@@ -538,7 +538,7 @@ then
 		common.state.init
 		
 		# Re-create existing run
-		common.runner.recreateRun "${CXR_REPEAT_THIS_RUN:-}"
+		common.runner.recreateRun "${CXR_RUN}"
 	elif [[ "${CXR_STOP_RUN}" == true ]]
 	then
 		#Delete .CONTINUE files of all instances

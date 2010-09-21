@@ -1739,8 +1739,8 @@ function common.runner.recreateRun()
 	local oldRun
 	local newRun
 	
-	# Do we have the old run name?
-	if [[ -z "${1:-}" ]]
+	# Is this the correct run?
+	if [[ "$(common.user.getOK "Do you want to repeat ${1}?\nIf you say no, you may select another run.")" == false ]]
 	then
 		#no, ask
 		oldRunConf=$(common.runner.getExistingConfigFile)
