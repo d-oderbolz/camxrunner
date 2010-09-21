@@ -548,6 +548,40 @@ function common.task.countAllTasks()
 	echo "$task_count"
 }
 
+################################################################################
+# Function: common.task.countSuccessfulTasks
+#
+# Returns the number of successful tasks known.
+# 
+#
+################################################################################
+function common.task.countSuccessfulTasks()
+################################################################################
+{
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_SUCCESS';")"
+	
+	main.log -v "Found $task_count successful tasks"
+	
+	echo "$task_count"
+}
+
+################################################################################
+# Function: common.task.countFailedTasks
+#
+# Returns the number of failed tasks known.
+# 
+#
+################################################################################
+function common.task.countFailedTasks()
+################################################################################
+{
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_FAILURE';")"
+	
+	main.log -v "Found $task_count failed tasks"
+	
+	echo "$task_count"
+}
+
 
 ################################################################################
 # Function: common.task.countOpenTasks
@@ -627,7 +661,7 @@ function common.task.countRunningWorkers()
 # (or until they waited CXR_DEPENDENCY_TIMEOUT_SEC seconds).
 # Since it is possible that this happens by coincidence, we keep a counter in
 # an instance hash that we increase when all workers are idle and decrease when they are not.
-# If a threshold is reached, we stop the run.
+# If a threshold is reached, we stop the run, but only if there are still open tasks.
 #
 # Variables:
 # CXR_MAX_LOCKUP_COUNT - the maximal number of consecutive idling allowed. 
@@ -641,6 +675,12 @@ function common.task.detectLockup()
 {
 	local count
 	local numRunning
+	
+	if [[ "$(common.task.countOpenTasks)" -eq 0 ]]
+	then
+		# it seems that we are done, OK
+		return $CXR_RET_OK
+	if
 	
 	common.hash.has? Lockup $CXR_LEVEL_INSTANCE LockupCount > /dev/null
 	if [[ $_has == true ]]
