@@ -680,7 +680,7 @@ function common.task.detectLockup()
 	then
 		# it seems that we are done, OK
 		return $CXR_RET_OK
-	if
+	fi
 	
 	common.hash.has? Lockup $CXR_LEVEL_INSTANCE LockupCount > /dev/null
 	if [[ $_has == true ]]
