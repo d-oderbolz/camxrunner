@@ -676,9 +676,9 @@ function common.task.detectLockup()
 	local count
 	local numRunning
 	
-	if [[ "$(common.task.countOpenTasks)" -eq 0 ]]
+	if [[ "$CXR_PARALLEL_PROCESSING" == false || "$(common.task.countOpenTasks)" -eq 0 ]]
 	then
-		# it seems that we are done, OK
+		# it seems that we are done or alone, OK
 		return $CXR_RET_OK
 	fi
 	
