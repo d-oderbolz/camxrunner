@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=27
+CXR_META_MODULE_NUM_TESTS=28
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -345,6 +345,47 @@ function common.fs.isDos?()
 		echo false
 	fi
 }
+
+################################################################################
+# Function: common.fs.getLinkTarget
+#
+# Returns the link target of a file (even if target is non-existing).
+# Returns the empty string on error.
+#
+# Parameters:
+# $1 - path to link to dereference
+################################################################################
+function common.fs.getLinkTarget()
+################################################################################
+{
+	local ls_output
+	local link
+	local target
+	
+	link="$1"
+	
+	if [[ ! -h "$link" ]]
+	then
+		main.log -w "Non-existing link $link"
+		echo ""
+	else
+	
+		# We cannot support linknames containinc ->
+		if [[ $(main.isSubstringPresent? "$link" "->" ) == true ]]
+		then
+			main.log -w "Link name $link contains ->, cannot interpret output of ls!"
+			echo ""
+		else
+			ls_output=$(ls -l "$link")
+			target=${ls_output#*-> }
+			
+			main.log -v "Link $link points to $target"
+		
+			echo "$target"
+		fi
+	fi
+}
+
 
 ################################################################################
 # Function: common.fs.FileSizeMb
@@ -924,6 +965,9 @@ function test_module()
 	a=$(common.runner.createTempFile $FUNCNAME)
 	b=$(common.runner.createTempFile $FUNCNAME)
 	c=$(common.runner.createTempFile $FUNCNAME)
+	link=$(common.runner.createTempFile $FUNCNAME)
+	
+	ln -s -f $a $link
 	
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
@@ -957,11 +1001,13 @@ function test_module()
 	# Compression check
 	gzip $c
 	
+	
+	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	
+	is "$(common.fs.getLinkTarget $link)" "$a" "common.fs.getLinkTarget"
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
 	is $(common.fs.isAbsolutePath? /) true "common.fs.isAbsolutePath? /"

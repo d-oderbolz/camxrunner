@@ -1110,7 +1110,7 @@ function common.runner.getLock()
 ################################################################################
 # Function: common.runner.releaseLock
 #
-# Releases a lock atomically by a rename and unlink.
+# Releases a lock by deleting both link and target file.
 #
 # Recommended call:
 # > common.runner.releaseLock lockname
@@ -1132,6 +1132,7 @@ function common.runner.releaseLock()
 	local level
 	local shared
 	local locklink
+	local target
 	
 	lock="$1"
 	level="$2"
@@ -1141,12 +1142,20 @@ function common.runner.releaseLock()
 	then
 	
 		locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
-	
+		
 		if [[ "$shared" == false ]]
 		then
+		
+			target="$(common.fs.getLinkTarget $locklink)"
+		
 			# Normal, exclusive case
 			rm -f "$locklink" 2> /dev/null
 			main.log -v "lock $lock released."
+			
+			if [[ -e $target ]]
+			then
+				rm -f $target
+			fi
 			
 		else
 			# We have our own error handler here
