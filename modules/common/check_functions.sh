@@ -613,7 +613,7 @@ function common.check.preconditions()
 				# Test length
 				if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
 				then
-					if [[ $(common.string.len "${!output_dir}") -gt "${CXR_MAX_PATH}"  ]]
+					if [[ $(common.string.len "${!output_dir}") -gt "${CXR_MAX_PATH}" ]]
 					then
 						main.log -e  "Path to $output_dir longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					fi

@@ -9,6 +9,10 @@
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
 
+# Define IFS to be on the safe side
+IFS=' 	
+'
+
 # used to tell the user how to start again
 CXR_CALL="\$ ${0}"
 

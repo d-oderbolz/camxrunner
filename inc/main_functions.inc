@@ -460,6 +460,9 @@ function main.sendMessage()
 function main.doCleanup()
 ################################################################################
 {
+	# Remove any traps once called
+	trap - INT TERM EXIT
+	
 	local error_count
 	local dummy_file
 	local arrKeys
@@ -471,9 +474,6 @@ function main.doCleanup()
 	set +x
 	
 	main.log -a -B "Cleaning up $CXR_RUN and Terminating processes..."
-	
-	# Remove any traps once called
-	trap - INT TERM EXIT
 	
 	################################################################################
 	# Error report - do in any Non-hollow case
@@ -597,7 +597,7 @@ function main.doCleanup()
 	# What we do is kill the CAMxRunner processes (whole process group by giving negative PID)
 	# See <http://stackoverflow.com/questions/392022/best-way-to-kill-all-child-processes>
 	# Any child process can do this (which is good), however this means that all childs will re-execute this handler
-	# because in their processes, the handler is still in place.
+	# because in their processes, the trap is still in place.
 	kill -- -${CXR_PID}
 	
 }
@@ -608,18 +608,14 @@ trap "main.doCleanup; exit" INT TERM EXIT
 ################################################################################
 # Function: main.dieGracefully
 #
-# Prints a message and exits with value $2. must be in here because its important
+# Prints a message incl. call stack and performs cleanup.
 # 
 # Parameters:
 # $1 - Last words
-# [$2] - Run cleanup (if false, no cleanup is done)
-# [$3] - Return code
 ################################################################################
 function main.dieGracefully()
 ################################################################################
 {
-	# Release any traps
-	trap - INT TERM EXIT
 	local iFct
 	local maxNests
 	local last

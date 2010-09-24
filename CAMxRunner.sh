@@ -387,7 +387,7 @@ fi
 # Hollow and non-hollow options should not be mixed
 if [[ "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true ]]
 then
-	main.dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h" false
+	main.dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h"
 fi
 
 ################################################################################

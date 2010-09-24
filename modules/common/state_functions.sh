@@ -111,7 +111,7 @@ function common.state.deleteContinueFiles()
 {
 	main.log -w  "The continue files of all instances of this run will be deleted now!"
 	
-	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \;
+	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \; &> /dev/null
 }
 
 ################################################################################
