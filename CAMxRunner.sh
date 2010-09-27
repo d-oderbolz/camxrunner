@@ -101,7 +101,7 @@ function main.usage()
 	  -c    cleanup: removes state information
 
 	  -m    allow multiple instances of the runner on the same run 
-	        (experts only - not recommended)
+	        Also see -r
 
 	  -t<n> set the threshold for allowed errors (Default ${CXR_ERROR_THRESHOLD}).
 	        a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
@@ -134,6 +134,8 @@ function main.usage()
 	  Or one can enable just a list of specific modules (the order is unimportant):
 	
 	  -r"list of modules"
+	      When using -r together with -m (allow multiple runners), this instance will only work on the modules given.
+        This can be used to assign CPU intensive tasks like the model to strong machines.
 	  
 	  -L   List all available modules. (this command is sensitive to the run name)
 	  ----------------------------------------------------------------------------

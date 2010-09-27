@@ -145,8 +145,8 @@ function convert_meteo()
 		#  --- Setup the Environment
 		set_variables 
 		
-		#  --- Check Settings (only input)
-		if [[ $(common.check.preconditions -i) == false  ]]
+		#  --- Check Settings
+		if [[ $(common.check.preconditions) == false  ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
