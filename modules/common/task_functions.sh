@@ -759,7 +759,10 @@ function common.task.setNextTask()
 		# It is safe to do this because the test for the continue file comes 
 		# very early in the worker 
 		common.state.deleteContinueFiles
+		
+		# Release Lock
 		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
+		
 		echo ""
 		return $CXR_RET_OK
 		
@@ -781,6 +784,10 @@ function common.task.setNextTask()
 	then
 		# No task!
 		main.log -a "It seems that all tasks are done..."
+		
+		# Release lock
+		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
+		
 		return $CXR_RET_OK
 	else
 		# We got a task
@@ -999,13 +1006,16 @@ function common.task.Worker()
 		then
 			# Enough Memory
 			
+			# Init id
+			_id=""
+			
 			# common.task.setNextTask provides tasks in an atomic fashion
 			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
 			# This is a blocking call (we wait until we get a task)
 			common.task.setNextTask
 			
-			id=${_id:-}
+			id="${_id:-}"
 			
 			# The task id might be empty
 			if [[ "$id" ]]
