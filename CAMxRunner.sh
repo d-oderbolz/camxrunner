@@ -717,6 +717,7 @@ then
 				# It might be a type!
 				if [[ "$(common.module.isType $module)" == true ]]
 				then
+					main.log -a "We will run all modules of type $module"
 					# Yep, its a type
 					# Exchange roles
 					module_type=$module
@@ -766,7 +767,7 @@ then
 					
 					for entry in $module
 					do
-						CXR_TASK_WHERE="'$entry',"
+						CXR_TASK_WHERE="'$entry',${CXR_TASK_WHERE:-}"
 					done
 				
 				fi # CXR_ALLOW_MULTIPLE?
@@ -782,7 +783,7 @@ then
 			fi 
 			
 		else
-			main.log -v "The option -r needs at least one module name as argument!"
+			main.log -v "The option -r needs at least one module name or type as argument!"
 		fi
 		
 	

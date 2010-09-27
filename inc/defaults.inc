@@ -290,6 +290,9 @@ CXR_IGNORE_ANY_DEPENDENCIES=false
 
 ## End Task control
 
+# This variable is used later to carry rostrictions on the tasks this instance runs
+CXR_TASK_WHERE=""
+
 # Names of modules already checked
 CXR_ANNOUNCED_MODULES=" "
 
