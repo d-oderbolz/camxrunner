@@ -133,7 +133,7 @@ function main.usage()
 	
 	  Or one can enable just a list of specific modules (the order is unimportant):
 	
-	  -r"list of modules"
+	  -r"list of modules or types"
 	      When using -r together with -m (allow multiple runners), this instance will only work on the modules given.
         This can be used to assign CPU intensive tasks like the model to strong machines.
 	  
@@ -621,6 +621,7 @@ then
 		# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
 		# When the user selects a certain type of modules, they should be executed as 
 		# configured
+		# In the case of CXR_ALLOW_MULTIPLE, we create a WHERE-clause that is used later by setNextTask
 
 		# First we store all current (configured values)
 		d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
@@ -702,8 +703,8 @@ then
 		if [[ "$(common.string.trim "$CXR_RUN_LIST")" ]]
 		then
 			# There are arguments
-			# we reset all specifically enabled modules
-			# (-r means "run ONLY these additional modules")
+			# we reset all explicitly enabled modules
+			# (-r means "run ONLY these modules")
 			CXR_ENABLED_ONCE_PREPROC=""
 			CXR_ENABLED_DAILY_PREPROC=""
 			CXR_ENABLED_MODEL=""
@@ -713,36 +714,73 @@ then
 			# Decode arguments
 			for module in $CXR_RUN_LIST
 			do
-				# Determine type. 
-				# Due to CATCH-22 we cannot use <common.module.getType> here
-				module_type="$(common.module.getTypeSlow "$module")"
+				# It might be a type!
+				if [[ "$(common.module.isType $module)" == true ]]
+				then
+					# Yep, its a type
+					# Exchange roles
+					module_type=$module
+					# The modules must be derived from the tpe
+					module="$(common.module.resolveType $module_type)"
+				else 
+					# no, normal module name
+					# Determine type. 
+					# Due to CATCH-22 we cannot use <common.module.getType> here
+					module_type="$(common.module.getTypeSlow "$module")"
+					
+				fi  # is it a type?
 				
-				case "$module_type" in
+				if [[ "$CXR_ALLOW_MULTIPLE" == false ]]
+				then
+					# Normal case with one runner
+					case "$module_type" in
+					
+						"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+							CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
+							CXR_RUN_PRE_ONCE=true;;
+							
+						"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+							CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
+							CXR_RUN_PRE_DAILY=true;;
+							
+						"${CXR_TYPE_MODEL}" ) 
+							CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
+							CXR_RUN_MODEL=true;;
+							
+						"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+							CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
+							CXR_RUN_POST_DAILY=true;;
+							
+						"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+							CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
+							CXR_RUN_POST_ONCE=true;;
+							
+						* ) 
+							main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
+					esac
 				
-					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
-						CXR_RUN_PRE_ONCE=true;;
-						
-					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
-						CXR_RUN_PRE_DAILY=true;;
-						
-					"${CXR_TYPE_MODEL}" ) 
-						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
-						CXR_RUN_MODEL=true;;
-						
-					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
-						CXR_RUN_POST_DAILY=true;;
-						
-					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
-						CXR_RUN_POST_ONCE=true;;
-						
-					* ) 
-						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
-				esac
-			done
+				else
+				
+					# Special case where we run multiple runners
+					# We need to go over all modules set now
+					
+					for entry in $module
+					do
+						CXR_TASK_WHERE="'$entry',"
+					done
+				
+				fi # CXR_ALLOW_MULTIPLE?
+
+			done # entries in -r
+			
+			if [[ "$CXR_TASK_WHERE" ]]
+			then
+				# We fix the task where clause
+				# remove last comma
+				CXR_TASK_WHERE="${CXR_TASK_WHERE%,}]"
+				CXR_TASK_WHERE=" module in (${CXR_TASK_WHERE}) "
+			fi 
+			
 		else
 			main.log -v "The option -r needs at least one module name as argument!"
 		fi

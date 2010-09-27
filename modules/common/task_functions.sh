@@ -722,6 +722,7 @@ function common.task.detectLockup()
 #
 # Returns the id of the next task to execute and all its data in environment vars.
 # Even though sqlite does locking, we protect this critical function with a lock.
+# If no parameter is given, we choose from all tasks is the pool, otherwie we restrict.
 # 
 # If there are no more tasks, the empty string is returned.
 # If all tasks are executed, deletes the continue file.
@@ -735,6 +736,7 @@ function common.task.detectLockup()
 # _day_offset
 # _invocation
 #
+# [$1] - an optional where-clause (without WHERE) to select specific tasks.
 ################################################################################
 function common.task.setNextTask()
 ################################################################################
@@ -744,8 +746,13 @@ function common.task.setNextTask()
 	
 	local task_count
 	local potential_task_data
+	local where
 	
 	task_count=$(common.task.countOpenTasks)
+	
+	# If a where clause is passed, we use it,
+	# otherwise use 1=1
+	where=${1:-1=1}
 
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
@@ -771,7 +778,7 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL AND $where ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -1013,7 +1020,8 @@ function common.task.Worker()
 			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
 			# This is a blocking call (we wait until we get a task)
-			common.task.setNextTask
+			# We restrict by the maybe-set CXR_TASK_WHERE
+			common.task.setNextTask ${CXR_TASK_WHERE:-}
 			
 			id="${_id:-}"
 			

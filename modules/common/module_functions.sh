@@ -170,6 +170,70 @@ function common.module.getPath()
 }
 
 ################################################################################
+# Function: common.module.isType
+# 
+# Statically (without DB) determines if a given string is a module type.
+#
+# Parameters:
+# $1 - string to test
+################################################################################
+function common.module.isType()
+################################################################################
+{
+	local string
+	
+	string="${1}"
+	
+	case "$string" in 
+	
+		$CXR_TYPE_COMMON) echo true ;;
+		$CXR_TYPE_PREPROCESS_ONCE) echo true ;;
+		$CXR_TYPE_PREPROCESS_DAILY) echo true ;;
+		$CXR_TYPE_MODEL) echo true ;;
+		$CXR_TYPE_POSTPROCESS_DAILY) echo true ;;
+		$CXR_TYPE_POSTPROCESS_ONCE) echo true ;;
+		$CXR_TYPE_INSTALLER) echo true ;;
+		*) echo false;;
+	
+	esac	
+}
+
+################################################################################
+# Function: common.module.resolveType
+# 
+# Statically (without DB) returns all module names belonging to a type in a space-separated list
+# Only supports types we can run using -r
+# Similar to <common.state.updateInfo>
+#
+# Parameters:
+# $1 - type to resolve
+################################################################################
+function common.module.resolveType()
+################################################################################
+{
+	local type
+	local dir
+	local modules
+	
+	type="${1}"
+	
+	case "$string" in 
+		$CXR_TYPE_PREPROCESS_ONCE) dir="$CXR_PREPROCESSOR_ONCE_INPUT_DIR" ;;
+		$CXR_TYPE_PREPROCESS_DAILY) dir="$CXR_PREPROCESSOR_DAILY_INPUT_DIR" ;;
+		$CXR_TYPE_MODEL) dir="$CXR_MODEL_INPUT_DIR" ;;
+		$CXR_TYPE_POSTPROCESS_DAILY) dir="$CXR_POSTPROCESSOR_DAILY_INPUT_DIR" ;;
+		$CXR_TYPE_POSTPROCESS_ONCE) dir="$CXR_POSTPROCESSOR_ONCE_INPUT_DIR" ;;
+		*) main.dieGracefully "Cannot resolve type $type" ;;
+	esac	
+	
+	# Find all *.sh files in this dir (no descent, no path, no .sh extension!)
+	# We use "tr" (transliterate to replace the \n (sed cannot, because \n is not part of a sed line!))
+	modules="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh' -exec basename {} .sh \; | tr '\012' ' ' )"
+	
+	echo "$modules"
+}
+
+################################################################################
 # Function: common.module.getType
 # 
 # For a given module name, returns the type of the module.
