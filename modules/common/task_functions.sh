@@ -543,7 +543,7 @@ function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -560,7 +560,7 @@ function common.task.countAllTasks()
 function common.task.countSuccessfulTasks()
 ################################################################################
 {
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_SUCCESS';")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_SUCCESS' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count successful tasks"
 	
@@ -577,7 +577,7 @@ function common.task.countSuccessfulTasks()
 function common.task.countFailedTasks()
 ################################################################################
 {
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_FAILURE';")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_FAILURE' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count failed tasks"
 	
@@ -598,7 +598,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}'")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count open tasks"
 	
