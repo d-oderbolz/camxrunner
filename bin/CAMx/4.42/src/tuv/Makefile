@@ -130,12 +130,16 @@ USE_INCL = tuv.o \
            rtlink.psndo.o psndo.o
 
 FOBJS = addpnt.o zero1.o zero2.o inter1.o inter2.o inter3.o inter4.o fsum.o           \
-        futr.o fery.o fchap.o zenith.o sundis.o
+        futr.o fery.o fchap.o zenith.o sundis.o tuvcompr.o
 
 # Setings for pgf77
 FCFLGS = -Kieee -Wl,-Bstatic $(TPOPTION)
 
 tuv:		$(FOBJS) $(USE_INCL) 
+		$(FC) $(FFLAGS) $(FOBJS) $(USE_INCL) $(LIBS) -o $(DESTINATION)/$@-$(HOSTTYPE)
+
+
+tuvcompr:		$(FOBJS) $(USE_INCL) 
 		$(FC) $(FFLAGS) $(FOBJS) $(USE_INCL) $(LIBS) -o $(DESTINATION)/$@-$(HOSTTYPE)
 
 $(USE_INCL):	$(INCLUDES)
