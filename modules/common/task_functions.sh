@@ -1234,6 +1234,7 @@ function common.task.controller()
 	local ReaLoad
 	# Counter needed to find out wher to show ETA
 	local i
+	local task_count
 	
 	i=0
 	
@@ -1276,6 +1277,21 @@ function common.task.controller()
 		if [[ $i -eq 0 ]]
 		then
 			common.performance.reportEta
+		fi
+		
+		task_count=$(common.task.countOpenTasks)
+		
+		if [[ "$task_count" -eq 0 ]]
+		then
+			main.log "All tasks have been processed, notifying system after security pause..."
+			
+			# there are no more tasks, remove all continue files after some waiting
+			# The waiting should ensure that all workers are past their check for do_we_continue
+			sleep $(( 2 * $CXR_WAITING_SLEEP_SECONDS ))
+			
+			# It is safe to do this because the test for the continue file comes 
+			# very early in the workers
+			common.state.deleteContinueFiles
 		fi
 		
 	done
