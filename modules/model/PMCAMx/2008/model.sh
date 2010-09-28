@@ -174,8 +174,14 @@ function set_variables()
 		if [[    "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA"     ]] 
 		then
 			CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
-			CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
-		
+			
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
+			else
+				CXR_SA_NESTED_RESTART_INPUT_FILE=
+			fi
+			
 			#Grid specific
 			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 			do
@@ -205,7 +211,13 @@ function set_variables()
 			CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
 			
 			CXR_DDM_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
-			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
+			
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
+			else
+				CXR_DDM_NESTED_RESTART_INPUT_FILE=
+			fi
 		
 			#Grid specific
 			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
@@ -249,7 +261,13 @@ function set_variables()
 		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 		then
 			CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
-			CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+			
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+			else
+				CXR_RT_NESTED_RESTART_INPUT_FILE=
+			fi
 		fi
 		
 		################################################################
@@ -264,7 +282,14 @@ function set_variables()
 		# These are used to prevent overwriting of existing files
 		# Output files must not be decompressed!
 		CXR_DIAG_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
-		CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+		then
+			CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		else
+			CXR_FINST_OUTPUT_FILE=
+		fi
+		
 		CXR_INST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
 		CXR_MASS_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
 		CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)

@@ -155,8 +155,14 @@ function set_variables()
 			if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
 			then
 				CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
-				CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
-			
+				
+				if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+				then
+					CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
+				else
+					CXR_SA_NESTED_RESTART_INPUT_FILE=
+				fi
+				
 				#Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_SA_MASTER_RESTART_INPUT_FILE $CXR_SA_NESTED_RESTART_INPUT_FILE"
 			fi #Probing?
@@ -245,8 +251,14 @@ function set_variables()
 			CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
 			
 			CXR_DDM_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
-			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
-		
+			
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
+			else
+				CXR_DDM_NESTED_RESTART_INPUT_FILE=
+			fi
+			
 			#Grid specific
 			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 			do
@@ -289,7 +301,13 @@ function set_variables()
 		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
 		then
 			CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
-			CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+			
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+			else
+				CXR_RT_NESTED_RESTART_INPUT_FILE=
+			fi
 		fi
 		
 		################################################################
