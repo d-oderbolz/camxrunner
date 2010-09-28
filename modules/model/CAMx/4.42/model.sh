@@ -194,8 +194,14 @@ function set_variables()
 		
 			# Output files must not be decompressed
 			# We only want to check them, otherwise we dont need these values
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false) $(common.runner.evaluateRule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
-	
+			
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false)"	
+			# Add nested, if needed
+			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+			then
+				CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
+			fi
+			
 			#Source area specific
 			for CXR_ISRCREGION in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
 			do
@@ -328,7 +334,13 @@ function set_variables()
 		CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
 
 		#Checks (this time output)
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_FINST_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
+		
+		# Add nested, if needed
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+		then
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_FINST_OUTPUT_FILE "
+		fi
 
 		########################################################################
 		# per day-per grid settings
