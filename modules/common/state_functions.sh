@@ -1133,7 +1133,7 @@ function common.state.cleanup()
 				then
 					# Module types it is.
 					# We add the value "all" to the result
-					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM types UNION SELECT 'all' FROM dual")"
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM types UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
@@ -1169,13 +1169,17 @@ function common.state.cleanup()
 					then
 						main.log -a "You pre-selected all modules for deletion"
 						where_module=""
+					elif [[ $which_step == none ]]
+					then
+						main.log -a "You chose not to delete any data."
+						break
 					else
 						where_module="module='$which_step'"
 					fi
 				fi
 				
 				# Get all days and add all as above
-				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual")"
+				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 				
 				oIFS="$IFS"
 				# set IFS to newline that select parses correctly
@@ -1191,6 +1195,10 @@ function common.state.cleanup()
 					main.log -a "You pre-selected all days for deletion"
 					offset=0
 					all_days=true
+				elif [[ $which_day == none ]]
+					then
+						main.log -a "You chose not to delete any data."
+						break
 				else
 					offset=$(common.date.toOffset $which_day)
 					all_days=false
@@ -1221,7 +1229,7 @@ function common.state.cleanup()
 					
 					common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 
-					if [[ "$(common.user.getOK "Do you really want to do this?" )" == false ]]
+					if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
 					then
 						# No 
 						main.log -a "Will not delete this information"
