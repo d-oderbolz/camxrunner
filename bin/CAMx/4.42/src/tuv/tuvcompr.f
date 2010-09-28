@@ -3,7 +3,7 @@ c
 c compare two CAMx look-up tables
 c Greg Yarwood, 6/4/99 - gyarwood@envion.org
 c
-       parameter (nozn=5,nalb=5,nhaze=3,nhght=11,nzen=10,mxrxn=10)
+       parameter (nozn=5,nalb=5,nhaze=3,nhght=11,nzen=10,mxrxn=19)
        real   rk1(nzen,mxrxn,nhght,nhaze,nalb,nozn)
        real   rk2(nzen,mxrxn,nhght,nhaze,nalb,nozn)
        real   camxozn(nzen), camxhaze(nhaze) 
@@ -15,7 +15,7 @@ c
        character*12  oznlab
        character*8   alblab
        character*11  hazelab
-       data   camxzen /0., 10., 20., 30., 40., 50., 60., 70., 78., 86./
+       data   camxzen /0., 0.15, 0.35, 0.60, 1.00, 2.00, 3.00, 4.00, 6.00, 8.00, 10.0/
  
 c** ENTRY POINT
  
