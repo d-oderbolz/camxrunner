@@ -239,9 +239,9 @@ function photolysis_rates()
 						fi
 						
 						# We cannot go beyond the last day
-						if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+						if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 						then
-							day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+							start_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 						fi
 						
 						common.date.setVars "$CXR_START_DATE" "$start_offset"
@@ -271,9 +271,9 @@ function photolysis_rates()
 					fi
 					
 					# We cannot go beyond the last day
-					if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+					if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 					then
-						day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+						start_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 					fi
 					
 					common.date.setVars "$CXR_START_DATE" "$start_offset"
