@@ -133,7 +133,7 @@ FOBJS = addpnt.o zero1.o zero2.o inter1.o inter2.o inter3.o inter4.o fsum.o     
         futr.o fery.o fchap.o zenith.o sundis.o
 
 # Setings for pgf77
-FCFLGS = -Kieee -Wl,-Bstatic $(TPOPTION)
+FCFLGS = -Kieee -Bstatic $(TPOPTION)
 
 all:    tuv tuvcompr
 
@@ -151,6 +151,6 @@ $(USE_INCL):	$(INCLUDES)
 	$(FC)  -c $(FCFLGS) $< 
 
 clean:
-	-rm *.o
-	-rm $(DESTINATION)/tuv-$(HOSTTYPE)
-	-rm $(DESTINATION)/tuvcompr-$(HOSTTYPE)
+	-rm -f *.o
+	-rm -f $(DESTINATION)/tuv-$(HOSTTYPE)
+	-rm -f $(DESTINATION)/tuvcompr-$(HOSTTYPE)
