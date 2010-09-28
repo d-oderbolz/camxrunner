@@ -84,9 +84,11 @@ function Pre_and_Postprocessor_installer()
 				cd $SRC_DIR || main.dieGracefully "Could not change to $SRC_DIR"
 				
 				# Clean up whatever there was
+				main.log -a "make clean DESTINATION=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				make clean DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				
 				# Make it!
+				main.log -a "make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				make FC=${CXR_FORTRAN_COMPILER_EXEC} PLATFORM=$CXR_CURRENT_PLATFORM DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}" || main.dieGracefully "The compilation did not complete successfully"
 			fi
 		done

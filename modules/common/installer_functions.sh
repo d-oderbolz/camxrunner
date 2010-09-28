@@ -90,8 +90,6 @@ function common.install.run()
 
 	# Decrease global indent level
 	main.decreaseLogIndent
-	
-	return ${ret_val}
 }
 
 ################################################################################
