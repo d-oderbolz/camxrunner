@@ -388,6 +388,12 @@ function albedo_haze_ozone()
 					day_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE) + 7 * ( $CXR_INVOCATION - 2 ) ))
 				fi
 				
+				# We cannot go beyond the last day
+				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+				then
+					day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+				fi
+				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"
 				
 				# That many days remain in the current week
@@ -425,6 +431,12 @@ function albedo_haze_ozone()
 						common.date.setVars "$CXR_START_DATE" "$day_offset"
 						day_offset=$(( $day_offset + $(common.date.DaysLeftInMonth $CXR_DATE) ))
 					done
+				fi
+				
+				# We cannot go beyond the last day
+				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+				then
+					day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 				fi
 				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"

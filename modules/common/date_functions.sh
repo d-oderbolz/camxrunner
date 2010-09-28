@@ -812,7 +812,7 @@ function common.date.OffsetToDate()
 # 
 # Calculates the number of hours since model start (the current day does not count, since
 # we are at the very beginning of it. Considers CXR_START_HOUR.
-# Noteh tha CAMx gives hours in hhhh format, this function returns truncated hh fomat.
+# Note that CAMx gives hours in hhhh format, this function returns truncated hh fomat.
 #
 #
 # Example:
@@ -840,12 +840,12 @@ function common.date.getModelHour()
 	
 	if [[ "${offset}" -lt 0 ]]
 	then
-		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a date in YYYY-MM-DD form. Got $*"
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )). Got $*"
 		echo ""
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
 	then
-		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )). Got $*"
 		echo ""
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -eq 0 ]]

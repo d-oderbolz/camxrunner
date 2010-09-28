@@ -237,6 +237,13 @@ function photolysis_rates()
 							# we are at some later day
 							start_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE) + 7 * ( $CXR_INVOCATION - 2 ) ))
 						fi
+						
+						# We cannot go beyond the last day
+						if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+						then
+							day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+						fi
+						
 						common.date.setVars "$CXR_START_DATE" "$start_offset"
 					
 						main.log -b "Running TUV for week $CXR_WOY..."
@@ -261,6 +268,12 @@ function photolysis_rates()
 							common.date.setVars "$CXR_START_DATE" "$start_offset"
 							start_offset=$(( $start_offset + $(common.date.DaysLeftInMonth $CXR_DATE) ))
 						done
+					fi
+					
+					# We cannot go beyond the last day
+					if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+					then
+						day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
 					fi
 					
 					common.date.setVars "$CXR_START_DATE" "$start_offset"
