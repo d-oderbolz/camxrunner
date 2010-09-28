@@ -48,9 +48,6 @@ function CAMxRunner_installer()
 ################################################################################
 {
 	
-	# This function asks automatically
-	common.test.all "${CXR_MODEL}" "${CXR_MODEL_VERSION}"
-
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
 	then
 		# Yes

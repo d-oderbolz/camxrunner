@@ -114,7 +114,7 @@ function common.install.init()
 	local oIFS
 	local array
 	
-	main.log -a   "Checking internal files (may take a while)..."
+	main.log -a "Checking internal files (may take a while)..."
 	
 	common.check.RunnerExecutables
 	
