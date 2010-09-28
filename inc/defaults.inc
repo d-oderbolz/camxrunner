@@ -28,8 +28,9 @@ CXR_CALL="\$ ${0}"
 # use command || :
 set -e
 
-# We want to get the last non-zero exit status in a pipe
-set -o pipefail
+# If you set this, the exit status of a pipe is equal to the last non-zero
+# status in the pipe. Makes set -e more stringent
+# set -o pipefail
 
 # Never use an undefined variable.
 # This is a very strict requirement, but its also safe...
