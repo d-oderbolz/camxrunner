@@ -133,7 +133,7 @@ FOBJS = addpnt.o zero1.o zero2.o inter1.o inter2.o inter3.o inter4.o fsum.o     
         futr.o fery.o fchap.o zenith.o sundis.o
 
 # Setings for pgf77
-FCFLGS = -Kieee -Bstatic $(TPOPTION)
+FCFLGS = -Mbyteswapio -Kieee -Bstatic $(TPOPTION)
 
 all:    tuv tuvcompr
 
