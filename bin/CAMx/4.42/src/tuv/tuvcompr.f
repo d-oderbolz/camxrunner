@@ -7,7 +7,7 @@ c
        real   rk1(nzen,mxrxn,nhght,nhaze,nalb,nozn)
        real   rk2(nzen,mxrxn,nhght,nhaze,nalb,nozn)
        real   camxozn(nzen), camxhaze(nhaze) 
-       real   camxalb(nalb), camxzen(nzen)
+       real   camxalb(nalb)
        real   z(nhght)
        real   rxn1(mxrxn,nzen), rxn2(mxrxn,nzen)
        character*180  fname
@@ -15,7 +15,7 @@ c
        character*12  oznlab
        character*8   alblab
        character*11  hazelab
-       data   camxzen /0., 0.15, 0.35, 0.60, 1.00, 2.00, 3.00, 4.00, 6.00, 8.00, 10.0/
+
  
 c** ENTRY POINT
  
