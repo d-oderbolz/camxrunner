@@ -523,9 +523,12 @@ function common.fs.CompressOutput()
 	
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
-			# common.hash.getKeysAndValues returns a newline-separated list
-			oIFS="$IFS"
-			IFS='
+	
+		main.log -a "Compressing output files..."
+	
+		# common.hash.getKeysAndValues returns a newline-separated list
+		oIFS="$IFS"
+		IFS='
 '
 		# looping through filename|module pairs
 		for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE)
@@ -590,7 +593,7 @@ function common.fs.CompressOutput()
 				then
 					if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 					then
-						main.log -v  "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
+						main.log -a "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
 						"${CXR_COMPRESSOR_EXEC}" "${filename}"
 					else
 						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
