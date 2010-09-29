@@ -906,7 +906,8 @@ function common.date.DaysBetween()
 ################################################################################
 # Function: common.date.WeeksBetween
 #
-# Returns the number of distinct weeks between two dates (inclusive). 
+# Returns the number of distinct weeks between two dates (inclusive) across years. 
+# Monday is the start of the week.
 # This number is at least 1 (if the days are in the same week)
 #
 # TODO: Improve efficiency
@@ -928,8 +929,8 @@ function common.date.WeeksBetween()
 	local iDay
 	local nWeeks
 	
-	# Init
-	nWeeks=0
+	# # Even if in the same week it's one week
+	nWeeks=1
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
@@ -970,19 +971,13 @@ function common.date.WeeksBetween()
 		oldweek=$week
 	done
 	
-	# Even if in the same week it's one week
-	if [[ $nWeeks -eq 0 ]]
-	then
-		nWeeks=1
-	fi
-	
 	echo $nWeeks
 }
 
 ################################################################################
 # Function: common.date.MonthsBetween
 #
-# Returns the number of months between two dates (inclusive).
+# Returns the number of months between two dates (inclusive) across years.
 # This number is at least 1 (if the days are in the same week)
 #
 # TODO: Improve efficiency
@@ -1004,9 +999,8 @@ function common.date.MonthsBetween()
 	local iDay
 	local nMonths
 	
-	# Init
-	nMonths=0
-	
+	# Even if in the same month it's one month
+	nMonths=1
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
@@ -1019,14 +1013,14 @@ function common.date.MonthsBetween()
 	end="$2"
 
 	# we convert the dates to julian dates and then loop
-	julstart=$(common.date.toJulian $1)
-	julend=$(common.date.toJulian $2)
+	julstart=$(common.date.toJulian $start)
+	julend=$(common.date.toJulian $end)
 	
 	diff="$(( $julend - $julstart ))"
 	
 	if [[ $diff -lt 0 ]]
 	then
-		main.log -e  "Date2 is smaller than Date1. Got $*"
+		main.log -e "Date2 is smaller than Date1. Got $*"
 		echo 0
 		return $CXR_RET_ERROR
 	fi
@@ -1046,12 +1040,7 @@ function common.date.MonthsBetween()
 		
 		oldmonth=$month
 	done
-	
-	# Even if in the same month it's one month
-	if [[ $nMonths -eq 0 ]]
-	then
-		nMonths=0
-	fi
+
 	
 	echo $nMonths
 }
