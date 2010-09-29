@@ -648,7 +648,7 @@ function common.date.DaysLeftInWeek()
 	
 	if [[ $truncate == true ]]
 	then
-		start_offset=$(common.date.ToOffset $dim_d)
+		start_offset=$(common.date.toOffset $dim_d)
 		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
 		
 		if [[ $difference -lt $left ]]
@@ -702,7 +702,7 @@ function common.date.DaysLeftInMonth()
 	
 	if [[ $truncate == true ]]
 	then
-		start_offset=$(common.date.ToOffset $dim_d)
+		start_offset=$(common.date.toOffset $dim_d)
 		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
 		
 		if [[ $difference -lt $left ]]
