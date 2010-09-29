@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=43
+CXR_META_MODULE_NUM_TESTS=45
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some date functions for the CAMxRunner"
@@ -928,8 +928,8 @@ function common.date.WeeksBetween()
 	local iDay
 	local nWeeks
 	
-	# Even if in the same week it's one week
-	nWeeks=1
+	# Init
+	nWeeks=0
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
 	then
@@ -970,6 +970,12 @@ function common.date.WeeksBetween()
 		oldweek=$week
 	done
 	
+	# Even if in the same week it's one week
+	if [[ $nWeeks -eq 0 ]]
+	then
+		nWeeks=1
+	fi
+	
 	echo $nWeeks
 }
 
@@ -998,8 +1004,8 @@ function common.date.MonthsBetween()
 	local iDay
 	local nMonths
 	
-	# Even if in the same month it's one month
-	nMonths=1
+	# Init
+	nMonths=0
 	
 	
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(common.date.isYYYYMMDD? "$2") == false    ]]
@@ -1040,6 +1046,12 @@ function common.date.MonthsBetween()
 		
 		oldmonth=$month
 	done
+	
+	# Even if in the same month it's one month
+	if [[ $nMonths -eq 0 ]]
+	then
+		nMonths=0
+	fi
 	
 	echo $nMonths
 }
@@ -1430,11 +1442,14 @@ function test_module()
 	
 	is $(common.date.WeeksBetween 2009-01-01 2009-01-01) 1 "common.date.WeeksBetween same day"
 	is $(common.date.WeeksBetween 2009-01-01 2009-01-02) 1 "common.date.WeeksBetween same week"
+	is $(common.date.WeeksBetween 2010-09-13 2010-09-26) 2 "common.date.WeeksBetween two weeks"
 	is $(common.date.WeeksBetween 2009-01-01 2009-01-31) 5 "common.date.WeeksBetween longer period"
 	
 	is $(common.date.MonthsBetween 2009-01-01 2009-01-01) 1 "common.date.MonthsBetween same day"
 	is $(common.date.MonthsBetween 2009-01-01 2009-01-12) 1 "common.date.MonthsBetween same month"
+	is $(common.date.MonthsBetween 2003-08-01 2003-09-30) 2 "common.date.MonthsBetween two months"
 	is $(common.date.MonthsBetween 2009-01-01 2009-04-01) 4 "common.date.MonthsBetween longer period"
+	
 	
 	is $(common.date.addDays 2009-02-28 1) 2009-03-01 "common.date.addDays"
 	is $(common.date.addDays 2004-02-28 1) 2004-02-29 "common.date.addDays"

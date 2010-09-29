@@ -177,7 +177,7 @@ function create_tuv_control_file ()
 # TUV (Tropospheric Ultraviolet and Visible Radiation Model).
 #
 # See:
-# <create_tuv_control_file>
+# <create_tuv_control_file>, <albedo_haze_ozone>
 #
 # Parameters:
 # None.
