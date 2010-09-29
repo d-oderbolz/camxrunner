@@ -467,7 +467,7 @@ function common.date.EpochToDateTime()
 ################################################################################
 # Function: common.date.WeekOfYear
 # 
-# Returns the one-based week of year
+# Returns the one-based week of year (Monday is the first day)
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format

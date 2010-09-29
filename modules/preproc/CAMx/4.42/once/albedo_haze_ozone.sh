@@ -354,9 +354,7 @@ function albedo_haze_ozone()
 	if [[ "$(common.state.storeStatus ${CXR_STATUS_RUNNING})" == true  ]]
 	then
 	
-		# Check if we need another file
-		# We need to know how long a week or month still lasts
-		# as we do not always begin at boundaries
+		# Initialize data for this file
 		case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
 		
 			once )

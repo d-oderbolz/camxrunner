@@ -208,7 +208,7 @@ function photolysis_rates()
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
 	
-			# Check if we need another file
+			# Initialize data for this file
 			case "${CXR_RUN_AHOMAP_TUV_INTERVAL:-once}" in
 			
 				once )
