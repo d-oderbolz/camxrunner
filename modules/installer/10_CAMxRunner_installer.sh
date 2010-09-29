@@ -123,7 +123,41 @@ function CAMxRunner_installer()
 		main.log  "Regenerating API documentation..."
 		$CXR_API_DOC_EXEC
 	fi
+	
+	##############################################################################
+	if [[ "$(common.user.getOK "Do you want to compile essential executables for CAMxRunner? (not model specific)" N )" == true  ]]
+	then
+	
+		# Loop through the source-directories
+		for SRC_DIR in $CXR_BIN_SCR_ARR
+		do
+			if [[ "$(common.user.getOK "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
+			then
+				main.log -a  "****Compiling source in $SRC_DIR ...\n"
+				
+				if [[ -L "$SRC_DIR" ]]
+				then
+					main.log -a  "a link to $(common.fs.getLinkTarget $SRC_DIR)"
+				fi
+				
+				cd $SRC_DIR || main.dieGracefully "Could not change to $SRC_DIR"
+				
+				# Clean up whatever there was
+				main.log -a "make clean DESTINATION=${CXR_BIN_DIR}"
+				make clean DESTINATION="${CXR_BIN_DIR}"
+				
+				# Make it!
+				main.log -a "make DESTINATION=${CXR_BIN_DIR}"
+				make DESTINATION="${CXR_BIN_DIR}" || main.dieGracefully "The compilation did not complete successfully"
+			fi
+		done
+		
+		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
+		
+		main.log -a  "Converters compiled."
 
+	
+	fi
 }
 
 ################################################################################

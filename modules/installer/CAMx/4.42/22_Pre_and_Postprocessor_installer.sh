@@ -83,6 +83,11 @@ function Pre_and_Postprocessor_installer()
 				
 				cd $SRC_DIR || main.dieGracefully "Could not change to $SRC_DIR"
 				
+				if [[ -x configure ]]
+				then
+					./configure
+				fi
+				
 				# Clean up whatever there was
 				main.log -a "make clean DESTINATION=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
 				make clean DESTINATION="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}"
