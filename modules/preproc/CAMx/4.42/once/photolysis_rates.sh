@@ -229,13 +229,16 @@ function photolysis_rates()
 				
 						# Here, the invocation is the week offset since start
 						# We need to find the start (Monday) of the current offset week
+						# and determine its day_offset
 						if [[ $CXR_INVOCATION -eq 1 ]]
 						then
 							# we are at the first day
 							start_offset=0
 						else
 							# we are at some later day
-							start_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE) + 7 * ( $CXR_INVOCATION - 2 ) ))
+							# note that adding 7 to a day_offset moves us into the next week.
+							# Therefore we subtract 2 and not 1 from the CXR_INVOCATION
+							start_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE true) + 7 * ( $CXR_INVOCATION - 2 ) ))
 						fi
 						
 						# We cannot go beyond the last day
@@ -259,14 +262,13 @@ function photolysis_rates()
 						# we are at the first day
 						start_offset=0
 					else
-						# we are at some later day
-						# We must find the start day in a loop (adding up all days until we reach the start)
-						start_offset=$(common.date.DaysLeftInMonth $CXR_START_DATE)
+						# we start at 0
+						start_offset=0
 						
 						for iMonth in $(seq 2 $CXR_INVOCATION)
 						do
 							common.date.setVars "$CXR_START_DATE" "$start_offset"
-							start_offset=$(( $start_offset + $(common.date.DaysLeftInMonth $CXR_DATE) ))
+							start_offset=$(( $start_offset + $(common.date.DaysLeftInMonth $CXR_DATE true) ))
 						done
 					fi
 					

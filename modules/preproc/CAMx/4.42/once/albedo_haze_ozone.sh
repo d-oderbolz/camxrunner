@@ -339,14 +339,10 @@ function albedo_haze_ozone()
 	# Define & Initialize local vars
 	local day_offset
 	local num_days
-	local days_left
-	local month_length
 	local iMonth
 	
 	day_offset=0
 	num_days=0
-	days_left=0
-	month_length=0
 	
 	local ahomap_control_file
 	
@@ -383,7 +379,9 @@ function albedo_haze_ozone()
 					day_offset=0
 				else
 					# we are at some later day
-					day_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE) + 7 * ( $CXR_INVOCATION - 2 ) ))
+					# note that adding 7 to a day_offset moves us into the next week.
+					# Therefore we subtract 2 and not 1 from the CXR_INVOCATION
+					day_offset=$(( $(common.date.DaysLeftInWeek $CXR_START_DATE true) + 7 * ( $CXR_INVOCATION - 2 ) ))
 				fi
 				
 				# We cannot go beyond the last day
@@ -394,18 +392,8 @@ function albedo_haze_ozone()
 				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"
 				
-				# That many days remain in the current week
-				days_left=$(common.date.DaysLeftInWeek $CXR_DATE)
-				
-				# The number of days depends on the number of days left in the simulation
-				if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} )) -lt ${days_left}  ]]
-				then
-					# less days left in simulation than in week
-					num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} ))
-				else
-					#Plenty of days left
-					num_days=${days_left}
-				fi
+				# That many days remain in the current week (considering end of simulation)
+				num_days=$(common.date.DaysLeftInWeek $CXR_DATE true)
 				
 				main.log -b "Running AHOMAP for week $CXR_WOY ( $num_days days starting at offset $day_offset )..."
 
@@ -420,15 +408,18 @@ function albedo_haze_ozone()
 					# we are at the first day
 					day_offset=0
 				else
-					# we are at some later day
-					# We must find the start in a loop
-					day_offset=$(common.date.DaysLeftInMonth $CXR_START_DATE)
-					
-					for iMonth in $(seq 2 $CXR_INVOCATION)
+					# We start at day 0
+					day_offset=0
+				
+					# we are at some later moth. iMonth is the month offset compared to the start month
+					# Note that adding the lenght of a month to a day_offset moves us into the next month.
+					# Therefore we subtract 2
+					for iMonth in $(seq 0 $(( $CXR_INVOCATION - 2)) )
 					do
 						common.date.setVars "$CXR_START_DATE" "$day_offset"
 						day_offset=$(( $day_offset + $(common.date.DaysLeftInMonth $CXR_DATE) ))
 					done
+					
 				fi
 				
 				# We cannot go beyond the last day
@@ -439,17 +430,7 @@ function albedo_haze_ozone()
 				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"
 				
-				month_length=$(common.date.DaysInMonth $CXR_MONTH $CXR_YEAR)
-				days_left=$(common.date.DaysLeftInMonth $CXR_DATE)
-				
-				# The number of days depends on the number of days left
-				if [[ $(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 )) -lt ${days_left} ]]
-				then
-					num_days=$(( ${CXR_NUMBER_OF_SIM_DAYS} - ${day_offset} + 1 ))
-				else
-					#Plenty of days left
-					num_days=${days_left}
-				fi
+				num_days=$(common.date.DaysLeftInMonth $CXR_DATE true)
 				
 				main.log -b "Running AHOMAP for month $CXR_MONTH ( $num_days days  starting at offset $day_offset )..."
 				
@@ -463,10 +444,10 @@ function albedo_haze_ozone()
 		set_variables 
 		
 		#  --- Check Settings
-		if [[ "$(common.check.preconditions)" == false  ]]
+		if [[ "$(common.check.preconditions)" == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
-			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+			common.state.storeStatus ${CXR_STATUS_FAILURE} > /dev/null
 		
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS

@@ -621,6 +621,7 @@ function common.date.DayOfWeek()
 #
 # Parameters:
 # $1 - date
+# [$2] - truncate, if true (default false) we only report the days left to the end of the simulation.
 ################################################################################
 function common.date.DaysLeftInWeek()
 ################################################################################
@@ -628,6 +629,10 @@ function common.date.DaysLeftInWeek()
 	# Define & Initialize local vars
 	local dim_d
 	local dow
+	local left
+	local truncate
+	local start_offset
+	local difference
 	
 	if [[ $# -lt 1  ]]
 	then
@@ -635,20 +640,38 @@ function common.date.DaysLeftInWeek()
 	fi
 	
 	dim_d=${1}
+	truncate=${2:-false}
 
+	# Day of week
 	dow=$(date -d "$dim_d" +%u)
+	left=$(( 7 - $dow + 1))
 	
-	echo $(( 7 - $dow + 1))
+	if [[ $truncate == true ]]
+	then
+		start_offset=$(common.date.ToOffset $dim_d)
+		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
+		
+		if [[ $difference -lt $left ]]
+		then
+			main.log -v "There are only $difference days left to the end of the simulation!"
+			echo $difference
+		else
+			echo $left
+		fi
+	else
+		echo $left
+	fi
 }
 
 
 ################################################################################
 # Function: common.date.DaysLeftInMonth
 # 
-# Returns the number of days left in a month (including the given day)
+# Returns the number of days left in a month (including the given day).
 #
 # Parameters:
 # $1 - date
+# [$2] - truncate, if true (default false) we only report the days left to the end of the simulation.
 ################################################################################
 function common.date.DaysLeftInMonth()
 ################################################################################
@@ -658,20 +681,40 @@ function common.date.DaysLeftInMonth()
 	local dom
 	local ndom
 	local year
+	local left
+	local truncate
+	local start_offset
+	local difference
 	
-	if [[ $# -lt 1  ]]
+	if [[ $# -lt 1 ]]
 	then
 		main.dieGracefully "needs a date as input. Got $*"
 	fi
 	
 	dim_d=${1}
-
+	truncate=${2:-false}
+	
 	dom=$(date -d "$dim_d" +%e)
 	month=$(date -d "$dim_d" +%m)
 	year=$(date -d "$dim_d" +%Y)
 	ndom=$(common.date.DaysInMonth $month $year)
+	left=$(( $ndom - $dom + 1))
 	
-	echo $(( $ndom - $dom + 1))
+	if [[ $truncate == true ]]
+	then
+		start_offset=$(common.date.ToOffset $dim_d)
+		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
+		
+		if [[ $difference -lt $left ]]
+		then
+			main.log -v "There are only $difference days left to the end of the simulation!"
+			echo $difference
+		else
+			echo $left
+		fi
+	else
+		echo $left
+	fi
 }
 
 
