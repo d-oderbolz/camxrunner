@@ -768,8 +768,6 @@ function common.state.init()
 	                                    current_task		TEXT,
 	                                    epoch_m					INTEGER);
 	
-	PRAGMA main.locking_mode=NORMAL; 
-	
 	EOT
 	
 	# Update the module path hash and form the lists of active modules

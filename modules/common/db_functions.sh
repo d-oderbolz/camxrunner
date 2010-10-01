@@ -143,7 +143,7 @@ function common.db.init()
 				${CXR_SQLITE_EXEC} $db_file <<-EOT
 				
 				-- Get exclusive access
-				PRAGMA main.locking_mode=EXCLUSIVE; 
+				PRAGMA locking_mode=EXCLUSIVE; 
 	
 				-- Check integrity
 				PRAGMA integrity_check;
@@ -175,8 +175,7 @@ function common.db.init()
 # (SQLite issues "I/O Error" but means "DB locked")
 #
 # We add the following pragmas in front of the statement 
-# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
-# PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
+# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update. Control via CXR_DB_X_LOCK_READ
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -223,8 +222,11 @@ function common.db.getResultSet()
 	sqlfile="$(common.runner.createTempFile sql)"
 	
 	# Add pragmas
-	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
-	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
+	
+	if [[ "CXR_DB_X_LOCK_READ" == true ]]
+	then
+		echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
+	fi
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
@@ -301,7 +303,17 @@ function common.db.getResultSet()
 	
 	# remove file
 	rm -f "$sqlfile"
-	echo "$result"
+	
+	if [[ "CXR_DB_X_LOCK_READ" == true ]]
+	then
+		# Because locking_mode = exclusive is not silent, result starts with "exclusive\n"
+		echo "$result" | sed '1d'
+	else
+		echo "$result"
+	fi
+	
+	
+	
 }
 
 ################################################################################
@@ -317,7 +329,6 @@ function common.db.getResultSet()
 # We add the following pragmas in front of the statement 
 # PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
 # PRAGMA legacy_file_format = on; to ensure compatibility with older sqlite3 systems
-# PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
 #
 # All statements are grouped into one single, immediate transaction (see <http://www.sqlite.org/lang_transaction.html>
 # This means that the DB will rollback any changes in case of an error, and we can retry.
@@ -363,8 +374,6 @@ function common.db.change()
 	# Add pragmas
 	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
 	echo "PRAGMA legacy_file_format = on;" >> "$sqlfile"
-	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
-	
 	
 	# Start TRX if needed
 	if [[ "$do_trx" == true ]]

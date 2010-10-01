@@ -556,7 +556,7 @@ function common.hash.has?()
 		# get the rowcount
 		rowcount=$(common.db.getResultSet "$db_file" "$level" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 
-		if [[ $rowcount -gt 0 ]]
+		if [[ "$rowcount" -gt 0 ]]
 		then
 			# Get the value
 			value=$(common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
