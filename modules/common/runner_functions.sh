@@ -793,8 +793,8 @@ function common.runner.removeTempFiles()
 				
 				set $pair
 				
-				compressed_filename="$1"
-				filename="$2"
+				compressed_filename="${1:-/dev/null}"
+				filename="${2:-/dev/null}"
 				# Reset IFS
 				IFS="$oIFS"
 				

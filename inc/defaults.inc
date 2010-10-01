@@ -70,6 +70,9 @@ CXR_DBG_BC=false
 # Dangerous, especially in parallel mode; should only be used when debugging
 CXR_NO_LOCKING=false
 
+# If this is true, we acquire an exclusive lock on reading
+CXR_DB_X_LOCK_READ=true
+
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
 # We need this because if we cannet got a lock, the statement "fails"
