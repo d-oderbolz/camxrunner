@@ -148,12 +148,16 @@ function CAMxRunner_installer()
 				
 				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
 				
-				libdir=${CXR_LIB_DIR}/${exec}/$HOSTTYPE
+				
 				
 				# Configure when compiling proj
 				if [[ $exec == proj ]]
 				then
-					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE} --datarootdir=${CXR_BIN_DIR}
+					libdir=${CXR_LIB_DIR}/${exec}/$HOSTTYPE
+					
+					mkdir -p $libdir
+				
+					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni
 				fi
 				
 				# Clean up whatever there was
