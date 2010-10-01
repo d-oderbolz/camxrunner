@@ -47,11 +47,11 @@ all: pbzip2
 
 # Standard pbzip2 compile
 pbzip2: pbzip2.cpp BZ2StreamScanner.cpp
-	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE) $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE)$(SUFFIX) $(LDFLAGS)
 
 # Choose this if you want to compile in a static version of the libbz2 library
 pbzip2-static: pbzip2.cpp BZ2StreamScanner.cpp libbz2.a
-	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE) -I. -L. $(LDFLAGS)
+	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE)$(SUFFIX) -I. -L. $(LDFLAGS)
 
 # Install the binary pbzip2 program and man page
 install: pbzip2
@@ -66,4 +66,4 @@ install: pbzip2
 	chmod a+r $(PREFIX)/man/man1/pbzip2.1
 
 clean:
-	rm -f *.o (DESTINATION)/pbzip2-$(HOSTTYPE)
+	rm -f *.o (DESTINATION)/pbzip2-$(HOSTTYPE)$(SUFFIX)

@@ -12,8 +12,8 @@ all: tsort
 
 # Standard pbzip2 compile
 tsort: tsort.c
-	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE)
+	$(CC) $(CFLAGS) $^ -o $(DESTINATION)/$@-$(HOSTTYPE)$(SUFFIX)
 
 
 clean:
-	rm -f *.o (DESTINATION)/tsort-$(HOSTTYPE)
+	rm -f *.o (DESTINATION)/tsort-$(HOSTTYPE)$(SUFFIX)

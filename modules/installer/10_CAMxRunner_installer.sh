@@ -50,6 +50,7 @@ function CAMxRunner_installer()
 	local libdir
 	local exec
 	local src_dir
+	local suffix
 	
 	
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
@@ -132,6 +133,11 @@ function CAMxRunner_installer()
 	if [[ "$(common.user.getOK "Do you want to compile essential executables for CAMxRunner? (not model specific)" N )" == true  ]]
 	then
 	
+		if [[ "$(common.user.getOK "Do you want to create machine-specific programs?\n(by appending -${CXR_MACHINE} to the names)" )" == true ]]
+		then
+			suffix=-${CXR_MACHINE}
+		fi
+	
 		# Loop through the source-directories
 		for scr_dir in $CXR_BIN_SCR_ARR
 		do
@@ -157,21 +163,21 @@ function CAMxRunner_installer()
 					
 					mkdir -p $libdir
 				
-					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni
+					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE}${suffix} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni
 				fi
 				
 				# Clean up whatever there was
-				main.log -a "make clean DESTINATION=${CXR_BIN_DIR}"
-				make clean DESTINATION="${CXR_BIN_DIR}"
+				main.log -a "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}"
+				make clean DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}"
 				
 				# Make it!
-				main.log -a "make DESTINATION=${CXR_BIN_DIR}"
-				make DESTINATION="${CXR_BIN_DIR}" || main.dieGracefully "The compilation did not complete successfully"
+				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}"
+				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix} || main.dieGracefully "The compilation of $exec did not complete successfully"
 			
 				# make install when compiling proj
 				if [[ $exec == proj ]]
 				then
-					make install
+					make install || main.dieGracefully "The installation of $exec did not complete successfully"
 				fi
 			fi
 		done
