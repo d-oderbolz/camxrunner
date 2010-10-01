@@ -7,6 +7,8 @@
 # Version: $Id$ 
 #
 # These functions provide access to the sqlite DB and provide logging and error handling.
+# Note that sqlite (V 3.7.2) has the nasty habit of issuing "I/O Error" if 
+# the DB is locked. 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -166,12 +168,15 @@ function common.db.init()
 # Function: common.db.getResultSet
 #
 # Function that returns a resultset on stdout. 
-# Do not use this function to alter the database - we aquire no writelock!
+# Do not use this function to alter the database - we aquire no writelock in CAMxRunner!
+# However, to avoid writers from changing the DB, we lock it exclusively.
+# 
 # However, we do aquire a readlock, which prevents writers from getting a writelock.
 # On error, we try to re-execute the statement (we had some transient issues with 
 # file system errors).
 #
 # We add the following pragmas in front of the statement 
+# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
 # PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
 #
 # Parameters:
@@ -218,8 +223,9 @@ function common.db.getResultSet()
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
 	sqlfile="$(common.runner.createTempFile sql)"
 	
-	# Add pragma
-	echo "PRAGMA temp_store = MEMORY;" > "$sqlfile"
+	# Add pragmas
+	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
+	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
 	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
@@ -285,6 +291,8 @@ function common.db.getResultSet()
 		
 		trial=$(( $trial + 1 ))
 		
+		sleep $CXR_DB_RETRY_WAIT_SECONDS
+		
 	done # retry loop
 	
 	if [[ $CXR_DB_SHARE_LOCKS == true ]]
@@ -320,6 +328,7 @@ function common.db.getResultSet()
 # file system errors).
 #
 # We add the following pragmas in front of the statement 
+# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
 # PRAGMA legacy_file_format = on; to ensure compatibility with older sqlite3 systems
 # PRAGMA temp_store = MEMORY; to test if AFS has a problem with the tempfiles...
 #
@@ -365,8 +374,10 @@ function common.db.change()
 	sqlfile="$(common.runner.createTempFile sql)"
 	
 	# Add pragmas
-	echo "PRAGMA legacy_file_format = on;" > "$sqlfile"
+	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
+	echo "PRAGMA legacy_file_format = on;" >> "$sqlfile"
 	echo "PRAGMA temp_store = MEMORY;" >> "$sqlfile"
+	
 	
 	# Start TRX if needed
 	if [[ "$do_trx" == true ]]
@@ -447,6 +458,8 @@ function common.db.change()
 		fi # strace?
 		
 		trial=$(( $trial + 1 ))
+		
+		sleep $CXR_DB_RETRY_WAIT_SECONDS
 	
 	done # retry loop
 	

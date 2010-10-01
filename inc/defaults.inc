@@ -75,9 +75,12 @@ CXR_NO_LOCKING=false
 CXR_DB_SHARE_LOCKS=false
 
 # If set >1, failed SQL statements are retried.
-# We had to implement this because of weird AFS errors.
-# Must be at least 1, otherwise no SQ is executed.
+# Must be at least 1, otherwise no SQL is executed.
+# We need this because if we cannet got a lock, the statement "fails"
 CXR_DB_TRY_TIMES=3
+
+# If a DB operation fails, we wait a bit until retry
+CXR_DB_RETRY_WAIT_SECONDS=0.003
 
 # Just for main.usage
 progname=CAMxRunner.sh
