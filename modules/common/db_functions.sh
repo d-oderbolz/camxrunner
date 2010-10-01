@@ -171,9 +171,8 @@ function common.db.init()
 # Do not use this function to alter the database - we aquire no writelock in CAMxRunner!
 # However, to avoid writers from changing the DB, we lock it exclusively.
 # 
-# However, we do aquire a readlock, which prevents writers from getting a writelock.
-# On error, we try to re-execute the statement (we had some transient issues with 
-# file system errors).
+# On error, we try to re-execute the statement, because we fail if the DB is locked.
+# (SQLite issues "I/O Error" but means "DB locked")
 #
 # We add the following pragmas in front of the statement 
 # PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
@@ -254,12 +253,6 @@ function common.db.getResultSet()
 	# Before accessing the DB, we wait for any writelocks 
 	common.runner.waitForLock "$(basename $db_file)" "$level"
 	
-	if [[ $CXR_DB_SHARE_LOCKS == true ]]
-	then
-		# Acquire shared lock
-		common.runner.getLock "$(basename $db_file)" "$level" true
-	fi # do we use sharelocks?
-	
 	# We have our own error handler here
 	set +e
 	
@@ -294,13 +287,7 @@ function common.db.getResultSet()
 		sleep $CXR_DB_RETRY_WAIT_SECONDS
 		
 	done # retry loop
-	
-	if [[ $CXR_DB_SHARE_LOCKS == true ]]
-	then
-		# Release Lock
-		common.runner.releaseLock "$(basename $db_file)" "$level" true
-	fi
-	
+
 	# fail-on-error on
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
 	then
@@ -324,8 +311,8 @@ function common.db.getResultSet()
 # or DDL (CREATE, ALTER, DROP) statements. A writelock is acquired.
 # DO NOT USE THIS TO QUERY THE DB (SELECT), use <common.db.getResultSet> for this purpose.
 #
-# On error, we try to re-execute the statement (we had some transient issues with 
-# file system errors).
+# On error, we try to re-execute the statement, because we fail if the DB is locked.
+# (SQLite issues "I/O Error" but means "DB locked")
 #
 # We add the following pragmas in front of the statement 
 # PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
@@ -383,17 +370,6 @@ function common.db.change()
 	if [[ "$do_trx" == true ]]
 	then
 		echo "BEGIN IMMEDIATE TRANSACTION;" > "$sqlfile"
-	fi
-	
-	if [[ $CXR_DB_SHARE_LOCKS == true ]]
-	then
-		# Before acquiring the writelock, we wait 10 seconds for any readlocks (advisory)
-		common.runner.waitForLock "$(basename $db_file)" "$level" true 10
-		
-		if [[ $_retval == false ]]
-		then
-			main.log -w "There are still shared locks on the file $db_file. We are going in anyway"
-		fi
 	fi
 	
 	# Detect type of statement

@@ -70,10 +70,6 @@ CXR_DBG_BC=false
 # Dangerous, especially in parallel mode; should only be used when debugging
 CXR_NO_LOCKING=false
 
-# If this is true, we will use share-locks for readers (writers always use exclusive locks).
-# This is an experimental feature.
-CXR_DB_SHARE_LOCKS=false
-
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
 # We need this because if we cannet got a lock, the statement "fails"
