@@ -132,5 +132,5 @@ ahomap: $(OBJCTS)
 	$(FC) -c -o $@ $(FLGS) $<
 
 clean:
-	-rm *.o
-	-rm $(DESTINATION)/ahomap-$(HOSTTYPE)
+	rm -f *.o
+	rm -f $(DESTINATION)/ahomap-$(HOSTTYPE)

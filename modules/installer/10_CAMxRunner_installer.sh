@@ -47,6 +47,10 @@ CXR_META_MODULE_VERSION='$Id$'
 function CAMxRunner_installer() 
 ################################################################################
 {
+	local libdir
+	local exec
+	local src_dir
+	
 	
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
 	then
@@ -129,18 +133,28 @@ function CAMxRunner_installer()
 	then
 	
 		# Loop through the source-directories
-		for SRC_DIR in $CXR_BIN_SCR_ARR
+		for scr_dir in $CXR_BIN_SCR_ARR
 		do
-			if [[ "$(common.user.getOK "Do you want to compile $(basename $SRC_DIR)?" )" == true  ]]
+			if [[ "$(common.user.getOK "Do you want to compile $(basename $scr_dir)?" )" == true  ]]
 			then
-				main.log -a  "****Compiling source in $SRC_DIR ...\n"
+				main.log -a  "****Compiling source in $scr_dir ...\n"
 				
-				if [[ -L "$SRC_DIR" ]]
+				if [[ -L "$scr_dir" ]]
 				then
-					main.log -a  "a link to $(common.fs.getLinkTarget $SRC_DIR)"
+					main.log -a  "(a link to $(common.fs.getLinkTarget $scr_dir))"
 				fi
 				
-				cd $SRC_DIR || main.dieGracefully "Could not change to $SRC_DIR"
+				exec="$(basename "$src_dir")"
+				
+				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
+				
+				libdir=${CXR_LIB_DIR}/${exec}/$HOSTTYPE
+				
+				# Configure when compiling proj
+				if [[ $exec == proj ]]
+				then
+					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE} --datarootdir=${CXR_BIN_DIR}
+				fi
 				
 				# Clean up whatever there was
 				main.log -a "make clean DESTINATION=${CXR_BIN_DIR}"
@@ -149,6 +163,12 @@ function CAMxRunner_installer()
 				# Make it!
 				main.log -a "make DESTINATION=${CXR_BIN_DIR}"
 				make DESTINATION="${CXR_BIN_DIR}" || main.dieGracefully "The compilation did not complete successfully"
+			
+				# make install when compiling proj
+				if [[ $exec == proj ]]
+				then
+					make install
+				fi
 			fi
 		done
 		
