@@ -1103,7 +1103,7 @@ function common.task.Worker()
 				# Time to work
 				common.task.runningWorker $CXR_WORKER_PID
 				
-				main.log -a "module: $module\nday_offset: $day_offset\ninvocation: $invocation\nexclusive: $_exclusive\nwait time for dependencies: $waited_seconds s"
+				main.log -v "module: $module\nday_offset: $day_offset\ninvocation: $invocation\nexclusive: $_exclusive\nwait time for dependencies: $waited_seconds s"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"

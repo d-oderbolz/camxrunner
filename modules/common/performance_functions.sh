@@ -246,6 +246,7 @@ function common.performance.reportEta()
 		# Only goes to stderr
 		echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
 		echo "Tasks (Successful/Failed/Total): $(common.task.countSuccessfulTasks)/$(common.task.countFailedTasks)/$(common.task.countAllTasks)" 1>&2
+		echo "Runtime so far: $(common.date.humanSeconds $elapsed)" 1>&2
 		echo "Estimated remaining time of this run: $(common.date.humanSeconds $left)" 1>&2
 		common.user.showProgressBar $percentDone
 	else
