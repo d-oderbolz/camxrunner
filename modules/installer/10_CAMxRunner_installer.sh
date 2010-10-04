@@ -186,12 +186,23 @@ function CAMxRunner_installer()
 				
 				# Make it!
 				echo "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
-				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" | tee -a $logfile || main.dieGracefully "The compilation of $executable did not complete successfully"
+				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" | tee -a $logfile 
+			
+				if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+				then
+					main.dieGracefully "The compilation of $executable did not complete successfully"
+				fi
 			
 				# make install when compiling proj
 				if [[ $executable == proj ]]
 				then
-					make install || main.dieGracefully "The installation of $executable did not complete successfully"
+					make install | tee -a $logfile 
+					
+					if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+					then
+						main.dieGracefully "The installation of $executable did not complete successfully"
+					fi
+					
 				fi
 			fi
 			
