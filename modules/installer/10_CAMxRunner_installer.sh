@@ -143,9 +143,8 @@ function CAMxRunner_installer()
 		fi
 	
 		# Loop through the source-directories
-		for scr_dir in $CXR_BIN_SCR_ARR
+		for src_dir in $CXR_BIN_SCR_ARR
 		do
-			main.log -a "$src_dir"
 			executable="$(basename "$src_dir")"
 			
 			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
