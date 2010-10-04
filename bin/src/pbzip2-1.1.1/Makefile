@@ -66,4 +66,4 @@ install: pbzip2
 	chmod a+r $(PREFIX)/man/man1/pbzip2.1
 
 clean:
-	rm -f *.o (DESTINATION)/pbzip2-$(HOSTTYPE)$(SUFFIX)
+	rm -f *.o $(DESTINATION)/pbzip2-$(HOSTTYPE)$(SUFFIX)

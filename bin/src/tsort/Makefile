@@ -16,4 +16,4 @@ tsort: tsort.c
 
 
 clean:
-	rm -f *.o (DESTINATION)/tsort-$(HOSTTYPE)$(SUFFIX)
+	rm -f *.o $(DESTINATION)/tsort-$(HOSTTYPE)$(SUFFIX)

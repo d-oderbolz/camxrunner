@@ -16,4 +16,4 @@ sqlite: shell.c sqlite3.c
 
 
 clean:
-	rm -f *.o (DESTINATION)/sqlite-$(HOSTTYPE)$(SUFFIX)
+	rm -f *.o $(DESTINATION)/sqlite-$(HOSTTYPE)$(SUFFIX)
