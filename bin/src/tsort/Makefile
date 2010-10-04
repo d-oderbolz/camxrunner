@@ -6,7 +6,7 @@ endif
 
 # Compiler to use
 CC = gcc
-CFLAGS = -O2
+CFLAGS = 
 
 all: tsort
 
