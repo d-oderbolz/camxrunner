@@ -152,14 +152,14 @@ function CAMxRunner_installer()
 				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
 				logfile=${binary_name}.log
 				
-				main.log -a "**** $(date) Compiling source in $scr_dir ...\n" | tee -a $logfile
+				main.log -a "**** $(date) Compiling source in $src_dir ...\n" | tee -a $logfile
 				
-				if [[ -L "$scr_dir" ]]
+				if [[ -L "$src_dir" ]]
 				then
-					main.log -a "(a link to $(common.fs.getLinkTarget $scr_dir))" | tee -a $logfile
+					main.log -a "(a link to $(common.fs.getLinkTarget $src_dir))" | tee -a $logfile
 				fi
 				
-				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
+				cd $src_dir || main.dieGracefully "Could not change to $src_dir"
 				
 				# Configure when compiling proj
 				if [[ $executable == proj ]]
