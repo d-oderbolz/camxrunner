@@ -94,7 +94,7 @@ function common.db.init()
 	
 	if [[ $? -ne 0 ]]
 	then
-		main.dieGracefully "It seems that the binary sqlite must be recompiled, even the simplest query failed."
+		main.dieGracefully "It seems that the binary sqlite must be recompiled (./CAMxRunner -I) , even the simplest query failed."
 	fi
 	
 	# Test if we have libfunctions
@@ -129,6 +129,8 @@ function common.db.init()
 	directories=($CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR)
 	levels=($CXR_LEVEL_GLOBAL $CXR_LEVEL_UNIVERSAL)
 	
+	main.log -a "Housekeeping..."
+	
 	for iDir in $(seq 0 $(( ${#directories[@]} - 1 )) )
 	do
 	
@@ -141,7 +143,7 @@ function common.db.init()
 			
 			for db_file in $dbs
 			do
-				main.log -a "Housekeeping on DB ${db_file}..."
+				main.log -a "DB ${db_file}:"
 				
 				common.runner.getLock "$(basename $db_file)" "$level"
 				
