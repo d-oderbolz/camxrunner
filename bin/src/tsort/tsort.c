@@ -49,6 +49,8 @@ static char sccsid[] = "@(#)tsort.c	5.3 (Berkeley) 6/1/90";
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdlib.h>
+
 
 /*
  *  Topological sort.  Input is a list of pairs of strings seperated by
