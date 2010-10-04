@@ -168,7 +168,16 @@ function CAMxRunner_installer()
 					
 					mkdir -p $libdir
 				
-					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE}${suffix} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni | tee -a $logfile
+					./configure --prefix=${CXR_BIN_DIR} \
+					            --exec-prefix=${CXR_BIN_DIR} \
+					            --bindir=${CXR_BIN_DIR} \
+					            --libdir=${libdir} \
+					            --includedir=${CXR_TMP_DIR}  \
+					            --program-suffix=-${HOSTTYPE}${suffix} \
+					            --datarootdir=${CXR_BIN_DIR} \
+					            --enable-shared=no \
+					            --enable-static=no \
+					            --without-jni | tee -a $logfile
 				fi
 				
 				# Clean up whatever there was
@@ -177,7 +186,7 @@ function CAMxRunner_installer()
 				
 				# Make it!
 				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
-				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix} || main.dieGracefully "The compilation of $exec did not complete successfully"
+				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" || main.dieGracefully "The compilation of $exec did not complete successfully"
 			
 				# make install when compiling proj
 				if [[ $exec == proj ]]
