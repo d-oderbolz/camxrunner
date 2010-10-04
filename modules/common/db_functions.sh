@@ -66,6 +66,8 @@ function common.db.init()
 	local dbs
 	local db_file
 	local level
+	local dropfile
+	local creafile
 	
 	if [[ ${CXR_DB_TRY_TIMES:-0} -lt 1 ]]
 	then
@@ -135,7 +137,7 @@ function common.db.init()
 			
 			for db_file in $dbs
 			do
-				main.log -v "Housekeeping on DB ${db_file}..."
+				main.log -a "Housekeeping on DB ${db_file}..."
 				
 				common.runner.getLock "$(basename $db_file)" "$level"
 				
@@ -148,10 +150,21 @@ function common.db.init()
 				-- Check integrity
 				PRAGMA integrity_check;
 				
-				-- Remove defragmentation
+				-- Remove fragmentation
 				VACUUM;
 				
 				EOT
+				
+				main.log -a "Rebuilding indexes..."
+				
+				dropfile=$(common.runner.createTempFile idx-drop)
+				common.db.getResultSet $db_file "SELECT 'DROP index ' || name || ';' FROM sqlite_master WHERE type='index';" > $dropfile
+				
+				creafile=$(common.runner.createTempFile idx-crea)
+				common.db.getResultSet $db_file "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
+				
+				common.db.change $db_file $dropfile
+				common.db.change $db_file $creafile
 				
 				# Relase Lock
 				common.runner.releaseLock "$(basename $db_file)" "$level"
