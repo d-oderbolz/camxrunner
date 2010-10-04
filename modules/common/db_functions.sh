@@ -79,6 +79,10 @@ function common.db.init()
 	# Testing integrity of sqlite itself
 	x=$(common.runner.createTempFile sqlite-test)
 	
+	# Tempfiles for rebuild
+	dropfile=$(common.runner.createTempFile idx-drop)
+	creafile=$(common.runner.createTempFile idx-crea)
+	
 	# turn off errexit
 	set +e
 	
@@ -156,11 +160,7 @@ function common.db.init()
 				EOT
 				
 				main.log -a "Rebuilding indexes..."
-				
-				dropfile=$(common.runner.createTempFile idx-drop)
 				common.db.getResultSet $db_file "SELECT 'DROP index ' || name || ';' FROM sqlite_master WHERE type='index';" > $dropfile
-				
-				creafile=$(common.runner.createTempFile idx-crea)
 				common.db.getResultSet $db_file "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
 				
 				common.db.change $db_file $dropfile
