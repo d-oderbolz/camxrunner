@@ -49,8 +49,10 @@ function CAMxRunner_installer()
 {
 	local libdir
 	local exec
+	local binary_name
 	local src_dir
 	local suffix
+	local logfile
 	
 	
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
@@ -143,10 +145,10 @@ function CAMxRunner_installer()
 		# Loop through the source-directories
 		for scr_dir in $CXR_BIN_SCR_ARR
 		do
-			if [[ "$(common.user.getOK "Do you want to compile $(basename $scr_dir)?" )" == true  ]]
-			then
 			
-				exec="$(basename "$src_dir")"
+			exec="$(basename "$src_dir")"
+			if [[ "$(common.user.getOK "Do you want to compile $exec ?" )" == true  ]]
+			then
 				binary_name=${CXR_BIN_DIR}/${exec}-${HOSTTYPE}${suffix}
 				logfile=${binary_name}.log
 				
@@ -158,8 +160,6 @@ function CAMxRunner_installer()
 				fi
 				
 				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
-				
-				
 				
 				# Configure when compiling proj
 				if [[ $exec == proj ]]
