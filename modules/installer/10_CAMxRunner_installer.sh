@@ -152,7 +152,7 @@ function CAMxRunner_installer()
 				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
 				logfile=${binary_name}.log
 				
-				main.log -a "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" | tee -a $logfile
+				main.log -a "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" 2> tee -a $logfile
 				
 				if [[ -L "$src_dir" ]]
 				then
