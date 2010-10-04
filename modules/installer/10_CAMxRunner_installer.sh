@@ -152,11 +152,11 @@ function CAMxRunner_installer()
 				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
 				logfile=${binary_name}.log
 				
-				main.log -a "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" 2> tee -a $logfile
+				echo "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" | tee -a $logfile
 				
 				if [[ -L "$src_dir" ]]
 				then
-					main.log -a "(a link to $(common.fs.getLinkTarget $src_dir))" | tee -a $logfile
+					echo "(a link to $(common.fs.getLinkTarget $src_dir))" | tee -a $logfile
 				fi
 				
 				cd $src_dir || main.dieGracefully "Could not change to $src_dir"
@@ -181,11 +181,11 @@ function CAMxRunner_installer()
 				fi
 				
 				# Clean up whatever there was
-				main.log -a "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
+				echo "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
 				make clean DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}"
 				
 				# Make it!
-				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
+				echo "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
 				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" || main.dieGracefully "The compilation of $executable did not complete successfully"
 			
 				# make install when compiling proj
