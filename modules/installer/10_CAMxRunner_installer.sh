@@ -136,6 +136,8 @@ function CAMxRunner_installer()
 		if [[ "$(common.user.getOK "Do you want to create machine-specific programs?\n(by appending -${CXR_MACHINE} to the names)" )" == true ]]
 		then
 			suffix=-${CXR_MACHINE}
+		else
+			suffix=""
 		fi
 	
 		# Loop through the source-directories
@@ -143,14 +145,17 @@ function CAMxRunner_installer()
 		do
 			if [[ "$(common.user.getOK "Do you want to compile $(basename $scr_dir)?" )" == true  ]]
 			then
-				main.log -a  "****Compiling source in $scr_dir ...\n"
+			
+				exec="$(basename "$src_dir")"
+				binary_name=${CXR_BIN_DIR}/${exec}-${HOSTTYPE}${suffix}
+				logfile=${binary_name}.log
+				
+				main.log -a "**** $(date) Compiling source in $scr_dir ...\n" | tee -a $logfile
 				
 				if [[ -L "$scr_dir" ]]
 				then
-					main.log -a  "(a link to $(common.fs.getLinkTarget $scr_dir))"
+					main.log -a "(a link to $(common.fs.getLinkTarget $scr_dir))" | tee -a $logfile
 				fi
-				
-				exec="$(basename "$src_dir")"
 				
 				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
 				
@@ -163,15 +168,15 @@ function CAMxRunner_installer()
 					
 					mkdir -p $libdir
 				
-					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE}${suffix} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni
+					./configure --prefix=${CXR_BIN_DIR} --exec-prefix=${CXR_BIN_DIR} --bindir=${CXR_BIN_DIR} --libdir=${libdir} --includedir=${CXR_TMP_DIR}  --program-suffix=-${HOSTTYPE}${suffix} --datarootdir=${CXR_BIN_DIR} --enable-shared=no --enable-static=no --without-jni | tee -a $logfile
 				fi
 				
 				# Clean up whatever there was
-				main.log -a "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}"
+				main.log -a "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
 				make clean DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}"
 				
 				# Make it!
-				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}"
+				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
 				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix} || main.dieGracefully "The compilation of $exec did not complete successfully"
 			
 				# make install when compiling proj
@@ -180,7 +185,8 @@ function CAMxRunner_installer()
 					make install || main.dieGracefully "The installation of $exec did not complete successfully"
 				fi
 			fi
-		done
+			
+		done # Loop through directories containing stuff to install
 		
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
 		
