@@ -169,6 +169,8 @@ function common.db.init()
 				common.db.change $db_file $level $dropfile
 				common.db.change $db_file $level $creafile
 				
+				main.log -a ""
+				
 				
 				
 			done # db_files
