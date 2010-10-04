@@ -159,6 +159,9 @@ function common.db.init()
 				
 				EOT
 				
+				# Relase Lock
+				common.runner.releaseLock "$(basename $db_file)" "$level"
+				
 				main.log -a "Rebuilding indexes..."
 				common.db.getResultSet $db_file $level "SELECT 'DROP index ' || name || ';' FROM sqlite_master WHERE type='index';" > $dropfile
 				common.db.getResultSet $db_file $level "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
@@ -166,8 +169,7 @@ function common.db.init()
 				common.db.change $db_file $level $dropfile
 				common.db.change $db_file $level $creafile
 				
-				# Relase Lock
-				common.runner.releaseLock "$(basename $db_file)" "$level"
+				
 				
 			done # db_files
 			
