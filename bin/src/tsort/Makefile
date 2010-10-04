@@ -6,7 +6,7 @@ endif
 
 # Compiler to use
 CC = gcc
-CFLAGS = -fno-builtin-exit
+CFLAGS = -fno-builtin-exit -fno-builtin-malloc
 
 all: tsort
 
