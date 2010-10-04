@@ -48,7 +48,7 @@ function CAMxRunner_installer()
 ################################################################################
 {
 	local libdir
-	local exec
+	local executable
 	local binary_name
 	local src_dir
 	local suffix
@@ -146,10 +146,11 @@ function CAMxRunner_installer()
 		for scr_dir in $CXR_BIN_SCR_ARR
 		do
 			
-			exec="$(basename "$src_dir")"
-			if [[ "$(common.user.getOK "Do you want to compile $exec ?" )" == true  ]]
+			executable="$(basename "$src_dir")"
+			
+			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
 			then
-				binary_name=${CXR_BIN_DIR}/${exec}-${HOSTTYPE}${suffix}
+				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
 				logfile=${binary_name}.log
 				
 				main.log -a "**** $(date) Compiling source in $scr_dir ...\n" | tee -a $logfile
@@ -162,9 +163,9 @@ function CAMxRunner_installer()
 				cd $scr_dir || main.dieGracefully "Could not change to $scr_dir"
 				
 				# Configure when compiling proj
-				if [[ $exec == proj ]]
+				if [[ $executable == proj ]]
 				then
-					libdir=${CXR_LIB_DIR}/${exec}/$HOSTTYPE
+					libdir=${CXR_LIB_DIR}/${executable}/$HOSTTYPE
 					
 					mkdir -p $libdir
 				
@@ -186,12 +187,12 @@ function CAMxRunner_installer()
 				
 				# Make it!
 				main.log -a "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
-				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" || main.dieGracefully "The compilation of $exec did not complete successfully"
+				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" || main.dieGracefully "The compilation of $executable did not complete successfully"
 			
 				# make install when compiling proj
-				if [[ $exec == proj ]]
+				if [[ $executable == proj ]]
 				then
-					make install || main.dieGracefully "The installation of $exec did not complete successfully"
+					make install || main.dieGracefully "The installation of $executable did not complete successfully"
 				fi
 			fi
 			
