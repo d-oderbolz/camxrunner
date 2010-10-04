@@ -150,7 +150,11 @@ function CAMxRunner_installer()
 			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
 			then
 				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
+				
 				logfile=${binary_name}.log
+				
+				# Clean it
+				: > "$logfile"
 				
 				echo "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" | tee -a $logfile
 				
