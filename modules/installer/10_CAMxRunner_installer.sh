@@ -214,7 +214,7 @@ function CAMxRunner_installer()
 		
 		cd $CXR_RUN_DIR || return $CXR_RET_ERROR
 		
-		main.log -a  "Converters compiled."
+		main.log -a  "Essential executables compiled."
 
 	
 	fi
