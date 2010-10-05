@@ -913,7 +913,6 @@ function execute_model()
 ################################################################################
 {
 	local retval
-	local outfile
 	
 	# The CAMx.in file is in the state dir
 	cd ${CXR_STATE_DIR}
@@ -930,12 +929,6 @@ function execute_model()
 		# OK
 		retval=0
 	fi
-	
-	outfile=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE")
-	
-	main.log  "This is the content of the outfile:"
-	
-	cat $outfile 2>&1 | tee -a $CXR_LOG
 	
 	if [[ $retval -ne 0 ]]
 	then
