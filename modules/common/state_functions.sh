@@ -707,7 +707,8 @@ function common.state.init()
 																				machine	TEXT,
 																				ReaLoad	NUMERIC,
 																				elapsed_seconds NUMERIC,
-																				epoch_m				  INTEGER);
+																				epoch_m				  INTEGER,
+																				run	TEXT);
 		
 	EOT
 	
