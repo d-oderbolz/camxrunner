@@ -193,7 +193,7 @@ function common.fs.getType()
 			result=cifs
 		fi
 		
-		echo $result
+		echo "$result"
 
 	else
 		echo ""
@@ -851,6 +851,8 @@ function common.fs.getFreeMb()
 	
 	# Get File system
 	fs=$(common.fs.getType $path)
+	
+	main.log -a "FS is $fs"
 	
 	case $fs in
 	afs)
