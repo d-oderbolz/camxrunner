@@ -844,20 +844,25 @@ function common.fs.getFreeMb()
 	local quota_array
 	local free_kb
 	local free_mb
+	local path
+	
+	path="$1"
 	
 	# Get File system
-	fs=$(common.fs.getType $1)
+	fs=$(common.fs.getType $path)
+	
+	main.log -a "FS Type of $path is $fs"
 	
 	case $fs in
 	afs)
-			main.log -v  "Directory $1 seems to be on AFS. Getting AFS quota, if any..."
+			main.log -v  "Directory $path seems to be on AFS. Getting AFS quota, if any..."
 			
 			# Get last line
-			last_line=$(fs listquota "$1" | tail -n1)
+			last_line=$(fs listquota "$path" | tail -n1)
 			
 			if [[ "$(main.isSubstringPresent? "$last_line" "no limit" )" == true ]]
 			then
-				main.log -v  "There seems to be no quota on $1, cannot determine free space"
+				main.log -w "There seems to be no AFS quota on $path, cannot determine free space"
 				
 				echo -1
 			else
@@ -883,7 +888,7 @@ function common.fs.getFreeMb()
 			;;
 	*) 
 			# Default
-			df --block-size=1M $1 | tail -n1 | awk '{ print $3 }'
+			df --block-size=1M $path | tail -n1 | awk '{ print $3 }'
 			;;
 	esac
 }
