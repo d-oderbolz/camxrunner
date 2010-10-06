@@ -159,6 +159,7 @@ function common.fs.isSubDirOf?()
 	fi
 	
 }
+
 ################################################################################
 # Function: common.fs.getType
 # 
@@ -812,70 +813,6 @@ function common.fs.TryDecompressingFile()
 		main.log -v  "We do not try to decompress files, CXR_DETECT_COMPRESSED_INPUT_FILES is false"
 		echo "$input_file"
 	fi # Detect compression?
-}
-
-
-################################################################################
-# Function: common.fs.getType
-#
-# Returns the the lowercase name of the filesystem in use in a particular path.
-# Returns the empty string on error.
-#
-# Note that df -T sometimes produces weird output - I try to catch it, but it might fail...
-#
-#
-# Parameters:
-# $1 - path to test
-################################################################################
-function common.fs.getType()
-################################################################################
-{
-	if [[ $# -ne 1 ]]
-	then
-		main.log -e  "Could not determine FS type - no path passed!"
-		echo ""
-		return $CXR_RET_ERROR
-	fi
-	
-	local num_lines
-	local last_line
-	local oIFS
-	local df_array
-	
-	# Count numbers of line output (should be 2, but I have soon output like
-	# Filesystem    Type   1K-blocks      Used Available Use% Mounted on
-	# /dev/cciss/c0d0p2
-	#            ext3    15872636   7125760   7927564  48% /
-	
-	# Count number of lines in output
-	num_lines=$(df -T "$1" | wc -l)
-	
-	# Get last line
-	last_line=$(df -T "$1" | tail -n1)
-	
-	# Parse the Last line
-	oIFS="$IFS"
-
-	IFS=" "
-	
-	# Suck line into LINE_ARRAY
-	df_array=($last_line)
-	
-	# Reset IFS
-	IFS="$oIFS"
-	
-	if [[ "$num_lines" -eq 3  ]]
-	then
-		main.log -v   "FS type of $1 was determined to be ${df_array[0]}. If this is strange, check your df -T output!"
-		echo "${df_array[0]}" 
-	elif [[ "$num_lines" -eq 2  ]]
-	then
-		main.log -v   "FS type of $1 was determined to be ${df_array[1]}. If this is strange, check your df -T output!"
-		echo "${df_array[1]}" 
-	else
-		main.log -e  "Could not determine FS type of $1. Check your df -T output!"
-		echo ""
-	fi
 }
 
 ################################################################################
