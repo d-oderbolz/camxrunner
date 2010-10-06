@@ -129,7 +129,8 @@ function common.performance.stopTiming()
 													machine,
 													ReaLoad,
 													elapsed_seconds,
-													epoch_m)
+													epoch_m,
+													run)
 							VALUES			(
 														'$CXR_MODEL',
 														'$CXR_MODEL_VERSION',
@@ -139,6 +140,7 @@ function common.performance.stopTiming()
 														$load,
 														$time_norm,
 														$(date "+%s")
+														,'$CXR_RUN'
 													);
 		
 		EOT
