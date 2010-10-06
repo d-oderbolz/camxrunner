@@ -184,15 +184,16 @@ function common.fs.getType()
 	then
 		result="$(stat -f -L -c %T "$dir")"
 		
+		# Fix some standard unknowns
 		if [[ "$result" == "UNKNOWN (0x5346414f)" ]]
 		then
 			result=afs
-		fi
-	
-		if [[ "$result" == "UNKNOWN (0xff534d42)" ]]
+		elif [[ "$result" == "UNKNOWN (0xff534d42)" ]]
 		then
 			result=cifs
 		fi
+		
+		echo $result
 
 	else
 		echo ""
@@ -850,8 +851,6 @@ function common.fs.getFreeMb()
 	
 	# Get File system
 	fs=$(common.fs.getType $path)
-	
-	main.log -a "FS Type of $path is $fs"
 	
 	case $fs in
 	afs)
