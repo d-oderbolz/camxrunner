@@ -6,7 +6,8 @@
 #
 # Version: $Id$ 
 #
-# This module runs the model.
+# This module runs the model. For performance reasons, the model can write
+# its output to a local dir and then the output is moved after the run.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -91,7 +92,40 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	# Adjust output dir if needed (to use a local FS for the model - FAST!)
+	if [[ $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
+	then
+		# We will locally switch OUTPUT_DIR to a temp dir
+		template="${CXR_SCRATCH_DIR}/${CXR_TMP_PREFIX}-out.XXXXXXXX"
+		dir=$(mktemp -d $template)
+		
+		if [[ "$dir" ]]
+		then
+			main.log -a "Since CXR_USE_SCRATCH is true, we write the model output to $dir"
+			
+			# Store old value
+			CXR_REAL_OUTPUT_DIR=$CXR_OUTPUT_DIR
+			CXR_OUTPUT_DIR=$dir
+			
+			# Re-evaluate rules
+			CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
+			CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
+			CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
+		else
+			main.log -w "Could not create tempdir in CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR). Will not use it."
+		fi
+	else
+		# Turn off scratch (maybe not writeable)
+		if [[ $CXR_USE_SCRATCH == true ]]
+		then
+			main.log -w "It seems that CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR) is not writeable. Will not use it."
+			CXR_USE_SCRATCH=false
+		fi
+	fi
+	
+	######################################
 	# If we do not run the first day, its a restart
+	######################################
 	if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
 	then
 		# This must be a restart!
@@ -304,7 +338,7 @@ function set_variables()
 		# Must we run Reactive Tracer Source Apportionment?
 		# RTRAC (RT)
 		################################################################
-		elif [[ "$CXR_PROBING_TOOL" == "RTRAC"  ]] 
+		elif [[ "$CXR_PROBING_TOOL" == "RTRAC" ]] 
 		then
 			CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
 			
@@ -328,7 +362,14 @@ function set_variables()
 		# These are used to prevent overwriting of existing files
 		# Output files must not be decompressed!
 		CXR_DIAG_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
-		CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+		then
+			CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+		else
+			CXR_FINST_OUTPUT_FILE=""
+		fi
+		
 		CXR_INST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
 		CXR_MASS_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
 		CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
@@ -1014,6 +1055,21 @@ function model()
 			
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
+			
+			if [[ $CXR_USE_SCRATCH == true ]]
+			then
+				# If we used scratch, move data
+				mv "$CXR_OUTPUT_DIR"/* "$CXR_REAL_OUTPUT_DIR" || main.dieGracefully "Could not move model output from $CXR_OUTPUT_DIR to $CXR_REAL_OUTPUT_DIR"
+				
+				# Remove tempdir
+				rmdir $CXR_OUTPUT_DIR
+			
+				# Reset value
+				CXR_OUTPUT_DIR="$CXR_REAL_OUTPUT_DIR"
+				
+				# Re-evaluate rules
+				set_variables
+			fi # Using scratch
 			
 			# Did we run properly?
 			if [[ $(common.check.postconditions) == false ]]

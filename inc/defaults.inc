@@ -233,6 +233,10 @@ CXR_RUN_ALL=${CXR_ALL}
 # Set inital values of features ################################################
 ################################################################################
 
+# If CXR_USE_SCRATCH is true, the model writes its output 
+# directly to CXR_SCRATCH_DIR. After the run, the output is moved to $CXR_OUTPUT_DIR
+CXR_USE_SCRATCH=true
+
 # Warning level for system load in percent
 # (as determined by ReaLoad)
 CXR_LOAD_WARN_THRESHOLD=80
