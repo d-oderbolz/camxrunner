@@ -96,7 +96,7 @@ function set_variables()
 	if [[ $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
 	then
 		# We will locally switch OUTPUT_DIR to a temp dir
-		template="${CXR_SCRATCH_DIR}/${CXR_TMP_PREFIX}-out.XXXXXXXX"
+		template="${CXR_SCRATCH_DIR}/${CXR_TMP_PREFIX}out.XXXXXXXX"
 		dir=$(mktemp -d $template)
 		
 		if [[ "$dir" ]]
