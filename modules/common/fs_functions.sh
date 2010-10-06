@@ -178,7 +178,8 @@ function common.fs.getType()
 	local dir
 	
 	path=${1}
-	dir="$(basename $path)"
+	# We operate on the underlying directory
+	dir="$(dirname $path)"
 	
 	if [[ "$dir" && -d "$dir" ]]
 	then
@@ -196,6 +197,7 @@ function common.fs.getType()
 		echo "$result"
 
 	else
+		main.log -w "Could not determine the directory of $path"
 		echo ""
 	fi
 	
