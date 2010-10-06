@@ -831,8 +831,9 @@ function common.fs.TryDecompressingFile()
 function common.fs.getFreeMb()
 ################################################################################
 {
-	if [[ $# -ne 1  ]]
+	if [[ $# -ne 1 ]]
 	then
+		main.log -e "$FUNCNAME did not get correct parameters: $*"
 		echo 0
 		return $CXR_RET_OK
 	fi
