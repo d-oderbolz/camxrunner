@@ -157,6 +157,8 @@ function set_variables()
 						CXR_SA_NESTED_RESTART_INPUT_FILE=
 					fi # Are there nested grids?
 					
+				fi # SA tools?
+					
 			fi # did we pass the first day?
 			
 			# Store old directory name and switch
