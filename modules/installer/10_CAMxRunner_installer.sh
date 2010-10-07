@@ -165,13 +165,13 @@ function CAMxRunner_installer()
 				
 				cd $src_dir || main.dieGracefully "Could not change to $src_dir"
 				
+				libdir=${CXR_LIB_DIR}/${executable}/$HOSTTYPE
+				mkdir -p $libdir
+				
 				# Configure when compiling proj
 				if [[ $executable == proj ]]
 				then
-					libdir=${CXR_LIB_DIR}/${executable}/$HOSTTYPE
 					
-					mkdir -p $libdir
-				
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
 					            --bindir=${CXR_BIN_DIR} \
@@ -186,10 +186,10 @@ function CAMxRunner_installer()
 				
 				# Clean up whatever there was
 				echo "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
-				make clean DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" | tee -a $logfile
+				make clean DESTINATION="${CXR_BIN_DIR}"  LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile
 				
 				# Make it!
-				echo "make DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
+				echo "make DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
 				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" | tee -a $logfile 
 			
 				if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
