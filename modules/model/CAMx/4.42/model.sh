@@ -130,6 +130,7 @@ function set_variables()
 			# which are not in the scratch dir
 
 			if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
+			then
 				main.log -a "Pre-evaluating restart rules..."
 				CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
 				
@@ -345,7 +346,7 @@ function set_variables()
 	# Must we run direct decoupled sensitivity analysis?
 	# DDM
 	################################################################
-	elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
+	elif [[ "$CXR_PROBING_TOOL" == "DDM" ]]
 	then
 		# This is not a file (hence no _FILE at the end of the name)
 		CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
