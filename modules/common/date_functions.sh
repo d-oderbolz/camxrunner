@@ -1296,16 +1296,6 @@ function common.date.setVars()
 		# week of year
 		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE_YESTERDAY)
 	fi
-	
-	# Set a couple of basic variables which cannot be set earlier
-	# Not directly checkable, Start of all output file names without extension
-	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
-	
-	# This is not a file (hence no _FILE at the end of the name)
-	CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
-	
-	# This is not a file (hence no _FILE at the end of the name)
-	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 }
 
 ################################################################################

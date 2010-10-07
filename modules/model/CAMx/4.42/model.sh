@@ -127,11 +127,6 @@ function set_variables()
 			# Store old value
 			CXR_REAL_OUTPUT_DIR=$CXR_OUTPUT_DIR
 			CXR_OUTPUT_DIR=$dir
-			
-			# Re-evaluate rules
-			CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
-			CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
-			CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 		else
 			main.log -w "Could not create tempdir in CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR). Will not use it."
 		fi
@@ -143,6 +138,11 @@ function set_variables()
 			CXR_USE_SCRATCH=false
 		fi
 	fi
+	
+	# Evaluate most important rules first
+	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
+	CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
+	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 	
 	######################################
 	# If we do not run the first day, its a restart
@@ -1089,12 +1089,7 @@ function model()
 				CXR_OUTPUT_DIR="$CXR_REAL_OUTPUT_DIR"
 				
 				# Re-evaluate rules
-				CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
-				CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
-				CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
-				
-				# Re-evaluate rules
-				set_variables false
+				set_variables true
 			fi # Using scratch
 			
 			# Did we run properly?
