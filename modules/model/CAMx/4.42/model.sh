@@ -81,10 +81,16 @@ function getNumInvocations()
 # Function: set_variables
 #
 # Sets the variables (on a daily basis)
+# Parameters:
+# $1 - did we already redirect to scratch?
 ################################################################################	
 function set_variables() 
 ################################################################################
 {
+	local redirected
+	
+	redirected=${1:-false}
+	
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -93,7 +99,8 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
 	# Adjust output dir if needed (to use a local FS for the model - FAST!)
-	if [[ $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
+	# do only if we did not already do it
+	if [[ $redirected == false && $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
 	then
 		# We will locally switch OUTPUT_DIR to a temp dir
 		template="${CXR_SCRATCH_DIR}/${CXR_TMP_PREFIX}out.XXXXXXXX"
@@ -116,7 +123,7 @@ function set_variables()
 		fi
 	else
 		# Turn off scratch (maybe not writeable)
-		if [[ $CXR_USE_SCRATCH == true ]]
+		if [[ $redirected == false && $CXR_USE_SCRATCH == true ]]
 		then
 			main.log -w "It seems that CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR) is not writeable. Will not use it."
 			CXR_USE_SCRATCH=false
@@ -1068,7 +1075,12 @@ function model()
 				CXR_OUTPUT_DIR="$CXR_REAL_OUTPUT_DIR"
 				
 				# Re-evaluate rules
-				set_variables
+				CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
+				CXR_RT_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_RT_ROOT_OUTPUT_FILE_RULE" false CXR_RT_ROOT_OUTPUT_FILE_RULE)
+				CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
+				
+				# Re-evaluate rules
+				set_variables false
 			fi # Using scratch
 			
 			# Did we run properly?
