@@ -185,12 +185,12 @@ function CAMxRunner_installer()
 				fi
 				
 				# Clean up whatever there was
-				echo "make clean DESTINATION=${CXR_BIN_DIR} SUFFIX=${suffix}" | tee -a $logfile
-				make clean DESTINATION="${CXR_BIN_DIR}"  LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile
+				echo "make clean DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
+				make clean DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile
 				
 				# Make it!
 				echo "make DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
-				make DESTINATION="${CXR_BIN_DIR}" SUFFIX="${suffix}" | tee -a $logfile 
+				make DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile 
 			
 				if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 				then

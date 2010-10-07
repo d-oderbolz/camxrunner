@@ -398,7 +398,7 @@ function set_variables()
 	# Must we run Reactive Tracer Source Apportionment?
 	# RTRAC (RT)
 	################################################################
-	elif [[ "$CXR_PROBING_TOOL" == "RTRAC" ]] 
+	elif [[ "$CXR_PROBING_TOOL" == "RTRAC" ]]
 	then
 		CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
 		
