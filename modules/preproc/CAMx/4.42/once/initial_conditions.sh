@@ -81,6 +81,30 @@ function getNumInvocations()
 }
 
 ################################################################################
+# Function: getProblemSize
+#
+# Returns the problem size of a given invocation.
+# If the problem size is constant, return 1.
+# 
+################################################################################
+function getProblemSize()
+################################################################################
+{
+	local grid
+	local x
+	local y
+	local z
+	
+	# The Problem size here is not a function of the invocation
+	grid=1
+	
+	x=$(common.runner.getX ${grid})
+	y=$(common.runner.getY ${grid})
+	z=$(common.runner.getZ ${grid})
+	
+	echo $(( $x * $y * $z ))
+
+################################################################################
 # Function: set_variables
 #	
 # Sets the appropriate variables needed for <initial_conditions>

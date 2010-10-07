@@ -103,9 +103,9 @@ function common.check.PredictModelOutputMb()
 
 	# Determine size of output field
 	if [[ ${CXR_AVERAGE_OUTPUT_3D} == true  ]]; then
-		cells=$(common.runner.countCells3D)
+		cells=$(common.runner.countAllCells3D)
 	else
-		cells=$(common.runner.countCells2D)
+		cells=$(common.runner.countAllCells2D)
 	fi
 	
 	# Our constant is designed for 10^5 cells

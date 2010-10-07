@@ -80,6 +80,33 @@ function getNumInvocations()
 }
 
 ################################################################################
+# Function: getProblemSize
+#
+# Returns the problem size of a given invocation.
+# If the problem size is constant, return 1.
+# 
+# Parameters:
+# $1 - invocation
+################################################################################
+function getProblemSize()
+################################################################################
+{
+	local invocation
+	local x
+	local y
+	local z
+	
+	invocation=$1
+	
+	x=$(common.runner.getX ${invocation})
+	y=$(common.runner.getY ${invocation})
+	z=$(common.runner.getZ ${invocation})
+	
+	# The Problem size here is a function of the invocation
+	echo $(( $x * $y * $z ))
+}
+
+################################################################################
 # Function: set_variables
 #	
 # Sets the appropriate variables for <avgdif>

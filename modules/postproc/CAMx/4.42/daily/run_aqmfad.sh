@@ -77,6 +77,39 @@ function getNumInvocations()
 }
 
 ################################################################################
+# Function: getProblemSize
+#
+# Returns the problem size of a given invocation.
+# If the problem size is constant, return 1.
+# 
+# Parameters:
+# $1 - invocation
+################################################################################
+function getProblemSize()
+################################################################################
+{
+	local invocation
+	local grid
+	local x
+	local y
+	local z
+	local -a arr
+	
+	# The Problem size here is a function of the invocation
+	invocation=$1
+	
+	# The grid is the i-1 element of the list CXR_RUN_AQMFAD_ON_GRID
+	arr=($CXR_RUN_AQMFAD_ON_GRID)
+	grid=${arr[$(( $invocation - 1 )) ]}
+	
+	x=$(common.runner.getX ${grid})
+	y=$(common.runner.getY ${grid})
+	z=$(common.runner.getZ ${grid})
+	
+	echo $(( $x * $y * $z ))
+}
+
+################################################################################
 # Function:set_variables
 #	
 # Sets the appropriate variables needed for <run_aqmfad>

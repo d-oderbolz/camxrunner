@@ -101,6 +101,20 @@ function getNumInvocations()
 }
 
 ################################################################################
+# Function: getProblemSize
+#
+# Returns the problem size of a given invocation.
+# If the problem size is constant, return 1.
+#
+################################################################################
+function getProblemSize()
+################################################################################
+{
+	# The Problem size here is not a function of the invocation
+	echo 1
+}
+
+################################################################################
 # Function: set_variables
 #	
 # Sets the appropriate variables needed for <photolysis_rates>

@@ -523,18 +523,6 @@ CXR_TMP_SPACE_FACTOR=0.05
 # Parameters to estimate time needed
 ################################################################################
 
-# We normalize the time per this number of cells
-# when storing times.
-# Increase when normalized times are too small - but changing this
-# setting invalidates all data in the state/universal/hashes/Timing Hash!
-CXR_TIME_PER_CELLS=100000
-
-# This factor is re-calculated later
-CXR_TIME_NORM_FACTOR=1
-
-# We do not store more than this number of timing infos per module
-CXR_TIME_MAX_ENTRIES=1000
-
 # This variable will hold the estimated total time
 CXR_TIME_TOTAL_ESTIMATED=0
 

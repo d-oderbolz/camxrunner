@@ -78,6 +78,22 @@ function getNumInvocations()
 }
 
 ################################################################################
+# Function: getProblemSize
+#
+# Returns the problem size of a given invocation.
+# If the problem size is constant, return 1.
+# 
+# Parameters:
+# $1 - invocation
+################################################################################
+function getProblemSize()
+################################################################################
+{
+	# Problem size is constant
+	echo 1
+}
+
+################################################################################
 # Function: set_variables
 #	
 # Sets the appropriate variables for <set_permissions>

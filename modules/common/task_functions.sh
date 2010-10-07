@@ -1133,7 +1133,8 @@ function common.task.Worker()
 				|| common.task.changeTaskStatus $id $CXR_STATUS_FAILURE
 							
 				# Stop Timing 
-				common.performance.stopTiming $CXR_META_MODULE_NAME
+				# getProblemSize must be implemented by all modules
+				common.performance.stopTiming $CXR_META_MODULE_NAME $(getProblemSize ${invocation:-1})
 				
 				#Release resources if needed
 				if [[ "$exclusive" == true && ${CXR_ALLOW_MODEL_CONCURRENCY:-false} == false ]]

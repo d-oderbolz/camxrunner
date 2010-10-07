@@ -231,13 +231,13 @@ function common.runner.getMaxZ()
 }
 
 ################################################################################
-# Function: common.runner.countCells3D
+# Function: common.runner.countAllCells3D
 # 
 # Returns the sum of the number of cells in all grids (3D)
 # Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
-function common.runner.countCells3D()
+function common.runner.countAllCells3D()
 ################################################################################
 {
 	local new
@@ -255,13 +255,13 @@ function common.runner.countCells3D()
 }
 
 ################################################################################
-# Function: common.runner.countCells2D
+# Function: common.runner.countAllCells2D
 # 
 # Returns the sum of the number of cells in all grids (Just lowest layer)
 # Used by <common.check.PredictModelOutputMb>
 #
 ################################################################################
-function common.runner.countCells2D()
+function common.runner.countAllCells2D()
 ################################################################################
 {
 	local new
@@ -321,20 +321,9 @@ function common.runner.reportDimensions()
 		
 	done
 	
-	nCells="$(common.runner.countCells3D)"
+	nCells="$(common.runner.countAllCells3D)"
 	
 	main.log -B "Total number of cells: $nCells"
-	
-	# Set factor to correct times (integer division)
-	CXR_TIME_NORM_FACTOR=$(( $nCells / $CXR_TIME_PER_CELLS ))
-	
-	# This factor must be >= 1
-	if [[ $CXR_TIME_NORM_FACTOR -lt 1 ]]
-	then
-		CXR_TIME_NORM_FACTOR=1
-	fi
-	
-	main.log -v "Time normalisation factor: $CXR_TIME_NORM_FACTOR"
 	
 }
 

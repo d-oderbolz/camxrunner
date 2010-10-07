@@ -71,12 +71,12 @@ function common.performance.startTiming()
 # Function: common.performance.stopTiming
 # 
 # Measures the time difference in seconds, adds it to the universal timing db. 
-# At the moment, we use a standardized problem size.
 #
 # DB: $CXR_UNIVERSAL_TIMING_DB
 #
 # Parameters:
 # $1 - module name (can be any string)
+# $2 - the problem size
 ################################################################################
 function common.performance.stopTiming()
 ################################################################################
@@ -86,11 +86,13 @@ function common.performance.stopTiming()
 	local start_time
 	local stop_time
 	local load
+	local problem_size
 	
 	# Get the current epoch
 	stop_time="$(date "+%s")"
 
 	module=${1}
+	problem_size=${2}
 	
 	var=CXR_TEMP_START_TIME_${module}
 	
@@ -101,15 +103,6 @@ function common.performance.stopTiming()
 	then
 		# Calculate difference
 		diff=$(( $stop_time - $start_time ))
-		
-		# Normalize by cells
-		time_norm=$(common.math.FloatOperation "$diff / $CXR_TIME_NORM_FACTOR" 1 false)
-		
-		# Is the normalized time very small?
-		if [[ $(common.math.FloatOperation "$time_norm < 1.0" 0 false) == 1 ]]
-		then
-			main.log -v "Normalized difference $time_norm is small. That might be a hint that CXR_TIME_PER_CELLS ($CXR_TIME_PER_CELLS) is too small"
-		fi
 		
 		# Get current load
 		load="$(common.performance.getReaLoadPercent)"
@@ -135,10 +128,10 @@ function common.performance.stopTiming()
 														'$CXR_MODEL',
 														'$CXR_MODEL_VERSION',
 														'$module',
-														'$CXR_TIME_PER_CELLS',
+														'$problem_size',
 														'$CXR_MACHINE',
 														$load,
-														$time_norm,
+														$diff,
 														$(date "+%s")
 														,'$CXR_RUN'
 													);
