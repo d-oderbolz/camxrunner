@@ -730,7 +730,9 @@ CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
 CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
 
 # This is a SQLITE Library for statistical functions
-CXR_SQLITE_LIBFUNCTIONS=$CXR_LIB_DIR/sqlite/$HOSTTYPE/libsqlitefunctions.so
+CXR_SQLITE_LIBFUNCTIONS="$(main.getLibraryName libsqlitefunctions.so sqlite3)"
+
+
 
 if [[ -e $CXR_SQLITE_LIBFUNCTIONS ]]
 then

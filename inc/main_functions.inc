@@ -680,7 +680,7 @@ function main.getBinaryName()
 {
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
-		main.dieGracefully "Programming error: needs at least the name of a binary as input, optional parameter allow_empty"
+		main.dieGracefully "Programming error: needs at least the name of a binary as input, optional parameter allow_empty, got $*"
 	fi
 	
 	local exec_name
@@ -753,8 +753,104 @@ function main.getBinaryName()
 			echo "" 
 		else
 			# NOK-just issue a warning (if we are compiling e.g.)
-			main.log -w "Could not find a suitable executable for binary $exec_name, neither ${machine_exec} nor ${general_exec} are present. The which cmd also did not find anything.\nRecompile these components using\n\t\$ CAMxRunner.sh -I"
+			main.log -w "Could not find a suitable executable for binary $exec_name. The which command also did not find anything.\nRecompile this components using\n\t\$ CAMxRunner.sh -I"
 		fi
+	fi
+
+	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: main.getLibraryName
+#
+# Returns the full path of a library name.
+#
+# The name depends on:
+# - The Machine Architecture
+# - (The machine name)
+# 
+# We try to find the most specialised library.
+# Notifies logger if no suitable executable could be found.
+#
+# Such a name looks like this:
+#
+# > CXR_LIB_DIR/sqlite/$HOSTTYPE/libsqlitefunctions.so[-$(uname -n)] (e. g. ~/CAMxRunner/lib/sqlite3/x86_64-linux)
+#
+# Example:
+# > CXR_SQLITE_LIBFUNCTIONS="$(main.getLibraryName libsqlitefunctions.so)"
+#
+#
+# Parameters:
+# $1 - name (without path, with .so if needed) of the binary in question
+# $2 - name of corresponding executable (can also be a model name)
+# [$3] - version of tho corresponding executable, if any (can also be a model version) 
+# [$2] - allow_empty, an optional boolean, if true, we allow a binary to be missing (default: false)
+################################################################################
+function main.getLibraryName()
+################################################################################
+{
+	if [[ $# -lt 1 || $# -gt 4 ]]
+	then
+		main.dieGracefully "Programming error: needs at least the name of a binary and the corresponding executable as input, optional parameter version and allow_empty, got $*"
+	fi
+	
+	local lib_name
+	local exec_name
+	local version
+	local allow_empty
+	
+	lib_name="${1}"
+	exec_name="${2}"
+	version="${3:-}"
+	allow_empty="${2:-false}"
+	
+	local current_special
+	local current_general
+	
+	local directories
+	local dir
+	
+	# Define the directories to search
+	# from special to general
+	if [[ "$version" ]]
+	then
+		directories="${CXR_LIB_DIR}/${exec_name}/${version}/${HOSTTYPE} ${CXR_LIB_DIR}/${exec_name}/${HOSTTYPE} ${CXR_LIB_DIR}"
+	else
+		directories="${CXR_LIB_DIR}/${exec_name}/${HOSTTYPE} ${CXR_LIB_DIR}/${exec_name} ${CXR_LIB_DIR}"
+	fi
+	
+	for dir in $directories
+	do
+		#Determine possible names
+		current_general="${dir}/${lib_name}"
+		current_special="${lib_name}-${CXR_MACHINE}"
+		
+		# In each dir, we check the machine-specific first, then the general
+		if [[ -x "${current_special}" ]]
+		then
+			# Machine dependent exists
+			main.log -v "Library ${lib_name} is actually called ${current_special}"
+			echo "${current_special}"
+			return $CXR_RET_OK
+		elif [[ -x "${current_general}" ]]
+		then
+			# general exists
+			main.log -v "Library ${lib_name} is actually called ${current_general}"
+			echo "${current_general}"
+			return $CXR_RET_OK
+		fi
+	done # Loop through directories.
+	
+	# no match yet!
+	if [[ "$allow_empty" == true ]]
+	then
+		# optional param is true,
+		# We do not care and return the empty string
+		main.log -v "Library ${lib_name} not found"
+		echo "" 
+	else
+		# NOK-just issue a warning (if we are compiling e.g.)
+		main.log -w "Could not find library ${lib_name}!\nRecompile this components using\n\t\$ CAMxRunner.sh -I"
 	fi
 
 	return $CXR_RET_OK
