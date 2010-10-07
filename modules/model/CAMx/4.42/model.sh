@@ -94,7 +94,9 @@ function getProblemSize()
 ################################################################################
 # Function: set_variables
 #
-# Sets the variables (on a daily basis)
+# Sets the variables (on a daily basis), taking into account if we use the scratch-
+# dir or not. 
+#
 # Parameters:
 # $1 - did we already redirect to scratch?
 ################################################################################	
@@ -124,7 +126,40 @@ function set_variables()
 		then
 			main.log -a "Since CXR_USE_SCRATCH is true, we write the model output to $dir"
 			
-			# Store old value
+			# The model might need some files from the previous day,
+			# which are not in the scratch dir
+
+			if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
+				main.log -a "Pre-evaluating restart rules..."
+				CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
+				
+				if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+				then
+					CXR_NESTED_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
+				else
+					CXR_NESTED_GRID_RESTART_INPUT_FILE=
+				fi
+				
+				# PiG 
+				if [[ "$CXR_PLUME_IN_GRID" == true ]]
+				then
+					CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
+				fi # PiG?
+			
+				if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
+				then
+					CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
+					
+					if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+					then
+						CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
+					else
+						CXR_SA_NESTED_RESTART_INPUT_FILE=
+					fi # Are there nested grids?
+					
+			fi # did we pass the first day?
+			
+			# Store old directory name and switch
 			CXR_REAL_OUTPUT_DIR=$CXR_OUTPUT_DIR
 			CXR_OUTPUT_DIR=$dir
 		else
@@ -165,36 +200,46 @@ function set_variables()
 	# Name of the CAMx.in file
 	CXR_MODEL_CTRL_FILE=$(common.runner.evaluateRule "$CXR_MODEL_CTRL_FILE_RULE" false CXR_MODEL_CTRL_FILE_RULE)
 	
-	CXR_SA_RECEPTORIN=$(common.runner.evaluateRule "$CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE" false CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE)
+	if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" ]]
+	then
+		CXR_SA_RECEPTORIN=$(common.runner.evaluateRule "$CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE" false CXR_SA_RECEPTOR_DEFINITIONS_FILE_RULE)
+	fi
 	
 	########################################################################
-	# Dry and real need the same variables set
-	if [[  "$CXR_HOLLOW" == false || "$CXR_DRY" == true   ]]
+	# Set non-grid specific variables
+	########################################################################
+	
+	CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)
+	CXR_INITIAL_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)
+	CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)
+	CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
+	CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
+
+	# Checks we need always
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_PHOTOLYIS_RATES_INPUT_FILE $CXR_BOUNDARY_CONDITIONS_INPUT_FILE $CXR_TOP_CONCENTRATIONS_INPUT_FILE $CXR_ALBEDO_HAZE_OZONE_INPUT_FILE"
+
+	# PiG
+	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
 	then
-		# Real or dry run
-
-
-		########################################################################
-		# Set variables
-		########################################################################
+		CXR_POINT_SOURCES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
 		
-		CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)
-		CXR_INITIAL_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)
-		CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)
-		CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
-		CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
+		#Checks
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
+	fi
 
-		########################################################################
-		# Define checks
-		########################################################################
-		
-		
-		if [[ "$(common.date.isFirstDayOfSimulation?)" == true  ]]
+	########################################################################
+	# Restart files
+	########################################################################
+	
+	if [[ "$(common.date.isFirstDayOfSimulation?)" == true ]]
+	then
+		# Stuff that we need only the first day
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
+	else
+		## Only needed after the first day 
+		if [[ $CXR_USE_SCRATCH == false ]]
 		then
-			# Stuff that we need only the first day
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
-		else
-			## Only needed after the first day
+			# We use scratch, these rules where already expanded
 			CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
 			
 			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
@@ -204,8 +249,11 @@ function set_variables()
 				CXR_NESTED_GRID_RESTART_INPUT_FILE=
 			fi
 			
-			#Checks
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
+			# PiG 
+			if [[ "$CXR_PLUME_IN_GRID" == true ]]
+			then
+				CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
+			fi # PiG?
 		
 			if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
 			then
@@ -216,232 +264,219 @@ function set_variables()
 					CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
 				else
 					CXR_SA_NESTED_RESTART_INPUT_FILE=
-				fi
+				fi # Are there nested grids?
 				
+			fi # Probing
+			
+			if [[ "$CXR_PLUME_IN_GRID" == true ]]
+			then
 				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_SA_MASTER_RESTART_INPUT_FILE $CXR_SA_NESTED_RESTART_INPUT_FILE"
-			fi #Probing?
-		
-		fi #First day?
-		
-		# Normal Checks
-		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_PHOTOLYIS_RATES_INPUT_FILE $CXR_BOUNDARY_CONDITIONS_INPUT_FILE $CXR_TOP_CONCENTRATIONS_INPUT_FILE $CXR_ALBEDO_HAZE_OZONE_INPUT_FILE"
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
+			fi # PiG?
 
-		# PiG
-		if [[ "$CXR_PLUME_IN_GRID" == true  ]]
-		then
-			CXR_POINT_SOURCES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_POINT_SOURCES_FILE_RULE" false CXR_POINT_SOURCES_FILE_RULE)
-			CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
+			#Checks are needed in any case
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_SA_MASTER_RESTART_INPUT_FILE $CXR_SA_NESTED_RESTART_INPUT_FILE"
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
+		fi # Using scratch?
+	
+	fi #First day?
+	
+	################################################################################
+	# Probing settings
+	################################################################################
+	
+	################################################################
+	# OSAT, PSAT, GOAT or APCA
+	################################################################
+	if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
+	then
+	
+		# Output files must not be decompressed
+		# We only want to check them, otherwise we dont need these values
 		
-			#Checks
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
-		fi
-		
-		################################################################################
-		# Probing settings
-		################################################################################
-		
-		################################################################
-		# OSAT, PSAT, GOAT or APCA
-		################################################################
-		if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
-		then
-		
-			# Output files must not be decompressed
-			# We only want to check them, otherwise we dont need these values
-			
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false)"	
-			# Add nested, if needed
-			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-			then
-				CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
-			fi
-			
-			#Source area specific
-			for CXR_ISRCREGION in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
-			do
-				##Source Area
-				CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]=$(common.runner.evaluateRule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
-			
-				##Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]}"
-			done
-			
-			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);	
-			do
-				# expected output files (grid specific)
-				# We only want to check them, otherwise we dont need these values
-				CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_AVG_FILE_RULE" false CXR_SA_AVG_FILE_RULE false)"
-				
-				##Source Group
-				for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
-				do
-					eval CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}=$(common.runner.evaluateRule "$CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE" false CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE)
-					dummyvar="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}"
-					##Checks
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${!dummyvar}"
-				done
-			done
-			
-			# Source group specific
-			if [[ $CXR_POINT_EMISSIONS == true  ]]
-			then
-				for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
-				do
-					CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
-
-					#Checks
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]}"
-				done
-			fi
-			
-			## Receptor file
-			#if [[  "$CXR_SA_RECEPTOR" == "true" && "$CXR_SA_RECEPTOR_FILE_EXISTS" == "false"   ]]
-			#then
-			#	#Checks (this time output)
-			#	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_SA_RECEPTOR "
-			#fi
-		
-		################################################################
-		# Must we run direct decoupled sensitivity analysis?
-		# DDM
-		################################################################
-		elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
-		then
-			# This is not a file (hence no _FILE at the end of the name)
-			CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
-			
-			CXR_DDM_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
-			
-			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-			then
-				CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
-			else
-				CXR_DDM_NESTED_RESTART_INPUT_FILE=
-			fi
-			
-			#Grid specific
-			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-			do
-				CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
-			
-				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]}"
-			done
-			
-			#By soure group
-			for CXR_IGRID in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
- 			do
- 				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
- 			
- 				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]}"
- 			done
-			
-			
-			# By source group, by grid
- 			for CXR_ISRCGROUP in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
- 			do
- 				
- 				# and grid
-				for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
-				do
- 					# This is not elegant, but it simulates a 2D Array
- 					ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_FILE_RULE
- 					CXR_DDM_EMISS_GROUP_GRID_${j}_${CXR_IGRID}_INPUT_FILE=$(common.runner.evaluateRule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
- 				
- 					#Checks
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_INPUT_FILE"
- 				done
- 			done
-		
-		################################################################
-		# Must we run Reactive Tracer Source Apportionment?
-		# RTRAC (RT)
-		################################################################
-		elif [[ "$CXR_PROBING_TOOL" == "RTRAC" ]] 
-		then
-			CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
-			
-			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-			then
-				CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
-			else
-				CXR_RT_NESTED_RESTART_INPUT_FILE=
-			fi
-		fi
-		
-		################################################################
-		# General Probing support
-		################################################################
-		if [[ "$CXR_PROBING_TOOL" != "None"  ]]
-		then
-			# This is not a file (hence no _FILE at the end of the name)
-			CXR_PA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
-		fi
-		
-		# These are used to prevent overwriting of existing files
-		# Output files must not be decompressed!
-		CXR_DIAG_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
-		
-		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-		then
-			CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
-		else
-			CXR_FINST_OUTPUT_FILE=""
-		fi
-		
-		CXR_INST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
-		CXR_MASS_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
-		CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
-
-		#Checks (this time output)
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
-		
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_INST_FILE_RULE" false CXR_SA_INST_FILE_RULE false)"	
 		# Add nested, if needed
 		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
 		then
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_FINST_OUTPUT_FILE "
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_FINST_FILE_RULE" false CXR_SA_FINST_FILE_RULE false)"	
 		fi
-
-		########################################################################
-		# per day-per grid settings
-		# we loop
-		#	expand the file name rule
-		#	then export the name and the value
-		########################################################################
-		for CXR_IGRID in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+		
+		#Source area specific
+		for CXR_ISRCREGION in $(seq 1 $(( ${#SA_REGIONS_DOMAIN_NUMBERS[@]} - 1 )));
 		do
-			# Landuse
-			CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
-			# Pressure
-			CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
-			# Wind
-			CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
-			# Temperature
-			CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
-			# Vapor
-			CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
-			# Cloud
-			CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
-			# Vertical K
-			CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
-			# Emissions
-			CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
-			
-			#Checks
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]}"
-
-			# These are used to prevent overwriting of existing files
-			# Output files must not be decompressed! 
-			CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
-			CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
-
-			#Checks (this time output)
-			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]}"
+			##Source Area
+			CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]=$(common.runner.evaluateRule "$CXR_SA_SOURCE_AREA_MAP_FILE_RULE" false CXR_SA_SOURCE_AREA_MAP_FILE_RULE) 
+		
+			##Checks
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_ISRCREGION}]}"
 		done
+		
+		for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);	
+		do
+			# expected output files (grid specific)
+			# We only want to check them, otherwise we dont need these values
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $(common.runner.evaluateRule "$CXR_SA_AVG_FILE_RULE" false CXR_SA_AVG_FILE_RULE false)"
+			
+			##Source Group
+			for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+			do
+				eval CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}=$(common.runner.evaluateRule "$CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE" false CXR_SA_EMISS_GROUP_GRID_INPUT_FILE_RULE)
+				dummyvar="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}"
+				##Checks
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${!dummyvar}"
+			done
+		done
+		
+		# Source group specific
+		if [[ $CXR_POINT_EMISSIONS == true  ]]
+		then
+			for CXR_ISRCGROUP in $(seq 1 $CXR_SA_NUMBER_OF_SOURCE_GROUPS);
+			do
+				CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_FILE_RULE" false CXR_SA_POINTS_GROUP_FILE_RULE)
 
+				#Checks
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_ISRCGROUP}]}"
+			done
+		fi
+		
+	################################################################
+	# Must we run direct decoupled sensitivity analysis?
+	# DDM
+	################################################################
+	elif [[ "$CXR_PROBING_TOOL" == "DDM"  ]] 
+	then
+		# This is not a file (hence no _FILE at the end of the name)
+		CXR_DDM_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_DDM_ROOT_OUTPUT_FILE_RULE" false CXR_DDM_ROOT_OUTPUT_FILE_RULE)
+		
+		CXR_DDM_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_MASTER_RESTART_FILE_RULE" false CXR_DDM_MASTER_RESTART_FILE_RULE)
+		
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+		then
+			CXR_DDM_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_DDM_NESTED_RESTART_FILE_RULE" false CXR_DDM_NESTED_RESTART_FILE_RULE)
+		else
+			CXR_DDM_NESTED_RESTART_INPUT_FILE=
+		fi
+		
+		#Grid specific
+		for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+		do
+			CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DDM_SOURCE_AREA_MAP_FILE_RULE" false CXR_DDM_SOURCE_AREA_MAP_FILE_RULE) 
+		
+			#Checks
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_DDM_SOURCE_AREA_MAP_INPUT_ARR_FILES[${CXR_IGRID}]}"
+		done
+		
+		#By soure group
+		for CXR_IGRID in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
+		do
+			CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_SA_POINTS_GROUP_INPUT_FILE_RULE" false CXR_SA_POINTS_GROUP_INPUT_FILE_RULE) 
+		
+			#Checks
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_SA_POINTS_GROUP_INPUT_ARR_FILES[${CXR_IGRID}]}"
+		done
+		
+		
+		# By source group, by grid
+		for CXR_ISRCGROUP in $(seq 1 $CXR_DDM_NUMBER_OF_SOURCE_GROUPS);
+		do
+			# and grid
+			for CXR_IGRID in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+			do
+				# This is not elegant, but it simulates a 2D Array
+				ELEMENT_NAME=CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_FILE_RULE
+				CXR_DDM_EMISS_GROUP_GRID_${j}_${CXR_IGRID}_INPUT_FILE=$(common.runner.evaluateRule "${!ELEMENT_NAME}" false $ELEMENT_NAME) 
+			
+				#Checks
+				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_DDM_EMISS_GROUP_GRID_${CXR_ISRCGROUP}_${CXR_IGRID}_INPUT_FILE"
+			done
+		done
+	
+	################################################################
+	# Must we run Reactive Tracer Source Apportionment?
+	# RTRAC (RT)
+	################################################################
+	elif [[ "$CXR_PROBING_TOOL" == "RTRAC" ]] 
+	then
+		CXR_RT_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_MASTER_RESTART_FILE_RULE" false CXR_RT_MASTER_RESTART_FILE_RULE)
+		
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+		then
+			CXR_RT_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_RT_NESTED_RESTART_FILE_RULE" false CXR_RT_NESTED_RESTART_FILE_RULE)
+		else
+			CXR_RT_NESTED_RESTART_INPUT_FILE=
+		fi
 	fi
+	
+	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
+	then
+		# This is not a file (hence no _FILE at the end of the name)
+		CXR_PA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
+	fi # General Probing
+	
+	################################################################
+	# Output files
+	################################################################
+	
+	# These are used to prevent overwriting of existing files
+	# Output files must not be decompressed!
+	CXR_DIAG_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_DIAG_FILE_RULE" false CXR_DIAG_FILE_RULE false)
+	
+	if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+	then
+		CXR_FINST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_FINST_FILE_RULE" false CXR_FINST_FILE_RULE false)
+	else
+		CXR_FINST_OUTPUT_FILE=""
+	fi
+	
+	CXR_INST_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_INST_FILE_RULE" false CXR_INST_FILE_RULE false)
+	CXR_MASS_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_MASS_FILE_RULE" false CXR_MASS_FILE_RULE false)
+	CXR_OUT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_OUT_FILE_RULE" false CXR_OUT_FILE_RULE false)
+
+	#Checks (this time output)
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIAG_OUTPUT_FILE $CXR_INST_OUTPUT_FILE $CXR_MASS_OUTPUT_FILE $CXR_OUT_OUTPUT_FILE "
+	
+	# Add nested, if needed
+	if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
+	then
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_FINST_OUTPUT_FILE "
+	fi
+
+	########################################################################
+	# per day-per grid settings
+	# we loop
+	#	expand the file name rule
+	#	then export the name and the value
+	########################################################################
+	for CXR_IGRID in $(seq 1 ${CXR_NUMBER_OF_GRIDS});
+	do
+		# Landuse
+		CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_LANDUSE_FILE_RULE" false CXR_LANDUSE_FILE_RULE)
+		# Pressure
+		CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+		# Wind
+		CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+		# Temperature
+		CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+		# Vapor
+		CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+		# Cloud
+		CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_CLOUD_FILE_RULE" false CXR_CLOUD_FILE_RULE)
+		# Vertical K
+		CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+		# Emissions
+		CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
+		
+		#Checks
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_LANDUSE_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_ZP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_WIND_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_TEMP_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_VAPOR_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_CLOUD_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_KV_GRID_INPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_EMISS_INPUT_ARR_FILES[${CXR_IGRID}]}"
+
+		# These are used to prevent overwriting of existing files
+		# Output files must not be decompressed! 
+		CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false)
+		CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]=$(common.runner.evaluateRule "$CXR_DEPN_FILE_RULE" false CXR_DEPN_FILE_RULE false)
+
+		#Checks (this time output)
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_AVG_OUTPUT_ARR_FILES[${CXR_IGRID}]} ${CXR_DEPN_OUTPUT_ARR_FILES[${CXR_IGRID}]}"
+	done
 }
 
 ################################################################################
