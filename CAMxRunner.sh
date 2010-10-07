@@ -274,11 +274,11 @@ do
 		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_RUN_LIST="${OPTARG:-}" ;;
-		p) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
-		i) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=true; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
-		o) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=true; CXR_USER_TEMP_CLI_RUN_POST_ONCE=false ;;
-		f) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=false; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=false; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_DAILY=false; CXR_USER_TEMP_CLI_RUN_POST_ONCE=true ;;
-		x) 	CXR_USER_TEMP_CLI_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=true ;;
+		p) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true ;;
+		i) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=true ;;
+		o) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_POST_DAILY=true ;;
+		f) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_POST_ONCE=true ;;
+		x) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=true ;;
 		L) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
 		h) CXR_HOLLOW=true; main.usage ;;
@@ -364,18 +364,6 @@ then
 	# Log to the null device
 	CXR_LOG=/dev/null
 fi
-
-# Adjust options to control pre- and postprocessors
-if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false  ]]
-then
-	#Run everything. This is needed because if no option is given, we want all.
-	CXR_RUN_PRE_ONCE=true
-	CXR_RUN_PRE_DAILY=true
-	CXR_RUN_MODEL=true
-	CXR_RUN_POST_DAILY=true
-	CXR_RUN_POST_ONCE=true
-fi
-
 
 #### Check for contradictions and take action (incomplete!)
 
@@ -622,176 +610,174 @@ then
 	else
 		main.log -w "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
 	fi
-	else
-		# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
-		# When the user selects a certain type of modules, they should be executed as 
-		# configured
-		# In the case of CXR_ALLOW_MULTIPLE, we create a WHERE-clause that is used later by setNextTask
+else
+	# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
+	# When the user selects a certain type of modules, they should be executed as 
+	# configured
+	# In the case of CXR_ALLOW_MULTIPLE, we create a WHERE-clause that is used later by setNextTask
 
-		# First we store all current (configured values)
-		d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
-		d_d_pre="$CXR_DISABLED_DAILY_PREPROC"
-		d_model="$CXR_DISABLED_MODEL"
-		d_d_post="$CXR_DISABLED_DAILY_POSTPROC"
-		d_once_post="$CXR_DISABLED_ONCE_POSTPROC"
-		
-		# The same for enabled
-		e_once_pre="$CXR_ENABLED_ONCE_PREPROC"
-		e_d_pre="$CXR_ENABLED_DAILY_PREPROC"
-		e_model="$CXR_ENABLED_MODEL"
-		e_d_post="$CXR_ENABLED_DAILY_POSTPROC"
-		e_once_post="$CXR_ENABLED_ONCE_POSTPROC"
-		
-		# Then, we disable all (later, we enable selectively)
-		CXR_DISABLED_ONCE_PREPROC="${CXR_SKIP_ALL}"
-		CXR_DISABLED_DAILY_PREPROC="${CXR_SKIP_ALL}"
-		CXR_DISABLED_MODEL="${CXR_SKIP_ALL}"
-		CXR_DISABLED_DAILY_POSTPROC="${CXR_SKIP_ALL}"
-		CXR_DISABLED_ONCE_POSTPROC="${CXR_SKIP_ALL}"
-		
+	# First we store all current (configured values)
+	d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
+	d_d_pre="$CXR_DISABLED_DAILY_PREPROC"
+	d_model="$CXR_DISABLED_MODEL"
+	d_d_post="$CXR_DISABLED_DAILY_POSTPROC"
+	d_once_post="$CXR_DISABLED_ONCE_POSTPROC"
+	
+	# The same for enabled
+	e_once_pre="$CXR_ENABLED_ONCE_PREPROC"
+	e_d_pre="$CXR_ENABLED_DAILY_PREPROC"
+	e_model="$CXR_ENABLED_MODEL"
+	e_d_post="$CXR_ENABLED_DAILY_POSTPROC"
+	e_once_post="$CXR_ENABLED_ONCE_POSTPROC"
+	
+	# Then, we disable all (later, we enable selectively)
+	CXR_DISABLED_ONCE_PREPROC="${CXR_SKIP_ALL}"
+	CXR_DISABLED_DAILY_PREPROC="${CXR_SKIP_ALL}"
+	CXR_DISABLED_MODEL="${CXR_SKIP_ALL}"
+	CXR_DISABLED_DAILY_POSTPROC="${CXR_SKIP_ALL}"
+	CXR_DISABLED_ONCE_POSTPROC="${CXR_SKIP_ALL}"
+	
+	CXR_ENABLED_ONCE_PREPROC=""
+	CXR_ENABLED_DAILY_PREPROC=""
+	CXR_ENABLED_MODEL=""
+	CXR_ENABLED_DAILY_POSTPROC=""
+	CXR_ENABLED_ONCE_POSTPROC=""
+	
+	# Since by default, we run everything, we need to
+	# use these special CLI variables to tell if the user
+	# actively chose this particular part.
+	# If not, we disable it in the case of limited processing
+	if [[ ${CXR_CLI_RUN_PRE_ONCE:-false} == true ]]
+	then
+		CXR_RUN_PRE_ONCE=true
+		CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
+		CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
+	else
+		CXR_RUN_PRE_ONCE=false
+	fi
+	
+	if [[ ${CXR_CLI_RUN_PRE_DAILY:-false} == true ]]
+	then
+		CXR_RUN_PRE_DAILY=true
+		CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
+		CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
+	else
+		CXR_RUN_PRE_DAILY=false
+	fi		
+	
+	if [[ ${CXR_CLI_RUN_MODEL:-false} == true ]]
+	then
+		CXR_RUN_MODEL=true
+		CXR_DISABLED_MODEL="$d_model"
+		CXR_ENABLED_MODEL="$e_model"
+	else
+		CXR_RUN_MODEL=false
+	fi
+
+	if [[ ${CXR_CLI_RUN_POST_DAILY:-false} == true ]]
+	then
+		CXR_RUN_POST_DAILY=true
+		CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
+		CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
+	else
+		CXR_RUN_POST_DAILY=false
+	fi
+	
+	if [[ ${CXR_CLI_RUN_POST_ONCE:-false} == true ]]
+	then
+		CXR_RUN_POST_ONCE=true
+		CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
+		CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
+	else
+		CXR_RUN_POST_ONCE=false
+	fi
+	
+	# Now, we must deal with -r.
+	if [[ "$(common.string.trim "$CXR_RUN_LIST")" ]]
+	then
+		# There are arguments
+		# we reset all explicitly enabled modules
+		# (-r means "run ONLY these modules")
 		CXR_ENABLED_ONCE_PREPROC=""
 		CXR_ENABLED_DAILY_PREPROC=""
 		CXR_ENABLED_MODEL=""
 		CXR_ENABLED_DAILY_POSTPROC=""
 		CXR_ENABLED_ONCE_POSTPROC=""
 		
-		# Since by default, we run everything, we need to
-		# use these special CLI variables to tell if the user
-		# actively chose this particular part.
-		# If not, we disable it in the case of limited processing
-		if [[ ${CXR_CLI_RUN_PRE_ONCE:-false} == true ]]
-		then
-			CXR_RUN_PRE_ONCE=true
-			CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
-			CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
-		else
-			CXR_RUN_PRE_ONCE=false
-		fi
-		
-		if [[ ${CXR_CLI_RUN_PRE_DAILY:-false} == true ]]
-		then
-			CXR_RUN_PRE_DAILY=true
-			CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
-			CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
-		else
-			CXR_RUN_PRE_DAILY=false
-		fi		
-		
-		if [[ ${CXR_CLI_RUN_MODEL:-false} == true ]]
-		then
-			CXR_RUN_MODEL=true
-			CXR_DISABLED_MODEL="$d_model"
-			CXR_ENABLED_MODEL="$e_model"
-		else
-			CXR_RUN_MODEL=false
-		fi
-
-		if [[ ${CXR_CLI_RUN_POST_DAILY:-false} == true ]]
-		then
-			CXR_RUN_POST_DAILY=true
-			CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
-			CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
-		else
-			CXR_RUN_POST_DAILY=false
-		fi
-		
-		if [[ ${CXR_CLI_RUN_POST_ONCE:-false} == true ]]
-		then
-			CXR_RUN_POST_ONCE=true
-			CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
-			CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
-		else
-			CXR_RUN_POST_ONCE=false
-		fi
-		
-		# Now, we must deal with -r.
-		if [[ "$(common.string.trim "$CXR_RUN_LIST")" ]]
-		then
-			# There are arguments
-			# we reset all explicitly enabled modules
-			# (-r means "run ONLY these modules")
-			CXR_ENABLED_ONCE_PREPROC=""
-			CXR_ENABLED_DAILY_PREPROC=""
-			CXR_ENABLED_MODEL=""
-			CXR_ENABLED_DAILY_POSTPROC=""
-			CXR_ENABLED_ONCE_POSTPROC=""
-			
-			# Decode arguments
-			for module in $CXR_RUN_LIST
-			do
-				# It might be a type!
-				if [[ "$(common.module.isType $module)" == true ]]
-				then
-					main.log -a "We will run all modules of type $module"
-					# Yep, its a type
-					# Exchange roles
-					module_type=$module
-					# The modules must be derived from the tpe
-					module="$(common.module.resolveType $module_type)"
-				else 
-					# no, normal module name
-					# Determine type. 
-					# Due to CATCH-22 we cannot use <common.module.getType> here
-					module_type="$(common.module.getTypeSlow "$module")"
-					
-				fi  # is it a type?
-				
-				if [[ "$CXR_ALLOW_MULTIPLE" == false ]]
-				then
-					# Normal case with one runner
-					case "$module_type" in
-					
-						"${CXR_TYPE_PREPROCESS_ONCE}" ) 
-							CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
-							CXR_RUN_PRE_ONCE=true;;
-							
-						"${CXR_TYPE_PREPROCESS_DAILY}" ) 
-							CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
-							CXR_RUN_PRE_DAILY=true;;
-							
-						"${CXR_TYPE_MODEL}" ) 
-							CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
-							CXR_RUN_MODEL=true;;
-							
-						"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
-							CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
-							CXR_RUN_POST_DAILY=true;;
-							
-						"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
-							CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
-							CXR_RUN_POST_ONCE=true;;
-							
-						* ) 
-							main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
-					esac
-				
-				else
-				
-					# Special case where we run multiple runners
-					# We need to go over all modules set now
-					
-					for entry in $module
-					do
-						CXR_TASK_WHERE="'$entry',${CXR_TASK_WHERE:-}"
-					done
-				
-				fi # CXR_ALLOW_MULTIPLE?
-
-			done # entries in -r
-			
-			if [[ "$CXR_TASK_WHERE" ]]
+		# Decode arguments
+		for module in $CXR_RUN_LIST
+		do
+			# It might be a type!
+			if [[ "$(common.module.isType $module)" == true ]]
 			then
-				# We fix the task where clause
-				# remove last comma
-				CXR_TASK_WHERE="${CXR_TASK_WHERE%,}]"
-				CXR_TASK_WHERE=" module in (${CXR_TASK_WHERE}) "
-			fi 
+				main.log -a "We will run all modules of type $module"
+				# Yep, its a type
+				# Exchange roles
+				module_type=$module
+				# The modules must be derived from the tpe
+				module="$(common.module.resolveType $module_type)"
+			else 
+				# no, normal module name
+				# Determine type. 
+				# Due to CATCH-22 we cannot use <common.module.getType> here
+				module_type="$(common.module.getTypeSlow "$module")"
+				
+			fi  # is it a type?
 			
-		else
-			main.log -v "The option -r needs at least one module name or type as argument!"
-		fi
+			if [[ "$CXR_ALLOW_MULTIPLE" == false ]]
+			then
+				# Normal case with one runner
+				case "$module_type" in
+				
+					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
+						CXR_RUN_PRE_ONCE=true;;
+						
+					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
+						CXR_RUN_PRE_DAILY=true;;
+						
+					"${CXR_TYPE_MODEL}" ) 
+						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
+						CXR_RUN_MODEL=true;;
+						
+					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
+						CXR_RUN_POST_DAILY=true;;
+						
+					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
+						CXR_RUN_POST_ONCE=true;;
+						
+					* ) 
+						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
+				esac
+			
+			else
+			
+				# Special case where we run multiple runners
+				# We need to go over all modules set now
+				
+				for entry in $module
+				do
+					CXR_TASK_WHERE="'$entry',${CXR_TASK_WHERE:-}"
+				done
+			
+			fi # CXR_ALLOW_MULTIPLE?
+
+		done # entries in -r
 		
-	
+		if [[ "$CXR_TASK_WHERE" ]]
+		then
+			# We fix the task where clause
+			# remove last comma
+			CXR_TASK_WHERE="${CXR_TASK_WHERE%,}]"
+			CXR_TASK_WHERE=" module in (${CXR_TASK_WHERE}) "
+		fi 
+		
+	else
+		main.log -v "The option -r needs at least one module name or type as argument!"
+	fi
 fi # Limited Processing?
 ################################################################################
 # Print out the variables and their settings

@@ -411,11 +411,10 @@ CXR_REPORT_MD5=true
 CXR_RUN_LIMITED_PROCESSING=false
 
 # If one of these is false, the sub-system will not be run
-# Must be false here, gets changed after option processing is done
-CXR_RUN_PRE_DAILY=false
-CXR_RUN_PRE_ONCE=false
-CXR_RUN_POST_DAILY=false
-CXR_RUN_POST_ONCE=false
+CXR_RUN_PRE_DAILY=true
+CXR_RUN_PRE_ONCE=true
+CXR_RUN_POST_DAILY=true
+CXR_RUN_POST_ONCE=true
 
 
 # This Check variable makes sure certain things are only checked once and not for each day
