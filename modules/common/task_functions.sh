@@ -757,7 +757,7 @@ function common.task.setNextTask()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
-		main.log "All tasks have been processed, notifying system after security pause..."
+		main.log -a "All tasks have been processed, notifying system after security pause..."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1003,7 +1003,7 @@ function common.task.Worker()
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
-		common.state.doContinue? || main.dieGracefully "Continue file no longer present."
+		common.state.doContinue? || common.task.removeWorker $CXR_WORKER_PID
 		
 		# We are not yet busy
 		common.task.waitingWorker $CXR_WORKER_PID
@@ -1284,7 +1284,7 @@ function common.task.controller()
 		
 		if [[ "$task_count" -eq 0 ]]
 		then
-			main.log "All tasks have been processed, notifying system after security pause..."
+			main.log -a "All tasks have been processed, notifying system after security pause..."
 			
 			# there are no more tasks, remove all continue files after some waiting
 			# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1297,10 +1297,7 @@ function common.task.controller()
 		
 	done
 	
-	main.log -B "The Continue file is gone, all workers will stop asap."
-	
-	# OK, remove the workers now
-	common.task.removeAllWorkers
+	main.log -B "The Continue file is gone, all workers will stop when they detect it."
 }
 
 ################################################################################
