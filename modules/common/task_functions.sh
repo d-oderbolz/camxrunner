@@ -631,6 +631,40 @@ function common.task.countAllWorkers()
 }
 
 ################################################################################
+# Function: common.task.countMyRunningWorkers
+#
+# Returns the number of running workers on this machine.
+#
+################################################################################
+function common.task.countMyRunningWorkers()
+################################################################################
+{
+	local running_pids
+	local pid
+	local count
+	
+	count=0
+	
+	# Find only my "RUNNING" entries
+	running_pids="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='${CXR_MACHINE}' AND status='${CXR_STATUS_RUNNING}';")"
+	
+	oIFS="$IFS"
+	IFS='
+'
+	
+	for pid in $running_pids
+	do
+		kill -0 $pid && count=$(( $count + 1 ))
+	done
+	
+	IFS="$oIFS"
+	
+	main.log -a "Found $count active pids"
+	echo $count
+	
+}
+
+################################################################################
 # Function: common.task.countRunningWorkers
 #
 # Returns the number of running workers (on any machine).
@@ -1298,6 +1332,13 @@ function common.task.controller()
 	done
 	
 	main.log -B "The Continue file is gone, all workers will stop when they detect it."
+	
+	# We now wait for the last workers to finish
+	main.log -a "Waiting until running workers are done..."
+	while [[ $(common.task.countMyRunningWorkers) -gt 0 ]] 
+	do
+		sleep $CXR_WAITING_SLEEP_SECONDS
+	done
 }
 
 ################################################################################
