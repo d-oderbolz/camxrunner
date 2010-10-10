@@ -496,13 +496,14 @@ function common.check.reportMD5()
 					old_mtime="$(common.hash.getValueMtime MD5 $CXR_LEVEL_UNIVERSAL "${hash_file}" )"
 					old_datetime="$(common.date.EpochToDateTime $old_mtime)"
 					main.log -w "File ${file} changed since ${old_datetime}. New MD5: ${new_hash}"
-					# Currently, we do not store the new hash, so user will see this message
-					# more than once (wanted by design)
+					
+					# Store new hash
+ 					common.hash.put MD5 $CXR_LEVEL_UNIVERSAL "$hash_file" "$new_hash" true
 				fi
 			fi
 		
 		else
-			# Never seen this file before!
+			# Never seen this file before
 			hash="$(main.getMD5 "$file")"
 			main.log -a  "MD5 Hash of ${file} is ${hash}"
 			
