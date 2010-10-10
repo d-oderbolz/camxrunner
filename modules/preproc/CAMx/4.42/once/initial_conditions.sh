@@ -103,6 +103,7 @@ function getProblemSize()
 	z=$(common.runner.getZ ${grid})
 	
 	echo $(( $x * $y * $z ))
+}
 
 ################################################################################
 # Function: set_variables
