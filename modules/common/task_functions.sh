@@ -1212,6 +1212,8 @@ function common.task.Worker()
 ################################################################################
 # Function: common.task.spawnWorkers
 #
+# Creates $1 workers.
+#
 # Parameters:
 # $1 - number of workers to spawn
 ################################################################################
@@ -1295,7 +1297,11 @@ function common.task.controller()
 		
 		# Still TODO:
 		# Detect stale locks
-		# Check if all known workers still run (just this machine), using kill -0
+		
+		if [[ $(common.task.countMyRunningWorkers) -lt $CXR_MAX_PARALLEL_PROCS ]]
+		then
+			main.log -w "Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive!"
+		fi
 		
 		# touch the continue file
 		if [[ -e "$CXR_CONTINUE_FILE" ]]

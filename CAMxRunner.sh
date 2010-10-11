@@ -842,33 +842,40 @@ then
 	
 	# Create a plan
 	common.task.init
-
-	# Creates CXR_MAX_PARALLEL_PROCS common.task.Worker processes
-	# The workers then carry out the tasks 
-	common.task.spawnWorkers $CXR_MAX_PARALLEL_PROCS
-
-	################################################################################
-	# Make sure that all subprocesses are done!
-	################################################################################
 	
-	# control the workers
-	common.task.controller
-	
-	# If we arrive here, we should be done.
-	# We can add a good check later.
-	
-	# We need a way to find out if all workers returned happily to
-	# manipulate CXR_STATUS if needed
-	
-	if [[ "$(common.task.countOpenTasks)" -ne 0 ]]
+	# Do we need to work?
+	if [[ $(common.task.countOpenTasks) -gt 0 ]]
 	then
-		main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
-		# We are not happy
-		CXR_STATUS=$CXR_STATUS_FAILURE
+		# Creates CXR_MAX_PARALLEL_PROCS common.task.Worker processes
+		# The workers then carry out the tasks 
+		common.task.spawnWorkers $CXR_MAX_PARALLEL_PROCS
+	
+		################################################################################
+		# Make sure that all subprocesses are done!
+		################################################################################
+		
+		# control the workers
+		common.task.controller
+		
+		# If we arrive here, we should be done.
+		# We can add a good check later.
+		
+		# We need a way to find out if all workers returned happily to
+		# manipulate CXR_STATUS if needed
+		
+		if [[ "$(common.task.countOpenTasks)" -ne 0 ]]
+		then
+			main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
+			# We are not happy
+			CXR_STATUS=$CXR_STATUS_FAILURE
+		else
+			# We are happy
+			CXR_STATUS=$CXR_STATUS_SUCCESS
+		fi # still open tasks?
+		
 	else
-		# We are happy
-		CXR_STATUS=$CXR_STATUS_SUCCESS
-	fi
+		main.log -a "All tasks where already processed. If you want to repeat processing, consider the -c and -F options"
+	fi # are there tasks at all?
 fi
 
 # Do compression if needed
