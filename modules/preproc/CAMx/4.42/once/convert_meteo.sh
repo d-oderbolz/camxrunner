@@ -181,8 +181,8 @@ function convert_meteo()
 				else
 					# Call the converter, collect sterr and stout
 					# 0 indicates stdout for logging
-					main.log "Calling ${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) 0 2>&1 | tee -a $CXR_LOG"
-					${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) 0 2>&1 | tee -a $CXR_LOG
+					main.log "Calling ${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG"
+					${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
 				fi
 			done
 

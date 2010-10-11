@@ -319,12 +319,12 @@ function convert_output()
 			
 			main.log   "Converting ${input_file} to ${output_file} ..."
 		
-			main.log -v  "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 "
+			main.log -v  "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} /dev/null"
 
 			if [[ "$CXR_DRY" == false  ]]
 			then
 				#Call the converter, collect sterr and stout
-				${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} 0 2>&1 | tee -a $CXR_LOG
+				${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} /dev/null 2>&1 | tee -a $CXR_LOG
 			else
 					main.log   "Dryrun, no conversion performed"
 			fi

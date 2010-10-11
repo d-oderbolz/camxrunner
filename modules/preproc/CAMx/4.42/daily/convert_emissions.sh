@@ -199,12 +199,13 @@ function convert_emissions()
 		# Increase global indent level
 		main.increaseLogIndent
 
-		main.log   "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"     
+		main.log   "Converting ${INPUT_FILE} to ${OUTPUT_FILE}"
 
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			# Call Converter
-			${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS 0 2>&1 | tee -a $CXR_LOG
+			main.log "Calling ${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS /dev/null"
+			${CXR_AIRCONV_EXEC}  ${INPUT_FILE} ${OUTPUT_FILE} EMISSIONS /dev/null 2>&1 | tee -a $CXR_LOG
 		else
 			main.log   "Dryrun - no conversion performed"
 		fi

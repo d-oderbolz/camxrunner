@@ -59,12 +59,12 @@ function common.runner.getX()
 	
 	domain=${1}
 		
-	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	if [[ ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} ) ]]
 	then
 		main.dieGracefully "Domain $domain is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	if [[ "${domain}" == 1  ]]
+	if [[ "${domain}" == 1 ]]
 	then
 		# Master Grid
 		xdim=${CXR_MASTER_GRID_COLUMNS}
@@ -98,7 +98,7 @@ function common.runner.getY()
 	
 	domain=${1:-0}
 	
-	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	if [[ ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} ) ]]
 	then
 		main.dieGracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
@@ -134,7 +134,7 @@ function common.runner.getZ()
 {
 	domain=${1:-0}
 	
-	if [[  ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} )   ]]
+	if [[ ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} ) ]]
 	then
 		main.dieGracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi

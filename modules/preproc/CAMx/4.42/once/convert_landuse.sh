@@ -182,8 +182,8 @@ function convert_landuse()
 			else
 				# Call the converter, collect sterr and stout
 				# 0 indicates stdout for logging
-				main.log "Calling ${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) 0 2"
-				${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) 0 2>&1 | tee -a $CXR_LOG
+				main.log "Calling ${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null "
+				${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
 			fi
 			
 		else

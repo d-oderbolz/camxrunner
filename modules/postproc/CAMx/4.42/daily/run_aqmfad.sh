@@ -188,7 +188,7 @@ function run_aqmfad()
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [[ $(common.check.preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
