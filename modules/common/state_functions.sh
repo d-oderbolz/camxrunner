@@ -1131,7 +1131,7 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you want to delete specific module types (otherwise, you get a list of modules)?" )" == true  ]]
 				then
 					# Module types it is.
-					# We add the value "all" to the result
+					# We add the value "all" and "none" to the result
 					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM types UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 					
 					oIFS="$IFS"
@@ -1157,8 +1157,8 @@ function common.state.cleanup()
 				else
 					# Module names
 					
-					# We add the value "all" to the result
-					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT module FROM modules UNION SELECT 'all' FROM dual")"
+					# We add the value "all" and "none" to the result
+					steps="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT module FROM modules UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 					
 					oIFS="$IFS"
 					# set IFS to newline that select parses correctly
