@@ -115,6 +115,44 @@ function common.fs.isAbsolutePath?()
 }
 
 ################################################################################
+# Function: common.fs.sumFilenameLenght
+# 
+# Sums the length of all filenames in a directory. We do this because AFS
+# has a limitation on this number in each directory.
+#
+# Parameters:
+# $1 - directory to test
+################################################################################
+function common.fs.sumFilenameLenght()
+################################################################################
+{
+	local dir
+	local len
+	local file
+	
+	dir="$1"
+	
+	if [[ -d "$dir" ]]
+	then
+		file="$(common.runner.createTempFile sum)"
+		
+		# Let find store all "raw" filenames next to each other in $file
+		find $dir -noleaf -maxdepth 1 -fprintf $file "%P"
+		
+		# Count the bytes 
+		len="$(wc -c < $file)"
+		
+		# tempfile no longer needed
+		rm $file
+	else
+		main.log -w "$dir is noleaft a directory!"
+		len=0
+	fi
+	
+	echo $len
+}
+
+################################################################################
 # Function: common.fs.isSubDirOf?
 # 
 # Returns true if argument1 is a subdir of argument2.

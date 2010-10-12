@@ -612,12 +612,24 @@ function common.check.preconditions()
 				main.log -v "Variable $output_dir has value: ${!output_dir}\n"
 				
 				# Test length
-				if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
+				if [[ "${CXR_CHECK_MAX_PATH}" == true ]]
 				then
 					if [[ $(common.string.len "${!output_dir}") -gt "${CXR_MAX_PATH}" ]]
 					then
-						main.log -e  "Path to $output_dir longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
+						main.log -e "Path to $output_dir longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					fi
+					
+					# Also test if the total length of existing files in not too large 
+					# (only on AFS)
+					
+					if [[ "$(common.fs.getType ${!output_dir})" == afs ]] 
+					then
+						if [[ $(common.fs.sumFilenameLenght "${!output_dir}") -gt $CXR_MAX_AFS_FN_LEN ]]
+						then
+							main.log -e "Directory ${!output_dir} contains a lot of files with long names. AFS might get a problem!"
+						fi
+					fi
+					
 				fi
 				
 				# Does it exist

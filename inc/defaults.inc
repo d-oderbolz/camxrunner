@@ -112,6 +112,9 @@ CXR_MAX_LOG_INDENT=8
 CXR_STAR='*'
 CXR_STAR_T='#'
 
+# Used by common.user.showProgress
+CXR_PROGRESS_STATES=( '|' '/' '-' '\' )
+
 # We define 3 box sizes
 # 20
 CXR_BOX_SMALL="********************"
@@ -374,11 +377,16 @@ CXR_CHECK_MODEL_SPACE_REQUIRED=true
 
 # When set to false, we no longer check the lengths of the paths of filenames
 # This check is important for programs that are compiled with a certain pathlenght
-# Most often, these values are mugh lower than the maximum allowed e. g. ( grep MAX_PATH /usr/include/linux/limits.h)
+# Most often, these values are much lower than the maximum allowed by the OS e. g. ( grep MAX_PATH /usr/include/linux/limits.h)
+# On AFS we aso test if the total length of the filenames exceeds CXR_MAX_AFS_FN_LEN
 CXR_CHECK_MAX_PATH=true
 
 # Currently we assume this limit
 CXR_MAX_PATH=240
+
+# On AFS, there is a limit of the total filename length
+# of all files in a directory
+CXR_MAX_AFS_FN_LEN=1000000
 
 # When set to true, muliple instances of CAMx Runner 
 # on the same run are allowed (experts only)

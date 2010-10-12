@@ -42,7 +42,9 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.user.showProgress
 #
-# Very simple function to show the user a simple feedback during long-running operations.
+# Function to show the user a simple feedback during long-running operations.
+# Works by iterating through a list of 4 characters and displaying them at the same 
+# place. (Inspired by the Intel PXE loader of my Laptop :-)
 # Writes to stderr.
 # 
 #
@@ -50,7 +52,10 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.user.showProgress()
 ################################################################################
 {
-	echo -n . 1>&2
+	# echo -n . 1>&2
+	currentProgressState=$(( ($currentProgressState + 1) % 4 ))
+	echo -e -n "${CXR_PROGRESS_STATES[$currentState]}" 1>&2
+	echo -e -n "\b" 1>&2
 }
 
 ################################################################################
