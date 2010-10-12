@@ -1149,7 +1149,7 @@ function common.state.cleanup()
 					elif [[ $which_step == none ]]
 					then
 						main.log -a "You chose not to delete any data."
-						break
+						continue
 					else
 						where_module="type='$which_step'"
 					fi
@@ -1175,7 +1175,7 @@ function common.state.cleanup()
 					elif [[ $which_step == none ]]
 					then
 						main.log -a "You chose not to delete any data."
-						break
+						continue
 					else
 						where_module="module='$which_step'"
 					fi
@@ -1201,14 +1201,14 @@ function common.state.cleanup()
 				elif [[ $which_day == none ]]
 					then
 						main.log -a "You chose not to delete any data."
-						break
+						continue
 				else
 					offset=$(common.date.toOffset $which_day)
 					all_days=false
 				fi
 
 				# If this is true, we delete until the end
-				following_days="$(common.user.getOK "Do you want to delete also all days following this one?" )"
+				following_days="$(common.user.getOK "Do you want to delete also all days following this one?\n(you must confirm each)" )"
 				
 				if [[ "$following_days" == true ]]
 				then
