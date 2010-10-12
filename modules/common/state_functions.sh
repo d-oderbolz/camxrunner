@@ -1146,6 +1146,10 @@ function common.state.cleanup()
 					then
 						main.log -a "You pre-selected all module types for deletion"
 						where_module=""
+					elif [[ $which_step == none ]]
+					then
+						main.log -a "You chose not to delete any data."
+						break
 					else
 						where_module="type='$which_step'"
 					fi
