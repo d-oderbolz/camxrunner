@@ -119,8 +119,7 @@ function set_variables()
 	if [[ $redirected == false && $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
 	then
 		# We will locally switch OUTPUT_DIR to a temp dir
-		template="${CXR_SCRATCH_DIR}/${CXR_TMP_PREFIX}out.XXXXXXXX"
-		dir=$(mktemp -d $template)
+		dir=$(common.runner.createTempDir ${FUNCNAME}-out)
 		
 		if [[ "$dir" ]]
 		then
@@ -1120,8 +1119,7 @@ function model()
 				# If we used scratch, move data
 				mv "$CXR_OUTPUT_DIR"/* "$CXR_REAL_OUTPUT_DIR" || main.dieGracefully "Could not move model output from $CXR_OUTPUT_DIR to $CXR_REAL_OUTPUT_DIR"
 				
-				# Remove tempdir
-				rmdir $CXR_OUTPUT_DIR
+				# tempdir will be deleted automatically
 			
 				# Reset value
 				CXR_OUTPUT_DIR="$CXR_REAL_OUTPUT_DIR"

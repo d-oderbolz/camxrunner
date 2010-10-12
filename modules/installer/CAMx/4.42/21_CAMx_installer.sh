@@ -269,7 +269,7 @@ function CAMx_installer()
 		# We will operate on all files below $input_dir,
 		# and we need a copy of those files
 		
-		draft_dir=$(mktemp -d ${CXR_TMP_DIR}/${FUNCNAME}-dir.XXXXXXXX)
+		draft_dir=$(common.runner.createTempDir ${FUNCNAME})
 		
 		main.log -a "We copy our templates to $draft_dir and work there..."
 		
@@ -399,8 +399,7 @@ function CAMx_installer()
 		# We do not need to keep the "old" binary - we copied it away
 		rm $resulting_binary
 		
-		# We no longer need the draft files
-		rm -rf $draft_dir
+		# removeTempFiles will also remove the draft dir
 		
 		
 		if [[ "$(common.user.getOK "Do you want to remove the tar file $CXR_CAMX_SRC_DIR/${CXR_CAMX_TAR} ?" N )" == true  ]]

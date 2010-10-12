@@ -627,8 +627,8 @@ function common.check.preconditions()
 						if [[ $(common.fs.sumFilenameLenght "${!output_dir}") -gt $CXR_MAX_AFS_FN_LEN ]]
 						then
 							main.log -e "Directory ${!output_dir} contains a lot of files with long names. AFS might get a problem!"
-						fi
-					fi
+						fi # too many files
+					fi # AFS?
 					
 				fi
 				

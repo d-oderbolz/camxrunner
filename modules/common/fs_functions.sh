@@ -155,8 +155,9 @@ function common.fs.sumFilenameLenght()
 ################################################################################
 # Function: common.fs.isSubDirOf?
 # 
-# Returns true if argument1 is a subdir of argument2.
-# If they two directories are the same, they are defined to be subdirs of each other.
+# Returns true if argument1 is (in) a subdir of argument2.
+# If they two paths are the same, they are defined to be subdirs of each other.
+# Also works if the first path is the path to a file.
 #
 # Parameters:
 # $1 - path to test if it is a subdir
@@ -705,9 +706,10 @@ function common.fs.isCompressed?()
 # Wo do this by searching files that have specific suffixes added to their name.
 # We decompress even if its a dry-run.
 #
-# Due to potential permission issues, we decompress into temp files unless CXR_DECOMPRESS_IN_PLACE is true.
+# Due to potential permission issues, we decompress into a temp dir unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
 # This is stored in the hash CXR_GLOBAL_HASH_DECOMPRESSED_FILES.
+# If we do this (and consequently the name changes), _name_changed is set to true.
 #
 # If the decompression fails, we return the input string.
 #
@@ -737,6 +739,9 @@ function common.fs.TryDecompressingFile()
 	local new_file
 	local a_cxr_compressed_ext
 	local tempfile
+	
+	# Set initial value of name change indicator
+	_name_changed=false
 	
 	
 	input_file=$1
@@ -789,11 +794,14 @@ function common.fs.TryDecompressingFile()
 				# We decompress into a tempfile if we don't decompress in place
 				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false ]]
 				then
-					# Use a tempfile and give it a recogisable name. It will not be added to the temp hash because we keep it in the hash of decompressed files.
+					# We write to our special decompression directory. It will not be added to the temp hash because we keep it in the hash of decompressed files.
 					tempfile=$(common.runner.createTempFile decomp_$(basename ${input_file}) false)
+					# We now know that the name will change
+					_name_changed=true
 				else
 					# The target is the "original" file name
 					tempfile=${input_file}
+					# In this case, test if the target file pre-exists (as a link o real file!)
 				fi
 				
 				# What decompressor to use?

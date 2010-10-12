@@ -386,15 +386,16 @@ function common.runner.printSummary()
 # Note that the expansion of a rule depends on the environment (e. g. the value of date variables
 # or other global variables). This makes it hard to cache the output of this function.
 #
-# Side effect: if the it is a _FILE_RULE and the file is compressed and we cannot decompress in place,
+# Side effects: if the it is a _FILE_RULE and the file is compressed and we cannot decompress in place,
 # the returned file name will change. If you want the "expected" file name,
-# use the fourth parameter.
-# ABSOLUTELY use this parameter for any OUTPUT_FILE because if the output would have been 
+# set the parameter try_decompression to false.
+# ABSOLUTELY do this for any OUTPUT_FILE because if the output would have been 
 # compressed, CAMxRunner would decompress it, wich makes no sense.
+# If a filename changes due to decompression, the variable _name_changed is true after execution.
 # 
 #
 # The evaluator tests if the resulting dirname exists (_FILE_RULE only). This is needed if your rules
-# contain things like /${VAR}/... because we have no way of knowing this name in the checker.
+# contain things like /some/path/${VAR}/... because we have no way of knowing this name in the check functions.
 #
 # To be on the safe side, quote the call (double quotes!)
 #
@@ -503,7 +504,7 @@ function common.runner.evaluateRule()
 }
 
 ################################################################################
-# Function: common.runner.evaluateRule
+# Function: common.runner.evaluateRuleAtDayOffset
 # 
 # Evaluates a filerule for a given simulation day offset (0..NUMBER_OF_SIM_DAYS-1).
 # This is especially useful to determine how certain things where at the first day of 
@@ -550,49 +551,6 @@ function common.runner.evaluateRuleAtDayOffset()
 	
 	echo "$expansion"
 }
-
-################################################################################
-# Function: common.runner.evaluateScalarRules
-# 
-# Evaluates all CXR_*_RULE environment variables in the given list.
-#
-# Arrays can *not* expanded using this technique!
-#
-# $1 - The list of rules to be evaluated (a space-separated string, not a variable)
-# [$2] - allow_empty if false, *all* rules in the must expand to a non-empty string
-################################################################################
-function common.runner.evaluateScalarRules()
-################################################################################
-{
-	if [[  $# -lt 1 || $# -gt 2   ]]
-	then
-		main.dieGracefully "needs a string (the list of rules) as input and optionally a boolean allow_empty value!"
-	fi
-	
-	local 
-	local current_rule
-	variable
-	local allow_empty
-	
-	
-	rule_list="$1"
-	# Per default we allow rules te expand to the empty string
-	allow_empty=${2:-true}
-		
-	# Read the relevant rules from the environment and
-	
-	# Loop through them
-	for current_rule in $rule_list
-	do
-		# Chop off _RULE
-		# So e. g. CXR_FINISH_MESSAGE_RULE turns into CXR_FINISH_MESSAGE
-		variable=${current_rule%_RULE}
-		
-		# Set variable to its evaluated form
-		export $variable="$(common.runner.evaluateRule "${current_rule}" "$allow_empty" $current_rule)"
-	done
-}
-
 
 ################################################################################
 # Function: common.runner.createDummyFile
@@ -650,6 +608,7 @@ function common.runner.createDummyFile()
 # >TMPFILE=$(common.runner.createTempFile $FUNCNAME)
 #
 # Parameters:
+# -d - create a directory. <common.runner.createTempDir> is a wrapper for this feature.
 # [$1] - identifier of tempfile, recommended to use $FUNCNAME
 # [$2] - store, if false, we do not add the file to list. This is useful if we keep track of the files ourselves (e. g. when decompressing files)
 ################################################################################
@@ -658,12 +617,39 @@ function common.runner.createTempFile()
 {
 	local store
 	local template
-	local filename
+	local name
+	local do_dir
+	
+	do_dir=false
+	
+	# Is there a -d option?
+	while getopts ":d" opt
+	do
+		case $opt in
+		d) do_dir=true  ;;
+		esac
+	done
+	
+	# Shift the other arguments
+	shift $(($OPTIND - 1))
+	
+	# Make getopts ready again
+	unset OPTSTRING
+	unset OPTIND
 	
 	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
+	
+	# If we are on AFS, check if we are close to the filename capacity
+	if [[ "$(common.fs.getType ${CXR_TMP_DIR})" == afs ]] 
+	then
+		if [[ $(common.fs.sumFilenameLenght "${CXR_TMP_DIR}") -gt $CXR_MAX_AFS_FN_LEN ]]
+		then
+			main.log -e "Directory ${CXR_TMP_DIR} contains a lot of files with long names. AFS might get a problem!"
+		fi # too many files
+	fi # AFS?
 	
 	# Not elegant...
 	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
@@ -681,29 +667,58 @@ function common.runner.createTempFile()
 	
 	# Create a template by using $1 
 	# and adding 8 random alphanums
-	# This way, the filename has a meaning
+	# This way, the name has a meaning
 	template="${CXR_TMP_DIR}/${CXR_TMP_PREFIX}${1:-temp}.XXXXXXXX"
 
 	# replace eventual spaces by _
 	template=${template// /_}
 	
-	filename=$(mktemp $template)
+	if [[ "$do_dir" == true ]]
+	then
+		main.log -v "Creating temporary dir $name"
+		name=$(mktemp -d $template)
+		# Add warning for users
+		touch $name/_THIS_DIRECTORY_CAN_BE_DELETED_ANY_TIME
+	else
+		main.log -v "Creating temporary file $name"
+		name=$(mktemp $template)
+	fi # directory or file?
 	
 	if [[ $? -ne 0 ]]
 	then
-		main.dieGracefully "Could not create tempfile $template. Maybe there are too many files in ${CXR_TMP_DIR}!"
+		main.dieGracefully "Could not create temp object $template. Check if there are any issues with ${CXR_TMP_DIR}!"
 	fi
-	
-	main.log -v "Creating temporary file $filename"
 	
 	if [[ "${store}" == true ]]
 	then
 		# Add to list
-		echo $filename >> $CXR_INSTANCE_FILE_TEMP_LIST
+		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST
 	fi
 	
-	echo $filename
+	echo $name
 	return 0
+}
+
+################################################################################
+# Function: common.runner.createTempDir
+#
+# Returns the name of a temporary directory with random name, shows a message and adds the file
+# to the temp file list if this is needed. 
+# Internally calls <common.runner.createTempFile>.
+#
+# Note that if a tempdir is removed, we remove it recursively (including all files and directories therein).
+#
+# Recommended call:
+# >TMPDIR=$(common.runner.createTempDir $FUNCNAME)
+#
+# Parameters:
+# [$1] - identifier of tempfile, recommended to use $FUNCNAME
+# [$2] - store, if false, we do not add the file to list. This is useful if we keep track of the files ourselves (e. g. when decompressing files)
+################################################################################
+function common.runner.createTempDir()
+################################################################################
+{
+	common.runner.createTempFile -d $@
 }
 
 ################################################################################
@@ -746,7 +761,8 @@ function common.runner.createJobFile()
 # Function: common.runner.removeTempFiles
 #
 # Removes all files from the temp file list if CXR_REMOVE_TEMP_FILES is true.
-# Also removes decompressed files if requested.
+# Also recompresses or removes decompressed files if requested.
+# Note that if a tempdir is removed, we remove it recursively (including all files and directories therein).
 #
 ################################################################################
 function common.runner.removeTempFiles()
@@ -754,52 +770,84 @@ function common.runner.removeTempFiles()
 {
 	local line
 	local filename
-	local temp_file
+	local temp_item
 	local arrKeys
 	local keyString
 	local arrKeys
 	local keyString
 	
-	# remove decompressed files, if wanted
-	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
+	# remove decompressed files, if wanted.
+	# Only makes sense if we do not decompress in place.
+	if [[ "$CXR_DECOMPRESS_IN_PLACE" == false && "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
 	then
-			main.log -a "Removing temporarily decompressed files..."
+		main.log -a "Removing temporarily decompressed files..."
+		
+			# common.hash.getKeysAndValues returns a newline-separated list
+		oIFS="$IFS"
+		IFS='
+'
+		
+		# loop through compressed_filename|filename pairs
+		for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
+		do
+			# Reset IFS
+			IFS="$oIFS"
 			
-				# common.hash.getKeysAndValues returns a newline-separated list
+			# Parse the DB string
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
+			
+			set $pair
+			
+			compressed_filename="${1:-/dev/null}"
+			filename="${2:-/dev/null}"
+			# Reset IFS
+			IFS="$oIFS"
+			
+			if [[ -e "$filename" ]]
+			then
+				main.log -v "Deleting $filename"
+				rm -f "${filename}" &>/dev/null
+			fi
+		done
+	elif [[ "$CXR_DECOMPRESS_IN_PLACE" == true ]]
+	then
+		# we must re-compress the files!
+		main.log -a "Re-compressing temporarily decompressed files using ${CXR_COMPRESSOR_EXEC}..."
+
+			# common.hash.getKeysAndValues returns a newline-separated list
 			oIFS="$IFS"
 			IFS='
 '
+
+		# loop through compressed_filename|filename pairs
+		for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
+		do
+			# Reset IFS
+			IFS="$oIFS"
 			
-			# loop through compressed_filename|filename pairs
-			for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
-			do
-				# Reset IFS
-				IFS="$oIFS"
-				
-				# Parse the DB string
-				oIFS="$IFS"
-				IFS="$CXR_DELIMITER"
-				
-				set $pair
-				
-				compressed_filename="${1:-/dev/null}"
-				filename="${2:-/dev/null}"
-				# Reset IFS
-				IFS="$oIFS"
-				
-				if [[ -e "$filename" ]]
-				then
-					main.log -v "Deleting $filename"
-					rm -f "${filename}" &>/dev/null
-				fi
-			done
+			# Parse the DB string
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
+			
+			set $pair
+			
+			compressed_filename="${1:-/dev/null}"
+			filename="${2:-/dev/null}"
+			# Reset IFS
+			IFS="$oIFS"
+			
+			if [[ -e "$filename" ]]
+			then
+				main.log -v "Compressing ${filename}"
+				"${CXR_COMPRESSOR_EXEC}" "${filename}"
+			fi
+		done
 	else
-		main.log  "The temporarily decompressed files will not be deleted because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
+		main.log  "The temporarily decompressed files will not be touched because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 	
-	# It is possible that 
-	# the instance files where already deleted by another process
-	
+	# It is possible that the instance files where already deleted by another process
 	if [[ -d "${CXR_INSTANCE_DIR}" ]]
 	then
 		#Make sure the list exists. 
@@ -811,19 +859,30 @@ function common.runner.removeTempFiles()
 				main.log -a "Removing temporary files..."
 				
 				# Clean files away
-				while read temp_file
+				while read temp_item
 				do
-					if [[ -e "$temp_file" ]]
+					# Delete only stuff that lies in CXR_TMP_DIR!
+					if [[ -e "$temp_item" && $(common.fs.isSubDirOf? "$temp_item" "$CXR_TMP_DIR") == true ]]
 					then
-						main.log -v "Deleting $temp_file"
 						
-						rm -f "$temp_file" &>/dev/null
-					fi
+						main.log -v "Deleting $temp_item"
+						if [[ -d "$temp_item" ]]
+						then
+							# dir
+							rm -rf "$temp_item" &>/dev/null
+						else
+							# file
+							rm -f "$temp_item" &>/dev/null
+						fi # directory?
+						
+					else
+						main.log -w "Either temp item $temp_item no longer exists or it is not stored in $CXR_TMP_DIR"
+					fi # Does the file exist and reside in CXR_TMP_DIR?
 				done < ${CXR_INSTANCE_FILE_TEMP_LIST}
 		else
 			main.log  "The temporary files will not be deleted because the variable CXR_REMOVE_TEMP_FILES is false."
 		fi
-	fi # is the instance dir still there
+	fi # is the instance dir still there?
 }
 
 ################################################################################

@@ -218,7 +218,7 @@ function PMCAMx_installer()
 		# We will operate on all files below $input_dir,
 		# and we need a copy of those files
 		
-		draft_dir=$(mktemp -d)
+		draft_dir=$(common.runner.createTempDir ${FUNCNAME})
 		
 		cp -r $input_dir $draft_dir || main.dieGracefully "Could not make a copy of the templates"
 
