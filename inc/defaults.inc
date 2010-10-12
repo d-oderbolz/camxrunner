@@ -388,11 +388,12 @@ CXR_CHECK_MAX_PATH=true
 CXR_MAX_PATH=240
 
 # On AFS, there is a limit of the total filename length
-# of all files in a directory
-CXR_MAX_AFS_FN_LEN=1000000
+# of all files in a directory. The actual limit is not
+# so straightforward (see man fileserver)
+CXR_MAX_AFS_FN_LEN=960000
 
 # When set to true, muliple instances of CAMx Runner 
-# on the same run are allowed (experts only)
+# on the same run are allowed
 CXR_ALLOW_MULTIPLE=false
 
 # If true, run CAMx , otherwise don't
