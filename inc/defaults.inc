@@ -115,6 +115,9 @@ CXR_STAR_T='#'
 # Used by common.user.showProgress
 CXR_PROGRESS_STATES=( '|' '/' '-' '\' )
 
+# The corresponding state variable
+currentProgressState=0
+
 # We define 3 box sizes
 # 20
 CXR_BOX_SMALL="********************"
