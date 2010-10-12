@@ -1198,6 +1198,7 @@ function common.state.cleanup()
 					main.log -a "You pre-selected all days for deletion"
 					offset=0
 					all_days=true
+					following_days=false
 				elif [[ $which_day == none ]]
 					then
 						main.log -a "You chose not to delete any data."
@@ -1205,11 +1206,10 @@ function common.state.cleanup()
 				else
 					offset=$(common.date.toOffset $which_day)
 					all_days=false
+					# If this is true, we delete until the end
+					following_days="$(common.user.getOK "Do you want to delete also all days following this one?\n(you must confirm each)" )"
 				fi
 
-				# If this is true, we delete until the end
-				following_days="$(common.user.getOK "Do you want to delete also all days following this one?\n(you must confirm each)" )"
-				
 				if [[ "$following_days" == true ]]
 				then
 					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
