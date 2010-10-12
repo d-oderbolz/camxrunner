@@ -54,7 +54,7 @@ function common.user.showProgress()
 {
 	# echo -n . 1>&2
 	currentProgressState=$(( ($currentProgressState + 1) % 4 ))
-	echo -e -n "${CXR_PROGRESS_STATES[$currentState]}" 1>&2
+	echo -e -n "${CXR_PROGRESS_STATES[$currentProgressState]}" 1>&2
 	echo -e -n "\b" 1>&2
 }
 
