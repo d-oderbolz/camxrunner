@@ -129,7 +129,6 @@ Group: Modules  {
                }  # Group: Extract_station_data
 
             File: extract_station_data.sh  (modules/postproc/CAMx/4.42/daily/extract_station_data.sh)
-            File: prepare_output_dir.sh  (modules/postproc/CAMx/4.42/daily/prepare_output_dir.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/4.42/daily/run_aqmfad.sh)
             }  # Group: Daily
 
@@ -153,7 +152,6 @@ Group: Modules  {
                }  # Group: Extract_station_data
 
             File: extract_station_data.sh  (modules/postproc/CAMx/4.51/daily/extract_station_data.sh)
-            File: prepare_output_dir.sh  (modules/postproc/CAMx/4.51/daily/prepare_output_dir.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/4.51/daily/run_aqmfad.sh)
             }  # Group: Daily
 
@@ -177,7 +175,6 @@ Group: Modules  {
                }  # Group: Extract_station_data
 
             File: extract_station_data.sh  (modules/postproc/CAMx/5.10/daily/extract_station_data.sh)
-            File: prepare_output_dir.sh  (modules/postproc/CAMx/5.10/daily/prepare_output_dir.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/5.10/daily/run_aqmfad.sh)
             }  # Group: Daily
 
