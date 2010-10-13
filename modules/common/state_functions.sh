@@ -671,7 +671,7 @@ function common.state.init()
 	mkdir -p "${CXR_INSTANCE_DIR}"
 	
 	# Create directory where we decompress files into
-	CXR_TMP_DECOMP_DIR="$(common.runner.createTempDir decomp)"
+	CXR_TMP_DECOMP_DIR="$(common.runner.createTempDir decomp false)"
 
 	
 	##################
