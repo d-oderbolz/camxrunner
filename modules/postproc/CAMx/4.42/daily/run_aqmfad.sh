@@ -124,6 +124,10 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	# We work in a temp dir. Here we store links to all the input files,
+	# wherever they are.
+	aqmfad_dir="$(common.runner.createTempDir aqmfad)"
+	
 	########################################################################
 	# Set variables
 	########################################################################
@@ -139,30 +143,50 @@ function set_variables()
 	
 	#aqmfad needs ASCII Input
 	CXR_AVG_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_AVG_ASC_INPUT_FILE 
 	
 	# TERRAIN
 	CXR_TERRAIN_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_TERRAIN_GRID_ASC_INPUT_FILE 
+	
 	# Pressure
 	CXR_ZP_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_ZP_GRID_ASC_INPUT_FILE 
+	
 	# Wind
 	CXR_WIND_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_WIND_GRID_ASC_INPUT_FILE 
+	
 	# Temperature
 	CXR_TEMP_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_TEMP_GRID_ASC_INPUT_FILE 
+	
 	# Vapor
 	CXR_VAPOR_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_VAPOR_ASC_INPUT_FILE 
+	
 	# No Cloud
 	# Vertical K
 	CXR_KV_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $aqmfad_dir $CXR_KV_GRID_ASC_INPUT_FILE 
+	
 	# NO Emissions
 	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="${CXR_AVG_ASC_INPUT_FILE} \
-								${CXR_TERRAIN_GRID_ASC_INPUT_FILE} \
-								${CXR_ZP_GRID_ASC_INPUT_FILE} \
-								${CXR_WIND_GRID_ASC_INPUT_FILE} \
-								${CXR_TEMP_GRID_ASC_INPUT_FILE} \
-								${CXR_VAPOR_ASC_INPUT_FILE} \
-								${CXR_KV_GRID_ASC_INPUT_FILE}"
+	CXR_CHECK_THESE_INPUT_FILES="$aqmfad_dir/$(basename ${CXR_AVG_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) \
+							$aqmfad_dir/$(basename ${CXR_KV_GRID_ASC_INPUT_FILE})"
 
 }
 
@@ -183,10 +207,10 @@ function run_aqmfad()
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
-		#  --- Setup the Environment of the current day
+		# --- Setup the Environment of the current day
 		set_variables 
 		
-		#  --- Check Settings
+		# --- Check Settings
 		# Postprocessor: we only terminate the module
 		if [[ $(common.check.preconditions) == false ]]
 		then
@@ -197,7 +221,7 @@ function run_aqmfad()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $aqmfad_dir || return $CXR_RET_ERROR
 		
 		# Do it.
 		if [[ "$CXR_DRY" == false ]]
@@ -208,18 +232,18 @@ function run_aqmfad()
 			# Call aqmfad while collecting stderr only
 			${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
 		else
-			main.log   "This is a dryrun, no action required"
+			main.log "This is a dryrun, no action required"
 		fi
 
 		
-		cd ${CXR_RUN_DIR}  || return $CXR_RET_ERROR
+		cd ${CXR_RUN_DIR} || return $CXR_RET_ERROR
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
-		if [[ $(common.check.postconditions) == false  ]]
+		if [[ $(common.check.postconditions) == false ]]
 		then
 			main.log -a "Postconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
-			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+			common.state.storeStatus ${CXR_STATUS_FAILURE} > /dev/null
 			
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_POSTCONDITIONS
@@ -227,7 +251,7 @@ function run_aqmfad()
 		
 		common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 	else
-		main.log  "Stage $(common.task.getId) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
+		main.log "Stage $(common.task.getId) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
 }
 

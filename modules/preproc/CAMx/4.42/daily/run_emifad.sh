@@ -125,6 +125,10 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	# We work in a temp dir. Here we store links to all the input files,
+	# wherever they are.
+	emifad_dir="$(common.runner.createTempDir emifad)"
+	
 	########################################################################
 	# Set variables
 	########################################################################
@@ -142,13 +146,17 @@ function set_variables()
 
 	# TERRAIN
 	CXR_TERRAIN_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
-
+	# Create link
+	ln -s -t $emifad_dir $CXR_TERRAIN_GRID_ASC_INPUT_FILE 
+	
 	# Emissions
 	CXR_EMISSION_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)
+	# Create link
+	ln -s -t $emifad_dir $CXR_EMISSION_GRID_ASC_INPUT_FILE 
 	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="${CXR_TERRAIN_GRID_ASC_INPUT_FILE} \
-								 ${CXR_EMISSION_GRID_ASC_INPUT_FILE}"
+	CXR_CHECK_THESE_INPUT_FILES="$emifad_dir/$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) \
+							$emifad_dir/$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE})"
 
 }
 
@@ -184,33 +192,11 @@ function run_emifad()
 		fi
 		
 		# Emifad uses the aqmfad directory
-		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $emifad_dir || return $CXR_RET_ERROR
 		
 		# We loop through all the grids we need
 		main.log "Running emifad on grid $CXR_IGRID"
 
-		# First we need to create links (if not existing)
-		main.log "Creating links in the $CXR_ASCII_OUTPUT_DIR directory..."
-		
-		# Link to emissions
-		CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE})
-		if [[ ! -L "${CURRENT_EMISSION_BASE}"  ]]
-		then
-			if [[ -f "${CXR_EMISSION_GRID_ASC_INPUT_FILE}" ]]
-			then
-				ln -s ${CXR_EMISSION_GRID_ASC_INPUT_FILE}
-			else
-				main.log -e  "Cannot find the emission file ${CXR_EMISSION_GRID_ASC_INPUT_FILE}"
-			fi
-		fi
-		
-		#Link to terrain
-		CURRENT_TERRAIN_BASE=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})
-		if [[ ! ( -L ${CURRENT_TERRAIN_BASE} || -f ${CURRENT_TERRAIN_BASE} ) ]]
-		then
-			ln -s ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}
-		fi
-		
 		main.log "Running emifad on grid ${CXR_IGRID}..."
 		main.log  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
 

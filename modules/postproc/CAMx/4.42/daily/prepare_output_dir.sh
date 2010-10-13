@@ -253,7 +253,7 @@ function prepare_output_dir()
 						fi
 					fi
 				else
-					main.log   "This is a dry run, do not create a link for output processing"
+					main.log "This is a dry run, do not create a link for output processing"
 				fi
 
 			done

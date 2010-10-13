@@ -119,6 +119,10 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
+	# We work in a temp dir. Here we store links to all the input files,
+	# wherever they are.
+	convert_dir="$(common.runner.createTempDir convert)"
+	
 	########################################################################
 	# Set variables
 	########################################################################
@@ -136,36 +140,43 @@ function set_variables()
 	# Grid specific - we need to define CXR_IGRID
 	CXR_IGRID=$CXR_INVOCATION
 	
-	# Here, we ASSUME that we work on a directory prepared by <prepare_output_dir>
-	# in particular, we assume that the linknames are proper, that is, they have
-	# no temporary names
-	# Note the last argument (false) in every call to <common.runner.evaluateRule>
-	
 	####################################
 	# Input
 	####################################
 
-	# These files are INPUT Files - we need to keep <common.runner.evaluateRule> from decompressing them, because we read links in the 
-	# ascii dir instead of the real file
-	
-	# Note that me expand the rules in a funny way here: we take the basename and add it
-	# to the path of aqmfad...
-	
-	CXR_AVG_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
+	# We allow decompression
+	CXR_AVG_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_AVG_INPUT_FILE 
 
-	# TERRAIN must not be converted, it is already there.
+	# TERRAIN must not be converted, it is already ASCII.
 	
-	# Pressure. 
-	CXR_ZP_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+	# Pressure.
+	CXR_ZP_GRID_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_ZP_GRID_INPUT_FILE 
+	
 	# Wind
-	CXR_WIND_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+	CXR_WIND_GRID_INPUT_FILE=$(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_WIND_GRID_INPUT_FILE 
+	
 	# Temperature
-	CXR_TEMP_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+	CXR_TEMP_GRID_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_TEMP_GRID_INPUT_FILE 
+	
 	# Vapor
-	CXR_VAPOR_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+	CXR_VAPOR_INPUT_FILE=$(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_VAPOR_INPUT_FILE 
+	
 	# No Cloud
 	# Vertical K
-	CXR_KV_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
+	CXR_KV_GRID_INPUT_FILE=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
+	# Create link
+	ln -s -t $convert_dir $CXR_KV_GRID_INPUT_FILE 
+	
 	# NO Emissions
 	
 	####################################
@@ -192,13 +203,13 @@ function set_variables()
 	CXR_KV_GRID_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE false)
 	# NO Emissions
 
-	# Checks for the input
-	CXR_CHECK_THESE_INPUT_FILES="${CXR_AVG_INPUT_FILE} \
-								 ${CXR_ZP_GRID_INPUT_FILE} \
-								 ${CXR_WIND_GRID_INPUT_FILE} \
-								 ${CXR_TEMP_GRID_INPUT_FILE} \
-								 ${CXR_VAPOR_INPUT_FILE} \
-								 ${CXR_KV_GRID_INPUT_FILE} "
+	# Checks for the input (the links we created)
+	CXR_CHECK_THESE_INPUT_FILES="$convert_dir/$(basename ${CXR_AVG_INPUT_FILE}) \
+								$convert_dir/$(basename ${CXR_ZP_GRID_INPUT_FILE}) \
+								$convert_dir/$(basename ${CXR_WIND_GRID_INPUT_FILE}) \
+								$convert_dir/$(basename ${CXR_TEMP_GRID_INPUT_FILE}) \
+								$convert_dir/$(basename ${CXR_VAPOR_INPUT_FILE}) \
+								$convert_dir/$(basename ${CXR_KV_GRID_INPUT_FILE}) "
 
 	# Checks for the output
 	CXR_CHECK_THESE_OUTPUT_FILES="${CXR_AVG_OUTPUT_FILE} \
@@ -235,7 +246,7 @@ function convert_output()
 	local options
 	
 	#Was this stage already completed?
-	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
+	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true ]]
 	then
 		#  --- Setup the Environment of the current day
 		set_variables 
@@ -260,9 +271,9 @@ function convert_output()
 		# Requires the bin2asc and the airascii patches 	
 		########################################################################
 		
-		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $convert_dir || return $CXR_RET_ERROR
 
-		main.log  "Working in $CXR_ASCII_OUTPUT_DIR"
+		main.log  "Working in $convert_dir"
 
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
@@ -310,17 +321,17 @@ function convert_output()
 					main.log "File ${output_file} exists - file will skipped."
 					continue
 				else
-					main.log -e  "File $CXR_BC_OUTPUT_FILE exists - to force the re-creation run ${CXR_CALL} -F"
+					main.log -e  "File ${output_file} exists - to force the re-creation run ${CXR_CALL} -F"
 					common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
 					return $CXR_RET_ERROR
 				fi
 			fi
 			
-			main.log   "Converting ${input_file} to ${output_file} ..."
+			main.log "Converting ${input_file} to ${output_file} ..."
 		
 			main.log -v  "${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} /dev/null"
 
-			if [[ "$CXR_DRY" == false  ]]
+			if [[ "$CXR_DRY" == false ]]
 			then
 				#Call the converter, collect sterr and stout
 				${converter} ${input_file} ${output_file} ${options} ${xdim} ${ydim} ${zdim} /dev/null 2>&1 | tee -a $CXR_LOG

@@ -749,7 +749,7 @@ function common.check.preconditions()
 			fi
 			
 			# does  it exist?
-			if [[ ! -f "${input_file}"  ]]
+			if [[ ! -e "${input_file}" ]]
 			then
 				# does not exist!
 				# do we wait?
@@ -779,11 +779,11 @@ function common.check.preconditions()
 					fi
 				fi
 				
-				# Readable?
-				if [[ -r "${input_file}"  ]]
+				# Readable? (broken links are not readable)
+				if [[ -r "${input_file}" ]]
 				then
 					# is it larger than 0 bytes?
-					if [[ ! -s "${input_file}"  ]]
+					if [[ ! -s "${input_file}" ]]
 					then
 						# Empty File!
 						main.log -e  "File ${input_file} is empty!"
