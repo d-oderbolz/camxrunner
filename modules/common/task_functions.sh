@@ -660,7 +660,7 @@ function common.task.countMyRunningWorkers()
 	
 	IFS="$oIFS"
 	
-	main.log -a "Found $count active pids"
+	main.log -v "Found $count active pid(s)"
 	echo $count
 	
 }

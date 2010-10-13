@@ -117,6 +117,8 @@ function getProblemSize()
 function set_variables() 
 ################################################################################
 {
+	local hour
+	
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -187,6 +189,14 @@ function set_variables()
 							$aqmfad_dir/$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) \
 							$aqmfad_dir/$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) \
 							$aqmfad_dir/$(basename ${CXR_KV_GRID_ASC_INPUT_FILE})"
+
+	# The outputfile checks cannot be formulated using rules yet...
+	# results in something like
+	# ~/@direct/camx-v4.51-bafu3-june-2006-s147-sem302-1only.20060621.avrg.grd01.asc_01 ...
+	for hour in $(seq 1 24)
+	do
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIRECT_OUTPUT_DIR/$(common.string.toLower $(basename ${CXR_AVG_ASC_INPUT_FILE})_$(common.string.leftPadZero $i 2)
+	done
 
 }
 
