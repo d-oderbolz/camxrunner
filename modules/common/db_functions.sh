@@ -238,7 +238,7 @@ function common.db.getResultSet()
 
 	# We use a tempfile for all types of calls. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-	sqlfile="$(common.runner.createTempFile sql)"
+	sqlfile="$(common.runner.createTempFile sql false)"
 	
 	# Add pragmas
 	
@@ -388,7 +388,7 @@ function common.db.change()
 	
 	# We use a tempfile for all types of calls. Not fast, but solid.
 	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-	sqlfile="$(common.runner.createTempFile sql)"
+	sqlfile="$(common.runner.createTempFile sql false)"
 	
 	# Add pragmas
 	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"

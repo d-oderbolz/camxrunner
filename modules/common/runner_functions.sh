@@ -881,7 +881,7 @@ function common.runner.removeTempFiles()
 						fi # directory?
 						
 					else
-						main.log -w "Either temp item $temp_item no longer exists or it is not stored in $CXR_TMP_DIR"
+						main.log -v "Either temp item $temp_item no longer exists or it is not stored in $CXR_TMP_DIR"
 					fi # Does the file exist and reside in CXR_TMP_DIR?
 				done < ${CXR_INSTANCE_FILE_TEMP_LIST}
 		else
