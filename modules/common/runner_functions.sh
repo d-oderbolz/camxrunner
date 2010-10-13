@@ -642,15 +642,6 @@ function common.runner.createTempFile()
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
-	# If we are on AFS, check if we are close to the filename capacity
-	if [[ "$(common.fs.getType ${CXR_TMP_DIR})" == afs ]] 
-	then
-		if [[ $(common.fs.sumFilenameLenght "${CXR_TMP_DIR}") -gt $CXR_MAX_AFS_FN_LEN ]]
-		then
-			main.log -e "Directory ${CXR_TMP_DIR} contains a lot of files with long names. AFS might get a problem!"
-		fi # too many files
-	fi # AFS?
-	
 	# Not elegant...
 	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
 	then
@@ -686,6 +677,17 @@ function common.runner.createTempFile()
 	
 	if [[ $? -ne 0 ]]
 	then
+		# FAILED
+	
+		# If we are on AFS, check if we are close to the filename capacity
+		if [[ "$(common.fs.getType ${CXR_TMP_DIR})" == afs ]] 
+		then
+			if [[ $(common.fs.sumFilenameLenght "${CXR_TMP_DIR}") -gt $CXR_MAX_AFS_FN_LEN ]]
+			then
+				main.log -e "Directory ${CXR_TMP_DIR} contains a lot of files with long names. This might be the reason for the failure to create a temp item."
+			fi # too many files
+		fi # AFS?
+	
 		main.dieGracefully "Could not create temp object $template. Check if there are any issues with ${CXR_TMP_DIR}!"
 	fi
 	

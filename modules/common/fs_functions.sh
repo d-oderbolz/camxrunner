@@ -119,6 +119,8 @@ function common.fs.isAbsolutePath?()
 # 
 # Sums the length of all filenames in a directory. We do this because AFS
 # has a limitation on this number in each directory.
+# For hen-and-egg reasons, we use mktemp directly here (<common.runner.createTempFile>
+# sometimes calls this function here)
 #
 # Parameters:
 # $1 - directory to test
@@ -134,7 +136,7 @@ function common.fs.sumFilenameLenght()
 	
 	if [[ -d "$dir" ]]
 	then
-		file="$(common.runner.createTempFile sum)"
+		file="$(mktemp ${CXR_TMP_DIR}/sum.XXXXXXXX)"
 		
 		# Let find store all "raw" filenames next to each other in $file
 		find $dir -noleaf -maxdepth 1 -fprintf $file "%P"
@@ -145,7 +147,7 @@ function common.fs.sumFilenameLenght()
 		# tempfile no longer needed
 		rm -f $file
 	else
-		main.log -w "$dir is noleaft a directory!"
+		main.log -w "$dir is not a directory!"
 		len=0
 	fi
 	
