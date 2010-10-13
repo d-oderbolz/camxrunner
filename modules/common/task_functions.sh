@@ -1276,7 +1276,7 @@ function common.task.controller()
 	
 	i=0
 	
-	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is done.)"
+	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all swell.)"
 	
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
