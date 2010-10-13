@@ -166,7 +166,7 @@ function set_variables()
 	# ~/@direct/camx-v4.51-bafu3-june-2006-s147-sem302-1only.20060621.avrg.grd01.asc_01 ...
 	for hour in $(seq 1 24)
 	do
-	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIRECT_OUTPUT_DIR/$(common.string.toLower $(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}))_$(common.string.leftPadZero $i 2)"
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIRECT_OUTPUT_DIR/$(common.string.toLower $(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}))_$(common.string.leftPadZero $hour 2)"
 	done
 }
 
