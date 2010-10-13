@@ -849,8 +849,11 @@ function common.runner.removeTempFiles()
 		main.log  "The temporarily decompressed files will not be touched because the variable CXR_REMOVE_DECOMPRESSED_FILES is false."
 	fi
 	
-	# Remove the tempdir for decompression
-	rmdir $CXR_TMP_DECOMP_DIR
+	# Remove the tempdir for decompression if it really resides in CXR_TMP_DIR
+	if [[ $(common.fs.isSubDirOf? "$CXR_TMP_DECOMP_DIR" "$CXR_TMP_DIR") == true ]]
+	then
+		rm -rf $CXR_TMP_DECOMP_DIR
+	fi
 	
 	# It is possible that the instance files where already deleted by another process
 	if [[ -d "${CXR_INSTANCE_DIR}" ]]
