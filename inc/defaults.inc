@@ -492,6 +492,10 @@ CXR_ENABLED_INSTALLER=""
 # This is for efficiency reasons (to avoid decompressing the same files more than once)
 CXR_TMP_DIR=~/tmp
 
+# If we do not decompress in place, we decompress into this directory
+# This is filled in common.state.init
+CXR_TMP_DECOMP_DIR=
+
 # The directory where the executables lie
 CXR_BIN_DIR=${CXR_RUN_DIR}/bin
 

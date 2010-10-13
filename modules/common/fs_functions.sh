@@ -409,11 +409,11 @@ function common.fs.getLinkTarget()
 	
 	if [[ ! -h "$link" ]]
 	then
-		main.log -w "Non-existing link $link"
+		main.log -w "File $link is not a link."
 		echo ""
 	else
 	
-		# We cannot support linknames containinc ->
+		# We cannot support linknames containing ->
 		if [[ $(main.isSubstringPresent? "$link" "->" ) == true ]]
 		then
 			main.log -w "Link name $link contains ->, cannot interpret output of ls!"
@@ -427,6 +427,40 @@ function common.fs.getLinkTarget()
 			echo "$target"
 		fi
 	fi
+}
+
+################################################################################
+# Function: common.fs.isBrokenLink?
+#
+# Returns true if the argumunt is a broken link, false otherwise.
+#
+# Parameters:
+# $1 - path to link to test
+################################################################################
+function common.fs.isBrokenLink?()
+################################################################################
+{
+	local link
+	local target
+	
+	link="$1"
+	
+	if [[ -h "$link" ]]
+	then
+		target="$(common.fs.getLinkTarget $link)"
+		
+		if [[ ! -e "$target" ]]
+		then
+			# Broken
+			echo true
+		else
+			# OK
+			echo false
+		fi # Broken?
+	else
+		# No link
+		echo false
+	fi # Link at all?
 }
 
 
@@ -739,6 +773,8 @@ function common.fs.TryDecompressingFile()
 	local new_file
 	local a_cxr_compressed_ext
 	local tempfile
+	local dirhash
+	local input_dir
 	
 	# Set initial value of name change indicator
 	_name_changed=false
@@ -747,6 +783,8 @@ function common.fs.TryDecompressingFile()
 	input_file=$1
 	# We assume that in was not compressed
 	was_compressed=false
+	
+	input_dir="$(dirname "${input_file}")"
 	
 	if [[ "$CXR_DETECT_COMPRESSED_INPUT_FILES" == true ]]
 	then
@@ -792,16 +830,29 @@ function common.fs.TryDecompressingFile()
 				# File is readable
 				
 				# We decompress into a tempfile if we don't decompress in place
-				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false ]]
+				# or if we are not allowed to write to the destination
+				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false || ! -w "${input_dir}" ]]
 				then
-					# We write to our special decompression directory. It will not be added to the temp hash because we keep it in the hash of decompressed files.
-					tempfile=$(common.runner.createTempFile decomp_$(basename ${input_file}) false)
+					# We write to our special decompression directory. 
+					# we use the MD5 hash of the path to make sure we do not overwrite files
+					# of same names
+					dirhash="$(common.string.MD5 "${input_dir}")"
+					
+					mkdir -p "$CXR_TMP_DECOMP_DIR/$dirhash"
+					
+					tempfile="$CXR_TMP_DECOMP_DIR/$dirhash/$(basename ${input_file})"
 					# We now know that the name will change
 					_name_changed=true
 				else
 					# The target is the "original" file name
-					tempfile=${input_file}
-					# In this case, test if the target file pre-exists (as a link o real file!)
+					tempfile="${input_file}"
+					
+					# Its possible that the file is already decompressed
+					if [[ -e "$tempfile" ]]
+					then
+						main.log -w "File $tempfile is already decompressed!"
+						was_compressed=false
+						break
 				fi
 				
 				# What decompressor to use?

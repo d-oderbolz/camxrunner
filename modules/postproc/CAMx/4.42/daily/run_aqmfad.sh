@@ -197,7 +197,7 @@ function run_aqmfad()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
 		
 		# Do it.
 		if [[ "$CXR_DRY" == false ]]

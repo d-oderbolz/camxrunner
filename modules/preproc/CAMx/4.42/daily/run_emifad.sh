@@ -184,13 +184,13 @@ function run_emifad()
 		fi
 		
 		# Emifad uses the aqmfad directory
-		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
 		
 		# We loop through all the grids we need
 		main.log "Running emifad on grid $CXR_IGRID"
 
 		# First we need to create links (if not existing)
-		main.log "Creating links in the $CXR_AQMFAD_OUTPUT_DIR directory..."
+		main.log "Creating links in the $CXR_ASCII_OUTPUT_DIR directory..."
 		
 		# Link to emissions
 		CURRENT_EMISSION_BASE=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE})

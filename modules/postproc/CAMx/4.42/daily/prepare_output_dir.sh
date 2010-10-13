@@ -40,7 +40,7 @@ CXR_META_MODULE_DEPENDS_ON="${CXR_TYPE_MODEL}"
 CXR_META_MODULE_RUN_EXCLUSIVELY=false
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Creates a directory full of links for the postprocessors (mostly aqmfad)"
+CXR_META_MODULE_DESCRIPTION="Creates a directory full of links for the postprocessors (for convert_output, run_emifad, run_aqmfad)"
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_POSTPROCESS_DAILY}"
@@ -214,7 +214,7 @@ function prepare_output_dir()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		cd ${CXR_AQMFAD_OUTPUT_DIR} || return $CXR_RET_ERROR
+		cd ${CXR_ASCII_OUTPUT_DIR} || return $CXR_RET_ERROR
 		
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}

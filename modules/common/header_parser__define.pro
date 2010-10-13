@@ -78,7 +78,7 @@
 ;       A new header_parser object.
 ;
 ; EXAMPLE:
-;       hp = obj_new('header_parser','CAMx-v4.51-co5-s173-sem064-aug-sept-2003/Outputs/aqmfad/CAMx-v4.51-co5-s173-sem064-aug-sept-2003.20030906.avrg.grd03.asc')
+;       hp = obj_new('header_parser','CAMx-v4.51-co5-s173-sem064-aug-sept-2003/Outputs/ascii/CAMx-v4.51-co5-s173-sem064-aug-sept-2003.20030906.avrg.grd03.asc')
 ;
 ;   
 ;-

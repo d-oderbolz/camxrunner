@@ -5,7 +5,7 @@
 
 CXR_STATION_LABEL=NABEL
 
-CXR_AQMFAD_OUTPUT_DIR=${CXR_OUTPUT_DIR}/aqmfad
+CXR_ASCII_OUTPUT_DIR=${CXR_OUTPUT_DIR}/ascii
 CXR_STATION_OUTPUT_DIR=${CXR_OUTPUT_DIR}/Nabel
 
 ################## NABEL (Station dependent)#####################################

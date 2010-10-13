@@ -29,7 +29,19 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
-
+################################################################################
+# Function: common.string.MD5
+#
+# Calculates the MD5 Hash of a string
+#
+# Parameters:
+# $1 - string to be converted
+################################################################################
+function common.string.MD5() 
+################################################################################
+{
+	echo $1 | "${CXR_MD5_EXEC}" | cut -d" " -f1
+} 
 
 ################################################################################
 # Function: common.string.toLower

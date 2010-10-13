@@ -136,7 +136,6 @@ function set_variables()
 	# Grid specific - we need to define CXR_IGRID
 	CXR_IGRID=$CXR_INVOCATION
 	
-
 	# Here, we ASSUME that we work on a directory prepared by <prepare_output_dir>
 	# in particular, we assume that the linknames are proper, that is, they have
 	# no temporary names
@@ -152,21 +151,21 @@ function set_variables()
 	# Note that me expand the rules in a funny way here: we take the basename and add it
 	# to the path of aqmfad...
 	
-	CXR_AVG_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
+	CXR_AVG_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE false))
 
 	# TERRAIN must not be converted, it is already there.
 	
 	# Pressure. 
-	CXR_ZP_GRID_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
+	CXR_ZP_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE false))
 	# Wind
-	CXR_WIND_GRID_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
+	CXR_WIND_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_WIND_FILE_RULE" false CXR_WIND_FILE_RULE false))
 	# Temperature
-	CXR_TEMP_GRID_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
+	CXR_TEMP_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE false))
 	# Vapor
-	CXR_VAPOR_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
+	CXR_VAPOR_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_VAPOR_FILE_RULE" false CXR_VAPOR_FILE_RULE false))
 	# No Cloud
 	# Vertical K
-	CXR_KV_GRID_INPUT_FILE=$CXR_AQMFAD_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
+	CXR_KV_GRID_INPUT_FILE=$CXR_ASCII_OUTPUT_DIR/$(basename $(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE false))
 	# NO Emissions
 	
 	####################################
@@ -261,9 +260,9 @@ function convert_output()
 		# Requires the bin2asc and the airascii patches 	
 		########################################################################
 		
-		cd $CXR_AQMFAD_OUTPUT_DIR || return $CXR_RET_ERROR
+		cd $CXR_ASCII_OUTPUT_DIR || return $CXR_RET_ERROR
 
-		main.log  "Working in $CXR_AQMFAD_OUTPUT_DIR"
+		main.log  "Working in $CXR_ASCII_OUTPUT_DIR"
 
 		# We loop through all the grids
 		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
