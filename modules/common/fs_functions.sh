@@ -780,7 +780,7 @@ function common.fs.TryDecompressingFile()
 	_name_changed=false
 	
 	
-	input_file=$1
+	input_file="$1"
 	# We assume that in was not compressed
 	was_compressed=false
 	
@@ -823,7 +823,7 @@ function common.fs.TryDecompressingFile()
 			
 			# Note that our extensions already contain a dot
 			comp_file="${input_file}${ext}"
-			main.log -v  "Looking for $comp_file"
+			main.log -v "Looking for $comp_file"
 			
 			if [[ -r "$comp_file" ]]
 			then
@@ -853,7 +853,8 @@ function common.fs.TryDecompressingFile()
 						main.log -w "File $tempfile is already decompressed!"
 						was_compressed=false
 						break
-				fi
+					fi # Decompessed file already there?
+				fi # Decompress in place?
 				
 				# What decompressor to use?
 				# This is NOT derived from the filename
