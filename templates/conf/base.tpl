@@ -101,7 +101,7 @@ CXR_DISABLED_DAILY_PREPROC=""
 CXR_DISABLED_ONCE_PREPROC=""
 
 # This string contains the space-separated module names of
-# unwanted daily postprocessors like "prepare_output_dir convert_output"
+# unwanted daily postprocessors
 # If "${CXR_SKIP_ALL}" is given, all single postprocessors are skipped
 	
 CXR_DISABLED_DAILY_POSTPROC="avgdif"
