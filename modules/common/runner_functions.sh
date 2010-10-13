@@ -675,13 +675,13 @@ function common.runner.createTempFile()
 	
 	if [[ "$do_dir" == true ]]
 	then
-		main.log -v "Creating temporary dir $name"
 		name=$(mktemp -d $template)
+		main.log -v "Created temporary dir $name"
 		# Add warning for users
 		touch $name/_THIS_DIRECTORY_CAN_BE_DELETED_ANY_TIME
 	else
-		main.log -v "Creating temporary file $name"
 		name=$(mktemp $template)
+		main.log -v "Created temporary file $name"
 	fi # directory or file?
 	
 	if [[ $? -ne 0 ]]

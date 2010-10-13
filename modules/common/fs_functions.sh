@@ -143,7 +143,7 @@ function common.fs.sumFilenameLenght()
 		len="$(wc -c < $file)"
 		
 		# tempfile no longer needed
-		rm $file
+		rm -f $file
 	else
 		main.log -w "$dir is noleaft a directory!"
 		len=0
