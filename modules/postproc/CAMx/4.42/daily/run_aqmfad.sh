@@ -213,6 +213,8 @@ function run_aqmfad()
 {
 	# In this module, CXR_INVOCATION corresponds to the entry in CXR_RUN_AQMFAD_ON_GRID
 	CXR_INVOCATION=${1}
+	
+	local ofile
 
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
@@ -232,6 +234,25 @@ function run_aqmfad()
 		fi
 		
 		cd $aqmfad_dir || return $CXR_RET_ERROR
+		
+		# Test if any of the output file pre-exists
+		for ofile in $CXR_CHECK_THESE_OUTPUT_FILES;
+		do
+			if [[ -e "${ofile}" ]]
+			then
+				if [[ "${CXR_SKIP_EXISTING}" == true ]]
+				then
+					# Ups, we skip this one
+					main.log -w "File ${ofile} exists, run_aqmfad will not be run"
+					common.state.storeStatus ${CXR_STATUS_SUCCESS}  > /dev/null
+					return $CXR_RET_OK
+				else
+					main.log -e  "File ${${ofile}} exists - to force the re-creation run ${CXR_CALL} -F"
+					common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+					return $CXR_RET_ERROR
+				fi
+			fi
+		done
 		
 		# Do it.
 		if [[ "$CXR_DRY" == false ]]

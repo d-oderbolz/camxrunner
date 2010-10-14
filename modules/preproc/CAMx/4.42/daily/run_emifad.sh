@@ -184,6 +184,8 @@ function run_emifad()
 	# In this module, CXR_INVOCATION corresponds corresponds to the entry in CXR_RUN_EMIFAD_ON_GRID
 	CXR_INVOCATION=${1}
 	
+	local ofile
+	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
@@ -204,8 +206,24 @@ function run_emifad()
 		# Emifad uses the aqmfad directory
 		cd $emifad_dir || return $CXR_RET_ERROR
 		
-		# We loop through all the grids we need
-		main.log "Running emifad on grid $CXR_IGRID"
+		# Test if any of the output file pre-exists
+		for ofile in $CXR_CHECK_THESE_OUTPUT_FILES;
+		do
+			if [[ -e "${ofile}" ]]
+			then
+				if [[ "${CXR_SKIP_EXISTING}" == true ]]
+				then
+					# Ups, we skip this one
+					main.log -w "File ${ofile} exists, run_emifad will not be run"
+					common.state.storeStatus ${CXR_STATUS_SUCCESS}  > /dev/null
+					return $CXR_RET_OK
+				else
+					main.log -e  "File ${${ofile}} exists - to force the re-creation run ${CXR_CALL} -F"
+					common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+					return $CXR_RET_ERROR
+				fi
+			fi
+		done
 
 		main.log "Running emifad on grid ${CXR_IGRID}..."
 		main.log  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
