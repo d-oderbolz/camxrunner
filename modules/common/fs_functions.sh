@@ -155,6 +155,27 @@ function common.fs.sumFilenameLenght()
 }
 
 ################################################################################
+# Function: common.fs.getSubDirs
+# 
+# Returns a newline-separated list of subdirectories of a directory (no path component).
+# Also returns any softlinks that point to directories.
+# Does not return "." or ".."
+#
+# Parameters:
+# $1 - path to look at
+################################################################################
+function common.fs.getSubDirs()
+################################################################################
+{
+	local dir
+	
+	dir="$1"
+	
+	find -L  "$dir" -noleaf -maxdepth 1 -type d  -printf '%f\n' | sed '/^\.$/d' | sed '/^\.\.$/d'
+
+}
+
+################################################################################
 # Function: common.fs.isSubDirOf?
 # 
 # Returns true if argument1 is (in) a subdir of argument2.
