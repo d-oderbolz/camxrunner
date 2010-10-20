@@ -215,6 +215,7 @@ function photolysis_rates()
 	local day_offset
 	local start_offset
 	local iMonth
+	local tempdir
 	
 	day_offset=0
 	 
@@ -331,22 +332,31 @@ function photolysis_rates()
 				
 						# TUV is picky - it expects a file called
 						# tuv.inp and also it looks for some files
-						# That's why we chage to CXR_MODEL_BIN_DIR and create a link in the current place
+						# That's why we chage to a tempdir (avoid races!)
 						
-						cd ${CXR_MODEL_BIN_DIR} || return $CXR_RET_ERROR
+						tempdir=$(common.runner.createTempDir tuv-workdir)
 						
-						# First remove it
-						rm -f tuv.inp
+						cd ${tempdir} || return $CXR_RET_ERROR
+						
+						main.log -a "TUV working in ${tempdir}"
+						
+						# TUV needs an input file called "tuv.inp"
 						ln -s "$tuv_control_file" tuv.inp
 						
-						main.log  "Calling TUV - using this jobfile (be patient)...\n"
+						# We also need 4 diectories (creating links again)
+						ln -s ${CXR_MODEL_BIN_DIR}/DATAE1
+						ln -s ${CXR_MODEL_BIN_DIR}/DATAJ1
+						ln -s ${CXR_MODEL_BIN_DIR}/DATAJ2
+						ln -s ${CXR_MODEL_BIN_DIR}/DATAS1
+						
+						main.log  "Calling TUV - using jobfile ${tuv_control_file} (be patient)...\n"
 						cat tuv.inp | tee -a ${CXR_LOG}
 		
 						# Call TUV
 						${CXR_TUV_EXEC}  2>&1 | tee -a $CXR_LOG
 		
 					else
-						main.log  "Could not create TUV control file - module failed."
+						main.log "Could not create TUV control file - module failed."
 						return $CXR_RET_ERROR
 					fi
 		

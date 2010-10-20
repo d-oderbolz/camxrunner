@@ -477,22 +477,22 @@ function albedo_haze_ozone()
 			# File not yet there
 		
 			# The options of AHOMAP are a bit 
-			# weird, better produce a file
-			# This function (I know, one should avoid side effects!) 
-			# also downloads/caches satellite data
+			# weird, better produce a job file
 			ahomap_control_file=$(common.runner.createJobFile AHOMAP)
 			
 			if [[ "$CXR_DRY" == false  ]]
 			then
 			
+				# This function (I know, one should avoid side effects!) 
+				# also downloads/caches satellite data
 				create_ahomap_control_file "$ahomap_control_file" $day_offset $num_days
 					
 				# Is the file there and not empty?)
 				if [[ -s "${ahomap_control_file}"  ]]
 				then
 				
-					main.log  "Calling AHOMAP - using this jobfile (be patient)...\n"
-			
+					main.log  "Calling AHOMAP - using jobfile ${ahomap_control_file} (be patient)...\n"
+
 					# Call AHOMAP 
 					cat ${ahomap_control_file} | tee -a ${CXR_LOG}
 					
