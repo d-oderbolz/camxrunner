@@ -38,8 +38,6 @@ Timestamp: Updated month day, year
 # --------------------------------------------------------------------------
 
 
-File: modules/.../5.10/model.sh  (modules/model/CAMx/5.10/model.sh)
-
 Group: Modules  {
 
    Group: Common  {
@@ -260,10 +258,6 @@ Group: Modules  {
 
    }  # Group: Modules
 
-File: usage  (CAMxRunner.sh)
-File: usage  (PMCAMx-v2008-blank)
-File: usage  (PMCAMx-v2008-test)
-
 Group: Inc  {
 
    File: main_functions.inc  (inc/main_functions.inc)
@@ -271,12 +265,12 @@ Group: Inc  {
    File: tap-functions.inc  (inc/tap-functions.inc)
    }  # Group: Inc
 
-File: usage  (installer)
+File: Disclaimer  (doc/Disclaimer.txt)
+File: modules/.../5.10/model.sh  (modules/model/CAMx/5.10/model.sh)
 
 Group: Index  {
 
    Index: Everything
-   Database Index: Databases
    File Index: Files
    Function Index: Functions
    Variable Index: Variables
