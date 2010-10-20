@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains functions to manage modules.
+# Title: Functions to manage modules, their metadata and dependencies.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

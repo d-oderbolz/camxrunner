@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains functions for coordinate transformations etc. (Provided via Proj.4 <http://proj.osgeo.org/>)
+# Title: functions for coordinate transformations etc. (Provided by Proj.4 <http://proj.osgeo.org/>)
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

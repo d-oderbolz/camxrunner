@@ -6,9 +6,8 @@
 #
 # Version: $Id$ 
 #
-# These functions provide access to the sqlite DB and provide logging and error handling.
-# Note that sqlite (V 3.7.2) has the nasty habit of issuing "I/O Error" if 
-# the DB is locked. 
+# Title: Functions to provide access to the SQLite DB <http://www.sqlite.org> and provide logging and error handling.
+# Note that sqlite (V 3.7.2) has the nasty habit of issuing "I/O Error" if the DB is locked. 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

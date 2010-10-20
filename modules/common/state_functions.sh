@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Functions to check and change the state af a run
+# Title: Functions to check and change the state af a run
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

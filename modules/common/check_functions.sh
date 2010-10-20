@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Check Functions
+# Title: Various check Functions
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -179,11 +179,11 @@ function common.check.MbNeeded()
 # to make sure the user entered sensible values
 #
 # Datatypes:
-#	S (String - allowed to be empty)
-# I (Integer)
-#	F (Float)
-#	B (Boolean - either true or false)
-# D (Directory - a high level string that is checked)
+#	- S (String; allowed to be empty)
+# - I (Integer)
+#	- F (Float)
+#	- B (Boolean; either true or false)
+# - D (Directory; a high level string that is checked)
 #
 # Parameters:	
 # $1 - Value to check

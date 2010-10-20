@@ -2,8 +2,16 @@
 # she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
-# 
+# See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
+# Version: $Id$ 
+#
+# Title: Functions for String manipulation
+#
+# Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
+# This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
+# Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
+# License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Runner script for CAMx
+# Title: This is the main script of CAMxRunner.
+#
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 # Version: $Id$ 
 #
@@ -42,12 +43,6 @@ unset ${!CXR_*}
 # Keep given arguments in mind
 CXR_ARGUMENTS="${@}"
 
-################################################################################
-# Function: main.usage
-#
-# Shows the proper usage of CAMxRunner. 
-# The rest of the main.* functions is defined in inc/main_functions.inc
-#
 ################################################################################
 function main.usage()
 ################################################################################

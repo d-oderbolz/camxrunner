@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Date functions
+# Title: Mathematical functions otherwise missing in bash (especially floating point operations)
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

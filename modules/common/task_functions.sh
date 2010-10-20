@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Functions to manage execution of modules.
+# Title: Functions to manage (parallel and sequential) execution of modules.
 # The most important aspect of this is the management of the varius dependencies 
 # between modules.
 #

@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the test harness of CAMxRunner. Also contains tests for some inc functions.
+# Title: Contains the test harness of CAMxRunner. Also contains tests for some inc functions.
 # There is one test-configuration for each Model Version, called something like
 # CAMx-v4.51-test.conf or CAMx-v4.42-test.conf. 
 #

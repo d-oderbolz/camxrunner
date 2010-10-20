@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains functions to simplify user interaction
+# Title: Functions to simplify user interaction
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

@@ -6,8 +6,7 @@
 #
 # Version: $Id$ 
 #
-# This module runs the model. For performance reasons, the model can write
-# its output to a local dir and then the output is moved after the run.
+# Title: This module runs the CAMx model. 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

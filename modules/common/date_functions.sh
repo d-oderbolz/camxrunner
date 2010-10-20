@@ -1,4 +1,4 @@
-# Processing modules are not meant to be executed stand-alone, so there is no
+ # Processing modules are not meant to be executed stand-alone, so there is no
 # she-bang and the permission "x" is not set.
 #
 # Common script for the CAMxRunner 
@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Date functions
+# Title: Date functions
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

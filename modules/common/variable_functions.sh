@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains Functions to manipulate variables dynamically
+# Title: Functions to manipulate variables dynamically
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.

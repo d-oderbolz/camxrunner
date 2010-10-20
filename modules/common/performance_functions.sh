@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Contains the Filesystem functions of CAMxRunner.
+# Title: Functions to assess performance.
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -72,7 +72,6 @@ function common.performance.startTiming()
 # 
 # Measures the time difference in seconds, adds it to the universal timing db. 
 #
-# DB: $CXR_UNIVERSAL_TIMING_DB
 #
 # Parameters:
 # $1 - module name (can be any string)
@@ -149,8 +148,6 @@ function common.performance.stopTiming()
 # 
 # Estimates the runtime in seconds of a run. Currently very simple and very incorrect.
 #
-# DB: $CXR_UNIVERSAL_TIMING_DB
-#
 ################################################################################
 function common.performance.estimateTotalRuntimeSeconds()
 ################################################################################
@@ -174,8 +171,6 @@ function common.performance.estimateTotalRuntimeSeconds()
 # This estimation is based on the mean. TODO: estimate STDEV and add 1 sigma.
 #
 # If this module has no performance data yet, we use the a mean over all data.
-#
-# DB: $CXR_UNIVERSAL_TIMING_DB
 #
 # Parameters:
 # $1 - module name

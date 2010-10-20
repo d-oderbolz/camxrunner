@@ -6,6 +6,7 @@
 #
 # Version: $Id$ 
 #
+# Title: Functions to manage key-value pairs in a persistent and fast manner.
 # This is a re-implementation of the file-based functions using sqlite <http://www.sqlite.org>.
 # Compared to the old approach, this has a number of advantages:
 # - there is no need to limit the number of keys per directory (was an issue on AFS)
