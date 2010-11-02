@@ -37,7 +37,7 @@ c
 c
       parameter ( MXCELLS =      200 )
       parameter ( MXLAYER =       28 )
-      parameter ( MXSPEC  =       98 )
+      parameter ( MXSPEC  =       @MXSPEC@ )
       parameter ( MXREACT =      217 )
       parameter ( MXGRID  =       10 )
       parameter ( MXPTSRC =   200000 )
@@ -96,7 +96,7 @@ c   MXTRSP   I   maximum number of total tracer species in simulation
 c
       integer   MXTRSP
 c
-      parameter( MXTRSP =    1 )
+      parameter( MXTRSP =    @MXTRSP@ )
 c
 c-----------------------------------------------------------------------
 c      Parameters for Chemistry:
@@ -130,11 +130,11 @@ c
       parameter ( MXPHT1  =    19 )
       parameter ( MXPHT2  =    24 )
       parameter ( NTEMPR  =   121 )
-      parameter ( TEMPLO  = 180.0 )
-      parameter ( TEMPHI  = 320.0 )
+      parameter ( TEMPLO  = @TEMPLO@ )
+      parameter ( TEMPHI  = @TEMPHI@ )
       parameter ( NPRESR  =    11 )
-      parameter ( PRESLO  = 100.0 )
-      parameter ( PRESHI  = 1100. )
+      parameter ( PRESLO  = @PRESLO@ )
+      parameter ( PRESHI  = @PRESHI@ )
       parameter ( MXBIN   =     1 )
       parameter ( MXSECT  =    10 )
 c
@@ -159,13 +159,13 @@ c
       integer   NHGHT
       integer   NZEN
 c
-      parameter ( NOZN  =  5 )
-      parameter ( NALB  =  5 )
-      parameter ( NHAZE =  3 )
-      parameter ( NRUF  =  9 )
-      parameter ( NLU   = 11 )
-      parameter ( NHGHT = 11 )
-      parameter ( NZEN  = 10 )
+      parameter ( NOZN  =  @NOZN@ )
+      parameter ( NALB  =  @NALB@ )
+      parameter ( NHAZE =  @NHAZE@ )
+      parameter ( NRUF  =  @NRUF@ )
+      parameter ( NLU   = @NLU@ )
+      parameter ( NHGHT = @NHGHT@ )
+      parameter ( NZEN  = @NZEN@ )
 c
 c-----------------------------------------------------------------------
 c     Parameters for PiG
