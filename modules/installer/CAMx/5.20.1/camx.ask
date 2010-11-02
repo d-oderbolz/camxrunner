@@ -49,6 +49,7 @@ TEMPLO|I|What is the nminimum temperature for chemical reactions?|200.
 TEMPHI|I|What is the maximum temperature for chemical reactions?|320.
 PRESLO|I|What is the minimum pressure for chemical reactions?|100.0
 PRESHI|I|What is the maximum pressure for chemical reactions?|1100.
+MXRADCL|I|What is the value of MXRADCL (used to be 18, now the default is 16)|16
 
 COMMENT|These are parameters relevant for Probing - read CAMx documentation!
 
