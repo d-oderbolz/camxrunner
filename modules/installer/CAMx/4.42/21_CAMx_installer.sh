@@ -280,12 +280,16 @@ function CAMx_installer()
 		main.log -a "Copied these draft files: $(ls $draft_dir)"
 		
 		## Clean up draft dir
+		
+		# Warning file
+		rm $draft_dir/_THIS_DIRECTORY_CAN_BE_DELETED_ANY_TIME &> /dev/null
+		
 		# Readmes
 		main.log -a "Removing README files..."
-		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; 2>/dev/null
+		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null
 		# subversion drectories
 		main.log -a "Removing version control system files..."
-		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; 2>/dev/null
+		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null
 
 
 		# We will now ask the user a number of questions encoded in
@@ -295,7 +299,7 @@ function CAMx_installer()
 		playfile=${CXR_INSTALLER_VERSION_INPUT_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}-${domain}.play
 		
 		# Might be simplified later
-		if [[ -s "$playfile"  ]]
+		if [[ -s "$playfile" ]]
 		then
 			# We already have a playfile
 			# Do you want to replay?
