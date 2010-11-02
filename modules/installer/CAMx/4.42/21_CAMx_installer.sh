@@ -277,10 +277,14 @@ function CAMx_installer()
 		cp -r * $draft_dir || main.dieGracefully "Could not create a copy of the templates"
 		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 		
+		main.log -a "Copied these draft files: $(ls $draft_dir)"
+		
 		## Clean up draft dir
 		# Readmes
+		main.log -a "Removing README files..."
 		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; 2>/dev/null
 		# subversion drectories
+		main.log -a "Removing version control system files..."
 		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; 2>/dev/null
 
 
