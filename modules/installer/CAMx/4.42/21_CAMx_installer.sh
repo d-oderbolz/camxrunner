@@ -286,7 +286,8 @@ function CAMx_installer()
 		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null || main.dieGracefully "Could not remove README files from draft dir"
 		# subversion drectories
 		main.log -a "Removing version control system files..."
-		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || main.dieGracefully "Could not remove version control system files from draft dir"
+		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; 
+		#&>/dev/null || main.dieGracefully "Could not remove version control system files from draft dir"
 		
 		main.log -a "Working with these draft files: $(ls $draft_dir)"
 
