@@ -31,7 +31,6 @@ CXR_META_MODULE_NUM_TESTS=0
 # If a requirement is not binding, optional is added at the end
 CXR_META_MODULE_REQ_SPECIAL="exec|wget"
 
-
 # URL where to find more information
 CXR_META_MODULE_DOC_URL="http://people.web.psi.ch/oderbolz/CAMxRunner"
 
@@ -276,9 +275,7 @@ function CAMx_installer()
 		cd $input_dir || main.dieGracefully "Could not change to $input_dir"
 		cp -r * $draft_dir || main.dieGracefully "Could not create a copy of the templates"
 		cd ${CXR_RUN_DIR} || main.dieGracefully "Could not change to $CXR_RUN_DIR"
-		
-		main.log -a "Copied these draft files: $(ls $draft_dir)"
-		
+
 		## Clean up draft dir
 		
 		# Warning file
@@ -286,10 +283,12 @@ function CAMx_installer()
 		
 		# Readmes
 		main.log -a "Removing README files..."
-		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null
+		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null || main.dieGracefully "Could not remove README files from draft dir"
 		# subversion drectories
 		main.log -a "Removing version control system files..."
-		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null
+		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || main.dieGracefully "Could not remove version control system files from draft dir"
+		
+		main.log -a "Working with these draft files: $(ls $draft_dir)"
 
 
 		# We will now ask the user a number of questions encoded in
