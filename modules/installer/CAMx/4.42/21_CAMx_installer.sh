@@ -213,11 +213,11 @@ function CAMx_installer()
 		case "$parallel_paradigm" in
 		
 			None)
-				default_platform=i_linux
+				default_platform=pg_linux
 				mpi=false
 				;;
 			OMP)
-				default_platform=i_linuxomp
+				default_platform=pg_linuxomp
 				mpi=false
 				;;
 			MPI)
