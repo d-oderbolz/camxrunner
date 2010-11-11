@@ -1062,6 +1062,69 @@ function main.isSubstringPresent?()
 }
 
 ################################################################################
+# Function: main.setVersionDepVariables
+#
+# Sets the variables that depend on the chosen version. For hen&egg reasons, this is called
+# directly by CAMxRunner, as well as by <main.readConfig>
+#
+# Parameters:
+# $1 - The name of the run to use
+# $2 - The Modelname to use
+# $3 - The Model Version to use
+# $4 - The Rundir to use
+################################################################################
+function main.setVersionDepVariables()
+################################################################################
+{
+	export CXR_RUN="${1}"
+	
+	CXR_MODEL="${2}"
+	
+	# Model Version
+	CXR_MODEL_VERSION="${3}"
+		
+	CXR_RUN_DIR="${4}"
+	
+	main.log -v -b "Setting directory variables specific for ${CXR_MODEL} ${CXR_MODEL_VERSION}..."
+	
+	#Base path to find the CAMx executable
+	CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
+	
+	# These are Model specific common modules, CAMx is the default model
+	CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
+	
+	# And these Version specific common modules
+	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
+	
+	# Directories where to find installer modules
+	
+	# These are Model specific ones, CAMx is the default model
+	CXR_INSTALLER_MODEL_INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}
+	
+	# And these Version specific
+	CXR_INSTALLER_VERSION_INPUT_DIR=${CXR_INSTALLER_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
+	
+	# Directories where to find processors
+	
+	#Pre- Processors
+	# These are run for each simulation day
+	CXR_PREPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
+	
+	#These are run before the simulation starts
+	CXR_PREPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
+	
+	# Post- Processors
+	# These are run for each simulation day
+	CXR_POSTPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
+	
+	#These are run once the whole simulation has finished
+	CXR_POSTPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
+	
+	# Model
+	CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
+}
+
+################################################################################
 # Function: main.readConfig
 #
 # Determine relevant config files and load them, also report their names and versions.
@@ -1127,45 +1190,10 @@ function main.readConfig()
 	CXR_RUN_DIR="$(pwd)"
 	
 	########################################
-	# Setting some specific variables
+	# Setting important variables
 	########################################
-	main.log -a -b "Setting variables specific for ${CXR_MODEL} ${CXR_MODEL_VERSION}..."
-	
-	#Base path to find the CAMx executable
-	CXR_MODEL_BIN_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}
-	
-	# These are Model specific common modules, CAMx is the default model
-	CXR_COMMON_MODEL_INPUT_DIR=${CXR_COMMON_INPUT_DIR}/${CXR_MODEL}
-	
-	# And these Version specific common modules
-	CXR_COMMON_VERSION_INPUT_DIR=${CXR_COMMON_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
-	
-	# Directories where to find installer modules
-	
-	# These are Model specific ones, CAMx is the default model
-	CXR_INSTALLER_MODEL_INPUT_DIR=${CXR_INSTALLER_INPUT_DIR}/${CXR_MODEL}
-	
-	# And these Version specific
-	CXR_INSTALLER_VERSION_INPUT_DIR=${CXR_INSTALLER_MODEL_INPUT_DIR}/${CXR_MODEL_VERSION}
-	
-	# Directories where to find processors
-	
-	#Pre- Processors
-	# These are run for each simulation day
-	CXR_PREPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-	
-	#These are run before the simulation starts
-	CXR_PREPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/preproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-	
-	# Post- Processors
-	# These are run for each simulation day
-	CXR_POSTPROCESSOR_DAILY_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/daily
-	
-	#These are run once the whole simulation has finished
-	CXR_POSTPROCESSOR_ONCE_INPUT_DIR=${CXR_MODULES_DIR}/postproc/${CXR_MODEL}/${CXR_MODEL_VERSION}/once
-	
-	# Model
-	CXR_MODEL_INPUT_DIR=${CXR_MODULES_DIR}/model/${CXR_MODEL}/${CXR_MODEL_VERSION}
+
+	main.setVersionDepVariables "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 	
 	main.log "Loading configuration for $CXR_RUN, $CXR_MODEL Version $CXR_MODEL_VERSION..."
 	

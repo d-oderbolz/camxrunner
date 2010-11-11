@@ -219,7 +219,7 @@ source $CXR_RUN_DIR/inc/main_functions.inc
 
 # Determine Model name (CXR_MODEL) and version (CXR_MODEL_VERSION)
 # from the run name and export it to the environment.
-# Also set the directories where to look for commom modules and 
+# Also set the directories where to look for common modules and 
 # processors
 main.setModelAndVersion ${CXR_RUN}
 
@@ -291,17 +291,24 @@ unset OPTSTRING
 unset OPTIND
 
 ################################################################################
+# Set version dependent variables ##############################################
+################################################################################
+
+main.setVersionDepVariables "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
+
+################################################################################
+# Include all external functions. ##############################################
+################################################################################
+
+source $CXR_RUN_DIR/inc/load_common_modules.inc
+
+################################################################################
 # Read Config ##################################################################
 ################################################################################
 
 # The run determines the files to use
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
-################################################################################
-# Include all external functions. We do this here to reduce clutter ############
-################################################################################
-
-source $CXR_RUN_DIR/inc/load_common_modules.inc
 
 # count simulation days
 CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
