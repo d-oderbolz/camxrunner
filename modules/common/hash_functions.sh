@@ -380,23 +380,26 @@ function common.hash.getAll()
 # $1 - name of the hash
 # $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - key
+# $4 - use_like - if true (default false), uses LIKE for the key 
 ################################################################################
 function common.hash.delete()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a key - plus optionally use_like as input"
 	fi
 	
 	local hash
 	local level
 	local key
 	local db_file
+	local use_like
 	
 	hash="$1"
 	level="$2"
 	key="$3"
+	use_like="${4:-false}"
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$level")"
@@ -407,7 +410,15 @@ function common.hash.delete()
 		main.log -w "DB $db_file not found!"
 	else
 		# delete entry
-		common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
+		
+		if [[ "$use_like" == true ]]
+		then
+			# Wildcards accepted
+			common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' AND key LIKE '$key'"
+		else
+			# Exact matches
+			common.db.change "$db_file" "$level" "DELETE FROM hash WHERE hash='$hash' AND key='$key'"
+		fi # use_like?
 	fi
 }
 

@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=1
+CXR_META_MODULE_NUM_TESTS=4
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -64,6 +64,8 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.conf.set()
 ################################################################################
 {
+	local -a arr
+	
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "Make sure to pass just one argument of the form module_name.setting=some_value. Got $*"
@@ -93,13 +95,27 @@ function common.conf.set()
 # No error is thrown if the variable in question is non-existent.
 #
 # Parameters:
-# $1 - statement of the form "module_name.setting=some_value"
+# $1 - variable name of the form "module_name.setting"
 ################################################################################
 function common.conf.unset()
 ################################################################################
 {
-	statement=${1}
-
+	local variable
+	local noBrackets
+	
+	variable=${1}
+	
+	# Is it a whole array?
+	
+	if [[ "${variable: -2}" == "[]" ]]
+	then
+		# Whole array
+		noBrackets=${variable%[]}
+		common.hash.delete $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "${noBrackets}[%]"
+	else
+		# normal case
+		common.hash.delete $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "$variable"
+	fi # whole array?
 }
 
 ################################################################################
@@ -113,8 +129,11 @@ function common.conf.unset()
 function common.conf.get()
 ################################################################################
 {
-	statement=${1}
-
+	local key
+	
+	key=${1}
+	
+	common.hash.get $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "$key" 
 }
 
 ################################################################################
@@ -141,8 +160,11 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	if "$(common.conf.get some_funky_module.run)" fast "common.conf.set/get quoted scalar"
-	if "$(common.conf.get some_funky_module.noquote)" works "common.conf.set/get unquoted scalar"
+	is "$(common.conf.get some_funky_module.run)" fast "common.conf.set/get quoted scalar"
+	is "$(common.conf.get some_funky_module.noquote)" works "common.conf.set/get unquoted scalar"
+	
+	is "$(common.conf.get some_funky_module.array[0])" element0 "common.conf.set/get array[0]"
+	is "$(common.conf.get some_funky_module.array[1])" element1 "common.conf.set/get array[1]"
 	
 	########################################
 	# teardown tests if needed
