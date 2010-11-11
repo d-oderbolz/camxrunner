@@ -419,7 +419,7 @@ function test_module()
 	
 	common.performance.startTiming test
 	sleep $nSeconds
-	common.performance.stopTiming test
+	common.performance.stopTiming test 1
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
