@@ -691,6 +691,9 @@ CXR_INSTANCE_HASH_OUTPUT_FILES=Output_Files
 # These will be deleted after the dry run
 CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
 
+# This hash holds module-specific config items
+CXR_INSTANCE_HASH_CONF=conf
+
 
 ################################################################################
 # Supported model names.
