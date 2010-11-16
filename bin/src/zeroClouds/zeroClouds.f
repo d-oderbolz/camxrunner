@@ -141,6 +141,7 @@ c
 c
 c-----Prepare cloud fields
 c
+					
             do k = 1,nzc
               cwc(i,j,k) = 0.
               pwr(i,j,k) = 0.
@@ -161,6 +162,10 @@ c
 
 c
         junit = 15
+        
+        write(*,'(a,t30,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
+     &                                 jdatep,jhrp
+     
         write(junit) hrp,jdatep
         do k = 1,nzc
           write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
