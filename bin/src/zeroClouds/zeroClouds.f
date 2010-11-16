@@ -175,7 +175,7 @@ c
           enddo
         enddo 
 
-      write(*,'(/,a,/)')' program run incomplete'
+      write(*,'(/,a,/)')' program run complete'
 
       stop
       end
