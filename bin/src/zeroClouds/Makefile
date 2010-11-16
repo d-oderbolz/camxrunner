@@ -19,15 +19,14 @@ zeroClouds.o
 
 all: zeroClouds
 
-zeroClouds.o 	: $(OBJCTS)
-	zeroClouds.f param.inc fields.inc
-
-zeroClouds: 
+zeroClouds: $(OBJCTS)
 	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FLGS) $(OBJCTS)
 	
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
-
+	
+zeroClouds.o 	: 
+	zeroClouds.f param.inc fields.inc
 
 clean:
 	rm -f $(OBJCTS) $(DESTINATION)/zeroClouds-$(HOSTTYPE)
