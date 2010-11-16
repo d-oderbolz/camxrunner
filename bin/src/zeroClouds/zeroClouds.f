@@ -82,6 +82,15 @@ c
      &                          sdate,stime
       write(*,'(a,i6.5,i5.4)') '     End date/time (YYJJJ HHMM):',
      &                          edate,etime
+      
+      read(*,'(20x,a)') fname
+      read(fname,*) dtout
+      write(*,'(a,i10)')       '          MM5 output freq (min):',dtout
+      if (dtout.lt.60 .and. amod(60.,float(dtout)).ne.0.) then
+        write(*,*)'Met output frequency does not divide an hour evenly'
+        stop
+      endif
+      
       read(fname,*) nxc,nyc,nzc
       write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
       if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
