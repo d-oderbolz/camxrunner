@@ -166,9 +166,9 @@ c
         hrp = float(100 * hr)
         
         write(*,'(a,t30,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
-     &                                 jdate,jhrp
+     &                                 sdate,hr
      
-        write(junit) hrp,jdate
+        write(junit) hrp,sdate
         do k = 1,nzc
           write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
           write(junit) ((pwr(i,j,k),i=1,nxc),j=1,nyc) 
