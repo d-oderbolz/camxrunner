@@ -62,6 +62,7 @@ c
 
       read(*,'(20x,a)') fname
       read(fname,*) sdate,edate
+      
       stime = mod(sdate,100)
       etime = mod(edate,100)
       sdate = sdate/100
@@ -91,13 +92,17 @@ c
         stop
       endif
       
+      read(*,'(20x,a)') fname
       read(fname,*) nxc,nyc,nzc
+      
       write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
       if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
         write(*,*)'CAMx dimensions too large for arrays'
         write(*,*)'Increase array dimensions in param.inc and recompile'
         stop
       endif
+      
+      read(*,'(20x,a)') fname
 
       iunit = 15
       open(unit=iunit,file=fname,form='unformatted')
