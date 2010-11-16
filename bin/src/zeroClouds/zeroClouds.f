@@ -159,14 +159,16 @@ c
 c
 c-----Time-varying met fields
 c
-
+				do hr = 0,23
 c
         junit = 15
         
+        hrp = float(100 * hr)
+        
         write(*,'(a,t30,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
-     &                                 jdatep,jhrp
+     &                                 jdate,jhrp
      
-        write(junit) hrp,jdatep
+        write(junit) hrp,jdate
         do k = 1,nzc
           write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
           write(junit) ((pwr(i,j,k),i=1,nxc),j=1,nyc) 
@@ -179,6 +181,8 @@ c
             enddo
           enddo
         enddo 
+c---- End hours
+      enddo
 
       write(*,'(/,a,/)')' program run complete'
 
