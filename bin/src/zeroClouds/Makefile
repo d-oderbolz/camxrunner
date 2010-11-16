@@ -13,11 +13,14 @@ FLGS = -O2 -pc 64 -Mlfs -Mnoframe -byteswapio -Bstatic_pgi
 
 LIBS = 
 
-OBJCTS = zeroClouds.o
+OBJCTS = \
+juldate.o \
+zeroClouds.o
 
 all: zeroClouds
 
-zeroClouds.o 	: zeroClouds.f param.inc fields.inc
+zeroClouds.o 	: $(OBJCTS)
+	zeroClouds.f param.inc fields.inc
 
 zeroClouds: 
 	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FLGS) $(OBJCTS)
