@@ -82,8 +82,6 @@ c
      &                          sdate,stime
       write(*,'(a,i6.5,i5.4)') '     End date/time (YYJJJ HHMM):',
      &                          edate,etime
-
-      read(*,'(20x,a)') fname
       read(fname,*) nxc,nyc,nzc
       write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
       if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
@@ -91,19 +89,11 @@ c
         write(*,*)'Increase array dimensions in param.inc and recompile'
         stop
       endif
-      read(*,'(20x,a)') fname
 
-      read(*,'(20x,a)') fname
       iunit = 15
       open(unit=iunit,file=fname,form='unformatted')
       write(*,*)'Opened CAMx cloud/rain file: ',fname
       write(iunit) cldhdr,nxc,nyc,nzc
-
-
-c-----Loop over number of input MM5 files
-c
-
-
 
 c
 c-----Special date/time variables for precip and clouds
@@ -156,8 +146,6 @@ c-----Time-varying met fields
 c
 
 c
-        write(*,'(a,t30,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
-     &                                 jdatep,jhrp
         junit = 15
         write(junit) hrp,jdatep
         do k = 1,nzc
