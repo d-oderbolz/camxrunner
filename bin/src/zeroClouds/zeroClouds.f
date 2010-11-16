@@ -29,14 +29,14 @@ c
       integer sdate,edate,stime,etime,jdate,jhr,itzon,nxc,nyc,nzc,
      &        izone,ioffset,joffset,k,iunit,nfiles,nf,ierr,nx,ny,nz,
      &        mm5date,mm5hr,jdatep,jhrp,jmnp,i,j,kk,junit,dtout
-      integer kup,kdn,nlu,hr
+      integer kup,kdn,nlu
       real zm(mnzc),zz(mnzc),thetav(mnzc),uwind(mnzc),vwind(mnzc),
      &     tkep(mnzc),rkc(mnzc),tt(mnzc),pp(mnzc),qv(mnzc),cc(mnzc)
       real lwat,zero,tkemin,gamma,dxcamx,dycamx,x0camx,y0camx,
      &     deltax,hr,hrp,th,qq,press0,wind,ustar,eli,wstar,
      &     sumtkz,sumtk,xinf,q,z,dz,eee,al1,rwat,swat,gwat,delz,volrat,
      &     clonin,clatin,tlat1in,tlat2in,sumf,sumff
-      real qhi,qlo,hrp
+      real qhi,qlo
       character*100 fname 
       character*20 cldhdr
       character*10 kvmeth,project
