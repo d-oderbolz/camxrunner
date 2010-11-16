@@ -29,14 +29,14 @@ c
       integer sdate,edate,stime,etime,jdate,jhr,itzon,nxc,nyc,nzc,
      &        izone,ioffset,joffset,k,iunit,nfiles,nf,ierr,nx,ny,nz,
      &        mm5date,mm5hr,jdatep,jhrp,jmnp,i,j,kk,junit,dtout
-      integer kup,kdn,nlu
+      integer kup,kdn,nlu,hr
       real zm(mnzc),zz(mnzc),thetav(mnzc),uwind(mnzc),vwind(mnzc),
      &     tkep(mnzc),rkc(mnzc),tt(mnzc),pp(mnzc),qv(mnzc),cc(mnzc)
       real lwat,zero,tkemin,gamma,dxcamx,dycamx,x0camx,y0camx,
      &     deltax,hr,hrp,th,qq,press0,wind,ustar,eli,wstar,
      &     sumtkz,sumtk,xinf,q,z,dz,eee,al1,rwat,swat,gwat,delz,volrat,
      &     clonin,clatin,tlat1in,tlat2in,sumf,sumff
-      real qhi,qlo
+      real qhi,qlo,hrp
       character*100 fname 
       character*20 cldhdr
       character*10 kvmeth,project
@@ -159,8 +159,9 @@ c
 c
 c-----Time-varying met fields
 c
-				do hr = 0,23
-c
+
+        do hr = 0,23
+
         junit = 15
         
         hrp = float(100 * hr)
@@ -175,11 +176,6 @@ c
           write(junit) ((pws(i,j,k),i=1,nxc),j=1,nyc) 
           write(junit) ((pwg(i,j,k),i=1,nxc),j=1,nyc) 
           write(junit) ((cod(i,j,k),i=1,nxc),j=1,nyc) 
-          do j = 1,nyc
-            do i = 1,nxc
-              pwtr(i,j,k) = pwr(i,j,k) + pws(i,j,k) + pwg(i,j,k)
-            enddo
-          enddo
         enddo 
 c---- End hours
       enddo
