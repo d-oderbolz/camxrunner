@@ -53,7 +53,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # By convention, the keys are of the form module_name.setting, where setting can also 
 # indicate an array like module_name.setting[0]. 
 # The argument passed looks like a traditional assignment (without spaces!), it is parsed in this
-# function.
+# function. For security reasons, we trim the variable name.
 #
 # Hashes:
 # CXR_INSTANCE_HASH_CONF
@@ -80,7 +80,7 @@ function common.conf.set()
 	IFS="$oIFS"
 	
 	# Store data
-	common.hash.put $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "${arr[0]}" "${arr[1]}"
+	common.hash.put $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "$(common.string.trim ${arr[0]})" "${arr[1]}"
 }
 
 ################################################################################
