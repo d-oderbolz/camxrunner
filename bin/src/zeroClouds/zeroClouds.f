@@ -1,7 +1,8 @@
       program zeroClouds
 c
 c-----zeroClouds (derived from MM5CAMx v 4.8) creates a Cloud rain file without 
-c     clouds or rain.
+c     clouds or rain. In this primitive form, it cannot handle if start and 
+c     end date are not in the same year.
 c
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 
@@ -27,7 +28,7 @@ c
 
       integer kz1(mnzc),kz2(mnzc),kzin(mnzc),isnow(mnxc,mnyc)
       integer sdate,edate,stime,etime,jdate,jhr,itzon,nxc,nyc,nzc,
-     &        izone,ioffset,joffset,k,iunit,nfiles,nf,ierr,nx,ny,nz,
+     &        izone,ioffset,joffset,k,iunit,ndays,nf,ierr,nx,ny,nz,
      &        mm5date,mm5hr,jdatep,jhrp,jmnp,i,j,kk,junit,dtout
       integer kup,kdn,nlu
       real zm(mnzc),zz(mnzc),thetav(mnzc),uwind(mnzc),vwind(mnzc),
@@ -83,6 +84,12 @@ c
      &                          sdate,stime
       write(*,'(a,i6.5,i5.4)') '     End date/time (YYJJJ HHMM):',
      &                          edate,etime
+
+c    This command is the reason why start and end must be in the same year
+     ndays = edate - sdate
+     
+     write(*,'(a,i)') '     Number of days:',
+     &                          ndays
       
       read(*,'(20x,a)') fname
       read(fname,*) dtout
@@ -157,6 +164,12 @@ c-----Write to CAMx files
 c
 
 c
+c-----For each day
+c
+
+        do currdate = sdate, edate
+
+c
 c-----Time-varying met fields
 c
 
@@ -166,10 +179,10 @@ c
         
         hrp = float(100 * hr)
         
-c        write(*,'(a,t30,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
-c     &                                 sdate,hr
+        write(*,'(a,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
+        &                                 currdate,hr
      
-        write(junit) hrp,sdate
+        write(junit) hrp,currdate
         do k = 1,nzc
           write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
           write(junit) ((pwr(i,j,k),i=1,nxc),j=1,nyc) 
@@ -178,6 +191,9 @@ c     &                                 sdate,hr
           write(junit) ((cod(i,j,k),i=1,nxc),j=1,nyc) 
         enddo 
 c---- End hours
+      enddo
+
+c---- End days
       enddo
 
       write(*,'(/,a,/)')' program run complete'
