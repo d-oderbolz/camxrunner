@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=4
+CXR_META_MODULE_NUM_TESTS=5
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -165,6 +165,8 @@ function test_module()
 	
 	is "$(common.conf.get some_funky_module.array[0])" element0 "common.conf.set/get array[0]"
 	is "$(common.conf.get some_funky_module.array[1])" element1 "common.conf.set/get array[1]"
+	
+	is "$(common.conf.get anon_existent_module.test)" "" "common.conf.get non-existent value"
 	
 	########################################
 	# teardown tests if needed
