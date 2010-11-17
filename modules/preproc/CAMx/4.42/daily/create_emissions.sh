@@ -144,7 +144,6 @@ function set_variables()
 
 	# CXR_CHECK_THESE_OUTPUT_FILES is a space separated list of output files to check
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_EMISSION_OUTPUT_FILE"
-
 }
 
 ################################################################################
@@ -230,7 +229,7 @@ function create_emissions()
 			
 			cat <<-EOF > $exec_tmp_file
 			.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
-			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR}'
+			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR}','${CXR_EMISSION_BIO_APPROACH}',${CXR_EMISSION_DO_OVOC}
 			exit
 			EOF
 			
