@@ -420,8 +420,12 @@ function common.state.updateInfo()
 					# Mep
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
 				fi
-			
+
 			done
+			
+			# Delete all inactivated days
+			echo "DELETE FROM days WHERE active='false';" >> $sqlfile
+			
 		fi # Handle single days
 		
 		# Execute the file
