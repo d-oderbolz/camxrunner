@@ -278,9 +278,6 @@ function CAMx_installer()
 
 		## Clean up draft dir
 		
-		# Warning file
-		rm $draft_dir/_THIS_DIRECTORY_CAN_BE_DELETED_ANY_TIME &> /dev/null
-		
 		# Readmes
 		main.log -a "Removing README files..."
 		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null || :

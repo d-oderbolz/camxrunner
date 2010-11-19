@@ -668,8 +668,6 @@ function common.runner.createTempFile()
 	then
 		name=$(mktemp -d $template)
 		main.log -v "Created temporary dir $name"
-		# Add warning for users
-		touch $name/_THIS_DIRECTORY_CAN_BE_DELETED_ANY_TIME
 	else
 		name=$(mktemp $template)
 		main.log -v "Created temporary file $name"
