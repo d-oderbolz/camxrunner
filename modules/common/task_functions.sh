@@ -1300,7 +1300,7 @@ function common.task.controller()
 		
 		if [[ $(common.task.countMyRunningWorkers) -lt $CXR_MAX_PARALLEL_PROCS ]]
 		then
-			main.log -w "Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive!"
+			main.log -w "Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive! (maybe some have not started yet)"
 		fi
 		
 		# touch the continue file
