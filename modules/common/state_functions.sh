@@ -352,6 +352,7 @@ function common.state.updateInfo()
 		main.log -v "Adding information about simulation days..."
 		
 		# Is this a repetition of an earlier run?
+		# Question: What happens if a module was not disabled but is disabled now?
 		if [[ $(common.state.isRepeatedRun?) == true ]]
 		then
 			main.log "This run has already been started earlier."
