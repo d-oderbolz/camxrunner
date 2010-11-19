@@ -1314,7 +1314,8 @@ trap "main.HandleHup" HUP
 ################################################################################
 # Function: main.getModuleName
 #
-# Extracts the module name from a path, removes the leading number (if any) and the trailing extension
+# Extracts the module name from a path, removes the leading number (if any),
+# the variant (if any) and the trailing extension
 #
 # Parameters:
 # $1 - Module name with or without path
@@ -1341,6 +1342,9 @@ function main.getModuleName()
 	if [[ ! "$module" ]]
 	then
 		main.dieGracefully "Could not determine module name of $1"
+	else
+		# Now, we remove the variant, if any
+		module=$(echo "$module" | cut -d'.' -f1)
 	fi
 	
 	echo "$module"
