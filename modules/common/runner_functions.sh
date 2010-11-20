@@ -1304,7 +1304,7 @@ function common.runner.createConfigFile()
 				# Continue even if file is there?
 				if [[ $(common.user.getOK "$destination already exists. Do you want to overwrite this file?" N ) == false ]]
 				then
-					exit
+					return $CXR_RET_OK
 				fi
 			fi
 		
