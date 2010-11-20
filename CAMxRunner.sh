@@ -112,7 +112,7 @@ function main.usage()
 
 	  -C    Create a new run, you are guided through the process.
 	  
-	  -R    Creates a configuration to repeat an this run. User may select another run later.
+	  -R    Creates a configuration to repeat this run. User may select another run later.
 
 	  The following options allow to run a subset of the modules that make up a run.
 	  One approach is to select all modules of a module type (these options can be combined):
