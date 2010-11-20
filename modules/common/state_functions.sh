@@ -203,6 +203,7 @@ function common.state.updateInfo()
 			dir=${dirs[$iIteration]}
 			
 			# The enabled and disabled strings are lists
+			# TODO: enable patterns in enabled & disabled (also in <common.module.listModuleType>)
 			case "$type" in
 				"${CXR_TYPE_PREPROCESS_ONCE}" )
 					enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
