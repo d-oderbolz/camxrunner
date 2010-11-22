@@ -306,7 +306,7 @@ function common.user.getMenuChoice()
 	message="$1\nEnter the *number* of your choice:"
 	options=$2
 	
-	if [[ "${3:-}"  ]]
+	if [[ "${3:-}" ]]
 	then
 		# We have a default, set advanced prompt and add default as last
 		default="${3:-}"
