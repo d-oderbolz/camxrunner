@@ -398,6 +398,8 @@ function common.task.createSequentialDependencyList()
 # Performs topological sorting on the dependencies so that the resulting list is
 # suitable for parallel harvesting by a many workers. This means that all tasks are
 # ordered by increasing dependency.
+# TODO: We need to order stuff with predicates smarter. If a -7 predicate is given,
+# the resulting order is 7-6-5-... Ascending order would be better.
 #
 # The outputfile contains an ordered list of task ids.
 #
@@ -633,7 +635,8 @@ function common.task.countAllWorkers()
 ################################################################################
 # Function: common.task.countMyRunningWorkers
 #
-# Returns the number of running workers on this machine.
+# Returns the number of running workers (running from the POV of the Operating system) 
+# on this machine.
 #
 ################################################################################
 function common.task.countMyRunningWorkers()
@@ -646,7 +649,7 @@ function common.task.countMyRunningWorkers()
 	count=0
 	
 	# Find only my "RUNNING" entries
-	running_pids="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='${CXR_MACHINE}' AND status='${CXR_STATUS_RUNNING}';")"
+	running_pids="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='${CXR_MACHINE}';")"
 	
 	oIFS="$IFS"
 	IFS='
