@@ -53,6 +53,7 @@ function CAMxRunner_installer()
 	local src_dir
 	local suffix
 	local logfile
+	local backupfile
 	
 	
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
@@ -117,7 +118,19 @@ function CAMxRunner_installer()
 		
 		if [[ "$(common.user.getOK "Do you want to install the new file ?" Y )" == true  ]]
 		then
-			cp $DRAFTFILE $CXR_BASECONFIG || main.dieGracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
+			# Backup first
+			backupfile=${CXR_BASECONFIG%%.conf}.bak
+			
+			if [[ -e "$backupfile" ]]
+			then
+				backupfile=${backupfile}.${RANDOM}
+			fi
+			
+			main.log -a "Backing up ${CXR_BASECONFIG} to ${backupfile}..."
+			
+			cp ${CXR_BASECONFIG} ${backupfile} || main.dieGracefully "Could not create backup ${backupfile}"
+			
+			cp ${DRAFTFILE} ${CXR_BASECONFIG} || main.dieGracefully "Could not copy $DRAFTFILE to $CXR_BASECONFIG!"
 		fi
 		
 		main.log  "You must manually adjust the ${CXR_CONF_DIR}/site.conf file - add any site specific settings there\nAlso, you might need to change CAMx Version specific settings in ${CXR_CONFIG_DIR}/${CXR_MODEL}-v${CXR_MODEL_VERSION}.conf"
