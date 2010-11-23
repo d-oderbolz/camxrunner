@@ -1845,12 +1845,13 @@ function common.runner.recreateRun()
 	
 	# Create Directories
 	
-	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file now if needed!\nPress any key to continue..."
+	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file (CXR_DISABLED_* and CXR_ENABLED_*) now if needed!\nPress any key to continue..."
 	common.runner.createMissingDirs "$newRun"
 	
 	# Ask user if we need to copy/link input data 
 	common.runner.recreateInput "$newRun" "$oldRun"
 	
+	main.log -a "Make sure to adjust the CXR_DISABLED_* and CXR_ENABLED_* variables according to the re-used data"
 	# Thats all.
 }
 
