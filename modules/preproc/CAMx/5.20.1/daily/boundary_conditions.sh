@@ -1,1 +1,1 @@
-./../4.42/daily/boundary_conditions.sh
+../../4.42/daily/boundary_conditions.sh
