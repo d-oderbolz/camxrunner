@@ -168,7 +168,7 @@ function CAMxRunner_installer()
 				libdir=${CXR_LIB_DIR}/${executable}/$HOSTTYPE
 				mkdir -p $libdir
 				
-				# Configure when compiling proj
+				# Configure when compiling proj or lzop
 				if [[ $executable == proj ]]
 				then
 					
@@ -182,6 +182,31 @@ function CAMxRunner_installer()
 					            --enable-shared=no \
 					            --enable-static=no \
 					            --without-jni | tee -a $logfile
+					            
+				elif [[ $executable == lzo ]]
+				then
+					
+					./configure --prefix=${CXR_BIN_DIR} \
+					            --exec-prefix=${CXR_BIN_DIR} \
+					            --bindir=${CXR_BIN_DIR} \
+					            --sbindir=${CXR_BIN_DIR} \
+					            --includedir=${libdir} \
+					            --libdir=${libdir} \
+					            --program-suffix=-${HOSTTYPE}${suffix} \
+					            --enable-shared=no \
+					            --enable-static=yes   | tee -a $logfile	
+										            
+				elif [[ $executable == lzop ]]
+				then
+					
+					./configure --prefix=${CXR_BIN_DIR} \
+					            --exec-prefix=${CXR_BIN_DIR} \
+					            --bindir=${CXR_BIN_DIR} \
+					            --sbindir=${CXR_BIN_DIR} \
+					            --includedir=${CXR_LIB_DIR}/lzo/$HOSTTYPE \
+					            --libdir=${CXR_LIB_DIR}/lzo/$HOSTTYPE \
+					            --program-suffix=-${HOSTTYPE}${suffix} | tee -a $logfile	
+					
 				fi
 				
 				# Clean up whatever there was
