@@ -82,6 +82,13 @@ function CAMx_installer()
 		local askfile
 		local playfile
 		local prm_file
+		
+		# Stuff needed for chemparm
+		local chemparam_dir
+		local chemparam_tempdir
+		
+		chemparam_dir=${CXR_MODEL_BIN_DIR}/chemparam
+		
 	
 		########################################
 		# Setup
@@ -397,6 +404,36 @@ function CAMx_installer()
 		########################################
 		
 		cp "$playfile" "${conffile}"
+		
+		########################################
+		main.log -a  "Installation of chemparam files..."
+		########################################
+		
+		if [[ ! -d ${chemparam_dir} ]]
+		then
+			chemparam_tempdir=$(common.runner.createTempDir chemparam)
+			
+			cd $chemparam_tempdir || main.dieGracefully "could not change to ${chemparam_tempdir}"
+			
+			${CXR_WGET_EXEC} ${CXR_CAMX_CHEMPARAM_TAR_LOC} -O ${CXR_CAMX_CHEMPARAM_TAR} || main.dieGracefully "could not download $CXR_CAMX_CHEMPARAM_TAR"
+			
+			tar xvzf ${CXR_CAMX_CHEMPARAM_TAR} || main.dieGracefully "could not deflate ${CXR_CAMX_CHEMPARAM_TAR}"
+			
+			# Goto directory
+			cd $CXR_CAMX_CHEMPARAM_TAR_DIR || main.dieGracefully "could not change to ${CXR_CAMX_CHEMPARAM_TAR_DIR}"
+			
+			# create target dir
+			mkdir ${chemparam_dir} || main.dieGracefully "could not create ${chemparam_dir}"
+			
+			# Copy the files
+			cp * ${chemparam_dir} || main.dieGracefully "could not copy chemparam files"
+			
+			# cd back
+			cd $CXR_CAMX_SRC_DIR || main.dieGracefully "Could not change to $CXR_CAMX_SRC_DIR"
+			
+		else
+			main.log -a "The directory ${chemparam_dir} already existist. If you want to re-create the files, remove this directory"
+		fi
 		
 		########################################
 		main.log -a  "Cleanup..."
