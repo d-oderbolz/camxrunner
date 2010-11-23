@@ -6,7 +6,7 @@
 #
 # Version: $Id: model.sh 5047 2010-10-20 19:05:55Z oderbolz $ 
 #
-# Title: This module runs the CAMx model (version 5.20.1 and higher). The only difference is that here, no TOPCONG file is needed anymore
+# Title: This module runs the CAMx model (version 5.20.1 and higher). The only difference is that here, no TOPCONC file is needed anymore
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
