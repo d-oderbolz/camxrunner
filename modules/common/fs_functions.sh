@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=28
+CXR_META_MODULE_NUM_TESTS=33
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -421,8 +421,12 @@ function common.fs.isDos?()
 # Does not work in MacOSX: 
 # <http://stackoverflow.com/questions/7665/how-to-resolve-symbolic-links-in-a-shell-script>
 #
+# if "allow missing path components" is true, we allow any path component to be non-existing.
+# By default, just the file is allowed to be missing
+#
 # Parameters:
 # $1 - path to link to dereference
+# $2 - allow missing path components (default false)
 ################################################################################
 function common.fs.getLinkTarget()
 ################################################################################
@@ -431,8 +435,14 @@ function common.fs.getLinkTarget()
 	local target
 	
 	path="$1"
+	allow_missing="${2:-false}"
 	
-	target="$(readlink -f "$path")"
+	if [[ $allow_missing == true ]]
+	then
+		target="$(readlink -m -s "$path")"
+	else
+		target="$(readlink -f -s "$path")"
+	fi
 	
 	echo "$target"
 }
@@ -466,7 +476,7 @@ function common.fs.isLink?()
 	else
 		# No Link
 		echo false
-	fi # Broken?
+	fi # Link?
 }
 
 ################################################################################
@@ -1045,9 +1055,16 @@ function test_module()
 	a=$(common.runner.createTempFile $FUNCNAME)
 	b=$(common.runner.createTempFile $FUNCNAME)
 	c=$(common.runner.createTempFile $FUNCNAME)
+	d=$(common.runner.createTempDir $FUNCNAME)
+	
 	link=$(common.runner.createTempFile $FUNCNAME)
+	dirlink=$(common.runner.createTempFile $FUNCNAME)
 	
 	ln -s -f $a $link
+	ln -s -f $d $dirlink
+	
+	# Create a file that resides in a linked directory
+	touch $d/testfile
 	
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
@@ -1088,6 +1105,17 @@ function test_module()
 	########################################
 	
 	is "$(common.fs.getLinkTarget $link)" "$a" "common.fs.getLinkTarget"
+	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$d/testfile" "common.fs.getLinkTarget - real file, linked dir"
+	
+	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
+	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
+	is "$(common.fs.isLink? /dev/null)" "false" "common.fs.isLink? /dev/null"
+	
+	rm $d/testfile
+	is "$(common.fs.isBrokenLink? $dirlink/testfile)" "true" "common.fs.isBrokenLink?"
+	
+	
+	
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
 	is $(common.fs.isAbsolutePath? /) true "common.fs.isAbsolutePath? /"
