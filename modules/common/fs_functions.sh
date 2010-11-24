@@ -1047,6 +1047,15 @@ function common.fs.getFreeMb()
 function test_module()
 ################################################################################
 {
+	local a
+	local b
+	local c
+	local d
+	local link
+	local dirlink
+	local dirtarget
+	local tempdir
+	
 	########################################
 	# Setup tests if needed
 	########################################
@@ -1057,14 +1066,22 @@ function test_module()
 	c=$(common.runner.createTempFile $FUNCNAME)
 	d=$(common.runner.createTempDir $FUNCNAME)
 	
+	# To really test the linking stuff, we ned to now the resolved name of
+	# the tempdir
+	tempdir="$(common.fs.getLinkTarget $CXR_TMP_DIR)"
+	dirtarget=$tempdir/$(basename $d)
+	
 	link=$(common.runner.createTempFile $FUNCNAME)
 	dirlink=$(common.runner.createTempFile $FUNCNAME)
+	
 	
 	ln -s -f $a $link
 	ln -s -f $d $dirlink
 	
 	# Create a file that resides in a linked directory
 	touch $d/testfile
+	
+	
 	
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
@@ -1104,8 +1121,8 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.fs.getLinkTarget $link)" "$a" "common.fs.getLinkTarget"
-	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$d/testfile" "common.fs.getLinkTarget - real file, linked dir"
+	is "$(common.fs.getLinkTarget $link)" "$dirtarget/$(basename $a)" "common.fs.getLinkTarget"
+	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$dirtarget/testfile" "common.fs.getLinkTarget - real file, linked dir"
 	
 	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
 	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
