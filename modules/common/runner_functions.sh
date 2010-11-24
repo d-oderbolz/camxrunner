@@ -430,8 +430,6 @@ function common.runner.printSummary()
 function common.runner.evaluateRule()
 ################################################################################
 {
-	set -xv
-	
 	if [[  $# -lt 1 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
@@ -507,7 +505,7 @@ function common.runner.evaluateRule()
 				# Because of the side effects we need to do it in 2 statements
 				
 				# Test dir
-				common.fs.isLink? "$expansion_dir"
+				common.fs.isLink? "$expansion_dir" &> /dev/null
 				
 				if [[ "$_result" == true ]]
 				then
@@ -515,7 +513,7 @@ function common.runner.evaluateRule()
 				else 
 					#Test whole expansion
 				
-					common.fs.isLink? "$expansion"
+					common.fs.isLink? "$expansion" &> /dev/null
 					if [[ "$_result" == true ]]
 					then
 						main.log -w "Rule $rule_name expands to link pointing to $_target"
@@ -528,8 +526,6 @@ function common.runner.evaluateRule()
 	fi
 	
 	echo "$expansion"
-	
-	set +xv
 }
 
 ################################################################################

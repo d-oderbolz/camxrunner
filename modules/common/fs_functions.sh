@@ -414,7 +414,7 @@ function common.fs.isDos?()
 # By default, just the file is allowed to be missing.
 #
 # Because this is a costly function, its recommended to call it like this:
-# > common.fs.isLink? $(dirname "${output_file}")
+# > common.fs.isLink? $(dirname "${output_file}") &> /dev/null
 # > if [[ "$_result" == true ]]
 # > then
 # > 	# target is in $_target

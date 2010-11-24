@@ -834,7 +834,7 @@ function common.check.preconditions()
 			if [[ "${CXR_ALLOW_WRITING_TO_LINKS}" == false ]]
 			then
 			
-				common.fs.isLink? $(dirname "${output_file}")
+				common.fs.isLink? $(dirname "${output_file}") &> /dev/null
 				
 				if [[ "$_result" == true ]]
 				then
