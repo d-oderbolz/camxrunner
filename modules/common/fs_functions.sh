@@ -1121,7 +1121,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.fs.getLinkTarget $link)" "$dirtarget/$(basename $a)" "common.fs.getLinkTarget"
+	is "$(common.fs.getLinkTarget $link)" "$tempdir/$(basename $a)" "common.fs.getLinkTarget"
 	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$dirtarget/testfile" "common.fs.getLinkTarget - real file, linked dir"
 	
 	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
