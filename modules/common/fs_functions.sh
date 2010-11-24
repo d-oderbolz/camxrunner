@@ -236,37 +236,22 @@ function common.fs.isSubDirOf?()
 function common.fs.getType()
 ################################################################################
 {
-	set -xv
-	
 	local path
-	local dir
 	
 	path=${1}
-	# We operate on the underlying directory
-	dir="$(dirname $path)"
-	
-	if [[ "$dir" && -d "$dir" ]]
-	then
-		result="$(stat -f -L -c %T "$dir")"
-		
-		# Fix some standard unknowns
-		if [[ "$result" == "UNKNOWN (0x5346414f)" ]]
-		then
-			result=afs
-		elif [[ "$result" == "UNKNOWN (0xff534d42)" ]]
-		then
-			result=cifs
-		fi
-		
-		echo "$result"
 
-	else
-		main.log -w "Could not determine the directory of $path"
-		echo ""
+	result="$(stat -f -L -c %T "$path")"
+	
+	# Fix some standard unknowns
+	if [[ "$result" == "UNKNOWN (0x5346414f)" ]]
+	then
+		result=afs
+	elif [[ "$result" == "UNKNOWN (0xff534d42)" ]]
+	then
+		result=cifs
 	fi
 	
-	set +xv
-	
+	echo "$result"
 }
 
 ################################################################################
