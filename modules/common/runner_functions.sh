@@ -430,6 +430,8 @@ function common.runner.printSummary()
 function common.runner.evaluateRule()
 ################################################################################
 {
+	set -xv
+	
 	if [[  $# -lt 1 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
@@ -519,12 +521,15 @@ function common.runner.evaluateRule()
 						main.log -w "Rule $rule_name expands to link pointing to $_target"
 					fi
 				fi # Links found?
+				
 			fi # Report links
 			
 		fi
 	fi
 	
 	echo "$expansion"
+	
+	set +xv
 }
 
 ################################################################################
