@@ -1033,7 +1033,7 @@ function common.task.Worker()
 		# Set pid-dependent logfile to disentangle things
 		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${CXR_WORKER_ID}_${CXR_WORKER_PID}.log
 		
-		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}"
+		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}\nIts recommended to watch it using tail -f ${CXR_LOG} in another session."
 	fi
 
 	# We stay in this loop as long as the continue file exists
