@@ -693,7 +693,7 @@ function common.state.init()
 	common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
 	
 	# In this hash, we store files that where decompressed (for all instances)
-	# Implies that all instances see the same CXR_TEMP_DIR
+	# Implies that all instances see the same CXR_TMP_DIR
 	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
 	
 	# In this hash, we store all output files that have been generated

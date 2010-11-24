@@ -503,12 +503,21 @@ function common.runner.evaluateRule()
 			if [[ "$CXR_REPORT_LINKS" == true ]]
 			then
 				# Because of the side effects we need to do it in 2 statements
-				if [[ "$(common.fs.isLink? "$expansion_dir")" == true ]]
+				
+				# Test dir
+				common.fs.isLink? "$expansion_dir"
+				
+				if [[ "$_result" == true ]]
 				then
-					main.log -w "Rule $rule_name expands to link to $_target"
-				elif [[ "$(common.fs.isLink? "$expansion")" == true ]]
-				then
-					main.log -w "Rule $rule_name expands to link to $_target"
+					main.log -w "Rule $rule_name expands to link pointing to $_target"
+				else 
+					#Test whole expansion
+				
+					common.fs.isLink? "$expansion"
+					if [[ "$_result" == true ]]
+					then
+						main.log -w "Rule $rule_name expands to link pointing to $_target"
+					fi
 				fi # Links found?
 			fi # Report links
 			

@@ -411,7 +411,14 @@ function common.fs.isDos?()
 # <http://stackoverflow.com/questions/7665/how-to-resolve-symbolic-links-in-a-shell-script>
 #
 # if "allow missing path components" is true, we allow any path component to be non-existing.
-# By default, just the file is allowed to be missing
+# By default, just the file is allowed to be missing.
+#
+# Because this is a costly function, its recommended to call it like this:
+# > common.fs.isLink? $(dirname "${output_file}")
+# > if [[ "$_result" == true ]]
+# > then
+# > 	# target is in $_target
+#
 #
 # Parameters:
 # $1 - path to link to dereference
@@ -441,7 +448,7 @@ function common.fs.getLinkTarget()
 #
 # Returns true if the argument is a link (or contains one), false otherwise.
 # As a side effect, the variable _target will contain the target of the link
-# or the original path.
+# or the original path, also _result will contain true or false.
 # The Empty string is not a link by definition.
 #
 #
@@ -457,13 +464,17 @@ function common.fs.isLink?()
 	
 	# Get the target and store globally
 	_target="$(common.fs.getLinkTarget $path)"
+	# Result is global, too
+	_result=false
 	
 	if [[ ! -z "$path" && "$_target" != "$path" ]]
 	then
 		# Link
+		_result=true
 		echo true
 	else
 		# No Link
+		_result=false
 		echo false
 	fi # Link?
 }

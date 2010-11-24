@@ -831,9 +831,16 @@ function common.check.preconditions()
 			fi
 			
 			# Writing to link allowed?
-			if [[ "${CXR_ALLOW_WRITING_TO_LINKS}" == false && "$(common.fs.isLink? $(dirname "${output_file}"))" == true ]]
+			if [[ "${CXR_ALLOW_WRITING_TO_LINKS}" == false ]]
 			then
-				main.dieGracefully "You are trying to write to $_target but CXR_ALLOW_WRITING_TO_LINKS is false!"
+			
+				common.fs.isLink? $(dirname "${output_file}")
+				
+				if [[ "$_result" == true ]]
+				then
+					main.dieGracefully "You are trying to write to $_target but CXR_ALLOW_WRITING_TO_LINKS is false!"
+				fi
+				
 			fi
 			
 			# is it present?
