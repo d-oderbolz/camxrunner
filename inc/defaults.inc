@@ -296,7 +296,8 @@ CXR_MAX_LOCKUP_COUNT=10
 # Do we allow te write to linked output directories?
 # If a run re-uses data of another run, it might be dangerous to allow this
 # as the original runs data is not retained.
-CXR_ALLOW_WRITING_TO_LINKS=false
+# It must be true if the CXR_TMP_DIR is a link.
+CXR_ALLOW_WRITING_TO_LINKS=true
 
 # If this is true, <common.runner.evaluateRule> will report all _FILE_RULEs that 
 # resolve to links. Of course, this feature takes time
