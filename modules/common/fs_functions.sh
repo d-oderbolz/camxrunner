@@ -415,8 +415,9 @@ function common.fs.isDos?()
 ################################################################################
 # Function: common.fs.getLinkTarget
 #
-# Returns the link target of a file (even if target is non-existing).
-# Returns the empty string on error.
+# Returns the link target of a file/diroctory (even if target is non-existing).
+# Returns the empty string on error (for example if the input is non-existing)
+# Resolves any component (!) of a path.
 #
 # Parameters:
 # $1 - path to link to dereference
@@ -424,38 +425,52 @@ function common.fs.isDos?()
 function common.fs.getLinkTarget()
 ################################################################################
 {
-	local ls_output
-	local link
+	local path
 	local target
 	
-	link="$1"
+	path="$1"
 	
-	if [[ ! -h "$link" ]]
+	target="$(readlink -f "$path")"
+	
+	echo "$target"
+}
+
+################################################################################
+# Function: common.fs.isLink?
+#
+# Returns true if the argument is a link (or contains one), false otherwise.
+# As a side effect, the variable _target will contain the target of the link
+# or the original path.
+# The Empty string is not a link by definition
+#
+# Parameters:
+# $1 - path to link to test
+################################################################################
+function common.fs.isLink?()
+################################################################################
+{
+	local path
+	
+	path="$1"
+	
+	# Get the target and store globally
+	_target="$(common.fs.getLinkTarget $path)"
+	
+	if [[ ! -z "$path" && "$_target" != "$path" ]]
 	then
-		main.log -w "File $link is not a link."
-		echo ""
+		# Link
+		echo true
 	else
-	
-		# We cannot support linknames containing ->
-		if [[ $(main.isSubstringPresent? "$link" "->" ) == true ]]
-		then
-			main.log -w "Link name $link contains ->, cannot interpret output of ls!"
-			echo ""
-		else
-			ls_output=$(ls -l "$link")
-			target=${ls_output#*-> }
-			
-			main.log -v "Link $link points to $target"
-		
-			echo "$target"
-		fi
-	fi
+		# No Link
+		echo false
+	fi # Broken?
 }
 
 ################################################################################
 # Function: common.fs.isBrokenLink?
 #
-# Returns true if the argumunt is a broken link, false otherwise.
+# Returns true if the argument is a broken link (or contains one), false otherwise.
+# The Empty strig is broken by definition.
 #
 # Parameters:
 # $1 - path to link to test
@@ -463,27 +478,21 @@ function common.fs.getLinkTarget()
 function common.fs.isBrokenLink?()
 ################################################################################
 {
-	local link
+	local path
 	local target
 	
-	link="$1"
+	path="$1"
 	
-	if [[ -h "$link" ]]
+	target="$(common.fs.getLinkTarget $path)"
+	
+	if [[ -z "$path" || ! -e "$target" ]]
 	then
-		target="$(common.fs.getLinkTarget $link)"
-		
-		if [[ ! -e "$target" ]]
-		then
-			# Broken
-			echo true
-		else
-			# OK
-			echo false
-		fi # Broken?
+		# Broken
+		echo true
 	else
-		# No link
+		# OK
 		echo false
-	fi # Link at all?
+	fi # Broken?
 }
 
 

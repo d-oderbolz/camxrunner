@@ -521,6 +521,7 @@ function common.check.reportMD5()
 # Also sees that output files listed in CXR_CHECK_THESE_OUTPUT_FILES are not present 
 # - if -F is given, existing output files are deleted here. 
 # If we detect empty output files, they are always removed.
+# We also test if output files are written to links, depending on CXR_ALLOW_WRITING_TO_LINKS, this is not allowed.
 #
 # Files are checked for length if CXR_CHECK_MAX_PATH=true
 #
@@ -820,13 +821,19 @@ function common.check.preconditions()
 			common.user.showProgress
 			
 			# Test length
-			if [[ "${CXR_CHECK_MAX_PATH}" == true  ]]
+			if [[ "${CXR_CHECK_MAX_PATH}" == true ]]
 			then
 				if [[ $(common.string.len "${output_file}") -gt "${CXR_MAX_PATH}"  ]]
 				then
 					main.log -e  "Path to $output_file longer than ${CXR_MAX_PATH}. Either disable this check (CXR_CHECK_MAX_PATH=false) or increase CXR_MAX_PATH.\nCheck if all binaries are ready for paths of this size!"
 					errors_found=true
 				fi
+			fi
+			
+			# Writing to link allowed?
+			if [[ "${CXR_ALLOW_WRITING_TO_LINKS}" == false && "$(common.fs.isLink? $(dirname "${output_file}")) == true ]]
+			then
+				main.dieGracefully "You are trying to write to $_target but CXR_ALLOW_WRITING_TO_LINKS is false!"
 			fi
 			
 			# is it present?

@@ -293,6 +293,15 @@ CXR_DEPENDENCY_TIMEOUT_SEC=-1
 # This mechanism allows to detect a locked up run faster than aboves timeouts
 CXR_MAX_LOCKUP_COUNT=10
 
+# Do we allow te write to linked output directories?
+# If a run re-uses data of another run, it might be dangerous to allow this
+# as the original runs data is not retained.
+CXR_ALLOW_WRITING_TO_LINKS=false
+
+# If this is true, <common.runner.evaluateRule> will report all _FILE_RULEs that 
+# resolve to links. Of course, this feature takes time
+CXR_REPORT_LINKS=true
+
 ########################################
 # Variables:  Parallel Task control
 ########################################

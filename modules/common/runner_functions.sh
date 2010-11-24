@@ -396,6 +396,7 @@ function common.runner.printSummary()
 #
 # The evaluator tests if the resulting dirname exists (_FILE_RULE only). This is needed if your rules
 # contain things like /some/path/${VAR}/... because we have no way of knowing this name in the check functions.
+# Also, we check if such a rule results in a link.
 #
 # To be on the safe side, quote the call (double quotes!)
 #
@@ -497,6 +498,20 @@ function common.runner.evaluateRule()
 				main.log -w "Dir $expansion_dir does not exist - creating it..."
 				mkdir -p "$expansion_dir"
 			fi
+			
+			# Reporting links?
+			if [[ "$CXR_REPORT_LINKS" == true ]]
+			then
+				# Because of the side effects we need to do it in 2 statements
+				if [[ "$(common.fs.isLink? "$expansion_dir")" == true ]]
+				then
+					main.log -w "Rule $rule_name expands to link to $_target"
+				elif [[ "$(common.fs.isLink? "$expansion")" == true ]]
+				then
+					main.log -w "Rule $rule_name expands to link to $_target"
+				fi # Links found?
+			fi # Report links
+			
 		fi
 	fi
 	
@@ -1728,20 +1743,22 @@ function common.runner.recreateInput()
 	
 	local newRun
 	local oldRun
+	
 	local oldEmissDir
 	local newEmissDir
+	
 	local oldInputDir
 	local newInputDir
-	
 	
 	newRun=$1
 	oldRun=$2
 	
-	# get the relevant directories
-	oldEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun)"
+	# get the relevant directories. 
+	# We fully resolve the paths
+	oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun))"
 	newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
 	
-	oldInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $oldRun)"
+	oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR $oldRun))"
 	newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
 	# make sure they are not subdirs of each other
@@ -1751,7 +1768,7 @@ function common.runner.recreateInput()
 	fi
 
 	# Emissions
-	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldRun?")" == true ]]
+	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldRun located in $oldEmissDir ?")" == true ]]
 	then
 		# Re-use Emissions
 		
@@ -1772,7 +1789,7 @@ function common.runner.recreateInput()
 	rmdir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
 	
 	# Other Inputs
-	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldRun?")" == true ]]
+	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldRun  located in $oldInputDir?")" == true ]]
 	then
 		# Re-use Other stuff
 		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
@@ -1851,7 +1868,7 @@ function common.runner.recreateRun()
 	# Ask user if we need to copy/link input data 
 	common.runner.recreateInput "$newRun" "$oldRun"
 	
-	main.log -a "Make sure to adjust the CXR_DISABLED_* and CXR_ENABLED_* variables according to the re-used data"
+	main.log -a "Make sure to adjust the CXR_DISABLED_* and CXR_ENABLED_* variables according to the re-used data.\nIf you linked data, check the value of CXR_ALLOW_WRITING_TO_LINKS. (It is not recommended to write to Links because if might overwrite exisitng data)."
 	# Thats all.
 }
 

@@ -146,7 +146,7 @@ function set_variables()
 	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_BC_OUTPUT_FILE "
 	
 	# ICBCPREP needs no input files, except the frst BC file
-	if [[ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP  ]]
+	if [[ "${CXR_IC_BC_TC_METHOD}" != ICBCPREP ]]
 	then 
 		# All MOZART-flavors need Input
 		
