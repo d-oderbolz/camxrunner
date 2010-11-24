@@ -236,6 +236,8 @@ function common.fs.isSubDirOf?()
 function common.fs.getType()
 ################################################################################
 {
+	set -xv
+	
 	local path
 	local dir
 	
@@ -262,6 +264,8 @@ function common.fs.getType()
 		main.log -w "Could not determine the directory of $path"
 		echo ""
 	fi
+	
+	set +xv
 	
 }
 
@@ -1081,8 +1085,6 @@ function test_module()
 	# Create a file that resides in a linked directory
 	touch $d/testfile
 	
-	
-	
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
 	
@@ -1115,12 +1117,11 @@ function test_module()
 	# Compression check
 	gzip $c
 	
-	
-	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
+	# Since CXR_TMP_DIR might be a link itself, we must take precautions
 	is "$(common.fs.getLinkTarget $link)" "$tempdir/$(basename $a)" "common.fs.getLinkTarget"
 	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$dirtarget/testfile" "common.fs.getLinkTarget - real file, linked dir"
 	
@@ -1128,10 +1129,9 @@ function test_module()
 	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
 	is "$(common.fs.isLink? /dev/null)" "false" "common.fs.isLink? /dev/null"
 	
+	# Remove target file to test broken link function
 	rm $d/testfile
 	is "$(common.fs.isBrokenLink? $dirlink/testfile)" "true" "common.fs.isBrokenLink?"
-	
-	
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
