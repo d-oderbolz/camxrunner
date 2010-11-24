@@ -418,6 +418,8 @@ function common.fs.isDos?()
 # Returns the link target of a file/diroctory (even if target is non-existing).
 # Returns the empty string on error (for example if the input is non-existing)
 # Resolves any component (!) of a path.
+# Does not work in MacOSX: 
+# <http://stackoverflow.com/questions/7665/how-to-resolve-symbolic-links-in-a-shell-script>
 #
 # Parameters:
 # $1 - path to link to dereference
@@ -441,7 +443,8 @@ function common.fs.getLinkTarget()
 # Returns true if the argument is a link (or contains one), false otherwise.
 # As a side effect, the variable _target will contain the target of the link
 # or the original path.
-# The Empty string is not a link by definition
+# The Empty string is not a link by definition.
+#
 #
 # Parameters:
 # $1 - path to link to test
