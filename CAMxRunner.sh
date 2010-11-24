@@ -443,7 +443,7 @@ then
 		# Check if the name of the script has changed
 		link_target="$(common.fs.getLinkTarget ${CXR_RUN_DIR}/${CXR_RUN})"
 		
-		if [[ "$(basename $link_target)" != " ${CXR_RUNNER_NAME}" ]]
+		if [[ "$(basename $link_target)" != "${CXR_RUNNER_NAME}" ]]
 		then
 			main.dieGracefully "Probably the ${CXR_RUNNER_NAME} was renamed. Update the variable CXR_RUNNER_NAME in ${CXR_BASECONFIG}"
 		fi
