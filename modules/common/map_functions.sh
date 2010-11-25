@@ -407,7 +407,7 @@ function test_module()
 	
 	# Get the index of Payerne
 	main.log -a "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
-	main.log -a "Indexes of Payerne (direct): $(common.map.ProjectionToIndexes 562285 184775 3 SWISS)"
+	main.log -a "Indexes of Payerne D1 (direct): $(common.map.ProjectionToIndexes 562285 184775 1 SWISS)"
 	main.log -a "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
 	########################################
