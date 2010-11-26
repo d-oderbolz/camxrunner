@@ -111,8 +111,6 @@ function getProblemSize()
 function set_variables()
 ################################################################################
 {
-	set -xv
-	
 	local day_offset
 	
 	# First of all, reset checks.
@@ -148,7 +146,9 @@ function set_variables()
 		then
 			# We allow decompression
 			CXR_PA_IPR_FILES="$CXR_PA_IPR_FILES $(common.runner.evaluateRule "$CXR_PA_IPR_OUTPUT_FILE_RULE" false CXR_PA_IPR_OUTPUT_FILE_RULE)"
-		elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
+		fi
+		
+		if [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
 			CXR_PA_IRR_FILES="$CXR_PA_IRR_FILES $(common.runner.evaluateRule "$CXR_PA_IRR_OUTPUT_FILE_RULE" false CXR_PA_IRR_OUTPUT_FILE_RULE)"
@@ -167,7 +167,9 @@ function set_variables()
 		# Output files must not be decompressed!
 		CXR_PA_IPR_EXT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IPR_EXT_OUTPUT_FILE_RULE" false CXR_PA_IPR_EXT_OUTPUT_FILE_RULE false)
 		
-	elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
+	fi
+	
+	if [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 	then
 	
 		# IRR generates two files
@@ -197,7 +199,6 @@ function set_variables()
 	
 	fi
 	
-	set +xv
 }
 
 ################################################################################
