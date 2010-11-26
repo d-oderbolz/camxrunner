@@ -144,7 +144,7 @@ function set_variables()
 		if [[ $CXR_PROBING_TOOL == "IPR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
-			CXR_PA_IPR_FILES="$CXR_PA_FILES $(common.runner.evaluateRule "$CXR_PA_OUTPUT_FILE_RULE" false CXR_PA_OUTPUT_FILE_RULE)"
+			CXR_PA_IPR_FILES="$CXR_PA_FILES $(common.runner.evaluateRule "$CXR_PA_IPR_OUTPUT_FILE_RULE" false CXR_PA_IPR_OUTPUT_FILE_RULE)"
 		elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
@@ -162,7 +162,7 @@ function set_variables()
 	
 		# The ASC Filenames are the output
 		# Output files must not be decompressed!
-		CXR_PA_IPR_EXT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_EXT_OUTPUT_FILE_RULE" false CXR_PA_EXT_OUTPUT_FILE_RULE false)
+		CXR_PA_IPR_EXT_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IPR_EXT_OUTPUT_FILE_RULE" false CXR_PA_IPR_EXT_OUTPUT_FILE_RULE false)
 		
 	elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 	then

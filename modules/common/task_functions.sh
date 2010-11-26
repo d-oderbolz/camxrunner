@@ -1427,7 +1427,7 @@ function common.task.init()
 		do
 			if [[ -z "$line" ]]
 			then
-				main.log -w "Detected empty line in $task_file"
+				main.log -w "Detected empty line in $task_file: $(cat $task_file)"
 				continue
 			fi
 			
