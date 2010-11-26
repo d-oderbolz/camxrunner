@@ -408,7 +408,7 @@ function set_variables()
 		fi
 	fi
 	
-	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
+	if [[ "$CXR_PROBING_TOOL" == "PA" || "$CXR_PROBING_TOOL" == "IPR" || "$CXR_PROBING_TOOL" == "IRR" || "$CXR_PROBING_TOOL" == "CPA" ]]
 	then
 		# This is not a file (hence no _FILE at the end of the name)
 		CXR_PA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_PA_ROOT_OUTPUT_FILE_RULE" false CXR_PA_ROOT_OUTPUT_FILE_RULE)
@@ -955,9 +955,9 @@ function write_model_control_file()
 	fi
 	
 	################################################################
-	# General Probing support
+	# PA support
 	################################################################
-	if [[ "$CXR_PROBING_TOOL" != "None"  ]]
+	if [[ "$CXR_PROBING_TOOL" == "PA" || "$CXR_PROBING_TOOL" == "IPR" || "$CXR_PROBING_TOOL" == "IRR" || "$CXR_PROBING_TOOL" == "CPA" ]]
 	then
 	
 		echo "!---------------Probing Tool General------------------------------------------" >> ${CXR_MODEL_CTRL_FILE} 

@@ -156,8 +156,8 @@ function set_variables()
 			
 			#increment index
 			index=$(($index + 1))
-		done
-	done
+		done # stations
+	done # days
 }
 
 ################################################################################

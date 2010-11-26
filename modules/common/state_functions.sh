@@ -263,17 +263,27 @@ function common.state.updateInfo()
 						main.log -a "Module $module is disabled."
 					fi
 					
-					# We mark needed stuff as active, the rest as inactive
-					# Add $file, $module and $type to DB
-					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
-					
 					# find out if we have a function called getNumInvocations
 					fctlist=$(grep 'getNumInvocations' $file)
 					
 					if [[ -z "$fctlist" ]]
 					then
 						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
+					else
+						# Here we need to source the file to call getNumInvocations()
+						nInvocations=$(source $file &> /dev/null; getNumInvocations)
+						
+						# A module can disable itself
+						if [[ $nInvocations -lt 1 ]]
+						then
+							main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
+							run_it=false
+						fi
 					fi
+					
+					# We mark needed stuff as active, the rest as inactive
+					# Add $file, $module and $type to DB
+					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
 					
 					# Add metadata
 					# grep the CXR_META_ vars that are not commented out
@@ -315,10 +325,6 @@ function common.state.updateInfo()
 					done
 					
 					# Now also add each invocation as individial row.
-					# Here we need to source the file to call getNumInvocations
-					# Here we call a function each module must supply
-					nInvocations=$(source $file &> /dev/null; getNumInvocations)
-					
 					for iInvocation in $(seq 1 $nInvocations)
 					do
 						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile

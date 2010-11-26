@@ -842,8 +842,15 @@ CXR_AVGDIF_EXEC=$(main.getBinaryName avgdif)
 # Preprocessors
 ########################################	
 CXR_AHOMAP_EXEC=$(main.getBinaryName ahomap)
-
 CXR_TUV_EXEC=$(main.getBinaryName tuv)
+
+########################################
+# Postrocessors
+########################################	
+CXR_EXT_IPR_EXEC=$(main.getBinaryName ext_ipr)
+CXR_EXT_IRR_EXEC=$(main.getBinaryName ext_irr)
+CXR_VERTAVG_EXEC=$(main.getBinaryName vertavg)
+CXR_PSAT_COMBINE_EXEC=$(main.getBinaryName psat_combine)
 
 ################################################################################
 # Advanced Input check

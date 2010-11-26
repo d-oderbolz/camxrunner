@@ -486,7 +486,7 @@ CXR_NUMBER_OF_OUTPUT_SPECIES=$(( ${#CXR_OUTPUT_SPECIES_NAMES[@]} - 1 ))
 ################################################################################
 
 # Set probing only if needed
-if [[ "$CXR_PROBING_TOOL" != "None"  ]]
+if [[ "$CXR_PROBING_TOOL" == "PA" || "$CXR_PROBING_TOOL" == "IPR" || "$CXR_PROBING_TOOL" == "IRR" || "$CXR_PROBING_TOOL" == "CPA" ]]
 then
 
 	CXR_NUMBER_OF_PA_DOMAINS=2

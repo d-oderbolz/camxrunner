@@ -904,6 +904,30 @@ function common.date.getModelHour()
 }
 
 ################################################################################
+# Function: common.date.getTotalModelHours
+# 
+# Calculates the number of hours in the whole simulation
+#
+#
+# Example:
+# > $ common.date.getTotalModelHours
+# > 720
+#
+################################################################################
+function common.date.getTotalModelHours()
+################################################################################
+{
+	local totHours
+	totHours=$(common.date.getModelHour $CXR_NUMBER_OF_SIM_DAYS)
+	
+	# Add the hours of the last day        (given like 2400)
+	#                                                    |
+	totHours=$(( $totHours + ( $CXR_STOP_HOUR_LAST_DAY / 100) ))
+	
+	echo $totHours
+}
+
+################################################################################
 # Function: common.date.DaysBetween
 #
 # Returns the number of days between two dates (Date2 - Date1)

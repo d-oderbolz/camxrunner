@@ -678,7 +678,7 @@ function common.check.preconditions()
 			common.user.showProgress
 
 			# is it set?
-			if [[ "${!dir}"  ]]
+			if [[ "${!dir}" ]]
 			then
 			
 				# does it exist?
