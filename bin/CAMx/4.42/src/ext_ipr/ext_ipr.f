@@ -152,7 +152,7 @@ c -----------------------------------------------------------------------
 c    Local variables:
 c -----------------------------------------------------------------------
 c
-      character*200    fname, infile(MXFILE)
+      character*240    fname, infile(MXFILE)
       character*80     runmsg, string
       character*25     prcnam(MXPROC)
       character*20     keywrd

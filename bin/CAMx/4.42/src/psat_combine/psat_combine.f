@@ -24,7 +24,7 @@ c!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
       character*1000 linell
       character*65 line,line1
-      character*120 infile,outfile
+      character*240 infile,outfile
       real conc(mxrec,mxspec,mxfmrg,mxtrac),
      +  avg(mxrec,mxspec,mxfmrg,mxtrac)
 

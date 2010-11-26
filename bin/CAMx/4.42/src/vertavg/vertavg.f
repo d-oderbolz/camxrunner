@@ -40,7 +40,7 @@ c The output file as in the binary coarse grid average format.
       integer mesh(mxgrd),nxfin(mxgrd),nyfin(mxgrd),nzfin(mxgrd)
 
       character*4 name(10),note(60), mspec(10,mxspec+2)
-      character*120 infile,outfile,line
+      character*240 infile,outfile,line
       character*60 message
       character*10 mspecf(mxspec),cspec,namei,namez
 
