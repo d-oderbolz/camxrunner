@@ -275,9 +275,6 @@ function convert_output()
 
 		main.log  "Working in $convert_dir"
 
-		# We loop through all the grids
-		# Therefore we let seq create the numbers from 1 to ${CXR_NUMBER_OF_GRIDS}
-		
 		# Because there is yet no single converter for CAMx output and 
 		# MM5 output, we need to change the converters depending on filetype
 
