@@ -381,7 +381,7 @@ function extract_pa_data()
 		fi
 		
 		# Any existing file will be skipped 
-		for checkFile in $CXR_CHECK_THESE_INPUT_FILES
+		for checkFile in $CXR_CHECK_THESE_OUTPUT_FILES
 		do
 			if [[ -s "$checkFile" ]]
 			then
