@@ -235,9 +235,9 @@ function create_ipr_control_file ()
 	echo "ASCII output file  |$CXR_PA_IPR_EXT_OUTPUT_FILE" >> $ipr_control_file
 	echo "Units for output   |${CXR_PA_EXT_UNITS:-PPB}" >> $ipr_control_file
 	echo "domain to extract  |${CXR_PA_IGRID}" >> $ipr_control_file
-	echo "Beg/End I-cell     |${CXR_PA_EXT_I_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_I_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
-	echo "Beg/End J-cell     |${CXR_PA_EXT_J_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_J_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
-	echo "Beg/End layer      |${CXR_PA_EXT_K_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_K_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
+	echo "Beg/End I-cell     |${CXR_PA_EXT_I_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_I_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
+	echo "Beg/End J-cell     |${CXR_PA_EXT_J_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_J_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
+	echo "Beg/End layer      |${CXR_PA_EXT_K_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_K_END[${CXR_PA_IGRID}]:-9999}" >> $ipr_control_file
 	
 	# Return filename
 	echo "$ipr_control_file"
@@ -277,9 +277,9 @@ function create_irr_control_file ()
 	echo "ASCII output file  |$CXR_PA_IRR_EXT_ASC_OUTPUT_FILE" >> $irr_control_file
 	echo "Binary output file |$CXR_PA_IRR_EXT_BIN_OUTPUT_FILE" >> $irr_control_file
 	echo "domain to extract  |${CXR_PA_IGRID}" >> $irr_control_file
-	echo "Beg/End I-cell     |${CXR_PA_EXT_I_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_I_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
-	echo "Beg/End J-cell     |${CXR_PA_EXT_J_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_J_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
-	echo "Beg/End layer      |${CXR_PA_EXT_K_BEG[${CXR_PA_IGRID}]:-1} ${CXR_PA_EXT_K_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
+	echo "Beg/End I-cell     |${CXR_PA_EXT_I_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_I_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
+	echo "Beg/End J-cell     |${CXR_PA_EXT_J_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_J_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
+	echo "Beg/End layer      |${CXR_PA_EXT_K_BEG[${CXR_PA_IGRID}]:-1}  ${CXR_PA_EXT_K_END[${CXR_PA_IGRID}]:-9999}" >> $irr_control_file
 	echo "Hours of input data|$(common.date.getTotalModelHours)" >> $irr_control_file
 	# Return filename
 	echo "$irr_control_file"
@@ -403,12 +403,14 @@ function extract_pa_data()
 		case ${CXR_PROBING_TOOL} in
 
 			PA)		main.log -a "Running extraction for IRR and IPR (CPA not yet implemented)..."
-						exec="$CXR_EXT_IPR_EXEC"
+						
 						# IPR
+						exec="$CXR_EXT_IPR_EXEC"
 						control_file=$(create_ipr_control_file)
 						run_pa "$exec" "$control_file"
 						
 						#IRR
+						exec="$CXR_EXT_IRR_EXEC"
 						control_file=$(create_irr_control_file)
 						run_pa "$exec" "$control_file"
 						
