@@ -119,7 +119,8 @@ function set_variables()
 	# these are deleted if he user runs the -F option. Do not mix up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
-	CXR_PA_FILES=
+	CXR_PA_IPR_FILES=
+	CXR_PA_IRR_FILES=
 	
 
 	########################################################################
@@ -144,7 +145,7 @@ function set_variables()
 		if [[ $CXR_PROBING_TOOL == "IPR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
-			CXR_PA_IPR_FILES="$CXR_PA_FILES $(common.runner.evaluateRule "$CXR_PA_IPR_OUTPUT_FILE_RULE" false CXR_PA_IPR_OUTPUT_FILE_RULE)"
+			CXR_PA_IPR_FILES="$CXR_PA_IPR_FILES $(common.runner.evaluateRule "$CXR_PA_IPR_OUTPUT_FILE_RULE" false CXR_PA_IPR_OUTPUT_FILE_RULE)"
 		elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
