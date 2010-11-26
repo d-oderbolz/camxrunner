@@ -872,6 +872,7 @@ function common.state.storeStatus()
 				;;
 	
 			"$CXR_STATUS_FAILURE")
+				# Set the global status
 				CXR_STATUS=$CXR_STATUS_FAILURE
 				main.log -e "An error has occured during the execution of task $task!"
 				echo false
