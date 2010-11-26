@@ -1,0 +1,68 @@
+#!/bin/csh
+
+# This program reads in the PSAT receptor file(s) and outputs a new file of similar
+# format containing the  24-hour average of the desired date.  
+# Main options built into this program:
+#   1.  Option to shift the time stamp to adjust to local time
+#   2.  Ability to read one or more input files of different time periods.
+#   3.  Ability to combine species from different files with the same time and receptors
+
+# Job inputs
+# line 1: output receptor file
+# line 2: Number of hours to shift the time stamp 
+# line 3: Julian date to extract
+# line 4: True/False: if the inputs do not include all 24 hours, should a non-24hour average
+#         be output?
+# line 5: Number of input receptor files with different time periods
+# line 6: Number of input receptor files with different species groups (but same time period and receptors)
+# line 7: Input receptor file (time period 1, species group 1)
+# line 8+ (optional) List all other input receptor files from time period 1,
+#         then repeat for time period 2 (USER MUST INPUT THE SPECIES GROUP(S) IN THE SAME ORDER
+
+set RUN = 04aug.run9.psat
+set PATH = /etai3/gorge/camx/output/$RUN
+set OUTPATH = /disk41/gorge/camx/postproc/$RUN/receptor
+
+mkdir -p $OUTPATH
+
+set DATE = 810
+set JDATE = 223
+
+while ($DATE <= 822)
+@ DATEP1 = $DATE + 1
+
+
+if ($DATE == 822) then
+./psat_combine.linux << IEOF
+Outfile            |$OUTPATH/gorge.24hr.PST.$RUN.040$DATE.receptor
+Time shift (hours) |-8
+Extract date(YYJJJ)|04$JDATE
+Part-day average?  |true
+# time periods     |1
+#files to merge    |3
+Input tim1,spec1   |$PATH/psat_so4/camx_v4.40.040$DATE.${RUN}.sa.receptor
+Input tim1,spec2   |${PATH}2/psat_no3/camx_v4.40.040$DATE.${RUN}2.sa.receptor
+Input tim1,spec3   |${PATH}3/psat_prim/camx_v4.40.040$DATE.${RUN}3.sa.receptor
+IEOF
+
+else
+./psat_combine.linux << IEOF
+Outfile            |$OUTPATH/gorge.24hr.PST.$RUN.040$DATE.receptor
+Time shift (hours) |-8
+Extract date(YYJJJ)|04$JDATE
+Part-day average?  |false
+# time periods     |2
+#files to merge    |3
+Input tim1,spec1   |$PATH/psat_so4/camx_v4.40.040$DATE.${RUN}.sa.receptor
+Input tim1,spec2   |${PATH}2/psat_no3/camx_v4.40.040$DATE.${RUN}2.sa.receptor
+Input tim1,spec3   |${PATH}3/psat_prim/camx_v4.40.040$DATE.${RUN}3.sa.receptor
+Input tim2,spec1   |$PATH/psat_so4/camx_v4.40.040$DATEP1.${RUN}.sa.receptor
+Input tim2,spec2   |${PATH}2/psat_no3/camx_v4.40.040$DATEP1.${RUN}2.sa.receptor
+Input tim2,spec3   |${PATH}3/psat_prim/camx_v4.40.040$DATEP1.${RUN}3.sa.receptor
+IEOF
+endif
+
+@ DATE ++
+@ JDATE ++
+
+end

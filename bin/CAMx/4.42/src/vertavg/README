@@ -1,0 +1,29 @@
+VERTAVG Program (9/20/06)
+-------------------------
+
+The program reads in a CAMx 3D average file (*.avrg, *.favrg, *.cpa)
+and vertically averages grid cell values for each species on file
+over the mixing layer for each hour on file.  The mixing layer is 
+determined by the input CAMx Kv file.  Density weighting is performed.
+The output file as in the binary coarse grid average format.
+
+Build the executable using the available "makefile".  Just type "make"
+at the prompt on a machine with a Fortran compiler, and in the directory
+where your fortran source code exists.  Note that the makefile provided
+is written for Portland Group's F77 compiler.  If you don't have PGF77,
+then need to change the "pgf77" commmand to your specific compiler.
+
+Two job scripts are provided as samples (one for standard CAMx output
+files, another for CPA output files).
+
+The job script is pretty self-explanatory:
+line 1: domain to extract (COARSE or FINE #)
+line 2: CAMx vertical diffusivity file for the domain to be extracted
+line 3: CAMx height/pressure file
+line 4: CAMx temperature file
+line 5: Coarse grid average or CPA file
+line 6: Fine grid average or CPA file -- skip this line for a coarse
+        grid extraction
+line 7: Output file (formatted as a coarse grid average file)
+
+

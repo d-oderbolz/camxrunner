@@ -1,0 +1,52 @@
+#!/bin/csh
+#
+# EXT_IRR reads the binary output file (*.PA.irr) from a CAMx/IRR
+# run and extracts data for individual cells or groups of cells.
+# Data are written to ASCII or binary files. The ASCII file includes
+# header data followed by the extracted data records in a
+# form to be imported into a spreadsheet (comma delimited). The 
+# binary file is in UAM-IV average file format with the integrated
+# rate of each reaction treated as a seperate species.
+#
+# This example is for the CAMx OTAG 1995 test case for Process Analysis
+#
+#   Lines 1-3: IRR input files terminated by /END/
+#              use more/less lines for more/less days
+#   Line 4:    ASCII output file name (no file if left blank)
+#   Line 5:    binary output file name (no file if left blank)
+#   Line 6:    Number of the process analysis sub-domain to extract
+#   Line 7:    Range of X cells to extract (1 to 9999 will get all)
+#   Line 8:    Range of Y cells to extract (1 to 9999 will get all)
+#   Line 9:    Range of Z cells to extract (1 to 9999 will get all)
+#   Line 10:   The number of hours of data in the IRR input files
+#
+# The process analysis subdomains and cell ranges were specified when
+# CAMx was run.  If you don't know what subdomains are on the *.PA.irr
+# files, extract the first region and read the header information
+# written to the ASCII output file.
+#
+# The IRR data are in ppb/hour. IRR stands for integrated reaction rate
+# Read the CAMx User's Guide for more details.
+#
+# The *.PA.irr files are in binary format, so EXT_IRR must be compiled
+# to match the binary format of the files to process.  For example,
+# under Linux compile with:
+#
+#   pgf77 ext_irr.f -o ext_irr.linux -byteswapio
+#
+
+foreach dom (1 2)
+./ext_irr << ieof
+CAMx IRR output fil|../outputs/CAMx_v3.10.OTAG.950707.PA.irr 
+CAMx IRR output fil|../outputs/CAMx_v3.10.OTAG.950708.PA.irr 
+End of files       |/END/
+ASCII output file  |irr.dom$dom.allcells.csv
+Binary output file |irr.dom$dom.allcells.bin
+domain to extract  |$dom
+Beg/End I-cell     |1  9999
+Beg/End J-cell     |1  9999
+Beg/End layer      |1  9999
+Hours of input data|48
+ieof
+#
+end

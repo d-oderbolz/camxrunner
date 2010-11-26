@@ -1,0 +1,25 @@
+#!/bin/csh
+
+# reads in a cpa file (coarse and/or fine) and met fields
+# to vertically average within the PBL  for each hour and species.
+# output as a coarse grid average-formatted file
+
+foreach DATE (990813 990814 990815 990816 990817 990818 990819 990820 990821 990822)
+
+
+foreach RUN (run34pa run35pa )
+mkdir -p ../output/$RUN/pa
+
+./vertavg << IEOF
+COARSE or FINE x?  |FINE 2
+CAMx Kv file       |/disk41/tceq/mm5_new/mm5v3_camxv4/04km/camx.kv.tceq04km.$DATE.run6_vert14km.kvpatch1.bin
+CAMx ZP file       |/disk41/tceq/mm5_new/mm5v3_camxv4/04km/camx.zp.tceq04km.$DATE.run6_vert14km.bin
+CAMx TP file       |/disk41/tceq/mm5_new/mm5v3_camxv4/04km/camx.tp.tceq04km.$DATE.run6_vert14km.bin
+Coarse *.cpa file  |../../output/$RUN/pa/camx_v4.03.$DATE.$RUN.pa.grid.cpa
+Fine *.cpa file    |../../output/$RUN/pa/camx_v4.03.$DATE.$RUN.pa.fgrid.cpa
+Output file        |../output/$RUN/pa/camx.$RUN.$DATE.pa.pblavg.cpa.04km
+IEOF
+end
+
+
+end

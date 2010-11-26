@@ -1,0 +1,54 @@
+#!/bin/csh
+#
+# EXT_IPR reads the binary output file (*.PA.ipr) from a CAMx/IPR
+# and extracts data for individual cells or groups of cells.
+# Data are written to an ASCII output file. The header data is
+# written first for completeness, but the data records are written
+# in a form to be imported into a spreadsheet (comma delimited).
+#
+# The ASCII output file can be displayed using the Microsoft Excel
+# macro "process_analysis_pm_macro.xls"
+#
+#   Lines 1-3: IPR input files terminated by /END/
+#              use more/less lines for more/less days
+#   Line 4:    ASCII output file name
+#   Line 5:    Output in PPB or moles (moles unless keyword is PPB)
+#              PM species will be in grams, or ug/m3 if keyword is PPB
+#   Line 6:    Number of the process analysis sub-domain to extract
+#   Line 7:    Range of X cells to extract (1 to 9999 will get all)
+#   Line 8:    Range of Y cells to extract (1 to 9999 will get all)
+#   Line 9:    Range of Z cells to extract (1 to 9999 will get all)
+#
+# The process analysis subdomains and cell ranges were specified when
+# CAMx was run.  If you don't know what subdomains are on the *.PA.ipr
+# files, extract the first region and read the header information
+# displayed on the screen and written to the ASCII output file.
+#
+# The raw *.PA.ipr data are in moles.  The conversion factor from
+# moles to ppb varies in time and space.  The conversion factors
+# for each cell at each hour are included in the *.PA.ipr files and
+# EXT_IPR uses them to convert moles to ppb is output in ppb is
+# requested.
+#
+# The *.PA.ipr files are in binary format, so EXT_IPR must be compiled
+# to match the binary format of the files to process.  For example,
+# under Linux compile with:
+#
+#   pgf77 ext_ipr.f -o ext_ipr.linux -byteswapio
+#
+
+foreach dom (1)
+
+./ext_ipr.linux << ieof
+CAMx IPR output fil|/disk9/crca51/camx_v4.20/outputs/test_ipr/CAMx.test_ipr.20020613.ipr
+CAMx IPR output fil|/disk9/crca51/camx_v4.20/outputs/test_ipr/CAMx.test_ipr.20020614.ipr
+End of files       |/END/
+ASCII output file  |crca51_pa_test.allcells.ppb.csv
+Units for output   |PPB
+domain to extract  |$dom
+Beg/End I-cell     |1  9999
+Beg/End J-cell     |1  9999
+Beg/End layer      |1  9999
+ieof
+
+end

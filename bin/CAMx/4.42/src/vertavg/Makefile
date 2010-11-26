@@ -1,5 +1,5 @@
 #------------------------------------------------------------
-#            This is the Linux Makefile for camxpost
+#            This is the Linux Makefile for vertavg
 #            We use the pgf77 compiler
 #
 #     Modified by Daniel C. Oderbolz <CAMxRunner@psi.ch>
@@ -48,24 +48,20 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FCFLGS = $(TPOPTION) -byteswapio -Bstatic
-
+FCFLGS = $(TPOPTION)  -byteswapio -Wl,-Bstatic
 
 LIBS = 
 
-camxpost : 
-	$(FC) -o $(DESTINATION)/avgcat-$(HOSTTYPE) $(FCFLGS) avgcat.f $(LIBS)
-	$(FC) -o $(DESTINATION)/camxpost-$(HOSTTYPE) $(FCFLGS) camxpost.f $(LIBS)
-	$(FC) -o $(DESTINATION)/camxstat-$(HOSTTYPE) $(FCFLGS) camxstat.f $(LIBS)
-	$(FC) -o $(DESTINATION)/combine2-$(HOSTTYPE) $(FCFLGS) combine2.f $(LIBS)
-	$(FC) -o $(DESTINATION)/extstat-$(HOSTTYPE) $(FCFLGS) extstat.f $(LIBS)
-	$(FC) -o $(DESTINATION)/obscat-$(HOSTTYPE) $(FCFLGS) obscat.f $(LIBS)
+TARGT =  vertavg
+
+OBJCTS = \
+vertavg.o
+
+$(TARGT): $(OBJCTS)
+	$(FC) -o $(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
+.f.o	:
+	$(FC) -c -o $@ $(FLGS) $<
 
 clean :
 	-rm -f *.o
-	-rm -f $(DESTINATION)/avgcat-$(HOSTTYPE)
-	-rm -f $(DESTINATION)/camxpost-$(HOSTTYPE)
-	-rm -f $(DESTINATION)/camxstat-$(HOSTTYPE)
-	-rm -f $(DESTINATION)/combine2-$(HOSTTYPE)
-	-rm -f $(DESTINATION)/extstat-$(HOSTTYPE)
-	-rm -f $(DESTINATION)/obscat-$(HOSTTYPE)
+	-rm -f $(DESTINATION)/$(TARGT)-$(HOSTTYPE)

@@ -1,0 +1,89 @@
+A PSAT macro has been developed to expedite postprocessing when
+running CAMx with PSAT.  The software uses the CAMx output *.receptor files and 
+consists of two parts:
+  psat_combine.f and 
+  psat_macro.2008.xls.
+
+________________________________________________________________________________
+psat_combine.f reads in a CAMx PSAT receptor file(s) and outputs a new file of 
+similar format containing the 24-hour average of the desired date. 
+
+Main options built into this program:
+   1.  Option to shift the time stamp to adjust to local time
+   2.  Ability to read in one or more receptor files with consecutive time 
+       periods to get the 24hr average.
+   3.  Ability to merge species from different files with the same time and 
+       receptors (in case the PSAT run is split into separate runs)
+
+# DESCRIPTION OF JOB INPUTS
+# line 1: output receptor file
+# line 2: Number of hours to shift the time stamp
+# line 3: Julian date to extract
+# line 4: True/False: if the inputs do not include all 24 hours, should a 
+#         non-24hour average be output?
+# line 5: Number of input receptor files with different (but consecutive) 
+#         time stamps
+# line 6: Number of input receptor files with different species groups 
+#         (but same time period and receptors)
+# line 7: Input receptor file (time period 1, species group 1)
+# line 8+ (optional) List all other input receptor files from time period 1,
+#         then repeat for time period 2 
+#         USER MUST INPUT THE SPECIES GROUP(S) IN THE SAME ORDER
+
+
+SAMPLE SCRIPT
+./psat_combine.linux << IEOF
+Outfile            |test.24hr.02028.receptor
+Time shift (hours) |-1
+Extract date(YYJJJ)|02028
+Part-day average?  |false
+# time periods     |2
+#files to merge    |3
+Input tim1,spec1   |$PATH/psat_so4/camx_v4.40.040$DATE.${RUN}.sa.receptor
+Input tim1,spec2   |$PATH2/psat_no3/camx_v4.40.040$DATE.${RUN}2.sa.receptor
+Input tim1,spec3   |$PATH3/psat_prim/camx_v4.40.040$DATE.${RUN}3.sa.receptor
+Input tim2,spec1   |$PATH/psat_so4/camx_v4.40.040$DATEP1.${RUN}.sa.receptor
+Input tim2,spec2   |$PATH2/psat_no3/camx_v4.40.040$DATEP1.${RUN}2.sa.receptor
+Input tim2,spec3   |$PATH3/psat_prim/camx_v4.40.040$DATEP1.${RUN}3.sa.receptor
+IEOF
+
+
+________________________________________________________________________________
+
+The second step is to run the psat_macro.xls
+This macro reads the receptor file generated from psat_combine.f and outputs
+an excel file that creates:
+
+1.  bar charts showing the 24-hr contribution of each species from each
+    source region and emission group.  
+    Gases are placed in the "barchart_gas" sheet.
+    Particulates are placed in the "barchart_pm" sheet
+2.  a ranking of the top contributors of each species
+3.  pie charts of species contributions to PM2.5 and PM-10 if all species 
+    are available.
+    See the "piecharts" sheet, if applicable.
+
+
+To run the macro:
+
+1: Push the "Browse for Input" button to locate the receptor file
+        This will fill in the directory path and input file name in cells C1 
+        and C2, respectively.  It will also fill in cell C7 with the date.
+
+2: modify options.
+        Cell C3: use the drop down menu to select the receptor
+        Cell C4: Set the max number of contributors to be listed for ranking
+        Cell C5: TRUE/FALSE: include user-defined labels to the source
+             regions and emission groups?
+             If TRUE, define source regions starting in cell B17 
+             (for region 1), cell B18 for region 2, and so forth. 
+             Similarly, define emission groups starting in cell C17.
+             if FALSE, source regions and emission groups will be labeled 1,2,3.
+        Cell C6: CAMx run name
+        Cell C11: output file name.  This concatenates many options above
+             (run name, receptor, date).
+
+3: Push the "Run PSAT Macro" button.
+
+
+
