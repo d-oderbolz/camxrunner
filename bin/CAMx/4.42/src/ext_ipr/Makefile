@@ -59,7 +59,7 @@ OBJCTS = \
 ext_ipr.o
 
 $(TARGT): $(OBJCTS)
-	$(FC) -o $(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
+	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
 
