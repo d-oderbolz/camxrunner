@@ -336,7 +336,7 @@ function run_pa()
 		exec="${1}"
 		control_file="${2}"
 		
-		main.log -v "Running ${exec}..."
+		main.log -a "Running ${exec}..."
 
 		if [[ "$CXR_DRY" == false ]]
 		then
