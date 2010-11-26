@@ -227,7 +227,7 @@ function create_ipr_control_file ()
 	# Loop though all input files
 	for currFile in $CXR_PA_IPR_FILES
 	do
-		echo "CAMx IPR output fil|$currFile" >  $ipr_control_file
+		echo "CAMx IPR output fil|$currFile" >>  $ipr_control_file
 	done
 	# This marker is needed to show end of input files
 	echo "End of files       |/END/" >> $ipr_control_file
@@ -269,7 +269,7 @@ function create_irr_control_file ()
 	# Loop though all input files
 	for currFile in $CXR_PA_IRR_FILES
 	do
-		echo "CAMx IPR output fil|$currFile" >  $irr_control_file
+		echo "CAMx IPR output fil|$currFile" >>  $irr_control_file
 	done
 	# This marker is needed to show end of input files
 	echo "End of files       |/END/" >> $irr_control_file
@@ -336,7 +336,7 @@ function run_pa()
 		exec="${1}"
 		control_file="${2}"
 		
-		main.log -v  "Running ${exec}..."
+		main.log -v "Running ${exec}..."
 
 		if [[ "$CXR_DRY" == false ]]
 		then
@@ -402,7 +402,7 @@ function extract_pa_data()
 		# Currently, we assume IPR
 		case ${CXR_PROBING_TOOL} in
 
-			PA)		main.log -a "Running extraction for IRR,IPR and CPA..."
+			PA)		main.log -a "Running extraction for IRR and IPR (CPA not yet implemented)..."
 						exec="$CXR_EXT_IPR_EXEC"
 						# IPR
 						control_file=$(create_ipr_control_file)
