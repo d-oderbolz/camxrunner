@@ -148,7 +148,7 @@ function set_variables()
 		elif [[ $CXR_PROBING_TOOL == "IRR" || $CXR_PROBING_TOOL == "PA" ]]
 		then
 			# We allow decompression
-			CXR_PA_IRR_FILES="$CXR_PA_FILES $(common.runner.evaluateRule "$CXR_PA_IRR_OUTPUT_FILE_RULE" false CXR_PA_IRR_OUTPUT_FILE_RULE)"
+			CXR_PA_IRR_FILES="$CXR_PA_IRR_FILES $(common.runner.evaluateRule "$CXR_PA_IRR_OUTPUT_FILE_RULE" false CXR_PA_IRR_OUTPUT_FILE_RULE)"
 		fi
 	
 	done # days
