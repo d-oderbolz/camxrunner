@@ -918,7 +918,7 @@ function common.date.getTotalModelHours()
 ################################################################################
 {
 	local totHours
-	totHours=$(common.date.getModelHour $CXR_NUMBER_OF_SIM_DAYS)
+	totHours=$(common.date.getModelHour $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )) )
 	
 	# Add the hours of the last day        (given like 2400)
 	#                                                    |
