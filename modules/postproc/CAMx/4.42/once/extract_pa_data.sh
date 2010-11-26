@@ -111,6 +111,8 @@ function getProblemSize()
 function set_variables()
 ################################################################################
 {
+	set -xv
+	
 	local day_offset
 	
 	# First of all, reset checks.
@@ -169,8 +171,8 @@ function set_variables()
 	then
 	
 		# IRR generates two files
-			CXR_PA_IRR_EXT_ASC_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IRR_EXT_ASC_OUTPUT_FILE_RULE" false CXR_PA_IRR_EXT_ASC_OUTPUT_FILE_RULE false)
-			CXR_PA_IRR_EXT_BIN_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IRR_EXT_BIN_OUTPUT_FILE_RULE" false CXR_PA_IRR_EXT_BIN_OUTPUT_FILE_RULE false)
+		CXR_PA_IRR_EXT_ASC_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IRR_EXT_ASC_OUTPUT_FILE_RULE" false CXR_PA_IRR_EXT_ASC_OUTPUT_FILE_RULE false)
+		CXR_PA_IRR_EXT_BIN_OUTPUT_FILE=$(common.runner.evaluateRule "$CXR_PA_IRR_EXT_BIN_OUTPUT_FILE_RULE" false CXR_PA_IRR_EXT_BIN_OUTPUT_FILE_RULE false)
 	
 	fi
 	
@@ -194,6 +196,8 @@ function set_variables()
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_PA_IRR_EXT_ASC_OUTPUT_FILE $CXR_PA_IRR_EXT_BIN_OUTPUT_FILE"
 	
 	fi
+	
+	set +xv
 }
 
 ################################################################################
