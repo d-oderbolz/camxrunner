@@ -336,22 +336,6 @@ function run_pa()
 		exec="${1}"
 		control_file="${2}"
 		
-		# Any existing file will be skipped 
-		if [[ -s "$CXR_PA_OUTPUT_FILE" ]]
-		then
-			if [[ "${CXR_SKIP_EXISTING}" == true ]]
-			then
-				# Skip it
-				main.log "File ${CXR_PA_EXT_OUTPUT_FILE} exists - file will skipped."
-				common.state.storeStatus ${CXR_STATUS_SUCCESS}  > /dev/null
-				return $CXR_RET_OK
-			else
-				main.log -e  "File ${CXR_PA_EXT_OUTPUT_FILE} exists - to force the re-creation run ${CXR_CALL} -F"
-				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
-				return $CXR_RET_ERROR
-			fi
-		fi
-		
 		main.log -v  "Running ${exec}..."
 
 		if [[ "$CXR_DRY" == false ]]
@@ -395,6 +379,25 @@ function extract_pa_data()
 			# We notify the caller of the problem
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
+		
+		# Any existing file will be skipped 
+		for checkFile in $CXR_CHECK_THESE_INPUT_FILES
+		do
+			if [[ -s "$checkFile" ]]
+			then
+				if [[ "${CXR_SKIP_EXISTING}" == true ]]
+				then
+					# Skip it
+					main.log "File ${checkFile} exists - file will skipped."
+					common.state.storeStatus ${CXR_STATUS_SUCCESS}  > /dev/null
+					return $CXR_RET_OK
+				else
+					main.log -e  "File ${checkFile} exists - to force the re-creation run ${CXR_CALL} -F"
+					common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+					return $CXR_RET_ERROR
+				fi
+			fi
+		done
 
 		# Currently, we assume IPR
 		case ${CXR_PROBING_TOOL} in
