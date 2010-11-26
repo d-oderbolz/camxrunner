@@ -405,7 +405,8 @@ function extract_pa_data()
 						
 						# CPA (not implemented)
 						#control_file=$(create_cpa_control_file)
-						#run_pa "$exec" "$control_file";;
+						#run_pa "$exec" "$control_file"
+						;;
 						
 			IRR)	main.log -a "Running extraction for IRR..."
 						exec=CXR_EXT_IRR_EXEC
@@ -419,13 +420,14 @@ function extract_pa_data()
 
 		 CPA)		main.log -a "Support for CPA currently not implemented."	
 		 				common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
-		 				return $CXR_RET_OK;;
+		 				return $CXR_RET_OK
 		 				
 						#exec=CXR_EXT_CPA_EXEC
 						#control_file=$(create_cpa_control_file)
 						
 						# Run it
-						#run_pa "$exec" "$control_file";;
+						#run_pa "$exec" "$control_file"
+						;;
 						
 			*)		main.log -e "Unsupported PA Tool $CXR_PA_TOOL!" 
 						common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
