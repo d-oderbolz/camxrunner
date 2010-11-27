@@ -48,7 +48,7 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FCFLGS = $(TPOPTION) -Bstatic
+FLGS = $(TPOPTION) -Bstatic
 
 LIBS = 
 
@@ -58,7 +58,7 @@ OBJCTS = \
 psat_combine.o
 
 $(TARGT): $(OBJCTS)
-	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FCFLGS) $(OBJCTS) $(LIBS)
+	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
 
