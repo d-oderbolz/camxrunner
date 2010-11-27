@@ -48,7 +48,7 @@ c
       parameter(  IORIPR   = 10 )
       parameter(  IOWASC   = 20 )
       parameter(  MXPROC   = 99 )
-      parameter(  MXSPEC   = 30 )
+      parameter(  MXSPEC   = 100 )
       parameter(  MXFILE   = 99 )
       parameter(  CONFAC   = 1E-6 )
       parameter(  CDPPB = "PPB" )
