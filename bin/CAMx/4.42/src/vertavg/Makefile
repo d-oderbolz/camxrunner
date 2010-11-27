@@ -48,7 +48,7 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FCFLGS = $(TPOPTION)  -byteswapio -Wl,-Bstatic
+FCFLGS = $(TPOPTION) -byteswapio -Bstatic
 
 LIBS = 
 
@@ -58,7 +58,7 @@ OBJCTS = \
 vertavg.o
 
 $(TARGT): $(OBJCTS)
-	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
+	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FCFLGS) $(OBJCTS) $(LIBS)
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
 
