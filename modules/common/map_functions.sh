@@ -410,6 +410,10 @@ function test_module()
 	main.log -a "Indexes of Payerne D1 (direct): $(common.map.ProjectionToIndexes 562285 184775 1 SWISS)"
 	main.log -a "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
+	# Same for Magadino
+	main.log -a "Magadino in LonLat: $(common.map.ProjectionToLonLat 715500 113200 SWISS)"
+	main.log -a "Indexes of Magadino D1 (direct): $(common.map.ProjectionToIndexes 715500 113200 1 SWISS)"
+
 	########################################
 	# teardown tests if needed
 	########################################
