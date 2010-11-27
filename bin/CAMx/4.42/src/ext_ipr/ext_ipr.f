@@ -166,7 +166,8 @@ c
       integer       jrec, nfiles, ifile, idtlst
       integer       iclbeg, iclend, jclbeg, jclend, kclbeg, kclend
       integer       i, j
-      real*4        begtim, endtim, orgx, orgy, xsize, ysize
+      real          begtim, endtim
+      real*4        orgx, orgy, xsize, ysize
       real*4        cipr(MXPROC), ciprtot(MXPROC,MXSPEC)
       real*4        abs_error, rel_error, timlst
       logical       lexist, lppb
