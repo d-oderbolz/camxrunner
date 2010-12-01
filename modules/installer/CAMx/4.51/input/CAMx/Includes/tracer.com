@@ -707,7 +707,7 @@ c
       parameter( CDAVG  = 'CELL AVERAGE   ' )
       parameter( CDWAL  = 'WALL OF CELLS  ' )
       parameter( MXRECP = 100 )
-      parameter( MXCELR = 70  )
+      parameter( MXCELR = @MXCELR@  )
       parameter( IDPNT  = 1   )
       parameter( IDCEL  = 2   ) 
       parameter( IDAVG  = 3   ) 
