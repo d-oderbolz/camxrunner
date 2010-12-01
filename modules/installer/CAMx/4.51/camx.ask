@@ -75,4 +75,5 @@ MXFDDM|I||1
 MXPACEL|I|On how many cells do you want to run PA (MXPACEL)|31200
 MXCELR|I|How many cells should PSAT be able to average?|70
 
+
 # End of camx.ask (plase leave this intact)
