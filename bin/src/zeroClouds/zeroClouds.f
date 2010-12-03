@@ -183,7 +183,7 @@ c
         
         hrp = float(100 * hr)
         
-        write(*,'(a,i6.5,i5.4)')'Cld/rn date/time (YYJJJ HHMM):',
+        write(*,'(a,i6.5,f5.4)')'Cld/rn date/time (YYJJJ HHMM):',
      &  currdate,hr
      
         write(junit) hrp,currdate
