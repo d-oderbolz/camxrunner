@@ -28,7 +28,7 @@ c
 
       integer kz1(mnzc),kz2(mnzc),kzin(mnzc),isnow(mnxc,mnyc)
       integer sdate,edate,stime,etime,jdate,jhr,itzon,nxc,nyc,nzc,
-     &        izone,ioffset,joffset,k,iunit,ndays,nf,ierr,nx,ny,nz,
+     &        izone,ioffset,joffset,k,iunit,numdays,nf,ierr,nx,ny,nz,
      &        mm5date,mm5hr,jdatep,jhrp,jmnp,i,j,kk,junit,dtout
       integer kup,kdn,nlu
       real zm(mnzc),zz(mnzc),thetav(mnzc),uwind(mnzc),vwind(mnzc),
@@ -86,14 +86,14 @@ c
 !     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
 
 c    This command is the reason why start and end must be in the same year
-     ndays = edate - sdate
+     numdays = edate - sdate
 !     
-!     if (ndays.lt.0 ) then
+!     if (numdays.lt.0 ) then
 !        write(*,*) 'Stop date must be after start date'
 !        stop
 !     endif
 !     
-!     write(*,'(a,i)') '     Number of days:',ndays
+!     write(*,'(a,i)') '     Number of days:',numdays
 !      
 !      read(*,'(20x,a)') fname
 !      read(fname,*) dtout
