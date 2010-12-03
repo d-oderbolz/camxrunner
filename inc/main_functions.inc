@@ -63,7 +63,7 @@ function main.isNumeric?()
 ################################################################################
 function main.countCores()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	local num_cores
 	
 	if [[ ! -r /proc/cpuinfo  ]]
@@ -89,7 +89,7 @@ function main.countCores()
 ################################################################################
 function main.increaseLogIndent()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -115,7 +115,7 @@ function main.increaseLogIndent()
 ################################################################################
 function main.decreaseLogIndent()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -141,7 +141,7 @@ function main.decreaseLogIndent()
 ################################################################################
 function main.addError()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
@@ -176,7 +176,7 @@ function main.addError()
 ################################################################################
 function main.countErrors()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	local number
 	
 	# Read from file - if not set, use /dev/null
@@ -237,7 +237,7 @@ function main.countErrors()
 ################################################################################	
 function main.log()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
 	local prefix
 	
@@ -424,7 +424,7 @@ function main.log()
 ################################################################################
 function main.sendMessage()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	local adresses
 	
 	
@@ -476,7 +476,7 @@ function main.sendMessage()
 ################################################################################
 function main.doCleanup()
 ################################################################################
-{main.profiler $FUNCNAME
+{ main.profiler $FUNCNAME
 	# Remove any traps once called
 	trap - INT TERM EXIT
 	
