@@ -200,7 +200,7 @@ c
 !      write(*,'(/,a,/)')' program run complete'
 !
 !      stop
-!      end
+      end
 c
 c-----Date functions
 c
