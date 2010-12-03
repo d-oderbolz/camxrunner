@@ -76,8 +76,8 @@ c
         edate = addday(edate)
       endif
       
-!      stime = 100*stime
-!      etime = 100*etime
+      stime = 100*stime
+      etime = 100*etime
 !      
 !     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
 !     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
