@@ -190,6 +190,8 @@ function main.countErrors()
 # Function: main.log
 #
 # Writes a message to the Log-file (if defined) and STDERR.
+# This function is one of the most often called functions (right after common.math.FloatOperation)
+# Therefore we want to check as early as possible if we need to do logging at all.
 #
 # As an important SIDE EFFECT IN CASE OF AN ERROR, this function adds the error to the error list.
 # Also, the current day (CXR_DATE) is added to a special logfile which shows the failed days.
@@ -238,7 +240,6 @@ function main.countErrors()
 function main.log()
 ################################################################################
 {
-	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
 	local prefix
 	
 	# A standard message is an info
