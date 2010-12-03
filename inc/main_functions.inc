@@ -14,6 +14,23 @@
 ################################################################################
 
 ################################################################################
+# Function: main.profiler
+# 
+# Very primitive profiling function that simply stores a function name and
+# a timestamp in a DB table
+#
+# Parameters:
+# $1 - caller name
+################################################################################
+function main.profiler()
+################################################################################
+{
+	caller=${1}
+	
+	${CXR_SQLITE_EXEC} ${CXR_UNIVERSAL_PROFILING_DB} "INSERT INTO profile (caller, time) VALUES ('$caller',strftime('%s','now')/100 + strftime('%f','now'));"
+}
+
+################################################################################
 # Function: main.isNumeric?
 #
 # A small, relatively robust function to test if the argument is numeric
@@ -23,7 +40,7 @@
 ################################################################################
 function main.isNumeric?()
 ################################################################################
-{ 
+{ main.profiler $FUNCNAME
 	# If this returns 0, this is a number
 	# This is harder than it seems...
 	echo "${1:-}" | egrep -x '\-?[0-9]+(\.[0-9]*)?' >/dev/null
@@ -46,7 +63,7 @@ function main.isNumeric?()
 ################################################################################
 function main.countCores()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	local num_cores
 	
 	if [[ ! -r /proc/cpuinfo  ]]
@@ -72,7 +89,7 @@ function main.countCores()
 ################################################################################
 function main.increaseLogIndent()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -98,7 +115,7 @@ function main.increaseLogIndent()
 ################################################################################
 function main.decreaseLogIndent()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -124,7 +141,7 @@ function main.decreaseLogIndent()
 ################################################################################
 function main.addError()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
@@ -159,7 +176,7 @@ function main.addError()
 ################################################################################
 function main.countErrors()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	local number
 	
 	# Read from file - if not set, use /dev/null
@@ -220,7 +237,7 @@ function main.countErrors()
 ################################################################################	
 function main.log()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
 	local prefix
 	
@@ -407,7 +424,7 @@ function main.log()
 ################################################################################
 function main.sendMessage()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	local adresses
 	
 	
@@ -459,7 +476,7 @@ function main.sendMessage()
 ################################################################################
 function main.doCleanup()
 ################################################################################
-{
+{main.profiler $FUNCNAME
 	# Remove any traps once called
 	trap - INT TERM EXIT
 	

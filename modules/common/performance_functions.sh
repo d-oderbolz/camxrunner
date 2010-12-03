@@ -44,6 +44,22 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
+################################################################################
+# Function: common.performance.profiler
+# 
+# Very primitive profiling function that simply stores a function name and
+# a timestamp in a DB table
+#
+# Parameters:
+# $1 - caller name
+################################################################################
+function common.performance.profiler()
+################################################################################
+{
+	caller=${1}
+	
+	${CXR_SQLITE_EXEC} ${CXR_UNIVERSAL_PROFILING_DB} "INSERT INTO profile (caller, time) VALUES ('$caller',strftime('%s','now')/100 + strftime('%f','now'));"
+}
 
 ################################################################################
 # Function: common.performance.startTiming
