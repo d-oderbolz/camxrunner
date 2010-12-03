@@ -28,7 +28,7 @@ c
 
       integer kz1(mnzc),kz2(mnzc),kzin(mnzc),isnow(mnxc,mnyc)
       integer sdate,edate,stime,etime,jdate,jhr,itzon,nxc,nyc,nzc,
-     &        izone,ioffset,joffset,k,iunit,numdays,nf,ierr,nx,ny,nz,
+     &        izone,ioffset,joffset,k,iunit,numdays,currdate,nf,ierr,nx,ny,nz,
      &        mm5date,mm5hr,jdatep,jhrp,jmnp,i,j,kk,junit,dtout
       integer kup,kdn,nlu
       real zm(mnzc),zz(mnzc),thetav(mnzc),uwind(mnzc),vwind(mnzc),
@@ -183,7 +183,8 @@ c
         
         hrp = float(100 * hr)
         
-        write(*,'(a,i6.5,i5.4)')'Cld/rn date/time (YYJJJ HHMM):',currdate,hr
+        write(*,'(a,i6.5,i5.4)')'Cld/rn date/time (YYJJJ HHMM):',
+     &  currdate,hr
      
         write(junit) hrp,currdate
         do k = 1,nzc
