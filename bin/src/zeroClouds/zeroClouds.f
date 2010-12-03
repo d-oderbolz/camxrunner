@@ -67,10 +67,12 @@ c
       edate = edate/100
       call juldate(sdate)
       call juldate(edate)
+      
       if (stime.gt.23) then
         stime = stime - 24
         sdate = addday(sdate)
       endif
+      
       if (etime.gt.23) then
         etime = etime - 24
         edate = addday(edate)
