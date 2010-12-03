@@ -57,7 +57,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.array.allElementsZero?() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Here we store our status, default is OK
 	local status
 	local i_arr
@@ -98,7 +98,7 @@ function common.array.allElementsZero?()
 ################################################################################
 function common.array.exportArray()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Example of idea:
 	# CXR_NUMBER_OF_LAYERS_ARR_X=$(printf '%q ' "${CXR_NUMBER_OF_LAYERS[@]}")
 
@@ -115,7 +115,7 @@ function common.array.exportArray()
 ################################################################################
 function common.array.importArrays()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Bash does not support exporting arrays easily, they must be
 	# serialised to a string and then be deserialised, which is done here
 	# These arrays are all 0-indexed, therefore the index 0 positions are pure dummies
@@ -145,7 +145,7 @@ function common.array.importArrays()
 ################################################################################	
 function test_module()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	########################################
 	# Setup tests if needed
 	########################################

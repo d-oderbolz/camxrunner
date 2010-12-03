@@ -64,7 +64,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.math.FloatOperation()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 ]]
 	then
 		main.dieGracefully  "needs at least an expression as input"
@@ -149,7 +149,7 @@ function common.math.FloatOperation()
 ################################################################################
 function common.math.RandomNumber()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local maxrnd
 	local result
 	local scale
@@ -178,7 +178,7 @@ function common.math.RandomNumber()
 ################################################################################
 function common.math.abs()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false ]]
 	then
 		main.log -e  "needs a number as input, got $*"
@@ -215,7 +215,7 @@ function common.math.abs()
 ################################################################################
 function common.math.sumVector()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 || -z "$1" ]]
 	then
 		main.log -e  "needs a list of numeric values as input"
@@ -258,7 +258,7 @@ function common.math.sumVector()
 ################################################################################
 function common.math.meanVector()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 || -z "$1" ]]
 	then
 		main.log -e  "needs a list of numeric values as input"
@@ -303,7 +303,7 @@ function common.math.meanVector()
 ################################################################################
 function common.math.stdevVector()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 || -z "$1" ]]
 	then
 		main.log -e  "needs a list of numeric values as input"
@@ -358,7 +358,7 @@ function common.math.stdevVector()
 ################################################################################	
 function test_module()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	########################################
 	# Setup tests if needed
 	########################################

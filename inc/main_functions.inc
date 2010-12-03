@@ -40,7 +40,7 @@ function main.profiler()
 ################################################################################
 function main.isNumeric?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# If this returns 0, this is a number
 	# This is harder than it seems...
 	echo "${1:-}" | egrep -x '\-?[0-9]+(\.[0-9]*)?' >/dev/null
@@ -63,7 +63,7 @@ function main.isNumeric?()
 ################################################################################
 function main.countCores()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local num_cores
 	
 	if [[ ! -r /proc/cpuinfo  ]]
@@ -89,7 +89,7 @@ function main.countCores()
 ################################################################################
 function main.increaseLogIndent()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -115,7 +115,7 @@ function main.increaseLogIndent()
 ################################################################################
 function main.decreaseLogIndent()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	#Make sure it is set
 	CXR_LOG_INDENT=${CXR_LOG_INDENT:-0}
 	local next
@@ -141,7 +141,7 @@ function main.decreaseLogIndent()
 ################################################################################
 function main.addError()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
@@ -176,7 +176,7 @@ function main.addError()
 ################################################################################
 function main.countErrors()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local number
 	
 	# Read from file - if not set, use /dev/null
@@ -237,7 +237,7 @@ function main.countErrors()
 ################################################################################	
 function main.log()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Note that CXR_DO_FILE_LOGGING is being set elsewhere
 	local prefix
 	
@@ -424,7 +424,7 @@ function main.log()
 ################################################################################
 function main.sendMessage()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local adresses
 	
 	
@@ -476,7 +476,7 @@ function main.sendMessage()
 ################################################################################
 function main.doCleanup()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Remove any traps once called
 	trap - INT TERM EXIT
 	
@@ -632,7 +632,7 @@ trap "main.doCleanup; exit" INT TERM EXIT
 ################################################################################
 function main.dieGracefully()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local iFct
 	local maxNests
 	local last
@@ -694,7 +694,7 @@ function main.dieGracefully()
 ################################################################################
 function main.getBinaryName()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
 		main.dieGracefully "Programming error: needs at least the name of a binary as input, optional parameter allow_empty, got $*"
@@ -805,7 +805,7 @@ function main.getBinaryName()
 ################################################################################
 function main.getLibraryName()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -lt 1 || $# -gt 4 ]]
 	then
 		main.dieGracefully "Programming error: needs at least the name of a binary and the corresponding executable as input, optional parameter version and allow_empty, got $*"
@@ -885,7 +885,7 @@ function main.getLibraryName()
 ################################################################################
 function main.setModelAndVersion()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local model
 	local version
 
@@ -928,7 +928,7 @@ function main.setModelAndVersion()
 ################################################################################
 function main.countDelimitedElements ()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local string
 	local delimiter
 	local array
@@ -972,7 +972,7 @@ function main.countDelimitedElements ()
 ################################################################################
 function main.getRevision()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local filename
 	local version_string
@@ -1028,7 +1028,7 @@ function main.getRevision()
 ################################################################################
 function main.getMD5() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 		if [[ $# -ne 1 ]]
 		then
 			main.log -e "Programming error: no filename passed!"
@@ -1058,7 +1058,7 @@ function main.getMD5()
 ################################################################################
 function main.isSubstringPresent?() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local haystack
 	local needle
 	local found
@@ -1092,7 +1092,7 @@ function main.isSubstringPresent?()
 ################################################################################
 function main.setVersionDepVariables()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	export CXR_RUN="${1}"
 	
 	CXR_MODEL="${2}"
@@ -1169,7 +1169,7 @@ function main.setVersionDepVariables()
 ################################################################################
 function main.readConfig()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# In this variable, we store the MD5 hashes of all config files loaded so far
 	# it is for example possible, that a higher level config file is in reality a link
 	# to a lower level one...
@@ -1317,7 +1317,7 @@ function main.readConfig()
 ################################################################################
 function main.HandleHup()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	main.log -a "Rereading Configuration of ${CXR_RUN}..."
 	
 	# Do it
@@ -1339,7 +1339,7 @@ trap "main.HandleHup" HUP
 ################################################################################
 function main.getModuleName()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local full_name
 	local module
 	

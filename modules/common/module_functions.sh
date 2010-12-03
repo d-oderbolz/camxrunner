@@ -54,7 +54,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.module.areDependenciesOk?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ "$CXR_IGNORE_ANY_DEPENDENCIES" == true ]]
 	then
 		main.log  -w "You set CXR_IGNORE_ANY_DEPENDENCIES to true. We will not check dependencies (pretty dangerous...)"
@@ -164,7 +164,7 @@ function common.module.areDependenciesOk?()
 ################################################################################
 function common.module.getPath()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	path=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT path FROM modules WHERE module='$1'")
 	echo "$path"
 }
@@ -179,7 +179,7 @@ function common.module.getPath()
 ################################################################################
 function common.module.isType()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local string
 	
 	string="${1}"
@@ -210,7 +210,7 @@ function common.module.isType()
 ################################################################################
 function common.module.resolveType()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local type
 	local dir
 	local modules
@@ -244,7 +244,7 @@ function common.module.resolveType()
 ################################################################################
 function common.module.getType()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM modules WHERE module='$1'")
 	echo "$type"
 }
@@ -262,7 +262,7 @@ function common.module.getType()
 ################################################################################
 function common.module.getTypeSlow()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local metafield
 	local value
 	local file
@@ -289,7 +289,7 @@ function common.module.getTypeSlow()
 ################################################################################
 function common.module.isActive?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a module name as input"
@@ -320,7 +320,7 @@ function common.module.isActive?()
 ################################################################################
 function common.module.listModuleType()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local module_type
 	local call
 	local module_directories
@@ -456,7 +456,7 @@ function common.module.listModuleType()
 ################################################################################
 function common.module.listAllModules
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 		main.log -a -B "\n  These modules are available for $CXR_MODEL $CXR_MODEL_VERSION.\n  All of these can be combined in one single -r"" statement."
 		
 		main.log -a "\n  One-Time pre-processing:\n"
@@ -496,7 +496,7 @@ function common.module.listAllModules
 ################################################################################	
 function test_module()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	########################################
 	# Setup tests if needed
 	########################################

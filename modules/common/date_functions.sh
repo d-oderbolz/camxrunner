@@ -53,7 +53,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.date.decompose()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	eval "$(date ${1:+"$@"} "+
 		DATE=%Y-%m-%d
 		YEAR=%Y
@@ -86,7 +86,7 @@ function common.date.decompose()
 ################################################################################
 function common.date.isSimulationDay?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local ThisDate
 	local StartJul
 	local StopJul
@@ -119,7 +119,7 @@ function common.date.isSimulationDay?()
 ################################################################################
 function common.date.isYYYYMMDD?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local date
 	date="$1"
@@ -158,7 +158,7 @@ function common.date.isYYYYMMDD?()
 ################################################################################
 function common.date.toRaw()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local new_date
 	
@@ -184,7 +184,7 @@ function common.date.toRaw()
 ################################################################################
 function common.date.toISO()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -ne 1  ]]
 	then
 		main.dieGracefully "needs 1 date as input. Got $*"
@@ -214,7 +214,7 @@ function common.date.toISO()
 ################################################################################
 function common.date.humanSeconds()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "Programming error: needs 1 time interval in seconds as input. Got $*"
@@ -294,7 +294,7 @@ function common.date.humanSeconds()
 ################################################################################
 function common.date.split()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	sd_1=${2:-SD_YEAR}
 	sd_2=${3:-SD_MONTH}
 	sd_3=${4:-SD_DAY}
@@ -350,7 +350,7 @@ function common.date.split()
 ################################################################################
 function common.date.toJulian() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local d2j_tmpmonth
 	local d2j_tmpyear
@@ -388,7 +388,7 @@ function common.date.toJulian()
 ################################################################################
 function common.date.JulianToDate()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false ]]
 	then
@@ -424,7 +424,7 @@ function common.date.JulianToDate()
 ################################################################################
 function common.date.EpochToDate()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
@@ -449,7 +449,7 @@ function common.date.EpochToDate()
 ################################################################################
 function common.date.EpochToDateTime()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Check for numeric input
 	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
 	then
@@ -475,7 +475,7 @@ function common.date.EpochToDateTime()
 ################################################################################
 function common.date.WeekOfYear() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 
 	if [[ $# -lt 1 || $# -gt 2 ]]
 	then
@@ -507,7 +507,7 @@ function common.date.WeekOfYear()
 ################################################################################
 function common.date.MonthOfYear() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 
 	if [[ $# -lt 1   ]]
 	then
@@ -529,7 +529,7 @@ function common.date.MonthOfYear()
 ################################################################################
 function common.date.DayOfYear() 
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 
 	# Define & Initialize local vars
 	local year
@@ -569,7 +569,7 @@ function common.date.DayOfYear()
 ################################################################################
 function common.date.DaysInMonth()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local dim_m
 	local dim_y
@@ -596,7 +596,7 @@ function common.date.DaysInMonth()
 ################################################################################
 function common.date.DayOfWeek()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local dim_d
 	local dow
@@ -625,7 +625,7 @@ function common.date.DayOfWeek()
 ################################################################################
 function common.date.DaysLeftInWeek()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local dim_d
 	local dow
@@ -675,7 +675,7 @@ function common.date.DaysLeftInWeek()
 ################################################################################
 function common.date.DaysLeftInMonth()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local month
 	local dom
@@ -728,7 +728,7 @@ function common.date.DaysLeftInMonth()
 ################################################################################
 function common.date.isLeapYear?
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local year
 	
@@ -778,7 +778,7 @@ function common.date.isLeapYear?
 ################################################################################
 function common.date.toOffset()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local start
 	local wanted
@@ -828,7 +828,7 @@ function common.date.toOffset()
 ################################################################################
 function common.date.OffsetToDate()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local start
 	local end
@@ -867,7 +867,7 @@ function common.date.OffsetToDate()
 ################################################################################
 function common.date.getModelHour()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local offset
 	
@@ -916,7 +916,7 @@ function common.date.getModelHour()
 ################################################################################
 function common.date.getTotalModelHours()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local totHours
 	totHours=$(common.date.getModelHour $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )) )
 	
@@ -938,7 +938,7 @@ function common.date.getTotalModelHours()
 ################################################################################	
 function common.date.DaysBetween()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local diff
 	local julend
@@ -985,7 +985,7 @@ function common.date.DaysBetween()
 ################################################################################	
 function common.date.WeeksBetween()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local diff
 	local start
@@ -1055,7 +1055,7 @@ function common.date.WeeksBetween()
 ################################################################################	
 function common.date.MonthsBetween()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local diff
 	local start
@@ -1123,7 +1123,7 @@ function common.date.MonthsBetween()
 ################################################################################	
 function common.date.addDays()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local dateresult
 	local julresult
@@ -1157,7 +1157,7 @@ function common.date.addDays()
 ################################################################################	
 function common.date.subtractDays()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	# Define & Initialize local vars
 	local dateresult
 	local julresult
@@ -1199,7 +1199,7 @@ function common.date.subtractDays()
 ################################################################################	
 function common.date.setVars()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 
 	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
 	then
@@ -1332,7 +1332,7 @@ function common.date.setVars()
 ################################################################################
 function common.date.isFirstDayOfWeek? ()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local date
 	date=$1
 	
@@ -1357,7 +1357,7 @@ function common.date.isFirstDayOfWeek? ()
 ################################################################################	
 function common.date.isFirstDayOfMonth?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local date
 	date=$1
 	
@@ -1379,7 +1379,7 @@ function common.date.isFirstDayOfMonth?()
 ################################################################################	
 function common.date.isFirstDayOfYear?()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	local date
 	date=$1
 	
@@ -1405,7 +1405,7 @@ function common.date.isFirstDayOfYear?()
 ################################################################################	
 function common.date.isFirstDayOfSimulation? ()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
 	then
 		echo true
@@ -1425,7 +1425,7 @@ function common.date.isFirstDayOfSimulation? ()
 ################################################################################	
 function common.date.isLastDayOfSimulation? ()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
 	then
 		echo true
@@ -1442,7 +1442,7 @@ function common.date.isLastDayOfSimulation? ()
 ################################################################################	
 function test_module()
 ################################################################################
-{ main.profiler $FUNCNAME
+{
 	########################################
 	# Setup tests if needed
 	########################################
