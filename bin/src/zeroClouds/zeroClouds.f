@@ -89,7 +89,7 @@ c    This command is the reason why start and end must be in the same year
      ndays = edate - sdate
      
      if (ndays.lt.0 ) then
-        write(*,*)'Stop date must be after start date'
+        write(*,*) 'Stop date must be after start date'
         stop
      endif
      
