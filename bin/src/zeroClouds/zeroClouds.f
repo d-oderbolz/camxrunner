@@ -71,15 +71,15 @@ c
       if (stime.gt.23) then
         stime = stime - 24
         sdate = addday(sdate)
-      endif
+      end if
       
       if (etime.gt.23) then
         etime = etime - 24
         edate = addday(edate)
-      endif
+      end if
       
-!      stime = 100*stime
-!      etime = 100*etime
+!     stime = 100*stime
+!     etime = 100*etime
       
 !     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
 !     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
