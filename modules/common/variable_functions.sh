@@ -46,7 +46,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.variables.list()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	main.log -B "The current Environment looks like this:"
 	
 	# Increase global indent level
@@ -74,7 +74,7 @@ function common.variables.list()
 ################################################################################
 function common.variables.getValue()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local item
 	
 	item=${1}
@@ -101,7 +101,7 @@ function common.variables.getValue()
 ################################################################################	
 function common.variables.listSystemVars()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local var
 	
 	# Increase global indent level
@@ -126,7 +126,7 @@ function common.variables.listSystemVars()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	########################################
 	# Setup tests if needed
 	########################################

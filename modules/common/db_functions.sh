@@ -54,7 +54,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.db.init()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local x
 	
 	local -a directories
@@ -203,7 +203,7 @@ function common.db.init()
 ################################################################################
 function common.db.getResultSet()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs a db file, a statement and a level for the share-lock (optional delimiter) as input, got $*"
@@ -359,7 +359,7 @@ function common.db.getResultSet()
 ################################################################################
 function common.db.change()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs a db file, a level, a statement and an optinal do_trx as input, got $*"
@@ -496,7 +496,7 @@ function common.db.change()
 ################################################################################
 function common.db.dump()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a db file and a filename as input, got $*"
@@ -534,7 +534,7 @@ function common.db.dump()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	########################################
 	# Setup tests if needed
 	########################################

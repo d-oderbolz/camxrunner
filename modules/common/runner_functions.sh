@@ -53,7 +53,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.runner.getX()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local domain
 	local xdim
 	
@@ -92,7 +92,7 @@ function common.runner.getX()
 ################################################################################
 function common.runner.getY()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local domain
 	local ydim
 	
@@ -131,7 +131,7 @@ function common.runner.getY()
 ################################################################################
 function common.runner.getZ()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	domain=${1:-0}
 	
 	if [[ ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} ) ]]
@@ -152,7 +152,7 @@ function common.runner.getZ()
 ################################################################################
 function common.runner.getMaxX()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local new
 	local max_xdim
 	local iGrid
@@ -181,7 +181,7 @@ function common.runner.getMaxX()
 ################################################################################
 function common.runner.getMaxY()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local new
 	local max_ydim
 	local iGrid
@@ -210,7 +210,7 @@ function common.runner.getMaxY()
 ################################################################################
 function common.runner.getMaxZ()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local new
 	local max_zdim
 	local iGrid
@@ -239,7 +239,7 @@ function common.runner.getMaxZ()
 ################################################################################
 function common.runner.countAllCells3D()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local new
 	local sum
 	local iGrid
@@ -263,7 +263,7 @@ function common.runner.countAllCells3D()
 ################################################################################
 function common.runner.countAllCells2D()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local new
 	local sum
 	local iGrid
@@ -286,7 +286,7 @@ function common.runner.countAllCells2D()
 ################################################################################
 function common.runner.reportDimensions()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local iGrid
 	local nCells
 	local sw
@@ -335,7 +335,7 @@ function common.runner.reportDimensions()
 ################################################################################
 function common.runner.printSummary()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	##################
 	# Revision control
 	##################
@@ -429,7 +429,7 @@ function common.runner.printSummary()
 ################################################################################
 function common.runner.evaluateRule()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[  $# -lt 1 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
@@ -544,7 +544,7 @@ function common.runner.evaluateRule()
 ################################################################################
 function common.runner.evaluateRuleAtDayOffset()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[  $# -lt 2 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least one string (the rule) and one number (the day offset) as input!"
@@ -589,7 +589,7 @@ function common.runner.evaluateRuleAtDayOffset()
 ################################################################################
 function common.runner.createDummyFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local filename
 	local size
 	
@@ -639,7 +639,7 @@ function common.runner.createDummyFile()
 ################################################################################
 function common.runner.createTempFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local store
 	local template
 	local name
@@ -742,7 +742,7 @@ function common.runner.createTempFile()
 ################################################################################
 function common.runner.createTempDir()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	common.runner.createTempFile -d $@
 }
 
@@ -762,7 +762,7 @@ function common.runner.createTempDir()
 ################################################################################
 function common.runner.createJobFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local job
 	local jobfile
 	
@@ -792,7 +792,7 @@ function common.runner.createJobFile()
 ################################################################################
 function common.runner.removeTempFiles()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local line
 	local filename
 	local temp_item
@@ -929,7 +929,7 @@ function common.runner.removeTempFiles()
 ################################################################################
 function common.runner.getLockLinkName()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
 		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
@@ -982,7 +982,7 @@ function common.runner.getLockLinkName()
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 2 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs at least the name of a lock and a level as input (optional shared, max_wait_seconds), got $*"
@@ -1084,7 +1084,7 @@ function common.runner.waitForLock()
 ################################################################################
 function common.runner.getLock()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
 		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
@@ -1201,7 +1201,7 @@ function common.runner.getLock()
 ################################################################################
 function common.runner.releaseLock()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 2 || $# -gt 3 ]]
 	then
 		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
@@ -1277,7 +1277,7 @@ function common.runner.releaseLock()
 ################################################################################	
 function common.runner.getExistingConfigFile() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local config
 	
 	# To keep the list compact, we go into the conf dir and back out again
@@ -1304,7 +1304,7 @@ function common.runner.getExistingConfigFile()
 ################################################################################	
 function common.runner.createConfigFile() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local newRun
 	local existingRun
 	
@@ -1468,7 +1468,7 @@ function common.runner.createConfigFile()
 ################################################################################
 function common.runner.expandConfigFile() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local basefile
 	local expanded_config
 	local model_version
@@ -1517,7 +1517,7 @@ function common.runner.expandConfigFile()
 ################################################################################	
 function common.runner.getModelId() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local needle
 	
 	# Find my element
@@ -1552,7 +1552,7 @@ function common.runner.getModelId()
 ################################################################################	
 function common.runner.getNewRunName() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local model
 	local model_id
 	local supported
@@ -1599,7 +1599,7 @@ function common.runner.getNewRunName()
 ################################################################################	
 function common.runner.createNewRun() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local run
 	run="$(common.runner.getNewRunName)"
 
@@ -1653,7 +1653,7 @@ function common.runner.createNewRun()
 ################################################################################	
 function common.runner.createMissingDirs() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 
 	# TODO: Add input check
 	local runName
@@ -1716,7 +1716,7 @@ function common.runner.createMissingDirs()
 ################################################################################	
 function common.runner.getConfigItem() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local item
 	local runName
 	
@@ -1744,7 +1744,7 @@ function common.runner.getConfigItem()
 ################################################################################	
 function common.runner.recreateInput() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# How fine-grained should we be?
 	# Currently, we distinguish between two classes of Inputs: Emissions and all other Input data.
 	# Actually, we work only on directory level.
@@ -1825,7 +1825,7 @@ function common.runner.recreateInput()
 ################################################################################	
 function common.runner.recreateRun() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local oldRun
 	local newRun
 	
@@ -1891,7 +1891,7 @@ function common.runner.recreateRun()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	########################################
 	# Setup tests if needed
 	########################################

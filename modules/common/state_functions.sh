@@ -47,7 +47,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.state.isRepeatedRun?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local count
 	
 	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
@@ -71,7 +71,7 @@ function common.state.isRepeatedRun?()
 ################################################################################
 function common.state.getLastDayOffsetModelled()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local result
 	
 	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM days")
@@ -94,7 +94,7 @@ function common.state.getLastDayOffsetModelled()
 ################################################################################
 function common.state.getFirstDayModelled()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Let the database tell it
 	common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MIN(day_iso) FROM days"
 	
@@ -108,7 +108,7 @@ function common.state.getFirstDayModelled()
 ################################################################################
 function common.state.deleteContinueFiles()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	main.log -w  "The continue files of all instances of this run will be deleted now!"
 	
 	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \; &> /dev/null
@@ -133,7 +133,7 @@ function common.state.deleteContinueFiles()
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Increase global indent level
 	main.increaseLogIndent
 	
@@ -664,7 +664,7 @@ function common.state.updateInfo()
 ################################################################################
 function common.state.init()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ -z "${CXR_STATE_DIR}" ]]
 	then
 		main.dieGracefully  "CXR_STATE_DIR not set!"
@@ -813,7 +813,7 @@ function common.state.init()
 ################################################################################
 function common.state.storeStatus()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a state like $CXR_STATUS_RUNNING, $CXR_STATUS_SUCCESS or $CXR_STATUS_FAILURE as Input"   
@@ -901,7 +901,7 @@ function common.state.storeStatus()
 ################################################################################
 function common.state.countInstances()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l
 }
 
@@ -914,7 +914,7 @@ function common.state.countInstances()
 ################################################################################
 function common.state.detectInstances()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local process_count
 	process_count=$(common.state.countInstances) 
 	
@@ -943,7 +943,7 @@ function common.state.detectInstances()
 ################################################################################
 function common.state.hasFinished?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
@@ -1006,7 +1006,7 @@ function common.state.hasFinished?()
 ################################################################################
 function common.state.hasFailed?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
@@ -1068,7 +1068,7 @@ function common.state.hasFailed?()
 ################################################################################
 function common.state.cleanup()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local what
 	local what_detail
 	local days
@@ -1289,7 +1289,7 @@ function common.state.cleanup()
 ################################################################################
 function common.state.doContinue?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local error_count
 	error_count=$(main.countErrors)
 	
@@ -1334,7 +1334,7 @@ function common.state.doContinue?()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 
 	########################################
 	# Setup tests if needed

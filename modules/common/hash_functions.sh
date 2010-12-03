@@ -65,7 +65,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function _common.hash.getDbFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a hash-level as input"
@@ -105,7 +105,7 @@ function _common.hash.getDbFile()
 ################################################################################
 function common.hash.init()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash name and a valid hash-level as input"
@@ -150,7 +150,7 @@ function common.hash.init()
 ################################################################################
 function common.hash.destroy()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash and a valid hash-level as input"
@@ -189,7 +189,7 @@ function common.hash.destroy()
 ################################################################################
 function common.hash.put()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 4  || $# -gt 5 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level, a key, a value and an optiotal boolean allow_multiple as input. Got $*"
@@ -259,7 +259,7 @@ function common.hash.put()
 ################################################################################
 function common.hash.get()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -336,7 +336,7 @@ function common.hash.get()
 ################################################################################
 function common.hash.getAll()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -385,7 +385,7 @@ function common.hash.getAll()
 ################################################################################
 function common.hash.delete()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key - plus optionally use_like as input"
@@ -436,7 +436,7 @@ function common.hash.delete()
 ################################################################################
 function common.hash.remove()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -465,7 +465,7 @@ function common.hash.remove()
 ################################################################################
 function common.hash.getMtime()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash and a valid hash-level as input"
@@ -498,7 +498,7 @@ function common.hash.getMtime()
 ################################################################################
 function common.hash.getValueMtime()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -542,7 +542,7 @@ function common.hash.getValueMtime()
 ################################################################################
 function common.hash.has?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -603,7 +603,7 @@ function common.hash.has?()
 ################################################################################
 function common.hash.isNew?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 3 ]]
 	then
 		main.dieGracefully "needs a hash, a valid hash-level and a key as input"
@@ -668,7 +668,7 @@ function common.hash.isNew?()
 ################################################################################
 function common.hash.getKeys()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash and a valid hash-level as input"
@@ -726,7 +726,7 @@ function common.hash.getKeys()
 ################################################################################
 function common.hash.getKeysAndValues()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs a hash and a valid hash-level as input"
@@ -763,7 +763,7 @@ function common.hash.getKeysAndValues()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local iKey
 	local keyString
 	local arrKeys

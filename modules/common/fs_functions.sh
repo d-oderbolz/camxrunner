@@ -56,7 +56,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.fs.isNotEmpty?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ -s "${1}" ]]
 	then
 		echo true
@@ -76,7 +76,7 @@ function common.fs.isNotEmpty?()
 ################################################################################
 function common.fs.exists?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ -f "${1}" ]]
 	then
 		echo true
@@ -96,7 +96,7 @@ function common.fs.exists?()
 ################################################################################
 function common.fs.isAbsolutePath?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	path="$1"
 	
 	# Remove machine, if any
@@ -127,7 +127,7 @@ function common.fs.isAbsolutePath?()
 ################################################################################
 function common.fs.sumFilenameLenght()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local dir
 	local len
 	local file
@@ -166,7 +166,7 @@ function common.fs.sumFilenameLenght()
 ################################################################################
 function common.fs.getSubDirs()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local dir
 	
 	dir="$1"
@@ -188,7 +188,7 @@ function common.fs.getSubDirs()
 ################################################################################
 function common.fs.isSubDirOf?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# first, we need proper names
 	local path1
 	local path2
@@ -235,7 +235,7 @@ function common.fs.isSubDirOf?()
 ################################################################################
 function common.fs.getType()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local path
 	
 	path=${1}
@@ -264,7 +264,7 @@ function common.fs.getType()
 ################################################################################
 function common.fs.isLocal?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local path
 	local type
 	
@@ -291,7 +291,7 @@ function common.fs.isLocal?()
 ################################################################################
 function common.fs.sameDevice?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local file1
 	local file2
 	local dev1
@@ -325,7 +325,7 @@ function common.fs.sameDevice?()
 ################################################################################
 function common.fs.getMtime()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local file
 	local mtime
 	
@@ -355,7 +355,7 @@ function common.fs.getMtime()
 ################################################################################
 function common.fs.getFileType()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local file
 	local filetype
 	
@@ -383,7 +383,7 @@ function common.fs.getFileType()
 ################################################################################
 function common.fs.isDos?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local file
 	local filetype
 	
@@ -426,7 +426,7 @@ function common.fs.isDos?()
 ################################################################################
 function common.fs.getLinkTarget()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local path
 	local target
 	
@@ -457,7 +457,7 @@ function common.fs.getLinkTarget()
 ################################################################################
 function common.fs.isLink?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local path
 	
 	path="$1"
@@ -490,7 +490,7 @@ function common.fs.isLink?()
 ################################################################################
 function common.fs.isBrokenLink?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local path
 	local target
 	
@@ -519,7 +519,7 @@ function common.fs.isBrokenLink?()
 ################################################################################
 function common.fs.FileSizeMb()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local size
 	
 	if [[ ! -f "$1"  ]]
@@ -550,7 +550,7 @@ function common.fs.FileSizeMb()
 ################################################################################
 function common.fs.WaitForFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local filename
 	filename="$1"
 	
@@ -587,7 +587,7 @@ function common.fs.WaitForFile()
 ################################################################################
 function common.fs.WaitForStableSize()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local filename
 	local old_size
 	
@@ -635,7 +635,7 @@ function common.fs.WaitForStableSize()
 ################################################################################
 function common.fs.CompressOutput()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local filename
 	local module
 	local do_this
@@ -746,7 +746,7 @@ function common.fs.CompressOutput()
 ################################################################################
 function common.fs.isCompressed?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 		local input_file
 		local iExt
 		local ext
@@ -799,7 +799,7 @@ function common.fs.isCompressed?()
 ################################################################################
 function common.fs.TryDecompressingFile()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "Could not try decompression - no path passed!"
@@ -976,7 +976,7 @@ function common.fs.TryDecompressingFile()
 ################################################################################
 function common.fs.getFreeMb()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		main.log -e "$FUNCNAME did not get correct parameters: $*"
@@ -1046,7 +1046,7 @@ function common.fs.getFreeMb()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local a
 	local b
 	local c

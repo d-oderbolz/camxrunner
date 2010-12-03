@@ -47,7 +47,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.string.MD5() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	echo $1 | "${CXR_MD5_EXEC}" | cut -d" " -f1
 } 
 
@@ -61,7 +61,7 @@ function common.string.MD5()
 ################################################################################
 function common.string.toLower() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1  ]]
 	then
 		echo ""
@@ -80,7 +80,7 @@ function common.string.toLower()
 ################################################################################
 function common.string.toUpper() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1  ]]
 	then
 		echo ""
@@ -100,7 +100,7 @@ function common.string.toUpper()
 ################################################################################
 function common.string.trim() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local string
 	local to_remove
 	local out
@@ -135,7 +135,7 @@ function common.string.trim()
 ################################################################################
 function common.string.repeat() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local string
 	local times
 	local dummy
@@ -165,7 +165,7 @@ function common.string.repeat()
 ################################################################################
 function common.string.len() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		echo 0
@@ -185,7 +185,7 @@ function common.string.len()
 ################################################################################
 function common.string.getCharacters() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2  ]]
 	then
 		echo ""
@@ -208,7 +208,7 @@ function common.string.getCharacters()
 ################################################################################
 function common.string.leftPadZero
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2  ]]
 	then
 		main.dieGracefully "We need 2 digits as input: the number to pad and the number of digits to pad to"
@@ -233,7 +233,7 @@ function common.string.leftPadZero
 ################################################################################
 function common.string.getPrefixNumber
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Define & Initialize local vars
 	local string
 	local numbers
@@ -263,7 +263,7 @@ function common.string.getPrefixNumber
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 
 	########################################
 	# Setup tests if needed

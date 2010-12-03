@@ -56,7 +56,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.check.BashVersion() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ ${BASH_VERSINFO[0]} -lt 3  ]]
 	then
 		main.dieGracefully "We need at least Bash Version 3.x - please upgrade."
@@ -78,7 +78,7 @@ function common.check.BashVersion()
 ################################################################################
 function common.check.PredictFileSizeMb ()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# TODO Should be implemented
 	echo 400
 }
@@ -96,7 +96,7 @@ function common.check.PredictFileSizeMb ()
 ################################################################################
 function common.check.PredictModelOutputMb()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local cells
 	local time_steps
 	local size
@@ -131,7 +131,7 @@ function common.check.PredictModelOutputMb()
 ################################################################################
 function common.check.MbNeeded() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2  ]]
 	then
 		main.dieGracefully "needs 2 parameters: a path and a number (megabytes needed)"
@@ -191,7 +191,7 @@ function common.check.MbNeeded()
 ################################################################################
 function common.check.DataType()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 2 ]]
 	then
 		main.dieGracefully "needs 2 strings as input"
@@ -271,7 +271,7 @@ function common.check.DataType()
 ################################################################################
 function common.check.ModelLimits()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	main.log -a -B  "Checking model limits for ${CXR_MODEL_EXEC}..."
 	
 	# We must find the play file
@@ -360,7 +360,7 @@ function common.check.ModelLimits()
 ################################################################################
 function common.check.RunnerExecutables()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local file
 	
 	# We use a bash 3.x structure, the so-called "here-variable"
@@ -399,7 +399,7 @@ function common.check.RunnerExecutables()
 ################################################################################
 function common.check.Vars ()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local executable
 	
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
@@ -452,7 +452,7 @@ function common.check.Vars ()
 ################################################################################
 function common.check.reportMD5() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ "${CXR_REPORT_MD5}" == true ]]
 	then
 		if [[ $# -ne 1 ]]
@@ -536,7 +536,7 @@ function common.check.reportMD5()
 ################################################################################
 function common.check.preconditions() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Does the user want to limit the checks?
 	local limited
 	local do_input
@@ -925,7 +925,7 @@ function common.check.preconditions()
 ################################################################################
 function common.check.ModuleRequirements() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Test if Module was already announced (for efficiency and log-file size reasons)
 	local found
 	local requirement
@@ -1071,7 +1071,7 @@ function common.check.ModuleRequirements()
 ################################################################################
 function common.check.postconditions() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local errors_found
 	local output_file
 	
@@ -1153,7 +1153,7 @@ function common.check.postconditions()
 ################################################################################
 function common.check.isVersionSupported?()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ -z "${1:-}" ]]
 	then
 		# Forget it - must be larger than ""
@@ -1192,7 +1192,7 @@ function common.check.isVersionSupported?()
 ################################################################################
 function common.check.runner() 
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Each directory in $CXR_RUN_SUBDIRS must exist
 	local dir
 	local subdir
@@ -1323,7 +1323,7 @@ function common.check.runner()
 ################################################################################
 function common.check.RunName()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local oIFS
 	local run_array
 	local version
@@ -1384,7 +1384,7 @@ function common.check.RunName()
 ################################################################################	
 function test_module()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	########################################
 	# Setup tests if needed
 	########################################

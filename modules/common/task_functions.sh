@@ -83,7 +83,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 function common.task.getId()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local module
 	local invocation
 	local date
@@ -122,7 +122,7 @@ function common.task.getId()
 ################################################################################
 function common.task.parseId()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -lt 1 || $# -gt 2 || -z "$1" ]]
 	then
 		main.dieGracefully "Needs a non-empty identifier and the optional flag no_invocation as Input, got $*"
@@ -185,7 +185,7 @@ function common.task.parseId()
 ################################################################################
 function common.task.createSequentialDependencyList()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local output_file
 	local dep_file
 	local nodup_file
@@ -408,7 +408,7 @@ function common.task.createSequentialDependencyList()
 ################################################################################
 function common.task.createParallelDependencyList()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local output_file
 	
 	local dep_file
@@ -481,7 +481,7 @@ function common.task.createParallelDependencyList()
 ################################################################################
 function common.task.drawDependencyGraph()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local input_file
 	local output_file
 	local dot_file
@@ -543,7 +543,7 @@ function common.task.drawDependencyGraph()
 ################################################################################
 function common.task.countAllTasks()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Find all entries in the table
 	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")"
 	
@@ -561,7 +561,7 @@ function common.task.countAllTasks()
 ################################################################################
 function common.task.countSuccessfulTasks()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_SUCCESS' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count successful tasks"
@@ -578,7 +578,7 @@ function common.task.countSuccessfulTasks()
 ################################################################################
 function common.task.countFailedTasks()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status='$CXR_STATUS_FAILURE' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count failed tasks"
@@ -598,7 +598,7 @@ function common.task.countFailedTasks()
 ################################################################################
 function common.task.countOpenTasks()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Find only "TODO" entries
 	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank IS NOT NULL;")"
 	
@@ -615,7 +615,7 @@ function common.task.countOpenTasks()
 ################################################################################
 function common.task.countAllWorkers()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local worker_count
 	
 	# Find only "RUNNING" entries
@@ -641,7 +641,7 @@ function common.task.countAllWorkers()
 ################################################################################
 function common.task.countMyRunningWorkers()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local running_pids
 	local pid
 	local count
@@ -676,7 +676,7 @@ function common.task.countMyRunningWorkers()
 ################################################################################
 function common.task.countRunningWorkers()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local worker_count
 	
 	# Find only "RUNNING" entries
@@ -712,7 +712,7 @@ function common.task.countRunningWorkers()
 ################################################################################
 function common.task.detectLockup()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local count
 	local numRunning
 	
@@ -778,7 +778,7 @@ function common.task.detectLockup()
 ################################################################################
 function common.task.setNextTask()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# Acquire lock
 	common.runner.getLock NextTask "$CXR_LEVEL_GLOBAL"
 	
@@ -872,7 +872,7 @@ function common.task.setNextTask()
 ################################################################################
 function common.task.changeTaskStatus()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local id
 	local status
 	
@@ -908,7 +908,7 @@ function common.task.changeTaskStatus()
 ################################################################################
 function common.task.waitingWorker()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1  ]]
 	then
 		main.dieGracefully "needs a pid as input"
@@ -932,7 +932,7 @@ function common.task.waitingWorker()
 ################################################################################
 function common.task.runningWorker()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1  ]]
 	then
 		main.dieGracefully "needs a pid as input, got $*"
@@ -957,7 +957,7 @@ function common.task.runningWorker()
 ################################################################################
 function common.task.removeWorker()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "needs a pid as input"
@@ -993,7 +993,7 @@ function common.task.removeWorker()
 ################################################################################
 function common.task.Worker()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	# The ID is global, but it is not unique across servers
 	CXR_WORKER_ID=${1}
 	
@@ -1222,7 +1222,7 @@ function common.task.Worker()
 ################################################################################
 function common.task.spawnWorkers()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local iWorker
 	
 	# The control thread is "Worker 0"
@@ -1253,7 +1253,7 @@ function common.task.spawnWorkers()
 ################################################################################
 function common.task.removeAllWorkers()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
 	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
@@ -1271,7 +1271,7 @@ function common.task.removeAllWorkers()
 ################################################################################
 function common.task.controller()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local ReaLoad
 	# Counter needed to find out wher to show ETA
 	local i
@@ -1363,7 +1363,7 @@ function common.task.controller()
 ################################################################################
 function common.task.init()
 ################################################################################
-{
+{ main.profiler $FUNCNAME
 	local running_tasks
 	local running_task
 	local task_id
