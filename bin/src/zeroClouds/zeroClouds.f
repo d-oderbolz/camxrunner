@@ -71,12 +71,12 @@ c
       if (stime.gt.23) then
         stime = stime - 24
         sdate = addday(sdate)
-      end if
+      endif
       
       if (etime.gt.23) then
         etime = etime - 24
         edate = addday(edate)
-      end if
+      endif
       
 !     stime = 100*stime
 !     etime = 100*etime
