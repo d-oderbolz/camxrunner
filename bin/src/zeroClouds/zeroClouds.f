@@ -78,12 +78,12 @@ c
       
       stime = 100*stime
       etime = 100*etime
-!      
-!     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
-!     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
-!
-!c    This command is the reason why start and end must be in the same year
-!     ndays = edate - sdate
+      
+     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
+     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
+
+c    This command is the reason why start and end must be in the same year
+     ndays = edate - sdate
 !     
 !     if (ndays.lt.0 ) then
 !        write(*,*) 'Stop date must be after start date'
