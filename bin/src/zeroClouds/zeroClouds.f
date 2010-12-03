@@ -80,10 +80,10 @@ c
       endif
       stime = 100*stime
       etime = 100*etime
-      write(*,'(a,i6.5,i5.4)') '   Start date/time (YYJJJ HHMM):',
-     &                          sdate,stime
-      write(*,'(a,i6.5,i5.4)') '     End date/time (YYJJJ HHMM):',
-     &                          edate,etime
+      write(*,'(a,i6.5,i5.4)') '   Start date/time (YYJJJ HHMM):',&
+                                sdate,stime
+      write(*,'(a,i6.5,i5.4)') '     End date/time (YYJJJ HHMM):',&
+                                edate,etime
 
 c    This command is the reason why start and end must be in the same year
      ndays = edate - sdate
@@ -184,8 +184,8 @@ c
         
         hrp = float(100 * hr)
         
-        write(*,'(a,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',
-        &                                 currdate,hr
+        write(*,'(a,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',&
+        currdate,hr
      
         write(junit) hrp,currdate
         do k = 1,nzc
