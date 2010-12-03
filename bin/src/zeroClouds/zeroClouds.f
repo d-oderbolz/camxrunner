@@ -76,46 +76,46 @@ c
         edate = addday(edate)
       endif
       
-      stime = 100*stime
-      etime = 100*etime
-      
-     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
-     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
-
-c    This command is the reason why start and end must be in the same year
-     ndays = edate - sdate
-     
-     if (ndays.lt.0 ) then
-        write(*,*) 'Stop date must be after start date'
-        stop
-     endif
-     
-     write(*,'(a,i)') '     Number of days:',ndays
-      
-      read(*,'(20x,a)') fname
-      read(fname,*) dtout
-      write(*,'(a,i10)')       '          MM5 output freq (min):',dtout
-      if (dtout.lt.60 .and. amod(60.,float(dtout)).ne.0.) then
-        write(*,*)'Met output frequency does not divide an hour evenly'
-        stop
-      endif
-      
-      read(*,'(20x,a)') fname
-      read(fname,*) nxc,nyc,nzc
-      
-      write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
-      if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
-        write(*,*)'CAMx dimensions too large for arrays'
-        write(*,*)'Increase array dimensions in param.inc and recompile'
-        stop
-      endif
-      
-      read(*,'(20x,a)') fname
-
-      iunit = 15
-      open(unit=iunit,file=fname,form='unformatted')
-      write(*,*)'Opened CAMx cloud/rain file: ',fname
-      write(iunit) cldhdr,nxc,nyc,nzc
+!      stime = 100*stime
+!      etime = 100*etime
+!      
+!     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
+!     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
+!
+!c    This command is the reason why start and end must be in the same year
+!     ndays = edate - sdate
+!     
+!     if (ndays.lt.0 ) then
+!        write(*,*) 'Stop date must be after start date'
+!        stop
+!     endif
+!     
+!     write(*,'(a,i)') '     Number of days:',ndays
+!      
+!      read(*,'(20x,a)') fname
+!      read(fname,*) dtout
+!      write(*,'(a,i10)')       '          MM5 output freq (min):',dtout
+!      if (dtout.lt.60 .and. amod(60.,float(dtout)).ne.0.) then
+!        write(*,*)'Met output frequency does not divide an hour evenly'
+!        stop
+!      endif
+!      
+!      read(*,'(20x,a)') fname
+!      read(fname,*) nxc,nyc,nzc
+!      
+!      write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
+!      if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
+!        write(*,*)'CAMx dimensions too large for arrays'
+!        write(*,*)'Increase array dimensions in param.inc and recompile'
+!        stop
+!      endif
+!      
+!      read(*,'(20x,a)') fname
+!
+!      iunit = 15
+!      open(unit=iunit,file=fname,form='unformatted')
+!      write(*,*)'Opened CAMx cloud/rain file: ',fname
+!      write(iunit) cldhdr,nxc,nyc,nzc
 
 c
 c-----Special date/time variables for precip and clouds
