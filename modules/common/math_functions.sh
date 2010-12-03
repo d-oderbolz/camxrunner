@@ -47,7 +47,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Parameters:
 # $1 - a FP number
 ################################################################################
-function common.math.FloatOperation()
+function common.math.roundToInteger()
 ################################################################################
 {
 	printf %0.f ${1}
@@ -101,31 +101,11 @@ function common.math.FloatOperation()
 	fi
 	
 	# error handling is not easy here.
-	# we cannot test $? nor PIPESTATUS in the subshell.
-	# we use a tempfile to catch stderr
-	
-	if [[ ${CXR_DBG_BC:-false} == true ]]
-	then
-		std_errfile=$(common.runner.createTempFile sterr-bc)
-	else
-		std_errfile=/dev/null
-	fi
+	# we cannot test $? nor PIPESTATUS in the subshell...
+	# If you really need to debug, write stderr into a tempfile and test for size
 	
 	# Set resolution & pass expression
-	result=$( echo "scale=$bc_res; $1" | bc 2> $std_errfile )
-	
-	# Test status
-	if [[ ${CXR_DBG_BC:-false} == true ]]
-	then
-		rm $std_errfile
-		
-		# if there was something on stderr, we fail
-		if [[ -s $std_errfile ]]
-		then
-			main.dieGracefully "bc could not execute this statement: $1, error $(cat $std_errfile)"
-		fi # error?
-	fi # caring about errors?
-	
+	result=$( echo "scale=$bc_res; $1" | bc )
 	
 	if [[ "$resolution" -eq -1 ]]
 	then
@@ -140,7 +120,7 @@ function common.math.FloatOperation()
 	fi
 	
 	# The scale function counts digits after the decimal point
-	if [[  "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0   ]]
+	if [[ "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0 ]]
 	then
 		# Integer,  and we need to add a trailing .
 		echo ${result}.
