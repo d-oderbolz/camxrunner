@@ -201,39 +201,39 @@ c
 !
 !      stop
 !      end
-!c
-!c-----Date functions
-!c
-!      integer function addday(idate)
-!      implicit none
-!      integer idate,iyr,idy
-!      iyr = idate/1000
-!      idy = idate - iyr*1000
-!      if ((mod(iyr,4).eq.0 .and. idy.eq.366) .or.
-!     &    (mod(iyr,4).ne.0 .and. idy.eq.365)) then
-!        iyr = iyr + 1
-!        if (iyr.gt.99) iyr = 0
-!        addday = iyr*1000 + 1
-!      else
-!        addday = idate + 1
-!      endif
-!      end
-!c
-!      integer function subday(idate)
-!      implicit none
-!      integer idate,iyr,idy
-!      iyr = idate/1000
-!      idy = idate - iyr*1000
-!      if (idy.eq.1) then
-!        iyr = iyr - 1
-!        if (iyr.lt.0) iyr = 99
-!        if (mod(iyr,4).eq.0) then
-!          idy = 366
-!        else
-!          idy = 365
-!        endif
-!        subday = iyr*1000 + idy
-!      else
-!        subday = idate - 1
-!      endif
+c
+c-----Date functions
+c
+      integer function addday(idate)
+      implicit none
+      integer idate,iyr,idy
+      iyr = idate/1000
+      idy = idate - iyr*1000
+      if ((mod(iyr,4).eq.0 .and. idy.eq.366) .or.
+     &    (mod(iyr,4).ne.0 .and. idy.eq.365)) then
+        iyr = iyr + 1
+        if (iyr.gt.99) iyr = 0
+        addday = iyr*1000 + 1
+      else
+        addday = idate + 1
+      endif
+      end
+c
+      integer function subday(idate)
+      implicit none
+      integer idate,iyr,idy
+      iyr = idate/1000
+      idy = idate - iyr*1000
+      if (idy.eq.1) then
+        iyr = iyr - 1
+        if (iyr.lt.0) iyr = 99
+        if (mod(iyr,4).eq.0) then
+          idy = 366
+        else
+          idy = 365
+        endif
+        subday = iyr*1000 + idy
+      else
+        subday = idate - 1
+      endif
       end
