@@ -27,7 +27,7 @@ function main.profiler()
 {
 	caller=${1}
 	
-	${CXR_SQLITE_EXEC} ${CXR_UNIVERSAL_PROFILING_DB} "INSERT INTO profile (caller, time) VALUES ('$caller',strftime('%s','now')/100 + strftime('%f','now'));"
+	/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/sqlite3-x86_64-linux-lchpcx08 /afs/psi.ch/user/o/oderbolz/CAMxRunner/state/universal/profiling.sqlite "INSERT INTO profile (caller, time) VALUES ('$caller',strftime('%s','now')/100 + strftime('%f','now'));"
 }
 
 ################################################################################

@@ -609,10 +609,6 @@ CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_LEVEL_UNIVERSAL
 # This universal DB file stores timing information
 CXR_UNIVERSAL_TIMING_DB=${CXR_UNIVERSAL_DIR}/timing.sqlite
 
-# This universal DB file contains profiling data if we acquire it
-CXR_UNIVERSAL_PROFILING_DB=${CXR_UNIVERSAL_DIR}/profiling.sqlite
-
-
 ########################################
 # Data that is global to all instances of a given run
 ########################################
