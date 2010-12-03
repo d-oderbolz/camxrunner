@@ -207,26 +207,26 @@ c
 c
 c-----Date functions
 c
-      integer function addday(idate)
+      integer function addday(indate)
       implicit none
-      integer idate,iyr,idy
-      iyr = idate/1000
-      idy = idate - iyr*1000
+      integer indate,iyr,idy
+      iyr = indate/1000
+      idy = indate - iyr*1000
       if ((mod(iyr,4).eq.0 .and. idy.eq.366) .or.
      &    (mod(iyr,4).ne.0 .and. idy.eq.365)) then
         iyr = iyr + 1
         if (iyr.gt.99) iyr = 0
         addday = iyr*1000 + 1
       else
-        addday = idate + 1
+        addday = indate + 1
       endif
       end
 c
-      integer function subday(idate)
+      integer function subday(indate)
       implicit none
-      integer idate,iyr,idy
-      iyr = idate/1000
-      idy = idate - iyr*1000
+      integer indate,iyr,idy
+      iyr = indate/1000
+      idy = indate - iyr*1000
       if (idy.eq.1) then
         iyr = iyr - 1
         if (iyr.lt.0) iyr = 99
@@ -237,6 +237,6 @@ c
         endif
         subday = iyr*1000 + idy
       else
-        subday = idate - 1
+        subday = indate - 1
       endif
       end
