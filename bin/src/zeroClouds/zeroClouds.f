@@ -68,141 +68,141 @@ c
       call juldate(sdate)
       call juldate(edate)
 
-!      if (stime.gt.23) then
-!        stime = stime - 24
-!        sdate = addday(sdate)
-!      endif
-!
-!      if (etime.gt.23) then
-!        etime = etime - 24
-!        edate = addday(edate)
-!      endif
+      if (stime.gt.23) then
+        stime = stime - 24
+        sdate = addday(sdate)
+      endif
+
+      if (etime.gt.23) then
+        etime = etime - 24
+        edate = addday(edate)
+      endif
 
 
-!     stime = 100*stime
-!     etime = 100*etime
+     stime = 100*stime
+     etime = 100*etime
       
-!     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
-!     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
+     write(*,'(a,i6,i6)') 'Start date/time (YYJJJ HHMM):',sdate,stime
+     write(*,'(a,i6,i6)') 'End date/time (YYJJJ HHMM):',edate,etime
 
 c     This command is the reason why start and end must be in the same year
       numdays = edate - sdate
-!     
-!     if (numdays.lt.0 ) then
-!        write(*,*) 'Stop date must be after start date'
-!        stop
-!     endif
-!     
-!     write(*,'(a,i)') '     Number of days:',numdays
-!      
-!      read(*,'(20x,a)') fname
-!      read(fname,*) dtout
-!      write(*,'(a,i10)')       '          MM5 output freq (min):',dtout
-!      if (dtout.lt.60 .and. amod(60.,float(dtout)).ne.0.) then
-!        write(*,*)'Met output frequency does not divide an hour evenly'
-!        stop
-!      endif
-!      
-!      read(*,'(20x,a)') fname
-!      read(fname,*) nxc,nyc,nzc
-!      
-!      write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
-!      if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
-!        write(*,*)'CAMx dimensions too large for arrays'
-!        write(*,*)'Increase array dimensions in param.inc and recompile'
-!        stop
-!      endif
-!      
-!      read(*,'(20x,a)') fname
-!
-!      iunit = 15
-!      open(unit=iunit,file=fname,form='unformatted')
-!      write(*,*)'Opened CAMx cloud/rain file: ',fname
-!      write(iunit) cldhdr,nxc,nyc,nzc
+     
+     if (numdays.lt.0 ) then
+        write(*,*) 'Stop date must be after start date'
+        stop
+     endif
+     
+     write(*,'(a,i)') '     Number of days:',numdays
+      
+      read(*,'(20x,a)') fname
+      read(fname,*) dtout
+      write(*,'(a,i10)')       '          MM5 output freq (min):',dtout
+      if (dtout.lt.60 .and. amod(60.,float(dtout)).ne.0.) then
+        write(*,*)'Met output frequency does not divide an hour evenly'
+        stop
+      endif
+      
+      read(*,'(20x,a)') fname
+      read(fname,*) nxc,nyc,nzc
+      
+      write(*,'(a,3i10)')'                 CAMx grid size:',nxc,nyc,nzc
+      if (nxc.gt.mnxc .or. nyc.gt.mnyc .or. nzc.gt.mnzc) then
+        write(*,*)'CAMx dimensions too large for arrays'
+        write(*,*)'Increase array dimensions in param.inc and recompile'
+        stop
+      endif
+      
+      read(*,'(20x,a)') fname
+
+      iunit = 15
+      open(unit=iunit,file=fname,form='unformatted')
+      write(*,*)'Opened CAMx cloud/rain file: ',fname
+      write(iunit) cldhdr,nxc,nyc,nzc
 
 c
 c-----Special date/time variables for precip and clouds
 c
-!        jdatep = jdate
-!        jhrp = jhr/100
-!        jmnp = mod(jhr,100)
-!        if (dtout.lt.60) then
-!          jmnp = jmnp - dtout
-!          if (jmnp.lt.0) then
-!            jmnp = jmnp + 60
-!            jhrp = jhrp - 1
-!            if (jhrp.lt.0) then
-!              jhrp = jhrp + 24
-!              jdatep = subday(jdatep)
-!            endif
-!          endif
-!        else
-!          jhrp = jhrp - dtout/60
-!          if (jhrp.lt.0) then
-!            jhrp = jhrp + 24
-!            jdatep = subday(jdatep)
-!          endif
-!        endif
-!        jhrp = 100*jhrp + jmnp
-!        hrp = float(jhrp)
-!
-!        do j = 1,nyc
-!          do i = 1,nxc
-!
-!c
-!c-----Prepare cloud fields
-!c
-!					
-!            do k = 1,nzc
-!              cwc(i,j,k) = 0.
-!              pwr(i,j,k) = 0.
-!              pws(i,j,k) = 0.
-!              pwg(i,j,k) = 0.
-!              cod(i,j,k) = 0.
-!            enddo
-!
-!          enddo
-!        enddo
-!c
-!c-----Write to CAMx files
-!c
-!
-!c
-!c-----For each day
-!c
-!
-!        do currdate = sdate, edate
-!
-!c
-!c-----Time-varying met fields
-!c
-!
-!        do hr = 0,23
-!
-!        junit = 15
-!        
-!        hrp = float(100 * hr)
-!        
-!        write(*,'(a,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',&
-!        currdate,hr
-!     
-!        write(junit) hrp,currdate
-!        do k = 1,nzc
-!          write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
-!          write(junit) ((pwr(i,j,k),i=1,nxc),j=1,nyc) 
-!          write(junit) ((pws(i,j,k),i=1,nxc),j=1,nyc) 
-!          write(junit) ((pwg(i,j,k),i=1,nxc),j=1,nyc) 
-!          write(junit) ((cod(i,j,k),i=1,nxc),j=1,nyc) 
-!        enddo 
-!c---- End hours
-!      enddo
-!
-!c---- End days
-!      enddo
-!
-!      write(*,'(/,a,/)')' program run complete'
-!
-!      stop
+        jdatep = jdate
+        jhrp = jhr/100
+        jmnp = mod(jhr,100)
+        if (dtout.lt.60) then
+          jmnp = jmnp - dtout
+          if (jmnp.lt.0) then
+            jmnp = jmnp + 60
+            jhrp = jhrp - 1
+            if (jhrp.lt.0) then
+              jhrp = jhrp + 24
+              jdatep = subday(jdatep)
+            endif
+          endif
+        else
+          jhrp = jhrp - dtout/60
+          if (jhrp.lt.0) then
+            jhrp = jhrp + 24
+            jdatep = subday(jdatep)
+          endif
+        endif
+        jhrp = 100*jhrp + jmnp
+        hrp = float(jhrp)
+
+        do j = 1,nyc
+          do i = 1,nxc
+
+c
+c-----Prepare cloud fields
+c
+					
+            do k = 1,nzc
+              cwc(i,j,k) = 0.
+              pwr(i,j,k) = 0.
+              pws(i,j,k) = 0.
+              pwg(i,j,k) = 0.
+              cod(i,j,k) = 0.
+            enddo
+
+          enddo
+        enddo
+c
+c-----Write to CAMx files
+c
+
+c
+c-----For each day
+c
+
+        do currdate = sdate, edate
+
+c
+c-----Time-varying met fields
+c
+
+        do hr = 0,23
+
+        junit = 15
+        
+        hrp = float(100 * hr)
+        
+        write(*,'(a,i6.5,i5.4,/)')'Cld/rn date/time (YYJJJ HHMM):',&
+        currdate,hr
+     
+        write(junit) hrp,currdate
+        do k = 1,nzc
+          write(junit) ((cwc(i,j,k),i=1,nxc),j=1,nyc) 
+          write(junit) ((pwr(i,j,k),i=1,nxc),j=1,nyc) 
+          write(junit) ((pws(i,j,k),i=1,nxc),j=1,nyc) 
+          write(junit) ((pwg(i,j,k),i=1,nxc),j=1,nyc) 
+          write(junit) ((cod(i,j,k),i=1,nxc),j=1,nyc) 
+        enddo 
+c---- End hours
+      enddo
+
+c---- End days
+      enddo
+
+      write(*,'(/,a,/)')' program run complete'
+
+      stop
       end
 c
 c-----Date functions
