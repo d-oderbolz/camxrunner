@@ -360,7 +360,6 @@ function common.map.ProjectionToLonLat()
 # $2 - x-coordinate in projection
 # $3 - domain in which indexes are needed
 # [$4] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
-
 ################################################################################
 function common.map.ProjectionToIndexes()
 ################################################################################

@@ -39,6 +39,19 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
 
+################################################################################
+# Function: common.math.roundToInteger
+#
+# Uses printf to round the input.
+#
+# Parameters:
+# $1 - a FP number
+################################################################################
+function common.math.FloatOperation()
+################################################################################
+{
+	printf %0.f ${1}
+}
 
 ################################################################################
 # Function: common.math.FloatOperation
