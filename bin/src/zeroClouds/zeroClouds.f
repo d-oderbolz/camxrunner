@@ -65,19 +65,20 @@ c
       etime = mod(edate,100)
       sdate = sdate/100
       edate = edate/100
-c      call juldate(sdate)
-c      call juldate(edate)
-      
+      call juldate(sdate)
+      call juldate(edate)
+
       if (stime.gt.23) then
         stime = stime - 24
         sdate = addday(sdate)
       endif
-      
+
       if (etime.gt.23) then
         etime = etime - 24
         edate = addday(edate)
       endif
-      
+
+
 !     stime = 100*stime
 !     etime = 100*etime
       
