@@ -248,7 +248,6 @@ function main.log()
 	# A line of stars
 	local stars
 	
-	local function_name
 	local blank_message
 	local stderr_message
 	local message
@@ -271,24 +270,9 @@ function main.log()
 		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix=""   ;;
 		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
 		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
-		b) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
-			then
-				stars="${CXR_BOX_SMALL_T}"
-			else
-				stars="${CXR_BOX_SMALL}"
-			fi ;;
-		B) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
-			then
-				stars="${CXR_BOX_LARGE_T}"
-			else
-				stars="${CXR_BOX_LARGE}"
-			fi ;;
-		H) 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
-			then
-				stars="${CXR_BOX_HUGE_T}"
-			else
-				stars="${CXR_BOX_HUGE}"
-			fi ;;
+		b) stars="${CXR_BOX_SMALL}";;
+		B) stars="${CXR_BOX_LARGE}";;
+		H) stars="${CXR_BOX_HUGE}";;
 		esac
 	done
 	
@@ -309,34 +293,19 @@ function main.log()
 		return $CXR_RET_OK
 	fi
 	
+	# Add modifier if test is in progress 
 	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
 	then
-		# TODO: We need to deal with newlines!!
 		prefix="#${prefix}"
-	fi
-	
-	# max index of the call-stack
-	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
-	
-
-	# The caller is in ${FUNCNAME[1]}, if not, use CAMxRunner
-	if [[ ${maxNests} -ge 1 ]]
-	then
-		function_name="${FUNCNAME[1]}"
-	else
-		function_name="CAMxRunner"
+		
+		if [[ "$stars" ]]
+		then
+			stars="#${stars}"
+		fi
 	fi
 	
 	blank_message="${prefix}${1:-}"
 
-	# If set, we display the worker ID on screen
-	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
-	then
-		stderr_message="${CXR_WORKER_ID}: $blank_message"
-	else
-		stderr_message="$blank_message"
-	fi
-	
 	### In case of error, write current day to failed days file
 	### and increase error count
 	if [[ "${log_level}" -eq "${CXR_LOG_LEVEL_ERR}" ]]
@@ -346,6 +315,9 @@ function main.log()
 		then
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
+		
+		# max index of the call-stack
+		maxNests=$(( ${#FUNCNAME[@]} - 1 ))
 		
 		# Create callstack in case of error
 		if [[ ${maxNests} -ge 1 ]]
@@ -360,28 +332,27 @@ function main.log()
 		fi # Callstack available?
 		
 		main.addError "${blank_message} - ${call_stack:-}"
-	fi
-	
-	# We have to look at several things separately: 
-	# - writing to STDERR (errors have already been taken care of)
-	# - writing to the logfile
-	# - external channels like twitter/email/sms (treated together)
-	
-	# STDERR
-	# Here we add no indentation
-	if [[ "${log_level}" != "${CXR_LOG_LEVEL_ERR}" && "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" ]]
-	then
-		# stderr not needed in case of error (already done)
-		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${stars}" ]]
-		then
-			stderr_message="${prefix}${stars}\n${stderr_message}\n${prefix}${stars}\n"
-		fi
 		
-		# Write a unformatted copy to sterr. 
-		echo -e "${stderr_message}" 1>&2
+	else
+		# STDERR All other cases
+
+		if [[ "${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -ge "${log_level}" ]]
+		then
+			# If set, we display the worker ID on screen
+			if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
+			then
+				stderr_message="${CXR_WORKER_ID}: $blank_message"
+			else
+				stderr_message="$blank_message"
+			fi
+			# adding stars (might be empty)
+			stderr_message="${prefix}${stars}\n${stderr_message}\n${prefix}${stars}\n"
+
+			# Write a unformatted copy to sterr. 
+			echo -e "${stderr_message}" 1>&2
+		fi
 	fi
-	
+
 	# file
 	# Prepare and write to file only if we have a defined target
 	# and this was not suppressed in the call
@@ -400,11 +371,8 @@ function main.log()
 		# \\n is what we are looking for, // request ALL \n to be replaced
 		message="${message//\\n/\n${prefix}}"
 		
-		# If stars are set, we add a line of stars at the beginning and end
-		if [[ "${stars}" ]]
-		then
-			message="${prefix}${stars}\n${message}\n${prefix}${stars}\n"
-		fi
+		# adding stars (might be empty)
+		message="${prefix}${stars}\n${message}\n${prefix}${stars}\n"
 		
 		# Writing to file
 		echo -e "$message" >> ${CXR_LOG}
