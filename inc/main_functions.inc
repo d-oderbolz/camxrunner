@@ -200,7 +200,7 @@ function main.countErrors()
 #
 # We use STDERR instead of STDOUT in order not to interfere with returning values from functions.
 # If you want a function to return log messages, rotate stderr and stdout:
-# > $(my_function 2>&1)
+# > my_function 2>&1
 #
 # To determine if a message is wanted, we distinguish these log-levels (set by the corresponding command line option):
 # -a showed always
@@ -225,7 +225,7 @@ function main.countErrors()
 # is not recommended because the whitespace before the second part of the string will 
 # be output "as is".
 #
-# If no parameter is gives, the log-level is "CXR_LOG_LEVEL_INF"
+# If not given, the log-level of a message is "CXR_LOG_LEVEL_INF"
 # 
 # Parameters:
 # [-a] - shown always, no prefix, cannot be turned off
@@ -292,19 +292,28 @@ function main.log()
 		esac
 	done
 	
-	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
-	then
-		# TODO: We need to deal with newlines!!
-		prefix="#${prefix}"
-	fi
-	
-	# This is not strictly needed, but it allows to read 
-	# non-named command line options
+	# This allows to read non-named command line options
 	shift $(($OPTIND - 1))
 	
 	# Make getopts ready again
 	unset OPTSTRING
 	unset OPTIND
+	
+	# Triage - if we do not want to see this message, we return
+	if [[ $log_level -ne $CXR_LOG_LEVEL_ERR && \
+				$log_level -ne $CXR_LOG_LEVEL_ALW && \
+	     ("${CXR_LOG_LEVEL_SCREEN:-${CXR_LOG_LEVEL_INF}}" -lt "${log_level}") && \
+	     ("${CXR_LOG_LEVEL_FILE:-${CXR_LOG_LEVEL_INF}}" -lt "${log_level}") && \
+	     ("${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -lt "${log_level}") ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
+	if [[ ${CXR_TEST_IN_PROGRESS:-false} == true ]]
+	then
+		# TODO: We need to deal with newlines!!
+		prefix="#${prefix}"
+	fi
 	
 	# max index of the call-stack
 	maxNests=$(( ${#FUNCNAME[@]} - 1 ))
@@ -320,7 +329,6 @@ function main.log()
 	
 	blank_message="${prefix}${1:-}"
 
-	
 	# If set, we display the worker ID on screen
 	if [[ "$CXR_MAX_PARALLEL_PROCS" -gt 1 && "${CXR_WORKER_ID:-}" ]]
 	then
