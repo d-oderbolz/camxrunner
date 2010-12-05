@@ -113,7 +113,7 @@ function common.check.PredictModelOutputMb()
 	
 	time_steps=$(common.math.FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIM_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" "-1" )
 	
-	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "-1" false)
+	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" "-1")
 	
 	echo "$size"
 }

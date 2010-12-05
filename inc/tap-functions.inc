@@ -243,7 +243,7 @@ function _less_than()
 	local expected=${2:-}
 	local comp
 	
-	comp=$(common.math.FloatOperation "$result < $expected" 0 false)
+	comp=$(common.math.FloatOperation "$result < $expected" 0)
 	
 	# bc uses logic, but this is UNIX, where 0=good
 	if [[ $comp -eq 1 ]] ; then
@@ -269,7 +269,7 @@ function _greater_than()
 	local expected=${2:-}
 	local comp
 	
-	comp=$(common.math.FloatOperation "$result > $expected" 0 false)
+	comp=$(common.math.FloatOperation "$result > $expected" 0)
 	
 	# bc uses logic, but this is UNIX, where 0=good
 	if [[ $comp -eq 1 ]] ; then
@@ -295,7 +295,7 @@ function _less_than_or_equal()
 	local expected=${2:-}
 	local comp
 	
-	comp=$(common.math.FloatOperation "$result <= $expected" 0 false)
+	comp=$(common.math.FloatOperation "$result <= $expected" 0)
 	
 	# bc uses logic, but this is UNIX, where 0=good
 	if [[ $comp -eq 1 ]] ; then
@@ -321,7 +321,7 @@ function _greater_than_or_equal()
 	local expected=${2:-}
 	local comp
 	
-	comp=$(common.math.FloatOperation "$result >= $expected" 0 false)
+	comp=$(common.math.FloatOperation "$result >= $expected" 0)
 	
 	# bc uses logic, but this is UNIX, where 0=good
 	if [[ $comp -eq 1 ]] ; then

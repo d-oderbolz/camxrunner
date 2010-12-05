@@ -42,7 +42,7 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.math.roundToInteger
 #
-# Uses printf to round the input.
+# Uses printf to round the input to the nearest integer.
 #
 # Parameters:
 # $1 - a FP number
@@ -56,24 +56,20 @@ function common.math.roundToInteger()
 ################################################################################
 # Function: common.math.FloatOperation
 #
-# Performs FP arithmetic (other than $(()) )
-# If the result is a whole number, a dot is appended at the end (FORTRAN compatibility)
+# Performs FP arithmetic - unlike $(()). Implemented with bc.
 # 
 # You can also use this function to do FP-safe comparisons:
-# > result=$(common.math.FloatOperation "$a > $b" 0 false)
-# > if [[ $result -eq 1 ]] ; then # true
-#
-# if [[ $result -eq 1 ]]
-# then
-#	# a is greater
-# else
-#	# a is not greater
-# fi
+# > result=$(common.math.FloatOperation "$a > $b" 0)
+# >if [[ $result -eq 1 ]]
+# >then
+#	>	# a is greater
+# >else
+#	>	# a is not greater
+# >fi
 #
 # Parameters:
 # $1 - an expression
 # $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
-# $3 - an optional boolean parameter indicating if a trailing decimal point should be added (default: true)
 ################################################################################
 function common.math.FloatOperation()
 ################################################################################
@@ -118,6 +114,39 @@ function common.math.FloatOperation()
 		fi
 		
 	fi
+	
+	# The scale function counts digits after the decimal point
+	if [[ "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0 ]]
+	then
+		# Integer,  and we need to add a trailing .
+		echo ${result}.
+	else
+		echo ${result}
+	fi
+}
+
+################################################################################
+# Function: common.math.FortranFloatOperation
+#
+# Performs FP arithmetic - unlike $(()). Implemented with bc.
+# If the result is a whole number, a dot is appended at the end (FORTRAN compatibility)
+#
+# Parameters:
+# $1 - an expression
+# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
+################################################################################
+function common.math.FortranFloatOperation()
+################################################################################
+{
+	if [[ $# -lt 1 ]]
+	then
+		main.dieGracefully  "needs at least an expression as input"
+	fi
+	
+	# Define & Initialize local vars
+	local result
+	
+	result="$(common.math.FloatOperation $1 $2)"
 	
 	# The scale function counts digits after the decimal point
 	if [[ "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0 ]]
@@ -180,13 +209,13 @@ function common.math.abs()
 	fi
 	
 	# Is the number 0?
-	if [[ "$(common.math.FloatOperation "$1 == 0" -1 false)" == 1 ]]
+	if [[ "$(common.math.FloatOperation "$1 == 0" -1)" == 1 ]]
 	then
 		echo 0
 	# Is the number negative?
-	elif [[ "$(common.math.FloatOperation "$1 < 0" "" false)" == 1 ]]
+	elif [[ "$(common.math.FloatOperation "$1 < 0" 0)" == 1 ]]
 	then
-		echo "$(common.math.FloatOperation "0 - $1" "" false)"
+		echo "$(common.math.FloatOperation "0 - $1")"
 	else
 		echo $1
 	fi
@@ -230,7 +259,7 @@ function common.math.sumVector()
 	# We might get many elements - seq by default does Engineering notation
 	for iElement in $(seq -f"%.0f" 0 $(( ${#arr[@]} - 1 )))
 	do
-		result="$(common.math.FloatOperation "$result + ${arr[$iElement]}" "$scale" false)"
+		result="$(common.math.FloatOperation "$result + ${arr[$iElement]}" "$scale")"
 	done
 	
 	echo $result
@@ -277,7 +306,7 @@ function common.math.meanVector()
 	
 	sum=$(common.math.sumVector "$list" "$scale")
 	
-	result=$(common.math.FloatOperation "$sum / $nValues" "$scale" false)
+	result=$(common.math.FloatOperation "$sum / $nValues" "$scale")
 	
 	echo $result
 }
@@ -334,10 +363,10 @@ function common.math.stdevVector()
 	# We might get many elements - seq by default does Engineering notation
 	for iElement in $(seq -f"%.0f" 0 $(( ${#arr[@]} - 1 )))
 	do
-		SumSquaredDeviation="$(common.math.FloatOperation "$SumSquaredDeviation + ( ${arr[$iElement]} - $mean )^2" "" false)"
+		SumSquaredDeviation="$(common.math.FloatOperation "$SumSquaredDeviation + ( ${arr[$iElement]} - $mean )^2")"
 	done
 
-	result="$(common.math.FloatOperation "sqrt($SumSquaredDeviation / $nValues)" "" false)"
+	result="$(common.math.FloatOperation "sqrt($SumSquaredDeviation / $nValues)")"
 	
 	echo $result
 }
@@ -368,13 +397,13 @@ function test_module()
 	is "$(common.math.abs -3.14159)" 3.14159 "common.math.abs of -3.14159"
 	is "$(common.math.abs 3.14159)" 3.14159 "common.math.abs of 3.14159"
 	
-	is "$(common.math.FloatOperation "-1000000 * -1" )"  1000000. "common.math.FloatOperation -1000000 * -1"
+	is "$(common.math.FortranFloatOperation "-1000000 * -1")"  1000000. "common.math.FloatOperation -1000000 * -1"
 	is "$(common.math.FloatOperation "12.43 * 2" )" 24.86 "common.math.FloatOperation 12.43 * 2"
-	is "$(common.math.FloatOperation "5" )"  5. "common.math.FloatOperation 5 (trailing .)"
-	is "$(common.math.FloatOperation "5" "" false )"  5 "common.math.FloatOperation 5 false (no trailing .)"
-	is "$(common.math.FloatOperation "0.0000224784 * 300000" -1 false)" 6 "common.math.FloatOperation Truncation"
-	is "$(common.math.FloatOperation ".01 + 0.2" -1 false)" 0 "common.math.FloatOperation Truncation to 0"
-	is "$(common.math.FloatOperation ".01 + 0.2" -1)" "0." "common.math.FloatOperation Truncation to 0 with dp"
+	is "$(common.math.FortranFloatOperation "5" )"  5. "common.math.FortranFloatOperation 5"
+	is "$(common.math.FloatOperation "5")"  5 "common.math.FloatOperation 5)"
+	is "$(common.math.FloatOperation "0.0000224784 * 300000" -1)" 6 "common.math.FloatOperation Truncation"
+	is "$(common.math.FloatOperation ".01 + 0.2" -1)" 0 "common.math.FloatOperation Truncation to 0"
+	is "$(common.math.FortranFloatOperation ".01 + 0.2" -1)" "0." "common.math.FortranFloatOperation Truncation to 0 with dp"
 
 	is "$(common.math.sumVector "1 -1 1")" 1 "common.math.sumVector - alternating signs"
 	is "$(common.math.sumVector "10.4" 1)" 10.4 "common.math.sumVector - single fp"

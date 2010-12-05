@@ -370,7 +370,7 @@ function boundary_conditions()
 					
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_BC_PROC_INPUT_FILE})
-					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}
+					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}
 					exit
 					EOF
 						

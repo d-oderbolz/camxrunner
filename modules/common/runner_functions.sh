@@ -1017,7 +1017,7 @@ function common.runner.waitForLock()
 	while [[ -e "$locklink" ]]
 	do
 	
-		if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 false ) -eq 1 ]]
+		if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
 			# Safe time thanks to short-circuit logic
@@ -1040,9 +1040,9 @@ function common.runner.waitForLock()
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
-		seconds_waited=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS false )
+		seconds_waited=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS )
 		
-		if [[ $(common.math.FloatOperation "$seconds_waited > $max_wait_seconds" 0 false ) -eq 1 ]]
+		if [[ $(common.math.FloatOperation "$seconds_waited > $max_wait_seconds" 0) -eq 1 ]]
 		then
 			main.log -w "Lock $lock (${level}) took longer than $max_wait_seconds to get!"
 			_retval=false
@@ -1128,7 +1128,7 @@ function common.runner.getLock()
 			
 			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
 			do
-				if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 false ) -eq 1 ]]
+				if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 ) -eq 1 ]]
 				then
 					main.log -a "Waiting for lock $lock (level $level) ..."
 					# Safe time thanks to short-circuit logic
@@ -1147,9 +1147,9 @@ function common.runner.getLock()
 				sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
 				sleep $sleeptime
 				
-				seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS false )
+				seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS )
 				
-				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 false ) -eq 1 ]]
+				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 ) -eq 1 ]]
 				then
 					main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
 				fi

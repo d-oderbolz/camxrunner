@@ -159,7 +159,7 @@ function common.performance.estimateTotalRuntimeSeconds()
 	n_tasks=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")
 	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 	
-	result=$(common.math.FloatOperation "$n_tasks * $mean" -1 false)
+	result=$(common.math.FloatOperation "$n_tasks * $mean" 0)
 	
 	echo $result
 }
@@ -186,17 +186,17 @@ function common.performance.estimateModuleRuntimeSeconds()
 	
 	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module' AND machine='$CXR_MACHINE';")
 
-	if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
+	if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 	then
 		# No data yet, try an average over more
 		mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module';")
 		
-		if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
+		if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 		then
 			# Still nothing, get avg over all
 			mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 		
-			if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0 false) == 1 ]]
+			if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 			then
 				# Still nothing, use default
 				mean=600
@@ -205,7 +205,7 @@ function common.performance.estimateModuleRuntimeSeconds()
 	fi
 
 	# we need to multply with normalisation factor to get it right
-	estimate=$(common.math.FloatOperation "$mean * $CXR_TIME_NORM_FACTOR" -1 false)
+	estimate=$(common.math.FloatOperation "$mean * $CXR_TIME_NORM_FACTOR" -1)
 	
 	echo $estimate
 }
@@ -231,7 +231,7 @@ function common.performance.reportEta()
 	if [[ $left -gt 0 ]]
 	then
 		# OK, we are within estimation
-		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" -1 false)
+		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" -1)
 	
 		# Only goes to stderr
 		echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
@@ -300,7 +300,7 @@ function common.performance.getMemUsedPercent()
 			do
 				if [[ "$(main.isNumeric? $used)" == true ]]
 				then
-					usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1 false)"
+					usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1)"
 				else
 					main.log -w "Non-numerig output of top: $used"
 				fi
@@ -312,7 +312,7 @@ function common.performance.getMemUsedPercent()
 		done # Iterate over samples
 		
 		# Divide by sample size
-		usedPercent="$(common.math.FloatOperation "$usedPercent / $CXR_CHECK_MEMORY_SAMPLES" 1 false)"
+		usedPercent="$(common.math.FloatOperation "$usedPercent / $CXR_CHECK_MEMORY_SAMPLES" 1)"
 		
 		main.log -v "Currently $usedPercent % of memory are in use"
 		
@@ -336,7 +336,7 @@ function common.performance.getMemFreePercent()
 	local usedPercent
 	
 	usedPercent=$(common.performance.getMemUsedPercent)
-	free="$(common.math.FloatOperation "100 - $usedPercent" -1 false)"
+	free="$(common.math.FloatOperation "100 - $usedPercent" -1)"
 	
 	main.log -v "Found $free % free memory"
 	
@@ -361,7 +361,7 @@ function common.performance.getSystemLoadPercent()
 	rawLoad=$(top -b -n1 | head -n1 | awk '{print $NF}')
 	
 	# Divide this number by number of cores and multply by 100
-	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2 false)
+	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2)
 	
 	echo $Load
 	
@@ -386,7 +386,7 @@ function common.performance.getReaLoadPercent()
 	mem=$(common.performance.getMemUsedPercent)
 	cpu=$(common.performance.getSystemLoadPercent)
 	
-	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1 false)
+	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1)
 	
 	echo $load
 }
@@ -433,7 +433,7 @@ function test_module()
 	# we get the row that was added last
 	time=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT elapsed_seconds FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='test' ORDER BY epoch_m DESC LIMIT 1;" )
 
-	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0 false))
+	difference=$(common.math.abs $(common.math.FloatOperation "$nSeconds - $time" 0))
 	
 	# We test for difference
 	is_less_or_equal $difference $epsilon "common.performance Timing of sleep"

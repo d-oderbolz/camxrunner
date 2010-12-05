@@ -374,7 +374,7 @@ function initial_conditions()
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_IC_PROC_INPUT_FILE})
 			
-					$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra
+					$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra
 					exit
 					EOF
 					
@@ -411,8 +411,8 @@ function initial_conditions()
 						local master_cell_dx_m
 						local master_cell_dy_m
 						
-						master_cell_dx_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
-						master_cell_dy_m=$(common.math.FloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
+						master_cell_dx_m=$(common.math.FortranFloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
+						master_cell_dy_m=$(common.math.FortranFloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
 						
 						# Is topconc non-empty?
 						if [[ -s "${CXR_TOPCONC_OUTPUT_FILE}"  ]]
