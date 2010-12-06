@@ -423,7 +423,7 @@ function is()
 	(( $? == 0 ))
 	ok $? "$name"
 	local r=$?
-	(( r != 0 )) && _isnt_diag "$result" "$expected"
+	(( r != 0 )) && _is_diag "$result" "$expected"
 	return $r 
 }
 
@@ -595,7 +595,7 @@ function isnt()
 	(( $? != 0 ))
 	ok $? "$name"
 	local r=$?
-	(( r != 0 )) && _is_diag "$result" "$expected"
+	(( r != 0 )) && _isnt_diag "$result" "$expected"
 	return $r 
 }
 
