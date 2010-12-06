@@ -81,12 +81,10 @@ function common.math.FloatOperation()
 	
 	# Define & Initialize local vars
 	local resolution
-	local add_trailing_dp
 	local result
 	local bc_res
 	
 	resolution=${2:-$CXR_NUM_DIGITS}
-	add_trailing_dp=${3:-true}
 	
 	# Fix resolution 
 	# We treat -1 and 0 ourselves
@@ -143,7 +141,7 @@ function common.math.FortranFloatOperation()
 	# Define & Initialize local vars
 	local result
 	
-	result="$(common.math.FloatOperation $1 ${2:-$CXR_NUM_DIGITS})"
+	result="$(common.math.FloatOperation "$1" "${2:-$CXR_NUM_DIGITS}")"
 	
 	# The scale function counts digits after the decimal point
 	if [[ "$( echo "scale(${result})" | bc )" -eq 0 ]]
@@ -394,7 +392,7 @@ function test_module()
 	is "$(common.math.abs -3.14159)" 3.14159 "common.math.abs of -3.14159"
 	is "$(common.math.abs 3.14159)" 3.14159 "common.math.abs of 3.14159"
 	
-	is "$(common.math.FortranFloatOperation "-1000000 * -1")"  1000000. "common.math.FloatOperation -1000000 * -1"
+	is "$(common.math.FortranFloatOperation "-1000000 * -1")"  1000000. "common.math.FortranFloatOperation -1000000 * -1"
 	is "$(common.math.FloatOperation "12.43 * 2" )" 24.86 "common.math.FloatOperation 12.43 * 2"
 	is "$(common.math.FortranFloatOperation "5" )"  5. "common.math.FortranFloatOperation 5"
 	is "$(common.math.FloatOperation "5")"  5 "common.math.FloatOperation 5)"
