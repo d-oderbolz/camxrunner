@@ -261,6 +261,7 @@ function CAMx_installer()
 		
 		esac
 		
+		# We assume each compiler supports -V
 		echo -e "FC: $(which $compiler)\n$($compiler -V)" >> "${logfile}"
 		
 		#File resulting from compilation due to CAMx defaults
