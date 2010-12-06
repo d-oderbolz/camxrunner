@@ -210,7 +210,13 @@ function common.check.DataType()
 		echo true
 		;;
 	I) # Integer
-		echo $(main.isNumeric? "$value")
+		if [[ "$value" =~ $CXR_PATTERN_NUMERIC ]]
+		then
+			echo true
+		else
+			echo false
+		fi
+
 		;;
 	F) # Floating point number
 

@@ -390,7 +390,7 @@ function common.date.JulianToDate()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false ]]
+	if [[  $# -ne 1 || ! "$1" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.dieGracefully "needs one number as input. Got $*"
 	fi
@@ -426,7 +426,7 @@ function common.date.EpochToDate()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || ! "$1" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.dieGracefully  "needs one number as input. Got $*"
 	fi
@@ -451,7 +451,7 @@ function common.date.EpochToDateTime()
 ################################################################################
 {
 	# Check for numeric input
-	if [[  $# -ne 1 || $(main.isNumeric? "$1") == false   ]]
+	if [[  $# -ne 1 || ! "$1" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.dieGracefully "needs one number as input. Got $*"
 	fi
@@ -1129,7 +1129,7 @@ function common.date.addDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || ! "$2" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.log -e  "needs one date and one number as input. Got $*"
 		echo false
@@ -1163,7 +1163,7 @@ function common.date.subtractDays()
 	local julresult
 	local julstart
 	
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || ! "$2" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.log -e  "needs one date and one number as input. Got $*"
 		echo false
@@ -1201,7 +1201,7 @@ function common.date.setVars()
 ################################################################################
 {
 
-	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || $(main.isNumeric? "$2") == false    ]]
+	if [[   $# -ne 2 || $(common.date.isYYYYMMDD? "$1") == false || ! "$2" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.log -e  "needs one date and one number as input"
 		echo false

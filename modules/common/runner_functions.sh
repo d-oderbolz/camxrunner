@@ -598,7 +598,7 @@ function common.runner.createDummyFile()
 	
 	main.log "Creating Dummy $filename of size $size"
 	
-	if [[ $(main.isNumeric? $size) == false ]]
+	if [[ $size =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.log -w "You must supply a numeric size in MB. Using 1 MB now."
 		size=1

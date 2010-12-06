@@ -196,7 +196,7 @@ function common.math.RandomNumber()
 function common.math.abs()
 ################################################################################
 {
-	if [[  $# -ne 1 || "$(main.isNumeric? "$1")" == false ]]
+	if [[  $# -ne 1 || ! "$1" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.log -e  "needs a number as input, got $*"
 		echo false

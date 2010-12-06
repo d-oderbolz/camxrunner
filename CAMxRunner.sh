@@ -386,12 +386,12 @@ fi
 
 main.log -v -B "Checking if selected options are valid..." 
 
-if [[ $(main.isNumeric? "${CXR_MAX_PARALLEL_PROCS}") == false ]]
+if [[ ! ${CXR_MAX_PARALLEL_PROCS} =~ $CXR_PATTERN_NUMERIC ]]
 then
 	main.dieGracefully "The argument of -P must be numeric!"
 fi
 
-if [[ $(main.isNumeric? "${CXR_ERROR_THRESHOLD}") == false  ]]
+if [[ ! ${CXR_ERROR_THRESHOLD} =~ $CXR_PATTERN_NUMERIC ]]
 then
 	main.dieGracefully "The argument of -t must be numeric!"
 fi

@@ -34,6 +34,8 @@ function main.profiler()
 # Function: main.isNumeric?
 #
 # A small, relatively robust function to test if the argument is numeric.
+# Obsolete, use this construct now:
+# > if [[ $var =~ $CXR_PATTERN_NUMERIC ]]
 #
 # Parameters:
 # $1 - String to test

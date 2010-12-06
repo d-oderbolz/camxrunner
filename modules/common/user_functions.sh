@@ -215,7 +215,7 @@ function common.user.getInput()
 	echo "${CXR_SINGLE_LINE}" 1>&2
 	echo -e "${message}" 1>&2
 	
-	if [[ $(main.isNumeric? "${2:-}") == true  ]]
+	if [[ "${2:-}" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		read -n $2 answer
 	else
