@@ -433,22 +433,9 @@ function common.db.change()
 			main.log -w "Retrying SQL statement: $(cat $sqlfile)"
 		fi
 	
-		if [[ "$CXR_STRACE_DB" == true ]]
-		then
-			# Temporarily, we observe all calls to sqlite
-			stracefile="$(common.runner.createJobFile sql-strace)"
-		
-			main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
-		
-			result="$(strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
-			retval=$?
-			
-			bzip2 ${stracefile}
-		else
-			# no trace
-			result="$(${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
-			retval=$?
-		fi # strace?
+		result="$(${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
+		retval=$?
+
 		
 		trial=$(( $trial + 1 ))
 		
