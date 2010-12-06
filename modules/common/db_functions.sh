@@ -187,13 +187,13 @@ function common.db.init()
 #
 # Function that returns a resultset on stdout. 
 # Do not use this function to alter the database - we aquire no writelock in CAMxRunner!
-# However, to avoid writers from changing the DB, we lock it exclusively.
-# 
+# However, to avoid writers from changing the DB, an exclusive DB lock may be acquired.
+# Control this behaviour with CXR_DB_X_LOCK_READ.
+# If this variable is true, this pragma is added:
+# PRAGMA locking_mode = exclusive; 
+#
 # On error, we try to re-execute the statement, because we fail if the DB is locked.
 # (SQLite issues "I/O Error" but means "DB locked")
-#
-# We add the following pragmas in front of the statement 
-# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update. Control via CXR_DB_X_LOCK_READ
 #
 # Parameters:
 # $1 - full-path to db_file
@@ -219,6 +219,10 @@ function common.db.getResultSet()
 	local retval
 	local result
 	
+	# This variable will hold the actual SQL we execute
+	local sql
+	sql=""
+	
 	db_file="$1"
 	level="$2"
 	statement="$3"
@@ -235,15 +239,12 @@ function common.db.getResultSet()
 		return $CXR_RET_OK
 	fi
 
-	# We use a tempfile for all types of calls. Not fast, but solid.
-	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-	sqlfile="$(common.runner.createTempFile sql false)"
-	
 	# Add pragmas
 	
 	if [[ "CXR_DB_X_LOCK_READ" == true ]]
 	then
-		echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
+		sql="PRAGMA locking_mode = exclusive;
+"
 	fi
 	
 	# Detect type of statement
@@ -254,21 +255,24 @@ function common.db.getResultSet()
 		# Fill stdin into file (there are probably more elegant ways for this...)
 		while read currline
 		do
-			echo "$currline" >> "$sqlfile"
+			sql="$sql
+$currline"
 		done
 	elif [[ -f "$statement" ]]
 	then
 		# statement is a file, read from there
-		cat "$statement" >> "$sqlfile"
+			sql="$sql
+$(cat $statement)"
 	else
-		# Add string to file the string
-		echo "${statement} ;" >> "$sqlfile"
+		# Add string 
+			sql="$sql
+$statement"
 	fi # type-of-statement
 	
 	# add ; in case it was forgotten
-	echo ";" >> "$sqlfile"
+	sql="$sql ;"
 	
-	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+	main.log -v "Executing this SQL on $db_file:\n$sql"
 	
 	# Before accessing the DB, we wait for any writelocks 
 	common.runner.waitForLock "$(basename $db_file)" "$level"
@@ -282,25 +286,16 @@ function common.db.getResultSet()
 		
 		if [[ $trial -gt 1 ]]
 		then
-			main.log -w "Retrying SQL statement: $(cat $sqlfile)"
+			main.log -w "Retrying SQL statement: $sql"
 		fi
 		
-		if [[ "$CXR_STRACE_DB" == true ]]
-		then
-			# Temporarily, we observe all calls to sqlite
-			stracefile="$(common.runner.createJobFile sql-strace)"
-		
-			main.log -a "Tracing call to ${CXR_SQLITE_EXEC} using ${stracefile}..."
-		
-			result="$(strace -r -s256 -o ${stracefile} ${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile")"
-			retval=$?
+		result="$(${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" <<-EOT
+		$(echo -e "$sql")
+		EOT
+		)"
 			
-			bzip2 ${stracefile}
-		else
-			# no trace
-			result="$(${CXR_SQLITE_EXEC} -separator "${separator}" "$db_file" < "$sqlfile")"
-			retval=$?
-		fi # strace?
+		retval=$?
+
 		
 		trial=$(( $trial + 1 ))
 		
@@ -316,11 +311,8 @@ function common.db.getResultSet()
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
+		main.dieGracefully "Error in SQL statement: $sql"
 	fi
-	
-	# remove file
-	rm -f "$sqlfile"
 	
 	if [[ "CXR_DB_X_LOCK_READ" == true ]]
 	then
@@ -329,9 +321,7 @@ function common.db.getResultSet()
 	else
 		echo "$result"
 	fi
-	
-	
-	
+
 }
 
 ################################################################################

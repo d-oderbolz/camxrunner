@@ -729,7 +729,7 @@ function common.runner.createTempFile()
 #
 # Returns the name of a temporary directory with random name, shows a message and adds the file
 # to the temp file list if this is needed. 
-# Internally calls <common.runner.createTempFile>.
+# 
 #
 # Note that if a tempdir is removed, we remove it recursively (including all files and directories therein).
 #

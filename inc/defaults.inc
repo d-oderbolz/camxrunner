@@ -79,7 +79,8 @@ CXR_DBG_BC=false
 CXR_NO_LOCKING=false
 
 # If this is true, we acquire an exclusive lock on reading
-CXR_DB_X_LOCK_READ=true
+# Of course, this degrades performance.
+CXR_DB_X_LOCK_READ=false
 
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
@@ -600,10 +601,6 @@ CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
 CXR_LEVEL_UNIVERSAL=universal
 CXR_LEVEL_GLOBAL=global
 CXR_LEVEL_INSTANCE=instance
-
-# If this is true, we trace all DB calls (slow!)
-CXR_STRACE_DB=false
-
 
 # Suffix for sqlite files
 CXR_DB_SUFFIX=sqlite
