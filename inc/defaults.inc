@@ -47,7 +47,12 @@ CXR_START_EPOCH="$(date "+%s")"
 CXR_PID=$$
 
 # This pattern is used to find numbers
-CXR_PATTERN_NUMERIC='\-?[0-9]+(\.[0-9]*)?'
+#
+#                    Word Boundaries -----+
+#                    |                    |
+#                    | Possible minus     |
+#                    | |                  |
+CXR_PATTERN_NUMERIC='\b-?[0-9]+(\.[0-9]+)?\b'
 
 ################################################################################
 # Default Behaviour     ########################################################

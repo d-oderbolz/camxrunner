@@ -381,6 +381,24 @@ function _is_diag()
 }
 
 ################################################################################
+# Function: _isnt_diag
+#
+# INTERNAL shows diagnosis data
+#
+# Parameters:
+# $1 - actual result
+# $2 - not expected result
+################################################################################
+function _isnt_diag()
+################################################################################
+{
+	local result="${1:-}"
+	local expected="${2:-}"
+
+	diag "         got: '$result'" 
+	diag "not expected: '$expected'"
+}
+################################################################################
 # Function: is
 #
 # Tests for equality, the most important test function.
@@ -405,7 +423,7 @@ function is()
 	(( $? == 0 ))
 	ok $? "$name"
 	local r=$?
-	(( r != 0 )) && _is_diag "$result" "$expected"
+	(( r != 0 )) && _isnt_diag "$result" "$expected"
 	return $r 
 }
 

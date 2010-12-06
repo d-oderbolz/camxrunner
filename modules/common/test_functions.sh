@@ -25,7 +25,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=20
+CXR_META_MODULE_NUM_TESTS=30
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains functions to test CAMxRunner"
@@ -437,6 +437,12 @@ function test_module()
 	is $(main.isNumeric? "A100") false "main.isNumeric? A100"
 	is $(main.isNumeric? "100A") false "main.isNumeric? 100A"
 	
+	is $(main.isNumeric? 0.00) true "main.isNumeric? 0.00"
+	is $(main.isNumeric? 0.) false "main.isNumeric? 0."
+	is $(main.isNumeric? 123.123) true "main.isNumeric? 123.123"
+	is $(main.isNumeric? -123.123) true "main.isNumeric? -123.123"
+	is $(main.isNumeric? -123.) false "main.isNumeric? -123."
+	
 	[[ 0 =~ $CXR_PATTERN_NUMERIC ]]
 	is $? 0 "CXR_PATTERN_NUMERIC 0"
 	
@@ -444,14 +450,30 @@ function test_module()
 	is $? 0 "CXR_PATTERN_NUMERIC 0"
 	
 	[[ "" =~ $CXR_PATTERN_NUMERIC ]]
-	isnt $? 0 "CXR_PATTERN_NUMERIC 0"
+	isnt $? 0 "CXR_PATTERN_NUMERIC empty string"
 	
 	[[ A100 =~ $CXR_PATTERN_NUMERIC ]]
-	isnt $? 0 "CXR_PATTERN_NUMERIC 0"	
+	isnt $? 0 "CXR_PATTERN_NUMERIC A100"
 		
 	[[ 100A =~ $CXR_PATTERN_NUMERIC ]]
-	isnt $? 0 "CXR_PATTERN_NUMERIC 0"		
+	isnt $? 0 "CXR_PATTERN_NUMERIC 100A"
+
+	[[ 0.00 =~ $CXR_PATTERN_NUMERIC ]]
+	is $? 0 "CXR_PATTERN_NUMERIC 0.00"
+
+	[[ 0. =~ $CXR_PATTERN_NUMERIC ]]
+	isnt $? 0 "CXR_PATTERN_NUMERIC 0."
 	
+	[[ 123.123 =~ $CXR_PATTERN_NUMERIC ]]
+	is $? 0 "CXR_PATTERN_NUMERIC 123.123"
+	
+	[[ -123.123 =~ $CXR_PATTERN_NUMERIC ]]
+	is $? 0 "CXR_PATTERN_NUMERIC -123.123"
+	
+	[[ -123. =~ $CXR_PATTERN_NUMERIC ]]
+	isnt $? 0 "CXR_PATTERN_NUMERIC -123."
+
+
 	is $(main.getRevision "$test_file1") 2605 "main.getRevision normal"
 	is $(main.getRevision "$test_file2") 2605 "main.getRevision double-contradiction"
 	
