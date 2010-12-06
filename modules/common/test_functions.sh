@@ -430,7 +430,6 @@ function test_module()
 	is $(main.countDelimitedElements "one two " " ") 2 "main.countDelimitedElements with 2 elements, space at end"
 	is $(main.countDelimitedElements "") 0 "main.countDelimitedElements with 0 elements"
 
-	
 	is $(main.isNumeric? 0) true "main.isNumeric? 0"
 	is $(main.isNumeric? -1000) true "main.isNumeric? -1000"
 	is $(main.isNumeric? "") false "main.isNumeric? empty string"
@@ -438,10 +437,10 @@ function test_module()
 	is $(main.isNumeric? "100A") false "main.isNumeric? 100A"
 	
 	is $(main.isNumeric? 0.00) true "main.isNumeric? 0.00"
-	is $(main.isNumeric? 0.) false "main.isNumeric? 0."
+	is $(main.isNumeric? 0.) true "main.isNumeric? 0."
 	is $(main.isNumeric? 123.123) true "main.isNumeric? 123.123"
 	is $(main.isNumeric? -123.123) true "main.isNumeric? -123.123"
-	is $(main.isNumeric? -123.) false "main.isNumeric? -123."
+	is $(main.isNumeric? -123.) true "main.isNumeric? -123."
 	
 	[[ 0 =~ $CXR_PATTERN_NUMERIC ]]
 	is $? 0 "CXR_PATTERN_NUMERIC 0"
@@ -462,7 +461,7 @@ function test_module()
 	is $? 0 "CXR_PATTERN_NUMERIC 0.00"
 
 	[[ 0. =~ $CXR_PATTERN_NUMERIC ]]
-	isnt $? 0 "CXR_PATTERN_NUMERIC 0."
+	is $? 0 "CXR_PATTERN_NUMERIC 0."
 	
 	[[ 123.123 =~ $CXR_PATTERN_NUMERIC ]]
 	is $? 0 "CXR_PATTERN_NUMERIC 123.123"
@@ -471,7 +470,7 @@ function test_module()
 	is $? 0 "CXR_PATTERN_NUMERIC -123.123"
 	
 	[[ -123. =~ $CXR_PATTERN_NUMERIC ]]
-	isnt $? 0 "CXR_PATTERN_NUMERIC -123."
+	is $? 0 "CXR_PATTERN_NUMERIC -123."
 
 
 	is $(main.getRevision "$test_file1") 2605 "main.getRevision normal"

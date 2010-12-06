@@ -33,7 +33,7 @@ function main.profiler()
 ################################################################################
 # Function: main.isNumeric?
 #
-# A small, relatively robust function to test if the argument is numeric
+# A small, relatively robust function to test if the argument is numeric.
 #
 # Parameters:
 # $1 - String to test
