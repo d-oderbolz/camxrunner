@@ -269,7 +269,8 @@ $statement"
 	fi # type-of-statement
 	
 	# add ; in case it was forgotten
-	sql="$sql ;"
+	sql="$sql 
+;"
 	
 	main.log -v "Executing this SQL on $db_file:\n$sql"
 	
@@ -295,7 +296,6 @@ $statement"
 			
 		retval=$?
 
-		
 		trial=$(( $trial + 1 ))
 		
 		sleep $CXR_DB_RETRY_WAIT_SECONDS
@@ -375,8 +375,8 @@ function common.db.change()
 	
 	# Add pragmas
 	sql="PRAGMA locking_mode = exclusive;
-	PRAGMA legacy_file_format = on;
-	"
+PRAGMA legacy_file_format = on;
+"
 	
 	# Start TRX if needed
 	if [[ "$do_trx" == true ]]
@@ -408,7 +408,8 @@ $statement"
 	fi # type-of-statement
 	
 	# add ; in case it was forgotten
-	sql="$sql ;"
+	sql="$sql 
+;"
 	
 	# End TRX, if needed
 	if [[ "$do_trx" == true ]]
