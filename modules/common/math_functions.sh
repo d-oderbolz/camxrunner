@@ -69,7 +69,7 @@ function common.math.roundToInteger()
 #
 # Parameters:
 # $1 - an expression
-# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
+# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate, 0 means round to next integer
 ################################################################################
 function common.math.FloatOperation()
 ################################################################################
@@ -88,10 +88,11 @@ function common.math.FloatOperation()
 	resolution=${2:-$CXR_NUM_DIGITS}
 	add_trailing_dp=${3:-true}
 	
-	# Fix resolution (-1 is just a marker)
-	if [[ "$resolution" -eq -1 ]]
+	# Fix resolution 
+	# We treat -1 and 0 ourselves
+	if [[ "$resolution" -le 0 ]]
 	then
-		bc_res=0
+		bc_res=${CXR_NUM_DIGITS}
 	else
 		bc_res=$resolution
 	fi
@@ -112,17 +113,12 @@ function common.math.FloatOperation()
 		then
 			result=0
 		fi
-		
+	elif [[ "$resolution" -eq 0 ]]
+		# Round
+		result="$(common.math.roundToInteger $result)"
 	fi
 	
-	# The scale function counts digits after the decimal point
-	if [[ "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0 ]]
-	then
-		# Integer,  and we need to add a trailing .
-		echo ${result}.
-	else
-		echo ${result}
-	fi
+	echo $result
 }
 
 ################################################################################
@@ -133,7 +129,7 @@ function common.math.FloatOperation()
 #
 # Parameters:
 # $1 - an expression
-# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate
+# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate, 0 means round to next integer
 ################################################################################
 function common.math.FortranFloatOperation()
 ################################################################################
@@ -167,7 +163,7 @@ function common.math.FortranFloatOperation()
 # Parameters:
 # [$1] - minimum (default 0)
 # [$1] - maximum (default 1)
-# [$3] - an optional scale parameter. -1 Means truncate. Default 
+# $2 - an optional scale parameter (default CXR_NUM_DIGITS). -1 Means truncate, 0 means round to next integer
 ################################################################################
 function common.math.RandomNumber()
 ################################################################################

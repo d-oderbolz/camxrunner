@@ -241,6 +241,12 @@ function main.log()
 ################################################################################
 {
 	local prefix
+	local pre_stars
+	local post_stars
+	
+	prefix=""
+	pre_stars=""
+	post_stars=""
 	
 	# A standard message is an info
 	local log_level
@@ -300,7 +306,8 @@ function main.log()
 		
 		if [[ "$stars" ]]
 		then
-			stars="#${stars}"
+			pre_stars="${stars}\n"
+			post_stars="\n${stars}\n"
 		fi
 	fi
 	
@@ -346,7 +353,7 @@ function main.log()
 				stderr_message="$blank_message"
 			fi
 			# adding stars (might be empty)
-			stderr_message="${prefix}${stars}\n${stderr_message}\n${prefix}${stars}\n"
+			stderr_message="${pre_stars}${stderr_message}${post_stars}"
 
 			# Write a unformatted copy to sterr. 
 			echo -e "${stderr_message}" 1>&2
@@ -364,15 +371,18 @@ function main.log()
 		# The printf prints CXR_LOG_INDENT tabs
 		prefix="$(date +"%b %d %H:%M:%S"):$(printf '\t%.0s' {1..$CXR_LOG_INDENT})"
 	
-		# Put prefix in front of the Blank message
+		# Put prefix in front of the Blank message.
+		
 		message="${prefix}${blank_message}"
 	
-		# Now, all the newline characters need a prefix as well:
+		# Now, all the newline characters need a placeholder prefix
+		# The prefix w/o tabs is 16 Bytes
 		# \\n is what we are looking for, // request ALL \n to be replaced
-		message="${message//\\n/\n${prefix}}"
+		placeholder="                $(printf '\t%.0s' {1..$CXR_LOG_INDENT})"
+		message="${message//\\n/\n${placeholder}}"
 		
 		# adding stars (might be empty)
-		message="${prefix}${stars}\n${message}\n${prefix}${stars}\n"
+		message="${pre_stars}${message}${post_stars}"
 		
 		# Writing to file
 		echo -e "$message" >> ${CXR_LOG}
