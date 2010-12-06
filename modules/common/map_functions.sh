@@ -106,7 +106,7 @@ function common.map.indexesToModelCoordinates()
 		
 		# Offsets such as CXR_NEST_BEG_I_INDEX ar relative to master grid
 		# recursive call for the cell (1,1) of the inner domain
-		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]})
+		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
 
 		# Parse result
 		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
@@ -233,7 +233,7 @@ function common.map.LonLatToIndexes()
 		
 		# Offsets such as CXR_NEST_BEG_I_INDEX ar relative to master grid
 		# recursive call for the cell (1,1) of the inner domain
-		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]})
+		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
 	
 		# Parse result
 		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
