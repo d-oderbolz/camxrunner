@@ -143,10 +143,10 @@ function common.math.FortranFloatOperation()
 	# Define & Initialize local vars
 	local result
 	
-	result="$(common.math.FloatOperation $1 $2)"
+	result="$(common.math.FloatOperation $1 ${2:-$CXR_NUM_DIGITS})"
 	
 	# The scale function counts digits after the decimal point
-	if [[ "${add_trailing_dp}" == true && "$( echo "scale(${result})" | bc )" -eq 0 ]]
+	if [[ "$( echo "scale(${result})" | bc )" -eq 0 ]]
 	then
 		# Integer,  and we need to add a trailing .
 		echo ${result}.
