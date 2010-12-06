@@ -114,6 +114,7 @@ function common.math.FloatOperation()
 			result=0
 		fi
 	elif [[ "$resolution" -eq 0 ]]
+	then
 		# Round
 		result="$(common.math.roundToInteger $result)"
 	fi
