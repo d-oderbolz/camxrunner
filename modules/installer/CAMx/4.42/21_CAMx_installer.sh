@@ -72,6 +72,7 @@ function CAMx_installer()
 		local hdf
 		local mpi
 		local default_platform
+		local compiler
 		
 		# This is the name the Makefie chooses
 		local resulting_binary
@@ -242,6 +243,26 @@ function CAMx_installer()
 		# Logging
 		echo "PLATFORM: $CXR_CURRENT_PLATFORM" >> "${logfile}"
 		
+		# Depending on platform, report version of Fortran compiler
+		case "$CXR_CURRENT_PLATFORM" in
+		
+			dec|ab_linux|sgi|sgiomp|sun|hp) compiler=f90
+			;;
+			
+			pg_linux|pg_linuxomp) compiler=pgf90
+			;;
+			
+			i_linux|i_linuxomp) compiler=ifort
+			;;
+			
+
+			ibm) compiler=xlf
+			;;
+		
+		esac
+		
+		echo -e "FC: $(which $compiler)\n$($compiler -V)" >> "${logfile}"
+		
 		#File resulting from compilation due to CAMx defaults
 		#CAMx 5.x adds MPI info here
 		if [[ ${CXR_MODEL_VERSION:0:1} -eq 5 ]]
@@ -362,7 +383,7 @@ function CAMx_installer()
 			main.log -w  "Did not find general patch dir $patch_all_dir"
 		fi
 		
-		if [[ -d "$patch_platform_dir"  ]]
+		if [[ -d "$patch_platform_dir" ]]
 		then
 			common.install.applyPatch "$patch_platform_dir" "$CXR_CAMX_SRC_DIR" "${logfile}"
 		else
