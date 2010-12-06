@@ -25,7 +25,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=14
+CXR_META_MODULE_NUM_TESTS=20
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains functions to test CAMxRunner"
@@ -435,6 +435,22 @@ function test_module()
 	is $(main.isNumeric? -1000) true "main.isNumeric? -1000"
 	is $(main.isNumeric? "") false "main.isNumeric? empty string"
 	is $(main.isNumeric? "A100") false "main.isNumeric? A100"
+	is $(main.isNumeric? "100A") false "main.isNumeric? 100A"
+	
+	[[ 0 =~ $CXR_PATTERN_NUMERIC ]]
+	is $? 0 "CXR_PATTERN_NUMERIC 0"
+	
+	[[ -1000 =~ $CXR_PATTERN_NUMERIC ]]
+	is $? 0 "CXR_PATTERN_NUMERIC 0"
+	
+	[[ "" =~ $CXR_PATTERN_NUMERIC ]]
+	isnt $? 0 "CXR_PATTERN_NUMERIC 0"
+	
+	[[ A100 =~ $CXR_PATTERN_NUMERIC ]]
+	isnt $? 0 "CXR_PATTERN_NUMERIC 0"	
+		
+	[[ 100A =~ $CXR_PATTERN_NUMERIC ]]
+	isnt $? 0 "CXR_PATTERN_NUMERIC 0"		
 	
 	is $(main.getRevision "$test_file1") 2605 "main.getRevision normal"
 	is $(main.getRevision "$test_file2") 2605 "main.getRevision double-contradiction"

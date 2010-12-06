@@ -46,6 +46,9 @@ CXR_START_EPOCH="$(date "+%s")"
 # This is our porecess number (to be used when exiting on error)
 CXR_PID=$$
 
+# This pattern is used to find numbers
+CXR_PATTERN_NUMERIC='\-?[0-9]+(\.[0-9]*)?'
+
 ################################################################################
 # Default Behaviour     ########################################################
 ################################################################################
