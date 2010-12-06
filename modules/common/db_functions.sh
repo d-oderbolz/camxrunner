@@ -215,7 +215,6 @@ function common.db.getResultSet()
 	local separator
 	
 	local currline
-	local sqlfile
 	local retval
 	local result
 	
@@ -360,7 +359,6 @@ function common.db.change()
 	local level
 
 	local currline
-	local sqlfile
 	local trial
 	local retval
 	local result
@@ -375,18 +373,16 @@ function common.db.change()
 	trial=1
 	retval=1
 	
-	# We use a tempfile for all types of calls. Not fast, but solid.
-	# (bash does a similar thing, see <http://tldp.org/LDP/abs/html/here-docs.html>)
-	sqlfile="$(common.runner.createTempFile sql false)"
-	
 	# Add pragmas
-	echo "PRAGMA locking_mode = exclusive;" > "$sqlfile"
-	echo "PRAGMA legacy_file_format = on;" >> "$sqlfile"
+	sql="PRAGMA locking_mode = exclusive;
+	PRAGMA legacy_file_format = on;
+	"
 	
 	# Start TRX if needed
 	if [[ "$do_trx" == true ]]
 	then
-		echo "BEGIN IMMEDIATE TRANSACTION;" > "$sqlfile"
+		sql="$sql
+BEGIN IMMEDIATE TRANSACTION;"
 	fi
 	
 	# Detect type of statement
@@ -394,30 +390,34 @@ function common.db.change()
 	then
 		# statement is "-" (meaning we read from stdin)
 		
-		# Fill stdin into file (there are probably more elegant ways for this...)
+		# Fill stdin into variable
 		while read currline
 		do
-			echo "$currline" >> "$sqlfile"
+			sql="$sql
+$currline"
 		done
 	elif [[ -f "$statement" ]]
 	then
-		# statement is a file, read from there
-		cat "$statement" >> "$sqlfile"
+			# statement is a file, read from there
+			sql="$sql
+$(cat $statement)"
 	else
-		# Add string to file the string
-		echo "$statement" >> "$sqlfile"
+		# Add string
+		sql="$sql
+$statement"
 	fi # type-of-statement
 	
 	# add ; in case it was forgotten
-	echo ";" >> "$sqlfile"
+	sql="$sql ;"
 	
 	# End TRX, if needed
 	if [[ "$do_trx" == true ]]
 	then
-		echo "COMMIT TRANSACTION;" >> $sqlfile
+			sql="$sql
+COMMIT TRANSACTION;"
 	fi
 	
-	main.log -v "Executing this SQL on $db_file:\n$(cat $sqlfile)"
+	main.log -v "Executing this SQL on $db_file:\n$sql"
 	
 	# For security reasons, we lock all write accesses to any DB
 	common.runner.getLock "$(basename $db_file)" "$level"
@@ -430,13 +430,16 @@ function common.db.change()
 	do
 		if [[ $trial -gt 1 ]]
 		then
-			main.log -w "Retrying SQL statement: $(cat $sqlfile)"
+			main.log -w "Retrying SQL statement: $sql"
 		fi
 	
-		result="$(${CXR_SQLITE_EXEC} "$db_file" < "$sqlfile")"
+		result="$(${CXR_SQLITE_EXEC} "$db_file" <<-EOT
+		$(echo -e "$sql")
+		EOT
+		)"
+		
 		retval=$?
 
-		
 		trial=$(( $trial + 1 ))
 		
 		sleep $CXR_DB_RETRY_WAIT_SECONDS
@@ -455,11 +458,8 @@ function common.db.change()
 	if [[ $retval -ne 0 ]]
 	then
 		# Even after retrying, we failed
-		main.dieGracefully "Error in SQL statement: $(cat $sqlfile)"
+		main.dieGracefully "Error in SQL statement: $sql"
 	fi
-	
-	# remove file
-	rm -f "$sqlfile"
 }
 
 ################################################################################
