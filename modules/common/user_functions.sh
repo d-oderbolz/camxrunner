@@ -75,7 +75,7 @@ function common.user.showProgressBar()
 	local nElements
 	local progress
 	
-	progress=$(common.math.FloatOperation "(${1:-0} * $CXR_MAX_BAR_WIDTH) / 100" -1)
+	progress=$(common.math.FloatOperation "(${1:-0} * $CXR_MAX_BAR_WIDTH) / 100" 0)
 
 	nElements=$(( $progress - 1 ))
 	

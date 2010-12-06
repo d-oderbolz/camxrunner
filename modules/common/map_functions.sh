@@ -101,12 +101,12 @@ function common.map.indexesToModelCoordinates()
 	elif [[ $domain -gt 1 && $domain -le $CXR_NUMBER_OF_GRIDS ]]
 	then
 		# calculate resolution of target grid
-		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1)
-		resolution_y=$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1)
+		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}")
+		resolution_y=$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}")
 		
 		# Offsets such as CXR_NEST_BEG_I_INDEX ar relative to master grid
 		# recursive call for the cell (1,1) of the inner domain
-		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
+		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]})
 
 		# Parse result
 		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
@@ -116,8 +116,8 @@ function common.map.indexesToModelCoordinates()
 	fi
 	
 	# Calculate
-	x_out=$(common.math.FloatOperation "$first_cell_x + (( $x_in - 1 ) * $resolution_x)" $CXR_NUM_DIGITS)
-	y_out=$(common.math.FloatOperation "$first_cell_y + (( $y_in - 1 ) * $resolution_y)" $CXR_NUM_DIGITS)
+	x_out=$(common.math.FloatOperation "$first_cell_x + (( $x_in - 1 ) * $resolution_x)")
+	y_out=$(common.math.FloatOperation "$first_cell_y + (( $y_in - 1 ) * $resolution_y)")
 	
 	echo "${x_out} ${y_out}"
 }
@@ -228,12 +228,12 @@ function common.map.LonLatToIndexes()
 	elif [[ $domain -gt 1 && $domain -le $CXR_NUMBER_OF_GRIDS ]]
 	then
 		# calculate resolution of target grid
-		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1)
-		resolution_y=$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}" -1)
+		resolution_x=$(common.math.FloatOperation "$CXR_MASTER_CELL_XSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}")
+		resolution_y=$(common.math.FloatOperation "$CXR_MASTER_CELL_YSIZE / ${CXR_NEST_MESHING_FACTOR[$domain]}")
 		
 		# Offsets such as CXR_NEST_BEG_I_INDEX ar relative to master grid
 		# recursive call for the cell (1,1) of the inner domain
-		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]} 1)
+		first_cell=$(common.map.indexesToModelCoordinates ${CXR_NEST_BEG_I_INDEX[$domain]} ${CXR_NEST_BEG_J_INDEX[$domain]})
 	
 		# Parse result
 		first_cell_x=$(echo "$first_cell" | awk '{ print $1 }')
@@ -242,8 +242,8 @@ function common.map.LonLatToIndexes()
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
 	fi
 	
-	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1" $CXR_NUM_DIGITS)
-	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" $CXR_NUM_DIGITS)
+	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1")
+	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1")
 
 	# Test dimensions
 	if [[ $(common.math.FloatOperation "$x_out > $(common.runner.getX $domain)" 0) -eq 1 || \

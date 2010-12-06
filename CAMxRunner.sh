@@ -603,7 +603,7 @@ then
 		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
 		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
 		then
-			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" -1)
+			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0)
 		fi
 	else
 		main.log -w "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"

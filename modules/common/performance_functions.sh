@@ -231,7 +231,7 @@ function common.performance.reportEta()
 	if [[ $left -gt 0 ]]
 	then
 		# OK, we are within estimation
-		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" -1)
+		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" 0)
 	
 		# Only goes to stderr
 		echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
@@ -336,7 +336,7 @@ function common.performance.getMemFreePercent()
 	local usedPercent
 	
 	usedPercent=$(common.performance.getMemUsedPercent)
-	free="$(common.math.FloatOperation "100 - $usedPercent" -1)"
+	free="$(common.math.FloatOperation "100 - $usedPercent" 0)"
 	
 	main.log -v "Found $free % free memory"
 	
@@ -386,7 +386,7 @@ function common.performance.getReaLoadPercent()
 	mem=$(common.performance.getMemUsedPercent)
 	cpu=$(common.performance.getSystemLoadPercent)
 	
-	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" -1)
+	load=$(common.math.FloatOperation "sqrt(${mem}^2 + ${cpu}^2)" 0)
 	
 	echo $load
 }
