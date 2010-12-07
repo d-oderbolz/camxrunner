@@ -234,6 +234,11 @@ function CAMxRunner_installer()
 				echo "make DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
 				make DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile 
 			
+				if [[ $executable == lzo ]]
+				then
+					make install
+				fi
+			
 				if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 				then
 					main.dieGracefully "The compilation of $executable did not complete successfully"
