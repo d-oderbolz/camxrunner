@@ -55,7 +55,6 @@ function CAMxRunner_installer()
 	local logfile
 	local backupfile
 	
-	
 	if [[ "$(common.user.getOK "Do you want to generate a new base.conf file?" N )" == true  ]]
 	then
 		# Yes
@@ -158,7 +157,10 @@ function CAMxRunner_installer()
 		# Loop through the source-directories
 		for src_dir in $CXR_BIN_SCR_ARR
 		do
+			
 			executable="$(basename "$src_dir")"
+			export CPPFLAGS=""
+			export CFLAGS=""
 			
 			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
 			then
@@ -209,15 +211,16 @@ function CAMxRunner_installer()
 										            
 				elif [[ $executable == lzop ]]
 				then
+				
+					export CPPFLAGS="-I${CXR_BIN_DIR}/src/lzo/include/lzo -L${CXR_BIN_DIR}/src/lzo/src"
+					export CFLAGS="$CPPFLAGS"
 					
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
-					            --includedir=${CXR_BIN_DIR}/src/lzo/include/lzo \
-					            --libdir=${CXR_BIN_DIR}/src/lzo/src \
-					            --program-suffix=-${HOSTTYPE}${suffix} | tee -a $logfile	
-					
+					            --program-suffix=-${HOSTTYPE}${suffix} | tee -a $logfile
+
 				fi
 				
 				# Clean up whatever there was
