@@ -1193,7 +1193,7 @@ function test_module()
 	set -xv
 	
 	# Decompress again
-	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
 	
 	set +xv
 	
@@ -1207,7 +1207,7 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_.*"
@@ -1219,7 +1219,7 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
 	
 	# Set pattern incorrect
 	CXR_COMPRESS_OUTPUT_PATTERN=guagg
