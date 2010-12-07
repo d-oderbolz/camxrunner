@@ -1106,7 +1106,7 @@ function test_module()
 	CXR_DECOMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
 	
 	# Options we pass to compressor (needed by lzop)
-	CXR_DECOMPRESSOR_OPTIONS="-x -U"
+	CXR_DECOMPRESSOR_OPTIONS="-x -U -P"
 	
 	CXR_COMPRESS_OUTPUT_PATTERN=
 	
