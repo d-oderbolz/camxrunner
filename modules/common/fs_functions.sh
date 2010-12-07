@@ -909,9 +909,16 @@ function common.fs.TryDecompressingFile()
 				case $filetype in
 				
 					lzop)
-						main.log -a  "${input_file} is lzop-compressed. Using $CXR_LZOP_EXEC to decompress..."
-						# lzop needs -f to allow it to delete the file
-						$CXR_LZOP_EXEC -f -c -U "$comp_file" > $tempfile
+						main.log -a "${input_file} is lzop-compressed. Using $CXR_LZOP_EXEC to decompress..."
+						
+						if [[ "$CXR_DECOMPRESS_IN_PLACE" == false || ! -w "${input_dir}" ]]
+						then
+							# Decompression is not in place
+							$CXR_LZOP_EXEC -c "$comp_file" > $tempfile
+						else
+							# lzop needs -f to allow it to delete the original (compressed) file
+							$CXR_LZOP_EXEC -f -c -U "$comp_file" > $tempfile
+						fi
 						;;
 		
 					bzip2)

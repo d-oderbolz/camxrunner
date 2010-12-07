@@ -786,7 +786,7 @@ function common.runner.createJobFile()
 # Function: common.runner.removeTempFiles
 #
 # Removes all files from the temp file list if CXR_REMOVE_TEMP_FILES is true.
-# Also recompresses or removes decompressed files if requested.
+# Also recompresses or removes decompressed files if requested/needed.
 # Note that if a tempdir is removed, we remove it recursively (including all files and directories therein).
 #
 ################################################################################
@@ -807,7 +807,7 @@ function common.runner.removeTempFiles()
 	then
 		main.log -a "Removing temporarily decompressed files..."
 		
-			# common.hash.getKeysAndValues returns a newline-separated list
+		# common.hash.getKeysAndValues returns a newline-separated list
 		oIFS="$IFS"
 		IFS='
 '
@@ -837,12 +837,12 @@ function common.runner.removeTempFiles()
 		done
 	elif [[ "$CXR_DECOMPRESS_IN_PLACE" == true ]]
 	then
-		# we must re-compress the files!
+		# we must re-compress the files (if they do no longer exist)!
 		main.log -a "Re-compressing temporarily decompressed files using ${CXR_COMPRESSOR_EXEC}..."
 
-			# common.hash.getKeysAndValues returns a newline-separated list
-			oIFS="$IFS"
-			IFS='
+		# common.hash.getKeysAndValues returns a newline-separated list
+		oIFS="$IFS"
+		IFS='
 '
 
 		# loop through compressed_filename|filename pairs
@@ -862,7 +862,7 @@ function common.runner.removeTempFiles()
 			# Reset IFS
 			IFS="$oIFS"
 			
-			if [[ -e "$filename" ]]
+			if [[ -e "$filename" && ! -e "$compressed_filename" ]]
 			then
 				main.log -v "Compressing ${filename}"
 				${CXR_COMPRESSOR_EXEC} ${CXR_COMPRESSOR_OPTIONS} "${filename}"
