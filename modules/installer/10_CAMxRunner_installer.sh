@@ -164,10 +164,8 @@ function CAMxRunner_installer()
 			then
 				binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}${suffix}
 				
+				# We constantly add to this file
 				logfile=${binary_name}.log
-				
-				# Clean it
-				: > "$logfile"
 				
 				echo "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" | tee -a $logfile
 				

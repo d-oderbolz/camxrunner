@@ -202,10 +202,8 @@ function CAMx_installer()
 		conffile=${binary_name}.conf
 		
 		# Here, we store a log of this cmpilation
+		# We constantly add to this file
 		logfile=${binary_name}.log
-		
-		# Clean the logfile
-		: > "${logfile}"
 		
 		# Logging
 		echo "This file documents a compilation of $CXR_MODEL $CXR_MODEL_VERSION, done on $(date) by $USER" >> "${logfile}"
