@@ -163,6 +163,7 @@ function CAMxRunner_installer()
 			export CPPFLAGS=""
 			export CFLAGS=""
 			export LDFLAGS=""
+			export LIBS=""
 			
 			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
 			then
@@ -217,13 +218,15 @@ function CAMxRunner_installer()
 					export CPPFLAGS="-I${CXR_LIB_DIR}/lzo/${HOSTTYPE}/lzo"
 					export CFLAGS="$CPPFLAGS"
 					export LDFLAGS="-L${CXR_LIB_DIR}/lzo/${HOSTTYPE}"
+					export LIBS="-llzop2"
 					export LD_LIBRARY_PATH="${CXR_LIB_DIR}/lzo/${HOSTTYPE}:${LD_LIBRARY_PATH}"
 					
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
-					            --program-suffix=-${HOSTTYPE}${suffix} | tee -a $logfile
+					            --program-suffix=-${HOSTTYPE}${suffix} 
+					            --mandir=/dev/null | tee -a $logfile
 
 				fi
 				
