@@ -426,9 +426,9 @@ CXR_COMPRESS_OUTPUT=true
 CXR_COMPRESS_OUTPUT_PATTERN=
 
 # Sets the minimal size threshold for compression in MB
-# Files smaller than this will note be compressed,
+# Files smaller than this will not be compressed,
 # even if the pattern matches
-CXR_COMPRESS_THRESHOLD_MB=500
+CXR_COMPRESS_THRESHOLD_MB=50
 
 # If true, CAMxRunner will report the MD5 Hash of each input file
 # We use MD5 instead of SHA1 because of speed reasons
