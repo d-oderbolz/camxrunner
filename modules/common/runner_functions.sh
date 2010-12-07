@@ -865,7 +865,7 @@ function common.runner.removeTempFiles()
 			if [[ -e "$filename" ]]
 			then
 				main.log -v "Compressing ${filename}"
-				"${CXR_COMPRESSOR_EXEC}" "${filename}"
+				"${CXR_COMPRESSOR_EXEC}" "${CXR_COMPRESSOR_OPTIONS}" "${filename}"
 			fi
 		done
 	else

@@ -752,6 +752,7 @@ CXR_BUNZIP2_EXEC="$(main.getBinaryName bunzip2 true)"
 # Compression
 CXR_GZIP_EXEC="$(main.getBinaryName gzip true)"
 CXR_BZIP2_EXEC="$(main.getBinaryName bzip2 true)"
+CXR_LZOP_EXEC="$(main.getBinaryName lzop true)"
 
 # Hash generation
 CXR_MD5_EXEC="$(main.getBinaryName md5sum true)"
@@ -772,7 +773,10 @@ else
 fi
 
 # The compressor we use to compress output
-CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
+CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
+
+# Options we pass to compressor (needed by lzop)
+CXR_COMPRESSOR_OPTIONS="-U"
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
@@ -869,7 +873,7 @@ CXR_DECOMPRESS_IN_PLACE=false
 # These extensions are searched with the automatic capability
 # CAMxRunner does not determine the compression type from the suffix,
 # this is done using "file"
-CXR_COMPRESSED_EXT=".gz .bz2 .zip"
+CXR_COMPRESSED_EXT=".lzo .gz .bz2 .zip"
 
 
 ################################################################################

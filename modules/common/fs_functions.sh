@@ -737,6 +737,7 @@ function common.fs.CompressOutput()
 # Function: common.fs.isCompressed?
 # 
 # Checks if an input file is compressed, returns true if so, false otherwise.
+# Checks only the name of the file, not its type.
 # Is not used by <common.fs.TryDecompressingFile> by design, but is used e. g.
 # by <common.check.postconditions> to detect existing, but compressed files
 #
@@ -767,7 +768,7 @@ function common.fs.isCompressed?()
 			comp_file="${input_file}${ext}"
 			main.log -v  "Looking for $comp_file"
 			
-			if [[ -r "$comp_file"  ]]
+			if [[ -r "$comp_file" ]]
 			then
 				echo true
 				return $CXR_RET_OK
@@ -906,6 +907,11 @@ function common.fs.TryDecompressingFile()
 				filetype=$(common.fs.getFileType "$comp_file")
 				
 				case $filetype in
+				
+					lzop)
+						main.log -a  "${input_file} is lzop-compressed. Using $CXR_LZOP_EXEC to decompress..."
+						$CXR_LZOP_EXEC -c -U "$comp_file" > $tempfile
+						;;
 		
 					bzip2)
 						main.log -a  "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
@@ -1055,6 +1061,7 @@ function test_module()
 	local dirlink
 	local dirtarget
 	local tempdir
+	local suffix
 	
 	########################################
 	# Setup tests if needed
@@ -1086,7 +1093,21 @@ function test_module()
 	
 	# Set settings
 	CXR_COMPRESS_OUTPUT=true
-	CXR_COMPRESSOR_EXEC="${CXR_BZIP2_EXEC}"
+	
+	suffix="lzo"
+	
+	# The compressor we use to compress output
+	CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
+	
+	# Options we pass to compressor (needed by lzop)
+	CXR_COMPRESSOR_OPTIONS="-U"
+	
+		# The compressor we use to compress output
+	CXR_DECOMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
+	
+	# Options we pass to compressor (needed by lzop)
+	CXR_DECOMPRESSOR_OPTIONS="-x -U"
+	
 	CXR_COMPRESS_OUTPUT_PATTERN=
 	
 	# Compress also very small files
@@ -1167,10 +1188,10 @@ function test_module()
 	common.fs.CompressOutput
 	
 	#Test
-	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, no pattern"
+	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, no pattern"
 	
 	# Decompress again
-	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
@@ -1179,10 +1200,10 @@ function test_module()
 	common.fs.CompressOutput
 	
 	#Test
-	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, matching pattern"
+	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_.*"
@@ -1191,10 +1212,10 @@ function test_module()
 	common.fs.CompressOutput
 	
 	#Test
-	is $(common.fs.exists? ${a}.bz2 ) true "common.fs.CompressOutput with simple file, matching pattern"
+	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	${CXR_BUNZIP2_EXEC} ${a}.bz2
+	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
 	
 	# Set pattern incorrect
 	CXR_COMPRESS_OUTPUT_PATTERN=guagg
@@ -1203,7 +1224,7 @@ function test_module()
 	common.fs.CompressOutput
 	
 	#Test
-	is $(common.fs.exists? ${a}.bz2 ) false "common.fs.CompressOutput with simple file, not matching pattern"
+	is $(common.fs.exists? ${a}.${suffix} ) false "common.fs.CompressOutput with simple file, not matching pattern"
 	
 	# No decompression needed (its not compressed)
 	
