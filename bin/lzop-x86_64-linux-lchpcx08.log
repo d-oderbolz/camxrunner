@@ -1,0 +1,282 @@
+**** Tue Dec  7 12:10:44 CET 2010 Compiling source in /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop on lchpcx08...\n
+(a link to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03)
+make clean DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+Making clean in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Nothing to be done for `clean'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+Making clean in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "lzop" || rm -f lzop
+rm -f *.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making clean in .
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Nothing to be done for `clean-am'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+make  all-recursive
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making all in src
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT lzop.o -MD -MP -MF .deps/lzop.Tpo -c -o lzop.o lzop.c
+mv -f .deps/lzop.Tpo .deps/lzop.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT compress.o -MD -MP -MF .deps/compress.Tpo -c -o compress.o compress.c
+mv -f .deps/compress.Tpo .deps/compress.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT filter.o -MD -MP -MF .deps/filter.Tpo -c -o filter.o filter.c
+mv -f .deps/filter.Tpo .deps/filter.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT help.o -MD -MP -MF .deps/help.Tpo -c -o help.o help.c
+mv -f .deps/help.Tpo .deps/help.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT mblock.o -MD -MP -MF .deps/mblock.Tpo -c -o mblock.o mblock.c
+mv -f .deps/mblock.Tpo .deps/mblock.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT p_lzo.o -MD -MP -MF .deps/p_lzo.Tpo -c -o p_lzo.o p_lzo.c
+mv -f .deps/p_lzo.Tpo .deps/p_lzo.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT util.o -MD -MP -MF .deps/util.Tpo -c -o util.o util.c
+mv -f .deps/util.Tpo .deps/util.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_init.o -MD -MP -MF .deps/c_init.Tpo -c -o c_init.o c_init.c
+mv -f .deps/c_init.Tpo .deps/c_init.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_none.o -MD -MP -MF .deps/c_none.Tpo -c -o c_none.o c_none.c
+mv -f .deps/c_none.Tpo .deps/c_none.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_ansim.o -MD -MP -MF .deps/c_ansim.Tpo -c -o c_ansim.o c_ansim.c
+mv -f .deps/c_ansim.Tpo .deps/c_ansim.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_ansic.o -MD -MP -MF .deps/c_ansic.Tpo -c -o c_ansic.o c_ansic.c
+mv -f .deps/c_ansic.Tpo .deps/c_ansic.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_screen.o -MD -MP -MF .deps/c_screen.Tpo -c -o c_screen.o c_screen.c
+mv -f .deps/c_screen.Tpo .deps/c_screen.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_object.o -MD -MP -MF .deps/s_object.Tpo -c -o s_object.o s_object.c
+mv -f .deps/s_object.Tpo .deps/s_object.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_curses.o -MD -MP -MF .deps/s_curses.Tpo -c -o s_curses.o s_curses.c
+mv -f .deps/s_curses.Tpo .deps/s_curses.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_djgpp2.o -MD -MP -MF .deps/s_djgpp2.Tpo -c -o s_djgpp2.o s_djgpp2.c
+mv -f .deps/s_djgpp2.Tpo .deps/s_djgpp2.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_vcsa.o -MD -MP -MF .deps/s_vcsa.Tpo -c -o s_vcsa.o s_vcsa.c
+mv -f .deps/s_vcsa.Tpo .deps/s_vcsa.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT frames.o -MD -MP -MF .deps/frames.Tpo -c -o frames.o frames.c
+mv -f .deps/frames.Tpo .deps/frames.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT djgpp2.o -MD -MP -MF .deps/djgpp2.Tpo -c -o djgpp2.o djgpp2.c
+mv -f .deps/djgpp2.Tpo .deps/djgpp2.Po
+gcc  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo  -L/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux -o lzop lzop.o compress.o filter.o help.o mblock.o p_lzo.o util.o c_init.o c_none.o c_ansim.o c_ansic.o c_screen.o s_object.o s_curses.o s_djgpp2.o s_vcsa.o frames.o djgpp2.o  -llzo2 -llzo2
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making all in doc
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  all-am
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making install in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin"
+  /usr/bin/install -c lzop '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/./lzop-x86_64-linux-lchpcx08'
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making install in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  install-am
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `install-exec-am'.
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1"
+ /usr/bin/install -c -m 644 'lzop.1' '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1/lzop-x86_64-linux-lchpcx08.1'
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+**** Tue Dec  7 12:19:00 CET 2010 Compiling source in /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop on lchpcx08...\n
+(a link to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03)
+make clean DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+Making clean in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Nothing to be done for `clean'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+Making clean in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "lzop" || rm -f lzop
+rm -f *.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making clean in .
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Nothing to be done for `clean-am'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+make  all-recursive
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making all in src
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT lzop.o -MD -MP -MF .deps/lzop.Tpo -c -o lzop.o lzop.c
+mv -f .deps/lzop.Tpo .deps/lzop.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT compress.o -MD -MP -MF .deps/compress.Tpo -c -o compress.o compress.c
+mv -f .deps/compress.Tpo .deps/compress.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT filter.o -MD -MP -MF .deps/filter.Tpo -c -o filter.o filter.c
+mv -f .deps/filter.Tpo .deps/filter.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT help.o -MD -MP -MF .deps/help.Tpo -c -o help.o help.c
+mv -f .deps/help.Tpo .deps/help.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT mblock.o -MD -MP -MF .deps/mblock.Tpo -c -o mblock.o mblock.c
+mv -f .deps/mblock.Tpo .deps/mblock.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT p_lzo.o -MD -MP -MF .deps/p_lzo.Tpo -c -o p_lzo.o p_lzo.c
+mv -f .deps/p_lzo.Tpo .deps/p_lzo.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT util.o -MD -MP -MF .deps/util.Tpo -c -o util.o util.c
+mv -f .deps/util.Tpo .deps/util.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_init.o -MD -MP -MF .deps/c_init.Tpo -c -o c_init.o c_init.c
+mv -f .deps/c_init.Tpo .deps/c_init.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_none.o -MD -MP -MF .deps/c_none.Tpo -c -o c_none.o c_none.c
+mv -f .deps/c_none.Tpo .deps/c_none.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_ansim.o -MD -MP -MF .deps/c_ansim.Tpo -c -o c_ansim.o c_ansim.c
+mv -f .deps/c_ansim.Tpo .deps/c_ansim.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_ansic.o -MD -MP -MF .deps/c_ansic.Tpo -c -o c_ansic.o c_ansic.c
+mv -f .deps/c_ansic.Tpo .deps/c_ansic.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT c_screen.o -MD -MP -MF .deps/c_screen.Tpo -c -o c_screen.o c_screen.c
+mv -f .deps/c_screen.Tpo .deps/c_screen.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_object.o -MD -MP -MF .deps/s_object.Tpo -c -o s_object.o s_object.c
+mv -f .deps/s_object.Tpo .deps/s_object.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_curses.o -MD -MP -MF .deps/s_curses.Tpo -c -o s_curses.o s_curses.c
+mv -f .deps/s_curses.Tpo .deps/s_curses.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_djgpp2.o -MD -MP -MF .deps/s_djgpp2.Tpo -c -o s_djgpp2.o s_djgpp2.c
+mv -f .deps/s_djgpp2.Tpo .deps/s_djgpp2.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT s_vcsa.o -MD -MP -MF .deps/s_vcsa.Tpo -c -o s_vcsa.o s_vcsa.c
+mv -f .deps/s_vcsa.Tpo .deps/s_vcsa.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT frames.o -MD -MP -MF .deps/frames.Tpo -c -o frames.o frames.c
+mv -f .deps/frames.Tpo .deps/frames.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -MT djgpp2.o -MD -MP -MF .deps/djgpp2.Tpo -c -o djgpp2.o djgpp2.c
+mv -f .deps/djgpp2.Tpo .deps/djgpp2.Po
+gcc  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo  -L/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux -o lzop lzop.o compress.o filter.o help.o mblock.o p_lzo.o util.o c_init.o c_none.o c_ansim.o c_ansic.o c_screen.o s_object.o s_curses.o s_djgpp2.o s_vcsa.o frames.o djgpp2.o  -llzo2 -llzo2
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making all in doc
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  all-am
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making install in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin"
+  /usr/bin/install -c lzop '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/./lzop-x86_64-linux-lchpcx08'
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making install in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  install-am
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `install-exec-am'.
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1"
+ /usr/bin/install -c -m 644 'lzop.1' '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1/lzop-x86_64-linux-lchpcx08.1'
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+**** Tue Dec  7 12:22:48 CET 2010 Compiling source in /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop on lchpcx08...\n
+(a link to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03)
+make clean DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+Making clean in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Nothing to be done for `clean'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+Making clean in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "lzop" || rm -f lzop
+rm -f *.o
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making clean in .
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Nothing to be done for `clean-am'.
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+make  all-recursive
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making all in src
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT lzop.o -MD -MP -MF .deps/lzop.Tpo -c -o lzop.o lzop.c
+mv -f .deps/lzop.Tpo .deps/lzop.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT compress.o -MD -MP -MF .deps/compress.Tpo -c -o compress.o compress.c
+mv -f .deps/compress.Tpo .deps/compress.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT filter.o -MD -MP -MF .deps/filter.Tpo -c -o filter.o filter.c
+mv -f .deps/filter.Tpo .deps/filter.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT help.o -MD -MP -MF .deps/help.Tpo -c -o help.o help.c
+mv -f .deps/help.Tpo .deps/help.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT mblock.o -MD -MP -MF .deps/mblock.Tpo -c -o mblock.o mblock.c
+mv -f .deps/mblock.Tpo .deps/mblock.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT p_lzo.o -MD -MP -MF .deps/p_lzo.Tpo -c -o p_lzo.o p_lzo.c
+mv -f .deps/p_lzo.Tpo .deps/p_lzo.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT util.o -MD -MP -MF .deps/util.Tpo -c -o util.o util.c
+mv -f .deps/util.Tpo .deps/util.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT c_init.o -MD -MP -MF .deps/c_init.Tpo -c -o c_init.o c_init.c
+mv -f .deps/c_init.Tpo .deps/c_init.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT c_none.o -MD -MP -MF .deps/c_none.Tpo -c -o c_none.o c_none.c
+mv -f .deps/c_none.Tpo .deps/c_none.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT c_ansim.o -MD -MP -MF .deps/c_ansim.Tpo -c -o c_ansim.o c_ansim.c
+mv -f .deps/c_ansim.Tpo .deps/c_ansim.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT c_ansic.o -MD -MP -MF .deps/c_ansic.Tpo -c -o c_ansic.o c_ansic.c
+mv -f .deps/c_ansic.Tpo .deps/c_ansic.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT c_screen.o -MD -MP -MF .deps/c_screen.Tpo -c -o c_screen.o c_screen.c
+mv -f .deps/c_screen.Tpo .deps/c_screen.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT s_object.o -MD -MP -MF .deps/s_object.Tpo -c -o s_object.o s_object.c
+mv -f .deps/s_object.Tpo .deps/s_object.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT s_curses.o -MD -MP -MF .deps/s_curses.Tpo -c -o s_curses.o s_curses.c
+mv -f .deps/s_curses.Tpo .deps/s_curses.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT s_djgpp2.o -MD -MP -MF .deps/s_djgpp2.Tpo -c -o s_djgpp2.o s_djgpp2.c
+mv -f .deps/s_djgpp2.Tpo .deps/s_djgpp2.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT s_vcsa.o -MD -MP -MF .deps/s_vcsa.Tpo -c -o s_vcsa.o s_vcsa.c
+mv -f .deps/s_vcsa.Tpo .deps/s_vcsa.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT frames.o -MD -MP -MF .deps/frames.Tpo -c -o frames.o frames.c
+mv -f .deps/frames.Tpo .deps/frames.Po
+gcc -DHAVE_CONFIG_H -I. -I..   -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -DLZOP_HAVE_CONFIG_H  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static -MT djgpp2.o -MD -MP -MF .deps/djgpp2.Tpo -c -o djgpp2.o djgpp2.c
+mv -f .deps/djgpp2.Tpo .deps/djgpp2.Po
+gcc  -I/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo -static  -L/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux -o lzop lzop.o compress.o filter.o help.o mblock.o p_lzo.o util.o c_init.o c_none.o c_ansim.o c_ansic.o c_screen.o s_object.o s_curses.o s_djgpp2.o s_vcsa.o frames.o djgpp2.o  -llzo2 -llzo2
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making all in doc
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  all-am
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+Making install in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin"
+  /usr/bin/install -c lzop '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/./lzop-x86_64-linux-lchpcx08'
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/src'
+Making install in doc
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make  install-am
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[3]: Nothing to be done for `install-exec-am'.
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1"
+ /usr/bin/install -c -m 644 'lzop.1' '/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/share/man/man1/lzop-x86_64-linux-lchpcx08.1'
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03/doc'
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzop-1.03'

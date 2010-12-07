@@ -1,0 +1,769 @@
+**** Tue Dec  7 12:10:09 CET 2010 Compiling source in /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo on lchpcx08...\n
+(a link to /afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04)
+configure: Configuring LZO 2.04
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking target system type... x86_64-unknown-linux-gnu
+checking whether to enable maintainer-specific portions of Makefiles... no
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for C compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking how to run the C preprocessor... gcc -E
+checking whether the C preprocessor needs special flags... none needed
+checking for an ANSI C-conforming const... yes
+checking for grep that handles long lines and -e... /bin/grep
+checking for egrep... /bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking whether byte ordering is bigendian... no
+checking for special C compiler options needed for large files... no
+checking for _FILE_OFFSET_BITS value needed for large files... no
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for a thread-safe mkdir -p... /bin/mkdir -p
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking for style of include used by make... GNU
+checking dependency style of gcc... gcc3
+checking how to print strings... printf
+checking for a sed that does not truncate output... /bin/sed
+checking for fgrep... /bin/grep -F
+checking for ld used by gcc... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for BSD- or MS-compatible name lister (nm)... /usr/bin/nm -B
+checking the name lister (/usr/bin/nm -B) interface... BSD nm
+checking whether ln -s works... yes
+checking the maximum length of command line arguments... 98304
+checking whether the shell understands some XSI constructs... yes
+checking whether the shell understands "+="... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for objdump... objdump
+checking how to recognize dependent libraries... pass_all
+checking for ar... ar
+checking for strip... strip
+checking for ranlib... ranlib
+checking command to parse /usr/bin/nm -B output from gcc object... ok
+checking for dlfcn.h... yes
+checking for objdir... .libs
+checking if gcc supports -fno-rtti -fno-exceptions... no
+checking for gcc option to produce PIC... -fPIC -DPIC
+checking if gcc PIC flag -fPIC -DPIC works... yes
+checking if gcc static flag -static works... yes
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.o... (cached) yes
+checking whether the gcc linker (/usr/bin/ld -m elf_x86_64) supports shared libraries... yes
+checking whether -lc should be explicitly linked in... no
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking whether time.h and sys/time.h may both be included... yes
+checking assert.h usability... yes
+checking assert.h presence... yes
+checking for assert.h... yes
+checking ctype.h usability... yes
+checking ctype.h presence... yes
+checking for ctype.h... yes
+checking dirent.h usability... yes
+checking dirent.h presence... yes
+checking for dirent.h... yes
+checking errno.h usability... yes
+checking errno.h presence... yes
+checking for errno.h... yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking float.h usability... yes
+checking float.h presence... yes
+checking for float.h... yes
+checking limits.h usability... yes
+checking limits.h presence... yes
+checking for limits.h... yes
+checking malloc.h usability... yes
+checking malloc.h presence... yes
+checking for malloc.h... yes
+checking for memory.h... (cached) yes
+checking setjmp.h usability... yes
+checking setjmp.h presence... yes
+checking for setjmp.h... yes
+checking signal.h usability... yes
+checking signal.h presence... yes
+checking for signal.h... yes
+checking stdarg.h usability... yes
+checking stdarg.h presence... yes
+checking for stdarg.h... yes
+checking stddef.h usability... yes
+checking stddef.h presence... yes
+checking for stddef.h... yes
+checking for stdint.h... (cached) yes
+checking stdio.h usability... yes
+checking stdio.h presence... yes
+checking for stdio.h... yes
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking for strings.h... (cached) yes
+checking time.h usability... yes
+checking time.h presence... yes
+checking for time.h... yes
+checking for unistd.h... (cached) yes
+checking utime.h usability... yes
+checking utime.h presence... yes
+checking for utime.h... yes
+checking sys/mman.h usability... yes
+checking sys/mman.h presence... yes
+checking for sys/mman.h... yes
+checking sys/resource.h usability... yes
+checking sys/resource.h presence... yes
+checking for sys/resource.h... yes
+checking for sys/stat.h... (cached) yes
+checking sys/time.h usability... yes
+checking sys/time.h presence... yes
+checking for sys/time.h... yes
+checking for sys/types.h... (cached) yes
+checking sys/wait.h usability... yes
+checking sys/wait.h presence... yes
+checking for sys/wait.h... yes
+checking whether limits.h is sane... yes
+checking for off_t... yes
+checking for ptrdiff_t... yes
+checking for size_t... yes
+checking return type of signal handlers... void
+checking size of short... 2
+checking size of int... 4
+checking size of long... 8
+checking size of long long... 8
+checking size of __int16... 0
+checking size of __int32... 0
+checking size of __int64... 0
+checking size of void *... 8
+checking size of size_t... 8
+checking size of ptrdiff_t... 8
+checking size of __int32... (cached) 0
+checking size of intmax_t... 8
+checking size of uintmax_t... 8
+checking size of intptr_t... 8
+checking size of uintptr_t... 8
+checking size of float... 4
+checking size of double... 8
+checking size of long double... 16
+checking size of dev_t... 8
+checking size of fpos_t... 16
+checking size of mode_t... 4
+checking size of off_t... 8
+checking size of ssize_t... 8
+checking size of time_t... 8
+checking for access... yes
+checking for alloca... no
+checking for atexit... yes
+checking for atoi... yes
+checking for atol... yes
+checking for chmod... yes
+checking for chown... yes
+checking for clock_getcpuclockid... no
+checking for clock_getres... no
+checking for clock_gettime... no
+checking for ctime... yes
+checking for difftime... yes
+checking for fstat... yes
+checking for getenv... yes
+checking for getpagesize... yes
+checking for getrusage... yes
+checking for gettimeofday... yes
+checking for gmtime... yes
+checking for isatty... yes
+checking for localtime... yes
+checking for longjmp... yes
+checking for lstat... yes
+checking for memcmp... yes
+checking for memcpy... yes
+checking for memmove... yes
+checking for memset... yes
+checking for mkdir... yes
+checking for mktime... yes
+checking for mmap... yes
+checking for mprotect... yes
+checking for munmap... yes
+checking for qsort... yes
+checking for raise... yes
+checking for rmdir... yes
+checking for setjmp... yes
+checking for signal... yes
+checking for snprintf... yes
+checking for strcasecmp... yes
+checking for strchr... yes
+checking for strdup... yes
+checking for strerror... yes
+checking for strftime... yes
+checking for stricmp... no
+checking for strncasecmp... yes
+checking for strnicmp... no
+checking for strrchr... yes
+checking for strstr... yes
+checking for time... yes
+checking for umask... yes
+checking for utime... yes
+checking for vsnprintf... yes
+checking whether to build assembly versions... no
+checking whether your compiler passes the ACC conformance test... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating examples/Makefile
+config.status: creating include/Makefile
+config.status: creating include/lzo/Makefile
+config.status: creating lzotest/Makefile
+config.status: creating minilzo/Makefile
+config.status: creating src/Makefile
+config.status: creating tests/Makefile
+config.status: creating config.h
+config.status: config.h is unchanged
+config.status: executing depfiles commands
+config.status: executing libtool commands
+
+   LZO configuration summary
+   -------------------------
+   LZO version                : 2.04
+   configured for host        : x86_64-unknown-linux-gnu
+   source code location       : .
+   compiler                   : gcc
+   preprocessor flags         : -DLZO_HAVE_CONFIG_H=1
+   compiler flags             : 
+   build static library       : yes
+   build shared library       : yes
+   enable i386 assembly code  : no
+
+
+   LZO 2.04 configured.
+
+   Copyright (C) 1996-2010 Markus Franz Xaver Johannes Oberhumer
+   All Rights Reserved.
+
+   The LZO library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of
+   the License, or (at your option) any later version.
+
+   The LZO library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   Markus F.X.J. Oberhumer
+   <markus@oberhumer.com>
+   http://www.oberhumer.com/opensource/lzo/
+
+
+Type `make' to build LZO. Type `make install' to install LZO.
+After installing LZO, please read the accompanied documentation.
+
+make clean DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+Making clean in minilzo
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+rm -rf .libs _libs
+ rm -f testmini
+rm -f *.o
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+Making clean in tests
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+rm -rf .libs _libs
+ rm -f align chksum promote sizes
+rm -f *.o
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+Making clean in examples
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+rm -rf .libs _libs
+ rm -f dict lzopack overlap precomp precomp2 simple
+rm -f *.o
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+Making clean in lzotest
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+rm -rf .libs _libs
+ rm -f lzotest
+rm -f *.o
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+Making clean in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+test -z "liblzo2.la" || rm -f liblzo2.la
+rm -f "./so_locations"
+rm -rf .libs _libs
+rm -f *.o
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+Making clean in include
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making clean in lzo
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+rm -rf .libs _libs
+rm -f *.lo
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+Making clean in .
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+rm -rf .libs _libs
+rm -f *.lo
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making clean in .
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+rm -rf .libs _libs
+rm -f *.lo
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make DESTINATION=/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin LIBDIR=/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux SUFFIX=-lchpcx08
+make  all-recursive
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+Making all in include
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making all in lzo
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[3]: Nothing to be done for `all'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[3]: Nothing to be done for `all-am'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making all in src
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo_crc.lo -MD -MP -MF .deps/lzo_crc.Tpo -c -o lzo_crc.lo lzo_crc.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_crc.lo -MD -MP -MF .deps/lzo_crc.Tpo -c lzo_crc.c  -fPIC -DPIC -o .libs/lzo_crc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_crc.lo -MD -MP -MF .deps/lzo_crc.Tpo -c lzo_crc.c -o lzo_crc.o >/dev/null 2>&1
+mv -f .deps/lzo_crc.Tpo .deps/lzo_crc.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo_init.lo -MD -MP -MF .deps/lzo_init.Tpo -c -o lzo_init.lo lzo_init.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_init.lo -MD -MP -MF .deps/lzo_init.Tpo -c lzo_init.c  -fPIC -DPIC -o .libs/lzo_init.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_init.lo -MD -MP -MF .deps/lzo_init.Tpo -c lzo_init.c -o lzo_init.o >/dev/null 2>&1
+mv -f .deps/lzo_init.Tpo .deps/lzo_init.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo_ptr.lo -MD -MP -MF .deps/lzo_ptr.Tpo -c -o lzo_ptr.lo lzo_ptr.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_ptr.lo -MD -MP -MF .deps/lzo_ptr.Tpo -c lzo_ptr.c  -fPIC -DPIC -o .libs/lzo_ptr.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_ptr.lo -MD -MP -MF .deps/lzo_ptr.Tpo -c lzo_ptr.c -o lzo_ptr.o >/dev/null 2>&1
+mv -f .deps/lzo_ptr.Tpo .deps/lzo_ptr.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo_str.lo -MD -MP -MF .deps/lzo_str.Tpo -c -o lzo_str.lo lzo_str.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_str.lo -MD -MP -MF .deps/lzo_str.Tpo -c lzo_str.c  -fPIC -DPIC -o .libs/lzo_str.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_str.lo -MD -MP -MF .deps/lzo_str.Tpo -c lzo_str.c -o lzo_str.o >/dev/null 2>&1
+mv -f .deps/lzo_str.Tpo .deps/lzo_str.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo_util.lo -MD -MP -MF .deps/lzo_util.Tpo -c -o lzo_util.lo lzo_util.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_util.lo -MD -MP -MF .deps/lzo_util.Tpo -c lzo_util.c  -fPIC -DPIC -o .libs/lzo_util.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo_util.lo -MD -MP -MF .deps/lzo_util.Tpo -c lzo_util.c -o lzo_util.o >/dev/null 2>&1
+mv -f .deps/lzo_util.Tpo .deps/lzo_util.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1.lo -MD -MP -MF .deps/lzo1.Tpo -c -o lzo1.lo lzo1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1.lo -MD -MP -MF .deps/lzo1.Tpo -c lzo1.c  -fPIC -DPIC -o .libs/lzo1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1.lo -MD -MP -MF .deps/lzo1.Tpo -c lzo1.c -o lzo1.o >/dev/null 2>&1
+mv -f .deps/lzo1.Tpo .deps/lzo1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1_99.lo -MD -MP -MF .deps/lzo1_99.Tpo -c -o lzo1_99.lo lzo1_99.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1_99.lo -MD -MP -MF .deps/lzo1_99.Tpo -c lzo1_99.c  -fPIC -DPIC -o .libs/lzo1_99.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1_99.lo -MD -MP -MF .deps/lzo1_99.Tpo -c lzo1_99.c -o lzo1_99.o >/dev/null 2>&1
+mv -f .deps/lzo1_99.Tpo .deps/lzo1_99.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1a.lo -MD -MP -MF .deps/lzo1a.Tpo -c -o lzo1a.lo lzo1a.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1a.lo -MD -MP -MF .deps/lzo1a.Tpo -c lzo1a.c  -fPIC -DPIC -o .libs/lzo1a.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1a.lo -MD -MP -MF .deps/lzo1a.Tpo -c lzo1a.c -o lzo1a.o >/dev/null 2>&1
+mv -f .deps/lzo1a.Tpo .deps/lzo1a.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1a_99.lo -MD -MP -MF .deps/lzo1a_99.Tpo -c -o lzo1a_99.lo lzo1a_99.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1a_99.lo -MD -MP -MF .deps/lzo1a_99.Tpo -c lzo1a_99.c  -fPIC -DPIC -o .libs/lzo1a_99.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1a_99.lo -MD -MP -MF .deps/lzo1a_99.Tpo -c lzo1a_99.c -o lzo1a_99.o >/dev/null 2>&1
+mv -f .deps/lzo1a_99.Tpo .deps/lzo1a_99.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_1.lo -MD -MP -MF .deps/lzo1b_1.Tpo -c -o lzo1b_1.lo lzo1b_1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_1.lo -MD -MP -MF .deps/lzo1b_1.Tpo -c lzo1b_1.c  -fPIC -DPIC -o .libs/lzo1b_1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_1.lo -MD -MP -MF .deps/lzo1b_1.Tpo -c lzo1b_1.c -o lzo1b_1.o >/dev/null 2>&1
+mv -f .deps/lzo1b_1.Tpo .deps/lzo1b_1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_2.lo -MD -MP -MF .deps/lzo1b_2.Tpo -c -o lzo1b_2.lo lzo1b_2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_2.lo -MD -MP -MF .deps/lzo1b_2.Tpo -c lzo1b_2.c  -fPIC -DPIC -o .libs/lzo1b_2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_2.lo -MD -MP -MF .deps/lzo1b_2.Tpo -c lzo1b_2.c -o lzo1b_2.o >/dev/null 2>&1
+mv -f .deps/lzo1b_2.Tpo .deps/lzo1b_2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_3.lo -MD -MP -MF .deps/lzo1b_3.Tpo -c -o lzo1b_3.lo lzo1b_3.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_3.lo -MD -MP -MF .deps/lzo1b_3.Tpo -c lzo1b_3.c  -fPIC -DPIC -o .libs/lzo1b_3.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_3.lo -MD -MP -MF .deps/lzo1b_3.Tpo -c lzo1b_3.c -o lzo1b_3.o >/dev/null 2>&1
+mv -f .deps/lzo1b_3.Tpo .deps/lzo1b_3.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_4.lo -MD -MP -MF .deps/lzo1b_4.Tpo -c -o lzo1b_4.lo lzo1b_4.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_4.lo -MD -MP -MF .deps/lzo1b_4.Tpo -c lzo1b_4.c  -fPIC -DPIC -o .libs/lzo1b_4.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_4.lo -MD -MP -MF .deps/lzo1b_4.Tpo -c lzo1b_4.c -o lzo1b_4.o >/dev/null 2>&1
+mv -f .deps/lzo1b_4.Tpo .deps/lzo1b_4.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_5.lo -MD -MP -MF .deps/lzo1b_5.Tpo -c -o lzo1b_5.lo lzo1b_5.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_5.lo -MD -MP -MF .deps/lzo1b_5.Tpo -c lzo1b_5.c  -fPIC -DPIC -o .libs/lzo1b_5.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_5.lo -MD -MP -MF .deps/lzo1b_5.Tpo -c lzo1b_5.c -o lzo1b_5.o >/dev/null 2>&1
+mv -f .deps/lzo1b_5.Tpo .deps/lzo1b_5.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_6.lo -MD -MP -MF .deps/lzo1b_6.Tpo -c -o lzo1b_6.lo lzo1b_6.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_6.lo -MD -MP -MF .deps/lzo1b_6.Tpo -c lzo1b_6.c  -fPIC -DPIC -o .libs/lzo1b_6.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_6.lo -MD -MP -MF .deps/lzo1b_6.Tpo -c lzo1b_6.c -o lzo1b_6.o >/dev/null 2>&1
+mv -f .deps/lzo1b_6.Tpo .deps/lzo1b_6.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_7.lo -MD -MP -MF .deps/lzo1b_7.Tpo -c -o lzo1b_7.lo lzo1b_7.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_7.lo -MD -MP -MF .deps/lzo1b_7.Tpo -c lzo1b_7.c  -fPIC -DPIC -o .libs/lzo1b_7.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_7.lo -MD -MP -MF .deps/lzo1b_7.Tpo -c lzo1b_7.c -o lzo1b_7.o >/dev/null 2>&1
+mv -f .deps/lzo1b_7.Tpo .deps/lzo1b_7.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_8.lo -MD -MP -MF .deps/lzo1b_8.Tpo -c -o lzo1b_8.lo lzo1b_8.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_8.lo -MD -MP -MF .deps/lzo1b_8.Tpo -c lzo1b_8.c  -fPIC -DPIC -o .libs/lzo1b_8.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_8.lo -MD -MP -MF .deps/lzo1b_8.Tpo -c lzo1b_8.c -o lzo1b_8.o >/dev/null 2>&1
+mv -f .deps/lzo1b_8.Tpo .deps/lzo1b_8.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_9.lo -MD -MP -MF .deps/lzo1b_9.Tpo -c -o lzo1b_9.lo lzo1b_9.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_9.lo -MD -MP -MF .deps/lzo1b_9.Tpo -c lzo1b_9.c  -fPIC -DPIC -o .libs/lzo1b_9.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_9.lo -MD -MP -MF .deps/lzo1b_9.Tpo -c lzo1b_9.c -o lzo1b_9.o >/dev/null 2>&1
+mv -f .deps/lzo1b_9.Tpo .deps/lzo1b_9.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_99.lo -MD -MP -MF .deps/lzo1b_99.Tpo -c -o lzo1b_99.lo lzo1b_99.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_99.lo -MD -MP -MF .deps/lzo1b_99.Tpo -c lzo1b_99.c  -fPIC -DPIC -o .libs/lzo1b_99.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_99.lo -MD -MP -MF .deps/lzo1b_99.Tpo -c lzo1b_99.c -o lzo1b_99.o >/dev/null 2>&1
+mv -f .deps/lzo1b_99.Tpo .deps/lzo1b_99.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_9x.lo -MD -MP -MF .deps/lzo1b_9x.Tpo -c -o lzo1b_9x.lo lzo1b_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_9x.lo -MD -MP -MF .deps/lzo1b_9x.Tpo -c lzo1b_9x.c  -fPIC -DPIC -o .libs/lzo1b_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_9x.lo -MD -MP -MF .deps/lzo1b_9x.Tpo -c lzo1b_9x.c -o lzo1b_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1b_9x.Tpo .deps/lzo1b_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_cc.lo -MD -MP -MF .deps/lzo1b_cc.Tpo -c -o lzo1b_cc.lo lzo1b_cc.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_cc.lo -MD -MP -MF .deps/lzo1b_cc.Tpo -c lzo1b_cc.c  -fPIC -DPIC -o .libs/lzo1b_cc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_cc.lo -MD -MP -MF .deps/lzo1b_cc.Tpo -c lzo1b_cc.c -o lzo1b_cc.o >/dev/null 2>&1
+mv -f .deps/lzo1b_cc.Tpo .deps/lzo1b_cc.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_d1.lo -MD -MP -MF .deps/lzo1b_d1.Tpo -c -o lzo1b_d1.lo lzo1b_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_d1.lo -MD -MP -MF .deps/lzo1b_d1.Tpo -c lzo1b_d1.c  -fPIC -DPIC -o .libs/lzo1b_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_d1.lo -MD -MP -MF .deps/lzo1b_d1.Tpo -c lzo1b_d1.c -o lzo1b_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1b_d1.Tpo .deps/lzo1b_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_d2.lo -MD -MP -MF .deps/lzo1b_d2.Tpo -c -o lzo1b_d2.lo lzo1b_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_d2.lo -MD -MP -MF .deps/lzo1b_d2.Tpo -c lzo1b_d2.c  -fPIC -DPIC -o .libs/lzo1b_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_d2.lo -MD -MP -MF .deps/lzo1b_d2.Tpo -c lzo1b_d2.c -o lzo1b_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1b_d2.Tpo .deps/lzo1b_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_rr.lo -MD -MP -MF .deps/lzo1b_rr.Tpo -c -o lzo1b_rr.lo lzo1b_rr.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_rr.lo -MD -MP -MF .deps/lzo1b_rr.Tpo -c lzo1b_rr.c  -fPIC -DPIC -o .libs/lzo1b_rr.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_rr.lo -MD -MP -MF .deps/lzo1b_rr.Tpo -c lzo1b_rr.c -o lzo1b_rr.o >/dev/null 2>&1
+mv -f .deps/lzo1b_rr.Tpo .deps/lzo1b_rr.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1b_xx.lo -MD -MP -MF .deps/lzo1b_xx.Tpo -c -o lzo1b_xx.lo lzo1b_xx.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_xx.lo -MD -MP -MF .deps/lzo1b_xx.Tpo -c lzo1b_xx.c  -fPIC -DPIC -o .libs/lzo1b_xx.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1b_xx.lo -MD -MP -MF .deps/lzo1b_xx.Tpo -c lzo1b_xx.c -o lzo1b_xx.o >/dev/null 2>&1
+mv -f .deps/lzo1b_xx.Tpo .deps/lzo1b_xx.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_1.lo -MD -MP -MF .deps/lzo1c_1.Tpo -c -o lzo1c_1.lo lzo1c_1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_1.lo -MD -MP -MF .deps/lzo1c_1.Tpo -c lzo1c_1.c  -fPIC -DPIC -o .libs/lzo1c_1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_1.lo -MD -MP -MF .deps/lzo1c_1.Tpo -c lzo1c_1.c -o lzo1c_1.o >/dev/null 2>&1
+mv -f .deps/lzo1c_1.Tpo .deps/lzo1c_1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_2.lo -MD -MP -MF .deps/lzo1c_2.Tpo -c -o lzo1c_2.lo lzo1c_2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_2.lo -MD -MP -MF .deps/lzo1c_2.Tpo -c lzo1c_2.c  -fPIC -DPIC -o .libs/lzo1c_2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_2.lo -MD -MP -MF .deps/lzo1c_2.Tpo -c lzo1c_2.c -o lzo1c_2.o >/dev/null 2>&1
+mv -f .deps/lzo1c_2.Tpo .deps/lzo1c_2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_3.lo -MD -MP -MF .deps/lzo1c_3.Tpo -c -o lzo1c_3.lo lzo1c_3.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_3.lo -MD -MP -MF .deps/lzo1c_3.Tpo -c lzo1c_3.c  -fPIC -DPIC -o .libs/lzo1c_3.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_3.lo -MD -MP -MF .deps/lzo1c_3.Tpo -c lzo1c_3.c -o lzo1c_3.o >/dev/null 2>&1
+mv -f .deps/lzo1c_3.Tpo .deps/lzo1c_3.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_4.lo -MD -MP -MF .deps/lzo1c_4.Tpo -c -o lzo1c_4.lo lzo1c_4.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_4.lo -MD -MP -MF .deps/lzo1c_4.Tpo -c lzo1c_4.c  -fPIC -DPIC -o .libs/lzo1c_4.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_4.lo -MD -MP -MF .deps/lzo1c_4.Tpo -c lzo1c_4.c -o lzo1c_4.o >/dev/null 2>&1
+mv -f .deps/lzo1c_4.Tpo .deps/lzo1c_4.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_5.lo -MD -MP -MF .deps/lzo1c_5.Tpo -c -o lzo1c_5.lo lzo1c_5.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_5.lo -MD -MP -MF .deps/lzo1c_5.Tpo -c lzo1c_5.c  -fPIC -DPIC -o .libs/lzo1c_5.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_5.lo -MD -MP -MF .deps/lzo1c_5.Tpo -c lzo1c_5.c -o lzo1c_5.o >/dev/null 2>&1
+mv -f .deps/lzo1c_5.Tpo .deps/lzo1c_5.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_6.lo -MD -MP -MF .deps/lzo1c_6.Tpo -c -o lzo1c_6.lo lzo1c_6.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_6.lo -MD -MP -MF .deps/lzo1c_6.Tpo -c lzo1c_6.c  -fPIC -DPIC -o .libs/lzo1c_6.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_6.lo -MD -MP -MF .deps/lzo1c_6.Tpo -c lzo1c_6.c -o lzo1c_6.o >/dev/null 2>&1
+mv -f .deps/lzo1c_6.Tpo .deps/lzo1c_6.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_7.lo -MD -MP -MF .deps/lzo1c_7.Tpo -c -o lzo1c_7.lo lzo1c_7.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_7.lo -MD -MP -MF .deps/lzo1c_7.Tpo -c lzo1c_7.c  -fPIC -DPIC -o .libs/lzo1c_7.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_7.lo -MD -MP -MF .deps/lzo1c_7.Tpo -c lzo1c_7.c -o lzo1c_7.o >/dev/null 2>&1
+mv -f .deps/lzo1c_7.Tpo .deps/lzo1c_7.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_8.lo -MD -MP -MF .deps/lzo1c_8.Tpo -c -o lzo1c_8.lo lzo1c_8.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_8.lo -MD -MP -MF .deps/lzo1c_8.Tpo -c lzo1c_8.c  -fPIC -DPIC -o .libs/lzo1c_8.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_8.lo -MD -MP -MF .deps/lzo1c_8.Tpo -c lzo1c_8.c -o lzo1c_8.o >/dev/null 2>&1
+mv -f .deps/lzo1c_8.Tpo .deps/lzo1c_8.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_9.lo -MD -MP -MF .deps/lzo1c_9.Tpo -c -o lzo1c_9.lo lzo1c_9.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_9.lo -MD -MP -MF .deps/lzo1c_9.Tpo -c lzo1c_9.c  -fPIC -DPIC -o .libs/lzo1c_9.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_9.lo -MD -MP -MF .deps/lzo1c_9.Tpo -c lzo1c_9.c -o lzo1c_9.o >/dev/null 2>&1
+mv -f .deps/lzo1c_9.Tpo .deps/lzo1c_9.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_99.lo -MD -MP -MF .deps/lzo1c_99.Tpo -c -o lzo1c_99.lo lzo1c_99.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_99.lo -MD -MP -MF .deps/lzo1c_99.Tpo -c lzo1c_99.c  -fPIC -DPIC -o .libs/lzo1c_99.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_99.lo -MD -MP -MF .deps/lzo1c_99.Tpo -c lzo1c_99.c -o lzo1c_99.o >/dev/null 2>&1
+mv -f .deps/lzo1c_99.Tpo .deps/lzo1c_99.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_9x.lo -MD -MP -MF .deps/lzo1c_9x.Tpo -c -o lzo1c_9x.lo lzo1c_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_9x.lo -MD -MP -MF .deps/lzo1c_9x.Tpo -c lzo1c_9x.c  -fPIC -DPIC -o .libs/lzo1c_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_9x.lo -MD -MP -MF .deps/lzo1c_9x.Tpo -c lzo1c_9x.c -o lzo1c_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1c_9x.Tpo .deps/lzo1c_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_cc.lo -MD -MP -MF .deps/lzo1c_cc.Tpo -c -o lzo1c_cc.lo lzo1c_cc.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_cc.lo -MD -MP -MF .deps/lzo1c_cc.Tpo -c lzo1c_cc.c  -fPIC -DPIC -o .libs/lzo1c_cc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_cc.lo -MD -MP -MF .deps/lzo1c_cc.Tpo -c lzo1c_cc.c -o lzo1c_cc.o >/dev/null 2>&1
+mv -f .deps/lzo1c_cc.Tpo .deps/lzo1c_cc.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_d1.lo -MD -MP -MF .deps/lzo1c_d1.Tpo -c -o lzo1c_d1.lo lzo1c_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_d1.lo -MD -MP -MF .deps/lzo1c_d1.Tpo -c lzo1c_d1.c  -fPIC -DPIC -o .libs/lzo1c_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_d1.lo -MD -MP -MF .deps/lzo1c_d1.Tpo -c lzo1c_d1.c -o lzo1c_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1c_d1.Tpo .deps/lzo1c_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_d2.lo -MD -MP -MF .deps/lzo1c_d2.Tpo -c -o lzo1c_d2.lo lzo1c_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_d2.lo -MD -MP -MF .deps/lzo1c_d2.Tpo -c lzo1c_d2.c  -fPIC -DPIC -o .libs/lzo1c_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_d2.lo -MD -MP -MF .deps/lzo1c_d2.Tpo -c lzo1c_d2.c -o lzo1c_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1c_d2.Tpo .deps/lzo1c_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_rr.lo -MD -MP -MF .deps/lzo1c_rr.Tpo -c -o lzo1c_rr.lo lzo1c_rr.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_rr.lo -MD -MP -MF .deps/lzo1c_rr.Tpo -c lzo1c_rr.c  -fPIC -DPIC -o .libs/lzo1c_rr.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_rr.lo -MD -MP -MF .deps/lzo1c_rr.Tpo -c lzo1c_rr.c -o lzo1c_rr.o >/dev/null 2>&1
+mv -f .deps/lzo1c_rr.Tpo .deps/lzo1c_rr.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1c_xx.lo -MD -MP -MF .deps/lzo1c_xx.Tpo -c -o lzo1c_xx.lo lzo1c_xx.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_xx.lo -MD -MP -MF .deps/lzo1c_xx.Tpo -c lzo1c_xx.c  -fPIC -DPIC -o .libs/lzo1c_xx.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1c_xx.lo -MD -MP -MF .deps/lzo1c_xx.Tpo -c lzo1c_xx.c -o lzo1c_xx.o >/dev/null 2>&1
+mv -f .deps/lzo1c_xx.Tpo .deps/lzo1c_xx.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1f_1.lo -MD -MP -MF .deps/lzo1f_1.Tpo -c -o lzo1f_1.lo lzo1f_1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_1.lo -MD -MP -MF .deps/lzo1f_1.Tpo -c lzo1f_1.c  -fPIC -DPIC -o .libs/lzo1f_1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_1.lo -MD -MP -MF .deps/lzo1f_1.Tpo -c lzo1f_1.c -o lzo1f_1.o >/dev/null 2>&1
+mv -f .deps/lzo1f_1.Tpo .deps/lzo1f_1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1f_9x.lo -MD -MP -MF .deps/lzo1f_9x.Tpo -c -o lzo1f_9x.lo lzo1f_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_9x.lo -MD -MP -MF .deps/lzo1f_9x.Tpo -c lzo1f_9x.c  -fPIC -DPIC -o .libs/lzo1f_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_9x.lo -MD -MP -MF .deps/lzo1f_9x.Tpo -c lzo1f_9x.c -o lzo1f_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1f_9x.Tpo .deps/lzo1f_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1f_d1.lo -MD -MP -MF .deps/lzo1f_d1.Tpo -c -o lzo1f_d1.lo lzo1f_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_d1.lo -MD -MP -MF .deps/lzo1f_d1.Tpo -c lzo1f_d1.c  -fPIC -DPIC -o .libs/lzo1f_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_d1.lo -MD -MP -MF .deps/lzo1f_d1.Tpo -c lzo1f_d1.c -o lzo1f_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1f_d1.Tpo .deps/lzo1f_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1f_d2.lo -MD -MP -MF .deps/lzo1f_d2.Tpo -c -o lzo1f_d2.lo lzo1f_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_d2.lo -MD -MP -MF .deps/lzo1f_d2.Tpo -c lzo1f_d2.c  -fPIC -DPIC -o .libs/lzo1f_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1f_d2.lo -MD -MP -MF .deps/lzo1f_d2.Tpo -c lzo1f_d2.c -o lzo1f_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1f_d2.Tpo .deps/lzo1f_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_1.lo -MD -MP -MF .deps/lzo1x_1.Tpo -c -o lzo1x_1.lo lzo1x_1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1.lo -MD -MP -MF .deps/lzo1x_1.Tpo -c lzo1x_1.c  -fPIC -DPIC -o .libs/lzo1x_1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1.lo -MD -MP -MF .deps/lzo1x_1.Tpo -c lzo1x_1.c -o lzo1x_1.o >/dev/null 2>&1
+mv -f .deps/lzo1x_1.Tpo .deps/lzo1x_1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_9x.lo -MD -MP -MF .deps/lzo1x_9x.Tpo -c -o lzo1x_9x.lo lzo1x_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_9x.lo -MD -MP -MF .deps/lzo1x_9x.Tpo -c lzo1x_9x.c  -fPIC -DPIC -o .libs/lzo1x_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_9x.lo -MD -MP -MF .deps/lzo1x_9x.Tpo -c lzo1x_9x.c -o lzo1x_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1x_9x.Tpo .deps/lzo1x_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_d1.lo -MD -MP -MF .deps/lzo1x_d1.Tpo -c -o lzo1x_d1.lo lzo1x_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d1.lo -MD -MP -MF .deps/lzo1x_d1.Tpo -c lzo1x_d1.c  -fPIC -DPIC -o .libs/lzo1x_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d1.lo -MD -MP -MF .deps/lzo1x_d1.Tpo -c lzo1x_d1.c -o lzo1x_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1x_d1.Tpo .deps/lzo1x_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_d2.lo -MD -MP -MF .deps/lzo1x_d2.Tpo -c -o lzo1x_d2.lo lzo1x_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d2.lo -MD -MP -MF .deps/lzo1x_d2.Tpo -c lzo1x_d2.c  -fPIC -DPIC -o .libs/lzo1x_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d2.lo -MD -MP -MF .deps/lzo1x_d2.Tpo -c lzo1x_d2.c -o lzo1x_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1x_d2.Tpo .deps/lzo1x_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_d3.lo -MD -MP -MF .deps/lzo1x_d3.Tpo -c -o lzo1x_d3.lo lzo1x_d3.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d3.lo -MD -MP -MF .deps/lzo1x_d3.Tpo -c lzo1x_d3.c  -fPIC -DPIC -o .libs/lzo1x_d3.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_d3.lo -MD -MP -MF .deps/lzo1x_d3.Tpo -c lzo1x_d3.c -o lzo1x_d3.o >/dev/null 2>&1
+mv -f .deps/lzo1x_d3.Tpo .deps/lzo1x_d3.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_o.lo -MD -MP -MF .deps/lzo1x_o.Tpo -c -o lzo1x_o.lo lzo1x_o.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_o.lo -MD -MP -MF .deps/lzo1x_o.Tpo -c lzo1x_o.c  -fPIC -DPIC -o .libs/lzo1x_o.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_o.lo -MD -MP -MF .deps/lzo1x_o.Tpo -c lzo1x_o.c -o lzo1x_o.o >/dev/null 2>&1
+mv -f .deps/lzo1x_o.Tpo .deps/lzo1x_o.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_1k.lo -MD -MP -MF .deps/lzo1x_1k.Tpo -c -o lzo1x_1k.lo lzo1x_1k.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1k.lo -MD -MP -MF .deps/lzo1x_1k.Tpo -c lzo1x_1k.c  -fPIC -DPIC -o .libs/lzo1x_1k.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1k.lo -MD -MP -MF .deps/lzo1x_1k.Tpo -c lzo1x_1k.c -o lzo1x_1k.o >/dev/null 2>&1
+mv -f .deps/lzo1x_1k.Tpo .deps/lzo1x_1k.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_1l.lo -MD -MP -MF .deps/lzo1x_1l.Tpo -c -o lzo1x_1l.lo lzo1x_1l.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1l.lo -MD -MP -MF .deps/lzo1x_1l.Tpo -c lzo1x_1l.c  -fPIC -DPIC -o .libs/lzo1x_1l.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1l.lo -MD -MP -MF .deps/lzo1x_1l.Tpo -c lzo1x_1l.c -o lzo1x_1l.o >/dev/null 2>&1
+mv -f .deps/lzo1x_1l.Tpo .deps/lzo1x_1l.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1x_1o.lo -MD -MP -MF .deps/lzo1x_1o.Tpo -c -o lzo1x_1o.lo lzo1x_1o.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1o.lo -MD -MP -MF .deps/lzo1x_1o.Tpo -c lzo1x_1o.c  -fPIC -DPIC -o .libs/lzo1x_1o.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1x_1o.lo -MD -MP -MF .deps/lzo1x_1o.Tpo -c lzo1x_1o.c -o lzo1x_1o.o >/dev/null 2>&1
+mv -f .deps/lzo1x_1o.Tpo .deps/lzo1x_1o.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_1.lo -MD -MP -MF .deps/lzo1y_1.Tpo -c -o lzo1y_1.lo lzo1y_1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_1.lo -MD -MP -MF .deps/lzo1y_1.Tpo -c lzo1y_1.c  -fPIC -DPIC -o .libs/lzo1y_1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_1.lo -MD -MP -MF .deps/lzo1y_1.Tpo -c lzo1y_1.c -o lzo1y_1.o >/dev/null 2>&1
+mv -f .deps/lzo1y_1.Tpo .deps/lzo1y_1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_9x.lo -MD -MP -MF .deps/lzo1y_9x.Tpo -c -o lzo1y_9x.lo lzo1y_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_9x.lo -MD -MP -MF .deps/lzo1y_9x.Tpo -c lzo1y_9x.c  -fPIC -DPIC -o .libs/lzo1y_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_9x.lo -MD -MP -MF .deps/lzo1y_9x.Tpo -c lzo1y_9x.c -o lzo1y_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1y_9x.Tpo .deps/lzo1y_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_d1.lo -MD -MP -MF .deps/lzo1y_d1.Tpo -c -o lzo1y_d1.lo lzo1y_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d1.lo -MD -MP -MF .deps/lzo1y_d1.Tpo -c lzo1y_d1.c  -fPIC -DPIC -o .libs/lzo1y_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d1.lo -MD -MP -MF .deps/lzo1y_d1.Tpo -c lzo1y_d1.c -o lzo1y_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1y_d1.Tpo .deps/lzo1y_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_d2.lo -MD -MP -MF .deps/lzo1y_d2.Tpo -c -o lzo1y_d2.lo lzo1y_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d2.lo -MD -MP -MF .deps/lzo1y_d2.Tpo -c lzo1y_d2.c  -fPIC -DPIC -o .libs/lzo1y_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d2.lo -MD -MP -MF .deps/lzo1y_d2.Tpo -c lzo1y_d2.c -o lzo1y_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1y_d2.Tpo .deps/lzo1y_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_d3.lo -MD -MP -MF .deps/lzo1y_d3.Tpo -c -o lzo1y_d3.lo lzo1y_d3.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d3.lo -MD -MP -MF .deps/lzo1y_d3.Tpo -c lzo1y_d3.c  -fPIC -DPIC -o .libs/lzo1y_d3.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_d3.lo -MD -MP -MF .deps/lzo1y_d3.Tpo -c lzo1y_d3.c -o lzo1y_d3.o >/dev/null 2>&1
+mv -f .deps/lzo1y_d3.Tpo .deps/lzo1y_d3.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1y_o.lo -MD -MP -MF .deps/lzo1y_o.Tpo -c -o lzo1y_o.lo lzo1y_o.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_o.lo -MD -MP -MF .deps/lzo1y_o.Tpo -c lzo1y_o.c  -fPIC -DPIC -o .libs/lzo1y_o.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1y_o.lo -MD -MP -MF .deps/lzo1y_o.Tpo -c lzo1y_o.c -o lzo1y_o.o >/dev/null 2>&1
+mv -f .deps/lzo1y_o.Tpo .deps/lzo1y_o.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1z_9x.lo -MD -MP -MF .deps/lzo1z_9x.Tpo -c -o lzo1z_9x.lo lzo1z_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_9x.lo -MD -MP -MF .deps/lzo1z_9x.Tpo -c lzo1z_9x.c  -fPIC -DPIC -o .libs/lzo1z_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_9x.lo -MD -MP -MF .deps/lzo1z_9x.Tpo -c lzo1z_9x.c -o lzo1z_9x.o >/dev/null 2>&1
+mv -f .deps/lzo1z_9x.Tpo .deps/lzo1z_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1z_d1.lo -MD -MP -MF .deps/lzo1z_d1.Tpo -c -o lzo1z_d1.lo lzo1z_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d1.lo -MD -MP -MF .deps/lzo1z_d1.Tpo -c lzo1z_d1.c  -fPIC -DPIC -o .libs/lzo1z_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d1.lo -MD -MP -MF .deps/lzo1z_d1.Tpo -c lzo1z_d1.c -o lzo1z_d1.o >/dev/null 2>&1
+mv -f .deps/lzo1z_d1.Tpo .deps/lzo1z_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1z_d2.lo -MD -MP -MF .deps/lzo1z_d2.Tpo -c -o lzo1z_d2.lo lzo1z_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d2.lo -MD -MP -MF .deps/lzo1z_d2.Tpo -c lzo1z_d2.c  -fPIC -DPIC -o .libs/lzo1z_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d2.lo -MD -MP -MF .deps/lzo1z_d2.Tpo -c lzo1z_d2.c -o lzo1z_d2.o >/dev/null 2>&1
+mv -f .deps/lzo1z_d2.Tpo .deps/lzo1z_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo1z_d3.lo -MD -MP -MF .deps/lzo1z_d3.Tpo -c -o lzo1z_d3.lo lzo1z_d3.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d3.lo -MD -MP -MF .deps/lzo1z_d3.Tpo -c lzo1z_d3.c  -fPIC -DPIC -o .libs/lzo1z_d3.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo1z_d3.lo -MD -MP -MF .deps/lzo1z_d3.Tpo -c lzo1z_d3.c -o lzo1z_d3.o >/dev/null 2>&1
+mv -f .deps/lzo1z_d3.Tpo .deps/lzo1z_d3.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo2a_9x.lo -MD -MP -MF .deps/lzo2a_9x.Tpo -c -o lzo2a_9x.lo lzo2a_9x.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_9x.lo -MD -MP -MF .deps/lzo2a_9x.Tpo -c lzo2a_9x.c  -fPIC -DPIC -o .libs/lzo2a_9x.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_9x.lo -MD -MP -MF .deps/lzo2a_9x.Tpo -c lzo2a_9x.c -o lzo2a_9x.o >/dev/null 2>&1
+mv -f .deps/lzo2a_9x.Tpo .deps/lzo2a_9x.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo2a_d1.lo -MD -MP -MF .deps/lzo2a_d1.Tpo -c -o lzo2a_d1.lo lzo2a_d1.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_d1.lo -MD -MP -MF .deps/lzo2a_d1.Tpo -c lzo2a_d1.c  -fPIC -DPIC -o .libs/lzo2a_d1.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_d1.lo -MD -MP -MF .deps/lzo2a_d1.Tpo -c lzo2a_d1.c -o lzo2a_d1.o >/dev/null 2>&1
+mv -f .deps/lzo2a_d1.Tpo .deps/lzo2a_d1.Plo
+/bin/sh ../libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..   -DLZO_HAVE_CONFIG_H=1      -MT lzo2a_d2.lo -MD -MP -MF .deps/lzo2a_d2.Tpo -c -o lzo2a_d2.lo lzo2a_d2.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_d2.lo -MD -MP -MF .deps/lzo2a_d2.Tpo -c lzo2a_d2.c  -fPIC -DPIC -o .libs/lzo2a_d2.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I.. -DLZO_HAVE_CONFIG_H=1 -MT lzo2a_d2.lo -MD -MP -MF .deps/lzo2a_d2.Tpo -c lzo2a_d2.c -o lzo2a_d2.o >/dev/null 2>&1
+mv -f .deps/lzo2a_d2.Tpo .deps/lzo2a_d2.Plo
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -version-info 2:0:0  -o liblzo2.la -rpath /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux lzo_crc.lo lzo_init.lo lzo_ptr.lo lzo_str.lo lzo_util.lo lzo1.lo lzo1_99.lo lzo1a.lo lzo1a_99.lo lzo1b_1.lo lzo1b_2.lo lzo1b_3.lo lzo1b_4.lo lzo1b_5.lo lzo1b_6.lo lzo1b_7.lo lzo1b_8.lo lzo1b_9.lo lzo1b_99.lo lzo1b_9x.lo lzo1b_cc.lo lzo1b_d1.lo lzo1b_d2.lo lzo1b_rr.lo lzo1b_xx.lo lzo1c_1.lo lzo1c_2.lo lzo1c_3.lo lzo1c_4.lo lzo1c_5.lo lzo1c_6.lo lzo1c_7.lo lzo1c_8.lo lzo1c_9.lo lzo1c_99.lo lzo1c_9x.lo lzo1c_cc.lo lzo1c_d1.lo lzo1c_d2.lo lzo1c_rr.lo lzo1c_xx.lo lzo1f_1.lo lzo1f_9x.lo lzo1f_d1.lo lzo1f_d2.lo lzo1x_1.lo lzo1x_9x.lo lzo1x_d1.lo lzo1x_d2.lo lzo1x_d3.lo lzo1x_o.lo lzo1x_1k.lo lzo1x_1l.lo lzo1x_1o.lo lzo1y_1.lo lzo1y_9x.lo lzo1y_d1.lo lzo1y_d2.lo lzo1y_d3.lo lzo1y_o.lo lzo1z_9x.lo lzo1z_d1.lo lzo1z_d2.lo lzo1z_d3.lo lzo2a_9x.lo lzo2a_d1.lo lzo2a_d2.lo  
+libtool: link: gcc -shared  .libs/lzo_crc.o .libs/lzo_init.o .libs/lzo_ptr.o .libs/lzo_str.o .libs/lzo_util.o .libs/lzo1.o .libs/lzo1_99.o .libs/lzo1a.o .libs/lzo1a_99.o .libs/lzo1b_1.o .libs/lzo1b_2.o .libs/lzo1b_3.o .libs/lzo1b_4.o .libs/lzo1b_5.o .libs/lzo1b_6.o .libs/lzo1b_7.o .libs/lzo1b_8.o .libs/lzo1b_9.o .libs/lzo1b_99.o .libs/lzo1b_9x.o .libs/lzo1b_cc.o .libs/lzo1b_d1.o .libs/lzo1b_d2.o .libs/lzo1b_rr.o .libs/lzo1b_xx.o .libs/lzo1c_1.o .libs/lzo1c_2.o .libs/lzo1c_3.o .libs/lzo1c_4.o .libs/lzo1c_5.o .libs/lzo1c_6.o .libs/lzo1c_7.o .libs/lzo1c_8.o .libs/lzo1c_9.o .libs/lzo1c_99.o .libs/lzo1c_9x.o .libs/lzo1c_cc.o .libs/lzo1c_d1.o .libs/lzo1c_d2.o .libs/lzo1c_rr.o .libs/lzo1c_xx.o .libs/lzo1f_1.o .libs/lzo1f_9x.o .libs/lzo1f_d1.o .libs/lzo1f_d2.o .libs/lzo1x_1.o .libs/lzo1x_9x.o .libs/lzo1x_d1.o .libs/lzo1x_d2.o .libs/lzo1x_d3.o .libs/lzo1x_o.o .libs/lzo1x_1k.o .libs/lzo1x_1l.o .libs/lzo1x_1o.o .libs/lzo1y_1.o .libs/lzo1y_9x.o .libs/lzo1y_d1.o .libs/lzo1y_d2.o .libs/lzo1y_d3.o .libs/lzo1y_o.o .libs/lzo1z_9x.o .libs/lzo1z_d1.o .libs/lzo1z_d2.o .libs/lzo1z_d3.o .libs/lzo2a_9x.o .libs/lzo2a_d1.o .libs/lzo2a_d2.o      -Wl,-soname -Wl,liblzo2.so.2 -o .libs/liblzo2.so.2.0.0
+libtool: link: (cd ".libs" && rm -f "liblzo2.so.2" && ln -s "liblzo2.so.2.0.0" "liblzo2.so.2")
+libtool: link: (cd ".libs" && rm -f "liblzo2.so" && ln -s "liblzo2.so.2.0.0" "liblzo2.so")
+libtool: link: ar cru .libs/liblzo2.a  lzo_crc.o lzo_init.o lzo_ptr.o lzo_str.o lzo_util.o lzo1.o lzo1_99.o lzo1a.o lzo1a_99.o lzo1b_1.o lzo1b_2.o lzo1b_3.o lzo1b_4.o lzo1b_5.o lzo1b_6.o lzo1b_7.o lzo1b_8.o lzo1b_9.o lzo1b_99.o lzo1b_9x.o lzo1b_cc.o lzo1b_d1.o lzo1b_d2.o lzo1b_rr.o lzo1b_xx.o lzo1c_1.o lzo1c_2.o lzo1c_3.o lzo1c_4.o lzo1c_5.o lzo1c_6.o lzo1c_7.o lzo1c_8.o lzo1c_9.o lzo1c_99.o lzo1c_9x.o lzo1c_cc.o lzo1c_d1.o lzo1c_d2.o lzo1c_rr.o lzo1c_xx.o lzo1f_1.o lzo1f_9x.o lzo1f_d1.o lzo1f_d2.o lzo1x_1.o lzo1x_9x.o lzo1x_d1.o lzo1x_d2.o lzo1x_d3.o lzo1x_o.o lzo1x_1k.o lzo1x_1l.o lzo1x_1o.o lzo1y_1.o lzo1y_9x.o lzo1y_d1.o lzo1y_d2.o lzo1y_d3.o lzo1y_o.o lzo1z_9x.o lzo1z_d1.o lzo1z_d2.o lzo1z_d3.o lzo2a_9x.o lzo2a_d1.o lzo2a_d2.o
+libtool: link: ranlib .libs/liblzo2.a
+libtool: link: ( cd ".libs" && rm -f "liblzo2.la" && ln -s "../liblzo2.la" "liblzo2.la" )
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+Making all in lzotest
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT lzotest.o -MD -MP -MF .deps/lzotest.Tpo -c -o lzotest.o lzotest.c
+mv -f .deps/lzotest.Tpo .deps/lzotest.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o lzotest lzotest.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/lzotest lzotest.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+Making all in examples
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT dict.o -MD -MP -MF .deps/dict.Tpo -c -o dict.o dict.c
+mv -f .deps/dict.Tpo .deps/dict.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o dict dict.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/dict dict.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT lzopack.o -MD -MP -MF .deps/lzopack.Tpo -c -o lzopack.o lzopack.c
+mv -f .deps/lzopack.Tpo .deps/lzopack.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o lzopack lzopack.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/lzopack lzopack.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT overlap.o -MD -MP -MF .deps/overlap.Tpo -c -o overlap.o overlap.c
+mv -f .deps/overlap.Tpo .deps/overlap.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o overlap overlap.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/overlap overlap.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT precomp.o -MD -MP -MF .deps/precomp.Tpo -c -o precomp.o precomp.c
+mv -f .deps/precomp.Tpo .deps/precomp.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o precomp precomp.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/precomp precomp.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT precomp2.o -MD -MP -MF .deps/precomp2.Tpo -c -o precomp2.o precomp2.c
+mv -f .deps/precomp2.Tpo .deps/precomp2.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o precomp2 precomp2.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/precomp2 precomp2.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT simple.o -MD -MP -MF .deps/simple.Tpo -c -o simple.o simple.c
+mv -f .deps/simple.Tpo .deps/simple.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o simple simple.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/simple simple.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+Making all in tests
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT align.o -MD -MP -MF .deps/align.Tpo -c -o align.o align.c
+mv -f .deps/align.Tpo .deps/align.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o align align.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/align align.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT chksum.o -MD -MP -MF .deps/chksum.Tpo -c -o chksum.o chksum.c
+mv -f .deps/chksum.Tpo .deps/chksum.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o chksum chksum.o ../src/liblzo2.la 
+libtool: link: gcc -o .libs/chksum chksum.o  ../src/.libs/liblzo2.so -Wl,-rpath -Wl,/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT promote.o -MD -MP -MF .deps/promote.Tpo -c -o promote.o promote.c
+mv -f .deps/promote.Tpo .deps/promote.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o promote promote.o  
+libtool: link: gcc -o promote promote.o 
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include -I..  -DLZO_HAVE_CONFIG_H=1   -MT sizes.o -MD -MP -MF .deps/sizes.Tpo -c -o sizes.o sizes.c
+mv -f .deps/sizes.Tpo .deps/sizes.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o sizes sizes.o  
+libtool: link: gcc -o sizes sizes.o 
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+Making all in minilzo
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include/lzo -I../include -DMINILZO_HAVE_CONFIG_H -DLZO_HAVE_CONFIG_H=1   -MT testmini.o -MD -MP -MF .deps/testmini.Tpo -c -o testmini.o testmini.c
+mv -f .deps/testmini.Tpo .deps/testmini.Po
+gcc -DHAVE_CONFIG_H -I. -I.. -I../include/lzo -I../include -DMINILZO_HAVE_CONFIG_H -DLZO_HAVE_CONFIG_H=1   -MT minilzo.o -MD -MP -MF .deps/minilzo.Tpo -c -o minilzo.o minilzo.c
+mv -f .deps/minilzo.Tpo .deps/minilzo.Po
+/bin/sh ../libtool  --tag=CC   --mode=link gcc     -o testmini testmini.o minilzo.o  
+libtool: link: gcc -o testmini testmini.o minilzo.o 
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+Making install in include
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making install in lzo
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[3]: Nothing to be done for `install-exec-am'.
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo"
+ /usr/bin/install -c -m 644 lzoconf.h lzodefs.h lzoutil.h lzo_asm.h lzo1.h lzo1a.h lzo1b.h lzo1c.h lzo1f.h lzo1x.h lzo1y.h lzo1z.h lzo2a.h '/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/lzo'
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include/lzo'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[3]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[3]: Nothing to be done for `install-exec-am'.
+make[3]: Nothing to be done for `install-data-am'.
+make[3]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/include'
+Making install in src
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+test -z "/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux" || /bin/mkdir -p "/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux"
+ /bin/sh ../libtool   --mode=install /usr/bin/install -c   liblzo2.la '/afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux'
+libtool: install: /usr/bin/install -c .libs/liblzo2.so.2.0.0 /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/liblzo2.so.2.0.0
+libtool: install: (cd /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux && { ln -s -f liblzo2.so.2.0.0 liblzo2.so.2 || { rm -f liblzo2.so.2 && ln -s liblzo2.so.2.0.0 liblzo2.so.2; }; })
+libtool: install: (cd /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux && { ln -s -f liblzo2.so.2.0.0 liblzo2.so || { rm -f liblzo2.so && ln -s liblzo2.so.2.0.0 liblzo2.so; }; })
+libtool: install: /usr/bin/install -c .libs/liblzo2.lai /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/liblzo2.la
+libtool: install: /usr/bin/install -c .libs/liblzo2.a /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/liblzo2.a
+libtool: install: chmod 644 /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/liblzo2.a
+libtool: install: ranlib /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux/liblzo2.a
+libtool: finish: PATH="/opt/pgi/pgi-10.1/linux86-64/10.1/bin:/opt/intel/intel-11.1/bin/intel64:/afs/psi.ch/sys/linux/opt/matlab/2010b.x86_64/bin:/opt/wave/wave-9.0/wave/bin:/opt/idl/idl-7.0/idl70/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/usr/X11R6/bin:/afs/psi.ch/user/o/oderbolz/bin:/afs/psi.ch/project/dms/admin/prod/opt/dms:/afs/psi.ch/user/o/oderbolz/bin:/afs/psi.ch/project/dms/admin/prod/opt/dms:/sbin" ldconfig -n /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /afs/psi.ch/user/o/oderbolz/CAMxRunner/lib/lzo/x86_64-linux
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the `-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the `LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the `LD_RUN_PATH' environment variable
+     during linking
+   - use the `-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to `/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/src'
+Making install in lzotest
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/lzotest'
+Making install in examples
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/examples'
+Making install in tests
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/tests'
+Making install in minilzo
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04/minilzo'
+make[1]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make[2]: Entering directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make[2]: Nothing to be done for `install-exec-am'.
+make[2]: Nothing to be done for `install-data-am'.
+make[2]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
+make[1]: Leaving directory `/afs/psi.ch/user/o/oderbolz/CAMxRunner/bin/src/lzo-2.04'
