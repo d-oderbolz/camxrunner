@@ -216,8 +216,8 @@ function CAMxRunner_installer()
 					            --exec-prefix=${CXR_BIN_DIR} \
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
-					            --includedir=${CXR_LIB_DIR}/lzo/$HOSTTYPE \
-					            --libdir=${CXR_LIB_DIR}/lzo/$HOSTTYPE \
+					            --includedir=${CXR_BIN_DIR}/src/lzo/src \
+					            --libdir=${CXR_BIN_DIR}/src/lzo/src \
 					            --program-suffix=-${HOSTTYPE}${suffix} | tee -a $logfile	
 					
 				fi
