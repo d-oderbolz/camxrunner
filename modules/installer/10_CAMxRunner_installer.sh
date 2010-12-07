@@ -214,7 +214,7 @@ function CAMxRunner_installer()
 				elif [[ $executable == lzop ]]
 				then
 				
-					export CPPFLAGS="-I${CXR_BIN_DIR}/src/lzo/include/lzo"
+					export CPPFLAGS="-I${CXR_LIB_DIR}/lzo/$HOSTTYPE/lzo"
 					export CFLAGS="$CPPFLAGS"
 					export LDFLAGS="-L${CXR_LIB_DIR}/lzo/$HOSTTYPE"
 					
