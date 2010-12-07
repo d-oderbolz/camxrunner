@@ -221,6 +221,9 @@ function CAMxRunner_installer()
 					export LIBS="-llzo2"
 					export LD_LIBRARY_PATH="${CXR_LIB_DIR}/lzo/${HOSTTYPE}:${LD_LIBRARY_PATH}"
 					
+					# We need to use the libdir of lzop
+					libdir=${CXR_LIB_DIR}/lzo/${HOSTTYPE}
+					
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
 					            --bindir=${CXR_BIN_DIR} \
