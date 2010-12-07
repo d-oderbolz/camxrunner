@@ -716,7 +716,7 @@ function common.fs.CompressOutput()
 					if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 					then
 						main.log -a "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
-						"${CXR_COMPRESSOR_EXEC}" "${filename}"
+						${CXR_COMPRESSOR_EXEC} ${CXR_COMPRESSOR_OPTIONS} "${filename}"
 					else
 						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
 					fi
@@ -1190,12 +1190,8 @@ function test_module()
 	#Test
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, no pattern"
 	
-	set -xv
-	
 	# Decompress again
 	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
-	
-	set +xv
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
