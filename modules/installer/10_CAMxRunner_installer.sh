@@ -229,6 +229,8 @@ function CAMxRunner_installer()
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
 					            --program-suffix=-${HOSTTYPE}${suffix} 
+					            --enable-shared=no \
+					            --enable-static=yes \
 					            --mandir=/dev/null | tee -a $logfile
 
 				fi
