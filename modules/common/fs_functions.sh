@@ -910,7 +910,8 @@ function common.fs.TryDecompressingFile()
 				
 					lzop)
 						main.log -a  "${input_file} is lzop-compressed. Using $CXR_LZOP_EXEC to decompress..."
-						$CXR_LZOP_EXEC -c -U "$comp_file" > $tempfile
+						# lzop needs -f to allow it to delete the file
+						$CXR_LZOP_EXEC -f -c -U "$comp_file" > $tempfile
 						;;
 		
 					bzip2)
