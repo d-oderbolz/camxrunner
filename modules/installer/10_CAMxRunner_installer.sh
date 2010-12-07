@@ -235,18 +235,13 @@ function CAMxRunner_installer()
 				echo "make DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
 				make DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile 
 			
-				if [[ $executable == lzo ]]
-				then
-					make install
-				fi
-			
 				if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 				then
 					main.dieGracefully "The compilation of $executable did not complete successfully"
 				fi
 			
-				# make install when compiling proj
-				if [[ $executable == proj ]]
+				# make install when compiling proj or lzo(p)
+				if [[ $executable == proj || $executable == lzo || $executable == lzop ]]
 				then
 					make install | tee -a $logfile 
 					
