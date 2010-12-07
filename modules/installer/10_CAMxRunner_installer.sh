@@ -208,7 +208,7 @@ function CAMxRunner_installer()
 					            --includedir=${libdir} \
 					            --libdir=${libdir} \
 					            --program-suffix=-${HOSTTYPE}${suffix} \
-					            --enable-shared=no \
+					            --enable-shared=yes \
 					            --enable-static=yes   | tee -a $logfile	
 										            
 				elif [[ $executable == lzop ]]
