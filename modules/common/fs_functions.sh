@@ -1190,8 +1190,12 @@ function test_module()
 	#Test
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, no pattern"
 	
+	set -xv
+	
 	# Decompress again
 	"${CXR_DECOMPRESSOR_EXEC}" "${CXR_DECOMPRESSOR_OPTIONS}" ${a}.${suffix}
+	
+	set +xv
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
