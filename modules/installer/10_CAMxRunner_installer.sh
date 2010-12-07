@@ -216,7 +216,7 @@ function CAMxRunner_installer()
 				
 					export CPPFLAGS="-I${CXR_BIN_DIR}/src/lzo/include/lzo"
 					export CFLAGS="$CPPFLAGS"
-					export LDFLAGS="-I${CXR_BIN_DIR}/src/lzo/src"
+					export LDFLAGS="-I${CXR_LIB_DIR}/lzo/$HOSTTYPE"
 					
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
