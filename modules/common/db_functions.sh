@@ -73,7 +73,7 @@ function common.db.init()
 		main.dieGracefully "CXR_DB_TRY_TIMES ($CXR_DB_TRY_TIMES) must be at least 1, otherwise no DB operations will happen."
 	fi
 	
-	main.log -a "Initialising databases..."
+	main.log -a "Initialising databases & Housekeeping..."
 	
 	# Testing integrity of sqlite itself
 	x=$(common.runner.createTempFile sqlite-test)
@@ -127,8 +127,6 @@ function common.db.init()
 	# Loop through directories/levels and files
 	directories=($CXR_GLOBAL_DIR $CXR_UNIVERSAL_DIR)
 	levels=($CXR_LEVEL_GLOBAL $CXR_LEVEL_UNIVERSAL)
-	
-	main.log -a "Housekeeping..."
 	
 	for iDir in $(seq 0 $(( ${#directories[@]} - 1 )) )
 	do
