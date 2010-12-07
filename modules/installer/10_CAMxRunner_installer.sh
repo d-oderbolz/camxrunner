@@ -159,8 +159,10 @@ function CAMxRunner_installer()
 		do
 			
 			executable="$(basename "$src_dir")"
+			# Init some vars needed for some compilations
 			export CPPFLAGS=""
 			export CFLAGS=""
+			export LDFLAGS=""
 			
 			if [[ "$(common.user.getOK "Do you want to compile $executable ?" )" == true  ]]
 			then
@@ -212,8 +214,9 @@ function CAMxRunner_installer()
 				elif [[ $executable == lzop ]]
 				then
 				
-					export CPPFLAGS="-I${CXR_BIN_DIR}/src/lzo/include/lzo -L${CXR_BIN_DIR}/src/lzo/src"
+					export CPPFLAGS="-I${CXR_BIN_DIR}/src/lzo/include/lzo"
 					export CFLAGS="$CPPFLAGS"
+					export LDFLAGS="-L${CXR_BIN_DIR}/src/lzo/src"
 					
 					./configure --prefix=${CXR_BIN_DIR} \
 					            --exec-prefix=${CXR_BIN_DIR} \
