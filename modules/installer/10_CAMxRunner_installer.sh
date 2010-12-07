@@ -216,7 +216,7 @@ function CAMxRunner_installer()
 				then
 				
 					export CPPFLAGS="-I${CXR_LIB_DIR}/lzo/${HOSTTYPE}/lzo"
-					export CFLAGS="$CPPFLAGS"
+					export CFLAGS="$CPPFLAGS -static"
 					export LDFLAGS="-L${CXR_LIB_DIR}/lzo/${HOSTTYPE}"
 					export LIBS="-llzo2"
 					export LD_LIBRARY_PATH="${CXR_LIB_DIR}/lzo/${HOSTTYPE}:${LD_LIBRARY_PATH}"
@@ -229,8 +229,6 @@ function CAMxRunner_installer()
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
 					            --program-suffix=-${HOSTTYPE}${suffix} 
-					            --enable-shared=no \
-					            --enable-static=yes \
 					            --mandir=/dev/null | tee -a $logfile
 
 				fi
