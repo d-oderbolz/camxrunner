@@ -483,7 +483,9 @@ function common.fs.isLink?()
 # Function: common.fs.isBrokenLink?
 #
 # Returns true if the argument is a broken link (or contains one), false otherwise.
-# The Empty strig is broken by definition.
+# The Empty string is broken by definition.
+# Note: One reason for a broken link is that the target of the link was compressed!
+# This function does no explicit check if the last element of the path to test is a link.
 #
 # Parameters:
 # $1 - path to link to test

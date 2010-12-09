@@ -548,8 +548,6 @@ function main.doCleanup()
 			
 		fi # Dry?
 		
-	
-
 	fi # Hollow?
 	
 	# Remove all tempfiles

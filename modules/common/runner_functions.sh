@@ -787,6 +787,7 @@ function common.runner.createJobFile()
 #
 # Removes all files from the temp file list if CXR_REMOVE_TEMP_FILES is true.
 # Also recompresses or removes decompressed files if requested/needed.
+# If Links where relocated this is also fixed here.
 # Note that if a tempdir is removed, we remove it recursively (including all files and directories therein).
 #
 ################################################################################
@@ -801,6 +802,32 @@ function common.runner.removeTempFiles()
 	local arrKeys
 	local keyString
 	
+	local link
+	local target
+	
+	main.log -a "Fixing relocated Links, if any..."
+	# loop through linkname|target pairs
+	for pair in $(common.hash.getKeysAndValues $CXR_INSTANCE_HASH_RELOCATED_LINKS $CXR_LEVEL_INSTANCE)
+	do
+		# Reset IFS
+		IFS="$oIFS"
+		
+		# Parse the DB string
+		oIFS="$IFS"
+		IFS="$CXR_DELIMITER"
+		
+		set $pair
+		
+		link="${1:-/dev/null}"
+		target="${2:-/dev/null}"
+		
+		# Create new link
+		if [[ ! -f "$link" ]]
+		then
+			ln -s -f "$target" "$link"
+		fi
+	done
+	
 	# remove decompressed files, if wanted.
 	# Only makes sense if we do not decompress in place.
 	if [[ "$CXR_DECOMPRESS_IN_PLACE" == false && "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
@@ -813,7 +840,7 @@ function common.runner.removeTempFiles()
 '
 		
 		# loop through compressed_filename|filename pairs
-		for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
+		for pair in $(common.hash.getKeysAndValues $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
 		do
 			# Reset IFS
 			IFS="$oIFS"
@@ -846,7 +873,7 @@ function common.runner.removeTempFiles()
 '
 
 		# loop through compressed_filename|filename pairs
-		for pair in $(common.hash.getKeysAndValues CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
+		for pair in $(common.hash.getKeysAndValues $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
 		do
 			# Reset IFS
 			IFS="$oIFS"

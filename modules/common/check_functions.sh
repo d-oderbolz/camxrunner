@@ -552,6 +552,8 @@ function common.check.preconditions()
 	local dir
 	local output_file
 	local input_file
+	local target
+	local newTarget
 	
 	limited=false
 	# First, all is switched off
@@ -707,7 +709,7 @@ function common.check.preconditions()
 				fi
 				
 			else
-				main.log -w   "Variable $dir is not set (might not be a problem, though)"
+				main.log -w "Variable $dir is not set (might not be a problem, though)"
 			fi
 		done 
 		
@@ -727,7 +729,7 @@ function common.check.preconditions()
 	### From here, checks are run for each day
 	##########################################
 	
-	main.log -v   "Performing per-day checks..."
+	main.log -v "Performing per-day checks..."
 	
 	########################################
 	# Input Check
@@ -735,7 +737,7 @@ function common.check.preconditions()
 	if [[ "${do_input}" == true  ]]
 	then
 		# INPUT FILES - are they there?
-		main.log -v   "Checking Input Files ..."
+		main.log -v "Checking Input Files ..."
 	
 		# Increase global indent level
 		main.increaseLogIndent
@@ -759,8 +761,31 @@ function common.check.preconditions()
 			if [[ ! -e "${input_file}" ]]
 			then
 				# does not exist!
-				# do we wait?
-				if [[ "${CXR_WAIT_4_INPUT}" == true ]]
+				
+				# Is it a broken link?
+				if [[ -L "${input_file}" && "$(common.fs.isBrokenLink? "${input_file}")" == true ]]
+				then
+					# Broken link. Its possible that the source was compressed!
+					
+					target="$(common.fs.getLinkTarget "${input_file}")"
+					
+					if [[ $(common.fs.isCompressed? "$target") == true ]] 
+					then
+						main.log -w "${input_file} points to a file ($target) that seems to be compressed. Trying to decompress..."
+						newTarget=$(common.fs.TryDecompressingFile "$target")
+						
+						if [[ "$newTarget" != "$target" ]]
+						then
+							main.log -w "The file was decompressed in a different location. Link ${input_file} will be adjusted. After the run, CAMxRunner will undo this!"
+							ln -s -f "${newTarget}" "${input_file}" || main.dieGracefully "Could not create new link to ${newTarget}"
+							
+							# Store the fact that we changed this link, storing the existing information
+							common.hash.put $CXR_INSTANCE_HASH_RELOCATED_LINKS $CXR_LEVEL_INSTANCE "${input_file}" "${target}"
+						fi # New Target?
+						
+						
+					fi # Compressed target?
+				elif [[ "${CXR_WAIT_4_INPUT}" == true ]]
 				then
 					# We want to wait
 					if [[ "$(common.fs.WaitForFile ${input_file})" == false ]]

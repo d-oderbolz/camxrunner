@@ -657,8 +657,15 @@ function common.task.countMyRunningWorkers()
 	
 	for pid in $running_pids
 	do
-		# kill returns non/yero if process is gone, 0 is pseudo signal 
-		kill -0 $pid && count=$(( $count + 1 ))
+		# kill returns non/zero if process is gone, 0 is pseudo signal 
+		# we avoid termination with || :
+		kill -0 $pid || :
+		
+		if [[ $? -eq 0 ]]
+		then
+			count=$(( $count + 1 ))
+		fi
+		
 	done
 	
 	IFS="$oIFS"

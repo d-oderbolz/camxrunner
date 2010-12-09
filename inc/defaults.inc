@@ -28,10 +28,6 @@ CXR_CALL="\$ ${0}"
 # use command || :
 set -e
 
-# If you set this, the exit status of a pipe is equal to the last non-zero
-# status in the pipe. Makes set -e more stringent
-# set -o pipefail
-
 # Never use an undefined variable.
 # This is a very strict requirement, but its also safe...
 set -o nounset
@@ -701,6 +697,10 @@ CXR_INSTANCE_HASH_OUTPUT_FILES=Output_Files
 # In this hash, we store dummy files of a dry run.
 # These will be deleted after the dry run
 CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
+
+# In this hash, we store links that got new targets
+# These will be re-created after the run
+CXR_INSTANCE_HASH_RELOCATED_LINKS=Relaocated_Links
 
 # This hash holds module-specific config items
 CXR_INSTANCE_HASH_CONF=conf
