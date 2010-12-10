@@ -843,7 +843,7 @@ function common.fs.TryDecompressingFile()
 	if [[ $# -ne 1 ]]
 	then
 		main.dieGracefully "Could not try decompression - no path passed!"
-	fi
+	fi #params ok?
 	
 	local input_file
 	
@@ -885,15 +885,15 @@ function common.fs.TryDecompressingFile()
 			
 			if [[ -s "$tempfile" ]]
 			then
+				# tempfile not empty
 				main.log -v "File ${input_file} was already decompressed into $tempfile"
 			
-				# tempfile not empty
 				echo "$tempfile"
 				return $CXR_RET_OK
 			else
 				# tempfile empty, need to repeat
 				main.log -v  "File ${input_file} was already decompressed into $tempfile but for some reason that file is empty!"
-			fi	
+			fi	# Got empty file?
 		fi # Entry found in hash of compressed files
 		
 		# Extract all possible extensions
@@ -983,18 +983,23 @@ function common.fs.TryDecompressingFile()
 				fi # extension set?
 			done # Loop over extensions
 
-
-		if [[ "$was_compressed" == true  ]]
-		then
-			# Put into Hash with new_file as value
-			common.hash.put $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL "${input_file}" "$new_file"
-		
-			echo "$new_file"
-		else
-			# Was not compressed
-			main.log -v  "File ${input_file} is not compressed."
+			if [[ "$was_compressed" == true  ]]
+			then
+				# Put into Hash with new_file as value
+				common.hash.put $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL "${input_file}" "$new_file"
+			
+				echo "$new_file"
+			else
+				# Was not compressed
+				main.log -v  "File ${input_file} is not compressed."
+				echo "$input_file"
+			fi # was it compressed?
+			
+		else 
+			# Extension list was empty
+			main.log -w "There are no settings in the common.decompressor.* configuration.\nWithout this, CAMxRunner knows no compressed formats."
 			echo "$input_file"
-		fi
+		fi # Extension list
 		
 	else
 		# We do not consider compressed files
