@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=34
+CXR_META_MODULE_NUM_TESTS=35
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -1205,8 +1205,11 @@ function test_module()
 	
 	is $(common.fs.doesCompressedVersionExist? "$c") true "common.fs.doesCompressedVersionExist? gzip"
 	
-	is "$(common.fs.TryDecompressingFile "$c")" $c "common.fs.TryDecompressingFile"
+	# We test the basename because the directory might change
+	is "$(basename $(common.fs.TryDecompressingFile "$c"))" $(basename $c) "common.fs.TryDecompressingFile"
 	
+	# Also look at the MD5
+	is "$(main.getMD5 $(common.fs.TryDecompressingFile "$c"))" $(main.getMD5 $c) "common.fs.TryDecompressingFile - MD5 test"
 	
 	is "$(common.fs.isSubDirOf? /my_path / )" true "common.fs.isSubDirOf? root"
 	is "$(common.fs.isSubDirOf? ./my_path . )" true "common.fs.isSubDirOf? relative path"
