@@ -407,33 +407,36 @@ function common.check.Vars ()
 ################################################################################
 {
 	local executable
+	local stripped
 	
 	for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 	do
-	
+		# strip arguments
+		stripped="$(echo ${!executable} | cut -d" " -f1)"
+		
 		main.log -v "Variable $executable has value: ${!executable}\n"
 			
 		# is it set?
 		if [[ "${!executable}" ]]
 		then
 			# Does it exist?
-			if [[ -f "${!executable}" ]]
+			if [[ -f "${stripped}" ]]
 			then
-				# is it executable (strip arguments)
-				if [[ ! -x $( echo ${!executable} | cut -d" " -f1) ]]
+				# is it executable 
+				if [[ ! -x "${stripped}" ]]
 				then
 					main.log -w "Executable ${!executable}, Parameter $executable not executable - I try to correct this ..."     
 					
-					chmod +x ${!executable} || main.log -w "Could not change permissions on file $FILE"
+					chmod +x "${stripped}" || main.log -w "Could not change permissions on file $FILE"
 
 					# Do not increase error count here - maybe we do not need this one
 				else
 					# All OK, just report MD5
-					common.check.reportMD5 "${!executable}"
+					common.check.reportMD5 "${stripped}"
 				fi
 			else
 			  # Not present!
-			  main.log -w "Executable ${!executable}, Parameter $executable does not exist (might not be a problem, though, CAMx e. g. is not needed for postprocessing and vice-versa)!"
+			  main.log -w "Executable ${stripped}, Parameter $executable does not exist (might not be a problem, though, CAMx e. g. is not needed for postprocessing and vice-versa)!"
 			fi
 			
 		else
