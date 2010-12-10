@@ -782,9 +782,9 @@ function common.hash.getKeysAndValues()
 function common.hash.searchKeys()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -ne 3 || $# -gt 4 ]]
 	then
-		main.dieGracefully "needs a hash, a valid hash-level and a seach string as input"
+		main.dieGracefully "needs a hash, a valid hash-level and a seach string (optional searchValues) as input"
 	fi
 	
 	local hash
@@ -827,7 +827,7 @@ function common.hash.searchKeys()
 # $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - search string, may contain wildcards for LIKE
 ################################################################################
-function common.hash.searchKeys()
+function common.hash.searchValues()
 ################################################################################
 {
 	if [[ $# -ne 3 ]]

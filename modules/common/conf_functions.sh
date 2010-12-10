@@ -157,7 +157,7 @@ function common.conf.enumerate()
 	
 	key=${1}
 	
-	common.hash.searchKeys $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "${key}%" 
+	common.hash.searchKeys "$CXR_INSTANCE_HASH_CONF" "$CXR_LEVEL_INSTANCE" "${key}%" 
 }
 ################################################################################
 # Function: test_module
