@@ -738,7 +738,7 @@ function common.fs.CompressOutput()
 ################################################################################
 # Function: common.fs.isCompressed?
 # 
-# Checks if an input file is compressed, returns true if so, false otherwise.
+# Checks if there is a compressed version of an input file around, returns true if so, false otherwise.
 # Checks only the name of the file, not its type.
 # Is not used by <common.fs.TryDecompressingFile> by design, but is used e. g.
 # by <common.check.postconditions> to detect existing, but compressed files

@@ -120,6 +120,8 @@ CXR_STAR_T='#'
 # Used by common.user.showProgress
 CXR_PROGRESS_STATES=( '|' '/' '-' '\' )
 
+# ' (For Editor only)
+
 # The corresponding state variable
 currentProgressState=0
 
@@ -408,7 +410,7 @@ CXR_MAX_AFS_FN_LEN=960000
 # on the same run are allowed
 CXR_ALLOW_MULTIPLE=false
 
-# If true, run CAMx , otherwise don't
+# If true, run CAMx , otherwise dont
 CXR_RUN_MODEL=true
 
 # If true, compress the output files upon completion
@@ -775,7 +777,7 @@ fi
 # The compressor we use to compress output
 CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
 
-# Options we pass to compressor (needed by lzop)
+# Options we pass to the chosen compressor
 CXR_COMPRESSOR_OPTIONS="-U"
 
 # Fortran-77 Compiler (only needed when installing)
@@ -870,10 +872,9 @@ CXR_DETECT_COMPRESSED_INPUT_FILES=true
 # If it is false, make sure that the directory CXR_TMP_DIR has enough space free...
 CXR_DECOMPRESS_IN_PLACE=false
 
-# These extensions are searched with the automatic capability
-# CAMxRunner does not determine the compression type from the suffix,
-# this is done using "file"
-CXR_COMPRESSED_EXT=".lzo .gz .bz2 .zip"
+# To map filetypes to decopressors, use something like
+# > common.conf.set "common.decompressor.zip=$CXR_GUNZIP_EXEC"
+# in your config
 
 
 ################################################################################

@@ -25,9 +25,6 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
-# TODO: Unite getKeys, getKeysAndValues and getValues. 
-# TODO: Create searchKey and searchValue (return list of 2-tuples). Uses: MD5 - find file copies
-
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
@@ -734,24 +731,111 @@ function common.hash.getKeysAndValues()
 	
 	local hash
 	local level
-	
-	local found
-	local key
-	local list
-	
+
 	local db_file
 	
 	hash="$1"
 	level="$2"
-	
-	found=false
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
 	common.db.getResultSet "$db_file" "$level" "SELECT key, value FROM hash WHERE hash='$hash' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+}
 
+################################################################################
+# Function: common.hash.searchKeys
+#
+# Returns rows of unique key value pairs as a function of an SQL-LIKE search on the keys
+# key1|value1
+# key2|value2
+# Do not assume any particular order, it depends on the order the hash imposes on the
+# data. We ensure that for each key we return only one value (the most recent one).
+# 
+# Recommended use:
+#
+# > # looping through pairs
+# > # Set IFS to newline only
+# > oIFS="$IFS"
+# > IFS='
+# >'
+# > for pair in $(common.hash.searchKeys $hash $level "common.conf.%")
+# > do
+# > 	# Reset IFS
+# > 	IFS="$oIFS"
+# >
+# > 	oIFS="$IFS"
+# >		IFS="$CXR_DELIMITER"
+# > 	set $pair
+# > 	key="$1"
+# > 	value="$2"
+# > 	IFS="$oIFS"
+# > done
+# 
+# Parameters:
+# $1 - name of the hash
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $3 - search string, may contain wildcards for LIKE
+# [$4] - internal flag, if true searches Values instead of keys
+################################################################################
+function common.hash.searchKeys()
+################################################################################
+{
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-level and a seach string as input"
+	fi
+	
+	local hash
+	local level
+	local searchString
+	
+	local search
+	local sql
+	
+	local db_file
+	
+	hash="$1"
+	level="$2"
+	searchString="$3"
+	searchKey="${4:-false}"
+	
+	if [[ "$searchKey" == true ]]
+	then
+		sql="SELECT key, value FROM hash WHERE hash='$hash' AND key LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+	else
+		sql="SELECT key, value FROM hash WHERE hash='$hash' AND value LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+	fi
+	
+	# Work out the filename
+	db_file="$(_common.hash.getDbFile "$level")"
+	
+	main.log -v "Getting keys for $hash $level out of ${db_file}..."
+	common.db.getResultSet "$db_file" "$level" "$sql"
+
+}
+
+################################################################################
+# Function: common.hash.searchValues
+#
+# Returns rows of unique key value pairs as a function of an SQL-LIKE search on the values
+# See <common.hash.searchKeys> for details, this function is called internally.
+# 
+# Parameters:
+# $1 - name of the hash
+# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $3 - search string, may contain wildcards for LIKE
+################################################################################
+function common.hash.searchKeys()
+################################################################################
+{
+	if [[ $# -ne 3 ]]
+	then
+		main.dieGracefully "needs a hash, a valid hash-level and a seach string as input"
+	fi
+	
+	common.hash.searchKeys "$1" "$2" "$3" true
 }
 
 ################################################################################
