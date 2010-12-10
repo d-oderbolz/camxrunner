@@ -727,13 +727,13 @@ function common.fs.CompressOutput()
 					then
 						# Find out which compressor to use
 						type=$(common.fs.getFileType ${filename})
-						compressor=$(common.conf.get "common.compressor.${type})
+						compressor=$(common.conf.get "common.compressor.${type}")
 						
 						if [[ ! -x "$compressor" ]]
 						then
 							# is there a default?
 							main.log -v "Found no executable configuration item common.compressor.${type} - checking for default..."
-							compressor=$(common.conf.get "common.compressor.default)
+							compressor=$(common.conf.get "common.compressor.default")
 							
 							if [[  ! -x "$compressor" ]]
 							then
