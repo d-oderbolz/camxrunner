@@ -753,6 +753,8 @@ function common.fs.CompressOutput()
 function common.fs.doesCompressedVersionExist?()
 ################################################################################
 {
+		set -x
+		
 		local input_file
 		local iExt
 		local ext
@@ -768,6 +770,8 @@ function common.fs.doesCompressedVersionExist?()
 		# common.decompressor.lzo|/path/to/lzop
 		# common.decompressor.zip|/path/to/unzip
 		extension_list="$(common.conf.enumerate common.decompressor)"
+		
+		set +x
 		
 		if [[ "$extension_list" ]]
 		then
