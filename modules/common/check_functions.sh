@@ -419,8 +419,8 @@ function common.check.Vars ()
 			# Does it exist?
 			if [[ -f "${!executable}" ]]
 			then
-				# is it executable 
-				if [[ ! -x ${!executable} ]]
+				# is it executable (strip arguments)
+				if [[ ! -x $( echo ${!executable} | cut -d" " -f1) ]]
 				then
 					main.log -w "Executable ${!executable}, Parameter $executable not executable - I try to correct this ..."     
 					
@@ -1048,7 +1048,8 @@ function common.check.ModuleRequirements()
 								
 								if [[ "$wanted_name" && "${!executable}" ]]
 								then
-									if [[ "$(basename ${!executable})" == "$(basename "$wanted_name")" && -x ${!executable} ]]
+									# strip arguments
+									if [[ "$(basename $( echo ${!executable} | cut -d" " -f1))" == "$(basename "$wanted_name")" && -x $( echo ${!executable} | cut -d" " -f1) ]]
 									then
 										main.log -v "${!executable} matches $what and is executable"
 										found=true
