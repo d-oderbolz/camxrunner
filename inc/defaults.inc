@@ -414,7 +414,7 @@ CXR_ALLOW_MULTIPLE=false
 CXR_RUN_MODEL=true
 
 # If true, compress the output files upon completion
-# The compressor CXR_COMPRESSOR_EXEC used is selected later
+# The compressors are set in the config (common.compressor.*)
 CXR_COMPRESS_OUTPUT=true
 
 # This is a pattern that can be used to limit compression either to 
@@ -774,11 +774,8 @@ else
 	CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=false
 fi
 
-# The compressor we use to compress output plus arguments
-# The arguments should make sure that the original
-# file is removed. (Default for many, sch as gzip/bzip2 but not for lzop)
-CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC} -U"
-
+# The fallback compressor, if no entries are present in common.compressor.*
+CXR_FALLBACK_COMPRESSOR_EXEC="$GZIP_EXEC -1"
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"

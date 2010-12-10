@@ -346,8 +346,12 @@ function common.fs.getMtime()
 ################################################################################
 # Function: common.fs.getFileType
 # 
-# Returns a parsed version of the output of "file". 
+# Returns a parsed version of the output of "file" where all is lowercase.
 # Returns the empty string if the file is not readable.
+# Some noteable types:
+# - CAMx Binary output files are "mpeg"
+# - other binary data is "data"
+# - ascii denotes ascii files
 #
 # Parameters:
 # $1 - file to test
@@ -360,7 +364,7 @@ function common.fs.getFileType()
 	
 	file=$1
 	
-	filetype=$(file "${file}" | cut -f2 -d' ')
+	filetype=$(common.string.toLower $(file "${file}" | cut -f2 -d' '))
 	
 	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 	then
@@ -630,8 +634,10 @@ function common.fs.WaitForStableSize()
 #
 # Variables:
 # $CXR_COMPRESS_OUTPUT - if true, we do it, otherwise not
-# $CXR_COMPRESSOR_EXEC - executable that we use
 # $CXR_COMPRESS_OUTPUT_PATTERN - Pattern we apply to both filenames and module names. If match - we compress
+#
+# Conf:
+# common.compressor.* - Maps filetypes to compressors
 #
 # Hashes:
 # $CXR_INSTANCE_HASH_OUTPUT_FILES - Hash of files to compress
@@ -645,6 +651,7 @@ function common.fs.CompressOutput()
 	local found
 	local arrKeys
 	local keyString
+	local compressor
 	
 	if [[ "${CXR_COMPRESS_OUTPUT}" == true && "${CXR_DRY}" == false ]]
 	then
@@ -718,7 +725,33 @@ function common.fs.CompressOutput()
 				then
 					if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 					then
-						main.log -a "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
+						# Find out which compressor to use
+						type=$(common.fs.getFileType ${filename})
+						compressor=$(common.conf.get "common.compressor.${type})
+						
+						if [[ ! -x "$compressor" ]]
+						then
+							# is there a default?
+							main.log -v "Found no executable configuration item common.compressor.${type} - checking for default..."
+							compressor=$(common.conf.get "common.compressor.default)
+							
+							if [[  ! -x "$compressor" ]]
+							then
+								main.log -v "Found no executable configuration item common.compressor.default - using CXR_FALLBACK_COMPRESSOR_EXEC"
+								compressor="$CXR_FALLBACK_COMPRESSOR_EXEC"
+								
+									if [[  ! -x "$compressor" ]]
+									then
+										# we are in trouble
+										main.log -e "Not even CXR_FALLBACK_COMPRESSOR_EXEC ($CXR_FALLBACK_COMPRESSOR_EXEC) is executable!"
+										continue
+									fi
+							fi # no default?
+							
+						fi # Compressor set?
+						
+						
+						main.log -a "Compressing ${filename} using ${compressor}"
 						${CXR_COMPRESSOR_EXEC} "${filename}"
 					else
 						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
