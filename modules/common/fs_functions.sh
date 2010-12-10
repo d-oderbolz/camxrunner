@@ -719,7 +719,7 @@ function common.fs.CompressOutput()
 					if [[ $(common.fs.FileSizeMb ${filename}) -ge "${CXR_COMPRESS_THRESHOLD_MB}"  ]]
 					then
 						main.log -a "Compressing ${filename} using ${CXR_COMPRESSOR_EXEC}"
-						${CXR_COMPRESSOR_EXEC} ${CXR_COMPRESSOR_OPTIONS} "${filename}"
+						${CXR_COMPRESSOR_EXEC} "${filename}"
 					else
 						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
 					fi
@@ -1134,22 +1134,19 @@ function test_module()
 	echo "Hallo" > "$a"
 	echo "Velo" >> "$a"
 	
+	echo "Hallo" > "$c"
+	echo "Velo" >> "$c"
+	
 	# Set settings
 	CXR_COMPRESS_OUTPUT=true
 	
 	suffix="lzo"
 	
 	# The compressor we use to compress output
-	CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
-	
-	# Options we pass to compressor (needed by lzop)
-	CXR_COMPRESSOR_OPTIONS="-U"
+	CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC} -U"
 	
 		# The compressor we use to compress output
-	CXR_DECOMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
-	
-	# Options we pass to decompressor (needed by lzop)
-	CXR_DECOMPRESSOR_OPTIONS="-d -U"
+	CXR_DECOMPRESSOR_EXEC="${CXR_LZOP_EXEC} -d -U"
 	
 	CXR_COMPRESS_OUTPUT_PATTERN=
 	
@@ -1173,6 +1170,8 @@ function test_module()
 	
 	# create a 100 MB file called $b
 	dd bs=100M if=/dev/zero of=$b count=1
+	
+	md5_c=$(main.getMD5 $c)
 	
 	# Compression check
 	${CXR_GZIP_EXEC} $c
@@ -1209,7 +1208,7 @@ function test_module()
 	is "$(basename $(common.fs.TryDecompressingFile "$c"))" $(basename $c) "common.fs.TryDecompressingFile"
 	
 	# Also look at the MD5
-	is "$(main.getMD5 $(common.fs.TryDecompressingFile "$c"))" $(main.getMD5 $c) "common.fs.TryDecompressingFile - MD5 test"
+	is "$(main.getMD5 $(common.fs.TryDecompressingFile "$c"))" "$md5_c" "common.fs.TryDecompressingFile - MD5 test"
 	
 	is "$(common.fs.isSubDirOf? /my_path / )" true "common.fs.isSubDirOf? root"
 	is "$(common.fs.isSubDirOf? ./my_path . )" true "common.fs.isSubDirOf? relative path"
@@ -1241,7 +1240,7 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, no pattern"
 	
 	# Decompress again
-	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${a}.${suffix}
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_functions"
@@ -1253,7 +1252,7 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${a}.${suffix}
 	
 	# Set pattern correct
 	CXR_COMPRESS_OUTPUT_PATTERN="path_.*"
@@ -1265,7 +1264,7 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) true "common.fs.CompressOutput with simple file, matching pattern"
 	
 	# Decompress again
-	${CXR_DECOMPRESSOR_EXEC} ${CXR_DECOMPRESSOR_OPTIONS} ${a}.${suffix}
+	${CXR_DECOMPRESSOR_EXEC} ${a}.${suffix}
 	
 	# Set pattern incorrect
 	CXR_COMPRESS_OUTPUT_PATTERN=guagg

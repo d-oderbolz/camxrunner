@@ -774,13 +774,11 @@ else
 	CXR_SQLITE_LIBFUNCTIONS_SUPPORTED=false
 fi
 
-# The compressor we use to compress output
-CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
-
-# Options we pass to the chosen compressor
-# The options should make sure that the original
+# The compressor we use to compress output plus arguments
+# The arguments should make sure that the original
 # file is removed. (Default for many, sch as gzip/bzip2 but not for lzop)
-CXR_COMPRESSOR_OPTIONS="-U"
+CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC} -U"
+
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
