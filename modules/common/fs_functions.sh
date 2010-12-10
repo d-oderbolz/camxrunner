@@ -761,6 +761,8 @@ function common.fs.doesCompressedVersionExist?()
 		local index
 		local ext
 		
+		set -x
+		
 		input_file=${1:-/dev/null}
 		
 		# Extract all possible extensions
@@ -801,6 +803,7 @@ function common.fs.doesCompressedVersionExist?()
 					if [[ -r "$comp_file" ]]
 					then
 						echo true
+						set +x
 						return $CXR_RET_OK
 					fi
 				fi
@@ -812,6 +815,7 @@ function common.fs.doesCompressedVersionExist?()
 		
 		# If we arrive here, its not compressed with a known compressor
 		echo false
+		set +x
 }
 
 ################################################################################
