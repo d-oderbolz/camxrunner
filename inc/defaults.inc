@@ -775,7 +775,7 @@ else
 fi
 
 # The fallback compressor, if no entries are present in common.compressor.*
-CXR_FALLBACK_COMPRESSOR_EXEC="$GZIP_EXEC -1"
+CXR_FALLBACK_COMPRESSOR_EXEC="$CXR_GZIP_EXEC -1"
 
 # Fortran-77 Compiler (only needed when installing)
 CXR_FORTRAN77_COMPILER_EXEC="$(main.getBinaryName pgf77 true)"
