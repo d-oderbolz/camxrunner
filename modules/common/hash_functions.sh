@@ -803,16 +803,16 @@ function common.hash.searchKeys()
 	
 	if [[ "$searchKey" == true ]]
 	then
-		sql="SELECT key, value FROM hash WHERE hash='$hash' AND key LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+		sql="SELECT key, value FROM hash WHERE hash='$hash' AND key LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)"
 	else
-		sql="SELECT key, value FROM hash WHERE hash='$hash' AND value LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)" "$CXR_DELIMITER"
+		sql="SELECT key, value FROM hash WHERE hash='$hash' AND value LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)"
 	fi
 	
 	# Work out the filename
 	db_file="$(_common.hash.getDbFile "$level")"
 	
 	main.log -v "Getting keys for $hash $level out of ${db_file}..."
-	common.db.getResultSet "$db_file" "$level" "$sql"
+	common.db.getResultSet "$db_file" "$level" "$sql" "$CXR_DELIMITER"
 
 }
 
