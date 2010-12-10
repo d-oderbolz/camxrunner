@@ -778,6 +778,8 @@ fi
 CXR_COMPRESSOR_EXEC="${CXR_LZOP_EXEC}"
 
 # Options we pass to the chosen compressor
+# The options should make sure that the original
+# file is removed. (Default for many, sch as gzip/bzip2 but not for lzop)
 CXR_COMPRESSOR_OPTIONS="-U"
 
 # Fortran-77 Compiler (only needed when installing)

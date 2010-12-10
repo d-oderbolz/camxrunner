@@ -373,6 +373,8 @@ function common.fs.getFileType()
 	fi
 }
 
+
+
 ################################################################################
 # Function: common.fs.isDos?
 # 
@@ -736,48 +738,80 @@ function common.fs.CompressOutput()
 }
 
 ################################################################################
-# Function: common.fs.isCompressed?
+# Function: common.fs.doesCompressedVersionExist?
 # 
 # Checks if there is a compressed version of an input file around, returns true if so, false otherwise.
 # Checks only the name of the file, not its type.
 # Is not used by <common.fs.TryDecompressingFile> by design, but is used e. g.
-# by <common.check.postconditions> to detect existing, but compressed files
+# by <common.check.postconditions> to detect existing, but compressed files.
+#
+# To detect compressed files, we rely on the common.decompressor. configuration settings.
 #
 #
 # Parameters:
 # $1 - path to test
 ################################################################################
-function common.fs.isCompressed?()
+function common.fs.doesCompressedVersionExist?()
 ################################################################################
 {
 		local input_file
 		local iExt
 		local ext
 		local comp_file
+		local variable
+		local index
+		local ext
 		
 		input_file=${1:-/dev/null}
 		
-		# Create proper array of extensions
-		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
-
-		# Checking if a compressed version of this file exists
-		for iExt in $(seq 0 $(( ${#a_cxr_compressed_ext[@]} - 1 )) )
-		do
-			# The current extension (e. g. .gz)
-			ext=${a_cxr_compressed_ext[${iExt}]}
-			
-			# Note that our extensions already contain a dot
-			comp_file="${input_file}${ext}"
-			main.log -v  "Looking for $comp_file"
-			
-			if [[ -r "$comp_file" ]]
-			then
-				echo true
-				return $CXR_RET_OK
-			fi
-		done
+		# Extract all possible extensions
+		# Looks like this:
+		# common.decompressor.lzo|/path/to/lzop
+		# common.decompressor.zip|/path/to/unzip
+		extension_list="$(common.conf.enumerate common.decompressor)"
 		
-		# If we arrive here, its probably not compressed
+		if [[ "$extension_list" ]]
+		then
+			
+			# looping through pairs
+			# Set IFS to newline only
+			oIFS="$IFS" 
+			IFS='
+'
+			for pair in $extension_list
+			do
+				# Reset IFS
+				IFS="$oIFS"
+
+				oIFS="$IFS"
+				IFS="$CXR_DELIMITER"
+				set $pair
+				variable="$1"
+				IFS="$oIFS"
+				
+				# Extract extension from 
+				# common.decompressor.*
+				ext=$(echo $variable | cut -d"." -f3)
+				
+				if [[ "$ext" ]]
+				then
+					# ext is an extension w/o dot (e. g. gz)
+					comp_file="${input_file}.${ext}"
+					main.log -v  "Looking for $comp_file"
+					
+					if [[ -r "$comp_file" ]]
+					then
+						echo true
+						return $CXR_RET_OK
+					fi
+				fi
+			done
+		else
+			# No extensions found
+			main.log -w "There are no settings in the common.decompressor.* configuration.\nWithout this, CAMxRunner knows no compressed formats."
+		fi
+		
+		# If we arrive here, its not compressed with a known compressor
 		echo false
 }
 
@@ -792,6 +826,8 @@ function common.fs.isCompressed?()
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
 # This is stored in the hash CXR_GLOBAL_HASH_DECOMPRESSED_FILES.
 # If we do this (and consequently the name changes), _name_changed is set to true.
+#
+# We always leave the original file (compressed) where it is.
 #
 # If the decompression fails, we return the input string.
 #
@@ -819,14 +855,13 @@ function common.fs.TryDecompressingFile()
 	local comp_file
 	local filetype
 	local new_file
-	local a_cxr_compressed_ext
+
 	local tempfile
 	local dirhash
 	local input_dir
 	
 	# Set initial value of name change indicator
 	_name_changed=false
-	
 	
 	input_file="$1"
 	# We assume that in was not compressed
@@ -860,102 +895,92 @@ function common.fs.TryDecompressingFile()
 			fi	
 		fi # Entry found in hash of compressed files
 		
-		# Create proper array of extensions
-		a_cxr_compressed_ext=($CXR_COMPRESSED_EXT)
+		# Extract all possible extensions
+		# Looks like this:
+		# common.decompressor.lzo|/path/to/lzop
+		# common.decompressor.zip|/path/to/unzip
+		extension_list="$(common.conf.enumerate common.decompressor)"
 
-		# Checking if a compressed version of this file exists
-		for iExt in $(seq 0 $(( ${#a_cxr_compressed_ext[@]} - 1 )) )
-		do
-			# The current extension (e. g. .gz)
-			ext=${a_cxr_compressed_ext[${iExt}]}
+		if [[ "$extension_list" ]]
+		then
 			
-			# Note that our extensions already contain a dot
-			comp_file="${input_file}${ext}"
-			main.log -v "Looking for $comp_file"
-			
-			if [[ -r "$comp_file" ]]
-			then
-				# File is readable
+			# looping through pairs
+			# Set IFS to newline only
+			oIFS="$IFS" 
+			IFS='
+'
+			for pair in $extension_list
+			do
+				# Reset IFS
+				IFS="$oIFS"
+
+				oIFS="$IFS"
+				IFS="$CXR_DELIMITER"
+				set $pair
+				variable="$1"
+				decompressor="$2"
 				
-				# We decompress into a tempfile if we don't decompress in place
-				# or if we are not allowed to write to the destination
-				if [[ "$CXR_DECOMPRESS_IN_PLACE" == false || ! -w "${input_dir}" ]]
+				IFS="$oIFS"
+				
+				# Extract extension from 
+				# common.decompressor.*
+				ext=$(echo $variable | cut -d"." -f3)
+				
+				if [[ "$ext" ]]
 				then
-					# We write to our special decompression directory. 
-					# we use the MD5 hash of the path to make sure we do not overwrite files
-					# of same names
-					dirhash="$(common.string.MD5 "${input_dir}")"
+					# ext is an extension w/o dot (e. g. gz)
+					comp_file="${input_file}.${ext}"
+					main.log -v  "Looking for $comp_file"
 					
-					mkdir -p "$CXR_TMP_DECOMP_DIR/$dirhash"
-					
-					tempfile="$CXR_TMP_DECOMP_DIR/$dirhash/$(basename ${input_file})"
-					# We now know that the name will change
-					_name_changed=true
-				else
-					# The target is the "original" file name
-					tempfile="${input_file}"
-					
-					# Its possible that the file is already decompressed
-					if [[ -e "$tempfile" ]]
+					if [[ -r "$comp_file" ]]
 					then
-						main.log -w "File $tempfile is already decompressed!"
-						was_compressed=false
-						break
-					fi # Decompessed file already there?
-				fi # Decompress in place?
+						# File is readable
 				
-				# What decompressor to use?
-				# This is NOT derived from the filename
-				filetype=$(common.fs.getFileType "$comp_file")
-				
-				case $filetype in
-				
-					lzop)
-						main.log -a "${input_file} is lzop-compressed. Using $CXR_LZOP_EXEC to decompress..."
-						
+						# We decompress into a tempfile if we don't decompress in place
+						# or if we are not allowed to write to the destination
 						if [[ "$CXR_DECOMPRESS_IN_PLACE" == false || ! -w "${input_dir}" ]]
 						then
-							# Decompression is not in place
-							$CXR_LZOP_EXEC -c "$comp_file" > $tempfile
+							# We write to our special decompression directory. 
+							# we use the MD5 hash of the path to make sure we do not overwrite files
+							# of same names
+							dirhash="$(common.string.MD5 "${input_dir}")"
+							
+							mkdir -p "$CXR_TMP_DECOMP_DIR/$dirhash"
+							
+							tempfile="$CXR_TMP_DECOMP_DIR/$dirhash/$(basename ${input_file})"
+							# We now know that the name will change
+							_name_changed=true
 						else
-							# lzop needs -f to allow it to delete the original (compressed) file
-							$CXR_LZOP_EXEC -f -c -U "$comp_file" > $tempfile
-						fi
-						;;
-		
-					bzip2)
-						main.log -a  "${input_file} is bzip2-compressed. Using $CXR_BUNZIP2_EXEC to decompress..."
-						$CXR_BUNZIP2_EXEC -c "$comp_file" > $tempfile
-						;;
+							# The target is the "original" file name
+							tempfile="${input_file}"
+							
+							# Its possible that the file is already decompressed
+							if [[ -e "$tempfile" ]]
+							then
+								main.log -w "File $tempfile is already decompressed!"
+								new_file=$tempfile
+								was_compressed=true
+								break
+							fi # Decompessed file already there?
+						fi # Decompress in place?
 						
-					gzip)
-						main.log -a  "${input_file} is gzip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
-						"$CXR_GUNZIP_EXEC" -c "$comp_file" > $tempfile
-						;;
-				
-					zip)
-						main.log -a  "${input_file} is zip-compressed. Using $CXR_GUNZIP_EXEC to decompress..."
-						"$CXR_GUNZIP_EXEC" -S .zip -c "$comp_file" > $tempfile
-						;;
-				
-					*)
-						main.log -e  "Compressed file type $filetype not supported"
-						;;
-				esac
-
-				# Check retval of decompressor
-				if [[ $? -eq 0 ]]
-				then
-					was_compressed=true
-					new_file=$tempfile
-					break
-				else
-					main.log -e "File ${comp_file} could not be decompressed!"
-				fi
-
-			fi # File readable?
+						# There may already be parameters, we
+						# just add  -c
+						$compressor -c "$comp_file" > $tempfile
 			
-		done # Loop over extensions
+						# Check retval of decompressor
+						if [[ $? -eq 0 ]]
+						then
+							was_compressed=true
+							new_file=$tempfile
+							break
+						else
+							main.log -e "File ${comp_file} could not be decompressed!"
+						fi # Retval ok?
+						
+					fi # File readable?
+				fi # extension set?
+			done # Loop over extensions
 
 
 		if [[ "$was_compressed" == true  ]]
@@ -1169,7 +1194,7 @@ function test_module()
 	is $(common.fs.sameDevice? /proc .) false "common.fs.sameDevice? with proc and current path"
 	is "$(common.fs.getType /proc)" proc "common.fs.getType proc"
 	is "$(common.fs.isLocal? /proc)" true "common.fs.isLocal? proc"
-	is $(common.fs.isCompressed? "$c") true "common.fs.isCompressed? gzip"
+	is $(common.fs.doesCompressedVersionExist? "$c") true "common.fs.doesCompressedVersionExist? gzip"
 	
 	is "$(common.fs.isSubDirOf? /my_path / )" true "common.fs.isSubDirOf? root"
 	is "$(common.fs.isSubDirOf? ./my_path . )" true "common.fs.isSubDirOf? relative path"

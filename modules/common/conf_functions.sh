@@ -137,6 +137,29 @@ function common.conf.get()
 }
 
 ################################################################################
+# Function: common.conf.enumerate
+# 
+# If you store a hierachy in the conf like
+# a.b.c
+# a.b.d
+# a.b.e
+#
+# This function emumerates all entries if you pass in a.b
+# You get a newline-separated list of variable|value pairs
+#
+# Parameters:
+# $1 - start of a key of the form module.variable
+################################################################################
+function common.conf.enumerate()
+################################################################################
+{
+	local key
+	
+	key=${1}
+	
+	common.hash.searchKeys $CXR_INSTANCE_HASH_CONF "$CXR_LEVEL_INSTANCE" "${key}%" 
+}
+################################################################################
 # Function: test_module
 #
 # Runs the predefined tests for this module

@@ -769,7 +769,7 @@ function common.check.preconditions()
 					
 					target="$(common.fs.getLinkTarget "${input_file}")"
 					
-					if [[ $(common.fs.isCompressed? "$target") == true ]] 
+					if [[ $(common.fs.doesCompressedVersionExist? "$target") == true ]] 
 					then
 						main.log -w "${input_file} points to a file ($target) that seems to be compressed. Trying to decompress..."
 						newTarget=$(common.fs.TryDecompressingFile "$target")
@@ -1121,7 +1121,7 @@ function common.check.postconditions()
 			common.user.showProgress
 			
 			# does it exist?
-			if [[ -f "${output_file}" || "$(common.fs.isCompressed? "${output_file}")" == true ]]
+			if [[ -f "${output_file}" || "$(common.fs.doesCompressedVersionExist? "${output_file}")" == true ]]
 			then
 				main.log -w  "File ${output_file} seems to exist or is compressed, we do not touch it."
 			else	

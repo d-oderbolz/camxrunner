@@ -829,8 +829,9 @@ function common.runner.removeTempFiles()
 	done
 	
 	# remove decompressed files, if wanted.
-	# Only makes sense if we do not decompress in place.
-	if [[ "$CXR_DECOMPRESS_IN_PLACE" == false && "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
+	# Since we always leave the compressed files around,
+	# we do net need to recompress.
+	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
 	then
 		main.log -a "Removing temporarily decompressed files..."
 		
@@ -838,7 +839,7 @@ function common.runner.removeTempFiles()
 		oIFS="$IFS"
 		IFS='
 '
-		
+
 		# loop through compressed_filename|filename pairs
 		for pair in $(common.hash.getKeysAndValues $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
 		do
@@ -851,48 +852,16 @@ function common.runner.removeTempFiles()
 			
 			set $pair
 			
-			compressed_filename="${1:-/dev/null}"
-			filename="${2:-/dev/null}"
+			compressed_filename="${1}"
+			filename="${2}"
 			# Reset IFS
 			IFS="$oIFS"
 			
-			if [[ -e "$filename" ]]
+			# Only delete of the compressed vesion is around!
+			if [[ -e "$compressed_filename" && -e "${filename}" ]]
 			then
 				main.log -v "Deleting $filename"
 				rm -f "${filename}" &>/dev/null
-			fi
-		done
-	elif [[ "$CXR_DECOMPRESS_IN_PLACE" == true ]]
-	then
-		# we must re-compress the files (if they do no longer exist)!
-		main.log -a "Re-compressing temporarily decompressed files using ${CXR_COMPRESSOR_EXEC}..."
-
-		# common.hash.getKeysAndValues returns a newline-separated list
-		oIFS="$IFS"
-		IFS='
-'
-
-		# loop through compressed_filename|filename pairs
-		for pair in $(common.hash.getKeysAndValues $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL)
-		do
-			# Reset IFS
-			IFS="$oIFS"
-			
-			# Parse the DB string
-			oIFS="$IFS"
-			IFS="$CXR_DELIMITER"
-			
-			set $pair
-			
-			compressed_filename="${1:-/dev/null}"
-			filename="${2:-/dev/null}"
-			# Reset IFS
-			IFS="$oIFS"
-			
-			if [[ -e "$filename" && ! -e "$compressed_filename" ]]
-			then
-				main.log -v "Compressing ${filename}"
-				${CXR_COMPRESSOR_EXEC} ${CXR_COMPRESSOR_OPTIONS} "${filename}"
 			fi
 		done
 	else
