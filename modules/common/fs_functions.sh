@@ -729,18 +729,18 @@ function common.fs.CompressOutput()
 						type=$(common.fs.getFileType ${filename})
 						compressor=$(common.conf.get "common.compressor.${type}")
 						
-						if [[ ! -x "$compressor" ]]
+						if [[ ! -x $(echo $compressor | cut -d" " -f1) ]]
 						then
 							# is there a default?
 							main.log -v "Found no executable configuration item common.compressor.${type} - checking for default..."
 							compressor=$(common.conf.get "common.compressor.default")
 							
-							if [[  ! -x "$compressor" ]]
+							if [[  ! -x $(echo $compressor | cut -d" " -f1) ]]
 							then
 								main.log -v "Found no executable configuration item common.compressor.default - using CXR_FALLBACK_COMPRESSOR_EXEC"
 								compressor="$CXR_FALLBACK_COMPRESSOR_EXEC"
 								
-									if [[  ! -x "$compressor" ]]
+									if [[  ! -x $(echo $compressor | cut -d" " -f1) ]]
 									then
 										# we are in trouble
 										main.log -e "Not even CXR_FALLBACK_COMPRESSOR_EXEC ($CXR_FALLBACK_COMPRESSOR_EXEC) is executable!"
