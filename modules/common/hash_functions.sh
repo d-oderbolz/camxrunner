@@ -777,7 +777,7 @@ function common.hash.getKeysAndValues()
 # $1 - name of the hash
 # $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - search string, may contain wildcards for LIKE
-# [$4] - internal flag, if true searches Values instead of keys
+# [$4] - searchValue internal flag, if true (default false) searches Values instead of keys
 ################################################################################
 function common.hash.searchKeys()
 ################################################################################
@@ -790,6 +790,7 @@ function common.hash.searchKeys()
 	local hash
 	local level
 	local searchString
+	local searchValue
 	
 	local search
 	local sql
@@ -799,13 +800,13 @@ function common.hash.searchKeys()
 	hash="$1"
 	level="$2"
 	searchString="$3"
-	searchKey="${4:-false}"
+	searchValue="${4:-false}"
 	
-	if [[ "$searchKey" == true ]]
+	if [[ "$searchValue" == true ]]
 	then
-		sql="SELECT key, value FROM hash WHERE hash='$hash' AND key LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)"
-	else
 		sql="SELECT key, value FROM hash WHERE hash='$hash' AND value LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)"
+	else
+		sql="SELECT key, value FROM hash WHERE hash='$hash' AND key LIKE '$searchString' GROUP BY key, value HAVING MAX(epoch_c)"
 	fi
 	
 	# Work out the filename
