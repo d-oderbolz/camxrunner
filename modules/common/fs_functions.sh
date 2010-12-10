@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=33
+CXR_META_MODULE_NUM_TESTS=34
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -820,20 +820,22 @@ function common.fs.doesCompressedVersionExist?()
 # Checks if an input file is compressed, decompresses it and returns a new name.
 # Wo do this by searching files that have specific suffixes added to their name.
 # We decompress even if its a dry-run.
+# We always leave the original file (compressed) where it is.
+#
+# It is possible that there is more than one compressed version of a file,
+# we decompress the first file we find.
 #
 # Due to potential permission issues, we decompress into a temp dir unless CXR_DECOMPRESS_IN_PLACE is true.
 # Therefore, we need to keep track which files where decompressed to which tempfiles.
 # This is stored in the hash CXR_GLOBAL_HASH_DECOMPRESSED_FILES.
 # If we do this (and consequently the name changes), _name_changed is set to true.
 #
-# We always leave the original file (compressed) where it is.
-#
 # If the decompression fails, we return the input string.
 #
 # This function is directly used by <common.runner.evaluateRule>
 #
 # Parameters:
-# $1 - path to test
+# $1 - path to test. This is a filename without compression extension!
 ################################################################################
 function common.fs.TryDecompressingFile()
 ################################################################################
@@ -1166,7 +1168,7 @@ function test_module()
 	dd bs=100M if=/dev/zero of=$b count=1
 	
 	# Compression check
-	gzip $c
+	${CXR_GZIP_EXEC} $c
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
@@ -1193,7 +1195,11 @@ function test_module()
 	is $(common.fs.sameDevice? /proc .) false "common.fs.sameDevice? with proc and current path"
 	is "$(common.fs.getType /proc)" proc "common.fs.getType proc"
 	is "$(common.fs.isLocal? /proc)" true "common.fs.isLocal? proc"
+	
 	is $(common.fs.doesCompressedVersionExist? "$c") true "common.fs.doesCompressedVersionExist? gzip"
+	
+	is "$(common.fs.TryDecompressingFile "$c")" $c "common.fs.TryDecompressingFile"
+	
 	
 	is "$(common.fs.isSubDirOf? /my_path / )" true "common.fs.isSubDirOf? root"
 	is "$(common.fs.isSubDirOf? ./my_path . )" true "common.fs.isSubDirOf? relative path"
