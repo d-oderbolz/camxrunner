@@ -346,8 +346,7 @@ function common.fs.getMtime()
 ################################################################################
 # Function: common.fs.getFileType
 # 
-# Returns a parsed version of the output of "file". Currently used to detect compressed files by
-# <common.fs.TryDecompressingFile> and <init_test.inc>. 
+# Returns a parsed version of the output of "file". 
 # Returns the empty string if the file is not readable.
 #
 # Parameters:
