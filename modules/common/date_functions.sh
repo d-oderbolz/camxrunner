@@ -1277,49 +1277,50 @@ function common.date.setVars()
 	CXR_WOY=$(common.date.WeekOfYear $CXR_DATE)
 	
 	# if offset is 0, we are at the initial day
-	if [[ "$CXR_DAY_OFFSET" -eq 0  ]]
+	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
 	then
-		# any yesterday vars are undefined
-		CXR_YESTERDAY=""
 		# The initial meteo files are called .._s
 		CXR_DAY_METEO="$(common.runner.evaluateRule "$CXR_DAY_METEO_FIRST_DAY_RULE" false CXR_DAY_METEO_FIRST_DAY_RULE)"
 	else
 		# this variable is different the first day
 		CXR_DAY_METEO=${CXR_DAY}
-		
-		########################################
-		# Calculate it all for yesterday (mainly for inst files)
-		########################################	
-		CXR_JUL_YESTERDAY=$(( $CXR_JUL - 1 ))
-		CXR_DATE_YESTERDAY=$(common.date.JulianToDate $CXR_JUL_YESTERDAY)
-		
-		CXR_DATE_RAW_YESTERDAY=$(common.date.toRaw $CXR_DATE_YESTERDAY)
-		
-		#Split it
-		common.date.split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
-		
-	
-		# YYYY year
-		CXR_YEAR_YESTERDAY=$year_yesterday
-		
-		# YY year
-		CXR_YEAR_S_YESTERDAY=${CXR_YEAR_YESTERDAY:2:2}
-		
-		# MM month
-		CXR_MONTH_YESTERDAY=$(common.string.leftPadZero $month_yesterday 2)
-		
-		# DD day
-		CXR_DAY_YESTERDAY=$(common.string.leftPadZero $day_yesterday 2)
-		
-		# Day of year
-		CXR_DOY_YESTERDAY=$(common.date.DayOfYear $CXR_DATE_YESTERDAY)
-		
-		# Day of week
-		CXR_DOW_YESTERDAY=$(common.date.DayOfWeek $CXR_DATE_YESTERDAY)
-		
-		# week of year
-		CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE_YESTERDAY)
 	fi
+		
+	########################################
+	# Calculate it all for yesterday (mainly for inst files)
+	# We do this even if we are at the first day because we might
+	# want to restart a run in the middle
+	########################################	
+	CXR_JUL_YESTERDAY=$(( $CXR_JUL - 1 ))
+	CXR_DATE_YESTERDAY=$(common.date.JulianToDate $CXR_JUL_YESTERDAY)
+	
+	CXR_DATE_RAW_YESTERDAY=$(common.date.toRaw $CXR_DATE_YESTERDAY)
+	
+	#Split it
+	common.date.split $CXR_DATE_YESTERDAY year_yesterday month_yesterday day_yesterday
+	
+
+	# YYYY year
+	CXR_YEAR_YESTERDAY=$year_yesterday
+	
+	# YY year
+	CXR_YEAR_S_YESTERDAY=${CXR_YEAR_YESTERDAY:2:2}
+	
+	# MM month
+	CXR_MONTH_YESTERDAY=$(common.string.leftPadZero $month_yesterday 2)
+	
+	# DD day
+	CXR_DAY_YESTERDAY=$(common.string.leftPadZero $day_yesterday 2)
+	
+	# Day of year
+	CXR_DOY_YESTERDAY=$(common.date.DayOfYear $CXR_DATE_YESTERDAY)
+	
+	# Day of week
+	CXR_DOW_YESTERDAY=$(common.date.DayOfWeek $CXR_DATE_YESTERDAY)
+	
+	# week of year
+	CXR_WOY_YESTERDAY=$(common.date.WeekOfYear $CXR_DATE_YESTERDAY)
+
 }
 
 ################################################################################
