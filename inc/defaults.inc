@@ -459,6 +459,11 @@ CXR_LOG_EXT=""
 ################################################################################	
 ################################################################################
 
+# With this flag you can indicate that already the first
+# simulation day is a restart. Normally false.
+# Useful for example to repeat just a part of a run.
+CXR_START_WITH_RESTART=false
+
 ################################################################################
 # Disabled Modules (space-separated module names, ${CXR_SKIP_ALL} disables whole class)
 ################################################################################

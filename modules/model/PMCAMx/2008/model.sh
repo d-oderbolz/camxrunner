@@ -111,8 +111,11 @@ function set_variables()
 	CXR_SA_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_SA_ROOT_OUTPUT_FILE_RULE" false CXR_SA_ROOT_OUTPUT_FILE_RULE)
 	
 	
-	# If we do not run the first day, its a restart
-	if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
+	######################################
+	# If we do not run the first day, its a restart.
+	# Its also a restart if we start with one
+	######################################
+	if [[ "$(common.date.isFirstDayOfSimulation?)" == false || $CXR_START_WITH_RESTART == true ]]
 	then
 		# This must be a restart!
 		CXR_RESTART=true
