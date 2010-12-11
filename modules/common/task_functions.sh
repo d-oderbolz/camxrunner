@@ -659,7 +659,7 @@ function common.task.countMyRunningWorkers()
 	do
 		# kill returns non/zero if process is gone, 0 is pseudo signal 
 		# we avoid termination with || :
-		kill -0 $pid || :
+		kill -0 $pid &> /dev/null || :
 		
 		if [[ $? -eq 0 ]]
 		then
