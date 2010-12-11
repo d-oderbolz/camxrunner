@@ -336,6 +336,12 @@ function common.runner.reportDimensions()
 function common.runner.printSummary()
 ################################################################################
 {
+	# Print mission, if available
+	if [[ "${CXR_MISSION:-}" ]]
+	then
+		main.log -a -B "Mission of ${CXR_RUN}:\n${CXR_MISSION}"
+	fi
+	
 	##################
 	# Revision control
 	##################
