@@ -127,7 +127,7 @@ function set_variables()
 			# The model might need some files from the previous day,
 			# which are not in the scratch dir
 
-			if [[ "$(common.date.isFirstDayOfSimulation?)" == false ]]
+			if [[ "$(common.date.isFirstDayOfSimulation?)" == false || $CXR_START_WITH_RESTART == true ]]
 			then
 				main.log -a "Pre-evaluating restart rules..."
 				CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
