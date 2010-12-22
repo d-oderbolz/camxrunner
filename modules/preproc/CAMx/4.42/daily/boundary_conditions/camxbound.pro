@@ -1,7 +1,8 @@
 pro camxbound $
 	,fmoz $
-	,fln $
-	,mm5camxinfile $
+	,first_meteo_file $
+	,metmodel $
+	,zpfile $
 	,outfile_bc $
 	,nlevs $
 	,mozart_specs $
@@ -37,8 +38,9 @@ pro camxbound $
 ;
 ; Parameters:
 ; fmoz - mozart input file for given day
-; fln - name of a MM5 output file of domain 1 for initial day
-; mm5camxinfile - zp file of domain 1 for given day
+; first_meteo_file - name of a MM5 output file of domain 1 for initial day
+; metmodel - name of the meteo model ('MM5', 'WRF')
+; zpfile - zp file of domain 1 for given day
 ; outfile_bc - name of the output file for boundary conditions (ASCII)
 ; nlevs - the number of vertical layers in CAMx
 ; mozart_specs - string array with mozart species to extract
@@ -57,6 +59,14 @@ pro camxbound $
 ; deleteps - if 1, ps files are deleted
 ; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+COMPILE_OPT IDL2
+
+;; Print Revision
+my_revision_string='$Id$'
+my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
+
+print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 
 ; Set default parameters if needed
 ; 13 parameters are mandatory
@@ -102,7 +112,7 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification_prefix='I'
 					endif else begin
 						if (data_modification EQ 'constant') then begin
-							message,'You cannot use constant and increment together!"
+							message,"You cannot use constant and increment together!"
 						endif
 					endelse
 				  end
@@ -113,7 +123,7 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification_prefix='C'
 					endif else begin
 						if (data_modification EQ 'increment') then begin
-							message,'You cannot use constant and increment together!"
+							message,"You cannot use constant and increment together!"
 						endif
 					endelse
 				  end
@@ -139,12 +149,6 @@ spec2max->add,'NO2_VMR_inst',0.003
 ; Time Interval between MOZART records in hours
 time_interval_h = 3
 
-; Report my revision
-my_revision_string='$Id$'
-my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
-
-print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
-
 
 ; Correction factor to convert Volume mixing ratio to ppm
 vmr2ppm=1E6
@@ -153,20 +157,44 @@ vmr2ppm=1E6
 cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
 spawn, cmd
 
-print,'Reading long/lat from MM5 ' + fln + ' ..."
+case metmodel of 
 
-; Read lon-lat from MM5
-rv3, fln, 'longicrs', mm5lon, bhi, bhr
-rv3, fln, 'latitcrs', mm5lat, bhi, bhr
+	'MM5' : begin
+	
+print,'Reading long/lat from MM5 ' + first_meteo_file + ' ...'
+
+						; Read lon-lat data from MM5
+rv3, first_meteo_file, 'longicrs', meteoLon, bhi, bhr
+rv3, first_meteo_file, 'latitcrs', meteoLat, bhi, bhr
 
 ; Interchange the first two dimensions
 ; [y,x,z,time] -> [x,y,z,time]
-mm5lon = TRANSPOSE(mm5lon, [1, 0, 2, 3])
-mm5lat = TRANSPOSE(mm5lat, [1, 0, 2, 3])
+meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
+meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
+
+						; Cleaning up some trash
+						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
+						spawn, cmd
+	
+					end
+					
+	'WRF' : begin
+	
+						print,'Reading long/lat from WRF ' + first_meteo_file + ' ...'
+						restore,first_meteo_file
+						
+						meteoLon = longicrs
+						meteoLat = latitcrs
+						
+					end
+
+end case
+
+
 
 ; Read MOZART input file.
 
-print,'Reading netCDF file ' + fmoz + ' ..."
+print,'Reading netCDF file ' + fmoz + ' ...'
 
 ncid = NCDF_OPEN(fmoz)            ; Open The NetCDF file
 
@@ -251,7 +279,7 @@ for ispec=0,nspec-1 do begin
 											increment_dummy = extra.(Tag_Num)
 											print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
 										endelse
-		        				
+
 										; We also need to reverse all concentrations (3rd dimension, here 1 based)
 										; Also we convert to PPM
 										allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
@@ -266,17 +294,17 @@ NCDF_CLOSE, ncid      ; Close the NetCDF file
 print,'netCDF file read sucessfully.'
 
 ; Definition of some variables required for the horizontal interpolation
-dims = SIZE(mm5lon, /DIMENSIONS)
+dims = SIZE(meteoLon, /DIMENSIONS)
 ncols = dims[0] - 1
 nrows = dims[1] - 1
 nhours = dims[3]
-t_mm5lon = FLTARR(ncols, nrows, 1, nhours)
+t_meteoLon = FLTARR(ncols, nrows, 1, nhours)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
 ; The x and y dimensions are reduced by 1
-mm5lonr = mm5lon[0:ncols-1, 0:nrows-1, *, *]
-mm5latr = mm5lat[0:ncols-1, 0:nrows-1, *, *]
+meteoLonr = meteoLon[0:ncols-1, 0:nrows-1, *, *]
+meteoLatr = meteoLat[0:ncols-1, 0:nrows-1, *, *]
 
 ; Cleaning up some trash
 cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
@@ -291,7 +319,7 @@ print,'Reading MM5 output...'
 ; by space. In that case a format specification is required.
 ; This format depends on the converter that was used to produce the
 ; ascii height/pressure files and possibly on the platform.
-OPENR, lun, mm5camxinfile, /GET_LUN
+OPENR, lun, zpfile, /GET_LUN
 height = FLTARR(ncols,nrows,nlevs,24)
 pres = FLTARR(ncols,nrows,nlevs,24)
 height2d = FLTARR(ncols,nrows)
@@ -330,12 +358,12 @@ FOR i = 0, ncols - 1 DO BEGIN
 	FOR j = 0, nrows - 1 DO BEGIN
 		; The MM5 longtitude is converted from the [-180,180] range to the
 		; [0,360] range for compatibility with the MOZART longtitude
-		t_mm5lon[i,j,0,1] = (mm5lonr[i,j,0,1] + 360.0) MOD 360.0
+		t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_mm5lon[i,j,0,1] / lonstep
-		indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		indexlon[i,j] = t_meteoLon[i,j,0,1] / lonstep
+		indexlat[i,j] = (meteoLatr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
 	ENDFOR
 ENDFOR
 
@@ -490,7 +518,7 @@ OPENW, lun, outfile_bc, /GET_LUN
 PRINTF, lun, name, note
 line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
 PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
-line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)
+line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
@@ -644,9 +672,9 @@ IF (doplots = 1) THEN BEGIN
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
-			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLonr[*,*,0,1], meteoLatr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endif else begin
-			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLonr[*,*,0,1], meteoLatr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endelse
 
 		DEVICE, /CLOSE
@@ -664,9 +692,9 @@ IF (doplots = 1) THEN BEGIN
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
-			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLonr[*,*,0,1], meteoLatr[*,*,0,1], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endif else begin
-			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], mm5lonr[*,*,0,1], mm5latr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLonr[*,*,0,1], meteoLatr[*,*,0,1], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endelse
 
 		DEVICE, /CLOSE

@@ -1,4 +1,20 @@
-pro camxinit,fmoz,fln,mm5camxinfile,outfile_ic,outfile_tc,nlevs,mozart_specs,camx_specs,note,xorg,yorg,delx,dely,ibdate,extra=extra
+pro camxinit $
+	,fmoz $
+	,first_meteo_file $
+	,metmodel $
+	,zpfile $
+	,outfile_ic $
+	,outfile_tc $
+	,nlevs $
+	,mozart_specs $
+	,camx_specs $
+	,note $
+	,xorg $
+	,yorg $
+	,delx $
+	,dely $
+	,ibdate $
+	,extra=extra
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Procedure camxinit.pro. Prepares an ASCII version of the initial conditions file for CAMx simulations
@@ -12,8 +28,9 @@ pro camxinit,fmoz,fln,mm5camxinfile,outfile_ic,outfile_tc,nlevs,mozart_specs,cam
 ;
 ; Parameters:
 ; fmoz - mozart input file for initial day
-; fln - name of a MM5 output file of domain 1 for initial day
-; mm5camxinfile - zp file of domain 1 for initial day
+; first_meteo_file - name of a MM5 output file of domain 1 for initial day or a WRF IDL savefile (needed only for lat/lon information)
+; metmodel - name of the meteo model ('MM5', 'WRF')
+; zpfile - zp file of domain 1 for initial day
 ; outfile_ic - name of the output file for initial conditions (ASCII)
 ; outfile_tc - name of the output file for top concentrations
 ; nlevs - the number of vertical layers in CAMx
@@ -29,6 +46,12 @@ pro camxinit,fmoz,fln,mm5camxinfile,outfile_ic,outfile_tc,nlevs,mozart_specs,cam
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 COMPILE_OPT IDL2
+
+;; Print Revision
+my_revision_string='$Id$'
+my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
+
+print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 
 nspec=n_elements(mozart_specs)
 nspec_c=n_elements(camx_specs)
@@ -63,7 +86,7 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification_prefix='I'
 					endif else begin
 						if (data_modification EQ 'constant') then begin
-							message,'You cannot use constant and increment together!"
+							message,"You cannot use constant and increment together!"
 						endif
 					endelse
 				  end
@@ -74,7 +97,7 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification_prefix='C'
 					endif else begin
 						if (data_modification EQ 'increment') then begin
-							message,'You cannot use constant and increment together!"
+							message,"You cannot use constant and increment together!"
 						endif
 					endelse
 				  end
@@ -92,26 +115,44 @@ vmr2ppm=1E6
 cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
 spawn, cmd
 
-my_revision_string='$Id$'
-my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
+case metmodel of 
 
-print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
+	'MM5' : begin
+	
+						print,'Reading long/lat from MM5 ' + first_meteo_file + ' ...'
+	
+						; Read lon-lat data from MM5
+						rv3, first_meteo_file, 'longicrs', meteoLon, bhi, bhr
+						rv3, first_meteo_file, 'latitcrs', meteoLat, bhi, bhr
+						
+						; Interchange the first two dimensions
+						; [y,x,z,time] -> [x,y,z,time]
+						meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
+						meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
+						
+						; Cleaning up some trash
+						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
+						spawn, cmd
+	
+					end
+					
+	'WRF' : begin
+	
+						print,'Reading long/lat from WRF ' + first_meteo_file + ' ...'
+						restore,first_meteo_file
+						
+						meteoLon = longicrs
+						meteoLat = latitcrs
+						
+					end
+
+end case
 
 
-print,'Reading long/lat from MM5 ' + fln + ' ..."
-
-; Read lon-lat data from MM5
-rv3, fln, 'longicrs', mm5lon, bhi, bhr
-rv3, fln, 'latitcrs', mm5lat, bhi, bhr
-
-; Interchange the first two dimensions
-; [y,x,z,time] -> [x,y,z,time]
-mm5lon = TRANSPOSE(mm5lon, [1, 0, 2, 3])
-mm5lat = TRANSPOSE(mm5lat, [1, 0, 2, 3])
 
 ; Read MOZART input file.
 
-print,'Reading netCDF file ' + fmoz + ' ..."
+print,'Reading netCDF file ' + fmoz + ' ...'
 
 ncid = NCDF_OPEN(fmoz)            ; Open The NetCDF file
 
@@ -210,11 +251,11 @@ NCDF_CLOSE, ncid      ; Close the NetCDF file
 print,'netCDF file read sucessfully.'
 
 ; Definition of some variables required for the horizontal interpolation
-dims = SIZE(mm5lon, /DIMENSIONS)
+dims = SIZE(meteoLon, /DIMENSIONS)
 ncols = dims[0] - 1
 nrows = dims[1] - 1
 nhours = dims[3]
-t_mm5lon = FLTARR(ncols, nrows, 1, nhours)
+t_meteoLon = FLTARR(ncols, nrows, 1, nhours)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
@@ -226,17 +267,14 @@ nlevsmoz = dimsmoz[2]
 ntime = dimsmoz[3]
 
 ; The x and y dimensions are reduced by 1
-mm5lonr = mm5lon[0:ncols-1, 0:nrows-1, *, *]
-mm5latr = mm5lat[0:ncols-1, 0:nrows-1, *, *]
+; Actually, IDL does not care if the last two dimensions are missing
+meteoLonr = meteoLon[0:ncols-1, 0:nrows-1, *, *]
+meteoLatr = meteoLat[0:ncols-1, 0:nrows-1, *, *]
 
-print,'Reading MM5 output...'
+print,'Reading pressure file...'
 
-; Cleaning up some trash
-cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
-spawn, cmd
-
-; Read MM5CAMx input file
-OPENR, lun, mm5camxinfile, /GET_LUN
+; Read zp input file
+OPENR, lun, zpfile, /GET_LUN
 height = FLTARR(ncols, nrows, nlevs)
 pres = FLTARR(ncols, nrows, nlevs)
 height2d = FLTARR(ncols,nrows)
@@ -267,12 +305,12 @@ FOR i = 0, ncols - 1 DO BEGIN
   FOR j = 0, nrows - 1 DO BEGIN
     ; The MM5 longtitude is converted from the [-180,180] range to the
     ; [0,360] range for compatibility with the MOZART longtitude
-    t_mm5lon[i,j,0,1] = (mm5lonr[i,j,0,1] + 360.0) MOD 360.0
+    t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
 
     ; The decimal grid indices in the MOZART grid, which coincide with
     ; the MM5 cross grid points are calculated
-    indexlon[i,j] = t_mm5lon[i,j,0,1] / lonstep
-    indexlat[i,j] = (mm5latr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+    indexlon[i,j] = t_meteoLon[i,j,0,1] / lonstep
+    indexlat[i,j] = (meteoLatr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
   ENDFOR
 ENDFOR
 
@@ -352,7 +390,7 @@ ny = nrows
 nz = nlevs
 idum = 0
 
-print,"******************************************
+print,'******************************************'
 print,'Some overview data of file ' + outfile_ic
 print,'For each species and level, reporting '
 print,'Min, Avg, Max in PPB'
@@ -379,7 +417,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
   ENDFOR
 ENDFOR
 
-print,"******************************************
+print,'******************************************'
 
 print,'Writing INITIAL data file ' + outfile_ic
 
@@ -390,7 +428,7 @@ OPENW, lun, outfile_ic, /GET_LUN
 PRINTF, lun, name, note
 line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
 PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
-line3 = '(F10.1, F11.1, I4, F10.1, F10.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)
+line3 = '(F10.1, F11.1, I4, F10.1, F10.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
