@@ -1313,14 +1313,10 @@ function common.task.controller()
 			main.log -w "Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive! (maybe some have not started yet)"
 		fi
 		
-		# touch the continue file
-		if [[ -e "$CXR_CONTINUE_FILE" ]]
-		then
-			# There is a slight possibility
-			# of a race-condition here if
-			# another process deletes the file this very moment.
-			touch "$CXR_CONTINUE_FILE"
-		fi
+		# touch the continue file (avoiding race conditions)
+		# if I would check first and then touch, a process might have deleted it in the meantime
+		( set -o noclobber; echo "If you remove this file, the instance ${CXR_PID} on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}) 2> /dev/null
+
 		
 		# Report the Estimated Time of arrival every now and then
 		i=$(( $i + 1 ))
