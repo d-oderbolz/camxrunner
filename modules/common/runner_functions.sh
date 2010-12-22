@@ -467,12 +467,12 @@ function common.runner.evaluateRule()
 		# Original code example: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
 		expansion="$(eval "echo $(echo "$rule")")"
 		
-		# *_FILE_RULE might be compressed
+		# *_FILE_RULE might be compressed, try to decompress if expansion does net exist
 		# Does the name of the rule end in _FILE_RULE ?
-		if [[ "${try_decompression}" == true && "${rule_name: -10}" == "_FILE_RULE" ]]
-		#                                                    ¦
-		#                                    This space here ¦ is vital, otherwise, 
-		#                                    bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+		if [[ ! -e "${expansion}"  &&  "${try_decompression}" == true && "${rule_name: -10}" == "_FILE_RULE" ]]
+		#                                                                             ¦
+		#                                                             This space here ¦ is vital, otherwise, 
+		#                                                             bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
 			# Try to decompress
 			expansion=$(common.fs.TryDecompressingFile $expansion)
