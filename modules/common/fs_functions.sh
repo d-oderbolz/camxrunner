@@ -752,7 +752,7 @@ function common.fs.CompressOutput()
 						
 						
 						main.log -a "Compressing ${filename} using ${compressor}"
-						${CXR_COMPRESSOR_EXEC} "${filename}"
+						${compressor} "${filename}"
 					else
 						main.log -w "${filename} is smaller than CXR_COMPRESS_THRESHOLD_MB (${CXR_COMPRESS_THRESHOLD_MB}) - will not compress it."
 					fi
