@@ -409,7 +409,7 @@ function common.fs.isDos?()
 ################################################################################
 # Function: common.fs.getLinkTarget
 #
-# Returns the link target of a file/diroctory (even if target is non-existing).
+# Returns the link target of a file/directory (even if target is non-existing).
 # Returns the empty string on error (for example if the input is non-existing)
 # Resolves any component (!) of a path.
 # Does not work in MacOSX: 
