@@ -885,7 +885,6 @@ main.log -a "$CXR_RUN finished at $(date), we ran $elapsed_seconds s - $(common.
 # Echo the "Finish message"
 main.log -a "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FINISH_MESSAGE_RULE)"
 
-
 ################################################################################
 # Cleanup all locks etc...
 ################################################################################

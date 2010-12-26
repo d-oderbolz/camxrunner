@@ -997,12 +997,16 @@ function common.task.removeWorker()
 #
 # Parameters:
 # $1 - the worker id (internal number, just to tell log output on screen apart)
+# $2 - logfile to use
 ################################################################################
 function common.task.Worker()
 ################################################################################
 {
 	# The ID is global, but it is not unique across servers
 	CXR_WORKER_ID=${1}
+	
+	# Logfile is global across this workers processes
+	CXR_LOG="$2"
 	
 	local tmp
 	local new_task
@@ -1032,16 +1036,6 @@ function common.task.Worker()
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
 	main.log -a -B  "parallel worker (pid ${CXR_WORKER_PID}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
-
-	# Do we have more than 1 process?
-	# If so, define process-specific stuff
-	if [[ -f "$CXR_LOG" && "$CXR_MAX_PARALLEL_PROCS" -gt 1 ]]
-	then
-		# Set pid-dependent logfile to disentangle things
-		CXR_LOG=${CXR_LOG%.log}_${CXR_MACHINE}_${CXR_WORKER_ID}_${CXR_WORKER_PID}.log
-		
-		main.log -a "This common.task.Worker will use its own logfile: ${CXR_LOG}\nIts recommended to watch it using tail -f ${CXR_LOG} in another session."
-	fi
 
 	# We stay in this loop as long as the continue file exists
 	# or until no more tasks are around
@@ -1222,7 +1216,7 @@ function common.task.Worker()
 ################################################################################
 # Function: common.task.spawnWorkers
 #
-# Creates $1 workers.
+# Creates $1 workers with teir logfiles. We fill the global array CXR_LOGS
 #
 # Parameters:
 # $1 - number of workers to spawn
@@ -1239,8 +1233,12 @@ function common.task.spawnWorkers()
 	
 	for iWorker in $(seq 1 $1)
 	do
+		
+		# Determine logfile for this worker
+		CXR_LOGS[$iWorker]=${CXR_LOG%.log}_${CXR_MACHINE}_${iWorker}.log
+		
 		# Create a worker and send it to background
-		common.task.Worker $iWorker &
+		common.task.Worker $iWorker ${CXR_LOGS[$iWorker]} &
 		
 		if [[ "$1" -gt 1 ]]
 		then

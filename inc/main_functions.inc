@@ -144,7 +144,6 @@ function main.decreaseLogIndent()
 function main.addError()
 ################################################################################
 {
-
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
 	if [[ "${CXR_STATE_DIR:-}" && ! -d ${CXR_STATE_DIR:-} ]]
@@ -162,10 +161,7 @@ function main.addError()
 		# Add text to the stack (if empty a newline is written)
 		# No -e (one line per error) - the lines are counted later
 		# Could be that the state db is not yet initialized
-		if [[ -f "${CXR_INSTANCE_FILE_ERROR_STACK}"  ]]
-		then
-			echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}"
-		fi	
+		echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}" 2> /dev/null
 	
 	fi
 }
@@ -473,6 +469,7 @@ function main.doCleanup()
 	local dummy_file
 	local arrKeys
 	local keyString
+	local currentLogFile
 	
 	#Relax
 	set +e
@@ -492,6 +489,14 @@ function main.doCleanup()
 		error_count=$(main.countErrors)
 		
 		main.log -a -B "Error Report (may be repeated)"
+		
+		for currentLogFile in ${CXR_LOGS[@]}
+		do
+			echo $currentLogFile 1>&2
+			
+			grep "ERR:" $currentLogFile 1>&2
+			
+		done
 		
 		if [[ "${error_count:-0}" -ne 0 ]]
 		then
