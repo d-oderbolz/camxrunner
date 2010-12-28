@@ -10,8 +10,6 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Test all functions referring to common. for existence
-################################################################################
 
 ################################################################################
 # Function: main.profiler
@@ -272,8 +270,8 @@ function main.log()
 		case $opt in
 		v) log_level=$CXR_LOG_LEVEL_VRB ; prefix=""   ;;
 		a) log_level=$CXR_LOG_LEVEL_ALW ; prefix=""   ;;
-		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=WRN: ;;
-		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=ERR: ;;
+		w) log_level=$CXR_LOG_LEVEL_WRN ; prefix=${CXR_LOG_PREFIX_WRN} ;;
+		e) log_level=$CXR_LOG_LEVEL_ERR ; prefix=${CXR_LOG_PREFIX_ERR} ;;
 		b) stars="${CXR_BOX_SMALL}";;
 		B) stars="${CXR_BOX_LARGE}";;
 		H) stars="${CXR_BOX_HUGE}";;
@@ -492,10 +490,9 @@ function main.doCleanup()
 		
 		for currentLogFile in ${CXR_LOGS[@]}
 		do
-			echo $currentLogFile 1>&2
+			echo "Error list from ${currentLogFile}:" 1>&2
 			
-			grep "ERR:" $currentLogFile 1>&2
-			
+			grep "${CXR_LOG_PREFIX_ERR}" $currentLogFile 1>&2
 		done
 		
 		if [[ "${error_count:-0}" -ne 0 ]]
@@ -1346,13 +1343,13 @@ function main.getModuleName()
 	module=$(basename $full_name .sh)
 
 	# Remove XX_ if present
-	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_a-zA-Z]\{1,\}\)')"  || :
+	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_.a-zA-Z]\{1,\}\)')"  || :
 	
 	if [[ ! "$module" ]]
 	then
 		main.dieGracefully "Could not determine module name of $1"
 	else
-		# Now, we remove the variant, if any
+		# Now, we remove the variant by returning all before the first dot
 		module=$(echo "$module" | cut -d'.' -f1)
 	fi
 	
@@ -1360,3 +1357,47 @@ function main.getModuleName()
 	return $CXR_RET_OK
 }
 
+################################################################################
+# Function: main.getModuleVariant
+#
+# Extracts the module variant from a path, removes the leading number (if any),
+# the variant (if any) and the trailing extension.
+# If a module is called 12_my_module.psi.ch.sh, the variant is psi.ch.
+# For modules with no specific variant, the return value is the empty string.
+#
+# Parameters:
+# $1 - Module name with or without path
+################################################################################
+function main.getModuleVariant()
+################################################################################
+{
+	local full_name
+	local variant
+	
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully "needs a string (the long module name with or without path) as input."
+	fi	
+	
+	full_name=${1}
+	
+	# We just want the filename (without sh)
+	module=$(basename $full_name sh)
+
+	# Remove XX_ if present
+	module="$(expr match "$module" '[0-9]\{0,\}_\{0,1\}\([_.a-zA-Z]\{1,\}\)')"  || :
+	
+	if [[ ! "$module" ]]
+	then
+		main.dieGracefully "Could not determine variant of $1"
+	else
+		# Now the variant is all between first dot and end of string
+		variant=${module#*.}
+		
+		# Remove last dot
+		variant=${variant%.}
+	fi
+	
+	echo "$variant"
+	return $CXR_RET_OK
+}

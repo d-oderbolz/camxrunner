@@ -129,7 +129,7 @@ function common.state.deleteContinueFiles()
 # tables that contain ony whats relevant currently ("active")
 # - modules
 # - metadata
-# (also some others, but they are taken care of in <common.task.init>)
+# (there are others, but they are taken care of in <common.task.init>)
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
@@ -146,6 +146,8 @@ function common.state.updateInfo()
 	local files
 	local file
 	local module
+	local variant
+	local wanted_variant
 	local run_it
 	local fctlist
 	local list
@@ -245,90 +247,106 @@ function common.state.updateInfo()
 				do
 					common.check.reportMD5 $file
 					
+					# Determine name and variant of the current file
 					module="$(main.getModuleName $file)"
+					variant="$(main.getModuleVariant $file)"
 					
-					# Is this module active? (Enabled wins over disabled)
-					# if the module name is in the enabled list, run it,no matter what
-					if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
+					# Did the user select a variant? 
+					# Returns the empty string if not set
+					wanted_variant=$(common.conf.get "${module}.variant")
+					
+					if [[ "$variant" == "$wanted_variant" ]]
 					then
-						# Module was explicitly enabled
-						run_it=true
-					elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
-					then
-						# Module was not explicitly disabled and we did not disable all
-						run_it=true
-					else
-						# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
-						run_it=false
-						main.log -a "Module $module is disabled."
-					fi
 					
-					# find out if we have a function called getNumInvocations
-					fctlist=$(grep 'getNumInvocations' $file)
-					
-					if [[ -z "$fctlist" ]]
-					then
-						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
-					else
-						# Here we need to source the file to call getNumInvocations()
-						nInvocations=$(source $file &> /dev/null; getNumInvocations)
-						
-						# A module can disable itself
-						if [[ $nInvocations -lt 1 ]]
+						# Is this module active? (Enabled wins over disabled)
+						# if the module name is in the enabled list, run it,no matter what
+						if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
 						then
-							main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
-							run_it=false
-						fi
-					fi
-					
-					# We mark needed stuff as active, the rest as inactive
-					# Add $file, $module and $type to DB
-					echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
-					
-					# Add metadata
-					# grep the CXR_META_ vars that are not commented out
-					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
-					
-					oIFS="$IFS"
-					# Set IFS to newline
-					IFS='
-'
-					for metafield in $list
-					do
-						# Reset IFS immediately
-						IFS="$oIFS"
-						
-						# Parse this
-						# Field is to the left of the = sign
-						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
-						# the value is to the right
-						value="$(expr match "$metafield" '.*=\(.*\)')" || :
-						
-						# OK, we want all quoting gone and variables expanded
-						value="$(eval "echo $(echo "$value")")"
-
-						# Treat some special Meta fields
-						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
+							# Module was explicitly enabled
+							run_it=true
+						elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
 						then
-							# Make sure IFS is correct!
-							for dependency in $value
-							do
-								echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency');" >> $sqlfile
-							done
-						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
-						then
-							echo "UPDATE modules SET exclusive=trim('$value') WHERE module='$module';" >> $sqlfile
+							# Module was not explicitly disabled and we did not disable all
+							run_it=true
 						else
-							# Nothing special
-							echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value');" >> $sqlfile
-						fi # is it a special meta field
-					done
+							# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
+							run_it=false
+							main.log -a "Module $module is disabled."
+						fi
+						
+						# find out if we have a function called getNumInvocations
+						fctlist=$(grep 'getNumInvocations' $file)
+						
+						if [[ -z "$fctlist" ]]
+						then
+							main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
+						else
+							# Here we need to source the file to call getNumInvocations()
+							nInvocations=$(source $file &> /dev/null; getNumInvocations)
+							
+							# A module can disable itself
+							if [[ $nInvocations -lt 1 ]]
+							then
+								main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
+								run_it=false
+							fi
+						fi
+						
+						# We mark needed stuff as active, the rest as inactive
+						# Add $file, $module and $type to DB
+						echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
+						
+						# Add metadata
+						# grep the CXR_META_ vars that are not commented out
+						list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+						
+						oIFS="$IFS"
+						# Set IFS to newline
+						IFS='
+'
+						for metafield in $list
+						do
+							# Reset IFS immediately
+							IFS="$oIFS"
+							
+							# Parse this
+							# Field is to the left of the = sign
+							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
+							# the value is to the right
+							value="$(expr match "$metafield" '.*=\(.*\)')" || :
+							
+							# OK, we want all quoting gone and variables expanded
+							value="$(eval "echo $(echo "$value")")"
+	
+							# Treat some special Meta fields
+							if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
+							then
+								# Make sure IFS is correct!
+								for dependency in $value
+								do
+									echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency');" >> $sqlfile
+								done
+							elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
+							then
+								echo "UPDATE modules SET exclusive=trim('$value') WHERE module='$module';" >> $sqlfile
+							else
+								# Nothing special
+								echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value');" >> $sqlfile
+							fi # is it a special meta field
+						done
+						
+						# Now also add each invocation as individial row.
+						for iInvocation in $(seq 1 $nInvocations)
+						do
+							echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
+						done
 					
-					# Now also add each invocation as individial row.
-					for iInvocation in $(seq 1 $nInvocations)
-					do
-						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
-					done
+					else
+					
+						main.log -v "$file does not match variant $wanted_variant"
+					
+					fi # Right variant?
+					
 				done # Loop over files
 			else
 				main.dieGracefully "Tried to add modules in $dir - directory not found."
