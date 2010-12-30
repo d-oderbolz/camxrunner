@@ -1,1 +1,0 @@
-../../4.42/daily/create_emissions.sh
