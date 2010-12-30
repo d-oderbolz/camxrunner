@@ -258,6 +258,11 @@ function common.state.updateInfo()
 					if [[ "$variant" == "$wanted_variant" ]]
 					then
 					
+						if [[ "$wanted_variant" ]]
+						then
+							main.log -a "Loading variant $wanted_variant of $module"
+						fi
+					
 						# Is this module active? (Enabled wins over disabled)
 						# if the module name is in the enabled list, run it,no matter what
 						if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
