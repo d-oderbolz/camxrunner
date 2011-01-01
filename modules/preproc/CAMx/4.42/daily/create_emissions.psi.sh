@@ -162,6 +162,8 @@ function create_emissions()
 	local stop_h
 	local start_h
 	local bionly
+	local metmodel
+	local map_prj
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
@@ -227,9 +229,25 @@ function create_emissions()
 				bionly=0
 			fi
 			
+			# We need to prepare a couple of special variables
+			metmodel="$(common.string.toLower $CXR_MET_MODEL)"
+			
+			# We need to rewrite the map projection slightly
+			case $CXR_MAP_PROJECTION in
+			
+				LAMBERT) map_prj=lambert;;
+				LATLON)  map_prj=lat-lon;;
+				*) main.log -a "Module create_emissions (psi) does not support projection $CXR_MAP_PROJECTION"
+				   common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
+			
+				   # We notify the caller of the problem
+				   return $CXR_RET_ERROR;;
+			
+			esac
+			
 			cat <<-EOF > $exec_tmp_file
 			.run $(basename ${CXR_IDL_EMISSION_GENERATOR})
-			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR%emiss/emisscamx}','${CXR_EMISSION_BIO_APPROACH}',${CXR_EMISSION_DO_OVOC}
+			$(basename ${CXR_IDL_EMISSION_GENERATOR} .pro),${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${start_h},${CXR_YEAR},${CXR_MONTH},${CXR_DAY},${stop_h},${CXR_INVOCATION},'${CXR_MET_PROJECT}','${CXR_EMMISS_SCENARIO}','${CXR_MET_SCENARIO}',${bionly},'${CXR_EMISSION_SOURCE_DIR%emiss/emisscamx}','${CXR_EMISSION_BIO_APPROACH}',${CXR_EMISSION_DO_OVOC},'$metmodel','$CXR_MET_VERSION','$map_prj'
 			exit
 			EOF
 			
