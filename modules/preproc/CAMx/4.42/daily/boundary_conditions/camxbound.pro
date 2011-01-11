@@ -161,16 +161,16 @@ case metmodel of
 
 	'MM5' : begin
 	
-print,'Reading long/lat from MM5 ' + first_meteo_file + ' ...'
+						print,'Reading long/lat from MM5 ' + first_meteo_file + ' ...'
 
 						; Read lon-lat data from MM5
-rv3, first_meteo_file, 'longicrs', meteoLon, bhi, bhr
-rv3, first_meteo_file, 'latitcrs', meteoLat, bhi, bhr
+						rv3, first_meteo_file, 'longicrs', meteoLon, bhi, bhr
+						rv3, first_meteo_file, 'latitcrs', meteoLat, bhi, bhr
 
-; Interchange the first two dimensions
-; [y,x,z,time] -> [x,y,z,time]
-meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
-meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
+						; Interchange the first two dimensions
+						; [y,x,z,time] -> [x,y,z,time]
+						meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
+						meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
 
 						; Cleaning up some trash
 						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
@@ -188,7 +188,7 @@ meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
 						
 					end
 
-end case
+endcase
 
 
 
@@ -199,9 +199,12 @@ print,'Reading netCDF file ' + fmoz + ' ...'
 ncid = NCDF_OPEN(fmoz)            ; Open The NetCDF file
 
 ; These variables are needed in any case
-
-NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'lev') , lev      ; Read in variable 'lev'
 NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'T') , T      ; Read in variable 'T'
+
+; Get lon and lat to calculate step for horizontal interpolation
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'lon') , lonmoz
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'lat') , latmoz
+
 
 ; Reading the dimensions of MOZART output
 dimsmoz = SIZE(T, /DIMENSIONS)
@@ -210,8 +213,38 @@ nrowsmoz = dimsmoz[1]
 nlevsmoz = dimsmoz[2]
 ntime = dimsmoz[3]
 
-; Height is "the wrong way around"
-lev = REVERSE(lev)
+; we need to re-construct the pressure from the surface pressure in PS
+; and 2 coefficients.
+; See <http://www.ecmwf.int/products/data/technical/model_levels/model_def_60.html> 
+; and <http://www.ecmwf.int/research/ifsdocs/DYNAMICS/Chap2_Discretization4.html#961180> for details
+
+;Input is in Pascal, output is in mBar
+
+Pa2mBar = 0.01
+
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'PS') , mozart_surface_pressure  ; in Pa, ncols*nrows*ntime
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'hyam') , hyam
+NCDF_VARGET, ncid,  NCDF_VARID(ncid, 'hybm') , hybm
+
+; directly reverse hyam and hymb that lower levels are at lower indexes
+hyam = REVERSE(hyam)
+hybm = REVERSE(hybm)
+
+; this variable will hold the pressures converted to mb
+mozart_pressure = FLTARR(ncolsmoz,nrowsmoz,nlevsmoz,ntime)
+
+IF (n_elements(hyam) NE nlevsmoz && n_elements(hybm) NE nlevsmoz) then begin
+	MESSAGE,"Inconsistent number of levels in hyam and/or hybm!"
+endif
+
+; not elegant, later we might fix it using rebin/reform: <http://www.dfanning.com/tips/rebin_magic.html>
+FOR t = 0, ntime - 1 DO BEGIN
+	FOR level = 0,nlevsmoz -1 DO BEGIN
+		; fill the current pressure level
+		mozart_pressure[*,*,level,t] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + mozart_surface_pressure[*,*,t] * replicate(hybm[level],ncolsmoz,nrowsmoz))
+	endfor ; level
+endfor ; time
+
 
 ; In order to be able to loop over species, an array containing all of them is created
 allspecs = FLTARR(ncolsmoz, nrowsmoz, nlevsmoz, ntime, nspec)
@@ -303,16 +336,13 @@ indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
 ; The x and y dimensions are reduced by 1
+; Actually, IDL does not care if the last two dimensions are missing
 meteoLonr = meteoLon[0:ncols-1, 0:nrows-1, *, *]
 meteoLatr = meteoLat[0:ncols-1, 0:nrows-1, *, *]
 
-; Cleaning up some trash
-cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
-spawn, cmd
+print,'Reading pressure file...'
 
-print,'Reading MM5 output...'
-
-; Read MM5CAMx input file
+; Read zp input file
 ; Note that free format reading might not work
 ; if the height and pressure values have such a number of digits
 ; that their field is full and different fields are not separated
@@ -328,7 +358,7 @@ datemm5camx = 0.0
 timemm5camx = 0
 
 FOR t = 0, 23 DO BEGIN
-	FOR k = 0, 13 DO BEGIN
+	FOR k = 0,  nlevs - 1 DO BEGIN
 		READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
 		READF, lun, height2d
 		READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
@@ -342,42 +372,63 @@ ENDFOR
 
 FREE_LUN, lun
 
-mspec = STRARR(1,nspec)
-
-; Define the header array
-mspec[0,*] = camx_specs
-
 print,'Horizontal Interpolation...'
 
 ; Calculation of the longitude and latitude steps of the MOZART grid
-lonstep = 360.0 / ncolsmoz
-latstep = 180.0 / nrowsmoz
+; we assume that the global CTM runs on a grid with constant lat/lon spacing
+; we do not necessarily get a global file.
+
+lonstep = abs(lonmoz[1] - lonmoz[0])
+latstep = abs(latmoz[1] - latmoz[0])
 
 ; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
 FOR i = 0, ncols - 1 DO BEGIN
 	FOR j = 0, nrows - 1 DO BEGIN
-		; The MM5 longtitude is converted from the [-180,180] range to the
-		; [0,360] range for compatibility with the MOZART longtitude
-		t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
+	
+		; The MM5 longitude is converted from the [-180,180] range to the
+		; [0,360] range for compatibility with the MOZART longtitude, 
+		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
+		
+		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
+			t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
+		endif else begin
+			t_meteoLon[i,j,0,1] = meteoLonr[i,j,0,1] 
+		endelse
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
 		indexlon[i,j] = t_meteoLon[i,j,0,1] / lonstep
 		indexlat[i,j] = (meteoLatr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
-	ENDFOR
-ENDFOR
+	ENDFOR ; rows
+ENDFOR ; columns
+
+mspec = STRARR(1,nspec)
+
+; Define the header array
+mspec[0,*] = camx_specs
 
 ; Horizontal interpolation
-allspecinterp = FLTARR(ncols, nrows, nlevsmoz, ntime, nspec)
+allspecinterp = FLTARR(ncols, nrows, nlevsmoz, nspec)
 FOR ispec = 0, nspec - 1 DO BEGIN
 	FOR k = 0, nlevsmoz - 1 DO BEGIN
 		FOR t = 0, ntime - 1 DO BEGIN
 			allspecred = allspecs[*,*,k,t,ispec]
 			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat)
 			allspecinterp[*,*,k,t,ispec] = allspecinterp2d
-		ENDFOR
-	ENDFOR
-ENDFOR
+		ENDFOR ; time
+	ENDFOR ; level
+ENDFOR ; species
+
+; horizontal interpolation of pressure
+FOR k = 0, nlevsmoz - 1 DO BEGIN
+	FOR t = 0, ntime - 1 DO BEGIN
+		; interpolate just one pressure slice
+		pressred = mozart_pressure[*,*,k,t]
+		mozart_pressureinterp2D = INTERPOLATE(pressred, indexlon, indexlat)
+		mozart_pressureinterp[*,*,k,t] = mozart_pressureinterp2D
+	ENDFOR ; time
+ENDFOR ; level
+
 
 print,'Vertical interpolation...'
 
@@ -385,7 +436,7 @@ print,'Vertical interpolation...'
 ; This is the target array
 allspecinterpv = FLTARR(ncols,nrows,nlevs,ntime,nspec)
 
-; Switches which will be used in order to ensure that certain warnings are printed only once
+; Switches which will be used to ensure that warnings are printed only once
 l = 1 
 m = 1 
 
@@ -396,14 +447,14 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 				; we have the concentrations (that is our function of p)
 				; in allspecinterp[i,j,ilev,t,ispec]
 				; the pressures at which we want to sample are in pres[i,j,k,t * 3]
-				; the pressures at which the function is defined are in lev
-				interpolated = INTERPOL(allspecinterp[i,j,*,t,ispec],lev,pres[i,j,*,t * 3])
+				; the pressures at which the function is defined are in mozart_pressureinterp
+				interpolated = INTERPOL(allspecinterp[i,j,*,t,ispec],mozart_pressureinterp[i,j,*,t],pres[i,j,*,t * 3])
 
 				; If there are CAMx pressure levels below the lowest MOZART level, those CAMx levels
 				; get the value which corresponds to the lowest level of MOZART. This is done
 				; in order to avoid negative, zero or too low values which occured as a result of
 				; the interpolation below the lowest MOZART level.
-				below_mozart_level = WHERE(pres[i,j,*] GT lev[0], count)
+				below_mozart_level = WHERE(pres[i,j,*] GT mozart_pressureinterp[i,j,0,t], count)
 				IF count NE 0 THEN BEGIN
 					interpolated[below_mozart_level] = allspecinterp[i,j,0,t,ispec]
 					
@@ -476,7 +527,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		; Get the maximum
 		max_ppm = MAX(allspecinterpv[*,*,k,*,ispec])
 		
-		; Where is it?
+		; Where is it? (Disabled, looks ugly)
 		;ind_max_ppm = WHERE(allspecinterpv[*,*,k,*,ispec] EQ max_ppm)
 		; Turn into array indices
 		;arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
