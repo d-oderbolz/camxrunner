@@ -251,7 +251,10 @@ pro header_parser::parse
 	; w/o dummy variables
 	; Casted to proper type
 	
+	; For historical reasons, type is also called name
 	self.scalars->add,'name',name
+	self.scalars->add,'type',name
+	
 	self.scalars->add,'note',note
 	self.scalars->add,'nspec',LONG(strtrim(nspec,2))
 	self.scalars->add,'ibdate',ibdate
