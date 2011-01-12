@@ -209,9 +209,9 @@ pro header_parser::parse
 	; this is valid:
 	; AIRQUALITYCAMx-v4.51-bafu3-june-2006-s147-sem045-nib_p20
 
-	; Extract name (first 10 characters...)
+	; Extract type (first 10 characters...)
 	; we trim to be on the safe side
-	name=strtrim(strmid(header_arr[0],0,10),2)
+	type=strtrim(strmid(header_arr[0],0,10),2)
 	note=strtrim(strmid(header_arr[0],10),2)
 	
 	reads, header_arr[1], ione1, nspec, ibdate, btime, iedate, etime, format=line2
@@ -245,15 +245,15 @@ pro header_parser::parse
 	reads, header_arr[3], ione2, ione3, nx2, ny2, format=line4
 
 	; Is the file type supported?
-	if (~ self.file_types->iscontained(name)) then message,'Filetype not supported: ' + name
+	if (~ self.file_types->iscontained(type)) then message,'Filetype not supported: ' + type
 
 	; Add scalar data to internal hash
 	; w/o dummy variables
 	; Casted to proper type
 	
 	; For historical reasons, type is also called name
-	self.scalars->add,'name',name
-	self.scalars->add,'type',name
+	self.scalars->add,'name',type
+	self.scalars->add,'type',type
 	
 	self.scalars->add,'note',note
 	self.scalars->add,'nspec',LONG(strtrim(nspec,2))
@@ -299,7 +299,7 @@ pro header_parser::parse
 	
 	; Set the header length
 	; The header length does not include any time or height dependent stuff
-	CASE name OF
+	CASE type OF
 	
 		'AVERAGE':		BEGIN
 										; 4 Fixed lines followed by the species
