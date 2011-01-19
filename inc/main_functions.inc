@@ -29,6 +29,34 @@ function main.profiler()
 }
 
 ################################################################################
+# Function: main.functionExists?
+# 
+# This function searches the output of "set" for a function name. Returns
+# true if its there, false otherwise.
+# This allows a primitive kind of reflection.
+#
+# Parameters:
+# $1 - function name
+################################################################################
+function  main.functionExists?()
+################################################################################
+{
+	local fct
+	local count
+	
+	fct=${1}
+	
+	count=$(set | grep "${fct} ()" | wc -l )
+	
+	if [[ $count -gt 0 ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+}
+
+################################################################################
 # Function: main.isNumeric?
 #
 # A small, relatively robust function to test if the argument is numeric.
