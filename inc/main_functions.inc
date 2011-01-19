@@ -552,8 +552,8 @@ function main.doCleanup()
 		
 	fi # Hollow?
 	
-	# Remove all tempfiles
-	common.runner.removeTempFiles
+	# Remove all tempfiles and redirect (function might not exst)
+	common.runner.removeTempFiles 2> /dev/null
 	
 	# Delete the instance files if Tempfiles are to be deleted
 	if [[ "$CXR_REMOVE_TEMP_FILES" == true ]]
