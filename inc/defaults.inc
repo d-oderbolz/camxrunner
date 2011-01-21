@@ -332,7 +332,7 @@ CXR_ANNOUNCED_MODULES=" "
 # This variable is set within CAMxRunner.
 # If true, we will not use an exclusive lock while the model runs.
 # thi can be done if the number of CAMxRunner processes is le
-# NCPUS - OMP_NUM_THREADS + 1
+# Number of CPUS avail - OMP_NUM_THREADS + 1
 CXR_ALLOW_MODEL_CONCURRENCY=false
 
 # If this is false, the temporary files will not be deleted

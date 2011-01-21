@@ -404,19 +404,19 @@ then
 	CXR_PARALLEL_PROCESSING=false
 fi
 
-if [[ ${OMP_NUM_THREADS} -gt ${NCPUS} ]]
+if [[ ${OMP_NUM_THREADS} -gt ${CXR_NUM_CORES} ]]
 then
-	main.log -e "It makes no sense to start more OMP threads than you have CPUS. Using ${NCPUS}"
-	export OMP_NUM_THREADS=${NCPUS}
+	main.log -e "It makes no sense to start more OMP threads than you have CPUS. Using ${CXR_NUM_CORES}"
+	export OMP_NUM_THREADS=${CXR_NUM_CORES}
 fi
 
 # Test if we may run other processes while CAMx runs
-if [[ ${CXR_MAX_PARALLEL_PROCS} -le $(( $NCPUS - $OMP_NUM_THREADS + 1 )) ]]
+if [[ ${CXR_MAX_PARALLEL_PROCS} -le $(( $CXR_NUM_CORES - $OMP_NUM_THREADS + 1 )) ]]
 then
 
 	if [[ $CXR_HOLLOW == false ]]
 	then
-		main.log -a "Since we have $NCPUS CPUS, OMP_NUM_THREADS is set to $OMP_NUM_THREADS and you want ${CXR_MAX_PARALLEL_PROCS} CAMxRunner processes, we allow other processes besides the model to be run"
+		main.log -a "Since we have $CXR_NUM_CORES CPUS, OMP_NUM_THREADS is set to $OMP_NUM_THREADS and you want ${CXR_MAX_PARALLEL_PROCS} CAMxRunner processes, we allow other processes besides the model to be run"
 	fi
 	
 	CXR_ALLOW_MODEL_CONCURRENCY=true

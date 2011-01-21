@@ -107,7 +107,7 @@ function common.variables.listSystemVars()
 	# Increase global indent level
 	main.increaseLogIndent
 
-	CXR_OMP_VARS="NCPUS MPSTKZ OMP_NUM_THREADS"
+	CXR_OMP_VARS="MPSTKZ OMP_NUM_THREADS"
 	for var in $CXR_OMP_VARS
 	do
 		main.log   "$VAR: ${!VAR}"
