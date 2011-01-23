@@ -37,6 +37,7 @@
 ;       HEADER_PARSER::GET_SCALARS	Returns the scalars as a hashtable
 ;       HEADER_PARSER::GET_SPECIES_ARR  Returns the species as an array (for reverse indexing)
 ;       HEADER_PARSER::GET_HEADER_LENGTH	Returns the number of header lines
+;       HEADER_PARSER::GET_UPDATE_TIMES	Returns an fltarr containing ibdate,btime,iedate,etime of each update time (using regex)
 
 ; MODIFICATION HISTORY:
 ;   Written and documented, 28. July 2009, dco
@@ -241,7 +242,6 @@ pro header_parser::parse
 		rdum5=line3[14]
 	endelse
 	
-	
 	reads, header_arr[3], ione2, ione3, nx2, ny2, format=line4
 
 	; Is the file type supported?
@@ -269,7 +269,7 @@ pro header_parser::parse
 	self.scalars->add,'nx',LONG(strtrim(nx,2))
 	self.scalars->add,'ny',LONG(strtrim(ny,2))
 	self.scalars->add,'nz',LONG(strtrim(nz,2))
-
+	
 	; Create array of species
 	arspec=strArr(nspec)
 
@@ -481,7 +481,7 @@ end
 ;
 ; CALLING SEQUENCE:
 ;
-;       header_length = hp->header_length()
+;       header_length = hp->get_header_length()
 ;       
 ; DESCRIPTION:
 ;
@@ -501,6 +501,88 @@ function header_parser::get_header_length
 ; =============================================================
 
 	return,self.header_length
+end
+
+;+
+; =============================================================
+;
+; METHODNAME:
+;       HEADER_PARSER::GET_UPDATE_TIMES
+;
+; PURPOSE:
+;       Returns an fltarr containing ibdate,btime,iedate,etime of each update time (using regex)
+;
+; CALLING SEQUENCE:
+;
+;       update_times = hp->get_update_times()
+;       
+; DESCRIPTION:
+;
+;      Performs regex on the whole file to extract the header of the 
+;      time dependent entries.
+;      We basically search for the string ibdate,btime,iedate,etime which
+;      should be present in all supported file types.
+;
+; OPTIONAL INPUTS:
+;       None.
+;       
+;
+; KEYWORD PARAMETERS:
+;       None.
+;       
+;     
+;-
+; =============================================================
+function header_parser::get_update_times
+; =============================================================
+
+	; Default
+	update_times=!VALUES.F_NAN
+	
+	; This is what we seek
+	regex='^ {1,}[0-9]{4} {1,}[0-9]\.[0-9]{2} {1,}[0-9]{4} {1,}[0-9]\.[0-9]{2}$'
+	; The format is strange
+	fmt='(I-15,F10.2,I-15,F10.2)'
+	
+	n_lines=FILE_LINES(self.filename)
+	
+	; we read in the whole file
+	data=strarr(n_lines)
+	
+	; Read and release file
+	openr,parser_lun,self.filename,/GET_LUN
+	readf, parser_lun, data
+	Free_Lun, parser_lun
+	
+	updates=stregex(data,regex,/EXTRACT)
+	
+	; Now we get as many entries as lines, 
+	; get the non-empty ones
+	ind=WHERE(updates NE '',count)
+	
+	if (count NE 0) then begin
+		found_updates=updates[ind]
+	
+		n_updates=N_Elements(found_updates)
+		
+		update_times=fltarr(4,n_updates)
+		
+		for iupdate=0,n_updates-1 do begin
+		
+			; Parse and store the line
+			reads,found_updates[iupdate],ibdate,btime,iedate,etime,format=fmt
+			
+			update_times[iupdate,0]=ibdate
+			update_times[iupdate,1]=btime
+			update_times[iupdate,2]=iedate
+			update_times[iupdate,3]=etime
+		
+		endfor ; updates
+		
+	endif ; found anything?
+	
+	return,update_times
+	
 end
 
 ;+
