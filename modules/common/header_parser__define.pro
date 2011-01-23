@@ -565,7 +565,7 @@ function header_parser::get_update_times
 	
 		n_updates=N_Elements(found_updates)
 		
-		update_times=fltarr(4,n_updates)
+		update_times=fltarr(n_updates,4)
 		
 		for iupdate=0,n_updates-1 do begin
 		
