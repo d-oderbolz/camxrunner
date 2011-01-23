@@ -551,6 +551,7 @@ function header_parser::get_update_times
 	
 	; Read and release file
 	openr,parser_lun,self.filename,/GET_LUN
+	print,'We parse the whole file, might take a while...'
 	readf, parser_lun, data
 	Free_Lun, parser_lun
 	
