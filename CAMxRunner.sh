@@ -861,7 +861,7 @@ then
 		# We need a way to find out if all workers returned happily to
 		# manipulate CXR_STATUS if needed
 		
-		if [[ "$(common.task.countOpenTasks)" -ne 0 ]]
+		if [[ "$(common.task.countOpenTasks)" -ne 0 && ! -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
 		then
 			main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
 			# We are not happy
@@ -869,15 +869,15 @@ then
 		else
 			# We are happy
 			CXR_STATUS=$CXR_STATUS_SUCCESS
+			
+			# Do compression if needed
+			common.fs.CompressOutput
 		fi # still open tasks?
 		
 	else
 		main.log -a "All tasks where already processed. If you want to repeat processing, consider the -c and -F options"
 	fi # are there tasks at all?
 fi
-
-# Do compression if needed
-common.fs.CompressOutput
 
 elapsed_seconds=$(( $(date "+%s") - $CXR_START_EPOCH ))
 main.log -a "$CXR_RUN finished at $(date), we ran $elapsed_seconds s - $(common.date.humanSeconds $elapsed_seconds)"
