@@ -861,7 +861,7 @@ then
 		# We need a way to find out if all workers returned happily to
 		# manipulate CXR_STATUS if needed
 		
-		if [[ "$(common.task.countOpenTasks)" -ne 0 && ! -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
+		if [[ "$(common.task.countOpenTasks)" -ne 0 || -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
 		then
 			main.log "The run $CXR_RUN stopped, but there are still $(common.task.countOpenTasks) open tasks!"
 			# We are not happy
