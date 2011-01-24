@@ -5,8 +5,8 @@ c     uamvascii.inc
       parameter ( OutNum=11 )
       parameter ( ErrNum=12 )
 
-      parameter ( mxx = 200 )
-      parameter ( mxy = 200 )
+      parameter ( mxx = 380 )
+      parameter ( mxy = 380 )
 
       integer*4 nox, noy, nlayer, nospec, nfx, nfy, nfz, nfspec
       common /limits/ nox, noy, nlayer, nospec, nfx, nfy, nfz, nfspec
@@ -20,7 +20,7 @@ c     max no. of species.  No. of land use types is 11 and is set
 c     explicitly in isurfcon.
 
       integer*4 mxspc
-      parameter ( mxspc = 30 )     
+      parameter ( mxspc = 200 )     
       real*4 fland(mxx,mxy,mxspc)
       common /flandcom/ fland
 

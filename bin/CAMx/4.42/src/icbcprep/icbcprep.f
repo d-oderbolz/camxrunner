@@ -21,7 +21,7 @@ c-----Reads a CAMx TOPCON file and prepares initial and boundary
 c     condition files with the same constant values.
 c     Domain definition is specified from user input.
 c
-      parameter(mxx=140, mxy=140, mxz=25, mxspec=50)
+      parameter(mxx=380, mxy=380, mxz=25, mxspec=50)
 c
       character*240 ifile,line
       character*60 ictitle, bctitle
