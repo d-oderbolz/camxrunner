@@ -236,6 +236,8 @@ function initial_conditions()
 	local mozart_spec
 	local camx_spec
 	local iMapping
+	local dx
+	local dy
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
@@ -366,14 +368,24 @@ function initial_conditions()
 					camx_array="${camx_array%,}]"
 					
 					
-					# we need to multiply the resolution by 1000 (metre) 
+					# we need to multiply the resolution by 1000 if its in km
+					case $CXR_MAP_PROJECTION in
+					
+						LATLON) dx="$CXR_MASTER_CELL_XSIZE"
+						        dy="$CXR_MASTER_CELL_YSIZE";;
+						                   
+						LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
+						                   dy=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
+					
+					esac
+					
 					
 					# Create the file to run IDL
 					
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_IC_PROC_INPUT_FILE})
 			
-					$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE'$extra
+					$(basename ${CXR_IC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_IC_ASC_OUTPUT_FILE}','${CXR_TOPCONC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$dx,$dy,'$IBDATE'$extra
 					exit
 					EOF
 					

@@ -193,6 +193,8 @@ function boundary_conditions()
 	local camx_array
 	local mozart_spec
 	local camx_spec
+	local dx
+	local dy
 	
 	iSpec=0
 	
@@ -343,11 +345,21 @@ function boundary_conditions()
 					camx_array="${camx_array%,}]"
 		
 					# Create the file to run IDL
-					# we need to multiply the resolution by 1000 (metre)
+					
+					# we need to multiply the resolution by 1000 if its in km
+					case $CXR_MAP_PROJECTION in
+					
+						LATLON) dx="$CXR_MASTER_CELL_XSIZE"
+						        dy="$CXR_MASTER_CELL_YSIZE";;
+						                   
+						LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
+						                   dy=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
+					
+					esac
 					
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_BC_PROC_INPUT_FILE})
-					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000"),$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000"),'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}
+					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$dx,$dy,'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}
 					exit
 					EOF
 						
