@@ -21,7 +21,7 @@ c write to the Free Software Foundation, Inc.,
 c 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      parameter (maxsp=120, maxx=280, maxy=280, maxz=16)
+      parameter (maxsp=150, maxx=300, maxy=300, maxz=16)
 c
       character*4 filnam(10),fileid(60),mspec1(10,maxsp),
      &            mspec2(10,maxsp)
