@@ -294,7 +294,14 @@ print,'netCDF file read sucessfully.'
 dims = SIZE(meteoLon, /DIMENSIONS)
 ncols = dims[0] - 1
 nrows = dims[1] - 1
-nhours = dims[3]
+
+; MM5 output has a more complicated structure than WRF
+if (n_elements(dims) GT 2) then begin
+	nhours = dims[3]
+endif else begin
+	nhours=1
+endelse
+
 t_meteoLon = FLTARR(ncols, nrows, 1, nhours)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
