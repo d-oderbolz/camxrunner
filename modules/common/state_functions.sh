@@ -1341,9 +1341,6 @@ function common.state.doContinue?()
 		then
 			main.log -w  "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING
-		else
-			# We touch the continue file
-			touch ${CXR_CONTINUE_FILE}
 		fi
 	fi
 }
