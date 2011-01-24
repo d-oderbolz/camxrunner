@@ -230,7 +230,6 @@ function main.countErrors()
 # Writes a message to the Log-file (if defined) and STDERR.
 # This function is one of the most often called functions (right after common.math.FloatOperation)
 # Therefore we want to check as early as possible if we need to do logging at all.
-# We apply the normal printf stuff, you can pass any number of variables after the message.
 #
 # As an important SIDE EFFECT IN CASE OF AN ERROR, this function adds the error to the error list.
 # Also, the current day (CXR_DATE) is added to a special logfile which shows the failed days.
@@ -275,7 +274,6 @@ function main.countErrors()
 # [-B] - surround with large box of stars
 # [-H] - surround with huge box of stars
 # $1 - Message
-# $2..n - data to be used for printf
 ################################################################################	
 function main.log()
 ################################################################################
@@ -351,10 +349,7 @@ function main.log()
 		fi
 	fi
 	
-	# do the printf expansion
-	blank_message="$(printf "$@")"
-	
-	blank_message="${prefix}${blank_message}"
+	blank_message="${prefix}${$1}"
 
 	### In case of error, write current day to failed days file
 	### and increase error count
