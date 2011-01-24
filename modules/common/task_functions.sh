@@ -1225,17 +1225,26 @@ function common.task.spawnWorkers()
 ################################################################################
 {
 	local iWorker
+	local nWorkers
+	
+	nWorkers="$1"
 	
 	# The control thread is "Worker 0"
 	CXR_WORKER_ID=0
 	
 	main.log  "We now create $1 worker threads"
 	
-	for iWorker in $(seq 1 $1)
+	for iWorker in $(seq 1 $nWorkers)
 	do
 		
-		# Determine logfile for this worker
-		CXR_LOGS[$iWorker]=${CXR_LOG%.log}_${CXR_MACHINE}_${iWorker}.log
+		# Determine logfile for this worker.
+		# We use a different naming convention if we have more than 1 worker only
+		if [[ $nWorkers -gt 1 ]]
+		then
+			CXR_LOGS[$iWorker]=${CXR_LOG%.log}_${CXR_MACHINE}_${iWorker}.log
+		else
+			CXR_LOGS[$iWorker]=${CXR_LOG}
+		fi
 		
 		# Create a worker and send it to background
 		common.task.Worker $iWorker ${CXR_LOGS[$iWorker]} &
