@@ -1287,7 +1287,7 @@ function common.task.controller()
 ################################################################################
 {
 	local ReaLoad
-	# Counter needed to find out wher to show ETA
+	# Counter needed to find out when to show ETA
 	local i
 	local task_count
 	

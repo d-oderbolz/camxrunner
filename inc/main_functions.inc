@@ -170,6 +170,8 @@ function main.decreaseLogIndent()
 function main.addError()
 ################################################################################
 {
+	local error_count
+	
 	# This is not beautiful, actually we need to make this sure 
 	# earlier!
 	if [[ "${CXR_STATE_DIR:-}" && ! -d ${CXR_STATE_DIR:-} ]]
@@ -189,6 +191,18 @@ function main.addError()
 		# Could be that the state db is not yet initialized
 		echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}" 2> /dev/null
 	
+	fi
+	
+	error_count=$(main.countErrors)
+	
+	# Report error count and ReaLoad
+	main.log -a -b "Current Error Count: $error_count\nCurrent ReaLoad: $(common.performance.getReaLoadPercent) %"
+
+	# Check error threshold, but only if the value of
+	# of CXR_ERROR_THRESHOLD is not -1
+	if [[ ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
+	then
+		main.dieGracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
 	fi
 }
 
