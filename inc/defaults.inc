@@ -275,7 +275,7 @@ CXR_TOTAL_WAITING_MINS=$(( 24 * 60 ))
 
 # Number of seconds we wait in each task iteration
 # also used in the task functions, number of secods an idle task sleeps
-CXR_WAITING_SLEEP_SECONDS=60
+CXR_WAITING_SLEEP_SECONDS=10
 
 # When CXR_REPORT_INTERVAL * CXR_WAITING_SLEEP_SECONDS seconds have elapsed, 
 # we report the Estimated Time of arrival
