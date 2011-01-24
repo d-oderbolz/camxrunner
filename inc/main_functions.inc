@@ -180,8 +180,8 @@ function main.addError()
 	# Show message to user
 	main.log -a "${1:-No message}"
 	
-	# Make sure we have such a variable
-	if [[ "${CXR_INSTANCE_FILE_ERROR_STACK:-}"  ]]
+	# Make sure we have such a variable and we can write to its directory
+	if [[ -d "$(dirname ${CXR_INSTANCE_FILE_ERROR_STACK:-})"  ]]
 	then
 
 		# Add text to the stack (if empty a newline is written)
@@ -342,7 +342,7 @@ function main.log()
 	if [[ "${log_level}" -eq "${CXR_LOG_LEVEL_ERR}" ]]
 	then
 		# Could be that the state db is not yet initialized
-		if [[ -f "${CXR_INSTANCE_FILE_FAILED_DAYS:-}" ]]
+		if [[ -d "$(dirname ${CXR_INSTANCE_FILE_FAILED_DAYS:-})" ]]
 		then
 			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
 		fi
@@ -532,15 +532,22 @@ function main.doCleanup()
 				# Write to logfile
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK" | tee -a ${CXR_LOG}
 				
-				main.log -a  "In these days, errors where detected:"
-				# This file might contain dupes
-				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq | tee -a ${CXR_LOG}
+				if [[ -f "$CXR_INSTANCE_FILE_FAILED_DAYS" ]]
+				then
+					main.log -a  "In these days, errors where detected:"
+					# This file might contain dupes
+					cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq | tee -a ${CXR_LOG}
+				fi
+				
 			else
 				# There is no log
 				cat "$CXR_INSTANCE_FILE_ERROR_STACK"
 				
-				main.log -a  "In these days, errors where detected:"
-				cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq 
+				if [[ -f "$CXR_INSTANCE_FILE_FAILED_DAYS" ]]
+				then
+					main.log -a  "In these days, errors where detected:"
+					cat "$CXR_INSTANCE_FILE_FAILED_DAYS" | sort | uniq 
+				fi
 			fi
 			
 		else	
