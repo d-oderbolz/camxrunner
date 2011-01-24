@@ -24,7 +24,7 @@ c write to the Free Software Foundation, Inc.,
 c 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      parameter(MXY=380, MXZ=16, MXSPEC=200, MXPT=25000)
+      parameter(MXY=300, MXZ=16, MXSPEC=150, MXPT=25000)
 c
 
       character*255 source

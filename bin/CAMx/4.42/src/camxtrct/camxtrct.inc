@@ -68,8 +68,8 @@ c
       integer*4 MXSTN
       integer*4 MXGRID
 c
-      parameter( MXSPEC =  200 )
-      parameter( MXCELL = 380 )
+      parameter( MXSPEC =  150 )
+      parameter( MXCELL = 300 )
       parameter( MXLAYR =  16 )
       parameter( MXSTN  =   1 )
       parameter( MXGRID =   2 )

@@ -27,8 +27,8 @@ c write to the Free Software Foundation, Inc.,
 c 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      parameter (mxx=380)
-      parameter (mxy=380)
+      parameter (mxx=300)
+      parameter (mxy=300)
       integer lumax(mxx,mxy)
       integer length
       real fland(mxx,mxy,11), totlu(mxx,mxy), topo(mxx,mxy)
