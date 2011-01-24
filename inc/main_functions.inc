@@ -719,7 +719,7 @@ function main.dieGracefully()
 		done
 	fi # Callstack available?
 
-	main.log -a  "##########################################################"
+	main.log -a  "Note that it may take up to $CXR_WAITING_SLEEP_SECONDS seconds for all processes to stop.\n##########################################################"
 	
 	if [[ "${CXR_CONTROLLER_CLEANUP_AUTHORITY:-false}" == false ]]
 	then
