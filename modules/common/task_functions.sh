@@ -1227,6 +1227,10 @@ function common.task.spawnWorkers()
 	local iWorker
 	local nWorkers
 	
+	# This variable makes sure the controller is responsible for cleanup
+	CXR_CONTROLLER_CLEANUP_AUTHORITY=true
+	
+	
 	nWorkers="$1"
 	
 	# The control thread is "Worker 0"
@@ -1351,14 +1355,18 @@ function common.task.controller()
 		
 	done
 	
-	main.log -B "The Continue file is gone, all workers will stop when they detect it."
-	
-	# We now wait for the last workers to finish
-	main.log -a "Waiting until running workers are done..."
-	while [[ $(common.task.countMyRunningWorkers) -gt 0 ]] 
-	do
-		sleep $CXR_WAITING_SLEEP_SECONDS
-	done
+	if [[ ! -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
+	then
+		# We now wait for the last workers to finish
+		main.log -a "Waiting until running workers are done..."
+		while [[ $(common.task.countMyRunningWorkers) -gt 0 ]] 
+		do
+			sleep $CXR_WAITING_SLEEP_SECONDS
+		done
+		
+	else
+		main.log -w "Abnormal termination - all workers will be taken down now."
+	fi
 }
 
 ################################################################################

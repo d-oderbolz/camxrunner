@@ -275,6 +275,7 @@ function main.countErrors()
 # [-B] - surround with large box of stars
 # [-H] - surround with huge box of stars
 # $1 - Message
+# $2..n - data to be used for printf
 ################################################################################	
 function main.log()
 ################################################################################
@@ -520,6 +521,14 @@ function main.doCleanup()
 	set +v
 	set +x
 	
+	# Pseudo-Singleton
+	if [[ "${CXR_CLEANUP_IN_PROGRESS:-false}" == true ]]
+	then
+		return $CXR_RET_OK
+	else
+		CXR_CLEANUP_IN_PROGRESS=true
+	fi
+	
 	main.log -a -B "Cleaning up $CXR_RUN and Terminating processes..."
 	
 	################################################################################
@@ -667,6 +676,9 @@ trap "main.doCleanup; exit" INT TERM EXIT
 ################################################################################
 # Function: main.dieGracefully
 #
+# This is the function to call upon serious errors.
+# It decides if it needs to do cleanup or if the controller does it.
+# In any case, all CONTINUE files are deleted.
 # Prints a message incl. call stack and performs cleanup.
 # 
 # Parameters:
@@ -679,7 +691,18 @@ function main.dieGracefully()
 	local maxNests
 	local last
 	
-	# Stop this run
+	# Pseudo-Singleton
+	if [[ "${CXR_TERMINATION_IN_PROGRESS:-false}" == true ]]
+	then
+		return $CXR_RET_OK
+	else
+		CXR_TERMINATION_IN_PROGRESS=true
+	fi
+	
+	# touching this file flags this as abnormal
+	touch "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE"
+	
+	# Stop this run on all machines
 	# Delete any .CONTINUE FILES
 	common.state.deleteContinueFiles
 	
@@ -703,8 +726,11 @@ function main.dieGracefully()
 
 	main.log -a  "##########################################################"
 	
-	# Cleanup kills the processes
-	main.doCleanup
+	if [[ "${CXR_CONTROLLER_CLEANUP_AUTHORITY:-false}" == false ]]
+	then
+		# Cleanup kills the processes
+		main.doCleanup
+	fi
 }
 
 ################################################################################

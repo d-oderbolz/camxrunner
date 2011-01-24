@@ -625,6 +625,15 @@ CXR_UNIVERSAL_TIMING_DB=${CXR_UNIVERSAL_DIR}/timing.sqlite
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_LEVEL_GLOBAL
 
+# If a run should fail abnormally, this file is created
+CXR_GLOBAL_ABNORMAL_TERMINATION_FILE=$CXR_GLOBAL_DIR/abnormal_termination
+
+# Remove this file, should it already exist
+if [[ -e $CXR_GLOBAL_ABNORMAL_TERMINATION_FILE ]]
+then
+	rm -f "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE"
+fi
+
 # In this directory, we store all files used to call
 # executables (except for the model)
 CXR_JOBFILE_DIR=$CXR_GLOBAL_DIR/jobfiles
