@@ -24,7 +24,7 @@ c over the mixing layer for each hour on file.  The mixing layer is
 c determined by the input CAMx Kv file.  Density weighting is performed.
 c The output file as in the binary coarse grid average format.
 
-      parameter (mxx = 100, mxy = 100, mxz = 24, mxspec = 100)
+      parameter (mxx = 380, mxy = 380, mxz = 24, mxspec = 200)
       parameter (mxgrd = 2)
       real rkv(mxx,mxy,mxz), zh(mxx,mxy,mxz)   ! kv and height
       real tp(mxx,mxy,mxz), tsfc(mxx,mxy)      ! temp 
