@@ -27,7 +27,7 @@ c write to the Free Software Foundation, Inc.,
 c 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      parameter (ncol=200,nrow=200,nlu=11,nday=31,ngrd=4)
+      parameter (ncol=300,nrow=300,nlu=11,nday=31,ngrd=4)
       parameter (mlon=360,mlat=180)
       dimension xlat(ncol,nrow),xlon(ncol,nrow),iozsim(ncol,nrow,nday)
       dimension xlatcl(mlat),xloncl(mlon)
