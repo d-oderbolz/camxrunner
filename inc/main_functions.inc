@@ -624,7 +624,7 @@ function main.doCleanup()
 	then
 		# All went well
 		
-		# In a dryrun, alwyas print this if finished OK
+		# In a dryrun, always print this if finished OK
 		if [[ "$CXR_DRY" == true  ]]
 		then
 		
