@@ -134,6 +134,10 @@ function set_variables()
 		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$DayOffset]}"
 		CXR_CHECK_THESE_OUTPUT_FILES="${CXR_CHECK_THESE_OUTPUT_FILES} ${CXR_OUTPUT_FILES[$DayOffset]}"
 	done
+	
+	# Reset date variables for first day
+	common.date.setVars "$CXR_START_DATE" "0"
+	
 }
 
 ################################################################################
