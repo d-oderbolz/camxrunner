@@ -233,9 +233,13 @@ hybm = REVERSE(hybm)
 ; this variable will hold the pressures converted to mb
 mozart_pressure = FLTARR(ncolsmoz,nrowsmoz,nlevsmoz,ntime)
 
-IF (n_elements(hyam) NE nlevsmoz && n_elements(hybm) NE nlevsmoz) then begin
+IF (n_elements(hyam) LT nlevsmoz || n_elements(hybm) LT nlevsmoz) then begin
 	MESSAGE,"Inconsistent number of levels in hyam and/or hybm!"
 endif
+
+; it is possible that there are more levels in hyam and hybm:
+hyam=hyam[0:nlevsmoz-1]
+hybm=hybm[0:nlevsmoz-1]
 
 ; not elegant, later we might fix it using rebin/reform: <http://www.dfanning.com/tips/rebin_magic.html>
 FOR t = 0, ntime - 1 DO BEGIN
