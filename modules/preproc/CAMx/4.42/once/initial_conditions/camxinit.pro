@@ -133,7 +133,11 @@ case metmodel of
 						; [y,x,z,time] -> [x,y,z,time]
 						meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
 						meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
-
+						
+						; cut off z and time
+						meteoLon=REFORM(meteoLon[*,*,0,1])
+						meteoLat=REFORM(meteoLat[*,*,0,1])
+					
 						; Cleaning up some trash
 						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
 						spawn, cmd
@@ -292,24 +296,18 @@ print,'netCDF file read sucessfully.'
 
 ; Definition of some variables required for the horizontal interpolation
 dims = SIZE(meteoLon, /DIMENSIONS)
+; get rid of extra rows/columns
 ncols = dims[0] - 1
 nrows = dims[1] - 1
 
-; MM5 output has a more complicated structure than WRF
-if (n_elements(dims) GT 2) then begin
-	nhours = dims[3]
-endif else begin
-	nhours=1
-endelse
-
-t_meteoLon = FLTARR(ncols, nrows, 1, nhours)
+t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
-; The x and y dimensions are reduced by 1
-; Actually, IDL does not care if the last two dimensions are missing
-meteoLonr = meteoLon[0:ncols-1, 0:nrows-1, *, *]
-meteoLatr = meteoLat[0:ncols-1, 0:nrows-1, *, *]
+; The x and y dimensions are reduced by 1 to later
+; correct the range of angles
+meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
+meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
 
 print,'Reading pressure file...'
 
@@ -358,15 +356,15 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
 		
 		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
-			t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
+			t_meteoLon[i,j] = (meteoLonr[i,j] + 360.0) MOD 360.0
 		endif else begin
-			t_meteoLon[i,j,0,1] = meteoLonr[i,j,0,1] 
+			t_meteoLon[i,j] = meteoLonr[i,j] 
 		endelse
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_meteoLon[i,j,0,1] / lonstep
-		indexlat[i,j] = (meteoLatr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		indexlon[i,j] = t_meteoLon[i,j] / lonstep
+		indexlat[i,j] = (meteoLatr[i,j] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
 	ENDFOR ; rows
 ENDFOR ; columns
 
