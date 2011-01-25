@@ -734,7 +734,7 @@ CXR_MACHINE=$(uname -n)
 CXR_BIN2ASC_EXEC=$(main.getBinaryName bin2asc)
 
 # The binary to convert asc2bin
-CXR_ASC2IBN_EXEC=$(main.getBinaryName asc2bin)
+CXR_ASC2BIN_EXEC=$(main.getBinaryName asc2bin)
 
 # The binary to convert Emission ascii to Bin
 CXR_AIRCONV_EXEC=$(main.getBinaryName airconv)
