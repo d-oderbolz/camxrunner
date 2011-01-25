@@ -503,7 +503,7 @@ OPENW, lun, outfile_ic, /GET_LUN
 PRINTF, lun, name, note
 line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
 PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
-line3 = '(F10.1, F11.1, I4, F10.1, F10.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
+line3 = '(F16.5, F16.5, I3, F16.5, F16.5, F16.5, F16.5, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
