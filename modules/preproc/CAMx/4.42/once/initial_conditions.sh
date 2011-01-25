@@ -264,6 +264,17 @@ function initial_conditions()
 			
 			main.log   "Preparing INITIAL CONDITIONS and TOPCONC data using method ${CXR_IC_BC_TC_METHOD}..."
 	
+			# we need to multiply the resolution by 1000 if its in km
+			case $CXR_MAP_PROJECTION in
+			
+				LATLON) dx="$CXR_MASTER_CELL_XSIZE"
+				        dy="$CXR_MASTER_CELL_YSIZE";;
+				                   
+				LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
+				                   dy=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
+			
+			esac
+
 			# What method is wanted?
 			case "${CXR_IC_BC_TC_METHOD}" in
 			
@@ -367,21 +378,7 @@ function initial_conditions()
 					mozart_array="${mozart_array%,}]"
 					camx_array="${camx_array%,}]"
 					
-					
-					# we need to multiply the resolution by 1000 if its in km
-					case $CXR_MAP_PROJECTION in
-					
-						LATLON) dx="$CXR_MASTER_CELL_XSIZE"
-						        dy="$CXR_MASTER_CELL_YSIZE";;
-						                   
-						LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
-						                   dy=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
-					
-					esac
-					
-					
 					# Create the file to run IDL
-					
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_IC_PROC_INPUT_FILE})
 			
@@ -396,6 +393,7 @@ function initial_conditions()
 						${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 						
 						# Now we need to convert the file to binary format
+						main.log -a "${CXR_AIRCONV_EXEC} ${CXR_IC_ASC_OUTPUT_FILE} ${CXR_IC_OUTPUT_FILE} AIRQUALITY 0 2>&1"
 						"${CXR_AIRCONV_EXEC}" ${CXR_IC_ASC_OUTPUT_FILE} ${CXR_IC_OUTPUT_FILE} AIRQUALITY 0 2>&1 | tee -a $CXR_LOG
 						
 					else
@@ -411,19 +409,12 @@ function initial_conditions()
 				
 				ICBCPREP )
 				
-					main.log -w   "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
+					main.log -w "Preparing INITIAL CONDITIONS and TOPCONC data using CONSTANT data..."
 					
 					if [[ "$CXR_DRY" == false  ]]
 					then
 						# We need a topconc file First
 						create_topconc_file
-						
-						# We need the grid resolution in m
-						local master_cell_dx_m
-						local master_cell_dy_m
-						
-						master_cell_dx_m=$(common.math.FortranFloatOperation "${CXR_MASTER_CELL_XSIZE} * 1000")
-						master_cell_dy_m=$(common.math.FortranFloatOperation "${CXR_MASTER_CELL_YSIZE} * 1000")
 						
 						# Is topconc non-empty?
 						if [[ -s "${CXR_TOPCONC_OUTPUT_FILE}"  ]]
@@ -438,7 +429,7 @@ function initial_conditions()
 							bc file  |${CXR_BC_OUTPUT_FILE}
 							bc messag|${CXR_RUN}-CONSTANT
 							nx,ny,nz |${CXR_MASTER_GRID_COLUMNS},${CXR_MASTER_GRID_ROWS},${CXR_NUMBER_OF_LAYERS[1]}
-							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${master_cell_dx_m},${master_cell_dy_m}
+							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${dx},${dy}
 							iutm     |${CXR_UTM_ZONE}
 							st date  |${CXR_YEAR_S}${CXR_DOY},0
 							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24

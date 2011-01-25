@@ -520,7 +520,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
     PRINTF, lun, allspecinterpv[*,*,k,ispec], FORMAT = line21
   ENDFOR
 ENDFOR
-  
+
 
 FREE_LUN, lun
 
@@ -534,7 +534,7 @@ IF (FILE_TEST(outfile_tc) EQ 0) THEN BEGIN
   print,'Writing TOPCONC data file ' + outfile_tc
 
   ;;;;;;;;;;;  Prepare the TOPCONC file
-  ; Now we average over all species in the highest layer
+  ; Now we average all species in the highest layer
   
   ; Define array to hold values in the top level
   top_arr = FLTARR(ncols,nrows,nspec)
