@@ -1035,7 +1035,7 @@ function common.task.Worker()
 	# Insert this worker
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
-	main.log -a -B  "parallel worker (pid ${CXR_WORKER_PID}, id ${CXR_WORKER_ID} ) starts on $CXR_MACHINE..."
+	main.log -a -B  "parallel worker (pid ${CXR_WORKER_PID}, id ${CXR_WORKER_ID}) starts on $CXR_MACHINE..."
 
 	# We stay in this loop as long as the continue file exists
 	# or until no more tasks are around
