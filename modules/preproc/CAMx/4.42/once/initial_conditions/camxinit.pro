@@ -141,6 +141,12 @@ case metmodel of
 						; Cleaning up some trash
 						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
 						spawn, cmd
+						
+						; Definition of some variables required for the horizontal interpolation
+						dims = SIZE(meteoLon, /DIMENSIONS)
+						; get rid of extra rows/columns
+						ncols = dims[0] - 1
+						nrows = dims[1] - 1
 	
 					end
 					
@@ -151,6 +157,13 @@ case metmodel of
 						
 						meteoLon = longicrs
 						meteoLat = latitcrs
+						
+						; Definition of some variables required for the horizontal interpolation
+						dims = SIZE(meteoLon, /DIMENSIONS)
+						; get rid of extra rows/columns
+						ncols = dims[0]
+						nrows = dims[1]
+	
 						
 					end
 
@@ -293,12 +306,6 @@ endfor
 NCDF_CLOSE, ncid      ; Close the NetCDF file
 
 print,'netCDF file read sucessfully.'
-
-; Definition of some variables required for the horizontal interpolation
-dims = SIZE(meteoLon, /DIMENSIONS)
-; get rid of extra rows/columns
-ncols = dims[0] - 1
-nrows = dims[1] - 1
 
 t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
