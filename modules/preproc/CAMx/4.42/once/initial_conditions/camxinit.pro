@@ -512,7 +512,7 @@ PRINTF, lun, mspec,format='(A-10)'
 ; 'Time variant portion'
 line19 = '(5X, I10, F10.2, I10, F10.2)'
 line20 = '(I4, A-10)'
-line21 = '(9E14.7)'
+line21 = '(5E14.7)'
 PRINTF, lun, ibdate, btime, iedate, etime, FORMAT = line19
 FOR ispec = 0, nspec - 1 DO BEGIN
   FOR k = 0, nlevs - 1 DO BEGIN
