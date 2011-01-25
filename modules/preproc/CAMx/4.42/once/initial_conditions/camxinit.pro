@@ -309,6 +309,9 @@ indexlat = FLTARR(ncols, nrows)
 meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
 meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
 
+; Here we store the horizontally interpolated mozart pressure field
+mozart_pressureinterp = FLTARR(ncols,nrows,nlevsmoz)
+
 print,'Reading pressure file...'
 
 ; Read zp input file
@@ -399,6 +402,7 @@ print,'Vertical interpolation...'
 ; This is the target array
 allspecinterpv = FLTARR(ncols,nrows,nlevs,nspec)
 ; Switches which will be used to ensure that warnings are printed only once
+
 l = 1 
 m = 1 
 
