@@ -163,8 +163,7 @@ case metmodel of
 						; get rid of extra rows/columns
 						ncols = dims[0]
 						nrows = dims[1]
-	
-						
+
 					end
 
 endcase
@@ -508,11 +507,11 @@ line3 = '(F10.1, F11.1, I4, F10.1, F10.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, 
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
-PRINTF, lun, mspec
+PRINTF, lun, mspec,format='(A10)'
 
 ; 'Time variant portion'
 line19 = '(5X, I10, F10.2, I10, F10.2)'
-line20 = '(I4, A)'
+line20 = '(I4, A10)'
 line21 = '(9E14.7)'
 PRINTF, lun, ibdate, btime, iedate, etime, FORMAT = line19
 FOR ispec = 0, nspec - 1 DO BEGIN
