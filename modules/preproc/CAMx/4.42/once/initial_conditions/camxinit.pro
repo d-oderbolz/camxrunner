@@ -468,7 +468,7 @@ idum = 0
 print,'******************************************'
 print,'Some overview data of file ' + outfile_ic
 print,'For each species and level, reporting '
-print,'Min, Avg, Max in PPB'
+print,'Min, Avg, Max converted to PPB (data written is in PPM)'
 
 FOR ispec = 0, nspec - 1 DO BEGIN
 	print,mspec[0,ispec]

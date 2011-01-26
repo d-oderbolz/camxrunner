@@ -538,7 +538,7 @@ ENDFOR
 print,"******************************************"
 print,'Some overview data of file ' + outfile_bc
 print,'For each species and level, reporting '
-print,'Min, Avg, Max in PPB [col_max, row_max,time_max,0,0]'
+print,'Min, Avg, Max converted to PPB (data written is in PPM) [col_max, row_max,time_max,0,0]'
 
 FOR ispec = 0, nspec - 1 DO BEGIN
 	print,mspec[0,ispec]
