@@ -427,7 +427,7 @@ mspec = STRARR(1,nspec)
 mspec[0,*] = camx_specs
 
 ; Horizontal interpolation
-allspecinterp = FLTARR(ncols, nrows, nlevsmoz, nspec)
+allspecinterp = FLTARR(ncols, nrows, nlevsmoz, ntime, nspec)
 FOR ispec = 0, nspec - 1 DO BEGIN
 	FOR k = 0, nlevsmoz - 1 DO BEGIN
 		FOR t = 0, ntime - 1 DO BEGIN
