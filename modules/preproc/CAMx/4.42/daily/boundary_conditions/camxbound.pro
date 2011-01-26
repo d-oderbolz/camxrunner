@@ -513,9 +513,13 @@ ny = nrows
 nz = nlevs
 idum = 0
 ncell = [0, nrows, nrows, ncols, ncols]
+
+; icell describes the index of the first cell to the right/top (2)
+; or the last cell to the left/bottom (ncols-1 and nrows-1)
 icell = [0, 2, ncols-1, 2, nrows-1]
 
-header_boundary = FLTARR(ncols*4, 5)
+header_boundary = FLTARR(max([ncols,nrows])*4, 5)
+;                                 5 because index 0 is a dummy
 
 ; Creation of an array which contains part of the header. The contents of this array
 ; are written later to the output file
