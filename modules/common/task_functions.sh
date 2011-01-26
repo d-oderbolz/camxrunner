@@ -802,7 +802,7 @@ function common.task.setNextTask()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
-		main.log -a "All tasks have been processed, notifying system after security pause...\nDon't be alarmed: Running processes will have time to finish."
+		main.log -a "This was the last task to be processed, notifying system after security pause...\nDon't be alarmed: Running processes will have time to finish."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1337,7 +1337,7 @@ function common.task.controller()
 		
 		if [[ "$task_count" -eq 0 ]]
 		then
-			main.log -a "All tasks have been processed, notifying system after security pause..."
+			main.log -a "This was the last task to be processed, notifying system after security pause...\nDon't be alarmed: Running processes will have time to finish."
 			
 			# there are no more tasks, remove all continue files after some waiting
 			# The waiting should ensure that all workers are past their check for do_we_continue
