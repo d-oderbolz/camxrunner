@@ -518,8 +518,25 @@ ncell = [0, nrows, nrows, ncols, ncols]
 ; or the last cell to the left/bottom (ncols-1 and nrows-1)
 icell = [0, 2, ncols-1, 2, nrows-1]
 
+; For each row/column, we must write 4 data items:
+; From [EPA,1990]: 
+;  "The next four words define the boundary location for the grid index (row or column)
+;  along each edge:
+;  - Index, within the segment, of the cell at the edge of the region
+;  modeled (i.e., the first or last cell simulated within the row or
+;  column). If this number is 0, this row or column is to be omitted
+;  from the simulation and the next three numbers are ignored.
+;  - Segment number in which adjacent cell is located. If this number
+;  is 0, the boundary is an external one, and the next two numbers are
+;  ignored.
+;  - x-index of adjacent cell within segment defined above
+;  - y-index of adjacent cell within segment defined above"
+;
+; Since we do not use the "segment" feature, we basically write groups of
+; four numbers where the last three are always 0.
+
 header_boundary = FLTARR(max([ncols,nrows])*4, 5)
-;                                 5 because index 0 is a dummy
+;                                              5 because index 0 is a dummy
 
 ; Creation of an array which contains part of the header. The contents of this array
 ; are written later to the output file
