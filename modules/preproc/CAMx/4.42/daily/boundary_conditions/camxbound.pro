@@ -171,10 +171,20 @@ case metmodel of
 						; [y,x,z,time] -> [x,y,z,time]
 						meteoLon = TRANSPOSE(meteoLon, [1, 0, 2, 3])
 						meteoLat = TRANSPOSE(meteoLat, [1, 0, 2, 3])
-
+						
+						; cut off z and time
+						meteoLon=REFORM(meteoLon[*,*,0,1])
+						meteoLat=REFORM(meteoLat[*,*,0,1])
+					
 						; Cleaning up some trash
 						cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr SIGMAH SIGMAH.hdr PSTARCRS PSTARCRS.hdr PP PP.hdr'
 						spawn, cmd
+						
+						; Definition of some variables required for the horizontal interpolation
+						dims = SIZE(meteoLon, /DIMENSIONS)
+						; get rid of extra rows/columns
+						ncols = dims[0] - 1
+						nrows = dims[1] - 1
 	
 					end
 					
@@ -186,6 +196,12 @@ case metmodel of
 						meteoLon = longicrs
 						meteoLat = latitcrs
 						
+						; Definition of some variables required for the horizontal interpolation
+						dims = SIZE(meteoLon, /DIMENSIONS)
+						; get rid of extra rows/columns
+						ncols = dims[0]
+						nrows = dims[1]
+
 					end
 
 endcase
@@ -330,26 +346,18 @@ NCDF_CLOSE, ncid      ; Close the NetCDF file
 
 print,'netCDF file read sucessfully.'
 
-; Definition of some variables required for the horizontal interpolation
-dims = SIZE(meteoLon, /DIMENSIONS)
-ncols = dims[0] - 1
-nrows = dims[1] - 1
 
-; MM5 output has a more complicated structure than WRF
-if (n_elements(dims) GT 2) then begin
-	nhours = dims[3]
-endif else begin
-	nhours=1
-endelse
-
-t_meteoLon = FLTARR(ncols, nrows, 1, nhours)
+t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
-; The x and y dimensions are reduced by 1
-; Actually, IDL does not care if the last two dimensions are missing
-meteoLonr = meteoLon[0:ncols-1, 0:nrows-1, *, *]
-meteoLatr = meteoLat[0:ncols-1, 0:nrows-1, *, *]
+; The x and y dimensions are reduced by 1 to later
+; correct the range of angles
+meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
+meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
+
+; Here we store the horizontally interpolated mozart pressure field
+mozart_pressureinterp = FLTARR(ncols,nrows,nlevsmoz,ntime)
 
 print,'Reading pressure file...'
 
@@ -401,15 +409,15 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
 		
 		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
-			t_meteoLon[i,j,0,1] = (meteoLonr[i,j,0,1] + 360.0) MOD 360.0
+			t_meteoLon[i,j] = (meteoLonr[i,j] + 360.0) MOD 360.0
 		endif else begin
-			t_meteoLon[i,j,0,1] = meteoLonr[i,j,0,1] 
+			t_meteoLon[i,j] = meteoLonr[i,j] 
 		endelse
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_meteoLon[i,j,0,1] / lonstep
-		indexlat[i,j] = (meteoLatr[i,j,0,1] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		indexlon[i,j] = t_meteoLon[i,j] / lonstep
+		indexlat[i,j] = (meteoLatr[i,j] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
 	ENDFOR ; rows
 ENDFOR ; columns
 
@@ -580,7 +588,7 @@ OPENW, lun, outfile_bc, /GET_LUN
 PRINTF, lun, name, note
 line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
 PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
-line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
+line3 = '(F10.4,1X,F10.4,1X,I3,F10.4,1X,F10.4,1X,2F7.4,5I4,3F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4

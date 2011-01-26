@@ -370,8 +370,8 @@ function boundary_conditions()
 						${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 						
 						# Now we need to convert the file to binary format
-						main.log -a "${CXR_ASC2BIN_EXEC} ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} 2>&1"
-						"${CXR_ASC2BIN_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} 2>&1 | tee -a $CXR_LOG
+						main.log -a "${CXR_AIRCONV_EXEC} ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1"
+						"${CXR_AIRCONV_EXEC}" ${CXR_BC_ASC_OUTPUT_FILE} ${CXR_BC_OUTPUT_FILE} BOUNDARY 0 2>&1 | tee -a $CXR_LOG
 						
 					else
 						main.log   "This is a dry-run, will not run program"
