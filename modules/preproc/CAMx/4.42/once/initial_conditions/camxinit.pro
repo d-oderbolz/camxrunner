@@ -503,16 +503,16 @@ OPENW, lun, outfile_ic, /GET_LUN
 PRINTF, lun, name, note
 line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
 PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
-line3 = '(2(F16.5,1X),I3,1X,4(F16.5,1X),5I4,3F7.0)'
+line3 = '(F10.4,1X,F10.4,1X,I3,F10.4,1X,F10.4,1X,2F7.4,5I4,3F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
 PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
-PRINTF, lun, mspec,format='(A-10)'
+PRINTF, lun, mspec
 
 ; 'Time variant portion'
 line19 = '(5X, I10, F10.2, I10, F10.2)'
-line20 = '(I4, A-10)'
-line21 = '(5E14.7)'
+line20 = '(I4, A)'
+line21 = '(9E14.7)'
 PRINTF, lun, ibdate, btime, iedate, etime, FORMAT = line19
 FOR ispec = 0, nspec - 1 DO BEGIN
   FOR k = 0, nlevs - 1 DO BEGIN
