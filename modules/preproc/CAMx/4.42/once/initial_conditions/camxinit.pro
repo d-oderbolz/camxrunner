@@ -222,7 +222,7 @@ hybm=hybm[0:nlevsmoz-1]
 ; not elegant, later we might fix it using rebin/reform: <http://www.dfanning.com/tips/rebin_magic.html>
 FOR level = 0,nlevsmoz -1 DO BEGIN
 	; fill the current pressure level
-	mozart_pressure[*,*,level] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + mozart_surface_pressure[*,*,read_time_index] * replicate(hybm[level],ncolsmoz,nrowsmoz))
+	mozart_pressure[*,*,level] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + (mozart_surface_pressure[*,*,read_time_index] * replicate(hybm[level],ncolsmoz,nrowsmoz)))
 endfor ; level
 
 

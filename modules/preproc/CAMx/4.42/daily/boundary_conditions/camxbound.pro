@@ -261,7 +261,7 @@ hybm=hybm[0:nlevsmoz-1]
 FOR t = 0, ntime - 1 DO BEGIN
 	FOR level = 0,nlevsmoz -1 DO BEGIN
 		; fill the current pressure level
-		mozart_pressure[*,*,level,t] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + mozart_surface_pressure[*,*,t] * replicate(hybm[level],ncolsmoz,nrowsmoz))
+		mozart_pressure[*,*,level,t] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + (mozart_surface_pressure[*,*,t] * replicate(hybm[level],ncolsmoz,nrowsmoz)))
 	endfor ; level
 endfor ; time
 
