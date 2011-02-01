@@ -454,20 +454,20 @@ ENDFOR ; species (CAMx)
 
 
 ; Writing some diagnostics
-print,"Reconstructed Mozart pressure levels at 0,0:"
-print,mozart_pressure[0,0,*]
+print,"Reconstructed Mozart pressure levels at 18,10:"
+print,mozart_pressure[18,10,*]
 
 print,"Interpolated Mozart pressure levels at 0,0:"
 print,mozart_pressureinterp[0,0,*]
 
-print,"MM5 pressure at 0,0 (not the same position as above!)"
+print,"MM5 pressure at 0,0"
 print,pres[0,0,*]
 
-print,"Vertical dist of " + mspec[0] + " at 20,15 t=1"
+print,"Vertical dist of " + mspec[1] + " at 18,10 t=1"
 print,"raw:"
-print,allspecs[20,15,*,1,0]
-print,"Interpolated:"
-print,allspecinterpv[20,15,*,0]
+print,allspecs[18,10,*,0,1]
+print,"Interpolated at 0,0"
+print,allspecinterpv[0,0,*,1]
 
 ; Definition of variables for the initial conditions file
 name = 'AIRQUALITY'
