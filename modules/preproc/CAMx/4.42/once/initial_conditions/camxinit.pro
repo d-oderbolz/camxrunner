@@ -225,6 +225,9 @@ FOR level = 0,nlevsmoz -1 DO BEGIN
 	mozart_pressure[*,*,level] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + (mozart_surface_pressure[*,*,read_time_index] * replicate(hybm[level],ncolsmoz,nrowsmoz)))
 endfor ; level
 
+print,"Reconstructed Mozart pressure levels at 0,0:"
+print,mozart_pressure[0,0,*]
+
 
 ; In order to be able to loop over species, an array containing all of them is created
 allspecs = FLTARR(ncolsmoz, nrowsmoz, nlevsmoz, ntime, nspec)
