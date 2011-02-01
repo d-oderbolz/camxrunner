@@ -225,8 +225,8 @@ FOR level = 0,nlevsmoz -1 DO BEGIN
 	mozart_pressure[*,*,level] = Pa2mBar * (replicate(hyam[level],ncolsmoz,nrowsmoz) + (mozart_surface_pressure[*,*,read_time_index] * replicate(hybm[level],ncolsmoz,nrowsmoz)))
 endfor ; level
 
-print,"Reconstructed Mozart pressure levels at 0,0:"
-print,mozart_pressure[0,0,*]
+;print,"Reconstructed Mozart pressure levels at 0,0:"
+;print,mozart_pressure[0,0,*]
 
 
 ; In order to be able to loop over species, an array containing all of them is created
@@ -244,6 +244,8 @@ for ispec=0,nspec-1 do begin
 	print,"Loading " + mozart_specs[ispec] + " (CAMx species " + camx_specs[ispec] + ")"
 
 	NCDF_VARGET, ncid, varid ,dummy
+	
+	print,size(dummy,/DIMENSIONS)
 	
 	; Now it depends on whether we need to modify the data or not
 	case data_modification of
