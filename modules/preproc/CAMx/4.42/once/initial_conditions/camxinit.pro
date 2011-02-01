@@ -454,6 +454,9 @@ ENDFOR ; species (CAMx)
 
 
 ; Writing some diagnostics
+print,"lonstep" + strtrim(lonstep,2)
+print,"latstep" + strtrim(latstep,2)
+
 print,"Reconstructed Mozart pressure levels at 18,10:"
 print,mozart_pressure[18,10,*]
 
