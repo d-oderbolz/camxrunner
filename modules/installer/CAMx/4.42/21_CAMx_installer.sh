@@ -311,7 +311,7 @@ function CAMx_installer()
 		#                                                                               Do not fail on error
 		# subversion drectories
 		main.log -a "Removing version control system files..."
-		find ${draft_dir}/ -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || :
+		find ${draft_dir} -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || :
 		
 		
 		main.log -a "Working with these draft files: $(ls $draft_dir)"

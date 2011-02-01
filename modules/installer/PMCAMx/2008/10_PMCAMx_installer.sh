@@ -224,7 +224,7 @@ function PMCAMx_installer()
 		# Readmes
 		find ${draft_dir}/ -noleaf -type f -name README.txt -exec rm -f {} \;
 		# subversion drectories
-		find ${draft_dir}/ -noleaf -type d -name .svn -exec rm -rf {} \;
+		find ${draft_dir} -noleaf -type d -name .svn -exec rm -rf {} \;
 
 
 		# We will now ask the user a number of questions encoded in

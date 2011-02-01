@@ -171,7 +171,7 @@ function common.fs.getSubDirs()
 	
 	dir="$1"
 	
-	find "${dir}/" -follow -noleaf -maxdepth 1 -type d  -printf '%f\n' | sed '/^\.$/d' | sed '/^\.\.$/d'
+	find "${dir}" -follow -noleaf -maxdepth 1 -type d  -printf '%f\n' | sed '/^\.$/d' | sed '/^\.\.$/d'
 
 }
 
