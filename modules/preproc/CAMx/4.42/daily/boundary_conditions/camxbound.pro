@@ -415,9 +415,11 @@ FOR i = 0, ncols - 1 DO BEGIN
 		endelse
 		
 		; The decimal grid indices in the MOZART grid, which coincide with
-		; the MM5 cross grid points are calculated
-		indexlon[i,j] = t_meteoLon[i,j] / lonstep
-		indexlat[i,j] = (meteoLatr[i,j] / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		; the MM5 cross grid points are calculated.
+		; Note that MOZART does not necessarily start at 0
+		indexlon[i,j] = (t_meteoLon[i,j] - lonmoz[0]) / lonstep
+		indexlat[i,j] = ((meteoLatr[i,j] - latmoz[0]) / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		
 	ENDFOR ; rows
 ENDFOR ; columns
 
