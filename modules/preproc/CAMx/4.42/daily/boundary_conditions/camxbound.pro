@@ -567,15 +567,6 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		; Get the maximum
 		max_ppm = MAX(allspecinterpv[*,*,k,*,ispec])
 		
-		; Where is it? (Disabled, looks ugly)
-		;ind_max_ppm = WHERE(allspecinterpv[*,*,k,*,ispec] EQ max_ppm)
-		; Turn into array indices
-		;arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
-		; And this back into a string
-		;str_arr_ind_max_ppm = STRTRIM(arr_ind_max_ppm,2)
-		; Join to beatiful string
-		;join_str_arr_ind_max_ppm = STRJOIN(str_arr_ind_max_ppm,',')
-
 		print,strtrim(k,2)+': ',$
 			MIN(allspecinterpv[*,*,k,*,ispec])*1000,$
 			MEAN(REFORM(allspecinterpv[*,*,k,*,ispec],ncols*nrows*ntime))*1000,$

@@ -245,6 +245,7 @@ for ispec=0,nspec-1 do begin
 
 	NCDF_VARGET, ncid, varid ,dummy
 	
+	print,"Dimensions:"
 	print,size(dummy,/DIMENSIONS)
 	
 	; Now it depends on whether we need to modify the data or not
@@ -455,6 +456,14 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	ENDFOR ; columns (CAMx)
 ENDFOR ; species (CAMx)
 
+
+; Writing some diagnostics
+print,"Vertical dist of " + mspec[0] + " at 20,15 t=1"
+print,"raw:"
+print,allspecs[20,15,*,1,0]
+print,"Interpolated:"
+print,allspecinterpv[20,15,*,0]
+
 ; Definition of variables for the initial conditions file
 name = 'AIRQUALITY'
 ione = 1
@@ -481,15 +490,6 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		; Get the maximum
 		max_ppm = MAX(allspecinterpv[*,*,k,ispec])
 		
-		; Where is it? (Disabled, looks ugly)
-		;ind_max_ppm = WHERE(allspecinterpv[*,*,k,ispec] EQ max_ppm)
-		; Turn into array indices
-		;arr_ind_max_ppm = ARRAY_INDICES(allspecinterpv,ind_max_ppm)
-		; And this back into a string
-		;str_arr_ind_max_ppm = STRTRIM(arr_ind_max_ppm,2)
-		; Join to beatiful string
-		;join_str_arr_ind_max_ppm = STRJOIN(str_arr_ind_max_ppm,',')
-	
 		print,strtrim(k,2)+': ',$
 			MIN(allspecinterpv[*,*,k,ispec])*1000,$
 			MEAN(REFORM(allspecinterpv[*,*,k,ispec],ncols*nrows))*1000,$
