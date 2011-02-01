@@ -136,7 +136,7 @@ function common.db.init()
 	
 		if [[ -d "$dir" ]]
 		then
-			dbs="$(find $dir -noleaf -maxdepth 1 -name '*.sqlite')"
+			dbs="$(find ${dir}/ -noleaf -maxdepth 1 -name '*.sqlite')"
 			
 			for db_file in $dbs
 			do

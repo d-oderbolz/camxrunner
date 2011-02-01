@@ -228,7 +228,7 @@ function common.module.resolveType()
 	
 	# Find all *.sh files in this dir (no descent, no path, no .sh extension!)
 	# We use "tr" (transliterate to replace the \n (sed cannot, because \n is not part of a sed line!))
-	modules="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh' -exec basename {} .sh \; | tr '\012' ' ' )"
+	modules="$(find "${dir}/" -noleaf -maxdepth 1 -name '*.sh' -exec basename {} .sh \; | tr '\012' ' ' )"
 	
 	echo "$modules"
 }
@@ -268,7 +268,7 @@ function common.module.getTypeSlow()
 	local file
 	
 	# We ASSUME that each instance of this file is of the same type
-	file="$(find $CXR_RUN_DIR -noleaf -name ${1}.sh | head -n1)"
+	file="$(find $[CXR_RUN_DIR}/ -noleaf -name ${1}.sh | head -n1)"
 	
 	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $file)
 	value="$(expr match "$metafield" '.*=\(.*\)')" || :

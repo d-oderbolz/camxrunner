@@ -158,7 +158,7 @@ function PMCAMx_installer()
 		elif [[ "$(common.user.getOK "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
 		then
 			# Now we need to choose a run name. Look for links in the CAMx dir
-			run="$(basename $(common.user.getMenuChoice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
+			run="$(basename $(common.user.getMenuChoice "Choose a run I should use (ignore the paths displayed):" "$(find "${CXR_RUN_DIR}/" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
 			binary_name=${CXR_MODEL_BIN_DIR}/${run}-${HOSTTYPE}
 		elif [[ "$(common.user.getOK "Do you want to provide your own name for the binary?" N )" == true  ]]
@@ -222,9 +222,9 @@ function PMCAMx_installer()
 
 		## Clean up draft dir
 		# Readmes
-		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \;
+		find ${draft_dir}/ -noleaf -type f -name README.txt -exec rm -f {} \;
 		# subversion drectories
-		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \;
+		find ${draft_dir}/ -noleaf -type d -name .svn -exec rm -rf {} \;
 
 
 		# We will now ask the user a number of questions encoded in
@@ -260,7 +260,7 @@ function PMCAMx_installer()
 			common.user.getAnswers "$askfile" "$playfile"
 		fi
 		
-		common.user.applyPlayfile $playfile $( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
+		common.user.applyPlayfile $playfile $( find ${draft_dir}/ -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
 		if [[ "$(common.user.getOK "Do you want to install the new files ?" Y )" == true  ]]
 		then
@@ -275,7 +275,7 @@ function PMCAMx_installer()
 		########################################
 		
 		# The PRM file needs a special name!
-		prm_file=$(find $draft_dir -noleaf -type f -name camx.prm)
+		prm_file=$(find ${draft_dir}/ -noleaf -type f -name camx.prm)
 		
 		cp $prm_file $target_prm_file || main.dieGracefully "Could not prepare prm file $target_prm_file"
 

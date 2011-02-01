@@ -243,7 +243,7 @@ function common.install.applyPatch()
 	patchlist=$(common.runner.createTempFile $FUNCNAME)
 	
 	# Prepare the files containing all patches and no .svn stuff
-	find $patch_dir -noleaf -type f -name \*.patch | grep -v ".svn" | sort > $patchlist
+	find ${patch_dir}/ -noleaf -type f -name \*.patch | grep -v ".svn" | sort > $patchlist
 	# Dont check PIPESTATUS here, grep will return non-0 if no files are found 
 	
 	# Loop through all patches

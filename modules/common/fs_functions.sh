@@ -139,7 +139,7 @@ function common.fs.sumFilenameLenght()
 		file="$(mktemp ${CXR_TMP_DIR}/sum.XXXXXXXX)"
 		
 		# Let find store all "raw" filenames next to each other in $file
-		find $dir -noleaf -maxdepth 1 -fprintf $file "%P"
+		find ${dir}/ -noleaf -maxdepth 1 -fprintf $file "%P"
 		
 		# Count the bytes 
 		len="$(wc -c < $file)"
@@ -171,7 +171,7 @@ function common.fs.getSubDirs()
 	
 	dir="$1"
 	
-	find "$dir" -follow -noleaf -maxdepth 1 -type d  -printf '%f\n' | sed '/^\.$/d' | sed '/^\.\.$/d'
+	find "${dir}/" -follow -noleaf -maxdepth 1 -type d  -printf '%f\n' | sed '/^\.$/d' | sed '/^\.\.$/d'
 
 }
 

@@ -188,7 +188,7 @@ function CAMx_installer()
 		elif [[ "$(common.user.getOK "Do you want to create a binary that is specific for a given run?" N )" == true  ]]
 		then
 			# Now we need to choose a run name. Look for links in the CAMx dir
-			run="$(basename $(common.user.getMenuChoice "Choose a run I should use (ignore the paths displayed):" "$(find "$CXR_RUN_DIR" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
+			run="$(basename $(common.user.getMenuChoice "Choose a run I should use (ignore the paths displayed):" "$(find "${CXR_RUN_DIR}/" -noleaf -maxdepth 1 -type l  2>/dev/null)" ))"
 			
 			binary_name=${CXR_MODEL_BIN_DIR}/${run}-${HOSTTYPE}
 		elif [[ "$(common.user.getOK "Do you want to provide your own name for the binary?" N )" == true  ]]
@@ -307,11 +307,11 @@ function CAMx_installer()
 		
 		# Readmes
 		main.log -a "Removing README files..."
-		find $draft_dir -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null || :
+		find ${draft_dir}/ -noleaf -type f -name README.txt -exec rm -f {} \; &>/dev/null || :
 		#                                                                               Do not fail on error
 		# subversion drectories
 		main.log -a "Removing version control system files..."
-		find $draft_dir -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || :
+		find ${draft_dir}/ -noleaf -type d -name .svn -exec rm -rf {} \; &>/dev/null || :
 		
 		
 		main.log -a "Working with these draft files: $(ls $draft_dir)"
@@ -350,7 +350,7 @@ function CAMx_installer()
 			common.user.getAnswers "$askfile" "$playfile"
 		fi
 		
-		common.user.applyPlayfile "$playfile" "$( find $draft_dir -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
+		common.user.applyPlayfile "$playfile" "$( find ${draft_dir}/ -noleaf -type f | grep -v ".svn" | grep -v README.txt)"
 
 		########################################
 		main.log -a  "Installing the changed files..."
@@ -367,7 +367,7 @@ function CAMx_installer()
 		########################################
 		
 		# The PRM file needs a special name!
-		prm_file=$(find $draft_dir -noleaf -type f -name camx.prm)
+		prm_file=$(find ${draft_dir}/ -noleaf -type f -name camx.prm)
 		
 		cp $prm_file $target_prm_file || main.dieGracefully "Could not prepare prm file $target_prm_file"
 		

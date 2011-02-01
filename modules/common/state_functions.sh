@@ -111,7 +111,7 @@ function common.state.deleteContinueFiles()
 {
 	main.log -w  "The continue files of all instances of this run will be deleted now!"
 	
-	find ${CXR_ALL_INSTANCES_DIR} -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \; &> /dev/null
+	find ${CXR_ALL_INSTANCES_DIR}/ -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \; &> /dev/null
 }
 
 ################################################################################
@@ -241,7 +241,7 @@ function common.state.updateInfo()
 			if [[ -d "$dir" ]]
 			then
 				# Find all *.sh files in this dir (no descent!)
-				files="$(find "$dir" -noleaf -maxdepth 1 -name '*.sh')"
+				files="$(find "${dir}/" -noleaf -maxdepth 1 -name '*.sh')"
 	
 				for file in $files
 				do
@@ -925,7 +925,7 @@ function common.state.storeStatus()
 function common.state.countInstances()
 ################################################################################
 {
-	find "${CXR_ALL_INSTANCES_DIR}" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l
+	find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l
 }
 
 ################################################################################
@@ -946,7 +946,7 @@ function common.state.detectInstances()
 		# There are other processes running and this is not allowed
 		main.log -e "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
 		
-		find "${CXR_ALL_INSTANCES_DIR}" -noleaf -type d -maxdepth 1 2>/dev/null | tee -a ${CXR_LOG}
+		find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -type d -maxdepth 1 2>/dev/null | tee -a ${CXR_LOG}
 		
 		main.log -e "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
 		
@@ -1124,7 +1124,7 @@ function common.state.cleanup()
 					# No 
 					main.log -a "Will not delete any state information"
 				else
-					find ${CXR_STATE_DIR} -noleaf -name '*.lock' -exec rm {} \; 2>/dev/null
+					find ${CXR_STATE_DIR}/ -noleaf -name '*.lock' -exec rm {} \; 2>/dev/null
 				fi
 				;;
 		
@@ -1146,7 +1146,7 @@ function common.state.cleanup()
 			
 				main.log -w  "The following directories and files therein will be deleted:"
 					
-				find ${CXR_ALL_INSTANCES_DIR} -noleaf -type d | xargs -i basename \{\}
+				find ${CXR_ALL_INSTANCES_DIR}/ -noleaf -type d | xargs -i basename \{\}
 		
 				# Do we do this?
 				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]

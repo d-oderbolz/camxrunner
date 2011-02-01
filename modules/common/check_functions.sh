@@ -387,7 +387,7 @@ function common.check.RunnerExecutables()
 		fi
 
 	# Make sure we exclude state dir
-	done<<<"$(find ${CXR_RUN_DIR} -noleaf -type f -name \*.sh | grep -v "^${CXR_RUN_DIR}/state/")"
+	done<<<"$(find ${CXR_RUN_DIR}/ -noleaf -type f -name \*.sh | grep -v "^${CXR_RUN_DIR}/state/")"
 	
 	main.log -a  "Checked."
 }
