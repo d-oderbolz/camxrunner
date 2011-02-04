@@ -59,9 +59,6 @@ function HDF_installer()
 		local patch_platform_dir
 		
 		local skipper=true
-		
-		if [[ $skipper != true ]]
-		then
 	
 		########################################
 		# Setup
@@ -103,6 +100,8 @@ function HDF_installer()
 		mkdir -p $MYLIBDIR/netcdf || main.dieGracefully "could not create $MYLIBDIR/netcdf"
 		mkdir -p $MYLIBDIR/ioapi || main.dieGracefully "could not create $MYLIBDIR/ioapi"
 		
+		if [[ $skipper != true ]]
+		then
 		
 		########################################
 		# Zlib
