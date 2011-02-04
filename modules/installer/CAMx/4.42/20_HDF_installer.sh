@@ -57,6 +57,7 @@ function HDF_installer()
 	
 		local patch_all_dir
 		local patch_platform_dir
+		local currdir
 		
 		local skipper=true
 	
@@ -213,6 +214,8 @@ function HDF_installer()
 		# Go to directory
 		cd ${CXR_IOAPI_TAR_DIR} || main.dieGracefully "could not change to $CXR_IOAPI_TAR_DIR"
 		
+		currdir="$(pwd)"
+		
 		# Disable PVM
 		cp Makefile.nocpl Makefile
 		
@@ -242,7 +245,7 @@ function HDF_installer()
 			common.install.applyPatch "$patch_platform_dir" "$MYLIBDIR/ioapi/${CXR_IOAPI_TAR_DIR}"
 		fi
 		
-		cd ${CXR_IOAPI_TAR_DIR} || main.dieGracefully "could not change to $CXR_IOAPI_TAR_DIR"
+		cd ${currdir} || main.dieGracefully "could not change to $currdir"
 		
 		make clean && make all && make install || main.dieGracefully "make for ioapi failed"
 		
