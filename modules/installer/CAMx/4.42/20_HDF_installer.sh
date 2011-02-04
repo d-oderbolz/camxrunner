@@ -57,6 +57,11 @@ function HDF_installer()
 	
 		local patch_all_dir
 		local patch_platform_dir
+		
+		local skipper=true
+		
+		if [[ $skipper != true ]]
+		then
 	
 		########################################
 		# Setup
@@ -190,6 +195,7 @@ function HDF_installer()
 		########################################
 		# IOAPI
 		########################################
+		else
 		
 		main.log -a -b  "IOAPI"
 		
@@ -258,6 +264,8 @@ function HDF_installer()
 		cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 		
 		main.log -a  "Done. Libraries should now be ready for the compilation of CAMx."
+		
+		fi # this
 		
 	fi
 	
