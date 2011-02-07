@@ -199,8 +199,8 @@ function HDF_installer()
 		
 		main.log -a -b  "IOAPI"
 		
-		# Set needed variable
-		BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
+		# export needed variable
+		export BIN=$(uname -s)$(uname -r | cut -d. -f1)_x86pg
 		
 		# Go to location
 		cd $MYLIBDIR/ioapi || main.dieGracefully "could not change to $MYLIBDIR/ioapi"
