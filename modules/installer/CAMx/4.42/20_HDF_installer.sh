@@ -59,8 +59,6 @@ function HDF_installer()
 		local patch_platform_dir
 		local currdir
 		
-		local skipper=true
-	
 		########################################
 		# Setup
 		########################################
@@ -100,9 +98,6 @@ function HDF_installer()
 		
 		mkdir -p $MYLIBDIR/netcdf || main.dieGracefully "could not create $MYLIBDIR/netcdf"
 		mkdir -p $MYLIBDIR/ioapi || main.dieGracefully "could not create $MYLIBDIR/ioapi"
-		
-		if [[ $skipper != true ]]
-		then
 		
 		########################################
 		# Zlib
@@ -195,8 +190,6 @@ function HDF_installer()
 		########################################
 		# IOAPI
 		########################################
-		else
-		
 		main.log -a -b  "IOAPI"
 		
 		# export needed variable
@@ -266,8 +259,6 @@ function HDF_installer()
 		cd "$CXR_RUN_DIR" || main.dieGracefully "Could not change to $CXR_RUN_DIR"
 		
 		main.log -a  "Done. Libraries should now be ready for the compilation of CAMx."
-		
-		fi # this
 		
 	fi
 	
