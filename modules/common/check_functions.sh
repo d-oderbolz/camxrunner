@@ -283,15 +283,29 @@ function common.check.ModelLimits()
 	# We must find the play file
 	local conffile
 	local iGrid
+	local iVal
 	local var
 	local curr_var
 	local f_val
 	local f_nspec
 	local cxr_value
 	
+	local max_col
+	local max_row
+	local max_lay
+	local max_all
+	
+	local vars
+	local vals
+	
+	max_col=0
+	max_row=0
+	max_lay=0
+	
+	
 	conffile=${CXR_MODEL_BIN_DIR}/$(basename ${CXR_MODEL_EXEC}).conf
 	
-	if [[ -f "${conffile}"  ]]
+	if [[ -f "${conffile}" ]]
 	then
 		# conffile is present
 		
@@ -307,9 +321,24 @@ function common.check.ModelLimits()
 			for var in COL ROW LAY
 			do
 				case "${var}" in
-					COL) cxr_value=$(common.runner.getX ${iGrid}) ;;
-					ROW) cxr_value=$(common.runner.getY ${iGrid}) ;;
-					LAY) cxr_value=$(common.runner.getZ ${iGrid}) ;;
+					COL) cxr_value=$(common.runner.getX ${iGrid}) 
+					
+							 if [[ $cxr_value -gt $max_col ]]; then 
+							 	max_col=$cxr_value 
+							 fi
+							 ;;
+							 
+					ROW) cxr_value=$(common.runner.getY ${iGrid}) 
+							 if [[ $cxr_value -gt $max_row ]]; then 
+							 	max_row=$cxr_value 
+							 fi
+							 ;;
+							 
+					LAY) cxr_value=$(common.runner.getZ ${iGrid})
+								if [[ $cxr_value -gt $max_lay ]]; then 
+							 	max_lay=$cxr_value 
+							 fi
+							 ;; 
 				esac
 				
 				# e. g. MXCOL1
@@ -323,17 +352,55 @@ function common.check.ModelLimits()
 				if [[ "${f_val}"  ]]
 				then
 					# Check if we are above the limit
-					if [[ "${cxr_value}" -gt "${f_val}"  ]]
+					if [[ "${cxr_value}" -gt "${f_val}" ]]
 					then
-						main.log -e  "The limit for the setting ${curr_var} (${f_val}) in too low in the executable ${CXR_MODEL_EXEC} (${cxr_value})\nPlease recompile CAMx using the installer."
+						main.log -e  "The limit for the setting ${curr_var} (${f_val}) is too low in the executable ${CXR_MODEL_EXEC} (${cxr_value})\nPlease recompile CAMx using the installer."
 					else
 						main.log -v  "${curr_var} setting OK"
 					fi
 				else
-					main.log -v  "There is no entry ${curr_var} in the conffile ${conffile}"
+					main.log -v "There is no entry ${curr_var} in the conffile ${conffile}"
 				fi
-			done
-		done
+			done # Var
+		done # grid
+		
+		# Determine largest (layers do not count)
+		if [[ $max_row -gt $max_col ]]
+		then
+			max_all=$max_row
+		else
+			max_all=$max_col
+		fi
+		
+		# Test the special vars
+		vars="MXCOLA MXROWA MXLAYA MX1D"
+		vals=($max_col $max_row $max_lay $max_all)
+		
+		iVal=0
+		for curr_var in $vars
+		do
+			main.log -v  "Checking ${curr_var}..."
+			
+			cxr_value=${vals[$iVal]}
+				
+			# Read value
+			f_val="$(grep "${curr_var}${CXR_DELIMITER}" "${conffile}" | cut -d${CXR_DELIMITER} -f2)"
+			
+			if [[ "${f_val}"  ]]
+			then
+				# Check if we are above the limit
+				if [[ "${cxr_value}" -gt "${f_val}" ]]
+				then
+					main.log -e  "The limit for the setting ${curr_var} (${f_val}) is too low in the executable ${CXR_MODEL_EXEC} (${cxr_value})\nPlease recompile CAMx using the installer."
+				else
+					main.log -v  "${curr_var} setting OK"
+				fi
+			else
+				main.log -v "There is no entry ${curr_var} in the conffile ${conffile}"
+			fi
+			
+			iVal=$(( $iVal + 1 ))
+		done # vars
 
 		# Check #of species
 		f_nspec="$(grep "MXSPEC${CXR_DELIMITER}" "${conffile}" | cut -d${CXR_DELIMITER} -f2)"
@@ -343,7 +410,7 @@ function common.check.ModelLimits()
 			# Check if we are above the limit
 			if [[ "${CXR_NUMBER_OF_OUTPUT_SPECIES}" -gt "${f_nspec}"  ]]
 			then
-				main.log -e  "The limit for the number of species (MXSPEC=${f_nspec}) in too low in the executable ${CXR_MODEL_EXEC} (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease recompile CAMx using the installer."
+				main.log -e  "The limit for the number of species (MXSPEC=${f_nspec}) is too low in the executable ${CXR_MODEL_EXEC} (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease recompile CAMx using the installer."
 			else
 				main.log -v  "Number of species is OK."
 			fi
