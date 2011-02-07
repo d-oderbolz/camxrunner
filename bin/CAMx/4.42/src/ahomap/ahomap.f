@@ -156,6 +156,9 @@ c
       write(*,*)'Number of TOMS files: ',nfils
 
       do 50 nda = 1,nfils
+      	
+      	icount = 0
+      	
         iunit = 20
         read(*,'(20x,a)') inline
         read(inline,*) ibday,ieday
@@ -176,6 +179,7 @@ c
         emo(nda) = (ieday-eyr(nda)*10000)/100
         eda(nda) = ieday-eyr(nda)*10000-emo(nda)*100
 
+        write(*,*)'Opening: ',inrec
         open(iunit,file=inrec,status='old')
         write(*,*)'Opened: ',inrec
 
