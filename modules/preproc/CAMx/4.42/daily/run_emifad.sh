@@ -226,7 +226,10 @@ function run_emifad()
 		done
 
 		main.log "Running emifad on grid ${CXR_IGRID}..."
-		main.log  "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
+		
+		ls -la
+		
+		main.log -a "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
 
 		if [[ "$CXR_DRY" == false  ]]
 		then
