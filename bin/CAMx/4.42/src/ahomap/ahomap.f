@@ -181,7 +181,6 @@ c
 
         write(*,*)'Opening: ',inrec
         open(iunit,file=inrec,status='old')
-        write(*,*)'Opened: ',inrec
 
         write(*,'(3(A,i3,x))') 
      &  ' Beg time: year =',iyr(nda),'month =',mo(nda),'day =',ida(nda)
