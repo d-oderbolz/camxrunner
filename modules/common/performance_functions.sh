@@ -234,7 +234,7 @@ function common.performance.reportEta()
 		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" 0)
 	
 		# Only goes to stderr
-		echo "Workers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
+		echo -e "\nWorkers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
 		echo "Tasks (Successful/Failed/Total): $(common.task.countSuccessfulTasks)/$(common.task.countFailedTasks)/$(common.task.countAllTasks)" 1>&2
 		echo "Runtime so far: $(common.date.humanSeconds $elapsed)" 1>&2
 		echo "Estimated remaining time of this run: $(common.date.humanSeconds $left)" 1>&2
