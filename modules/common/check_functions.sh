@@ -470,9 +470,8 @@ function common.check.ExecLimits()
 			main.log -e  "The limit for the number of species (${CXR_MAX_ZDIM}) is too low in the support executables (${layers})\nPlease adjust the code of the converters etc. and the setting of CXR_MAX_NSPEC"
 		fi
 	done # grid
-		
 
-	
+
 	main.log -a  "Support program limits checked."
 }
 

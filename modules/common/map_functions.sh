@@ -347,6 +347,30 @@ function common.map.ProjectionToLonLat()
 }
 
 ################################################################################
+# Function: common.map.ProjectionToModelCoordinates
+#
+# Converts projected coordinates to model coordinatos. (Wrapper for <common.map.ProjectionToLonLat> and <common.map.LonLatToProjection>)
+#
+# Output is given as a space delimited list of the form "x y".
+#
+# Parameters:
+# $1 - x-projected coordinate
+# $2 - y-projected coordinate
+# [$3] - name of input projection in uppercase
+################################################################################
+function common.map.ProjectionToModelCoordinates()
+################################################################################
+{
+	local lonlat_xy
+	
+	lonlat_xy=$(common.map.ProjectionToLonLat $1 $2 $3)
+	
+	# Now do the conversion to model coordinates
+	common.map.LonLatToProjection $lonlat_xy
+}
+
+
+################################################################################
 # Function: common.map.ProjectionToIndexes
 #
 # Converts model coordinates to decimal indexes. (Wrapper for <common.map.ProjectionToLonLat>

@@ -507,7 +507,7 @@ function write_sa_receptor_definitions_file()
 	# write file
 	: > ${CXR_SA_RECEPTORIN}
 	
-	if [[ "$SA_POINT_RECEPTOR" == "true"  ]]
+	if [[ "$SA_POINT_RECEPTOR" == "true" ]]
 	then
 		for iPointReceptor in $(seq 1 $SA_POINT_NUMBER);
 		do
