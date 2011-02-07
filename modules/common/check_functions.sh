@@ -424,6 +424,57 @@ function common.check.ModelLimits()
 	main.log -a  "Model limits checked."
 }
 
+################################################################################
+# Function: common.check.ExecLimits
+#
+# Checks if our support executables support the current grid sizes.
+# Primitive chock that is based on settings in defaults.inc
+#
+################################################################################
+function common.check.ExecLimits()
+################################################################################
+{
+	main.log -a -B  "Checking limits for the support executables..."
+	
+	# We must find the play file
+	local iGrid
+	local rows
+	local cols
+	local layers
+	
+	if [[ $CXR_NUMBER_OF_OUTPUT_SPECIES -gt $CXR_MAX_NSPEC ]]
+	then
+		main.log -e  "The limit for the number of species (${CXR_MAX_NSPEC}) is too low in the support executables (${CXR_NUMBER_OF_OUTPUT_SPECIES})\nPlease adjust the code of the converters etc. and the setting of CXR_MAX_NSPEC"
+	fi
+	
+
+	#Test each grid
+	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
+	do
+		rows=$(common.runner.getX ${iGrid}) 
+		cols=$(common.runner.getY ${iGrid}) 
+		layers=$(common.runner.getZ ${iGrid})
+		
+		if [[ $rows -gt $CXR_MAX_XDIM ]]
+		then
+			main.log -e  "The limit for the number of species (${CXR_MAX_XDIM}) is too low in the support executables (${rows})\nPlease adjust the code of the converters etc. and the setting of CXR_MAX_NSPEC"
+		fi
+		
+		if [[ $cols -gt $CXR_MAX_YDIM ]]
+		then
+			main.log -e  "The limit for the number of species (${CXR_MAX_YDIM}) is too low in the support executables (${cols})\nPlease adjust the code of the converters etc. and the setting of CXR_MAX_NSPEC"
+		fi
+		
+		if [[ $layers -gt $CXR_MAX_ZDIM ]]
+		then
+			main.log -e  "The limit for the number of species (${CXR_MAX_ZDIM}) is too low in the support executables (${layers})\nPlease adjust the code of the converters etc. and the setting of CXR_MAX_NSPEC"
+		fi
+	done # grid
+		
+
+	
+	main.log -a  "Support program limits checked."
+}
 
 ################################################################################
 # Function: common.check.RunnerExecutables

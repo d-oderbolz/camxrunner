@@ -380,6 +380,8 @@ function common.runner.printSummary()
 	
 	# Check if the selected binary supports our settings
 	common.check.ModelLimits
+	common.check.ExecLimits
+	
 }
 
 ################################################################################

@@ -404,6 +404,13 @@ CXR_CHECK_MAX_PATH=true
 # Currently we assume this limit
 CXR_MAX_PATH=240
 
+# These settings are used to check if the converters etc. can handel files
+# of the current grid size. Make suer all executables support at least these limits.
+CXR_MAX_XDIM=300
+CXR_MAX_YDIM=300
+CXR_MAX_ZDIM=16
+CXR_MAX_NSPEC=150
+
 # On AFS, there is a limit of the total filename length
 # of all files in a directory. The actual limit is not
 # so straightforward (see man fileserver)
