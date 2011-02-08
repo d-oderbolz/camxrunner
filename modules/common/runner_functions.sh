@@ -248,7 +248,7 @@ function common.runner.countAllCells3D()
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		sum=$(( $sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) * $(common.runner.getZ $iGrid) ) ))
+		sum=$(common.math.FloatOperation "$sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) * $(common.runner.getZ $iGrid) )" -1)
 	done
 	
 	echo $sum
@@ -272,7 +272,7 @@ function common.runner.countAllCells2D()
 	
 	for iGrid in $(seq 1 $CXR_NUMBER_OF_GRIDS);
 	do
-		sum = $(( $sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) ) ))
+		sum=$(common.math.FloatOperation "$sum + ( $(common.runner.getX $iGrid) * $(common.runner.getY $iGrid) )" -1)
 	done
 	
 	echo $sum
