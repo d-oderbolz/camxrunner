@@ -583,8 +583,6 @@ common.runner.printSummary
 # Check resource requirements if we run a full simulation
 ################################################################################
 
-set -xv
-
 load=$(common.performance.getReaLoadPercent)
 if [[ $load -gt $CXR_LOAD_EXIT_THRESHOLD ]]
 then
@@ -777,8 +775,6 @@ else
 		main.log -v "The option -r needs at least one module name or type as argument!"
 	fi
 fi # Limited Processing?
-
-set +xv
 
 ################################################################################
 # Print out the variables and their settings
