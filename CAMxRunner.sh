@@ -719,31 +719,30 @@ else
 				# Determine type. 
 				# Due to CATCH-22 we cannot use <common.module.getType> here
 				module_type="$(common.module.getTypeSlow "$module")"
-				
 			fi  # is it a type?
 			
 			if [[ "$CXR_ALLOW_MULTIPLE" == false ]]
 			then
 				# Normal case with one runner
-				case "$module_type" in
+				case $module_type in
 				
-					"${CXR_TYPE_PREPROCESS_ONCE}" ) 
+					${CXR_TYPE_PREPROCESS_ONCE} ) 
 						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
 						CXR_RUN_PRE_ONCE=true;;
 						
-					"${CXR_TYPE_PREPROCESS_DAILY}" ) 
+					${CXR_TYPE_PREPROCESS_DAILY} ) 
 						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
 						CXR_RUN_PRE_DAILY=true;;
 						
-					"${CXR_TYPE_MODEL}" ) 
+					${CXR_TYPE_MODEL} ) 
 						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
 						CXR_RUN_MODEL=true;;
 						
-					"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
+					${CXR_TYPE_POSTPROCESS_DAILY} ) 
 						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
 						CXR_RUN_POST_DAILY=true;;
 						
-					"${CXR_TYPE_POSTPROCESS_ONCE}" ) 
+					${CXR_TYPE_POSTPROCESS_ONCE} ) 
 						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
 						CXR_RUN_POST_ONCE=true;;
 						
