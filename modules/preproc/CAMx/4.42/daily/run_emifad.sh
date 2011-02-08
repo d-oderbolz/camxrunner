@@ -203,7 +203,7 @@ function run_emifad()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		# Emifad uses the aqmfad directory
+		# Emifad uses the tmp directory created earlier
 		cd $emifad_dir || return $CXR_RET_ERROR
 		
 		# Test if any of the output file pre-exists

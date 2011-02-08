@@ -250,6 +250,11 @@ CXR_RUN_ALL=${CXR_ALL}
 # directly to CXR_SCRATCH_DIR. After the run, the output is moved to $CXR_OUTPUT_DIR
 CXR_USE_SCRATCH=true
 
+# If CXR_RELOAD_CONF is true, the configration is reloaded before
+# each new task. This is only needed if your configuration changes over time
+# (e. g. "Use these windfiles for day 1 and 4"), otherwise it slows things down somewhat
+CXR_RELOAD_CONF=false
+
 # Warning level for system load in percent
 # (as determined by ReaLoad)
 CXR_LOAD_WARN_THRESHOLD=80

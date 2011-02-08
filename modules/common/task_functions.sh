@@ -802,7 +802,7 @@ function common.task.setNextTask()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
-		main.log -a "This was the last task to be processed, notifying system after security pause...\nDon't be alarmed: Running processes will have time to finish."
+		main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1054,6 +1054,13 @@ function common.task.Worker()
 			
 			# Init id
 			_id=""
+			
+			if [[ $CXR_RELOAD_CONF == true ]]
+			then
+				main.log -v "CXR_RELOAD_CONF is true, we (silently) reload the config..."
+				
+				main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}" &> /dev/null
+			fi
 			
 			# common.task.setNextTask provides tasks in an atomic fashion
 			# already moves the task descriptor into "running" position

@@ -1372,26 +1372,6 @@ function main.readConfig()
 }
 
 ################################################################################
-# Function: main.HandleHup
-#
-# Handles the HUP signal (sent to reread the configuration)
-# TODO: test in parallel configuration
-#
-################################################################################
-function main.HandleHup()
-################################################################################
-{
-	main.log -a "Rereading Configuration of ${CXR_RUN}..."
-	
-	# Do it
-	main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
-}
-
-# Set the trap (needs function first)
-trap "main.HandleHup" HUP
-
-
-################################################################################
 # Function: main.getModuleName
 #
 # Extracts the module name from a path, removes the leading number (if any),
