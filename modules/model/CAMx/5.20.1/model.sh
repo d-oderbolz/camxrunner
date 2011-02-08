@@ -533,7 +533,7 @@ function write_sa_receptor_definitions_file()
 		done
 	fi
 	
-	if [[ "$SA_CELL_AVERAGE_RECEPTOR" == "true"  ]]
+	if [[ "$SA_CELL_AVERAGE_RECEPTOR" == "true" && "${CXR_PSAT_CREATE_RECEPTOR_FILE:-}" == true ]]
 	then
 			for iAverageReceptor in $(seq 1 $SA_CELLAVG_NUMBER);
 			do

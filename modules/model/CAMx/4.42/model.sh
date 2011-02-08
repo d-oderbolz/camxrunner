@@ -1078,7 +1078,7 @@ function model()
 			write_model_control_file
 			
 			# If we do SA, write a receptor file
-			if [[ "${CXR_SA_RECEPTOR:-}" == true  ]]
+			if [[ "${CXR_SA_RECEPTOR:-}" == true && "${CXR_PSAT_CREATE_RECEPTOR_FILE:-}" == true ]]
 			then
 				write_sa_receptor_definitions_file
 			fi

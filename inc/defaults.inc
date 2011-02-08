@@ -308,7 +308,7 @@ CXR_MAX_LOCKUP_COUNT=10
 # Do we allow te write to linked output directories?
 # If a run re-uses data of another run, it might be dangerous to allow this
 # as the original runs data is not retained.
-# It must be true if the CXR_TMP_DIR is a link.
+# Must be true if the CXR_TMP_DIR is a link.
 CXR_ALLOW_WRITING_TO_LINKS=true
 
 # If this is true, <common.runner.evaluateRule> will report all _FILE_RULEs that 
@@ -898,7 +898,7 @@ CXR_DETECT_COMPRESSED_INPUT_FILES=true
 # If it is false, make sure that the directory CXR_TMP_DIR has enough space free...
 CXR_DECOMPRESS_IN_PLACE=false
 
-# To map filetypes to decopressors, use something like
+# To map filetypes to decompressors, use something like
 # > common.conf.set "common.decompressor.zip=$CXR_GUNZIP_EXEC"
 # in your config
 
@@ -1037,6 +1037,14 @@ CXR_IC_BC_TC_PLOT_TIME=5
 CXR_IC_BC_TC_DO_PNG=true
 # Delete intermediate PS
 CXR_IC_BC_TC_RM_PS=true
+
+################################################################################
+# SA Tools
+################################################################################
+
+# If this is false, we use an existing receptor file.
+# Otherwise a new one is created
+CXR_PSAT_CREATE_RECEPTOR_FILE=true
 
 ################################################################################
 # Module set_permissions
