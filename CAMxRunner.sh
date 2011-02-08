@@ -746,8 +746,7 @@ else
 						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
 						CXR_RUN_POST_ONCE=true;;
 						
-					* ) 
-						main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
+					* ) main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
 				esac
 			
 			else
