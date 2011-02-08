@@ -270,13 +270,16 @@ function common.module.getTypeSlow()
 	# We ASSUME that each instance of this file is of the same type
 	file="$(find ${CXR_RUN_DIR}/ -noleaf -name ${1}.sh | head -n1)"
 	
+	echo "FILE: $file" 1>&2
+	
 	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $file)
 	value="$(expr match "$metafield" '.*=\(.*\)')" || :
 	# Do expansion
 	value="$(eval "echo $(echo "$value")")"
 	
-	echo "$value"
+	echo "VALUE: $value" 1>&2
 	
+	echo "$value"
 }
 
 ################################################################################
