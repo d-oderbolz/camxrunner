@@ -467,7 +467,7 @@ function common.date.EpochToDateTime()
 ################################################################################
 # Function: common.date.WeekOfYear
 # 
-# Returns the one-based week of year (Monday is the first day)
+# Returns the one-based week of year (Monday is the first day, starting with week 0)
 #
 # Parameters:
 # $1 - date in YYYY-MM-DD format
@@ -491,9 +491,9 @@ function common.date.WeekOfYear()
 	if [[ $no_zeroes == true ]]
 	then
 		# Hyphen turns off padding
-		date +%-V -d $1
+		date +%-W -d $1
 	else
-		date +%V -d $1
+		date +%W -d $1
 	fi
 }
 
