@@ -586,7 +586,7 @@ common.runner.printSummary
 load=$(common.performance.getReaLoadPercent)
 if [[ $load -gt $CXR_LOAD_EXIT_THRESHOLD ]]
 then
-	main.log -a "This load exceeds CXR_LOAD_EXIT_THRESHOLD (${CXR_LOAD_EXIT_THRESHOLD}%). We stop!"
+	main.dieGracefully "The load of the system exceeds CXR_LOAD_EXIT_THRESHOLD (${CXR_LOAD_EXIT_THRESHOLD}%). We stop!"
 elif [[ $load -gt $CXR_LOAD_WARN_THRESHOLD ]]
 then
 	main.log -w "The load is higher than CXR_LOAD_WARN_THRESHOLD (${CXR_LOAD_WARN_THRESHOLD}%). The run may be slow on this machine!"
