@@ -43,7 +43,8 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.math.compareVersions
 #
 # Compares two numerical version strings of the form 1.2.11... (any depth)
-# with each other. The comparison is done hierarchically until a decision is reached.
+# with each other. The comparison is done hierarchically until a decision is reached,
+# so 4.4.40 is smaller than 4.5
 #
 # Returns:
 # - -1 if version 1 is higher than version 2
@@ -93,7 +94,7 @@ function common.math.compareVersions()
 	if [[ $max -gt 0 ]]
 	then
 	
-		for iH in $(seq 0 $(( $max - 1 ))
+		for iH in $(seq 0 $(( $max - 1 )) )
 		do
 			if [[ ${v1_arr[$iH]} -gt ${v2_arr[$iH]} ]]
 			then
@@ -103,7 +104,7 @@ function common.math.compareVersions()
 			then
 				echo 1
 				return $CXR_RET_OK
-			fi
+			fi # Decision reached?
 		done # Loop though hierarchy
 		
 		# Arriving here can mean two things: the versions are the same,
