@@ -479,8 +479,8 @@ function test_module()
 	is "$(common.math.compareVersions "4.51" "4.51")" 0 "common.math.compareVersions: both 4.51"
 	is "$(common.math.compareVersions "1.2.3.4.5" "1.2.3.4.5")" 0 "common.math.compareVersions: both 1.2.3.4.5"
 	is "$(common.math.compareVersions "5.1.20" "5.0")" -1 "common.math.compareVersions: 5.1.20 > 5.0"
-	is "$(common.math.compareVersions "4.42" "5.3")" 0 "common.math.compareVersions: 5.3 > 4.42"
-	is "$(common.math.compareVersions "5.0.0.20" "5.0.0.20.1")" 0 "common.math.compareVersions: 5.0.0.20.1 > 5.0.0.20"
+	is "$(common.math.compareVersions "4.42" "5.3")" 1 "common.math.compareVersions: 5.3 > 4.42"
+	is "$(common.math.compareVersions "5.0.0.20" "5.0.0.20.1")" 1 "common.math.compareVersions: 5.0.0.20.1 > 5.0.0.20"
 	
 	is "$(common.math.abs 0)" 0 "common.math.abs of 0"
 	is "$(common.math.abs -0)" 0 "common.math.abs of -0"

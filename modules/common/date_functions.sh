@@ -1466,8 +1466,8 @@ function test_module()
 	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
 	
 	is $(common.date.DayOfWeek 2009-12-31) 4 "DOW"
-	is $(common.date.WeekOfYear 2009-12-31) 53 "WOY normal"
-	is $(common.date.WeekOfYear 2009-01-01 true) 1 "WOY no padding"
+	is $(common.date.WeekOfYear 2009-12-31) 52 "WOY normal"
+	is $(common.date.WeekOfYear 2009-01-01 true) 0 "WOY no padding"
 	is $(common.date.MonthOfYear 2009-12-31) 12 "MOY"
 	
 	is "$(common.date.humanSeconds 60)" '1 min' "common.date.humanSeconds One minute"
