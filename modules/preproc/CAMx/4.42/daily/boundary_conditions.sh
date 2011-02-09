@@ -130,7 +130,7 @@ function set_variables()
 	NLEV=${CXR_NUMBER_OF_LAYERS[1]}
 	
 	# The date needed by this function is a bit strange
-	# It needs a 2-digit yoer and a 3-digit DOY
+	# It needs a 2-digit year and a 3-digit DOY
 	IBDATE="${CXR_YEAR_S}$(common.date.DayOfYear ${CXR_DATE} 3 )"
 	
 	# Evaluate some rules

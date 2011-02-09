@@ -181,6 +181,7 @@ function common.map.indexesToLonLat()
 # $1 - Lon coordinate
 # $2 - Lat coordinate
 # $3 - domain-index (1-based), integer
+# [$4] - precision (number of decimals, default: CXR_NUM_DIGITS). -1 Means truncate, 0 means round to next integer
 ################################################################################
 function common.map.LonLatToIndexes()
 ################################################################################
@@ -204,11 +205,13 @@ function common.map.LonLatToIndexes()
 	local first_cell
 	local first_cell_x
 	local first_cell_y
+	local scale
 	
 
 	lon="$1"
 	lat="$2"
 	domain="$3"
+	scale="${4:-$CXR_NUM_DIGITS}"
 	
 	# Convert coordinates to Model Coordinates
 	converted="$(common.map.LonLatToProjection $lon $lat)"
@@ -242,8 +245,9 @@ function common.map.LonLatToIndexes()
 		main.dieGracefully "Domain number $domain is outside the range 1..$CXR_NUMBER_OF_GRIDS"
 	fi
 	
-	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1")
-	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1")
+	# Rounding (if needed) is done in this last step
+	x_out=$(common.math.FloatOperation "(($x_in - $first_cell_x)/$resolution_x) + 1" "$scale")
+	y_out=$(common.math.FloatOperation "(($y_in - $first_cell_y)/$resolution_y) + 1" "$scale")
 
 	# Test dimensions
 	if [[ $(common.math.FloatOperation "$x_out > $(common.runner.getX $domain)" 0) -eq 1 || \
@@ -384,6 +388,7 @@ function common.map.ProjectionToModelCoordinates()
 # $2 - x-coordinate in projection
 # $3 - domain in which indexes are needed
 # [$4] - name of projection in uppercase, if not given, $CXR_MAP_PROJECTION is used
+# [$5] - precision (number of decimals, default: CXR_NUM_DIGITS). -1 Means truncate, 0 means round to next integer
 ################################################################################
 function common.map.ProjectionToIndexes()
 ################################################################################
@@ -394,7 +399,7 @@ function common.map.ProjectionToIndexes()
 	lonlat_xy=$(common.map.ProjectionToLonLat $1 $2 ${4:-$CXR_MAP_PROJECTION})
 	
 	# Now do the conversion to indexes
-	common.map.LonLatToIndexes $lonlat_xy $3
+	common.map.LonLatToIndexes $lonlat_xy $3 ${5:-$CXR_NUM_DIGITS}
 }
 
 
