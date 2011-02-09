@@ -214,7 +214,15 @@ function set_variables()
 	CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE)
 	CXR_INITIAL_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE)
 	CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE)
-	CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
+	
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.20.1" )" -eq 1 ]]
+	then	
+		CXR_TOP_CONCENTRATIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TOP_CONCENTRATIONS_FILE_RULE" false CXR_TOP_CONCENTRATIONS_FILE_RULE)
+	else
+		# Starting with version 5.20.1, CAMx needs no TOPCONC anymore
+		CXR_TOP_CONCENTRATIONS_INPUT_FILE=
+	fi
+
 	CXR_ALBEDO_HAZE_OZONE_INPUT_FILE=$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)
 
 	# Checks we need always
@@ -716,7 +724,13 @@ function write_model_control_file()
 	fi
 	
 	echo " Boundary_Conditions  = '${CXR_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Top_Concentrations   = '${CXR_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+	
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.20.1" )" -eq 1 ]]
+	then
+		# Topconc is only needed if the version is smaller than 5.20.1
+		echo " Top_Concentrations   = '${CXR_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+	fi
+
 	echo " Albedo_Haze_Ozone    = '${CXR_ALBEDO_HAZE_OZONE_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 	
 	if [[ "$CXR_PLUME_IN_GRID" == true  ]]
@@ -851,7 +865,13 @@ function write_model_control_file()
 		
 		echo " DDM_Initial_Conditions    = '${CXR_DDM_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 		echo " DDM_Boundary_Conditions   = '${CXR_DDM_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
-		echo " DDM_Top_Concentrations    = '${CXR_DDM_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+		
+		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.20.1" )" -eq 1 ]]
+		then
+			# Topconc is only needed if the version is smaller than 5.20.1
+			echo " DDM_Top_Concentrations    = '${CXR_DDM_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+		fi
+
 		echo " DDM_Master_Restart        = '${CXR_DDM_MASTER_RESTART_INPUT_FILE:-}'," >> ${CXR_MODEL_CTRL_FILE} 
 		echo " DDM_Nested_Restart        = '${CXR_DDM_NESTED_RESTART_INPUT_FILE:-}'," >> ${CXR_MODEL_CTRL_FILE} 
 		
@@ -930,8 +950,13 @@ function write_model_control_file()
 		
 		echo " RT_Initial_Conditions   = '${CXR_RT_INITIAL_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 		echo " RT_Boundary_Conditions  = '${CXR_RT_BOUNDARY_CONDITIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
-		echo " RT_Top_Concentrations   = '${CXR_RT_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
 		
+		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.20.1" )" -eq 1 ]]
+		then
+			# Topconc is only needed if the version is smaller than 5.20.1
+			echo " RT_Top_Concentrations   = '${CXR_RT_TOP_CONCENTRATIONS_INPUT_FILE}'," >> ${CXR_MODEL_CTRL_FILE} 
+		fi
+
 		echo " RT_Master_Restart       = '${CXR_RT_MASTER_RESTART_INPUT_FILE:-}'," >> ${CXR_MODEL_CTRL_FILE} 
 		echo " RT_Nested_Restart       = '${CXR_RT_NESTED_RESTART_INPUT_FILE:-}'," >> ${CXR_MODEL_CTRL_FILE} 
 		

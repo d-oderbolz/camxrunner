@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=23
+CXR_META_MODULE_NUM_TESTS=29
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some math functions for the CAMxRunner, mostly to add floating point features to bash"
@@ -38,6 +38,96 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
+
+################################################################################
+# Function: common.math.compareVersions
+#
+# Compares two numerical version strings of the form 1.2.11... (any depth)
+# with each other. The comparison is done hierarchically until a decision is reached.
+#
+# Returns:
+# - -1 if version 1 is higher than version 2
+# - 0 if they are the same or on error
+# - +1 if version 2 is higher than version 1
+#
+# Parameters:
+# $1 - Version number 1
+# $2 - Version number 2
+################################################################################
+function common.math.compareVersions()
+################################################################################
+{
+	local v1
+	local v2
+	local v1_arr
+	local v2_arr
+	
+	local nv1
+	local nv2
+	local iH
+	local max
+	
+	v1="$1"
+	v2="$2"
+	
+	# Convert them into arrays
+	oIFS="$IFS"
+	IFS=.
+	
+	v1_arr=($v1)
+	v2_arr=($v2)
+	
+	IFS="$oIFS"
+	
+	nv1=${#v1_arr[@]}
+	nv2=${#v2_arr[@]}
+	
+	# We loop over the smaller array
+	if [[ $nv1 -lt $nv2 ]]
+	then
+		max=$nv1
+	else
+		max=$nv2
+	fi
+	
+	if [[ $max -gt 0 ]]
+	then
+	
+		for iH in $(seq 0 $(( $max - 1 ))
+		do
+			if [[ ${v1_arr[$iH]} -gt ${v2_arr[$iH]} ]]
+			then
+				echo -1
+				return $CXR_RET_OK
+			elif [[ ${v2_arr[$iH]} -gt ${v1_arr[$iH]} ]]
+			then
+				echo 1
+				return $CXR_RET_OK
+			fi
+		done # Loop though hierarchy
+		
+		# Arriving here can mean two things: the versions are the same,
+		# or one array is longer than the other (the longer is the higher in this case)
+		
+		if [[ $nv1 -eq $nv2 ]]
+		then
+			echo 0
+			return $CXR_RET_OK
+		elif [[ $nv1 -gt $nv2 ]]
+		then
+			echo -1
+			return $CXR_RET_OK
+		else
+			echo 1
+			return $CXR_RET_OK
+		fi
+	
+	else
+		main.log -e "One of the version strings $v1 or $v2 is empty"
+		echo 0
+	fi
+	
+}
 
 ################################################################################
 # Function: common.math.roundToInteger
@@ -383,6 +473,13 @@ function test_module()
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
+	
+	is "$(common.math.compareVersions "" "")" 0 "common.math.compareVersions: Empty input"
+	is "$(common.math.compareVersions "4.51" "4.51")" 0 "common.math.compareVersions: both 4.51"
+	is "$(common.math.compareVersions "1.2.3.4.5" "1.2.3.4.5")" 0 "common.math.compareVersions: both 1.2.3.4.5"
+	is "$(common.math.compareVersions "5.1.20" "5.0")" -1 "common.math.compareVersions: 5.1.20 > 5.0"
+	is "$(common.math.compareVersions "4.42" "5.3")" 0 "common.math.compareVersions: 5.3 > 4.42"
+	is "$(common.math.compareVersions "5.0.0.20" "5.0.0.20.1")" 0 "common.math.compareVersions: 5.0.0.20.1 > 5.0.0.20"
 	
 	is "$(common.math.abs 0)" 0 "common.math.abs of 0"
 	is "$(common.math.abs -0)" 0 "common.math.abs of -0"
