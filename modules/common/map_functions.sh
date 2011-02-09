@@ -186,7 +186,7 @@ function common.map.indexesToLonLat()
 function common.map.LonLatToIndexes()
 ################################################################################
 {
-	if [[ $# -ne 3 ]]
+	if [[ $# -lt 3 || $# -gt 4 ]]
 	then
 		main.dieGracefully "Needs x and y coordinates plus domain number as input. Got $*"
 	fi
