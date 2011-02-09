@@ -70,8 +70,10 @@ CXR_META_MODULE_VERSION='$Id$'
 function getNumInvocations()
 ################################################################################
 {
-	# This module needs one invocation per step
-	echo 1
+	# This module needs as many invocations as days
+	# You cold ask: "Why is this not a daily module?" 
+	# Its because initial_conditions needs the data (of day 1, that is)
+	echo ${CXR_NUMBER_OF_SIM_DAYS}
 }
 
 ################################################################################
@@ -97,6 +99,8 @@ function getProblemSize()
 function set_variables() 
 ################################################################################
 {	
+	local DayOffset
+	
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -116,9 +120,12 @@ function set_variables()
 
 	# Set CXR_IGRID to one, we only want the master domain
 	CXR_IGRID=1
+	
+	# Invocations are 1 based
+	DayOffset=$(( $CXR_INVOCATION - 1 ))
 
-	# Set date vars using invocation as day offset
-	common.date.setVars "$CXR_START_DATE" "$CXR_INVOCATION"
+	# Set date vars using invocation -1 as day offset
+	common.date.setVars "$CXR_START_DATE" "$DayOffset"
 
 	# The input (binary)
 	CXR_INPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
@@ -138,7 +145,7 @@ function set_variables()
 # to ascii
 #
 # Parameters:
-# $1 - the invocation (1..n) - here directly used as day offset
+# $1 - the invocation (1..n) - here directly used as day offset (after subtracting one)
 ################################################################################
 function convert_meteo() 
 ################################################################################
