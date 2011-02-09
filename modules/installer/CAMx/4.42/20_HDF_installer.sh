@@ -109,7 +109,7 @@ function HDF_installer()
 		cd $MYLIBDIR/zlib || main.dieGracefully "could not change to $MYLIBDIR/zlib"
 	
 		# Download
-		${CXR_WGET_EXEC} ${CXR_ZLIB_TAR_LOC} -O ${CXR_ZLIB_TAR} || main.dieGracefully "could not download ${CXR_ZLIB_TAR_LOC}"
+		common.install.downloadFile ${CXR_ZLIB_TAR_LOC} ${CXR_ZLIB_TAR} true
 		
 		# Untar 
 		tar xvzf ${CXR_ZLIB_TAR}
@@ -139,7 +139,7 @@ function HDF_installer()
 		cd $MYLIBDIR/hdf || main.dieGracefully "could not change to $MYLIBDIR/hdf"
 	
 		# Download
-		${CXR_WGET_EXEC} ${CXR_HDF_TAR_LOC} -O ${CXR_HDF_TAR} || main.dieGracefully "could not download ${CXR_HDF_TAR_LOC}"
+		common.install.downloadFile ${CXR_HDF_TAR_LOC} ${CXR_HDF_TAR} true
 		
 		# Untar 
 		tar xvzf ${CXR_HDF_TAR}
@@ -169,7 +169,7 @@ function HDF_installer()
 		cd $MYLIBDIR/netcdf || main.dieGracefully "could not change to $MYLIBDIR/netcdf"
 		
 		# Download
-		${CXR_WGET_EXEC} ${CXR_NETCDF_TAR_LOC} -O ${CXR_NETCDF_TAR} || main.dieGracefully "could not download ${CXR_NETCDF_TAR_LOC}"
+		common.install.downloadFile ${CXR_NETCDF_TAR_LOC} ${CXR_NETCDF_TAR} true
 
 		# Untar 
 		tar xvzf ${CXR_NETCDF_TAR}
@@ -199,7 +199,7 @@ function HDF_installer()
 		cd $MYLIBDIR/ioapi || main.dieGracefully "could not change to $MYLIBDIR/ioapi"
 		
 		# Download
-		${CXR_WGET_EXEC} ${CXR_IOAPI_TAR_LOC} -O ${CXR_IOAPI_TAR} || main.dieGracefully "could not download ${CXR_IOAPI_TAR_LOC}"
+		common.install.downloadFile ${CXR_IOAPI_TAR_LOC} ${CXR_IOAPI_TAR} true
 
 		# Untar 
 		tar xvzf ${CXR_IOAPI_TAR}

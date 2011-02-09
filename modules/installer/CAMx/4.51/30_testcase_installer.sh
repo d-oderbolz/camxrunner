@@ -71,9 +71,9 @@ function testcase_installer()
 		########################################
 		
 		# Get the 3 files
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_MET} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_MET_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_IN} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_IN_LOC"
-		${CXR_WGET_EXEC} ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} -O ${CXR_CAMX_TESTCASE_TGZ_OUT} || main.dieGracefully "could not download $CXR_CAMX_TESTCASE_TGZ_OUT_LOC"
+		common.install.downloadFile ${CXR_CAMX_TESTCASE_TGZ_MET_LOC} ${CXR_CAMX_TESTCASE_TGZ_MET} true
+		common.install.downloadFile ${CXR_CAMX_TESTCASE_TGZ_IN_LOC} ${CXR_CAMX_TESTCASE_TGZ_IN} true
+		common.install.downloadFile ${CXR_CAMX_TESTCASE_TGZ_OUT_LOC} ${CXR_CAMX_TESTCASE_TGZ_OUT} true
 		
 		########################################
 		main.log  "Unpacking tar files..."

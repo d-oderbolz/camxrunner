@@ -312,7 +312,7 @@ function create_ahomap_control_file()
 			if [[ $CXR_DRY == false  ]]
 			then
 				# Download
-				${CXR_WGET_EXEC} ${CURRENT_URL} -O $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE} || return $CXR_RET_ERROR
+				common.install.downloadFile ${CURRENT_URL} $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}
 			else
 				main.log  "Dryrun, file ${CXR_AHOMAP_OZONE_COLUMN_FILE} not downloaded"
 			fi

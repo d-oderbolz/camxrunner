@@ -99,7 +99,7 @@ function PMCAMx_installer()
 		#main.log  "Downloading ..."
 		########################################
 		
-		#${CXR_WGET_EXEC} ${CXR_PMCAMX_TAR_LOC} -O ${CXR_PMCAMX_TAR} || main.dieGracefully "could not download $CXR_PMCAMX_TAR_LOC"
+		# common.install.downloadFile ${CXR_PMCAMX_TAR_LOC} ${CXR_PMCAMX_TAR} true
 		
 		########################################
 		#main.log  "Expanding  ${CXR_CAMX_TAR}..."

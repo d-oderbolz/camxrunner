@@ -342,6 +342,44 @@ function common.install.applyPatch()
 	
 }
 
+
+################################################################################
+# Function: common.install.downloadFile
+#	
+# Downloads a file to the specified path. A file of zero length is considered a failure.
+#
+# Parameters:
+# $1 - URL to be downloaded
+# $2 - Path to store file
+# $3 - die_on_failure, if true (default false), we die if we cant get the file.
+################################################################################
+function common.install.downloadFile()
+################################################################################
+{
+	local url
+	local target
+	local failed
+	
+	url="$1"
+	target="$2"
+	die_on_failure="${3:-false}"
+	failed=false
+	
+	main.log -v "Downloading ${url} to ${target}..."
+	
+	# Get the file
+	${CXR_WGET_EXEC} "${url}" -O "${target}" || :
+	
+	if [[ ! -s "$target" ]]
+	then
+		if [[ $die_on_failure == true ]]
+		then
+			main.dieGracefully "Could not download $url to $target!"
+		else
+			main.log -e "Could not download $url to $target!"
+		fi # worth dying for?
+	fi # failed?
+}
 ################################################################################
 # Function: test_module
 #

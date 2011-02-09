@@ -97,8 +97,6 @@ function getProblemSize()
 function set_variables() 
 ################################################################################
 {	
-	local DayOffset
-	
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
@@ -119,25 +117,18 @@ function set_variables()
 	# Set CXR_IGRID to one, we only want the master domain
 	CXR_IGRID=1
 
-	for DayOffset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-	do
-		# Setup environment
-		common.date.setVars "$CXR_START_DATE" "$DayOffset"
-		
-		# The input (binary)
-		CXR_INPUT_FILES[$DayOffset]="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
-		
-		# The output (ascii)
-		CXR_OUTPUT_FILES[$DayOffset]="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)"
-		
-		#Add checks
-		CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILES[$DayOffset]}"
-		CXR_CHECK_THESE_OUTPUT_FILES="${CXR_CHECK_THESE_OUTPUT_FILES} ${CXR_OUTPUT_FILES[$DayOffset]}"
-	done
+	# Set date vars using invocation as day offset
+	common.date.setVars "$CXR_START_DATE" "$CXR_INVOCATION"
+
+	# The input (binary)
+	CXR_INPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
 	
-	# Reset date variables for first day
-	common.date.setVars "$CXR_START_DATE" "0"
+	# The output (ascii)
+	CXR_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE false)"
 	
+	#Add checks
+	CXR_CHECK_THESE_INPUT_FILES="${CXR_CHECK_THESE_INPUT_FILES} ${CXR_INPUT_FILE}"
+	CXR_CHECK_THESE_OUTPUT_FILES="${CXR_CHECK_THESE_OUTPUT_FILES} ${CXR_OUTPUT_FILE}"
 }
 
 ################################################################################
@@ -152,7 +143,7 @@ function set_variables()
 function convert_meteo() 
 ################################################################################
 {
-	# In this module, CXR_INVOCATION has no meaning (except indirect)
+	# In this module, CXR_INVOCATION is the day offset
 	CXR_INVOCATION=${1}
 	
 	local DayOffset
@@ -175,21 +166,17 @@ function convert_meteo()
 		
 		if [[ "$CXR_DRY" == false  ]]
 		then
-			# Do conversion for all days
-			for DayOffset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
-			do
-				# Does the output already exist?
-				if [[ -s "${CXR_OUTPUT_FILES[$DayOffset]}"  ]]
-				then
-					main.log -w "File ${CXR_OUTPUT_FILES[$DayOffset]} exists - file will skipped."
-				else
-					# Call the converter, collect sterr and stout
-					# 0 indicates stdout for logging
-					main.log "Calling ${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG"
-					${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILES[$DayOffset]} ${CXR_OUTPUT_FILES[$DayOffset]} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
-				fi
-			done
 
+			# Does the output already exist?
+			if [[ -s "${CXR_OUTPUT_FILE}" ]]
+			then
+				main.log -w "File ${CXR_OUTPUT_FILE} exists - file will skipped."
+			else
+				# Call the converter, collect sterr and stout
+				# 0 indicates stdout for logging
+				main.log "Calling ${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG"
+				${CXR_UAMVASCII_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} HEIGHT $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
+			fi
 		else
 			main.log  "This is a dry-run, no action required"
 		fi

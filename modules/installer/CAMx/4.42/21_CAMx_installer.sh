@@ -123,14 +123,14 @@ function CAMx_installer()
 				main.log -a  "Downloading ..."
 				########################################
 				
-				${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main.dieGracefully "could not download $CXR_CAMX_TAR_LOC"
+				common.install.downloadFile ${CXR_CAMX_TAR_LOC} ${CXR_CAMX_TAR} true
 			fi
 		else
 			########################################
 			main.log -a  "Downloading ..."
 			########################################
 			
-			${CXR_WGET_EXEC} ${CXR_CAMX_TAR_LOC} -O ${CXR_CAMX_TAR} || main.dieGracefully "could not download $CXR_CAMX_TAR_LOC"
+			common.install.downloadFile ${CXR_CAMX_TAR_LOC} ${CXR_CAMX_TAR} true
 		fi
 		
 		########################################
@@ -435,7 +435,7 @@ function CAMx_installer()
 			
 			cd $chemparam_tempdir || main.dieGracefully "could not change to ${chemparam_tempdir}"
 			
-			${CXR_WGET_EXEC} ${CXR_CAMX_CHEMPARAM_TAR_LOC} -O ${CXR_CAMX_CHEMPARAM_TAR} || main.dieGracefully "could not download $CXR_CAMX_CHEMPARAM_TAR"
+			common.install.downloadFile ${CXR_CAMX_CHEMPARAM_TAR_LOC} ${CXR_CAMX_CHEMPARAM_TAR} true
 			
 			tar xvzf ${CXR_CAMX_CHEMPARAM_TAR} || main.dieGracefully "could not deflate ${CXR_CAMX_CHEMPARAM_TAR}"
 			
