@@ -181,7 +181,7 @@ function create_emissions()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [[ ! -f "${CXR_EMISSION_OUTPUT_FILE}"  ]]
+		if [[ ! -s "${CXR_EMISSION_OUTPUT_FILE}"  ]]
 		then
 			#File does not exist
 		

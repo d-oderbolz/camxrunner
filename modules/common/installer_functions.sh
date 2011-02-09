@@ -178,7 +178,7 @@ function common.install.getPatchTarget()
 	
 	patch=${1:-}
 	
-	if [[ ! -f "$patch"  ]]
+	if [[ ! -s "$patch"  ]]
 	then
 		main.dieGracefully "no filename passed or file not readable!"
 	fi

@@ -489,9 +489,9 @@ main.log -v -B "CAMxRunner is consistent as far as I can tell."
 if [[ "${CXR_CHEMPARAM_INPUT_FILE:-}"  ]]
 then
 	#String is non-empty, check if it is sensible
-	if [[ ! -f ${CXR_CHEMPARAM_INPUT_FILE:-}  ]]
+	if [[ ! -s ${CXR_CHEMPARAM_INPUT_FILE:-}  ]]
 	then
-		main.log -w "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found. I try to find the correct setting."
+		main.log -w "You set the parameter CXR_CHEMPARAM_INPUT_FILE in your configuration, however, the file $CXR_CHEMPARAM_INPUT_FILE cannot be found or is empty. I try to find the correct setting."
 		# String is not properly set - try to get it
 		CXR_CHEMPARAM_INPUT_FILE=$(get_chemparam_file ${CXR_CHEMICAL_MECHANISM} ${CXR_AEROSOL_MECHANISM} )
 	fi

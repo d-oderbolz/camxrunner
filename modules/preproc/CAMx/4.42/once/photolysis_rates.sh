@@ -314,7 +314,7 @@ function photolysis_rates()
 				return $CXR_RET_ERR_PRECONDITIONS
 			fi
 			
-			if [[ ! -f "$CXR_TUV_OUTPUT_FILE"  ]]
+			if [[ ! -s "$CXR_TUV_OUTPUT_FILE"  ]]
 			then
 				# TUV File does not exist
 			

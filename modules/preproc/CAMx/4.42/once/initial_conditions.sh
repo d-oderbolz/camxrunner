@@ -255,7 +255,7 @@ function initial_conditions()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		if [[ ! -f "${CXR_IC_OUTPUT_FILE}"  ]]
+		if [[ ! -s "${CXR_IC_OUTPUT_FILE}"  ]]
 		then
 			# Output File does not exist - good.
 			

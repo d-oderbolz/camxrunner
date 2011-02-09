@@ -151,11 +151,11 @@ function split_emissions()
 		main.log   "Splitting Emission data"
 		
 		# Is the output there?
-		if [[ ! -f "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"  ]]
+		if [[ ! -s "$CXR_SPLIT_EMISSIONS_OUTPUT_FILE"  ]]
 		then
 			# File not yet there
 		
-			if [[ "$CXR_DRY" == false  ]]
+			if [[ "$CXR_DRY" == false ]]
 			then
 			
 					main.log  "Calling split_emissions_area - be patient...\n"

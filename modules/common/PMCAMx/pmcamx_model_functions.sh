@@ -78,9 +78,9 @@ function get_chemparam_file ()
 	# While the other file does set these to 0.
 	MY_CHEMPARAM_INPUT_FILE=${CXR_MODEL_BIN_DIR}/chemparam/CAMx4.chemparam.5.FINAL_SEMIvol_Rxns
 
-	if [[ ! -f "${MY_CHEMPARAM_INPUT_FILE}"  ]]
+	if [[ ! -s "${MY_CHEMPARAM_INPUT_FILE}"  ]]
 	then
-		main.dieGracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE}"
+		main.dieGracefully "Cannot determine name of chemparam file (parameter CXR_CHEMPARAM_INPUT_FILE), tried ${MY_CHEMPARAM_INPUT_FILE} (may be empty)"
 	else
 		main.log "Using general chemparam file (${MY_CHEMPARAM_INPUT_FILE})."
 	fi

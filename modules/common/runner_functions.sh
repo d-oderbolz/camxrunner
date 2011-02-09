@@ -1351,9 +1351,9 @@ function common.runner.createConfigFile()
 				basefile=$(common.runner.getExistingConfigFile)
 			fi
 		
-			if [[ ! -f "$basefile"  ]]
+			if [[ ! -s "$basefile"  ]]
 			then
-				main.dieGracefully "File $basefile is not readable!"
+				main.dieGracefully "File $basefile is not readable or empty!"
 			fi
 		
 			# For the moment, I romoved the option to expand a config

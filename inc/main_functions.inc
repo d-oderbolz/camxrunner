@@ -1049,9 +1049,9 @@ function main.getRevision()
 		filename=$1
 	fi
 	
-	if [[ ! -f "$filename"  ]]
+	if [[ ! -s "$filename"  ]]
 	then
-		# File inexistent
+		# File inexistent or empty
 		revision=0
 	else
 		# File exists, get first version string

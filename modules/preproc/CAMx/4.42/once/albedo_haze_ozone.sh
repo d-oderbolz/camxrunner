@@ -472,7 +472,7 @@ function albedo_haze_ozone()
 		main.log  "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
 		
 		# Is the output there?
-		if [[ ! -f "$CXR_AHOMAP_OUTPUT_FILE"  ]]
+		if [[ ! -s "$CXR_AHOMAP_OUTPUT_FILE"  ]]
 		then
 			# File not yet there
 		
