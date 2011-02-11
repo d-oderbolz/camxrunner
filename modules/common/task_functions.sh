@@ -1055,13 +1055,6 @@ function common.task.Worker()
 			# Init id
 			_id=""
 			
-			if [[ $CXR_RELOAD_CONF == true ]]
-			then
-				main.log -v "CXR_RELOAD_CONF is true, we (silently) reload the config..."
-				
-				main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}" &> /dev/null
-			fi
-			
 			# common.task.setNextTask provides tasks in an atomic fashion
 			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
@@ -1153,6 +1146,13 @@ function common.task.Worker()
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
+				
+				if [[ $CXR_RELOAD_CONF == true ]]
+				then
+					main.log -v "CXR_RELOAD_CONF is true, we (silently) reload the config..."
+					
+					main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}" &> /dev/null
+				fi
 				
 				main.log -a -B "Worker $CXR_WORKER_ID (PID: $CXR_WORKER_PID on $CXR_MACHINE) assigned to $module (invocation $invocation) for $CXR_DATE"
 				
