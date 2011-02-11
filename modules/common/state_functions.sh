@@ -387,19 +387,6 @@ function common.state.updateInfo()
 		then
 			main.log "This run has already been started earlier."
 			
-			# HERE
-			nsqlfile=$(common.runner.createTempFile sql-updateInfon)
-			echo "DELETE FROM days;" >> $nsqlfile
-		
-			for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
-			do
-				echo  "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true');" >> $nsqlfile
-			done
-			
-			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $nsqlfile
-			
-			main.dieGracefully "Done."
-			
 			# Its dangerous if a run has been extended at the beginning
 			# because the mapping of offset to days changed.
 			first="$(common.state.getFirstDayModelled)"
@@ -465,10 +452,7 @@ function common.state.updateInfo()
 					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
 				fi
 
-			done
-			
-			# Delete all inactivated days
-			echo "DELETE FROM days WHERE active='false';" >> $sqlfile
+			done # loop over wanted days
 			
 		fi # Handle single days
 		
