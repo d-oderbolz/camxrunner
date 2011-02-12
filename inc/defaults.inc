@@ -55,6 +55,7 @@ CXR_PATTERN_NUMERIC='\b-?[0-9]+(\.[0-9]*)?\b'
 ################################################################################
 
 # Statusses that the runner knows
+CXR_STATUS_DISABLED=DISABLED # This is used to mark task we do net currently run
 CXR_STATUS_RUNNING=RUNNING
 CXR_STATUS_SUCCESS=SUCCESS
 CXR_STATUS_FAILURE=FAILURE
