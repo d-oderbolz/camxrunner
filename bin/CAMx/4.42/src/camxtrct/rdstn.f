@@ -89,7 +89,7 @@ c   --- when this condition is true the station is in a boundary cell
           goto 2000
         end if 
 
-        stnconc(i) = grdtrp(ierr, stnx, stny, gridin)
+c        stnconc(i) = grdtrp(ierr, stnx, stny, gridin)
         
  2000   continue
       enddo

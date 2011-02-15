@@ -142,11 +142,11 @@ c
 c  --- if doing a time series plot, call routine to 
 c      read the station file ---
 c
-      if( exttyp .EQ. TIMSER ) then
-         call rdstn (ierr)
-         if( ierr .NE. ISUCES ) goto 9999
-      endif
-  
+cgmw      if( exttyp .EQ. TIMSER ) then
+cgmw         call rdstn (ierr)
+cgmw         if( ierr .NE. ISUCES ) goto 9999
+cgmw      endif
+cgmw
       if ((exttyp .EQ. XYHOUR) .OR. (exttyp .EQ. XYMAX)) then
         level = klayer
         lvltyp = 'layer'
