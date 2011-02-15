@@ -32,10 +32,10 @@ c
      &     prdconc3(mxhr,mxsit),prdconc4(mxx,mxy),
      &     obsconc1(mxobs,mxsit),obsconc2(mxobs,mxsit),
      &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit)
-      character*80 ipath,statmsg,obsmsg
+      character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
-      character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
+      character*4 filnam(60),fileid(60),mspec1(10),mspec(10,mxspc),
      &            obspec(10)
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       data ione /1/
