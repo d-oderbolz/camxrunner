@@ -55,22 +55,22 @@ LIBS =
 all: obscat combine2 camxstat avgcat camxpost extstat
 
 obscat: obscat.o
-	$(FC) -o $(DESTINATION)/obscat-$(HOSTTYPE) $(FLGS) $(LIBS)
+	$(FC) -o $(DESTINATION)/obscat-$(HOSTTYPE) $(FLGS) obscat.o $(LIBS)
 	
 combine2: combine2.o
-	$(FC) -o $(DESTINATION)/combine2-$(HOSTTYPE) $(FLGS) $(LIBS)
+	$(FC) -o $(DESTINATION)/combine2-$(HOSTTYPE) $(FLGS) combine2.o $(LIBS)
 	
 camxstat: camxstat.o
-	$(FC) -o $(DESTINATION)/camxstat-$(HOSTTYPE) $(FLGS) $(LIBS)
+	$(FC) -o $(DESTINATION)/camxstat-$(HOSTTYPE) $(FLGS) camxstat.o $(LIBS)
 	
 avgcat: avgcat.o
-	$(FC) -o $(DESTINATION)/avgcat-$(HOSTTYPE) $(FLGS) $(LIBS)
+	$(FC) -o $(DESTINATION)/avgcat-$(HOSTTYPE) $(FLGS) avgcat.o $(LIBS)
 	
 camxpost: camxpost.o
-	$(FC) -o $(DESTINATION)/camxpost-$(HOSTTYPE) $(FLGS) $(LIBS)
+	$(FC) -o $(DESTINATION)/camxpost-$(HOSTTYPE) $(FLGS) camxpost.o $(LIBS)
 	
 extstat: extstat.o
-	$(FC) -o $(DESTINATION)/extstat-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
+	$(FC) -o $(DESTINATION)/extstat-$(HOSTTYPE) $(FLGS) extstat.o $(LIBS)
 	
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
