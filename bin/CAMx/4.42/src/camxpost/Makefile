@@ -48,7 +48,7 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FLGS = $(TPOPTION) -byteswapio -Bstatic
+FLGS = $(TPOPTION) -byteswapio
 
 LIBS = 
 
