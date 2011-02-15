@@ -1,0 +1,47 @@
+#!/bin/csh
+# This job generates daily 8-hour PRED/OBS (for stats) and AVERAGE files 
+# (for viewing with PAVE)
+#
+# First run AVGCAT to get a single AVERAGE file containing 1-hour ozone for
+# the entire episode (this simplifies the 8-hour averaging process)
+# The input AVERAGE files have been produced by CAMxTRCT to get 1-hour ozone
+# in Layer 1 from fine grid #3.
+# 
+#
+set RUN = "base.a5"
+#
+rm CAMx.alldays.$RUN.o3
+#
+/models/camx/postproc/camxpost/avgcat << ieof
+Output file        |CAMx.alldays.$RUN
+Number of inputs   |8
+Input files        |CAMx.980815.$RUN
+                   |CAMx.980816.$RUN
+                   |CAMx.980817.$RUN
+                   |CAMx.980818.$RUN
+                   |CAMx.980819.$RUN
+                   |CAMx.980820.$RUN
+                   |CAMx.980821.$RUN
+                   |CAMx.980822.$RUN
+ieof
+#
+# Next run CAMxPOST for each day of the simulation to get daily 8-hour output
+#
+foreach date (17 18 19 20 21 22)
+set jdate1 = `echo $date |awk '{printf("%5.5d00",$1+98212)}'`
+set jdate2 = `echo $date |awk '{printf("%5.5d23",$1+98212)}'`
+/bin/time /models/camx/postproc/camxpost/camxpost << EOF
+Input avrg file    |CAMx.alldays.$RUN
+Observation data   |./o3.aug_all
+Output avrg file   |CAMx.9808$date.$RUN.o3_8hr
+Outpt max avrg file|
+Outpt PRED/OBS data|predobs.o3_8hr.9808$date.$RUN
+Outpt max OBS data |obsmax.8hour.$date
+n-hour average span|8
+Date/time range    |$jdate1 $jdate2
+Species to proc    |O3
+Peak search radius |50.
+Sub-domain         |    0    0    0    0
+Message            |August 1998 Base Case (a5); 8-hour O3
+EOF
+end

@@ -1,0 +1,14 @@
+#!/bin/csh
+obscat << EOF
+Output file        |aug98/o3.aug_all
+New message        |Ozone data August 15-22, 1998
+Number of files    |8
+Input files        |aug98/o3.aug15
+                   |aug98/o3.aug16
+                   |aug98/o3.aug17
+                   |aug98/o3.aug18
+                   |aug98/o3.aug19
+                   |aug98/o3.aug20
+                   |aug98/o3.aug21
+                   |aug98/o3.aug22
+EOF

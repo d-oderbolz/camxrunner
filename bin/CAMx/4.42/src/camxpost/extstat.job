@@ -1,0 +1,50 @@
+#!/bin/csh
+
+# Extracts key daily statistics from camxstat outputs and
+# outputs a table that can be imported into Excel to generate bar chart
+# statistics.
+
+foreach HR (1hr 8hr)
+foreach RUN (run15 ) 
+set PATH = ../output/$RUN/stats
+
+./extstat.v2.linux << EOF
+Output file        |./extstats.2006june.$RUN.$HR.04km.txt
+Run name           |$RUN
+# of files         |32
+Input files        |$PATH/stats.O3.$HR.$RUN.060531.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060601.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060602.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060603.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060604.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060605.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060606.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060607.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060608.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060609.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060610.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060611.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060612.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060613.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060614.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060615.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060616.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060617.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060618.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060619.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060620.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060621.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060622.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060623.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060624.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060625.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060626.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060627.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060628.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060629.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060630.04km.txt
+                   |$PATH/stats.O3.$HR.$RUN.060701.04km.txt
+EOF
+end
+end
+

@@ -1,0 +1,10 @@
+#
+foreach date (15 16 17 18 19 20 21 22)
+/bin/time camxstat << EOF
+Input PRED/OBS data|predobs.o3.9808$date.base
+Output stats file  |stats.o3.9808$date.base
+Min Threshold conc |60.
+Prediction scaling |1.
+Units              |ppb
+EOF
+end

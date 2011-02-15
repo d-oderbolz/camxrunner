@@ -1,0 +1,17 @@
+#!/bin/csh
+set RUN = "base.a5"
+
+rm CAMx.alldays.$RUN.o3
+
+/models/camx/postproc/camxpost/avgcat << ieof
+Output file        |CAMx.alldays.$RUN
+Number of inputs   |8
+Input files        |CAMx.980815.$RUN
+                   |CAMx.980816.$RUN
+                   |CAMx.980817.$RUN
+                   |CAMx.980818.$RUN
+                   |CAMx.980819.$RUN
+                   |CAMx.980820.$RUN
+                   |CAMx.980821.$RUN
+                   |CAMx.980822.$RUN
+ieof

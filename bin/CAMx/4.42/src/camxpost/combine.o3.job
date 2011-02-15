@@ -1,0 +1,15 @@
+#!/bin/csh
+combine2 << EOF
+Outpt PRED/OBS data|predobs.o3.aug98.base
+message            |Base Case
+units              |ppb
+Number of scenarios|1
+Max/min plot?      |T
+Number of input fls|6
+Input PRED/OBS data|predobs.o3.980817.base
+Input PRED/OBS data|predobs.o3.980818.base
+Input PRED/OBS data|predobs.o3.980819.base
+Input PRED/OBS data|predobs.o3.980820.base
+Input PRED/OBS data|predobs.o3.980821.base
+Input PRED/OBS data|predobs.o3.980822.base
+EOF
