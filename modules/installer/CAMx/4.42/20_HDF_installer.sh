@@ -70,21 +70,6 @@ function HDF_installer()
 		
 		common.check.MbNeeded "$MYLIBDIR" "$CXR_LIB_MEGABYTES_REQUIRED"
 		
-		########################################
-		# Determine platform.
-		########################################
-		
-		# Determine default from Machine Type
-		case "$MACHTYPE" in
-		
-			x86_64) DEFAULT=p7-64;;
-			i386) DEFAULT=p6;;
-		 *) DEFAULT=px;;
-		
-		esac
-		
-		CXR_CURRENT_PLATFORM=$(common.user.getMenuChoice "What platform do we compile for?" "$CXR_FORTRAN_PLATFORMS" "$DEFAULT")
-		
 
 		########################################
 		# Create the target directories

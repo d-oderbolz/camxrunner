@@ -762,9 +762,6 @@ CXR_RUN_VERSION_SUBDIRS="bin modules/common modules/installer modules/model modu
 # Information relevant for compilation
 ################################################################################
 
-# These are the supported platforms of my pgf77
-CXR_FORTRAN_PLATFORMS="amd64 amd64e athlon athlonxp barcelona barcelona-64 core2 core2-64 k7 k8-32 k8-64 k8-64e p5 p6 p7 p7-64 piii piv px px-64 x64"
-
 
 ################################################################################
 # bin2asc conversion
