@@ -920,40 +920,29 @@ function common.runner.removeTempFiles()
 ################################################################################
 # Function: common.runner.getLockLinkName
 #
-# Returns the name of a lock-link to use, depending on the lock level (directory),
-# and the mode (basename)
+# Returns the name of a lock-link to use, depending on the lock level (directory)
 #
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
 ################################################################################
 function common.runner.getLockLinkName()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
 	local level
 	local lock
 	local file
-	local shared
 	
 	lock="$1"
 	level="$2"
-	shared="${3:-false}"
 	
-	if [[ "$shared" == true ]]
-	then
-		file="${lock}-shared.lock"
-	else
-		file="${lock}-exclusive.lock"
-	fi
-	
-	
-	
+	file="${lock}-exclusive.lock"
+
 	case $level in
 		$CXR_LEVEL_INSTANCE) 	echo "$CXR_INSTANCE_DIR/$file" ;;
 		$CXR_LEVEL_GLOBAL) 		echo "$CXR_GLOBAL_DIR/$file" ;;
@@ -978,21 +967,17 @@ function common.runner.getLockLinkName()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
-# [$4] - max_wait_seconds (default CXR_LOCK_TIMEOUT_SEC)
 ################################################################################
 function common.runner.waitForLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 4 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs at least the name of a lock and a level as input (optional shared, max_wait_seconds), got $*"
+		main.dieGracefully "needs at least the name of a lock and a level as input, got $*"
 	fi
 
 	local lock
 	local level
-	local shared
-	local max_wait_seconds
 	
 	local locklink
 	local seconds_waited
@@ -1001,23 +986,25 @@ function common.runner.waitForLock()
 
 	lock="$1"
 	level="$2"
-	shared="${3:-false}"
 	
 	_retval=false
-	
-	max_wait_seconds="${4:-${CXR_LOCK_TIMEOUT_SEC}}"
 	
 	shown=false
 	seconds_waited=0
 	
-	locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
+	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
+	
+	# Remove stale locks
+	if [[ $(common.fs.isBrokenLink? ${locklink}) == true ]]
+	then
+		rm -f ${locklink}
+	fi
 
 	########################################
 	# We wait until lock is free
 	########################################
 	while [[ -e "$locklink" ]]
 	do
-	
 		if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0) -eq 1 ]]
 		then
 			main.log -a "Waiting for lock $lock (level $level) ..."
@@ -1043,9 +1030,9 @@ function common.runner.waitForLock()
 		sleep $CXR_LOCK_SLEEP_SECONDS
 		seconds_waited=$(common.math.FloatOperation "$seconds_waited + $CXR_LOCK_SLEEP_SECONDS" $CXR_NUM_DIGITS )
 		
-		if [[ $(common.math.FloatOperation "$seconds_waited > $max_wait_seconds" 0) -eq 1 ]]
+		if [[ $(common.math.FloatOperation "$seconds_waited > ${CXR_LOCK_TIMEOUT_SEC}" 0) -eq 1 ]]
 		then
-			main.log -w "Lock $lock (${level}) took longer than $max_wait_seconds to get!"
+			main.log -w "Lock $lock (${level}) took longer than ${CXR_LOCK_TIMEOUT_SEC} to get!"
 			_retval=false
 			return $CXR_RET_OK
 		fi
@@ -1061,10 +1048,6 @@ function common.runner.waitForLock()
 # Locks can have three levels (similar to hashes) 
 # If we get the lock, a link in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list. (Thanks to Stefan Tramm for the symlink idea)
-# Shared locks work a bit different, here we store a lock-count in the file the link points to.
-#
-# It is the callers duty to check further locks (e.g. whether relevant shared locks are held before getting 
-# a readlock)
 #
 # Locking in general is harder than one thinks. We use an operation that generally
 # is atomic on most filesystems (check yours!): symlink.
@@ -1081,25 +1064,21 @@ function common.runner.waitForLock()
 # Parameters:
 # $1 - the name of the lock to get
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - optional boolean "shared" (default false), if true, many processes can get the lock (use for readlocks)
 ################################################################################
 function common.runner.getLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2 ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
 	# We create a symlink to a temporary file.
 	# Since tempfiles are local to an instance, the link will be broken should this process
-	# die. This in principle allows us to detect stale locks, but the problem is that
-	# we must do this check atomically! [[ -e $link ]] is not an atomic operation!
-	
+	# die. 
 	
 	local lock
 	local level
-	local shared
 	
 	local seconds_waited
 	local sleeptime
@@ -1111,77 +1090,60 @@ function common.runner.getLock()
 	
 	lock="$1"
 	level="$2"
-	shared="${3:-false}"
-	
 	seconds_waited=0
 	shown=false
 	
 	tempfile="$(common.runner.createTempFile lock)"
-	locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
+	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 	
 	# For debug reasons, locking can be turned off.
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
-		
-		if [[ "$shared" == false ]]
-		then
-		# Normal, exclusive case
-			
-			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
-			do
-				if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 ) -eq 1 ]]
-				then
-					main.log -a "Waiting for lock $lock (level $level) ..."
-					# Safe time thanks to short-circuit logic
-					shown=true
-				fi
-
-				# is it an older lock?
-				mtime=$(common.fs.getMtime $locklink)
-				if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
-				then
-					main.log -w "Removing old lock $locklink"
-					rm -f $locklink
-				fi
-			
-				# We sleep a random amount of time
-				sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
-				sleep $sleeptime
-				
-				seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS )
-				
-				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 ) -eq 1 ]]
-				then
-					main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
-				fi
-			done
 	
-			# We got the lock 
-			
-			# Save it in the templist
-			echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
-			
-			# write our ID into the locklink
-			echo $CXR_INSTANCE > "$locklink"
-			
-			main.log -v "Lock $lock (${level}) acquired."
-		else
+		# If stale, delete it
+		if [[ $(common.fs.isBrokenLink? ${locklink}) == true ]]
+		then
+			rm -f ${locklink}
+		fi
 		
-			# We need a shared lock
-			# we do this by adding a hardlink to a file of known name (the name is the linkname)
-			# The linkcount is then equivalent to the number of processes that hold this lock
-			# There is a potential race condition here, 
-			# but we can afford loosing a readlock
-			if [[ ! -e $locklink ]]
+		while ! ln -s ${tempfile} ${locklink} 2> /dev/null
+		do
+			if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 ) -eq 1 ]]
 			then
-				touch $locklink
-			else
-				# Add hardlink
-				ln $locklink ${locklink}_${RANDOM}
-			fi # Does linkfile exist?
-			
-		fi # exclusive?
+				main.log -a "Waiting for lock $lock (level $level) ..."
+				# Safe time thanks to short-circuit logic
+				shown=true
+			fi
+
+			# is it an older lock?
+			mtime=$(common.fs.getMtime $locklink)
+			if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
+			then
+				main.log -w "Removing old lock $locklink"
+				rm -f $locklink
+			fi
 		
+			# We sleep a random amount of time
+			sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
+			sleep $sleeptime
+			
+			seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS )
+			
+			if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 ) -eq 1 ]]
+			then
+				main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
+			fi
+		done
+
+		# We got the lock 
+		
+		# Save it in the templist
+		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
+		
+		# write our ID into the locklink
+		echo $CXR_INSTANCE > "$locklink"
+		
+		main.log -v "Lock $lock (${level}) acquired."
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock acquired."
 	fi # Lockinc turned off?
