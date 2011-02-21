@@ -1111,7 +1111,7 @@ function common.state.countInstances()
 
 	count=0
 	
-	instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null)
+	instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -type d -maxdepth 1 -noleaf -name ${CXR_CONTINUE} 2>/dev/null)
 	
 	for instance in $instances
 	do
@@ -1355,7 +1355,7 @@ function common.state.cleanup()
 					main.log -a   "Will not delete any state information"
 					return 0
 				else
-					instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null)
+					instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -type d -maxdepth 1 -name ${CXR_CONTINUE} 2>/dev/null)
 	
 					for instance in $instances
 					do
