@@ -1580,7 +1580,7 @@ function test_module()
 	########################################
 	
 	is $(common.state.isRepeatedRun?) false "common.state.isRepeatedRun?"
-	is "$(common.state.countInstances)" 1 "common.state.countInstances in $CXR_ALL_INSTANCES_DIR"
+	is "$(common.state.countInstances)" 0 "common.state.countInstances in $CXR_ALL_INSTANCES_DIR"
 
 	########################################
 	# teardown tests if needed
