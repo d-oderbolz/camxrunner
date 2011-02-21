@@ -300,8 +300,8 @@ CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP
 # Set the model exec if not user-supplied
 if [[ -z "${CXR_MODEL_EXEC:-}" ]]
 then
-	main.log -a "CXR_MODEL_EXEC was not set by the user, determining name..."
 	CXR_MODEL_EXEC="$(get_model_exec)"
+	main.log -a "CXR_MODEL_EXEC was not set by the user,using $CXR_MODEL_EXEC"
 fi
 
 
