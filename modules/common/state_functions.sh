@@ -51,7 +51,7 @@ function common.state.isRepeatedRun?()
 	local count
 	
 	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE status NOT IN ('$CXR_STATUS_TODO')")
-	main.log -v  "Counted $count tasks that where ano longer in status $CXR_STATUS_TODO"
+	main.log -v  "Counted $count tasks that where no longer in status $CXR_STATUS_TODO"
 	
 	if [[ "$count" -gt 0 ]]
 	then
@@ -596,10 +596,10 @@ function common.state.updateInfo()
 					then
 						if [[ $first == true ]]
 						then
-							sql_module_list="\'${module'}\'"
+							sql_module_list="\'${module}\'"
 							first=false
 						else
-							sql_module_list="${sql_module_list}, \'${module'}\'"
+							sql_module_list="${sql_module_list}, \'${module}\'"
 						fi # first one?
 					fi # running it?
 					
@@ -772,7 +772,7 @@ function common.state.updateInfo()
 				day_list="\'${day}\'"
 				first=false
 			else
-				day_list="${day_list}, \'$day\'"
+				day_list="${day_list}, \'${day}\'"
 			fi
 		done
 	
@@ -783,7 +783,8 @@ function common.state.updateInfo()
 		AND id IN 
 		  (SELECT id FROM tasks t, days d WHERE 
 		                                 (t.day_offset = d.day_offset) 
-		                                 AND d.day_iso NOT IN ($day_list));
+		                                 AND d.day_iso NOT IN ($day_list)
+		  );
 		
 		EOT
 	fi # do we want to run anly single days?
