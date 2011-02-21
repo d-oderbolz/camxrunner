@@ -36,10 +36,11 @@ set -o nounset
 # we want something like x86_64-linux
 HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 
-# This is our internal reference time (in Unix Epoch), used for Chacing etc.
+# This is our internal reference time (in Unix Epoch), used for Caching etc.
+# TODO: This must be the minimum of all running instances
 CXR_START_EPOCH="$(date "+%s")"
 
-# This is our porecess number (to be used when exiting on error)
+# This is our process number (to be used when exiting on error)
 CXR_PID=$$
 
 # This pattern is used to find numbers
@@ -55,7 +56,6 @@ CXR_PATTERN_NUMERIC='\b-?[0-9]+(\.[0-9]*)?\b'
 ################################################################################
 
 # Statusses that the runner knows
-CXR_STATUS_DISABLED=DISABLED # This is used to mark task we do net currently run
 CXR_STATUS_RUNNING=RUNNING
 CXR_STATUS_SUCCESS=SUCCESS
 CXR_STATUS_FAILURE=FAILURE
@@ -243,6 +243,9 @@ CXR_ALL=all
 # Used to tell a single step from all steps
 CXR_RUN_ALL=${CXR_ALL}
 
+# For the alive file
+CXR_ALIVE=alive
+
 ################################################################################
 # Set inital values of features ################################################
 ################################################################################
@@ -329,9 +332,6 @@ CXR_IGNORE_ANY_DEPENDENCIES=false
 
 ## End Task control
 
-# This variable is used later to carry rostrictions on the tasks this instance runs
-CXR_TASK_WHERE=""
-
 # Names of modules already checked
 CXR_ANNOUNCED_MODULES=" "
 
@@ -379,7 +379,7 @@ CXR_RUN_TESTS=false
 # When true, we disable set -e
 CXR_TEST_IN_PROGRESS=false
 
-#If non-empty, we will run this day (YYYY-MM-DD)
+#If non-empty, we will run these days (YYYY-MM-DD)
 CXR_SINGLE_DAYS=
 
 # When set to true, CAMx is not run, only other runners on the same rn are stopped
@@ -422,10 +422,6 @@ CXR_MAX_NSPEC=150
 # so straightforward (see man fileserver)
 CXR_MAX_AFS_FN_LEN=960000
 
-# When set to true, muliple instances of CAMx Runner 
-# on the same run are allowed
-CXR_ALLOW_MULTIPLE=false
-
 # If true, run CAMx , otherwise dont
 CXR_RUN_MODEL=true
 
@@ -448,16 +444,6 @@ CXR_COMPRESS_THRESHOLD_MB=50
 # We use MD5 instead of SHA1 because of speed reasons
 # While it takes more time, this can save a lot of headache when comparing files
 CXR_REPORT_MD5=true
-
-# If true, only specfied parts if pre- ar postprocessing are run
-CXR_RUN_LIMITED_PROCESSING=false
-
-# If one of these is false, the sub-system will not be run
-CXR_RUN_PRE_DAILY=true
-CXR_RUN_PRE_ONCE=true
-CXR_RUN_POST_DAILY=true
-CXR_RUN_POST_ONCE=true
-
 
 # This Check variable makes sure certain things are only checked once and not for each day
 CXR_CHECKED_ONCE=false
@@ -694,6 +680,11 @@ CXR_INSTANCE=${CXR_PID}@${CXR_MACHINE}
 CXR_ALL_INSTANCES_DIR=${CXR_STATE_DIR}/instances
 
 CXR_INSTANCE_DIR=${CXR_ALL_INSTANCES_DIR}/${CXR_INSTANCE}
+mkdir -p "${CXR_INSTANCE_DIR}"
+
+# This file is touched by the controller so that we know its alive
+CXR_INSTANCE_FILE_ALIVE=${CXR_INSTANCE_DIR}/${CXR_ALIVE}
+touch $CXR_INSTANCE_FILE_ALIVE
 
 # In this file, we store the error stack
 CXR_INSTANCE_FILE_ERROR_STACK=${CXR_INSTANCE_DIR}/error.stack

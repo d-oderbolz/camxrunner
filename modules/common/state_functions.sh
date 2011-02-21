@@ -114,6 +114,237 @@ function common.state.deleteContinueFiles()
 	find ${CXR_ALL_INSTANCES_DIR}/ -noleaf -name ${CXR_CONTINUE} -exec rm -f {} \; &> /dev/null
 }
 
+
+################################################################################
+# Function: common.state.updateInfo
+#
+# Builds the tasks and dependencies, if needed.
+# 
+# Parameters:
+# $1 - longer - if true, the run was prolonged at the end
+# $2 - success_file, an sql file containig old, successful tasks
+################################################################################
+function common.state.buildTasksAndDeps()
+################################################################################
+{
+	local longer
+	local success_file
+	
+	longer="$1"
+	success_file="$2"
+	
+	if [[ $longer == true || $(common.state.isRepeatedRun?) == false && $CXR_FIRST_INSTANCE == true ]]
+	then
+		# Only build all tasks if its a new run
+		main.log -v "Building tasks and dependencies..."
+		
+		# Basically this product:
+		# modules x days x invocations
+		# Of course, we must treat the One-Timers separate
+		
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+		
+		--------------------------------------------------------------------
+		-- TASKS
+		--------------------------------------------------------------------
+		
+		DELETE FROM tasks;
+		DELETE FROM dependencies;
+		
+		-- Daily modules
+		INSERT 	INTO tasks (
+						id,
+						module,
+						type,
+						exclusive,
+						day_offset,
+						invocation,
+						status,
+						epoch_m) 
+		SELECT 	d.day_iso || '@' || m.module || '@' || i.value,
+						m.module,
+						m.type,
+						m.exclusive, 
+						d.day_offset, 
+						i.value as invocation,
+						'$CXR_STATUS_TODO',
+						$(date "+%s")
+		FROM 		modules m, 
+						days d, 
+						metadata i 
+		WHERE 	i.module=m.module AND i.field='INVOCATION' 
+		  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY');
+
+		-- One-Time preprocessors
+		
+		INSERT 	INTO tasks (
+						id,
+						module,
+						type,
+						exclusive,
+						day_offset,
+						invocation,
+						status,
+						epoch_m) 
+						SELECT 	'$CXR_START_DATE' || '@' || m.module || '@' || i.value,
+										m.module,
+										m.type,
+										m.exclusive,
+										0,
+										i.value as invocation,
+										'$CXR_STATUS_TODO',
+										$(date "+%s")
+						FROM 		modules m, 
+										metadata i
+						WHERE 	i.module=m.module AND i.field='INVOCATION'
+						  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
+		
+		-- One-Time postprocessors
+		
+		INSERT 	INTO tasks (
+						id,
+						module,
+						type,
+						exclusive,
+						day_offset,
+						invocation,
+						status,
+						epoch_m) 
+						SELECT 	'$CXR_STOP_DATE' || '@' || m.module || '@' || i.value,
+										m.module,
+										m.type,
+										m.exclusive, 
+										$(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
+										i.value as invocation,
+										'$CXR_STATUS_TODO',
+										$(date "+%s")
+						FROM 		modules m, 
+										metadata i 
+						WHERE 	i.module=m.module AND i.field='INVOCATION' 
+						  AND 	m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
+						  
+		--------------------------------------------------------------------
+		-- DEPENCENCIES. 
+		-- It is important to understand that dependencies are
+		-- NOT on invocation and therefore task level. Dependencies exist
+		-- between tuples of (module,day_offset).
+		-- We add all dependencies whether we run them or not.
+		-- it is up to <common.task.createParallelDependencyList> or 
+		-- <common.task.createSequentialDependencyLis> to hanlde incative dependencies
+		-- a challenge is the fact that we must replicate daily dependencies on OT Pre
+		-- tasks (requiring equality of the day_offsets returns too few dependencies)
+		--------------------------------------------------------------------
+		
+		--
+		-- dependencies on single modules, without -<n> predicate
+		--
+		INSERT 	INTO dependencies (
+						independent_module, 
+						independent_day_offset, 
+						dependent_module, 
+						dependent_day_offset)
+						SELECT 	independent.module,
+										independent.day_offset,
+										dependent.module,
+										dependent.day_offset
+						FROM 		tasks dependent,
+										tasks independent,
+										metadata meta
+						WHERE		independent.module = meta.value
+						AND			dependent.module = meta.module
+						AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+										OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
+						AND			dependent.invocation = 1
+						AND			independent.invocation = 1
+						AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
+						AND 		meta.value NOT IN (SELECT type FROM types)
+						AND 		meta.value NOT GLOB '*-[0-9]' ; -- Test for - followed by one digit
+
+		-- dependencies on single modules, only -<n> predicate
+		-- here we must be careful not to add dependcies on types with predicate
+		-- thats why the subselect has a UNION
+		INSERT 	INTO dependencies (
+						independent_module, 
+						independent_day_offset, 
+						dependent_module, 
+						dependent_day_offset)
+						SELECT 	independent.module,
+										independent.day_offset,
+										dependent.module,
+										dependent.day_offset
+						FROM 		tasks dependent,
+										tasks independent,
+										metadata meta
+						WHERE		independent.module = substr(meta.value,1,length(meta.value)-2)
+						AND			dependent.module = meta.module
+						AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
+						AND			dependent.invocation = 1
+						AND			independent.invocation = 1
+						AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
+						AND 		meta.value NOT IN (SELECT type FROM types) -- it should not be a type
+						AND 		substr(meta.value,1,length(meta.value)-2) NOT IN (SELECT type FROM types) -- and no -<n> type
+						AND 		meta.value GLOB '*-[0-9]' ;  -- Test for - followed by one digit
+
+		--
+		-- dependencies on whole types without - predicate
+		--
+		INSERT 	INTO dependencies (
+						independent_module, 
+						independent_day_offset, 
+						dependent_module, 
+						dependent_day_offset)
+						SELECT 	independent.module,
+										independent.day_offset,
+										dependent.module,
+										dependent.day_offset
+						FROM 		tasks dependent,
+										tasks independent,
+										metadata meta
+						WHERE		dependent.module = meta.module
+						AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+										OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
+						AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
+						AND			dependent.invocation = 1
+						AND			independent.invocation = 1
+						AND 		meta.field='CXR_META_MODULE_DEPENDS_ON';
+
+		--
+		-- dependencies on whole types only with - predicate
+		-- 
+		INSERT 	INTO dependencies (
+						independent_module,
+						independent_day_offset,
+						dependent_module, 
+						dependent_day_offset)
+						SELECT 	independent.module,
+										independent.day_offset,
+										dependent.module,
+										dependent.day_offset
+						FROM 		tasks dependent,
+										tasks independent,
+										metadata meta,
+										types t
+						WHERE		dependent.module = meta.module
+						AND			independent.type = t.type
+						AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
+						AND			dependent.invocation = 1
+						AND			independent.invocation = 1
+						AND			meta.value GLOB '*-[0-9]'   -- Test for - followed by one digit
+						AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ; -- remove the -n at the end 
+		EOT
+		
+		# resurrect old success data if needed
+		if [[ $longer == true ]]
+		then
+			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $success_file
+		fi
+		
+	else
+		main.log -a "We do not replace existing task data. You can do this manually by running the -c option."
+	fi 
+	
+}
+
 ################################################################################
 # Function: common.state.updateInfo
 #
@@ -126,9 +357,10 @@ function common.state.deleteContinueFiles()
 # - installed
 # - types (constant)
 #
-# tables that contain ony whats relevant currently ("active")
+# tables that contain only whats relevant for the current configuration
 # - modules
 # - metadata
+# - instance_tasks (each instance selects its own tasks)
 # (there are others, but they are taken care of in <common.task.init>)
 ################################################################################
 function common.state.updateInfo()
@@ -159,522 +391,407 @@ function common.state.updateInfo()
 	local dep_arr
 	local iDependency
 	local longer
+	local day
+	local day_list
+	local first
+	
+	# In this list, we store all modules we must run
+	local sql_module_list
 	
 	# Marker for a run that was extended at the end (more days)
 	longer=false
 	
-	# Only update info if we are not a slave
-	if [[	${CXR_ALLOW_MULTIPLE} == true && \
-			"$(common.state.countInstances)" -gt 1 ]]
+	# Deal with -r by modifying the enabled lists
+	if [[ "$CXR_RUN_LIST" ]]
 	then
-		# We are in a non-master multiple runner
-		main.log -a -b "This is a slave process - we will not collect new information"
-	else
-		# we are alone
+		# There are arguments
+		# we reset all explicitly enabled modules
+		# (-r means "run ONLY these modules")
+		CXR_ENABLED_ONCE_PREPROC=""
+		CXR_ENABLED_DAILY_PREPROC=""
+		CXR_ENABLED_MODEL=""
+		CXR_ENABLED_DAILY_POSTPROC=""
+		CXR_ENABLED_ONCE_POSTPROC=""
 		
-		# For performance reasons, we collect all SQL change statements in a file and
-		# execute it later
-		
-		sqlfile=$(common.runner.createTempFile sql-updateInfo)
-		
-		# db_functions put a whole file into one TRX
-		
-		main.log -a "Cleaning Non-Persistent tables..."
-		
-		echo "DELETE FROM modules;" > $sqlfile
-		echo "DELETE FROM metadata;" >> $sqlfile
-		
-		# Create a few working arrays we will go through
-		types=($CXR_TYPE_PREPROCESS_ONCE \
-		       $CXR_TYPE_PREPROCESS_DAILY \
-		       $CXR_TYPE_MODEL \
-		       $CXR_TYPE_POSTPROCESS_DAILY \
-		       $CXR_TYPE_POSTPROCESS_ONCE)
-		       
-		dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR \
-		      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
-		      $CXR_MODEL_INPUT_DIR \
-		      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
-		      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
-		      
-		main.log -a "Collecting module information, might take a while..."
-		
-		for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+		# Decode arguments
+		for module in $CXR_RUN_LIST
 		do
-			type=${types[$iIteration]}
-			dir=${dirs[$iIteration]}
+			# It might be a type!
+			if [[ "$(common.module.isType $module)" == true ]]
+			then
+				main.log -a "We will run all modules of type $module"
+				# Yep, its a type
+				# Exchange roles
+				module_type=$module
+				# The modules must be derived from the tpe
+				module="$(common.module.resolveType $module_type)"
+			else 
+				# no, normal module name
+				# Determine type. 
+				# Due to CATCH-22 we cannot use <common.module.getType> here
+				module_type="$(common.module.getTypeSlow "$module")"
+			fi  # is it a type?
 			
-			# The enabled and disabled strings are lists
-			# TODO: enable patterns in enabled & disabled (also in <common.module.listModuleType>)
-			case "$type" in
-				"${CXR_TYPE_PREPROCESS_ONCE}" )
-					enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
-					disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+			case $module_type in
+			
+				${CXR_TYPE_PREPROCESS_ONCE} ) 
+					CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
 					;;
 					
-				"${CXR_TYPE_PREPROCESS_DAILY}" )
-					enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
-					disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+				${CXR_TYPE_PREPROCESS_DAILY} ) 
+					CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
 					;;
 					
-				"${CXR_TYPE_MODEL}" )
-					enabled_modules="$CXR_ENABLED_MODEL"
-					disabled_modules="$CXR_DISABLED_MODEL"
+				${CXR_TYPE_MODEL} ) 
+					CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
 					;;
 					
-				"${CXR_TYPE_POSTPROCESS_DAILY}" )
-					enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
-					disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+				${CXR_TYPE_POSTPROCESS_DAILY} ) 
+					CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
 					;;
 					
-				"${CXR_TYPE_POSTPROCESS_ONCE}" )
-					enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
-					disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+				${CXR_TYPE_POSTPROCESS_ONCE} ) 
+					CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
 					;;
 					
-				* ) 
-					main.dieGracefully "The module type $type is not relevant here" ;;
+				* ) main.dieGracefully "Module type $module_type not supported to be used with the -r option" ;;
 			esac
-			
-			main.log -v "Adding $type modules..."
-			
-			if [[ -d "$dir" ]]
-			then
-				# Find all *.sh files in this dir (no descent!)
-				files="$(find "${dir}/" -noleaf -maxdepth 1 -name '*.sh')"
-	
-				for file in $files
-				do
-					common.check.reportMD5 $file
-					
-					# Determine name and variant of the current file
-					module="$(main.getModuleName $file)"
-					variant="$(main.getModuleVariant $file)"
-					
-					# Did the user select a variant? 
-					# Returns the empty string if not set
-					wanted_variant=$(common.conf.get "${module}.variant")
-					
-					if [[ "$variant" == "$wanted_variant" ]]
-					then
-					
-						if [[ "$wanted_variant" ]]
-						then
-							main.log -a "Loading variant $wanted_variant of $module"
-						fi
-					
-						# Is this module active? (Enabled wins over disabled)
-						# if the module name is in the enabled list, run it,no matter what
-						if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
-						then
-							# Module was explicitly enabled
-							run_it=true
-						elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
-						then
-							# Module was not explicitly disabled and we did not disable all
-							run_it=true
-						else
-							# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
-							run_it=false
-							main.log -a "Module $module is disabled."
-						fi
-						
-						# find out if we have a function called getNumInvocations
-						fctlist=$(grep 'getNumInvocations' $file)
-						
-						if [[ -z "$fctlist" ]]
-						then
-							main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
-						else
-							# Here we need to source the file to call getNumInvocations()
-							nInvocations=$(source $file &> /dev/null; getNumInvocations)
-							
-							# A module can disable itself
-							if [[ $nInvocations -lt 1 ]]
-							then
-								main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
-								run_it=false
-							fi
-						fi
-						
-						# We mark needed stuff as active, the rest as inactive
-						# Add $file, $module and $type to DB
-						echo "INSERT INTO modules (module,type,path,active) VALUES ('$module','$type','$file','$run_it');" >> $sqlfile
-						
-						# Add metadata
-						# grep the CXR_META_ vars that are not commented out
-						list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
-						
-						oIFS="$IFS"
-						# Set IFS to newline
-						IFS='
-'
-						for metafield in $list
-						do
-							# Reset IFS immediately
-							IFS="$oIFS"
-							
-							# Parse this
-							# Field is to the left of the = sign
-							field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
-							# the value is to the right
-							value="$(expr match "$metafield" '.*=\(.*\)')" || :
-							
-							# OK, we want all quoting gone and variables expanded
-							value="$(eval "echo $(echo "$value")")"
-	
-							# Treat some special Meta fields
-							if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
-							then
-								# Make sure IFS is correct!
-								for dependency in $value
-								do
-									echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency');" >> $sqlfile
-								done
-							elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
-							then
-								echo "UPDATE modules SET exclusive=trim('$value') WHERE module='$module';" >> $sqlfile
-							else
-								# Nothing special
-								echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value');" >> $sqlfile
-							fi # is it a special meta field
-						done
-						
-						# Now also add each invocation as individial row.
-						for iInvocation in $(seq 1 $nInvocations)
-						do
-							echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
-						done
-					
-					else
-					
-						main.log -v "$file does not match variant $wanted_variant"
-					
-					fi # Right variant?
-					
-				done # Loop over files
-			else
-				main.dieGracefully "Tried to add modules in $dir - directory not found."
-			fi # Directory exists?
-		done # loop over type-index
-		
-		# Adding any new module types
-		echo "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';" >> $sqlfile
-		
-		main.log -v "Removing any traces of running/failed tasks..."
-		echo "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');" >> $sqlfile
-		
-		# Execute the file
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
-		
-		# Check if any module is called the same as a type (not allowed)
-		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
-		then
-			main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
-		fi
-		
-		# Check if a module name or a type looks like a -<n> dependency
-		if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT SUM(cnt) FROM (SELECT COUNT(*) AS cnt FROM modules WHERE module GLOB '*-[0-9]'  UNION ALL SELECT COUNT(*) AS cnt FROM types WHERE type GLOB '*-[0-9]')" ) -gt 0 ]]
-		then
-			main.dieGracefully "It seems that a type or a module has a name that ends in - followed by a number.\nThis is the syntax of the -<n> predicate for dependencies and not supported for names!"
-		fi
-		
-		main.log -v "Adding information about simulation days..."
-		
-		# Is this a repetition of an earlier run?
-		# Question: What happens if a module was not disabled but is disabled now?
-		if [[ $(common.state.isRepeatedRun?) == true ]]
-		then
-			main.log "This run has already been started earlier."
-			
-			# Its dangerous if a run has been extended at the beginning
-			# because the mapping of offset to days changed.
-			first="$(common.state.getFirstDayModelled)"
-			
-			# first could be empty
-			if [[ "$first" ]]
-			then
-				if [[ "$first" != ${CXR_START_DATE} ]]
-				then
-					main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option or create a new run!"
-				fi
-			fi
-			
-			# Returns -1 on error
-			last="$(common.state.getLastDayOffsetModelled)"
-			
-			# last could be empty
-			if [[ "$last" ]]
-			then
-				if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
-				then
-					main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
-					longer=true
-					
-					# we need to safe the IDs of all tasks that have status then CXR_STATUS_SUCCESS
-					success_file=$(common.runner.createTempFile sql-success)
-					
-					# we build our SQL statements
-					# Don't get confused, '' is an escaped ' (see <http://sqlite.org/lang_expr.html>)
-					common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT 'UPDATE tasks SET status=''$CXR_STATUS_SUCCESS'' WHERE id=''' || id || '''' || ';' FROM tasks WHERE status='$CXR_STATUS_SUCCESS';" > $success_file
 
-				fi
-			fi
-		fi # repeated run?
+		done # entries in -r
+	
+	fi # are there -r arguments?
+
+	
+	# For performance reasons, we collect all SQL change statements in a file and
+	# execute it later (if CXR_FIRST_INSTANCE is true!)
+	
+	sqlfile=$(common.runner.createTempFile sql-updateInfo)
+	
+	# db_functions put a whole file into one TRX
+	
+	main.log -a "Cleaning Non-Persistent tables..."
+	
+	echo "DELETE FROM modules;" > $sqlfile
+	echo "DELETE FROM metadata;" >> $sqlfile
+	
+	# Create a few working arrays we will go through
+	types=($CXR_TYPE_PREPROCESS_ONCE \
+	       $CXR_TYPE_PREPROCESS_DAILY \
+	       $CXR_TYPE_MODEL \
+	       $CXR_TYPE_POSTPROCESS_DAILY \
+	       $CXR_TYPE_POSTPROCESS_ONCE)
+	       
+	dirs=($CXR_PREPROCESSOR_ONCE_INPUT_DIR \
+	      $CXR_PREPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_MODEL_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
+	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
+	      
+	main.log -a "Collecting module information, might take a while..."
+	
+	# For the syntax of the sql_module_list
+	first=true
+	
+	for iIteration in $(seq 0 $(( ${#dirs[@]} - 1 )) )
+	do
+		type=${types[$iIteration]}
+		dir=${dirs[$iIteration]}
 		
-		# db_functions automatically create a single TRX per file
+		# The enabled and disabled strings are lists
+		case "$type" in
+			"${CXR_TYPE_PREPROCESS_ONCE}" )
+				enabled_modules="$CXR_ENABLED_ONCE_PREPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_PREPROC"
+				;;
+				
+			"${CXR_TYPE_PREPROCESS_DAILY}" )
+				enabled_modules="$CXR_ENABLED_DAILY_PREPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_PREPROC"
+				;;
+				
+			"${CXR_TYPE_MODEL}" )
+				enabled_modules="$CXR_ENABLED_MODEL"
+				disabled_modules="$CXR_DISABLED_MODEL"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_DAILY}" )
+				enabled_modules="$CXR_ENABLED_DAILY_POSTPROC"
+				disabled_modules="$CXR_DISABLED_DAILY_POSTPROC"
+				;;
+				
+			"${CXR_TYPE_POSTPROCESS_ONCE}" )
+				enabled_modules="$CXR_ENABLED_ONCE_POSTPROC"
+				disabled_modules="$CXR_DISABLED_ONCE_POSTPROC"
+				;;
+				
+			* ) 
+				main.dieGracefully "The module type $type is not relevant here" ;;
+		esac
 		
-		# Replace the days
-		echo "DELETE FROM days;" >> $sqlfile
+		main.log -v "Adding $type modules..."
 		
-		for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
-		do
-			echo  "INSERT INTO days (day_offset,day_iso,active) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)','true');" >> $sqlfile
-		done
-		
-		# Correct active if user selected only some days
-		if [[ "$CXR_SINGLE_DAYS" ]]
+		if [[ -d "$dir" ]]
 		then
-			echo "UPDATE days SET active='false';" >> $sqlfile
-			
-			# Only activate the wanted ones
-			for wanted in $CXR_SINGLE_DAYS
+			# Find all *.sh files in this dir (no descent!)
+			files="$(find "${dir}/" -noleaf -maxdepth 1 -name '*.sh')"
+
+			for file in $files
 			do
-				main.log -a -b "We run only these days:"
-			
-				if [[ "$(common.date.isSimulationDay? ${wanted})" == true ]]
+				common.check.reportMD5 $file
+				
+				# Determine name and variant of the current file
+				module="$(main.getModuleName $file)"
+				variant="$(main.getModuleVariant $file)"
+				
+				# Did the user select a variant? 
+				# Returns the empty string if not set
+				wanted_variant=$(common.conf.get "${module}.variant")
+				
+				if [[ "$variant" == "$wanted_variant" ]]
 				then
-					# OK
-					main.log -a $wanted
-					echo "UPDATE days SET active='true' WHERE day_iso='$wanted';" >> $sqlfile
-				else
-					# Mep
-					main.dieGracefully "The option -D needs dates of the form YYYY-MM-DD as input which range from ${CXR_START_DATE} to ${CXR_STOP_DATE}!"
-				fi
+				
+					if [[ "$wanted_variant" ]]
+					then
+						main.log -v "Considering variant $wanted_variant of $module"
+					fi
+				
+					# Is this module active? (Enabled wins over disabled)
+					# if the module name is in the enabled list, run it,no matter what
+					if [[ "$(main.isSubstringPresent? "$enabled_modules" "$module")" == true ]]
+					then
+						# Module was explicitly enabled
+						run_it=true
+					elif [[  "$(main.isSubstringPresent? "$disabled_modules" "$module")" == false && "${disabled_modules}" != "${CXR_SKIP_ALL}" ]]
+					then
+						# Module was not explicitly disabled and we did not disable all
+						run_it=true
+					else
+						# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
+						run_it=false
+						main.log -a "Module $module is disabled."
+					fi
+					
+					# find out if we have a function called getNumInvocations
+					fctlist=$(grep 'getNumInvocations' $file)
+					
+					if [[ -z "$fctlist" ]]
+					then
+						main.dieGracefully "Module file $file does not implement the function getNumInvocations()!\nCheck the developer documentation!"
+					else
+						# Here we need to source the file to call getNumInvocations()
+						nInvocations=$(source $file &> /dev/null; getNumInvocations)
+						
+						# A module can disable itself
+						if [[ $nInvocations -lt 1 ]]
+						then
+							main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
+							run_it=false
+						fi
+					fi
+					
+					# Add $file, $module and $type to DB
+					echo "INSERT INTO modules (module,type,path) VALUES ('$module','$type','$file');" >> $sqlfile
+					
+					if [[ $run_it == true ]]
+					then
+						if [[ $first == true ]]
+						then
+							sql_module_list="\'${module'}\'"
+							first=false
+						else
+							sql_module_list="${sql_module_list}, \'${module'}\'"
+						fi # first one?
+					fi # running it?
+					
+					# Add metadata
+					# grep the CXR_META_ vars that are not commented out
+					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+					
+					oIFS="$IFS"
+					# Set IFS to newline
+					IFS='
+'
+					for metafield in $list
+					do
+						# Reset IFS immediately
+						IFS="$oIFS"
+						
+						# Parse this
+						# Field is to the left of the = sign
+						field="$(expr match "$metafield" '\([_A-Z]\{1,\}\)=')" || :
+						# the value is to the right
+						value="$(expr match "$metafield" '.*=\(.*\)')" || :
+						
+						# OK, we want all quoting gone and variables expanded
+						value="$(eval "echo $(echo "$value")")"
 
-			done # loop over wanted days
-			
-		fi # Handle single days
+						# Treat some special Meta fields
+						if [[ $field == CXR_META_MODULE_DEPENDS_ON ]]
+						then
+							# Make sure IFS is correct!
+							for dependency in $value
+							do
+								echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$dependency');" >> $sqlfile
+							done
+						elif [[ $field == CXR_META_MODULE_RUN_EXCLUSIVELY ]]
+						then
+							echo "UPDATE modules SET exclusive=trim('$value') WHERE module='$module';" >> $sqlfile
+						else
+							# Nothing special
+							echo "INSERT INTO metadata (module,field,value) VALUES ('$module','$field','$value');" >> $sqlfile
+						fi # is it a special meta field
+					done
+					
+					# Now also add each invocation as individial row.
+					for iInvocation in $(seq 1 $nInvocations)
+					do
+						echo "INSERT INTO metadata (module,field,value) VALUES ('$module','INVOCATION','$iInvocation');" >> $sqlfile
+					done
+				
+				else
+				
+					main.log -v "$file does not match variant $wanted_variant"
+				
+				fi # Right variant?
+				
+			done # Loop over files
+		else
+			main.dieGracefully "Tried to add modules in $dir - directory not found."
+		fi # Directory exists?
+	done # loop over type-index
+	
+	# Adding any new module types
+	echo "INSERT OR IGNORE INTO types (type) SELECT DISTINCT value FROM metadata where field='CXR_META_MODULE_TYPE';" >> $sqlfile
+	
+	main.log -v "Removing any traces of running/failed tasks..."
+	echo "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE status in ('$CXR_STATUS_RUNNING','$CXR_STATUS_FAILURE');" >> $sqlfile
+	
+	# Execute the file
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
+	
+	# Check if any module is called the same as a type (not allowed)
+	if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules m, types t WHERE m.module=t.type") -gt 0 ]]
+	then
+		main.dieGracefully "At least one module has the same name as a module type - this is not supported!"
+	fi
+	
+	# Check if a module name or a type looks like a -<n> dependency
+	if [[ $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT SUM(cnt) FROM (SELECT COUNT(*) AS cnt FROM modules WHERE module GLOB '*-[0-9]'  UNION ALL SELECT COUNT(*) AS cnt FROM types WHERE type GLOB '*-[0-9]')" ) -gt 0 ]]
+	then
+		main.dieGracefully "It seems that a type or a module has a name that ends in - followed by a number.\nThis is the syntax of the -<n> predicate for dependencies and not supported for names!"
+	fi
+	
+	main.log -v "Adding information about simulation days..."
+	
+	# Is this a repetition of an earlier run?
+	if [[ $(common.state.isRepeatedRun?) == true ]]
+	then
+		main.log "This run has already been started earlier."
 		
+		# Its dangerous if a run has been extended at the beginning
+		# because the mapping of offset to days changed.
+		first="$(common.state.getFirstDayModelled)"
+		
+		# first could be empty
+		if [[ "$first" ]]
+		then
+			if [[ "$first" != ${CXR_START_DATE} ]]
+			then
+				main.dieGracefully "It seems that this run was extended at the beginning. This implies that the existing mapping of simulation days and real dates is broken.\nClean the state DB by running the -c (all) option or create a new run!"
+			fi
+		fi
+		
+		# Returns -1 on error
+		last="$(common.state.getLastDayOffsetModelled)"
+		
+		# last could be empty
+		if [[ "$last" ]]
+		then
+			if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
+			then
+				main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
+				longer=true
+				
+				# we need to safe the IDs of all tasks that have status then CXR_STATUS_SUCCESS
+				success_file=$(common.runner.createTempFile sql-success)
+				
+				# we build our SQL statements
+				# Don't get confused, '' is an escaped ' (see <http://sqlite.org/lang_expr.html>)
+				common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT 'UPDATE tasks SET status=''$CXR_STATUS_SUCCESS'' WHERE id=''' || id || '''' || ';' FROM tasks WHERE status='$CXR_STATUS_SUCCESS';" > $success_file
+
+			fi # was the run extended at the end?
+		fi # is there a last?
+		
+	fi # repeated run?
+	
+	# Replace the days
+	echo "DELETE FROM days;" >> $sqlfile
+	
+	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
+	do
+		echo  "INSERT INTO days (day_offset,day_iso) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)');" >> $sqlfile
+	done
+	
+	# Only update info (except instance_tasks) if we are the first instance
+	if [[ $CXR_FIRST_INSTANCE == false ]]
+	then
+		# We are in a non-master runner
+		main.log -a -b "We are not the first instance - we will not collect new information"
+	else
 		# Execute the file
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $sqlfile
 		
-		if [[ $longer == true || $(common.state.isRepeatedRun?) == false ]]
-		then
-			# Only build all tasks if its a new run
-			main.log -v "Building tasks and dependencies..."
-			
-			# Basically this product:
-			# modules x days x invocations
-			# Of course, we must treat the One-Timers separate
-			
-			common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
-			
-			--------------------------------------------------------------------
-			-- TASKS
-			--------------------------------------------------------------------
-			
-			DELETE FROM tasks;
-			DELETE FROM dependencies;
-			
-			-- Daily modules
-			INSERT 	INTO tasks (
-							id,
-							module,
-							type,
-							exclusive,
-							day_offset,
-							invocation,
-							status,
-							epoch_m) 
-			SELECT 	d.day_iso || '@' || m.module || '@' || i.value,
-							m.module,
-							m.type,
-							m.exclusive, 
-							d.day_offset, 
-							i.value as invocation,
-							'$CXR_STATUS_TODO',
-							$(date "+%s")
-			FROM 		modules m, 
-							days d, 
-							metadata i 
-			WHERE 	i.module=m.module AND i.field='INVOCATION' 
-			  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_DAILY','$CXR_TYPE_MODEL','$CXR_TYPE_POSTPROCESS_DAILY');
-
-			-- One-Time preprocessors
-			
-			INSERT 	INTO tasks (
-							id,
-							module,
-							type,
-							exclusive,
-							day_offset,
-							invocation,
-							status,
-							epoch_m) 
-							SELECT 	'$CXR_START_DATE' || '@' || m.module || '@' || i.value,
-											m.module,
-											m.type,
-											m.exclusive,
-											0,
-											i.value as invocation,
-											'$CXR_STATUS_TODO',
-											$(date "+%s")
-							FROM 		modules m, 
-											metadata i
-							WHERE 	i.module=m.module AND i.field='INVOCATION'
-							  AND 	m.type IN ('$CXR_TYPE_PREPROCESS_ONCE');
-			
-			-- One-Time postprocessors
-			
-			INSERT 	INTO tasks (
-							id,
-							module,
-							type,
-							exclusive,
-							day_offset,
-							invocation,
-							status,
-							epoch_m) 
-							SELECT 	'$CXR_STOP_DATE' || '@' || m.module || '@' || i.value,
-											m.module,
-											m.type,
-											m.exclusive, 
-											$(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
-											i.value as invocation,
-											'$CXR_STATUS_TODO',
-											$(date "+%s")
-							FROM 		modules m, 
-											metadata i 
-							WHERE 	i.module=m.module AND i.field='INVOCATION' 
-							  AND 	m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
-			
-			--------------------------------------------------------------------
-			-- DEPENCENCIES. 
-			-- It is important to understand that dependencies are
-			-- NOT on invocation and therefore task level. Dependencies exist
-			-- between tuples of (module,day_offset).
-			-- We add dependencies whether they are active or not.
-			-- it is up to <common.task.createParallelDependencyList> or 
-			-- <common.task.createSequentialDependencyLis> to hanlde incative dependencies
-			-- a challenge is the fact that we must replicate daily dependencies on OT Pre
-			-- tasks (requiring equality of the day_offsets returns too few dependencies)
-			--------------------------------------------------------------------
-			
-			--
-			-- dependencies on single modules, without -<n> predicate
-			--
-			INSERT 	INTO dependencies (
-							independent_module, 
-							independent_day_offset, 
-							dependent_module, 
-							dependent_day_offset)
-							SELECT 	independent.module,
-											independent.day_offset,
-											dependent.module,
-											dependent.day_offset
-							FROM 		tasks dependent,
-											tasks independent,
-											metadata meta
-							WHERE		independent.module = meta.value
-							AND			dependent.module = meta.module
-							AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
-											OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
-							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
-							AND 		meta.value NOT IN (SELECT type FROM types)
-							AND 		meta.value NOT GLOB '*-[0-9]' ; -- Test for - followed by one digit
-
-			-- dependencies on single modules, only -<n> predicate
-			-- here we must be careful not to add dependcies on types with predicate
-			-- thats why the subselect has a UNION
-			INSERT 	INTO dependencies (
-							independent_module, 
-							independent_day_offset, 
-							dependent_module, 
-							dependent_day_offset)
-							SELECT 	independent.module,
-											independent.day_offset,
-											dependent.module,
-											dependent.day_offset
-							FROM 		tasks dependent,
-											tasks independent,
-											metadata meta
-							WHERE		independent.module = substr(meta.value,1,length(meta.value)-2)
-							AND			dependent.module = meta.module
-							AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
-							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
-							AND 		meta.value NOT IN (SELECT type FROM types) -- it should not be a type
-							AND 		substr(meta.value,1,length(meta.value)-2) NOT IN (SELECT type FROM types) -- and no -<n> type
-							AND 		meta.value GLOB '*-[0-9]' ;  -- Test for - followed by one digit
-
-			--
-			-- dependencies on whole types without - predicate
-			--
-			INSERT 	INTO dependencies (
-							independent_module, 
-							independent_day_offset, 
-							dependent_module, 
-							dependent_day_offset)
-							SELECT 	independent.module,
-											independent.day_offset,
-											dependent.module,
-											dependent.day_offset
-							FROM 		tasks dependent,
-											tasks independent,
-											metadata meta
-							WHERE		dependent.module = meta.module
-							AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
-											OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
-							AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
-							AND 		meta.field='CXR_META_MODULE_DEPENDS_ON';
-
-			--
-			-- dependencies on whole types only with - predicate
-			-- 
-			INSERT 	INTO dependencies (
-							independent_module,
-							independent_day_offset,
-							dependent_module, 
-							dependent_day_offset)
-							SELECT 	independent.module,
-											independent.day_offset,
-											dependent.module,
-											dependent.day_offset
-							FROM 		tasks dependent,
-											tasks independent,
-											metadata meta,
-											types t
-							WHERE		dependent.module = meta.module
-							AND			independent.type = t.type
-							AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
-							AND			dependent.invocation = 1
-							AND			independent.invocation = 1
-							AND			meta.value GLOB '*-[0-9]'   -- Test for - followed by one digit
-							AND 		t.type = substr(meta.value,1,length(meta.value)-2)  ; -- remove the -n at the end 
-			EOT
-			
-			# resurrect old success data if needed
-			if [[ $longer == true ]]
+		# Create the tasks
+		common.state.buildTasksAndDeps $longer $success_file
+	fi #first?
+	
+	####################################
+	# instance_tasks:
+	# -Add all needed modules
+	# -Delete any unwanted days from instance_tasks
+	####################################
+	
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
+	
+		DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';
+	
+		INSERT INTO instance_tasks (id, instance)
+		SELECT id, '$CXR_INSTANCE' FROM tasks WHERE
+		module in ($sql_module_list);
+	
+	EOT
+	
+	if [[ "$CXR_SINGLE_DAYS" ]]
+	then
+		first=true
+		# Create a day list
+		for day in $CXR_SINGLE_DAYS
+		do
+			if [[ $first == true ]]
 			then
-				common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $success_file
+				day_list="\'$day\'"
+				first=false
+			else
+				day_list="${day_list}, \'$day\'"
 			fi
-			
-		else
-			main.log -a "We do not replace existing task data. You can do this manually by running the -c option."
-		fi
+		done
+	
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 		
-		main.log -a "Module data successfully collected."
+		DELETE FROM instance_tasks WHERE
+		instance='$CXR_INSTANCE'
+		AND id IN 
+		  (SELECT id FROM tasks t, days d WHERE 
+		                                 (t.day_offset = d.day_offset) 
+		                                 AND d.day_iso NOT IN ($day_list));
 		
-		# decrease global indent level
-		main.decreaseLogIndent
-		
-	fi # repeated or prolonged run?
+		EOT
+	fi # do we want to run anly single days?
+	
+	main.log -a "Module data successfully collected."
+	
+	# decrease global indent level
+	main.decreaseLogIndent
 }
 
 ################################################################################
@@ -699,12 +816,10 @@ function common.state.init()
 	# Create the global dirs
 	mkdir -p "${CXR_GLOBAL_DIR}"
 	
-	# Create instance dir
 	mkdir -p "${CXR_INSTANCE_DIR}"
-	
+
 	# Create directory where we decompress files into
 	CXR_TMP_DECOMP_DIR="$(common.runner.createTempDir decomp false)"
-
 	
 	##################
 	# Init Db subsystem
@@ -797,6 +912,10 @@ function common.state.init()
 	                                 seconds_estimated	INTEGER,
 	                                 seconds_real				INTEGER,
 	                                 epoch_m						INTEGER);
+	                                 
+	-- Table Where an Instance selects relevant tasks
+	CREATE TABLE IF NOT EXISTS instance_tasks (instance	TEXT,
+	                                           id				TEXT); --task
 	
 	-- Table for workers
 	CREATE TABLE IF NOT EXISTS workers (pid							INTEGER,
@@ -821,7 +940,7 @@ function common.state.init()
 # The name of the task is determined via <common.task.getId> if it is not passed in.
 # The ability to pass a task name is used by installers and tests alike, they use a slightly different approach.
 #
-# If the user wants to run a specific module (CXR_RUN_LIMITED_PROCESSING=true), we will disregard the fact that
+# If the user wants to run a specific module, we will disregard the fact that
 # the step already ran, but we advise -F
 #
 # Returns:
@@ -868,7 +987,7 @@ function common.state.storeStatus()
 			# Check if this was already started
 			if [[ $(common.state.hasFinished? "$module" "$day_offset" "$invocation") == true ]]
 			then
-				if [[ "$CXR_RUN_LIMITED_PROCESSING" == true ]]
+				if [[ "$CXR_RUN_LIST"]]
 				then
 					# Ran already, but user wants to run specifically this
 					main.log -w  "Task $task was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
@@ -913,23 +1032,104 @@ function common.state.storeStatus()
 }
 
 ################################################################################
+# Function: common.state.isInstanceAlive?
+#
+# Tests if a given instance is alive by checking the alive files or looking at the processes
+#
+# Parameters:
+# $1 - an instance name of teh form PID@Machine
+################################################################################
+function common.state.isInstanceAlive?()
+################################################################################
+{
+	local instance
+	local pid
+	local machine
+	local alive_file
+	local mtime
+	local current_time
+	local alive
+	
+	instance="$1"
+	alive=false
+	
+	pid=$(cut $instance -d'@' -f1)
+	machine=$(cut $instance -d'@' -f2)
+	
+	if [[ $machine == $CXR_MACHINE ]]
+	then
+		# local, test process
+		
+		# kill returns non-zero if process is gone, 0 is pseudo signal 
+		# we avoid termination with || :
+		kill -0 $pid &> /dev/null || :
+	
+		if [[ $? -eq 0 ]]
+		then
+			alive=true
+		fi
+		
+	else
+		# remote, check alive file
+		alive_file=${CXR_ALL_INSTANCES_DIR}/$instance/${CXR_ALIVE}
+		if [[ -e $alive_file ]]
+		then
+			mtime=$(common.fs.getMtime $alive_file)
+			# We allow an age difference of up to 10 times CXR_WAITING_SLEEP_SECONDS
+			delta=$(( 10 * $CXR_WAITING_SLEEP_SECONDS))
+			
+			current_time="$(date "+%s")"
+			
+			if [[ $(( $current_time - $delta )) -le $mtime ]]
+			then
+				# Alive file is younger than the current time minus delta
+				alive=true
+			fi
+		fi # alive file around?
+		
+	fi # local?
+		
+	echo $alive
+}
+
+################################################################################
 # Function: common.state.countInstances
 #
-# Counts living CAMxRunners by checking the continue files
-# TODO: Local - check ps, Remote - check .continue files (mtime)
+# Counts living CAMxRunners.
 #
 ################################################################################
 function common.state.countInstances()
 ################################################################################
 {
-	find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null | wc -l
+	local instances
+	local instance
+	local count
+
+	count=0
+	
+	instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null)
+	
+	for instance in $instances
+	do
+		
+		instance=$(basename $instance)
+
+		if [[ $(common.state.isInstanceAlive? $instance) == true ]]
+		then
+			count=$(( $count + 1 ))
+		else
+			main.log -w "It seems that $instance is inactive and can be deleted"
+		fi
+		
+	done
+	
+	echo $count
 }
 
 ################################################################################
 # Function: common.state.detectInstances
 #
-# Check if there are still living processes by checking the continue files
-# TODO: Local - check ps, Remote - check .continue files (mtime)
+# Check if there are still living processes and warn
 #
 ################################################################################
 function common.state.detectInstances()
@@ -938,16 +1138,14 @@ function common.state.detectInstances()
 	local process_count
 	process_count=$(common.state.countInstances) 
 	
-	if [[ ${process_count} -ne 0 && ${CXR_ALLOW_MULTIPLE} == false ]]
+	if [[ ${process_count} -ne 0 ]]
 	then
-		# There are other processes running and this is not allowed
-		main.log -e "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
+		# There are other instances running
+		main.log -a "Found other instances - maybe these processes died or they are still running:\n(Check their age!)"
 		
 		find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -type d -maxdepth 1 2>/dev/null | tee -a ${CXR_LOG}
 		
-		main.log -e "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n or (experts only) you can run your instance anyway using \n \t ${CXR_RUN} -m [options]"    
-		
-		main.dieGracefully "Process stopped"
+		main.log -e "Check manually if the processes still run, if not clean the state db by runnig \n\t ${CXR_CALL} -c \n"    
 	fi
 }
 
@@ -1084,6 +1282,8 @@ function common.state.hasFailed?()
 # - Deletes all state information
 # - Deletes only part of the state information
 # All is in a endless loop so one can quickly delete a lot of stuff
+#
+# TODO: add feature to deleta all BEFORE a date
 # 
 ################################################################################
 function common.state.cleanup()
@@ -1102,6 +1302,9 @@ function common.state.cleanup()
 	local stop_offset
 	local iOffset
 	local current_date
+	local instance
+	local instances 
+	local binstance
 	
 	message="Do you want to change the state database?"
 	
@@ -1141,19 +1344,27 @@ function common.state.cleanup()
 			
 			old-instances)
 			
-				main.log -w  "The following directories and files therein will be deleted:"
-					
-				find ${CXR_ALL_INSTANCES_DIR}/ -noleaf -type d | xargs -i basename \{\}
-		
 				# Do we do this?
-				if [[ "$(common.user.getOK "Do you really want to delete these files?" )" == false  ]]
+				if [[ "$(common.user.getOK "Do you really want to remove old instances?" )" == false  ]]
 				then
 					# No 
 					main.log -a   "Will not delete any state information"
 					return 0
 				else
-					# Yes
-					rm -rf ${CXR_ALL_INSTANCES_DIR}/* 2>/dev/null
+					instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -name ${CXR_CONTINUE} 2>/dev/null)
+	
+					for instance in $instances
+					do
+						binstance=$(basename $instance)
+				
+						if [[ $(common.state.isInstanceAlive? $binstance) == false ]]
+						then
+							rm -rf $instance
+						else
+							main.log -a "$binstance is active"
+						fi
+					done
+					
 					main.log -a "Done."
 				fi #Delete?
 			

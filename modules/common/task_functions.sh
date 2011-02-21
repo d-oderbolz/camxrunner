@@ -218,7 +218,7 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all active OT-Pre Tasks 
+	-- First, add all OT-Pre Tasks 
 	-- otherwise tasks without deps would
 	-- be skipped
 	------------------------------------
@@ -226,11 +226,10 @@ function common.task.createSequentialDependencyList()
 	       '$CXR_START_DATE' || '@' || t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
-	AND   m.active = 'true'
 	AND   m.type = '$CXR_TYPE_PREPROCESS_ONCE';
 	
 	------------------------------------
-	-- Then add all active dependencies.
+	-- Then add all dependencies.
 	------------------------------------
 	SELECT '$CXR_START_DATE' || '@' || d.independent_module ,
 	       '$CXR_START_DATE' || '@' || d.dependent_module 
@@ -238,7 +237,6 @@ function common.task.createSequentialDependencyList()
 	      modules m
 	WHERE m.module = d.dependent_module
 	AND   d.independent_day_offset = d.dependent_day_offset
-	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_ONCE') ;
 	
 	EOT
@@ -267,7 +265,7 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all active Daily Tasks 
+	-- First, add all Daily Tasks 
 	-- otherwise tasks without deps would
 	-- be skipped
 	------------------------------------
@@ -275,13 +273,12 @@ function common.task.createSequentialDependencyList()
 	        t.module 
 	FROM tasks t, modules m
 	WHERE m.module = t.module
-	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
 	                 '$CXR_TYPE_POSTPROCESS_DAILY');
 	
 	------------------------------------
-	-- Then add all the active dependencies
+	-- Then add all the dependencies
 	-- we need to restrict the dependencies to
 	-- the daily modules.
 	------------------------------------
@@ -291,8 +288,6 @@ function common.task.createSequentialDependencyList()
 	WHERE m.module = dependent_module
 	AND im.module = independent_module
 	AND   independent_day_offset = dependent_day_offset
-	AND   m.active='true'
-	AND   im.active='true'
 	AND   m.type IN ('$CXR_TYPE_PREPROCESS_DAILY',
 	                 '$CXR_TYPE_MODEL',
 	                 '$CXR_TYPE_POSTPROCESS_DAILY')
@@ -349,7 +344,7 @@ function common.task.createSequentialDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all active OT-Pre Tasks 
+	-- First, add all OT-Pre Tasks 
 	-- otherwise tasks without deps would
 	-- be skipped
 	------------------------------------
@@ -357,11 +352,10 @@ function common.task.createSequentialDependencyList()
 	       '$CXR_STOP_DATE' || '@' || t.module
 	FROM tasks t, modules m
 	WHERE m.module = t.module
-	AND   m.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE');
 	
 	------------------------------------
-	-- Then add all active dependencies
+	-- Then add all dependencies
 	-- we need to restrict the dependencies to
 	-- the daily modules.
 	------------------------------------
@@ -371,8 +365,6 @@ function common.task.createSequentialDependencyList()
 	WHERE m.module = d.dependent_module
 	AND   im.module = d.independent_module
 	AND   d.independent_day_offset = d.dependent_day_offset
-	AND   m.active='true'
-	AND   im.active='true'
 	AND   m.type IN ('$CXR_TYPE_POSTPROCESS_ONCE')
 	AND   im.type IN ('$CXR_TYPE_POSTPROCESS_ONCE') ;
 	
@@ -431,18 +423,17 @@ function common.task.createParallelDependencyList()
 	.separator ' '
 	
 	------------------------------------
-	-- First, add all active tasks, no matter what
+	-- First, add all tasks, no matter what
 	------------------------------------
 	
 	SELECT d.day_iso || '@' || t.module,
 	       d.day_iso || '@' || t.module
 	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
-	AND   d.day_offset = t.day_offset
-	AND   m.active='true';
+	AND   d.day_offset = t.day_offset;
 
 	------------------------------------
-	-- Then add all the active dependencies. 
+	-- Then add all the dependencies. 
 	------------------------------------
 	
 	SELECT di.day_iso || '@' || independent_module,
@@ -450,8 +441,7 @@ function common.task.createParallelDependencyList()
 	FROM dependencies, days di, days dd, modules m
 	WHERE m.module = independent_module
 	AND   di.day_offset = independent_day_offset
-	AND   dd.day_offset = dependent_day_offset
-	AND   m.active='true';
+	AND   dd.day_offset = dependent_day_offset;
 
 	EOT
 	
@@ -537,7 +527,7 @@ function common.task.drawDependencyGraph()
 ################################################################################
 # Function: common.task.countAllTasks
 #
-# Returns the number of tasks known.
+# Returns the number of tasks known we are working on.
 # 
 #
 ################################################################################
@@ -545,7 +535,7 @@ function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -600,7 +590,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank IS NOT NULL;")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND STATUS='${CXR_STATUS_TODO}' AND rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -657,7 +647,7 @@ function common.task.countMyRunningWorkers()
 	
 	for pid in $running_pids
 	do
-		# kill returns non/zero if process is gone, 0 is pseudo signal 
+		# kill returns non-zero if process is gone, 0 is pseudo signal 
 		# we avoid termination with || :
 		kill -0 $pid &> /dev/null || :
 		
@@ -781,7 +771,6 @@ function common.task.detectLockup()
 # _day_offset
 # _invocation
 #
-# [$1] - an optional where-clause (without WHERE) to select specific tasks.
 ################################################################################
 function common.task.setNextTask()
 ################################################################################
@@ -791,14 +780,9 @@ function common.task.setNextTask()
 	
 	local task_count
 	local potential_task_data
-	local where
 	
 	task_count=$(common.task.countOpenTasks)
 	
-	# If a where clause is passed, we use it,
-	# otherwise use 1=1
-	where=${1:-1=1}
-
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
@@ -823,7 +807,8 @@ function common.task.setNextTask()
 	fi
 	
 	# get first relevant entry in the DB
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks WHERE STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL AND $where ORDER BY rank ASC LIMIT 1")"
+	# We join with instance_tasks to get only tasks we are interested in
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -1059,8 +1044,7 @@ function common.task.Worker()
 			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
 			# This is a blocking call (we wait until we get a task)
-			# We restrict by the maybe-set CXR_TASK_WHERE
-			common.task.setNextTask ${CXR_TASK_WHERE:-}
+			common.task.setNextTask
 			
 			id="${_id:-}"
 			
@@ -1237,6 +1221,21 @@ function common.task.spawnWorkers()
 	# This variable makes sure the controller is responsible for cleanup
 	CXR_CONTROLLER_CLEANUP_AUTHORITY=true
 	
+	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
+	then
+		mb_needed=$(common.check.PredictModelOutputMb)
+	
+		common.check.MbNeeded "${CXR_OUTPUT_DIR}" "${mb_needed}"
+		
+		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
+		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
+		then
+			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0)
+		fi
+	else
+		main.log -w "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
+	fi
+	
 	
 	nWorkers="$1"
 	
@@ -1308,6 +1307,9 @@ function common.task.controller()
 	
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
+		# Still alive
+		touch $CXR_INSTANCE_FILE_ALIVE
+		
 		sleep $CXR_WAITING_SLEEP_SECONDS
 		
 		# Detect Lockup (all workers are waiting)
@@ -1344,7 +1346,7 @@ function common.task.controller()
 		
 		if [[ "$task_count" -eq 0 ]]
 		then
-			main.log -a "This was the last task to be processed, notifying system after security pause...\nDon't be alarmed: Running processes will have time to finish."
+			main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
 			
 			# there are no more tasks, remove all continue files after some waiting
 			# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1389,7 +1391,6 @@ function common.task.init()
 	local task_id
 	local tasksTodo
 	local task
-	local taskCount
 	local task_file
 	local line
 	local module
@@ -1412,16 +1413,10 @@ function common.task.init()
 	# Init
 	CXR_TIME_TOTAL_ESTIMATED=0
 	
-	# Check if we already have tasks 
-	# Iff we have this and allow multiple, we use them.
-	taskCount=$(common.task.countAllTasks)
-	
-	if [[	$taskCount -ne 0 && \
-			${CXR_ALLOW_MULTIPLE} == true && \
-			"$(common.state.countInstances)" -gt 1 ]]
+	if [[	$CXR_FIRST_INSTANCE == false ]]
 	then
-		# We are in a non-master multiple runner
-		main.log -a -b "This is a slave process - we use the pre-existing task infrastructure"
+		# We are in a non-master runner
+		main.log -a -b "We are not the first instance - we use the pre-existing task infrastructure"
 	else
 		# Redo
 		
@@ -1460,9 +1455,7 @@ function common.task.init()
 			# We only give ranks to stuff that was not yet sucessfully done
 			# note that all invocations of a given (module, day) pair get the same ID.
 			# This is by design and correct.
-			# Since if is possible that non-active tasks are listed (due to dependencies),
-			# We will update only active ones
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules WHERE active='true');" >> $tempfile
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules);" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
@@ -1472,7 +1465,7 @@ function common.task.init()
 		# Execute all statements at once
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" $tempfile || main.dieGracefully "Could not update ranks properly"
 		
-		main.log -v  "This run consists of $(( $current_id -1 )) tasks."
+		main.log -v  "This run consists of $(common.task.countOpenTasks) tasks."
 		
 		# pdf_file=$CXR_RUN_DIR/${CXR_RUN}_dep_$(date +"%Y_%m_%d_%H_%M").pdf
 		# common.task.drawDependencyGraph "$dep_file" "$pdf_file"

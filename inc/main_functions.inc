@@ -701,6 +701,12 @@ function main.dieGracefully()
 	# Delete any .CONTINUE FILES
 	common.state.deleteContinueFiles
 	
+	# Delete everything from the instance_tasks table
+	if [[ -e "$CXR_STATE_DB_FILE" && $(main.functionExists? common.db.change) == true ]]
+	then
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks;"
+	fi
+	
 	main.log -a "### CAMxRunner Crashes because of this reason:############"
 	# This function also echoes the message
 	main.addError "${1:-Unknown error.}"

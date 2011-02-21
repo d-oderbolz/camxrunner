@@ -93,6 +93,8 @@ function common.check.PredictFileSizeMb ()
 # The factor C(Options) is currently a constant, it might take other options
 # like HDF, source apportionment etc. into account later.
 #
+# TODO: take into account instance_tasks table!
+#
 ################################################################################
 function common.check.PredictModelOutputMb()
 ################################################################################

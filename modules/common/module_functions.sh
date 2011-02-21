@@ -106,7 +106,7 @@ function common.module.areDependenciesOk?()
 	      t.module = m.module
 	AND   t.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
-	AND   m.active='false'
+	AND   t.id NOT IN (SELECT id FROM instance_tasks)
 	AND   d.dependent_module='$module'
 	AND   d.dependent_day_offset=day_offset
 	AND   t.status NOT IN ('$CXR_STATUS_SUCCESS','$CXR_STATUS_RUNNING');
@@ -136,8 +136,7 @@ function common.module.areDependenciesOk?()
 	AND   m.module = d.independent_module
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset
-	AND   m.active='true';
+	AND   d.dependent_day_offset=$day_offset;
 	
 	EOT
 	)
@@ -276,36 +275,6 @@ function common.module.getTypeSlow()
 	value="$(eval "echo $(echo "$value")")"
 	
 	echo "$value"
-}
-
-################################################################################
-# Function: common.module.isActive?
-# 
-# Tests if a given module is active (listed in the modules table)
-#
-# Parameters:
-# $1 - name of a module
-################################################################################
-function common.module.isActive?()
-################################################################################
-{
-	if [[ $# -ne 1 ]]
-	then
-		main.dieGracefully "needs a module name as input"
-	fi
-	
-	local module
-	local count
-
-	# Count entries
-	count=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM modules WHERE module='$1'")
-	
-	if [[ $count -eq 1 ]]
-	then
-		echo true
-	else
-		echo false
-	fi
 }
 
 ################################################################################

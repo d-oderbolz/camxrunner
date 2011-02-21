@@ -95,9 +95,6 @@ function main.usage()
 
 	  -c    cleanup: removes state information
 
-	  -m    allow multiple instances of the runner on the same run 
-	        Also see -r
-
 	  -t<n> set the threshold for allowed errors (Default ${CXR_ERROR_THRESHOLD}).
 	        a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
 
@@ -114,22 +111,11 @@ function main.usage()
 	  
 	  -R    Creates a configuration to repeat this run. User may select another run later.
 
-	  The following options allow to run a subset of the modules that make up a run.
-	  One approach is to select all modules of a module type (these options can be combined):
-
-	  -x   only runs enabled model modules
-	
-	  -p   only enabled one-time preprocessor modules
-	
-	  -i   only enabled daily preprocessors step module
-	  -o   only enabled daily day postprocessors step module
-	
-	  -f   only enabled one-time postprocessor modules
-	
-	  Or one can enable just a list of specific modules (the order is unimportant):
+	  The list of modules to be run can be modified (the order is unimportant):
 	
 	  -r"list of modules or types"
-	      When using -r together with -m (allow multiple runners), this instance will only work on the modules given.
+	      When using -r together with more than one instance, 
+	      this instance will only work on the modules given.
         This can be used to assign CPU intensive tasks like the model to strong machines.
 	  
 	  -L   List all available modules. (this command is sensitive to the run name)
@@ -240,7 +226,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dSlvVFwmct:sD:nP:ITr:xioCRpfLh" opt
+while getopts ":dSlvVFwct:sD:nP:ITr:CRLh" opt
 do
 	case "${opt}" in
 		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_PARALLEL_PROCESSING=false ; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -250,7 +236,6 @@ do
 		V) 	CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
 		F) 	CXR_USER_TEMP_FORCE=true ;;
 		w) 	CXR_USER_TEMP_WAIT_4_INPUT=true ;;
-		m) 	CXR_USER_TEMP_ALLOW_MULTIPLE=true ;;
 		c) 	CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		t) 	CXR_USER_TEMP_ERROR_THRESHOLD=${OPTARG:-} ;;
 		s) 	CXR_HOLLOW=true; CXR_USER_TEMP_STOP_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
@@ -268,12 +253,7 @@ do
 		C) 	CXR_HOLLOW=true; CXR_USER_TEMP_CREATE_NEW_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
-		r) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_RUN_LIST="${OPTARG:-}" ;;
-		p) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_PRE_ONCE=true ;;
-		i) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_PRE_DAILY=true ;;
-		o) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_POST_DAILY=true ;;
-		f) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_POST_ONCE=true ;;
-		x) 	CXR_USER_TEMP_RUN_LIMITED_PROCESSING=true; CXR_USER_TEMP_CLI_RUN_MODEL=true ;;
+		r) 	CXR_RUN_LIST="${OPTARG:-}" ;;
 		L) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
 		h) CXR_HOLLOW=true; main.usage ;;
@@ -377,9 +357,22 @@ then
 fi
 
 # Hollow and non-hollow options should not be mixed
-if [[ "${CXR_HOLLOW}" == true && "${CXR_RUN_LIMITED_PROCESSING}" == true ]]
+if [[ "${CXR_HOLLOW}" == true && "${CXR_SINGLE_DAYS}" && "${CXR_RUN_LIST}" ]]
 then
 	main.dieGracefully "You have chosen contradicting options. Refer to ${CXR_CALL} -h"
+fi
+
+# Remove spaces from the runlist/single days
+CXR_RUN_LIST="$(common.string.trim "$CXR_RUN_LIST")"
+CXR_SINGLE_DAYS="$(common.string.trim "$CXR_SINGLE_DAYS")"
+
+# Are we the first instance?
+# (the first must collect all kind of data, for example compute the execution plan)
+if [[ "$(common.state.countInstances)" -lt 2 ]]
+then
+	CXR_FIRST_INSTANCE=true
+else
+	CXR_FIRST_INSTANCE=false
 fi
 
 ################################################################################
@@ -580,7 +573,7 @@ main.log -H "$progname - running stage\nLoading external modules from ${CXR_COMM
 common.runner.printSummary
 
 ################################################################################
-# Check resource requirements if we run a full simulation
+# Check load
 ################################################################################
 
 load=$(common.performance.getReaLoadPercent)
@@ -591,190 +584,6 @@ elif [[ $load -gt $CXR_LOAD_WARN_THRESHOLD ]]
 then
 	main.log -w "The load is higher than CXR_LOAD_WARN_THRESHOLD (${CXR_LOAD_WARN_THRESHOLD}%). The run may be slow on this machine!"
 fi
-
-mb_needed=$(common.check.PredictModelOutputMb)
-if [[ "${CXR_RUN_LIMITED_PROCESSING}" == false ]]
-then
-	# Full simulation, do the space check if user has not disabled it
-	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
-	then
-		common.check.MbNeeded "${CXR_OUTPUT_DIR}" "${mb_needed}"
-		
-		# We assume that we need 5% of this space in CXR_TMP_DIR if we do not decompress in place
-		if [[ "${CXR_DECOMPRESS_IN_PLACE}" == false  ]]
-		then
-			common.check.MbNeeded "${CXR_TMP_DIR}" $(common.math.FloatOperation "${CXR_TMP_SPACE_FACTOR:-0.05} * ${mb_needed}" 0)
-		fi
-	else
-		main.log -w "CXR_CHECK_MODEL_SPACE_REQUIRED is false, I will not check if sufficient diskspace is available"
-	fi
-else
-	# Limited Processing, we need to fill DISABLED and ENABLED cleverly.
-	# When the user selects a certain type of modules, they should be executed as 
-	# configured
-	# In the case of CXR_ALLOW_MULTIPLE, we create a WHERE-clause that is used later by setNextTask
-
-	# First we store all current (configured values)
-	d_once_pre="$CXR_DISABLED_ONCE_PREPROC"
-	d_d_pre="$CXR_DISABLED_DAILY_PREPROC"
-	d_model="$CXR_DISABLED_MODEL"
-	d_d_post="$CXR_DISABLED_DAILY_POSTPROC"
-	d_once_post="$CXR_DISABLED_ONCE_POSTPROC"
-	
-	# The same for enabled
-	e_once_pre="$CXR_ENABLED_ONCE_PREPROC"
-	e_d_pre="$CXR_ENABLED_DAILY_PREPROC"
-	e_model="$CXR_ENABLED_MODEL"
-	e_d_post="$CXR_ENABLED_DAILY_POSTPROC"
-	e_once_post="$CXR_ENABLED_ONCE_POSTPROC"
-	
-	# Then, we disable all (later, we enable selectively)
-	CXR_DISABLED_ONCE_PREPROC="${CXR_SKIP_ALL}"
-	CXR_DISABLED_DAILY_PREPROC="${CXR_SKIP_ALL}"
-	CXR_DISABLED_MODEL="${CXR_SKIP_ALL}"
-	CXR_DISABLED_DAILY_POSTPROC="${CXR_SKIP_ALL}"
-	CXR_DISABLED_ONCE_POSTPROC="${CXR_SKIP_ALL}"
-	
-	CXR_ENABLED_ONCE_PREPROC=""
-	CXR_ENABLED_DAILY_PREPROC=""
-	CXR_ENABLED_MODEL=""
-	CXR_ENABLED_DAILY_POSTPROC=""
-	CXR_ENABLED_ONCE_POSTPROC=""
-	
-	# Since by default, we run everything, we need to
-	# use these special CLI variables to tell if the user
-	# actively chose this particular part.
-	# If not, we disable it in the case of limited processing
-	if [[ ${CXR_CLI_RUN_PRE_ONCE:-false} == true ]]
-	then
-		CXR_RUN_PRE_ONCE=true
-		CXR_DISABLED_ONCE_PREPROC="$d_once_pre"
-		CXR_ENABLED_ONCE_PREPROC="$e_once_pre"
-	else
-		CXR_RUN_PRE_ONCE=false
-	fi
-	
-	if [[ ${CXR_CLI_RUN_PRE_DAILY:-false} == true ]]
-	then
-		CXR_RUN_PRE_DAILY=true
-		CXR_DISABLED_DAILY_PREPROC="$d_d_pre"
-		CXR_ENABLED_DAILY_PREPROC="$e_d_pre"
-	else
-		CXR_RUN_PRE_DAILY=false
-	fi		
-	
-	if [[ ${CXR_CLI_RUN_MODEL:-false} == true ]]
-	then
-		CXR_RUN_MODEL=true
-		CXR_DISABLED_MODEL="$d_model"
-		CXR_ENABLED_MODEL="$e_model"
-	else
-		CXR_RUN_MODEL=false
-	fi
-
-	if [[ ${CXR_CLI_RUN_POST_DAILY:-false} == true ]]
-	then
-		CXR_RUN_POST_DAILY=true
-		CXR_DISABLED_DAILY_POSTPROC="$d_d_post"
-		CXR_ENABLED_DAILY_POSTPROC="$e_d_post"
-	else
-		CXR_RUN_POST_DAILY=false
-	fi
-	
-	if [[ ${CXR_CLI_RUN_POST_ONCE:-false} == true ]]
-	then
-		CXR_RUN_POST_ONCE=true
-		CXR_DISABLED_ONCE_POSTPROC="$d_once_post"
-		CXR_ENABLED_ONCE_POSTPROC="$e_once_post"
-	else
-		CXR_RUN_POST_ONCE=false
-	fi
-	
-	# Now, we must deal with -r.
-	if [[ "$(common.string.trim "$CXR_RUN_LIST")" ]]
-	then
-		# There are arguments
-		# we reset all explicitly enabled modules
-		# (-r means "run ONLY these modules")
-		CXR_ENABLED_ONCE_PREPROC=""
-		CXR_ENABLED_DAILY_PREPROC=""
-		CXR_ENABLED_MODEL=""
-		CXR_ENABLED_DAILY_POSTPROC=""
-		CXR_ENABLED_ONCE_POSTPROC=""
-		
-		# Decode arguments
-		for module in $CXR_RUN_LIST
-		do
-			# It might be a type!
-			if [[ "$(common.module.isType $module)" == true ]]
-			then
-				main.log -a "We will run all modules of type $module"
-				# Yep, its a type
-				# Exchange roles
-				module_type=$module
-				# The modules must be derived from the tpe
-				module="$(common.module.resolveType $module_type)"
-			else 
-				# no, normal module name
-				# Determine type. 
-				# Due to CATCH-22 we cannot use <common.module.getType> here
-				module_type="$(common.module.getTypeSlow "$module")"
-			fi  # is it a type?
-			
-			if [[ "$CXR_ALLOW_MULTIPLE" == false ]]
-			then
-				# Normal case with one runner
-				case $module_type in
-				
-					${CXR_TYPE_PREPROCESS_ONCE} ) 
-						CXR_ENABLED_ONCE_PREPROC="$CXR_ENABLED_ONCE_PREPROC $module"
-						CXR_RUN_PRE_ONCE=true;;
-						
-					${CXR_TYPE_PREPROCESS_DAILY} ) 
-						CXR_ENABLED_DAILY_PREPROC="$CXR_ENABLED_DAILY_PREPROC $module"
-						CXR_RUN_PRE_DAILY=true;;
-						
-					${CXR_TYPE_MODEL} ) 
-						CXR_ENABLED_MODEL="$CXR_ENABLED_MODEL $module"
-						CXR_RUN_MODEL=true;;
-						
-					${CXR_TYPE_POSTPROCESS_DAILY} ) 
-						CXR_ENABLED_DAILY_POSTPROC="$CXR_ENABLED_DAILY_POSTPROC $module"
-						CXR_RUN_POST_DAILY=true;;
-						
-					${CXR_TYPE_POSTPROCESS_ONCE} ) 
-						CXR_ENABLED_ONCE_POSTPROC="$CXR_ENABLED_ONCE_POSTPROC $module"
-						CXR_RUN_POST_ONCE=true;;
-						
-					* ) main.dieGracefully "Module type $module_type not supported to be used with -r" ;;
-				esac
-			
-			else
-			
-				# Special case where we run multiple runners
-				# We need to go over all modules set now
-				
-				for entry in $module
-				do
-					CXR_TASK_WHERE="'$entry',${CXR_TASK_WHERE:-}"
-				done
-			
-			fi # CXR_ALLOW_MULTIPLE?
-
-		done # entries in -r
-		
-		if [[ "$CXR_TASK_WHERE" ]]
-		then
-			# We fix the task where clause
-			# remove last comma
-			CXR_TASK_WHERE="${CXR_TASK_WHERE%,}]"
-			CXR_TASK_WHERE=" module in (${CXR_TASK_WHERE}) "
-		fi 
-		
-	else
-		main.log -v "The option -r needs at least one module name or type as argument!"
-	fi
-fi # Limited Processing?
 
 ################################################################################
 # Print out the variables and their settings
@@ -800,9 +609,7 @@ fi
 if [[ ${CXR_SKIP_EXISTING} == true ]]
 then
 	main.log -w "Existing output files will be skipped."
-fi
-
-if [[ ${CXR_FORCE} == true ]]
+elif [[ ${CXR_FORCE} == true ]]
 then
 	main.log -w "Existing output files will be deleted."
 fi
@@ -855,6 +662,10 @@ then
 		common.task.controller
 		
 		# If we arrive here, we should be done.
+		# Delete entries in instance_tasks
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
+		
+		
 		# We can add a good check later.
 		
 		# We need a way to find out if all workers returned happily to

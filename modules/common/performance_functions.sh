@@ -156,7 +156,7 @@ function common.performance.estimateTotalRuntimeSeconds()
 	local mean
 	local result
 	
-	n_tasks=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks WHERE rank IS NOT NULL;")
+	n_tasks=$(common.task.countOpenTasks)
 	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 	
 	result=$(common.math.FloatOperation "$n_tasks * $mean" 0)

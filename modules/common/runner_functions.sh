@@ -1027,7 +1027,7 @@ function common.runner.waitForLock()
 		
 		# is it an older lock?
 		mtime=$(common.fs.getMtime $locklink)
-		if [[ ${CXR_ALLOW_MULTIPLE} == false && $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
+		if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
 		then
 			if [[ "$shared" == true ]]
 			then
@@ -1138,7 +1138,7 @@ function common.runner.getLock()
 
 				# is it an older lock?
 				mtime=$(common.fs.getMtime $locklink)
-				if [[ ${CXR_ALLOW_MULTIPLE} == false && $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
+				if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
 				then
 					main.log -w "Removing old lock $locklink"
 					rm -f $locklink
