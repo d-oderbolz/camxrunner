@@ -26,32 +26,29 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FLGS = -byteswapio
+FCFLGS = -byteswapio
 
 LIBS = 
 
 all: obscat combine2 camxstat avgcat camxpost extstat
 
-obscat: obscat.o
-	$(FC) -o $(DESTINATION)/obscat-$(HOSTTYPE) $(FLGS) obscat.o $(LIBS)
+obscat: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 	
-combine2: combine2.o
-	$(FC) -o $(DESTINATION)/combine2-$(HOSTTYPE) $(FLGS) combine2.o $(LIBS)
+combine2: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 	
-camxstat: camxstat.o
-	$(FC) -o $(DESTINATION)/camxstat-$(HOSTTYPE) $(FLGS) camxstat.o $(LIBS)
+camxstat: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 	
-avgcat: avgcat.o
-	$(FC) -o $(DESTINATION)/avgcat-$(HOSTTYPE) $(FLGS) avgcat.o $(LIBS)
+avgcat: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 	
-camxpost: camxpost.o
-	$(FC) -o $(DESTINATION)/camxpost-$(HOSTTYPE) $(FLGS) camxpost.o $(LIBS)
+camxpost: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 	
-extstat: extstat.o
-	$(FC) -o $(DESTINATION)/extstat-$(HOSTTYPE) $(FLGS) extstat.o $(LIBS)
-	
-.f.o	:
-	$(FC) -c -o $@ $(FLGS) $<
+extstat: 
+	$(FC) -o $(DESTINATION)/$@-$(HOSTTYPE) $(FCFLGS) $@.f
 
 clean :
 	-rm -f *.o
