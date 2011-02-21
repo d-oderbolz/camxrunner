@@ -1160,72 +1160,38 @@ function common.runner.getLock()
 # Parameters:
 # $1 - the name of the lock to release
 # $2 - the level of the lock, either of "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
-# [$3] - optional boolean "shared" (default false), if true, many processes may hold the lock
 ################################################################################
 function common.runner.releaseLock()
 ################################################################################
 {
-	if [[ $# -lt 2 || $# -gt 3 ]]
+	if [[ $# -ne 2  ]]
 	then
-		main.dieGracefully "needs the name of a lock and a level and on optional boolean "shared" as input"
+		main.dieGracefully "needs the name of a lock and a level as input"
 	fi
 	
 	local lock
 	local level
-	local shared
 	local locklink
 	local target
 	
 	lock="$1"
 	level="$2"
-	shared="${3:-false}"
 	
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
 	
-		locklink="$(common.runner.getLockLinkName "$lock" "$level" "$shared")"
+		locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 		
-		if [[ "$shared" == false ]]
+		target="$(common.fs.getLinkTarget $locklink)"
+	
+		# Normal, exclusive case
+		rm -f "$locklink" 2> /dev/null
+		main.log -v "lock $lock released."
+		
+		if [[ -e $target ]]
 		then
-		
-			target="$(common.fs.getLinkTarget $locklink)"
-		
-			# Normal, exclusive case
-			rm -f "$locklink" 2> /dev/null
-			main.log -v "lock $lock released."
-			
-			if [[ -e $target ]]
-			then
-				rm -f $target
-			fi
-			
-		else
-			# We have our own error handler here
-			set +e
-			target=$(dirname ${locklink})/remove-$(basename ${locklink})
-			# We need to reduce the linkcount by 1 "as atomically as possible"
-			# mv is an atomic operation
-			mv "$(ls ${locklink}_* 2> /dev/null | head -n1)" "$target" 2> /dev/null
-			
-			if [[ $? -ne 0 ]]
-			then
-				# Move of haldlink failed, we can assume that there are no links left
-				rm -f "${locklink}"
-			fi
-			
-			if [[ -e "$target" ]]
-			then
-				rm -f "$target" 
-			fi
-			
-			#Turn strict checks back on unles we are testing
-			if [[ ${CXR_TEST_IN_PROGRESS:-false} == false ]]
-			then
-				set -e
-			fi
-		
-		fi # exclusive?
-		
+			rm -f $target
+		fi
 		
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock released."
