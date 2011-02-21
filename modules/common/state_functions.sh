@@ -394,6 +394,9 @@ function common.state.updateInfo()
 	local day
 	local day_list
 	local first
+	local success_file
+	
+	success_file=/dev/null
 	
 	# In this list, we store all modules we must run
 	local sql_module_list
