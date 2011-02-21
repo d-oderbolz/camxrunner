@@ -466,6 +466,9 @@ CXR_LOG_EXT=""
 # Useful for example to repeat just a part of a run.
 CXR_START_WITH_RESTART=false
 
+# This list is filled by -r
+CXR_RUN_LIST=
+
 ################################################################################
 # Disabled Modules (space-separated module names, ${CXR_SKIP_ALL} disables whole class)
 ################################################################################
