@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=29
+CXR_META_MODULE_NUM_TESTS=28
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some math functions for the CAMxRunner, mostly to add floating point features to bash"
@@ -475,7 +475,6 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.math.compareVersions "" "")" 0 "common.math.compareVersions: Empty input"
 	is "$(common.math.compareVersions "4.51" "4.51")" 0 "common.math.compareVersions: both 4.51"
 	is "$(common.math.compareVersions "1.2.3.4.5" "1.2.3.4.5")" 0 "common.math.compareVersions: both 1.2.3.4.5"
 	is "$(common.math.compareVersions "5.1.20" "5.0")" -1 "common.math.compareVersions: 5.1.20 > 5.0"
