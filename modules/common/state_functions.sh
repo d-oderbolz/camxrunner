@@ -133,7 +133,7 @@ function common.state.buildTasksAndDeps()
 	longer="$1"
 	success_file="$2"
 	
-	if [[ $longer == true || $(common.state.isRepeatedRun?) == false && $CXR_FIRST_INSTANCE == true ]]
+	if [[ ( $longer == true || $(common.state.isRepeatedRun?) == false ) && $CXR_FIRST_INSTANCE == true ]]
 	then
 		# Only build all tasks if its a new run
 		main.log -v "Building tasks and dependencies..."
@@ -769,7 +769,7 @@ function common.state.updateInfo()
 		do
 			if [[ $first == true ]]
 			then
-				day_list="\'$day\'"
+				day_list="\'${day}\'"
 				first=false
 			else
 				day_list="${day_list}, \'$day\'"
@@ -987,7 +987,7 @@ function common.state.storeStatus()
 			# Check if this was already started
 			if [[ $(common.state.hasFinished? "$module" "$day_offset" "$invocation") == true ]]
 			then
-				if [[ "$CXR_RUN_LIST"]]
+				if [[ "$CXR_RUN_LIST" ]]
 				then
 					# Ran already, but user wants to run specifically this
 					main.log -w  "Task $task was already started, but since you requested this specific module, we run it. If it fails try to run \n \t ${CXR_CALL} -F \n to remove existing output files."
