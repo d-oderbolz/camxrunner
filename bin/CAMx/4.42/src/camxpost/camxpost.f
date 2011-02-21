@@ -35,7 +35,7 @@ c
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
-      character*4 filnam(60),fileid(60),mspec1(10),mspec(10,mxspc),
+      character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
      &            obspec(10)
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       data ione /1/
@@ -105,7 +105,6 @@ c-----Read and open I/O files; get user-specified inputs
       write(*,*)
 
 c-----Read and write the four header records
- 
       read(10) filnam,fileid,noseg,nospec,idat1,tim1,idat2,tim2
       if (tim2.eq.0.) then
          tim2 = 24.
