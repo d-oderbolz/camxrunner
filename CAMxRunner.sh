@@ -553,6 +553,9 @@ then
 		common.test.all
 	fi
 	
+	# Delete entries in instance_tasks
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
+	
 	# Do cleanup
 	main.doCleanup
 	
@@ -618,7 +621,6 @@ fi
 # Detect other instances #######################################################
 ################################################################################
 
-# TODO: Rethink this strategy (this check should never be false!)
 if [[ "$CXR_HOLLOW" == false ]]
 then
 
