@@ -487,10 +487,10 @@ function common.fs.isLink?()
 ################################################################################
 # Function: common.fs.isBrokenLink?
 #
-# Returns true if the argument is a broken link (or contains one), false otherwise.
-# The Empty string is broken by definition.
+# Returns true if the argument is a broken link, false otherwise.
+# The Empty string is broken by definition, a non-existent file is not a broken link.
 # Note: One reason for a broken link is that the target of the link was compressed!
-# This function does no explicit check if the last element of the path to test is a link.
+# 
 #
 # Parameters:
 # $1 - path to link to test
@@ -503,16 +503,22 @@ function common.fs.isBrokenLink?()
 	
 	path="$1"
 	
-	target="$(common.fs.getLinkTarget $path)"
-	
-	if [[ -z "$path" || ! -e "$target" ]]
+	if [[ ! -L "$path" ]]
 	then
-		# Broken
-		echo true
-	else
-		# OK
+		# Not a link
 		echo false
-	fi # Broken?
+	else
+		target="$(common.fs.getLinkTarget $path)"
+		
+		if [[ -z "$path" || ! -e "$target" ]]
+		then
+			# Broken
+			echo true
+		else
+			# OK
+			echo false
+		fi # Broken?
+	fi
 }
 
 

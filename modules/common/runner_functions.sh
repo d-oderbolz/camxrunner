@@ -1181,16 +1181,17 @@ function common.runner.releaseLock()
 	then
 	
 		locklink="$(common.runner.getLockLinkName "$lock" "$level")"
-		
 		target="$(common.fs.getLinkTarget $locklink)"
 	
-		# Normal, exclusive case
+		# Remove the link
 		rm -f "$locklink" 2> /dev/null
 		main.log -v "lock $lock released."
 		
-		if [[ -e $target ]]
+		if [[ -e "$target" && "$(dirname "$target")" == $CXR_TEMP_DIR ]]
 		then
-			rm -f $target
+			# and the target. For security reasons, we
+			# check if it resides really in CXR_TEMP_DIR
+			rm -f "$target"
 		fi
 		
 	else

@@ -885,7 +885,7 @@ function common.check.preconditions()
 				# does not exist!
 				
 				# Is it a broken link?
-				if [[ -L "${input_file}" && "$(common.fs.isBrokenLink? "${input_file}")" == true ]]
+				if [[ "$(common.fs.isBrokenLink? "${input_file}")" == true ]]
 				then
 					# Broken link. Its possible that the source was compressed!
 					
