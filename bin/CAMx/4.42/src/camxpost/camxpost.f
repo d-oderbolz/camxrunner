@@ -188,7 +188,9 @@ c-----Read and write the four header records
         stop
       endif
       
-c     dco This is an adjustment that allows the rest of the code to live in "UTM-space"
+c     dco The original code assumes that coordinates are in UTM
+c     dco and therefore, multiplies distances by 1000
+c     dco This Hack allows us to keep the rest of the code intact
 			if (projection.eq.'LATLON') then
 				
 				write(*,*)'Adjusted resolution', deltax, deltay
