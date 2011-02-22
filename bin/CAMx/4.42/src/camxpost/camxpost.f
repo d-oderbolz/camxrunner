@@ -32,7 +32,7 @@ c
      &     prdconc3(mxhr,mxsit),prdconc4(mxx,mxy),
      &     obsconc1(mxobs,mxsit),obsconc2(mxobs,mxsit),
      &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor,deltax,deltay,
-     &     conv2metre
+     &     conv2metre, decimali, decimalj
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
@@ -408,7 +408,11 @@ c     max/min predictions in 9 surrounding grid cells
           distx = conv2metre*xutm(ns) - xorg
           disty = conv2metre*yutm(ns) - yorg
           
-          write(*,*)'Site ',sitnam(ns),' corresponds to cell ',distx/deltax,disty/deltay
+c----- Print out the "decimal index" of the stations
+          decimali = distx/deltax
+          decimalj = disty/deltay
+          
+          write(*,*)'Site ',sitnam(ns),' corresponds to cell ',decimali,decimalj
           
           ii = int(distx/deltax + 0.5)
           jj = int(disty/deltay + 0.5)
