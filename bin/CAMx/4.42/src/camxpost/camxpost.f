@@ -190,6 +190,9 @@ c-----Read and write the four header records
       
 c     dco This is an adjustment that allows the rest of the code to live in "UTM-space"
 			if (projection.eq.'LATLON') then
+				
+				write(*,*)'Adjusted resolution', deltax, deltay
+				
 				deltax = deltax * 1000.
 				deltay = deltay * 1000.
 			endif
