@@ -134,6 +134,7 @@ function common.module.areDependenciesOk?()
 	      t.module = d.independent_module
 	AND   t.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
+	AND   t.id IN (SELECT id FROM instance_tasks)
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
 	AND   d.dependent_day_offset=$day_offset;
