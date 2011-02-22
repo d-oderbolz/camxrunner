@@ -664,10 +664,6 @@ then
 		common.task.controller
 		
 		# If we arrive here, we should be done.
-		# Delete entries in instance_tasks
-		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
-		
-		
 		# We can add a good check later.
 		
 		# We need a way to find out if all workers returned happily to
@@ -700,6 +696,9 @@ main.log -a "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FI
 ################################################################################
 # Cleanup all locks etc...
 ################################################################################
+# Delete entries in instance_tasks
+common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
+		
 main.doCleanup
 
 # Set exit status (too coarse)
