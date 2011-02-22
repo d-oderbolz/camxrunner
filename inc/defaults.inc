@@ -655,6 +655,8 @@ CXR_STATE_DB_FILE=$CXR_GLOBAL_DIR/tasks.${CXR_DB_SUFFIX}
 
 # Name of the Log file 
 CXR_LOG=${CXR_LOG_OUTPUT_DIR}/${CXR_RUN}_$(date +"%Y_%m_%d_%H_%M")${CXR_LOG_EXT}.log
+# This is the 0th logfile
+CXR_LOGS[0]=$CXR_LOG
 
 ################################################################################
 # Per-Instance Information
