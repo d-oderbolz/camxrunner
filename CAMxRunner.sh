@@ -407,7 +407,7 @@ fi
 if [[ ${CXR_MAX_PARALLEL_PROCS} -le $(( $CXR_NUM_CORES - $OMP_NUM_THREADS + 1 )) ]]
 then
 
-	if [[ $CXR_HOLLOW == false ]]
+	if [[ $CXR_HOLLOW == false && ${CXR_MAX_PARALLEL_PROCS} -gt 1 ]]
 	then
 		main.log -a "Since we have $CXR_NUM_CORES CPUS, OMP_NUM_THREADS is set to $OMP_NUM_THREADS and you want ${CXR_MAX_PARALLEL_PROCS} CAMxRunner processes, we allow other processes besides the model to be run"
 	fi
