@@ -808,7 +808,7 @@ function common.task.setNextTask()
 	
 	# get first relevant entry in the DB
 	# We join with instance_tasks to get only tasks we are interested in
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,.ttype,.texclusive,t.day_offset,t.invocation FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,t.type,t.exclusive,t.day_offset,t.invocation FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
