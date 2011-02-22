@@ -204,7 +204,7 @@ Group: Modules  {
 
                File: boundary_conditions.sh  (modules/preproc/CAMx/4.42/daily/boundary_conditions.sh)
                File: convert_emissions.sh  (modules/preproc/CAMx/4.42/daily/convert_emissions.sh)
-               File: create_emissions.sh  (modules/preproc/CAMx/4.42/daily/create_emissions.sh)
+               File: create_emissions.psi.sh  (modules/preproc/CAMx/4.42/daily/create_emissions.psi.sh)
                File: run_emifad.sh  (modules/preproc/CAMx/4.42/daily/run_emifad.sh)
                }  # Group: Daily
 
@@ -226,7 +226,7 @@ Group: Modules  {
 
                File: boundary_conditions.sh  (modules/preproc/CAMx/4.51/daily/boundary_conditions.sh)
                File: convert_emissions.sh  (modules/preproc/CAMx/4.51/daily/convert_emissions.sh)
-               File: create_emissions.sh  (modules/preproc/CAMx/4.51/daily/create_emissions.sh)
+               File: create_emissions.psi.sh  (modules/preproc/CAMx/4.51/daily/create_emissions.psi.sh)
                File: run_emifad.sh  (modules/preproc/CAMx/4.51/daily/run_emifad.sh)
                }  # Group: Daily
 
@@ -248,7 +248,7 @@ Group: Modules  {
 
                File: boundary_conditions.sh  (modules/preproc/CAMx/5.10/daily/boundary_conditions.sh)
                File: convert_emissions.sh  (modules/preproc/CAMx/5.10/daily/convert_emissions.sh)
-               File: create_emissions.sh  (modules/preproc/CAMx/5.10/daily/create_emissions.sh)
+               File: create_emissions.psi.sh  (modules/preproc/CAMx/5.10/daily/create_emissions.psi.sh)
                File: run_emifad.sh  (modules/preproc/CAMx/5.10/daily/run_emifad.sh)
                }  # Group: Daily
 
@@ -318,7 +318,7 @@ Group: Modules  {
 
          File: boundary_conditions.sh  (modules/preproc/CAMx/5.20.1/daily/boundary_conditions.sh)
          File: convert_emissions.sh  (modules/preproc/CAMx/5.20.1/daily/convert_emissions.sh)
-         File: create_emissions.sh  (modules/preproc/CAMx/5.20.1/daily/create_emissions.sh)
+         File: create_emissions.psi.sh  (modules/preproc/CAMx/5.20.1/daily/create_emissions.psi.sh)
          File: run_emifad.sh  (modules/preproc/CAMx/5.20.1/daily/run_emifad.sh)
          }  # Group: Daily
 
