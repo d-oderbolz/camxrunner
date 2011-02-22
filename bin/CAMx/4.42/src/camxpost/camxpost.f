@@ -106,20 +106,17 @@ c-----Read and open I/O files; get user-specified inputs
       
 c-----Optional items
       read(*,'(20x,a)',IOSTAT=iostatus) projection
-      
       if (iostatus.ne.0) then
       	projection='UTM'
      	endif
-      
       write(*,*) 'Projection: ', projection
       
-      read(*,'(20x,a)',IOSTAT=iostatus), cfactor
-      
+      read(*,'(20x,f6.4)',IOSTAT=iostatus) cfactor
       if (iostatus.ne.0) then
       	cfactor=1.0
      	endif
-      
       write(*,*) 'Conversion factor: ', cfactor
+      
       write(*,*)
       
 
