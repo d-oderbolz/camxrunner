@@ -36,7 +36,8 @@ c
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
       character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
-     &            obspec(10), projection(7)
+     &            obspec(10)
+      character(len=7) :: projection
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       data ione /1/
 
