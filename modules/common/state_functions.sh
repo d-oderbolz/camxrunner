@@ -848,7 +848,7 @@ function common.state.init()
 	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
 	
 	# Creating .continue file
-	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process  stops at the next possible task" 1>&2
+	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process stops as soon as possible." 1>&2
 	echo "If you remove this file, the instance ${CXR_PID} on $(uname -n) will stop" > ${CXR_CONTINUE_FILE}
 	
 	main.log -v "Creating database schema in $CXR_STATE_DB_FILE..."
@@ -878,15 +878,14 @@ function common.state.init()
 	
 	-- Here we store all known simulation days
 	CREATE TABLE IF NOT EXISTS days (day_offset INTEGER,
-	                                 day_iso 		TEXT,
-	                                 active 		TEXT);
+	                                 day_iso 		TEXT);
 
 	-- All modules go here
 	CREATE TABLE IF NOT EXISTS modules (module		TEXT, 
 	                                    type			TEXT,
 	                                    path			TEXT,
-	                                    exclusive	TEXT,
-	                                    active		TEXT);
+	                                    exclusive	TEXT);
+	                                    
 	CREATE UNIQUE INDEX IF NOT EXISTS module_idx ON modules(module);
 
 	-- List of module types

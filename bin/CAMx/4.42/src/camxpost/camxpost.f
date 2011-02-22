@@ -36,7 +36,7 @@ c
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
       character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
-     &            obspec(10)
+     &            obspec(10), projection(7)
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       data ione /1/
 
@@ -102,7 +102,10 @@ c-----Read and open I/O files; get user-specified inputs
      &                      isub1,isub2,jsub1,jsub2
       read(*,'(20x,a)') statmsg
       write(*,*) statmsg
+      read(*,'(20x,a)') projection
+      write(*,*) projection
       write(*,*)
+      
 
 c-----Read and write the four header records
       read(10) filnam,fileid,noseg,nospec,idat1,tim1,idat2,tim2
