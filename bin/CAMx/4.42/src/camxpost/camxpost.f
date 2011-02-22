@@ -412,7 +412,8 @@ c----- Print out the "decimal index" of the stations
           decimali = distx/deltax
           decimalj = disty/deltay
           
-          write(*,*)'Site ',sitnam(ns),' corresponds to cell ',decimali,decimalj
+          write(*,*) 'Site ',sitnam(ns),' corresponds to cell ',
+     &               decimali,decimalj
           
           ii = int(distx/deltax + 0.5)
           jj = int(disty/deltay + 0.5)
