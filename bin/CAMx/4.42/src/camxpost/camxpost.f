@@ -409,8 +409,8 @@ c     max/min predictions in 9 surrounding grid cells
           disty = conv2metre*yutm(ns) - yorg
           
 c----- Print out the "decimal index" of the stations
-          decimali = distx/deltax
-          decimalj = disty/deltay
+          decimali = (distx/deltax) + 1
+          decimalj = (disty/deltay) + 1
           
           write(*,*) 'Site ',sitnam(ns),' corresponds to cell ',
      &               decimali,decimalj
