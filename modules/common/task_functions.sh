@@ -535,7 +535,7 @@ function common.task.countAllTasks()
 ################################################################################
 {
 	# Find all entries in the table
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND rank IS NOT NULL;")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count tasks in total"
 	
@@ -590,7 +590,7 @@ function common.task.countOpenTasks()
 ################################################################################
 {
 	# Find only "TODO" entries
-	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND STATUS='${CXR_STATUS_TODO}' AND rank IS NOT NULL;")"
+	task_count="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT COUNT(*) FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank IS NOT NULL;")"
 	
 	main.log -v "Found $task_count open tasks"
 	
@@ -808,7 +808,7 @@ function common.task.setNextTask()
 	
 	# get first relevant entry in the DB
 	# We join with instance_tasks to get only tasks we are interested in
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id,module,type,exclusive,day_offset,invocation FROM tasks, instance_tasks WHERE (tasks.id = instance_tasks.id AND instance_tasks.instance = '$CXR_INSTANCE' ) AND STATUS='${CXR_STATUS_TODO}' AND rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,.ttype,.texclusive,t.day_offset,t.invocation FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
