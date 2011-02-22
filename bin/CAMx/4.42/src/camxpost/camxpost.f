@@ -31,7 +31,8 @@ c
       real prdconc1(mxx,mxy,mxhr),prdconc2(mxx,mxy,mxhr),
      &     prdconc3(mxhr,mxsit),prdconc4(mxx,mxy),
      &     obsconc1(mxobs,mxsit),obsconc2(mxobs,mxsit),
-     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor,deltax,deltay
+     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor,deltax,deltay,
+     &     conv2metre
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
@@ -192,11 +193,9 @@ c     dco The original code assumes that coordinates are in UTM
 c     dco and therefore, multiplies distances by 1000
 c     dco This Hack allows us to keep the rest of the code intact
 			if (projection.eq.'LATLON') then
-				
-				write(*,*)'Adjusted resolution', deltax, deltay
-				
-				deltax = deltax * 1000.
-				deltay = deltay * 1000.
+				conv2metre = 1.0
+			else
+				conv2metre = 1000.
 			endif
 
       if (lout11) write(11) ilocx,ilocy,nox,noy
@@ -406,8 +405,8 @@ c     max/min predictions in 9 surrounding grid cells
           nmax(ns) = 0
           write(13,'(a10,a20,2f10.3)') site(ns),sitnam(ns),
      &                                 xutm(ns),yutm(ns)
-          distx = 1000.*xutm(ns) - xorg
-          disty = 1000.*yutm(ns) - yorg
+          distx = conv2metre*xutm(ns) - xorg
+          disty = conv2metre*yutm(ns) - yorg
           ii = int(distx/deltax + 0.5)
           jj = int(disty/deltay + 0.5)
           iii = int(distx/deltax + 1.)
