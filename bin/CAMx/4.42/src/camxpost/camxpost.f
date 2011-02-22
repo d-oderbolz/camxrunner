@@ -407,6 +407,9 @@ c     max/min predictions in 9 surrounding grid cells
      &                                 xutm(ns),yutm(ns)
           distx = conv2metre*xutm(ns) - xorg
           disty = conv2metre*yutm(ns) - yorg
+          
+          write(*,*)'Site ',sitnam(ns),' corresponds to cell ',distx/deltax,disty/deltay
+          
           ii = int(distx/deltax + 0.5)
           jj = int(disty/deltay + 0.5)
           iii = int(distx/deltax + 1.)
