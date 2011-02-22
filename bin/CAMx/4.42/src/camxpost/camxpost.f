@@ -98,7 +98,7 @@ c-----Read and open I/O files; get user-specified inputs
       read(*,'(20x,10a1)') (mspec1(m),m=1,10)
       write(*,'(1x,a,10a1)') 'Species name: ',(mspec1(m),m=1,10)
       read(*,'(20x,f5.0)') radmax
-      write(*,*) 'Search radius for max prediction (km): ',radmax
+      write(*,*) 'Search radius for max prediction (km/deg): ',radmax
       read(*,'(20x,4i5)') isub1,isub2,jsub1,jsub2
       write(*,'(1x,a,4i5)') 'Sub-domain to search for peak: ',
      &                      isub1,isub2,jsub1,jsub2
@@ -482,8 +482,8 @@ c     CT 9/12/02 Change max jsub2 from noy-2 to noy-1
         prdmax = 0.
         do j = jsub1,jsub2
           do i = isub1,isub2
-            xloc = (xorg + (i-0.5)*deltax)/1000.
-            yloc = (yorg + (j-0.5)*deltay)/1000.
+            xloc = (xorg + (i-0.5)*deltax)/conv2metre
+            yloc = (yorg + (j-0.5)*deltay)/conv2metre
             distx = (xloc - xutm(nsmax))
             disty = (yloc - yutm(nsmax))
             dist = sqrt(distx**2 + disty**2)
