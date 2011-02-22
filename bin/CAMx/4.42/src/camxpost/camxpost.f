@@ -113,7 +113,7 @@ c-----Optional items
       
       write(*,*) 'Projection: ', projection
       
-      read(*,'(20x,a)',IOSTAT=iostatus) cfactor
+      read(*,'(20x,a)',IOSTAT=iostatus), cfactor
       
       if (iostatus.ne.0) then
       	cfactor=1.0
