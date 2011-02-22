@@ -1187,7 +1187,7 @@ function common.runner.releaseLock()
 		rm -f "$locklink" 2> /dev/null
 		main.log -v "lock $lock released."
 		
-		if [[ -e "$target" && "$(dirname "$target")" == $CXR_TEMP_DIR ]]
+		if [[ -e "$target" && "$(dirname "$target")" == ${CXR_TMP_DIR} ]]
 		then
 			# and the target. For security reasons, we
 			# check if it resides really in CXR_TEMP_DIR
