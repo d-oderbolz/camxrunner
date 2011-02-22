@@ -31,14 +31,14 @@ c
       real prdconc1(mxx,mxy,mxhr),prdconc2(mxx,mxy,mxhr),
      &     prdconc3(mxhr,mxsit),prdconc4(mxx,mxy),
      &     obsconc1(mxobs,mxsit),obsconc2(mxobs,mxsit),
-     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor
+     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor,deltax,deltay
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
       character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
      &            obspec(10)
-      character(len=7) projection
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
+      character*7 projection
       data ione /1/
 
 c-----Read and open I/O files; get user-specified inputs
