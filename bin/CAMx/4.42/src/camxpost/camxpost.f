@@ -25,13 +25,13 @@ c      generated
 c
       parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200)
       integer ibgdat(mxhr),ndate(mxobs),nhour(mxobs),
-     &        nuse(mxhr),nmax(mxsit)
+     &        nuse(mxhr),nmax(mxsit),iostatus
       real cread(mxx,mxy),xutm(mxsit),yutm(mxsit),
      &     begtim(mxhr),obsmx(mxsit)
       real prdconc1(mxx,mxy,mxhr),prdconc2(mxx,mxy,mxhr),
      &     prdconc3(mxhr,mxsit),prdconc4(mxx,mxy),
      &     obsconc1(mxobs,mxsit),obsconc2(mxobs,mxsit),
-     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit)
+     &     grdmax(mxhr,mxsit),grdmin(mxhr,mxsit),cfactor
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
@@ -102,8 +102,23 @@ c-----Read and open I/O files; get user-specified inputs
      &                      isub1,isub2,jsub1,jsub2
       read(*,'(20x,a)') statmsg
       write(*,*) statmsg
-      read(*,'(20x,a)') projection
-      write(*,*) projection
+      
+c-----Optional items
+      read(*,'(20x,a)',IOSTAT=iostatus) projection
+      
+      if (iostatus.ne.0) then
+      	projection='UTM'
+     	endif
+      
+      write(*,*) 'Projection: ', projection
+      
+      read(*,'(20x,a)',IOSTAT=iostatus) cfactor
+      
+      if (iostatus.ne.0) then
+      	cfactor=1.0
+     	endif
+      
+      write(*,*) 'Conversion factor: ', cfactor
       write(*,*)
       
 
@@ -174,6 +189,12 @@ c-----Read and write the four header records
         write(*,*)'NOX and NOY: ',nox,noy
         stop
       endif
+      
+c     dco This is an adjustment that allows the rest of the code to live in "UTM-space"
+			if (projection.eq.'LATLON') then
+				deltax = deltax * 1000.
+				deltay = deltay * 1000.
+			endif
 
       if (lout11) write(11) ilocx,ilocy,nox,noy
       if (lout15) write(15) ilocx,ilocy,nox,noy
@@ -215,7 +236,7 @@ c-----Loop over hours on file; read time record
      &    ibgdat(nn).eq.jday2 .and. begtim(nn).gt.hr2) goto 901
  
 c-----Loop over species and number of vertical levels in simulation grid
-c     Load hourly concentrations for layer 1 and given species
+c     Load hourly concentrations for layer 1 and given species and apply conversion factor
  
       do 30 ispec = 1,nospec
         do 31 iz = 1,nozg
@@ -223,7 +244,7 @@ c     Load hourly concentrations for layer 1 and given species
           if (iz.ne.1 .or. ispec.ne.isp1) goto 31
           do 40 j = 1,noy
             do 41 i = 1,nox
-              prdconc1(i,j,nn) = cread(i,j)
+              prdconc1(i,j,nn) = cread(i,j) * cfactor
  41         continue
  40       continue
  31     continue
