@@ -675,12 +675,6 @@ function common.runner.createTempFile()
 		mkdir -p "${CXR_TMP_DIR}"
 	fi
 	
-	# Not elegant...
-	if [[ ! -d $(dirname $CXR_INSTANCE_FILE_TEMP_LIST) ]]
-	then
-		mkdir -p $(dirname $CXR_INSTANCE_FILE_TEMP_LIST)
-	fi
-	
 	# Check if that worked!
 	if [[ ! -d "${CXR_TMP_DIR}" ]]
 	then
@@ -725,7 +719,7 @@ function common.runner.createTempFile()
 	if [[ "${store}" == true ]]
 	then
 		# Add to list
-		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST
+		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST 
 	fi
 	
 	echo $name

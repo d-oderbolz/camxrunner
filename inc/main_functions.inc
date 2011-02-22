@@ -620,7 +620,7 @@ function main.doCleanup()
 	common.runner.removeTempFiles 2> /dev/null
 	
 	main.log -a "Deleting this instances internal files..."
-	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} 
+	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &> /dev/null
 
 	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
 	then
