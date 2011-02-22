@@ -243,7 +243,7 @@ do
 		n)	CXR_USER_TEMP_REMOVE_DECOMPRESSED_FILES=false ;;
 		P)	CXR_USER_TEMP_PARALLEL_PROCESSING=true ; CXR_USER_TEMP_MAX_PARALLEL_PROCS=${OPTARG:-} ;;
 	
-		# Installer: We need to manipulate the CXR_RUN variable for now
+		# Installer
 		I) 	CXR_RUN=${CXR_INSTALLER}; CXR_HOLLOW=true; CXR_USER_TEMP_INSTALL=true; CXR_DO_FILE_LOGGING=false ;;
 		
 		# Testing

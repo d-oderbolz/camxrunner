@@ -67,6 +67,7 @@ function common.db.init()
 	local level
 	local dropfile
 	local creafile
+	local mtime
 	
 	if [[ ${CXR_DB_TRY_TIMES:-0} -lt 1 ]]
 	then
@@ -140,37 +141,43 @@ function common.db.init()
 			
 			for db_file in $dbs
 			do
-				main.log -a "DB ${db_file}:"
+				# These checks are done onec per day
+				mtime=$(common.fs.getMtime $db_file)
 				
-				common.runner.getLock "$(basename $db_file)" "$level"
-				
-				# Do some basic maintenance
-				${CXR_SQLITE_EXEC} $db_file <<-EOT
-				
-				-- Get exclusive access
-				PRAGMA locking_mode=EXCLUSIVE; 
-	
-				-- Check integrity
-				PRAGMA integrity_check;
-				
-				-- Remove fragmentation
-				VACUUM;
-				
-				EOT
-				
-				# Relase Lock
-				common.runner.releaseLock "$(basename $db_file)" "$level"
-				
-				main.log -a "Rebuilding indexes..."
-				common.db.getResultSet $db_file $level "SELECT 'DROP index ' || name || ';' FROM sqlite_master WHERE type='index';" > $dropfile
-				common.db.getResultSet $db_file $level "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
-				
-				common.db.change $db_file $level $dropfile
-				common.db.change $db_file $level $creafile
-				
-				main.log -a ""
-				
-				
+				if [[ $(( $CXR_EPOCH - 86400 )) -gt $mtime ]]
+				then 
+					main.log -a "DB ${db_file}:"
+					
+					common.runner.getLock "$(basename $db_file)" "$level"
+					
+					# Do some basic maintenance
+					${CXR_SQLITE_EXEC} $db_file <<-EOT
+					
+					-- Get exclusive access
+					PRAGMA locking_mode=EXCLUSIVE; 
+		
+					-- Check integrity
+					PRAGMA integrity_check;
+					
+					-- Remove fragmentation
+					VACUUM;
+					
+					EOT
+					
+					# Relase Lock
+					common.runner.releaseLock "$(basename $db_file)" "$level"
+					
+					main.log -a "Rebuilding indexes..."
+					common.db.getResultSet $db_file $level "SELECT 'DROP index ' || name || ';' FROM sqlite_master WHERE type='index';" > $dropfile
+					common.db.getResultSet $db_file $level "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
+					
+					common.db.change $db_file $level $dropfile
+					common.db.change $db_file $level $creafile
+					
+					main.log -a ""
+					
+					touch "$db_file"
+				fi # 24 hours passed?
 				
 			done # db_files
 			

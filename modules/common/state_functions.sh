@@ -396,6 +396,13 @@ function common.state.updateInfo()
 	local first
 	local success_file
 	
+	# If we are hollow, we assume its ok
+	if [[ $CXR_HOLLOW == true ]]
+	then
+		main.log -a "This is not a real run, we assume module info is up-to-date"
+		return $CXR_RET_OK
+	fi
+	
 	success_file=/dev/null
 	
 	# In this list, we store all modules we must run
