@@ -718,8 +718,8 @@ function common.runner.createTempFile()
 	
 	if [[ "${store}" == true ]]
 	then
-		# Add to list
-		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST 
+		# Add to list (ignore if it fails, maybe the instance dir was removed)
+		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST || :
 	fi
 	
 	echo $name

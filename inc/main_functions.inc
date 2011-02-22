@@ -549,7 +549,7 @@ function main.doCleanup()
 		do
 			echo "Error list from ${currentLogFile}:" 1>&2
 			
-			grep "${CXR_LOG_PREFIX_ERR}" $currentLogFile 1>&2
+			grep "${CXR_LOG_PREFIX_ERR}" $currentLogFile 1>&2 || :
 		done
 		
 		if [[ "${error_count:-0}" -ne 0 ]]
