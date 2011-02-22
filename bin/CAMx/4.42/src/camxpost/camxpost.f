@@ -97,7 +97,7 @@ c-----Read and open I/O files; get user-specified inputs
       hr2 = float(ihr2)
       read(*,'(20x,10a1)') (mspec1(m),m=1,10)
       write(*,'(1x,a,10a1)') 'Species name: ',(mspec1(m),m=1,10)
-      read(*,'(20x,f5.0)') radmax
+      read(*,'(20x,f5.4)') radmax
       write(*,*) 'Search radius for max prediction (km/deg): ',radmax
       read(*,'(20x,4i5)') isub1,isub2,jsub1,jsub2
       write(*,'(1x,a,4i5)') 'Sub-domain to search for peak: ',
