@@ -144,7 +144,7 @@ function common.db.init()
 				# These checks are done onec per day
 				mtime=$(common.fs.getMtime $db_file)
 				
-				if [[ $(( $CXR_EPOCH - 86400 )) -gt $mtime ]]
+				if [[ $(( $CXR_START_EPOCH - 86400 )) -gt $mtime ]]
 				then 
 					main.log -a "DB ${db_file}:"
 					
