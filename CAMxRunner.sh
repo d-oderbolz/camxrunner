@@ -696,9 +696,6 @@ main.log -a "$(common.runner.evaluateRule "$CXR_FINISH_MESSAGE_RULE" true CXR_FI
 ################################################################################
 # Cleanup all locks etc...
 ################################################################################
-# Delete entries in instance_tasks
-common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
-		
 main.doCleanup
 
 # Set exit status (too coarse)

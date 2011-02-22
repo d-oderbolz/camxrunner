@@ -516,6 +516,13 @@ function main.doCleanup()
 	set +v
 	set +x
 	
+	# Delete entries in instance_tasks, if possible
+	if [[ -e "$CXR_STATE_DB_FILE" && $(main.functionExists? common.db.change) == true ]]
+	then
+		main.log -a "Deleting this instances task list..."
+		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"
+	fi
+	
 	# Pseudo-Singleton
 	if [[ "${CXR_CLEANUP_IN_PROGRESS:-false}" == true ]]
 	then
@@ -612,8 +619,8 @@ function main.doCleanup()
 	# Remove all tempfiles and redirect (function might not exist)
 	common.runner.removeTempFiles 2> /dev/null
 	
-	# Delete the instance files
-	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &>/dev/null
+	main.log -a "Deleting this instances internal files..."
+	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} 
 
 	if [[ "$CXR_STATUS" == "$CXR_STATUS_SUCCESS" ]]
 	then
