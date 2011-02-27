@@ -43,7 +43,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Function: common.module.areDependenciesOk?
 #
 # Checks if all dependencies of a given task  are fullfilled. 
-# If any dependency has failed, the run is destroyed, 
+# If any dependency has failed, the run is destroyed (unless CXR_DRY), 
 # any depdendency was not yet started, false is returned,
 # if all are CXR_STATUS_SUCCESS, true is returned.
 # If a dependency is not active and has not finished, we stop the run (unless CXR_IGNORE_ANY_DEPENDENCIES or CXR_IGNORE_DISABLED_DEPENDENCIES is true)
@@ -92,7 +92,7 @@ function common.module.areDependenciesOk?()
 	EOT
 	)
 	
-	if [[ ! -z "$failedIds" ]]
+	if [[ ! -z "$failedIds" && $CXR_DRY == false ]]
 	then
 		main.dieGracefully "Task $* depends on these failed tasks:\n$failedIds"
 	fi
