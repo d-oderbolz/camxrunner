@@ -15,7 +15,7 @@ c          further processing of stats and plotting of time-series (optional)
 c       4) a file of maximum observations at each site (optional)
 c
 c     NOTES: only layer 1 is processed
-c            only 1 species is processed
+c            only 1 species is processed (but it may be the sum of more than one species)
 c
 c     -Optional output is selected by supplying a valid file name on input
 c     -If the observational file name is blank, obs-related processing and
@@ -23,7 +23,7 @@ c      output will not be performed
 c     -If the gridded output file names are not supplied, they will not be
 c      generated
 c
-      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200)
+      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200,mxspecsum=10)
       integer ibgdat(mxhr),ndate(mxobs),nhour(mxobs),
      &        nuse(mxhr),nmax(mxsit),iostatus
       real cread(mxx,mxy),xutm(mxsit),yutm(mxsit),
@@ -36,8 +36,9 @@ c
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
-      character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
+      character*4 filnam(10),fileid(60),mspec(10,mxspc),
      &            obspec(10)
+      character*10 mspec1(mxspecsum)
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       character*7 projection
       data ione /1/
@@ -95,8 +96,22 @@ c-----Read and open I/O files; get user-specified inputs
      &     'Period to process: ',jday1,ihr1,jday2,ihr2
       hr1 = float(ihr1)
       hr2 = float(ihr2)
-      read(*,'(20x,10a1)') (mspec1(m),m=1,10)
-      write(*,'(1x,a,10a1)') 'Species name: ',(mspec1(m),m=1,10)
+      
+      read(*,'(20x,i10)') nspecsum
+      
+      if (nspecsum.gt.mxspecsum) then
+      	write(*,*) 'You want to add up mare than mxspecsum species!'
+      	write(*,*) 'Increase mxspecsum and recompile.'
+      	stop
+      endif
+      
+      write(*,*)'Number of species to add up: ',nspecsum
+      do ispec = 1,nspecsum
+        read(*,'(20x,10a1)') mspec1(ispec)
+        write(*,'(1x,a,10a1)') 'Species name: ',mspec1(ispec)
+      enddo
+      
+      
       read(*,'(20x,f5.4)') radmax
       write(*,*) 'Search radius for max prediction (km/deg): ',radmax
       read(*,'(20x,4i5)') isub1,isub2,jsub1,jsub2

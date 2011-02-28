@@ -1161,8 +1161,9 @@ function model()
 			
 			# Grep alternation with -e 
 			# We do NOT want to find "NO ERRORS DETECTED"
-			errors="$(grep -e 'ERROR ' -e 'ERROR:' $CXR_OUT_OUTPUT_FILE)"
-			warnings="$(grep 'WARNING' $CXR_OUT_OUTPUT_FILE)"
+			# -a is needed because grep thinks *.out is binary
+			errors="$(grep -a -e 'ERROR ' -e 'ERROR:' $CXR_OUT_OUTPUT_FILE)"
+			warnings="$(grep -a 'WARNING' $CXR_OUT_OUTPUT_FILE)"
 			
 			if [[ "$errors" ]]
 			then
