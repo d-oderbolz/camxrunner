@@ -1077,6 +1077,8 @@ function model()
 	
 	local iGrid
 	local retval
+	local errors
+	local warnings
 	
 	# Do we run the model?
 	if [[ "$CXR_RUN_MODEL" == true  ]]
@@ -1152,6 +1154,25 @@ function model()
 				# Re-evaluate rules
 				set_variables true
 			fi # Using scratch
+			
+			# Check for Errors and Warnings
+			
+			main.log -a "Looking for Warnings and errors in file $CXR_OUT_OUTPUT_FILE"
+			
+			# Grep alternation with -e 
+			# We do NOT want to find "NO ERRORS DETECTED"
+			errors="$(grep -e 'ERROR ' -e 'ERROR:' $CXR_OUT_OUTPUT_FILE)"
+			warnings="$(grep 'WARNING' $CXR_OUT_OUTPUT_FILE)"
+			
+			if [[ "$errors" ]]
+			then
+				main.log -e "$errors"
+			fi
+			
+			if [[ "$warnings" ]]
+			then
+				main.log -w "$warnings"
+			fi
 			
 			# Did we run properly?
 			if [[ $(common.check.postconditions) == false ]]
