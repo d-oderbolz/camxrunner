@@ -1300,7 +1300,7 @@ function common.state.hasFailed?()
 # - Deletes only part of the state information
 # All is in a endless loop so one can quickly delete a lot of stuff
 #
-# TODO: add feature to deleta all BEFORE a date
+# TODO: add feature to delete all BEFORE a date
 # 
 ################################################################################
 function common.state.cleanup()
@@ -1331,9 +1331,25 @@ function common.state.cleanup()
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "all-locks all-tasks specific-tasks old-instances none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump all-locks all-tasks specific-tasks old-instances none" "none")
 		
-		case "$what" in 
+		case "$what" in
+		
+			dump)
+				if [[ "$(common.user.getOK "Do you really want to dump the content of the state database to a file?" )" == false ]]
+				then
+					# Dumping the content of the state DB
+					ofile="$(common.user.getInput "Which file (whole path) should I dump to? (.sql extension recommended)")" 
+					
+					if [[ ! -e "$ofile" ]]
+					then
+						common.db.dump "$CXR_STATE_DB_FILE" $ofile
+					else
+						main.dieGracefully "File $ofile already exists!"
+					fi
+				
+				fi
+				;;
 		
 			all-locks)
 				if [[ "$(common.user.getOK "Do you really want to delete all lockfiles stored under ${CXR_STATE_DIR}?" )" == false ]]
