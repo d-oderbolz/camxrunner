@@ -1336,7 +1336,7 @@ function common.state.cleanup()
 		case "$what" in
 		
 			dump)
-				if [[ "$(common.user.getOK "Do you really want to dump the content of the state database to a file?" )" == false ]]
+				if [[ "$(common.user.getOK "Do you really want to dump the content of the state database to a file?" )" == true ]]
 				then
 					# Dumping the content of the state DB
 					ofile="$(common.user.getInput "Which file (whole path) should I dump to? (.sql extension recommended)")" 
