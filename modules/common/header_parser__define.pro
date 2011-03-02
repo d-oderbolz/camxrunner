@@ -540,7 +540,7 @@ function header_parser::get_update_times
 	update_times=!VALUES.F_NAN
 	
 	; This is what we seek
-	regex='^ {1,}[0-9]{4} {1,}[0-9]\.[0-9]{2} {1,}[0-9]{4} {1,}[0-9]\.[0-9]{2}$'
+	regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
 	; The format is strange
 	fmt='(I-15,F10.2,I-15,F10.2)'
 	
