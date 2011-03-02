@@ -32,10 +32,10 @@
 ;       HEADER_PARSER::CLEANUP		destroys a header_parser object
 ;       HEADER_PARSER::PARSE		does the actual parsing
 ;       HEADER_PARSER::IS_OK		returns false if header is inconsistent or incomplete
-;       HEADER_PARSER::GET_SPECIES	Returns the species as a hashtable
-;       HEADER_PARSER::GET_REVERTED_SPECIES	Returns the species as a reverted hashtable
+;       HEADER_PARSER::GET_SPECIES	Returns the (trimmed) species as a hashtable
+;       HEADER_PARSER::GET_REVERTED_SPECIES	Returns the (trimmed) species as a reverted hashtable
 ;       HEADER_PARSER::GET_SCALARS	Returns the scalars as a hashtable
-;       HEADER_PARSER::GET_SPECIES_ARR  Returns the species as an array (for reverse indexing)
+;       HEADER_PARSER::GET_SPECIES_ARR  Returns the (trimmed) species as an array (for reverse indexing)
 ;       HEADER_PARSER::GET_HEADER_LENGTH	Returns the number of header lines
 ;       HEADER_PARSER::GET_UPDATE_TIMES	Returns an fltarr containing ibdate,btime,iedate,etime of each update time (using regex)
 
@@ -270,7 +270,7 @@ pro header_parser::parse
 	self.scalars->add,'ny',LONG(strtrim(ny,2))
 	self.scalars->add,'nz',LONG(strtrim(nz,2))
 	
-	; Create array of species
+	; Create array of (trimmed) species
 	arspec=strArr(nspec)
 
 	; Now read nspec species
@@ -343,7 +343,7 @@ end
 ;       HEADER_PARSER::GET_SPECIES
 ;
 ; PURPOSE:
-;       Returns the species as a hashtable
+;       Returns the (trimmed) species as a hashtable
 ;
 ; CALLING SEQUENCE:
 ;
@@ -376,7 +376,7 @@ end
 ;       HEADER_PARSER::GET_REVERSED_SPECIES
 ;
 ; PURPOSE:
-;       Returns the species as a reverted hashtable
+;       Returns the (trimmed) species as a reverted hashtable
 ;
 ; CALLING SEQUENCE:
 ;
@@ -408,7 +408,7 @@ end
 ;       HEADER_PARSER::GET_SPECIES_ARR
 ;
 ; PURPOSE:
-;       Returns the species as an array
+;       Returns the (trimmed) species as an array
 ;
 ; CALLING SEQUENCE:
 ;
