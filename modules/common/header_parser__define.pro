@@ -276,6 +276,9 @@ pro header_parser::parse
 	; Now read nspec species
 	readf, parser_lun, arspec
 	
+	; Trim
+	arspec = strtrim(arspec,2)
+	
 	; Save this array in instance variable
 	self.arspec = Ptr_new(arspec)
 	
