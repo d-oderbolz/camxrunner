@@ -1331,7 +1331,7 @@ function common.state.cleanup()
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump all-locks all-tasks specific-tasks old-instances none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump all-locks specific-tasks all-tasks old-instances none" "none")
 		
 		case "$what" in
 		
