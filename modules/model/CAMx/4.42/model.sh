@@ -1165,6 +1165,10 @@ function model()
 			errors="$(grep -a -e 'ERROR ' -e 'ERROR:' $CXR_OUT_OUTPUT_FILE)"
 			warnings="$(grep -a 'WARNING' $CXR_OUT_OUTPUT_FILE)"
 			
+			# Check for interesting diag messages
+			# TODO: make more flexible
+			diag_warnings="$(grep -a 'not on internal list' $CXR_DIAG_OUTPUT_FILE)"
+			
 			if [[ "$errors" ]]
 			then
 				main.log -e "$errors"
@@ -1174,10 +1178,6 @@ function model()
 			then
 				main.log -w "$warnings"
 			fi
-			
-			# Check for interesting diag messages
-			# TODO: make more flexible
-			diag_warnings="$(grep -a -e 'not on internal list' $CXR_DIAG_OUTPUT_FILE)"
 			
 			if [[ "$diag_warnings" ]]
 			then
