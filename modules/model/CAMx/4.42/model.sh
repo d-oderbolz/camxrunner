@@ -1175,6 +1175,17 @@ function model()
 				main.log -w "$warnings"
 			fi
 			
+			# Check for interesting diag messages
+			# TODO: make more flexible
+			diag_warnings="$(grep -a -e 'not on internal list' $CXR_DIAG_OUTPUT_FILE)"
+			
+			if [[ "$diag_warnings" ]]
+			then
+				main.log -w "It seems that CAMx did not recognise some species!"
+				main.log -w "$diag_warnings"
+			fi
+			
+			
 			# Did we run properly?
 			if [[ $(common.check.postconditions) == false ]]
 			then

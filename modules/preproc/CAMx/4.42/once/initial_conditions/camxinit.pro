@@ -569,7 +569,7 @@ IF (FILE_TEST(outfile_tc) EQ 0) THEN BEGIN
   ; Write the data to the output file
   OPENW, lun, outfile_tc, /GET_LUN
   
-  tc_format = '(A-9,F-12.9)'
+  tc_format = '(A-10,F-12.9)'
   
   FOR ispec = 0, nspec - 1 DO BEGIN
   	PRINTF, lun, mspec[ispec],conc[ispec], FORMAT = tc_format
