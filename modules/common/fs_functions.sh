@@ -633,7 +633,6 @@ function common.fs.WaitForStableSize()
 # 
 # Compresses either all output files or such that match the pattern in
 # CXR_COMPRESS_OUTPUT_PATTERN and are bigger than CXR_COMPRESS_THRESHOLD_MB
-# TODO: Fix tests
 #
 # Parameters:
 # None.

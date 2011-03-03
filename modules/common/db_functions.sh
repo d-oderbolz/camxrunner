@@ -16,7 +16,7 @@
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
-# TODO: Reduce redundancy
+
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
@@ -49,7 +49,7 @@ CXR_META_MODULE_VERSION='$Id$'
 #
 # Performs version checks on all visible sqlite DBs. It also checks the integrity of 
 # sqlite and if we can load the extensions.
-# Performs vacuum and checks the integrity. TODO: do backup?
+# Performs vacuum and checks the integrity. 
 #
 ################################################################################
 function common.db.init()

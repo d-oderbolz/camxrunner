@@ -13,7 +13,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Implement retval check in execute_model
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -508,7 +508,7 @@ function write_sa_receptor_definitions_file()
 	# the sa_receptor_definitions_file is created here...
 	
 	# If we start this and no directories are yet created, we are in trouble,
-	# so let us create it (workaround. TODO: Incluse in normal preparation)
+	# so let us create it (workaround.)
 	
 	mkdir -p $(dirname ${CXR_SA_RECEPTORIN})
 	

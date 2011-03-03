@@ -32,9 +32,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: Remove Exclusive lock and replace with smarter solution:
-# each module can announce the number of processors needed and we put as many workers to sleep
-# as needed (ev. SIGSUSPEND?)
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -973,9 +971,6 @@ function common.task.removeWorker()
 # or more of this functions to operate on the existing tasks.
 # This can even be done from more than one machine.
 #
-# TODO: a worker that finishes must restore a consistent state, that is the current
-# task must be "put back"
-#
 # The worker gets a new task via <common.task.setNextTask>
 # then waits (using <common.module.areDependenciesOk?>)
 # until the dependencies of this task are fullfilled. 
@@ -1290,7 +1285,7 @@ function common.task.removeAllWorkers()
 # Function: common.task.controller
 #
 # The main process that started the workers goes into this function to
-# watch the progress periodically.
+# watch the progress periodically and detect issues.
 #
 ################################################################################
 function common.task.controller()
@@ -1324,9 +1319,6 @@ function common.task.controller()
 			# when a worker gets status CXR_STATUS_KILLED, it will remove itself
 			main.log -w "ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
 		fi
-		
-		# Still TODO:
-		# Detect stale locks
 		
 		if [[ $(common.task.countMyRunningWorkers) -lt $CXR_MAX_PARALLEL_PROCS ]]
 		then

@@ -127,7 +127,6 @@ function common.string.trim()
 #
 # Repeats a string n times. Does currently not support escape sequences like \t
 # Other ideas: <http://www.unix.com/shell-programming-scripting/46584-repeat-character-printf.html>
-# TODO: Make more efficient, accept escape sequences
 #
 # Parameters:
 # $1 - the string to be repeated

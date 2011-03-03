@@ -50,8 +50,6 @@ CXR_META_MODULE_VERSION='$Id$'
 # Runs the installer modules one by one. These modules are the last ones to
 # use lexical sorting (based on their numeric filename prefix like 00_start.sh)
 # to determine their order.
-#
-# TODO: Use table "installed" of state DB
 # 
 ################################################################################
 function common.install.run()

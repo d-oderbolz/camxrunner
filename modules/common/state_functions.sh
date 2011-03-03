@@ -13,7 +13,7 @@
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
 # License, (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)
 ################################################################################
-# TODO: rewrite using sqlite
+# TODO: 
 ################################################################################
 # Module Metadata. Leave "-" if no setting is wanted
 ################################################################################
@@ -1299,8 +1299,6 @@ function common.state.hasFailed?()
 # - Deletes all state information
 # - Deletes only part of the state information
 # All is in a endless loop so one can quickly delete a lot of stuff
-#
-# TODO: add feature to delete all BEFORE a date
 # 
 ################################################################################
 function common.state.cleanup()
@@ -1487,7 +1485,7 @@ function common.state.cleanup()
 				else
 					offset=$(common.date.toOffset $which_day)
 					all_days=false
-					# If this is true, we delete until the end
+					# If this is true, we loop through the following days
 					following_days="$(common.user.getOK "Do you want to delete consecutive days?\n(you must confirm each)" )"
 				fi
 
