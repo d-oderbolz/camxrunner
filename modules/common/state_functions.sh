@@ -1488,7 +1488,7 @@ function common.state.cleanup()
 					offset=$(common.date.toOffset $which_day)
 					all_days=false
 					# If this is true, we delete until the end
-					following_days="$(common.user.getOK "Do you want to delete also all days following this one?\n(you must confirm each)" )"
+					following_days="$(common.user.getOK "Do you want to delete consecutive days?\n(you must confirm each)" )"
 				fi
 
 				if [[ "$following_days" == true ]]
