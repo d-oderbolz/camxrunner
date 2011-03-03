@@ -74,7 +74,7 @@ function common.state.getLastDayOffsetModelled()
 {
 	local result
 	
-	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM days")
+	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM tasks;")
 	
 	if [[ -z "$result" ]]
 	then
@@ -724,7 +724,7 @@ function common.state.updateInfo()
 		# last could be empty
 		if [[ "$last" ]]
 		then
-			if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -ge "$last" ]]
+			if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -gt "$last" ]]
 			then
 				main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 				longer=true
