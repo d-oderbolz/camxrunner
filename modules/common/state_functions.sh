@@ -1406,7 +1406,7 @@ function common.state.cleanup()
 			specific-tasks)
 			
 				# First, we build a select statement,
-				# then we execute it (SELECT & DELETE)
+				# then we execute it (SELECT & DELETE) one-by-one
 				
 				# First select the module type or module name
 				if [[ "$(common.user.getOK "Do you want to delete specific module types (otherwise, you get a list of modules)?" )" == true  ]]
@@ -1517,10 +1517,21 @@ function common.state.cleanup()
 					then
 						# No 
 						main.log -a "Will not delete this information"
-						continue
+						
+						if [[ "$following_days" == true ]]
+						then
+							if [[ "$(common.user.getOK "Do you want to continue to delete tasks?" )" == false ]]
+							then
+								break
+							else
+								continue
+							fi
+						fi
+
 					else
 						#Yes
 						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
+					
 					fi
 					
 					if [[ $all_days == true ]]
