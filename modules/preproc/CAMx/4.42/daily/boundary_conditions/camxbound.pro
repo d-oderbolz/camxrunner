@@ -138,7 +138,6 @@ endif
 ; Create a hashtable to map species to a plotting max value
 spec2max = obj_new('hashtable')
 
-
 spec2max->add,'O3_VMR_inst',0.3
 spec2max->add,'CO_VMR_inst',0.3
 spec2max->add,'FORM_VMR_inst',0.005
@@ -309,8 +308,13 @@ for ispec=0,nspec-1 do begin
 									endif else begin
 									
 										; Found a tag, set the values correspondingly
+										
+										; TODO: test dimensionality
+										; scalar: use as such
+										; 1D: set all levels as given (test size)
 									
 										constant_dummy = extra.(Tag_Num)
+
 										print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
 									
 										allspecs[*,*,*,*,ispec] = constant_dummy

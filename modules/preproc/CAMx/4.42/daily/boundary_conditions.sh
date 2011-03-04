@@ -261,6 +261,9 @@ function boundary_conditions()
 						do
 							# Each line looks something like
 							# O3:0.074740447 
+							# This is for later:
+							# or it may specify layers (1 entry per layer needed!)
+							# O3:[0.05,0.0505,0.051,0.0515,0.052,0.0525,0.053,0.0535,0.054,0.0545,0.055,0.06,0.06,0.06]
 							
 							if [[ "$spec_line"  ]]
 							then
@@ -293,7 +296,7 @@ function boundary_conditions()
 							# Each line looks something like
 							# O3:0.074740447 
 							
-							if [[ "$spec_line"  ]]
+							if [[ "$spec_line" ]]
 							then
 								# Make sure its uppercase
 								species=$(common.string.toUpper $(echo $spec_line | cut -d: -f1))
