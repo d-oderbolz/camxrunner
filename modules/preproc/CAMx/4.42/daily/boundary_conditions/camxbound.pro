@@ -312,6 +312,7 @@ for ispec=0,nspec-1 do begin
 										; TODO: test dimensionality
 										; scalar: use as such
 										; 1D: set all levels as given (test size)
+										; 2D: Set faces accordingly
 									
 										constant_dummy = extra.(Tag_Num)
 
@@ -355,8 +356,7 @@ t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
-; The x and y dimensions are reduced by 1 to later
-; correct the range of angles
+; This is needed to correct the angles
 meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
 meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
 
@@ -371,7 +371,7 @@ print,'Reading pressure file...'
 ; that their field is full and different fields are not separated
 ; by space. In that case a format specification is required.
 ; This format depends on the converter that was used to produce the
-; ascii height/pressure files and possibly on the platform.
+; ascii height/pressure file.
 OPENR, lun, zpfile, /GET_LUN
 height = FLTARR(ncols,nrows,nlevs,24)
 pres = FLTARR(ncols,nrows,nlevs,24)
@@ -399,7 +399,7 @@ print,'Horizontal Interpolation...'
 
 ; Calculation of the longitude and latitude steps of the MOZART grid
 ; we assume that the global CTM runs on a grid with constant lat/lon spacing
-; we do not necessarily get a global file.
+; But: we do not necessarily get a global file.
 
 lonstep = abs(lonmoz[1] - lonmoz[0])
 latstep = abs(latmoz[1] - latmoz[0])
@@ -413,8 +413,10 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
 		
 		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
+			print,'It seems that the global CTM delivered a full globe'
 			t_meteoLon[i,j] = (meteoLonr[i,j] + 360.0) MOD 360.0
 		endif else begin
+			print,'It seems that the global CTM did not deliver a full globe'
 			t_meteoLon[i,j] = meteoLonr[i,j] 
 		endelse
 		
@@ -422,7 +424,13 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; the MM5 cross grid points are calculated.
 		; Note that MOZART does not necessarily start at 0
 		indexlon[i,j] = (t_meteoLon[i,j] - lonmoz[0]) / lonstep
+		
+		; What is the underlying assumption?
 		indexlat[i,j] = ((meteoLatr[i,j] - latmoz[0]) / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		
+		; Check if result makes sense
+		if (indexlon[i,j] LT 0 || indexlon[i,j] GT ncolsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered!'
+		if (indexlat[i,j] LT 0 || indexlat[i,j] GT nrowsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered!'
 		
 	ENDFOR ; rows
 ENDFOR ; columns
@@ -438,18 +446,19 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	FOR k = 0, nlevsmoz - 1 DO BEGIN
 		FOR t = 0, ntime - 1 DO BEGIN
 			allspecred = allspecs[*,*,k,t,ispec]
-			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat)
+			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat,/GRID)
 			allspecinterp[*,*,k,t,ispec] = allspecinterp2d
 		ENDFOR ; time
 	ENDFOR ; level
 ENDFOR ; species
+
 
 ; horizontal interpolation of pressure
 FOR k = 0, nlevsmoz - 1 DO BEGIN
 	FOR t = 0, ntime - 1 DO BEGIN
 		; interpolate just one pressure slice
 		pressred = mozart_pressure[*,*,k,t]
-		mozart_pressureinterp2D = INTERPOLATE(pressred, indexlon, indexlat)
+		mozart_pressureinterp2D = INTERPOLATE(pressred, indexlon, indexlat,/GRID)
 		mozart_pressureinterp[*,*,k,t] = mozart_pressureinterp2D
 	ENDFOR ; time
 ENDFOR ; level
