@@ -202,7 +202,7 @@ function common.db.init()
 #
 # Parameters:
 # $1 - full-path to db_file
-# $2 - level of the shared lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
+# $2 - level of the lock to test, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - either a statement, a filename or - indicating input from stdin
 # [$4] - otional separator (default $CXR_DELIMITER)
 ################################################################################
