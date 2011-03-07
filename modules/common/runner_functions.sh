@@ -1124,8 +1124,8 @@ function common.runner.getLock()
 
 		# We got the lock 
 		
-		# Save it in the templist
-		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST
+		# Save it in the templist (ignore errors)
+		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST || :
 		
 		# write our ID into the locklink
 		echo $CXR_INSTANCE > "$locklink"
