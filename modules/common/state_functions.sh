@@ -612,6 +612,8 @@ function common.state.updateInfo()
 					
 					if [[ $run_it == true ]]
 					then
+						main.log -a "Planning to run ${module}..."
+					
 						if [[ $first == true ]]
 						then
 							sql_module_list="\'${module}\'"
