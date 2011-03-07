@@ -74,7 +74,8 @@ function common.state.getLastDayOffsetModelled()
 {
 	local result
 	
-	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(day_offset) FROM tasks;")
+	# We use the ID of a task to got the ISO date
+	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(d.day_offset) FROM tasks t, days d WHERE d.day_iso=substr(t.id,0,11);")
 	
 	if [[ -z "$result" ]]
 	then
@@ -161,7 +162,7 @@ function common.state.buildTasksAndDeps()
 						invocation,
 						status,
 						epoch_m) 
-		SELECT 	d.day_iso || '@' || m.module || '@' || i.value,
+		SELECT 	d.day_iso || '@' || m.module || '@' || i.value, -- This must be consistent with common.task.getId
 						m.module,
 						m.type,
 						m.exclusive, 
@@ -1450,7 +1451,7 @@ function common.state.cleanup()
 					if [[ $which_step == all ]]
 					then
 						main.log -a "You pre-selected all modules for deletion"
-						where_module=""
+						where_module="1=1"
 					elif [[ $which_step == none ]]
 					then
 						main.log -a "You chose not to delete any data."
@@ -1461,7 +1462,8 @@ function common.state.cleanup()
 				fi
 				
 				# Get all days and add all as above
-				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT day_iso FROM days UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
+				# The id contains the ISO date
+				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT substr(t.id,0,11) day_iso FROM tasks t WHERE $where_module UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 				
 				oIFS="$IFS"
 				# set IFS to newline that select parses correctly
@@ -1475,70 +1477,84 @@ function common.state.cleanup()
 				if [[ $which_day == all ]]
 				then
 					main.log -a "You pre-selected all days for deletion"
-					offset=0
+					start_offset=0
+					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
 					all_days=true
 					following_days=false
+					
 				elif [[ $which_day == none ]]
 					then
 						main.log -a "You chose not to delete any data."
 						continue
 				else
-					offset=$(common.date.toOffset $which_day)
+					start_offset=$(common.date.toOffset $which_day)
+					# By defalut, delete one day
+					stop_offset=$start_offset
 					all_days=false
 					# If this is true, we loop through the following days
-					following_days="$(common.user.getOK "Do you want to delete consecutive days?\n(you must confirm each)" )"
-				fi
-
-				if [[ "$following_days" == true ]]
-				then
-					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
-				else
-					stop_offset=$offset
+					following_days="$(common.user.getOK "Do you want to delete consecutive days?" )"
+					
+					if [[ "$following_days" == true ]]
+					then
+						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we delete?" "$days" )"
+						stop_offset=$(common.date.toOffset $stop_day)
+					fi
 				fi
 				
-				for iOffset in $(seq $offset $stop_offset)
-				do
-					main.log -w "Planning to delete these tasks:"
-					
-					if [[ $all_days == true ]]
-					then
-						# We delete all days
-						where="$where_module"
-					else
-						# Just the current one
-						where="$where_module AND day_offset=$iOffset"
-					fi
-					
-					common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
+				confirm_days="$(common.user.getOK "Do you want to confirm each deletion?" )"
 
-					if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
-					then
-						# No 
-						main.log -a "Will not delete this information"
+				if [[ "$confirm_days" == true ]]
+				then
+					for iOffset in $(seq $start_offset $stop_offset)
+					do
+						main.log -a "Planning to delete these tasks:"
 						
-						if [[ "$following_days" == true ]]
+						# Delete just the current one
+						where="$where_module AND day_offset=$iOffset"
+						
+						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
+	
+						if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
 						then
-							if [[ "$(common.user.getOK "Do you want to continue to delete tasks?" )" == false ]]
+							# No 
+							main.log -a "Will not delete this information"
+							
+							if [[ "$following_days" == true ]]
 							then
-								break
-							else
-								continue
+								if [[ "$(common.user.getOK "Do you want to continue to delete tasks?" )" == false ]]
+								then
+									break
+								else
+									continue
+								fi
 							fi
+						else
+							#Yes, delete
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
 						fi
+							
+					done
+					
+				else
+						# Confirm all at once
+						
+						where="$where_module AND day_offset BETWEEN $start_offset AND $stop_offset"
+						
+						main.log -a "Planning to delete these tasks:"
+						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
+						
+						if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
+						then
+							# No 
+							main.log -a "Will not delete this information"
+							continue
+						else
+							# Yes 
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
+						fi
+						
+					fi # Confirm-each?
 
-					else
-						#Yes
-						common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
-					
-					fi
-					
-					if [[ $all_days == true ]]
-					then
-						# all days need to be deleted only once
-						break
-					fi
-				done
-					
 				main.log -a "Done."
 				
 				;; # specific
