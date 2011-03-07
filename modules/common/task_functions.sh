@@ -68,6 +68,9 @@ CXR_META_MODULE_VERSION='$Id$'
 #
 # Creates a task Id out of several inputs. Can be used to identify a task,
 # be it as a dependency or otherwise.
+# The format of this ID is sacrosanct: for examlpe we depend on the day_iso to be 
+# present. Changing this may cause lots of trouble.
+# Must be consistent with <common.state.buildTasksAndDeps>
 #
 # Format: $date@$module@$invocation
 #
