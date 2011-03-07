@@ -131,6 +131,35 @@ function common.math.compareVersions()
 }
 
 ################################################################################
+# Function: common.math.not
+#
+# Provides the logical NOT function or our true/false logical literals.
+# If the input is no logical literal, an error is raised and the value is returned.
+#
+# Parameters:
+# $1 - a logical literal (true or false)
+################################################################################
+function common.math.not()
+################################################################################
+{
+	local input
+	
+	input="${1}"
+	
+	if [[ $input == true ]]
+	then
+		echo false
+	elif [[ $input == false ]]
+	then
+		echo true
+	else
+		echo "$input"
+		main.log -e "Did not get a logical as input: $*"
+	fi
+}
+
+
+################################################################################
 # Function: common.math.roundToInteger
 #
 # Uses printf to round the input to the nearest integer.

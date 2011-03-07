@@ -76,6 +76,30 @@ function common.date.decompose()
 }
 
 ################################################################################
+# Function: common.date.isWallDaytime?
+#
+# Returns true if the current time of day (of the computer) is 
+# considered daytime.
+# 
+################################################################################
+function common.date.isWallDaytime?()
+################################################################################
+{
+	local hourOfDay
+	
+	hourOfDay=$(date '+%l')
+	
+	if [[ $hourOfDay -ge ${CXR_DAYTIME_START_HOUR:-8} && \
+	      $hourOfDay -le ${CXR_DAYTIME_STOP_HOUR:-18} ]]
+	then
+		echo true
+	else
+		echo false
+	fi
+
+}
+
+################################################################################
 # Function: common.date.isSimulationDay?
 #
 # Checks if a date is within the boundaries of CXR_START_DATE and CXR_END_DATE

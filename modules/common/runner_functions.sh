@@ -1010,15 +1010,8 @@ function common.runner.waitForLock()
 		mtime=$(common.fs.getMtime $locklink)
 		if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
 		then
-			if [[ "$shared" == true ]]
-			then
-				# in the shared case, delete all similar files
-				main.log -w "Removing old shared locks $locklink"
-				rm -f ${locklink}*
-			else
-				main.log -w "Removing old exclusive lock $locklink"
-				rm -f $locklink
-			fi
+			main.log -w "Removing old exclusive lock $locklink"
+			rm -f $locklink
 		fi
 		
 		sleep $CXR_LOCK_SLEEP_SECONDS
