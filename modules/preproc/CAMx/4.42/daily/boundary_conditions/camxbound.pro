@@ -440,7 +440,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	FOR k = 0, nlevsmoz - 1 DO BEGIN
 		FOR t = 0, ntime - 1 DO BEGIN
 			allspecred = allspecs[*,*,k,t,ispec]
-			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat,/GRID)
+			allspecinterp2d = INTERPOLATE(allspecred, indexlon, indexlat)
 			allspecinterp[*,*,k,t,ispec] = allspecinterp2d
 		ENDFOR ; time
 	ENDFOR ; level
@@ -452,7 +452,7 @@ FOR k = 0, nlevsmoz - 1 DO BEGIN
 	FOR t = 0, ntime - 1 DO BEGIN
 		; interpolate just one pressure slice
 		pressred = mozart_pressure[*,*,k,t]
-		mozart_pressureinterp2D = INTERPOLATE(pressred, indexlon, indexlat,/GRID)
+		mozart_pressureinterp2D = INTERPOLATE(pressred, indexlon, indexlat)
 		mozart_pressureinterp[*,*,k,t] = mozart_pressureinterp2D
 	ENDFOR ; time
 ENDFOR ; level
