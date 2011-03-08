@@ -31,8 +31,8 @@ pro camxbound $
 ; followed by a set spanning just an hour" (CAMx 4.51 Users guide)
 ;
 ;
-; Iakovos Barmpadimos, PSI, February 2009
-; with some changes by Daniel Oderbolz
+; Iakovos Barmpadimos, PSI, 2009-2011
+; Daniel Oderbolz, PSI, 2009-2011
 ; $Id$
 ;
 ;
@@ -57,7 +57,10 @@ pro camxbound $
 ; run_name - run name, just used for plotting
 ; dopng - if 1, convert plots to png
 ; deleteps - if 1, ps files are deleted
-; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
+; extra - structure to pass in additional arguments to 
+;          increase certain species (iO3) or 
+;          set them constant (cO3) (either one or the other. Unit: PPM)
+;          or to test the interpolation using constant values (tO3)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 COMPILE_OPT IDL2
@@ -111,8 +114,8 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification='increment'
 						data_modification_prefix='I'
 					endif else begin
-						if (data_modification EQ 'constant') then begin
-							message,"You cannot use constant and increment together!"
+						if (data_modification EQ 'constant' || data_modification EQ 'test') then begin
+							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
 				  end
@@ -122,8 +125,20 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification='constant'
 						data_modification_prefix='C'
 					endif else begin
-						if (data_modification EQ 'increment') then begin
-							message,"You cannot use constant and increment together!"
+						if (data_modification EQ 'increment' || data_modification EQ 'test' ) then begin
+							message,"You cannot use constant or test and increment together!"
+						endif
+					endelse
+				  end
+				  
+				'T' : begin
+					if (data_modification EQ 'none') then begin
+						print,'We will inject a constant field into the iput arrays to test interpolation'
+						data_modification='test'
+						data_modification_prefix='T'
+					endif else begin
+						if (data_modification EQ 'increment' || data_modification EQ 'constant' ) then begin
+							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
 				  end
@@ -252,11 +267,11 @@ IF (n_elements(hyam) LT nlevsmoz || n_elements(hybm) LT nlevsmoz) then begin
 	MESSAGE,"Inconsistent number of levels in hyam and/or hybm!"
 endif
 
-; it is possible that there are more levels in hyam and hybm:
+; it is possible that there are more levels in hyam and hybm than in the rest of the data:
 hyam=hyam[0:nlevsmoz-1]
 hybm=hybm[0:nlevsmoz-1]
 
-; not elegant, later we might fix it using rebin/reform: <http://www.dfanning.com/tips/rebin_magic.html>
+; not elegant, later we might fix it using rebin/reform: <http://www.idlcoyote.com/tips/rebin_magic.html>
 FOR t = 0, ntime - 1 DO BEGIN
 	FOR level = 0,nlevsmoz -1 DO BEGIN
 		; fill the current pressure level
@@ -281,69 +296,37 @@ for ispec=0,nspec-1 do begin
 
 	NCDF_VARGET, ncid, varid ,dummy
 	
-	; Now it depends on whether we need to modify the data or not
-	case data_modification of
+	; Now it depends on whether we need to test the interpolation or not
+	; if this secies is tested, we inject the constant value here.
+	; other modifications are done AFTER interpolation.
+	if (data_modification EQ 'test')
+	then begin
+	; Find the correspondig entry in the extra structure
+	; it is called tO3 for Ozone (CAMx convention)
+	Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+	Tag_Num = Tag_Num[0]
+	if (Tag_Num LT 0) then begin
 	
-		'none' : begin
-		 					; We also need to reverse all concentrations (3rd dimension, here 1 based)
-							; Also we convert to PPM
-							allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-						end
+		; Tag not found, no modification
+		print,"You specified test values for some species but not for " + camx_specs[ispec]
 	
-		'constant' : begin
-						
-									; Find the correspondig entry in the extra structure
-									; it is called cO3 for Ozone (CAMx convention)
-									Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-									Tag_Num = Tag_Num[0]
-									if (Tag_Num LT 0) then begin
-									
-										; Tag not found, no modification
-										print,"You specified constant values for some species but not for " + camx_specs[ispec]
-									
-										; We also need to reverse all concentrations (3rd dimension, here 1 based)
-										; Also we convert to PPM
-										allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-										
-									endif else begin
-									
-										; Found a tag, set the values correspondingly
-										
-										; TODO: test dimensionality
-										; scalar: use as such
-										; 1D: set all levels as given (test size)
-										; 2D: Set faces accordingly
-									
-										constant_dummy = extra.(Tag_Num)
-
-										print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
-									
-										allspecs[*,*,*,*,ispec] = constant_dummy
-									endelse
-						
-					 			end
-					 
-		'increment' : begin
+		; We also need to reverse all concentrations (3rd dimension, here 1 based)
+		; Also we convert to PPM
+		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
 		
-										; Find the correspondig entry in the extra structure
-										; it is called iO3 for Ozone (CAMx convention)
-										Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-										Tag_Num = Tag_Num[0]
-										if (Tag_Num LT 0) then begin
-											; Tag not found
-											increment_dummy = 0
-										endif else begin
-											; Tag found, get the data 
-											increment_dummy = extra.(Tag_Num)
-											print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
-										endelse
-
-										; We also need to reverse all concentrations (3rd dimension, here 1 based)
-										; Also we convert to PPM
-										allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
-					  			end
-	endcase
+	endif else begin
 	
+		; Found a tag, inject the constant value
+		constant_dummy = extra.(Tag_Num)
+
+		print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
+	
+		allspecs[*,*,*,*,ispec] = constant_dummy
+	endif else begin
+		 We also need to reverse all concentrations (3rd dimension, here 1 based)
+		; Also we convert to PPM
+		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+	endelse
 	
 endfor
 
@@ -355,10 +338,6 @@ print,'netCDF file read sucessfully.'
 t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
-
-; This is needed to correct the angles
-meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
-meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
 
 ; Here we store the horizontally interpolated mozart pressure field
 mozart_pressureinterp = FLTARR(ncols,nrows,nlevsmoz,ntime)
@@ -404,33 +383,49 @@ print,'Horizontal Interpolation...'
 lonstep = abs(lonmoz[1] - lonmoz[0])
 latstep = abs(latmoz[1] - latmoz[0])
 
+; We must make sure the convention for lat and lon is the same for the two models
+; These are the assumed conventions:
+; MOZART Data:
+; Lon: [0,360]
+; Lat:  [-90,90]
+
+; GEMS Data:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; MM5:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; WRF:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; latitude is OK, no modification needed, but the MOZART Longitude must be converted.
+
+negative_mozlons=WHERE(lonmoz LT 0, count)
+
+if (count EQ -1) then begin
+	; No negative values
+	print,'It seems the GCTM uses a [0,360] Longitude convention. Changing to [-180,180]'
+	lonmoz = lonmoz - 180
+endif
+
 ; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
 FOR i = 0, ncols - 1 DO BEGIN
 	FOR j = 0, nrows - 1 DO BEGIN
 	
-		; The MM5 longitude is converted from the [-180,180] range to the
-		; [0,360] range for compatibility with the MOZART longtitude, 
-		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
-		
-		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
-			print,'It seems that the global CTM delivered a full globe'
-			t_meteoLon[i,j] = (meteoLonr[i,j] + 360.0) MOD 360.0
-		endif else begin
-			print,'It seems that the global CTM did not deliver a full globe'
-			t_meteoLon[i,j] = meteoLonr[i,j] 
-		endelse
-		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated.
 		; Note that MOZART does not necessarily start at 0
 		indexlon[i,j] = (t_meteoLon[i,j] - lonmoz[0]) / lonstep
 		
-		; What is the underlying assumption?
-		indexlat[i,j] = ((meteoLatr[i,j] - latmoz[0]) / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		; The same for latitude
+		indexlat[i,j] = (meteoLatr[i,j] - latmoz[0]) / latstep 
 		
 		; Check if result makes sense
-		if (indexlon[i,j] LT 0 || indexlon[i,j] GT ncolsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered!'
-		if (indexlat[i,j] LT 0 || indexlat[i,j] GT nrowsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered!'
+		if (indexlon[i,j] LT 0 || indexlon[i,j] GT ncolsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered Longitude-wise!'
+		if (indexlat[i,j] LT 0 || indexlat[i,j] GT nrowsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered Latitude-wise!'
 		
 	ENDFOR ; rows
 ENDFOR ; columns
@@ -634,6 +629,107 @@ line127 = '(5X, I10, F10.2, I10, F10.2)'
 line128 = '(6X, I4, A, 6X, I10)'
 line129 = '(9E14.7)'
 
+
+; Adjust the final data, if needed
+FOR ispec = 0, nspec - 1 DO BEGIN
+
+	case data_modification of
+	
+		'constant' : begin
+						
+									; Find the correspondig entry in the extra structure
+									; it is called cO3 for Ozone (CAMx convention)
+									Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+									Tag_Num = Tag_Num[0]
+									if (Tag_Num LT 0) then begin
+									
+										; Tag not found, no modification
+										print,"You specified constant values for some species but not for " + camx_specs[ispec]
+
+									endif else begin
+									
+										; Found a tag, set the values correspondingly
+										
+										; test dimensionality
+										; scalar: use as such
+										; 1D: set all levels as given (test size)
+										; 2D: Set faces accordingly
+									
+										constant_dummy = extra.(Tag_Num)
+
+										print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM!'
+
+										s=size(constant_dummy,/DIMENSIONS)
+										dims=n_elements(s)
+										
+										case dims of
+										
+											1: begin
+														; OK, IDL again. We get 1 dimension even when its a scalar
+														
+														if (s[0] EQ 0) then begin
+															; scalar
+															allspecinterpvwe[*,*,*,t,ispec] = constant_dummy
+															allspecinterpvsn[*,*,*,t,ispec] = constant_dummy
+														endif else begin
+															; vector: we must rebin. Note that the lenght of the vector 
+															; fits the z-dimension (which is first)
+															layers=reform(constant_dummy,1,3)
+															layerswe=rebin(layers,nlevs,nrows)
+															layerssn=rebin(layers,nlevs,ncols)
+															
+															allspecinterpvwe[*,*,0,t,ispec] = layerswe
+															allspecinterpvwe[*,*,ncols-1,t,ispec] = layerswe
+															
+															allspecinterpvsn[*,*,0,t,ispec] = layerssn
+															allspecinterpvsn[*,*,nrows-1,t,ispec] = layerssn
+														endelse
+
+												 end
+												 
+											2: begin
+														; One vector per face
+														
+														; Test if the number of levels is OK
+														if (s[0] NE nlevs) then MESSAGE,"You must provide a value per level!"
+														
+														allspecinterpvwe[*,*,0,t,ispec] = rebin(constant_dummy[*,0],nlevs,nrows)
+														allspecinterpvwe[*,*,ncols-1,t,ispec] = rebin(constant_dummy[*,1],nlevs,nrows)
+														
+														allspecinterpvsn[*,*,0,t,ispec] = rebin(constant_dummy[*,2],nlevs,ncols)
+														allspecinterpvsn[*,*,nrows-1,t,ispec] = rebin(constant_dummy[*,3],nlevs,ncols)
+												 end
+										
+										endcase
+										
+									endelse
+						
+					 			end
+					 
+		'increment' : begin
+		
+										; Find the correspondig entry in the extra structure
+										; it is called iO3 for Ozone (CAMx convention)
+										Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+										Tag_Num = Tag_Num[0]
+										if (Tag_Num LT 0) then begin
+											print,"You specified increment values for some species but not for " + camx_specs[ispec]
+										endif else begin
+											; Tag found, get the data 
+											increment_dummy = extra.(Tag_Num)
+
+											print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
+
+										endelse
+										
+										; do the increment
+										allspecinterpvwe[*,*,*,t,ispec] = allspecinterpvwe[*,*,*,t,ispec] + increment_dummy
+										allspecinterpvsn[*,*,*,t,ispec] = allspecinterpvsn[*,*,*,t,ispec] + increment_dummy
+										
+									end
+	endcase
+ENDFOR ; Species-for-modification
+
 FOR t = 0, ntime - 1 DO BEGIN
 
 	; n-Hourly data (Start of next record = end of last)
@@ -645,7 +741,7 @@ FOR t = 0, ntime - 1 DO BEGIN
 	
 	PRINTF, lun, ibdate, t0, ibdate, t1, FORMAT = line127
 	FOR ispec = 0, nspec - 1 DO BEGIN
-	
+
 		iedge = 1 ; West
 		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
 		PRINTF, lun, allspecinterpvwe[*,*,0,t,ispec], FORMAT = line129
@@ -661,11 +757,174 @@ FOR t = 0, ntime - 1 DO BEGIN
 		iedge = 4 ; North
 		PRINTF, lun, ione, mspec[ispec], iedge, FORMAT = line128
 		PRINTF, lun, allspecinterpvsn[*,*,nrows-1,t,ispec], FORMAT = line129
+		
 	ENDFOR
 ENDFOR
   
 FREE_LUN, lun
 
+IF (doplots = 1) THEN BEGIN
+
+	; Certain diagnostic plots are created. These are the plots of O3, CO, FORM, NO and NO2,
+	; at the lowest level, at the time index indicated in MOZtime
+	; different versions of the BC data are plotted: 
+	; - raw "world" data
+	; - raw MOZART data over Europe.
+	; - ropean data after horizontal intepolation
+	; - European data after vertical interpolation.
+	; Some parameters of the CONTOUR command (esp. max_value) may need to be adjusted
+	
+
+	time24 = MOZtime * time_interval_h
+	time24 = STRCOMPRESS(time24, /REMOVE_ALL)
+
+	;;;;;; First the world plots using raw MOZART data are created
+	
+	;;;;;; Currently, we do net Rearrange the data so that a standard European view is plotted
+	
+	cuteallspecs=fltarr(ncolsmoz,nrowsmoz,nlevsmoz,ntime,nspec)
+
+	cuteallspecs = allspecs
+
+	; Plot settings
+	; Sizes of an A4 sheet (Portrait, cm)
+	a4_xsize_p = 18
+	a4_ysize_p = 26
+	; Sizes of an A4 sheet (Landscape, cm)
+	a4_xsize_l = a4_ysize_p
+	a4_ysize_l = a4_xsize_p
+	SET_PLOT, 'PS'
+	
+	plotdir = plot_base_dir + '/' + 'ICBC-' + run_name + '/'
+	SPAWN, 'mkdir -p ' + plotdir
+	
+	PRINT, 'Writing plots at ' + plotdir + ' directory.'
+
+	for ispec=0,nspec-1 do begin
+
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic
+
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, cuteallspecs[*,*,0,MOZtime,ispec], lonmoz, latmoz, c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, cuteallspecs[*,*,0,MOZtime,ispec], lonmoz, latmoz, c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+	
+
+	endfor
+
+
+	;;;;;; Now the raw MOZART data for Europe are plotted
+	
+	; Boundaries
+	LowerLeftLon=-15
+	LowerLeftLat=35
+	UpperRightLon=35
+	UpperRightLat=70
+	
+	LowerLeftLonIndex=WHERE(lonmoz GE LowerLeftLon, count)
+	if (count EQ -1) then message,'Could not find lower left lon left index for europe'
+	LowerLeftLonIndex=LowerLeftLonIndex[0]
+	
+	LowerLeftLatIndex=WHERE(lonmoz GE LowerLeftLat, count)
+	if (count EQ -1) then message,'Could not find lower left lat index for europe'
+	LowerLeftLatIndex=LowerLeftLatIndex[0]
+	
+	UpperRightLonIndex=WHERE(lonmoz LE UperLeftLon, count)
+	if (count EQ -1) then message,'Could not find upper right lon left index for europe'
+	UpperRightLonIndex=UpperRightLonIndex[0]
+	
+	UpperRightLatIndex=WHERE(lonmoz LE UpperRightLat, count)
+	if (count EQ -1) then message,'Could not find upper right left lat index for europe'
+	UpperRightLatIndex=UpperRightLatIndex[0]
+	
+	europe = cuteallspecs[LowerLeftLonIndex:UpperRightLonIndex, LowerLeftLatIndex:UpperRightLatIndex, *, *, *]
+	eurlon = lonmoz[LowerLeftLonIndex:UpperRightLonIndex]
+	eurlat = latmoz[LowerLeftLatIndex:UpperRightLatIndex]
+
+	for ispec=0,nspec-1 do begin
+	
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[LowerLeftLat,UpperRightLat,LowerLeftLon,UpperRightLon]
+	
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+	
+
+	endfor	
+		
+
+	;;;;;; Plots of the MOZART data after horizontal interpolation
+
+	for ispec=0,nspec-1 do begin
+
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+	
+
+	endfor	
+
+
+	;;;;;; Plots of the MOZART data after horizontal and vertical interpolation
+
+	for ispec=0,nspec-1 do begin
+
+		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
+		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+
+		; Do we have a max-value?
+		if (spec2max->iscontained(mozart_specs[ispec])) then begin
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endif else begin
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+		endelse
+
+		DEVICE, /CLOSE
+	
+
+	endfor
+
+	IF (dopng EQ 1) THEN BEGIN
+		for ispec=0,nspec-1 do begin
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'world'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.png' 
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.png'
+		endfor
+	ENDIF
+	
+	IF (dopng EQ 1 AND deleteps EQ 1) THEN BEGIN
+		for ispec=0,nspec-1 do begin
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps'
+			SPAWN, 'rm -f ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps'
+		endfor
+	ENDIF
+
+
+	SET_PLOT,'X'	
+
+ENDIF ; diagnostic-plots?
 
 END
 
