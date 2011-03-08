@@ -299,8 +299,7 @@ for ispec=0,nspec-1 do begin
 	; Now it depends on whether we need to test the interpolation or not
 	; if this secies is tested, we inject the constant value here.
 	; other modifications are done AFTER interpolation.
-	if (data_modification EQ 'test')
-	then begin
+	if (data_modification EQ 'test') then begin
 	; Find the correspondig entry in the extra structure
 	; it is called tO3 for Ozone (CAMx convention)
 	Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
