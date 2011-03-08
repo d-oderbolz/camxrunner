@@ -720,18 +720,19 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	
 	FOR face=0,3 DO BEGIN
 	
-		print,"Face: " + faces[face]
-		
-		case face of
-		
-			0: data=allspecinterpvwe[*,*,0,*,ispec]
-			1: data=allspecinterpvwe[*,*,ncols-1,*,ispec]
-			2: data=allspecinterpvsn[*,*,0,*,ispec]
-			3: data=allspecinterpvsn[*,*,nrows-1,*,ispec]
-		
-		endcase
+		print,"Face: " + faces[face] + "=============="
 		
 		FOR ispec = 0, nspec - 1 DO BEGIN
+		
+			case face of
+			
+				0: data=allspecinterpvwe[*,*,0,*,ispec]
+				1: data=allspecinterpvwe[*,*,ncols-1,*,ispec]
+				2: data=allspecinterpvsn[*,*,0,*,ispec]
+				3: data=allspecinterpvsn[*,*,nrows-1,*,ispec]
+			
+			endcase
+
 			print,mspec[0,ispec]
 			FOR k = 0, nlevs - 1 DO BEGIN
 				; Get the maximum
@@ -744,7 +745,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 			ENDFOR ; Levels
 		ENDFOR ; Species
 		
-		print,''
+		print,'========================================'
 	
 	ENDFOR ; faces
 	
