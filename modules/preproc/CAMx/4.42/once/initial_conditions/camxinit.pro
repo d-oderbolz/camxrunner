@@ -457,7 +457,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 ENDFOR ; species (CAMx)
 
 
-
+name = 'AIRQUALITY'
 ione = 1
 
 iedate = ibdate
