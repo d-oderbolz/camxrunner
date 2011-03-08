@@ -299,30 +299,32 @@ for ispec=0,nspec-1 do begin
 	; Now it depends on whether we need to test the interpolation or not
 	; if this secies is tested, we inject the constant value here.
 	; other modifications are done AFTER interpolation.
+	
 	if (data_modification EQ 'test') then begin
-	; Find the correspondig entry in the extra structure
-	; it is called tO3 for Ozone (CAMx convention)
-	Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-	Tag_Num = Tag_Num[0]
-	if (Tag_Num LT 0) then begin
+		; Find the correspondig entry in the extra structure
+		; it is called tO3 for Ozone (CAMx convention)
+		Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+		Tag_Num = Tag_Num[0]
+		if (Tag_Num LT 0) then begin
+		
+			; Tag not found, no modification
+			print,"You specified test values for some species but not for " + camx_specs[ispec]
+		
+			; We also need to reverse all concentrations (3rd dimension, here 1 based)
+			; Also we convert to PPM
+			allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+			
+		endif else begin
+			; Found a tag, inject the constant value
+			constant_dummy = extra.(Tag_Num)
 	
-		; Tag not found, no modification
-		print,"You specified test values for some species but not for " + camx_specs[ispec]
-	
-		; We also need to reverse all concentrations (3rd dimension, here 1 based)
-		; Also we convert to PPM
-		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+			print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
+		
+			allspecs[*,*,*,*,ispec] = constant_dummy
+		endelse
 		
 	endif else begin
-	
-		; Found a tag, inject the constant value
-		constant_dummy = extra.(Tag_Num)
-
-		print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
-	
-		allspecs[*,*,*,*,ispec] = constant_dummy
-	endif else begin
-		 We also need to reverse all concentrations (3rd dimension, here 1 based)
+		; We also need to reverse all concentrations (3rd dimension, here 1 based)
 		; Also we convert to PPM
 		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
 	endelse
