@@ -22,8 +22,8 @@ pro camxinit $
 ; output file. Currently, the data if the 0th time is read.
 ; Also creates a topconc file (is fed ASCII to CAMx)
 ;
-; Iakovos Barmpadimos, PSI, February 2009
-; with some changes by Daniel Oderbolz
+; Iakovos Barmpadimos, PSI, 2009-2011
+; Daniel Oderbolz, PSI, 2009-2011
 ; $Id$
 ;
 ; Parameters:
@@ -89,8 +89,8 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification='increment'
 						data_modification_prefix='I'
 					endif else begin
-						if (data_modification EQ 'constant') then begin
-							message,"You cannot use constant and increment together!"
+						if (data_modification EQ 'constant' || data_modification EQ 'test') then begin
+							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
 				  end
@@ -100,8 +100,20 @@ if ( N_tags(extra) GT 0 ) then begin
 						data_modification='constant'
 						data_modification_prefix='C'
 					endif else begin
-						if (data_modification EQ 'increment') then begin
-							message,"You cannot use constant and increment together!"
+						if (data_modification EQ 'increment' || data_modification EQ 'test' ) then begin
+							message,"You cannot use constant or test and increment together!"
+						endif
+					endelse
+				  end
+				  
+				'T' : begin
+					if (data_modification EQ 'none') then begin
+						print,'We will inject a constant field into the iput arrays to test interpolation'
+						data_modification='test'
+						data_modification_prefix='T'
+					endif else begin
+						if (data_modification EQ 'increment' || data_modification EQ 'constant' ) then begin
+							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
 				  end
@@ -241,66 +253,38 @@ for ispec=0,nspec-1 do begin
 
 	NCDF_VARGET, ncid, varid ,dummy
 	
-	print,"Dimensions:"
-	print,size(dummy,/DIMENSIONS)
+	; Now it depends on whether we need to test the interpolation or not
+	; if this secies is tested, we inject the constant value here.
+	; other modifications are done AFTER interpolation.
 	
-	; Now it depends on whether we need to modify the data or not
-	case data_modification of
-	
-		'none' : begin
-		 			; We also need to reverse all concentrations (3rd dimension, here 1 based)
-					; Also we convert to PPM
-					allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-				end
-	
-		'constant' : begin
-						
-						; Find the correspondig entry in the extra structure
-						; it is called cO3 for Ozone (CAMx convention)
-						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-						Tag_Num = Tag_Num[0]
-						if (Tag_Num LT 0) then begin
-						
-							; Tag not found, no modification
-							print,"You specified constant values for some species but not for " + camx_specs[ispec]
-						
-							; We also need to reverse all concentrations (3rd dimension, here 1 based)
-							; Also we convert to PPM
-							allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-							
-						endif else begin
-						
-							; Found a tag, set the values correspondingly
-						
-							constant_dummy = extra.(Tag_Num)
-							print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere!'
-						
-							allspecs[*,*,*,*,ispec] = constant_dummy
-						endelse
-						
-					 end
-					 
-		'increment' : begin
+	if (data_modification EQ 'test') then begin
+		; Find the correspondig entry in the extra structure
+		; it is called tO3 for Ozone (CAMx convention)
+		Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+		Tag_Num = Tag_Num[0]
+		if (Tag_Num LT 0) then begin
 		
-						; Find the correspondig entry in the extra structure
-						; it is called iO3 for Ozone (CAMx convention)
-						Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-						Tag_Num = Tag_Num[0]
-						if (Tag_Num LT 0) then begin
-							; Tag not found
-							increment_dummy = 0
-						endif else begin
-							; Tag found, get the data 
-							increment_dummy = extra.(Tag_Num)
-							print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
-						endelse
+			; Tag not found, no modification
+			print,"You specified test values for some species but not for " + camx_specs[ispec]
 		
-						; We also need to reverse all concentrations (3rd dimension, here 1 based)
-						; Also we convert to PPM
-						allspecs[*,*,*,*,ispec] = (reverse(dummy,3) * vmr2ppm) + increment_dummy
-					  end
-	endcase
+			; We also need to reverse all concentrations (3rd dimension, here 1 based)
+			; Also we convert to PPM
+			allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+			
+		endif else begin
+			; Found a tag, inject the constant value
+			constant_dummy = extra.(Tag_Num)
 	
+			print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
+		
+			allspecs[*,*,*,*,ispec] = constant_dummy
+		endelse
+		
+	endif else begin
+		; We also need to reverse all concentrations (3rd dimension, here 1 based)
+		; Also we convert to PPM
+		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+	endelse
 	
 endfor
 
@@ -308,14 +292,9 @@ NCDF_CLOSE, ncid      ; Close the NetCDF file
 
 print,'netCDF file read sucessfully.'
 
-t_meteoLon = FLTARR(ncols, nrows)
+
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
-
-; The x and y dimensions are reduced by 1 to later
-; correct the range of angles
-meteoLonr = meteoLon[0:ncols-1, 0:nrows-1]
-meteoLatr = meteoLat[0:ncols-1, 0:nrows-1]
 
 ; Here we store the horizontally interpolated mozart pressure field
 mozart_pressureinterp = FLTARR(ncols,nrows,nlevsmoz)
@@ -328,7 +307,7 @@ print,'Reading pressure file...'
 ; that their field is full and different fields are not separated
 ; by space. In that case a format specification is required.
 ; This format depends on the converter that was used to produce the
-; ascii height/pressure files and possibly on the platform.
+; ascii height/pressure file.
 OPENR, lun, zpfile, /GET_LUN
 height = FLTARR(ncols, nrows, nlevs)
 pres = FLTARR(ncols, nrows, nlevs)
@@ -353,30 +332,54 @@ print,'Horizontal Interpolation...'
 
 ; Calculation of the longitude and latitude steps of the MOZART grid
 ; we assume that the global CTM runs on a grid with constant lat/lon spacing
-; we do not necessarily get a global file.
+; But: we do not necessarily get a global file.
 
 lonstep = abs(lonmoz[1] - lonmoz[0])
 latstep = abs(latmoz[1] - latmoz[0])
+
+; We must make sure the convention for lat and lon is the same for the two models
+; These are the assumed conventions:
+; MOZART Data:
+; Lon: [0,360]
+; Lat:  [-90,90]
+
+; GEMS Data:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; MM5:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; WRF:
+; Lon: [-180,180]
+; Lat: [-90,90]
+
+; latitude is OK, no modification needed, but the MOZART Longitude must be converted.
+
+negative_mozlons=WHERE(lonmoz LT 0, count)
+
+if (count EQ -1) then begin
+	; No negative values
+	print,'It seems the GCTM uses a [0,360] Longitude convention. Changing to [-180,180]'
+	lonmoz = lonmoz - 180
+endif
 
 ; Creation of the grid indices (indexlon,indexlat) for horizontal interpolation
 FOR i = 0, ncols - 1 DO BEGIN
 	FOR j = 0, nrows - 1 DO BEGIN
 	
-		; The MM5 longitude is converted from the [-180,180] range to the
-		; [0,360] range for compatibility with the MOZART longtitude, 
-		; but ONLY if MOZART offers the full globe (otherwise, its longitude is also given in [-180,180])
-		
-		if (abs(lonmoz[n_elements(lonmoz) - 1] - lonmoz[0]) + lonstep EQ 360 ) then begin
-			t_meteoLon[i,j] = (meteoLonr[i,j] + 360.0) MOD 360.0
-		endif else begin
-			t_meteoLon[i,j] = meteoLonr[i,j] 
-		endelse
-		
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated.
 		; Note that MOZART does not necessarily start at 0
-		indexlon[i,j] = (t_meteoLon[i,j] - lonmoz[0]) / lonstep
-		indexlat[i,j] = ((meteoLatr[i,j] - latmoz[0]) / latstep - (0.5*latstep)) + (0.5 * nrowsmoz)
+		indexlon[i,j] = (meteoLon[i,j] - lonmoz[0]) / lonstep
+		
+		; The same for latitude
+		indexlat[i,j] = (meteoLat[i,j] - latmoz[0]) / latstep 
+		
+		; Check if result makes sense
+		if (indexlon[i,j] LT 0 || indexlon[i,j] GT ncolsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered Longitude-wise!'
+		if (indexlat[i,j] LT 0 || indexlat[i,j] GT nrowsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered Latitude-wise!'
 		
 	ENDFOR ; rows
 ENDFOR ; columns
@@ -412,7 +415,6 @@ print,'Vertical interpolation...'
 ; This is the target array
 allspecinterpv = FLTARR(ncols,nrows,nlevs,nspec)
 ; Switches which will be used to ensure that warnings are printed only once
-
 l = 1 
 m = 1 
 
@@ -455,27 +457,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 ENDFOR ; species (CAMx)
 
 
-; Writing some diagnostics
-print,"lonstep" + strtrim(lonstep,2)
-print,"latstep" + strtrim(latstep,2)
 
-print,"Reconstructed Mozart pressure levels at 18,10:"
-print,mozart_pressure[18,10,*]
-
-print,"Interpolated Mozart pressure levels at 0,0:"
-print,mozart_pressureinterp[0,0,*]
-
-print,"MM5 pressure at 0,0"
-print,pres[0,0,*]
-
-print,"Vertical dist of " + mspec[1] + " at 18,10 t=1"
-print,"raw:"
-print,allspecs[18,10,*,0,1]
-print,"Interpolated at 0,0"
-print,allspecinterpv[0,0,*,1]
-
-; Definition of variables for the initial conditions file
-name = 'AIRQUALITY'
 ione = 1
 
 iedate = ibdate
@@ -489,25 +471,130 @@ ny = nrows
 nz = nlevs
 idum = 0
 
-print,'******************************************'
-print,'Some overview data of file ' + outfile_ic
-print,'For each species and level, reporting '
-print,'Min, Avg, Max converted to PPB (data written is in PPM)'
-
+; Adjust the final data, if needed & writing diag
 FOR ispec = 0, nspec - 1 DO BEGIN
-	print,mspec[0,ispec]
-	FOR k = 0, nlevs - 1 DO BEGIN
-		; Get the maximum
-		max_ppm = MAX(allspecinterpv[*,*,k,ispec])
-		
-		print,strtrim(k,2)+': ',$
-			MIN(allspecinterpv[*,*,k,ispec])*1000,$
-			MEAN(REFORM(allspecinterpv[*,*,k,ispec],ncols*nrows))*1000,$
-			max_ppm*1000
-  ENDFOR
-ENDFOR
 
-print,'******************************************'
+	case data_modification of
+	
+		'constant' : begin
+						
+									; Find the correspondig entry in the extra structure
+									; it is called cO3 for Ozone (CAMx convention)
+									Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+									Tag_Num = Tag_Num[0]
+									if (Tag_Num LT 0) then begin
+									
+										; Tag not found, no modification
+										print,"You specified constant values for some species but not for " + camx_specs[ispec]
+
+									endif else begin
+									
+										; Found a tag, set the values correspondingly
+										
+										; test dimensionality
+										; scalar: use as such
+										; 1D: set all levels as given (test size)
+										; 2D: Set faces accordingly
+									
+										constant_dummy = extra.(Tag_Num)
+
+										print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM!'
+
+										s=size(constant_dummy,/DIMENSIONS)
+										dims=n_elements(s)
+										
+										case dims of
+										
+											1: begin
+														; OK, IDL again. We get 1 dimension even when its a scalar
+														
+														if (s[0] EQ 0) then begin
+															; scalar
+															allspecinterpv[*,*,*,ispec] = constant_dummy
+														endif else begin
+														
+															; vector: we set each level according to its entry
+															FOR k = 0, nlevs - 1 DO BEGIN
+																allspecinterpv[*,*,k,ispec] = constant_dummy[k]
+															ENDFOR ; Levels
+															
+														endelse
+
+												 end
+												 
+											2: begin
+														; One vector per face - not ideal for IC.
+														; Currently we just use the western face
+														; and brush it over everything
+														
+														; Test if the number of levels is OK
+														if (s[0] NE nlevs) then MESSAGE,"You must provide a value per level!"
+														
+														FOR k = 0, nlevs - 1 DO BEGIN
+															; use western face
+															allspecinterpv[*,*,k,ispec] = constant_dummy[k,0]
+														ENDFOR ; Levels
+														
+												 end
+										
+										endcase
+										
+									endelse
+						
+					 			end
+					 
+		'increment' : begin
+		
+										; Find the correspondig entry in the extra structure
+										; it is called iO3 for Ozone (CAMx convention)
+										Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+										Tag_Num = Tag_Num[0]
+										if (Tag_Num LT 0) then begin
+											print,"You specified increment values for some species but not for " + camx_specs[ispec]
+										endif else begin
+											; Tag found, get the data 
+											increment_dummy = extra.(Tag_Num)
+
+											print,'WRN: The species ' + camx_specs[ispec] + ' will be increased by ' + strtrim(increment_dummy,2) + 'PPM everywhere!'
+
+										endelse
+										
+										; do the increment
+										allspecinterpvwe[*,*,*,t,ispec] = allspecinterpvwe[*,*,*,t,ispec] + increment_dummy
+										allspecinterpvsn[*,*,*,t,ispec] = allspecinterpvsn[*,*,*,t,ispec] + increment_dummy
+										
+									end
+									
+		else: print,'' ; it seems IDL needs an else case
+		
+	endcase
+	
+	print,"******************************************"
+	print,'Some overview data of file ' + outfile_ic
+	print,'For each species and level, reporting '
+	print,'Min, Avg, Max converted to PPB (data written is in PPM)'
+	
+	FOR ispec = 0, nspec - 1 DO BEGIN
+	
+		data=allspecinterpv[*,*,*,ispec]
+	
+		print,mspec[0,ispec]
+		
+		FOR k = 0, nlevs - 1 DO BEGIN
+			; Get the maximum
+			max_ppm = MAX(data[*,*,k,*])
+			
+			print,strtrim(k,2)+': ',$
+				MIN(data[*,*,k,*])*1000,$
+				MEAN(REFORM(data[*,*,k,*]))*1000,$
+				max_ppm*1000
+		ENDFOR ; Levels
+	ENDFOR ; Species
+		
+	print,"******************************************"
+	
+ENDFOR ; Species-for-modification
+
 
 print,'Writing INITIAL data file ' + outfile_ic
 

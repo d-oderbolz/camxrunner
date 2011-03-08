@@ -653,7 +653,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 														endif else begin
 															; vector: we must rebin. Note that the lenght of the vector 
 															; fits the z-dimension (which is first)
-															layers=reform(constant_dummy,1,3)
+															layers=reform(constant_dummy,1,nlevs)
 															layerswe=rebin(layers,nlevs,nrows)
 															layerssn=rebin(layers,nlevs,ncols)
 															
@@ -736,11 +736,11 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 			print,mspec[0,ispec]
 			FOR k = 0, nlevs - 1 DO BEGIN
 				; Get the maximum
-				max_ppm = MAX(data)
+				max_ppm = MAX(data[k,*,*,*,*])
 				
 				print,strtrim(k,2)+': ',$
-					MIN(data)*1000,$
-					MEAN(REFORM(data))*1000,$
+					MIN(data[k,*,*,*,*])*1000,$
+					MEAN(REFORM(data[k,*,*,*,*]))*1000,$
 					max_ppm*1000
 			ENDFOR ; Levels
 		ENDFOR ; Species
@@ -823,7 +823,7 @@ IF (doplots = 1) THEN BEGIN
 	plotdir = plot_base_dir + '/' + 'ICBC-' + run_name + '/'
 	SPAWN, 'mkdir -p ' + plotdir
 	
-	PRINT, 'Writing plots at ' + plotdir + ' directory.'
+	PRINT, 'Writing plots to ' + plotdir + ' directory.'
 
 	for ispec=0,nspec-1 do begin
 
