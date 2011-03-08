@@ -724,10 +724,10 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		
 		case face of
 		
-			0: data=allspecinterpvwe[*,*,0,t,ispec]
-			1: data=allspecinterpvwe[*,*,ncols-1,t,ispec]
-			2: data=allspecinterpvsn[*,*,0,t,ispec]
-			3: data=allspecinterpvsn[*,*,nrows-1,t,ispec]
+			0: data=allspecinterpvwe[*,*,0,*,ispec]
+			1: data=allspecinterpvwe[*,*,ncols-1,*,ispec]
+			2: data=allspecinterpvsn[*,*,0,*,ispec]
+			3: data=allspecinterpvsn[*,*,nrows-1,*,ispec]
 		
 		endcase
 		
