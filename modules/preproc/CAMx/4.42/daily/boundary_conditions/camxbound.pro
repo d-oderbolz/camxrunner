@@ -335,8 +335,6 @@ NCDF_CLOSE, ncid      ; Close the NetCDF file
 
 print,'netCDF file read sucessfully.'
 
-
-t_meteoLon = FLTARR(ncols, nrows)
 indexlon = FLTARR(ncols, nrows)
 indexlat = FLTARR(ncols, nrows)
 
@@ -419,10 +417,10 @@ FOR i = 0, ncols - 1 DO BEGIN
 		; The decimal grid indices in the MOZART grid, which coincide with
 		; the MM5 cross grid points are calculated.
 		; Note that MOZART does not necessarily start at 0
-		indexlon[i,j] = (t_meteoLon[i,j] - lonmoz[0]) / lonstep
+		indexlon[i,j] = (meteoLon[i,j] - lonmoz[0]) / lonstep
 		
 		; The same for latitude
-		indexlat[i,j] = (meteoLatr[i,j] - latmoz[0]) / latstep 
+		indexlat[i,j] = (meteoLat[i,j] - latmoz[0]) / latstep 
 		
 		; Check if result makes sense
 		if (indexlon[i,j] LT 0 || indexlon[i,j] GT ncolsmoz - 1) then MESSAGE,'It seems that the region of interest is larger than what the CTM delivered Longitude-wise!'
