@@ -720,7 +720,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	
 	FOR face=0,3 DO BEGIN
 	
-		print,"Face: " + faces[face] + "=============="
+		print,"Face: " + faces[face] + " ================"
 		
 		FOR ispec = 0, nspec - 1 DO BEGIN
 		
@@ -745,7 +745,7 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 			ENDFOR ; Levels
 		ENDFOR ; Species
 		
-		print,'========================================'
+		print,''
 	
 	ENDFOR ; faces
 	
@@ -859,7 +859,7 @@ IF (doplots = 1) THEN BEGIN
 	if (count EQ -1) then message,'Could not find lower left lat index for europe'
 	LowerLeftLatIndex=LowerLeftLatIndex[0]
 	
-	UpperRightLonIndex=WHERE(lonmoz LE UperLeftLon, count)
+	UpperRightLonIndex=WHERE(lonmoz LE UpperLeftLon, count)
 	if (count EQ -1) then message,'Could not find upper right lon left index for europe'
 	UpperRightLonIndex=UpperRightLonIndex[0]
 	
