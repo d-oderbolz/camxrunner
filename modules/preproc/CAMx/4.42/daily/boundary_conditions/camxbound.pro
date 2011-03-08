@@ -859,7 +859,7 @@ IF (doplots = 1) THEN BEGIN
 	if (count EQ -1) then message,'Could not find lower left lat index for europe'
 	LowerLeftLatIndex=LowerLeftLatIndex[0]
 	
-	UpperRightLonIndex=WHERE(lonmoz LE UpperLeftLon, count)
+	UpperRightLonIndex=WHERE(lonmoz LE UpperRightLon, count)
 	if (count EQ -1) then message,'Could not find upper right lon left index for europe'
 	UpperRightLonIndex=UpperRightLonIndex[0]
 	
