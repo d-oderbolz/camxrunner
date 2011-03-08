@@ -855,7 +855,7 @@ IF (doplots = 1) THEN BEGIN
 	if (count EQ -1) then message,'Could not find lower left lon left index for europe'
 	LowerLeftLonIndex=MIN(LowerLeftLonIndex)
 	
-	LowerLeftLatIndex=WHERE(lonmoz GE LowerLeftLat, count)
+	LowerLeftLatIndex=WHERE(latmoz GE LowerLeftLat, count)
 	if (count EQ -1) then message,'Could not find lower left lat index for europe'
 	LowerLeftLatIndex=MIN(LowerLeftLatIndex)
 	
@@ -863,7 +863,7 @@ IF (doplots = 1) THEN BEGIN
 	if (count EQ -1) then message,'Could not find upper right lon left index for europe'
 	UpperRightLonIndex=MAX(UpperRightLonIndex)
 	
-	UpperRightLatIndex=WHERE(lonmoz LE UpperRightLat, count)
+	UpperRightLatIndex=WHERE(latmoz LE UpperRightLat, count)
 	if (count EQ -1) then message,'Could not find upper right left lat index for europe'
 	UpperRightLatIndex=MAX(UpperRightLatIndex)
 	
