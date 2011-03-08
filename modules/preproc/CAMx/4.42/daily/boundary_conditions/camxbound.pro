@@ -565,26 +565,6 @@ FOR iedge = 1, 4 DO BEGIN
   ENDFOR
 ENDFOR
 
-print,"******************************************"
-print,'Some overview data of file ' + outfile_bc
-print,'For each species and level, reporting '
-print,'Min, Avg, Max converted to PPB (data written is in PPM) [col_max, row_max,time_max,0,0]'
-
-FOR ispec = 0, nspec - 1 DO BEGIN
-	print,mspec[0,ispec]
-	FOR k = 0, nlevs - 1 DO BEGIN
-		; Get the maximum
-		max_ppm = MAX(allspecinterpv[*,*,k,*,ispec])
-		
-		print,strtrim(k,2)+': ',$
-			MIN(allspecinterpv[*,*,k,*,ispec])*1000,$
-			MEAN(REFORM(allspecinterpv[*,*,k,*,ispec],ncols*nrows*ntime))*1000,$
-			max_ppm*1000
-	ENDFOR ; Levels
-ENDFOR ; Species
-
-print,"******************************************"
-
 ; We create 2 transposed output arrays, one for West/East
 ; and one for South/North.
 ; This transpose is needed because we need to write the data
@@ -726,8 +706,50 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 										allspecinterpvsn[*,*,*,t,ispec] = allspecinterpvsn[*,*,*,t,ispec] + increment_dummy
 										
 									end
+									
+		else: print,'Will not modify ' +  camx_specs[ispec]
+		
 	endcase
 ENDFOR ; Species-for-modification
+
+print,"******************************************"
+print,'Some overview data of file ' + outfile_bc
+print,'For each face, species and level, reporting '
+print,'Min, Avg, Max converted to PPB (data written is in PPM)'
+
+faces=['West','East','South','North']
+
+FOR face=0,3 DO BEGIN
+
+	print,"Face: " + faces[face]
+	
+	case face of
+	
+		0: data=allspecinterpvwe[*,*,0,t,ispec]
+		1: data=allspecinterpvwe[*,*,ncols-1,t,ispec]
+		2: data=allspecinterpvsn[*,*,0,t,ispec]
+		3: data=allspecinterpvsn[*,*,nrows-1,t,ispec]
+	
+	endcase
+	
+	FOR ispec = 0, nspec - 1 DO BEGIN
+		print,mspec[0,ispec]
+		FOR k = 0, nlevs - 1 DO BEGIN
+			; Get the maximum
+			max_ppm = MAX(data)
+			
+			print,strtrim(k,2)+': ',$
+				MIN(data)*1000,$
+				MEAN(REFORM(data))*1000,$
+				max_ppm*1000
+		ENDFOR ; Levels
+	ENDFOR ; Species
+	
+	print,''
+
+ENDFOR ; faces
+
+print,"******************************************"
 
 FOR t = 0, ntime - 1 DO BEGIN
 
