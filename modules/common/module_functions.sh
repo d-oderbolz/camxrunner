@@ -112,7 +112,7 @@ function common.module.areDependenciesOk?()
 	AND   m.module = d.independent_module
 	AND   t.id NOT IN (SELECT id FROM instance_tasks)
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=d.day_offset
+	AND   d.dependent_day_offset=dd.day_offset
 	AND   t.status NOT IN ('$CXR_STATUS_SUCCESS','$CXR_STATUS_RUNNING');
 	
 	EOT
@@ -133,11 +133,9 @@ function common.module.areDependenciesOk?()
 	unfinishedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT t.id
-	FROM dependencies d, tasks t, modules m, days dd
+	FROM dependencies d, tasks t, modules m
 	WHERE 
 	      t.module = d.independent_module
-	AND   dd.day_iso = substr(t.id,0,11)
-	AND   dd.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
 	AND   t.id IN (SELECT id FROM instance_tasks)
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
