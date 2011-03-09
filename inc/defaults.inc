@@ -81,7 +81,7 @@ CXR_NO_LOCKING=false
 CXR_DB_TRY_TIMES=3
 
 # If a DB operation fails, we wait a bit until retry
-CXR_DB_RETRY_WAIT_SECONDS=0.3
+CXR_DB_RETRY_WAIT_SECONDS=0.03
 
 # Just for main.usage
 progname=CAMxRunner.sh
