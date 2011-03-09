@@ -78,7 +78,7 @@ CXR_NO_LOCKING=false
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
 # We need this because if we cannet got a lock, the statement "fails"
-CXR_DB_TRY_TIMES=3
+CXR_DB_TRY_TIMES=5
 
 # If a DB operation fails, we wait a bit until retry
 CXR_DB_RETRY_WAIT_SECONDS=0.03
