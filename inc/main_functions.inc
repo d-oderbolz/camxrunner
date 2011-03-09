@@ -422,8 +422,8 @@ function main.log()
 		# adding stars (might be empty)
 		message="${pre_stars}${message}${post_stars}"
 		
-		# Writing to file
-		echo -e "$message" >> ${CXR_LOG}
+		# Writing to file, ignoring errors
+		(echo -e "$message" >> ${CXR_LOG}) &> /dev/null || :
 	fi
 	
 	# The external channels (sendMessage decides who needs to get the message)
