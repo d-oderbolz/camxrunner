@@ -648,20 +648,20 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 														
 														if (s[0] EQ 0) then begin
 															; scalar
-															allspecinterpvwe[*,*,*,t,ispec] = constant_dummy
-															allspecinterpvsn[*,*,*,t,ispec] = constant_dummy
+															allspecinterpvwe[*,*,*,*,ispec] = constant_dummy
+															allspecinterpvsn[*,*,*,*,ispec] = constant_dummy
 														endif else begin
 															; vector: we must rebin. Note that the lenght of the vector 
 															; fits the z-dimension (which is first)
 															layers=reform(constant_dummy,1,nlevs)
-															layerswe=rebin(layers,nlevs,nrows)
-															layerssn=rebin(layers,nlevs,ncols)
+															layerswe=rebin(layers,nlevs,nrows,ntime)
+															layerssn=rebin(layers,nlevs,ncols,ntime)
 															
-															allspecinterpvwe[*,*,0,t,ispec] = layerswe
-															allspecinterpvwe[*,*,ncols-1,t,ispec] = layerswe
+															allspecinterpvwe[*,*,0,*,ispec] = layerswe
+															allspecinterpvwe[*,*,ncols-1,*,ispec] = layerswe
 															
-															allspecinterpvsn[*,*,0,t,ispec] = layerssn
-															allspecinterpvsn[*,*,nrows-1,t,ispec] = layerssn
+															allspecinterpvsn[*,*,0,*,ispec] = layerssn
+															allspecinterpvsn[*,*,nrows-1,*,ispec] = layerssn
 														endelse
 
 												 end
@@ -672,11 +672,11 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 														; Test if the number of levels is OK
 														if (s[0] NE nlevs) then MESSAGE,"You must provide a value per level!"
 														
-														allspecinterpvwe[*,*,0,t,ispec] = rebin(constant_dummy[*,0],nlevs,nrows)
-														allspecinterpvwe[*,*,ncols-1,t,ispec] = rebin(constant_dummy[*,1],nlevs,nrows)
+														allspecinterpvwe[*,*,0,*,ispec] = rebin(constant_dummy[*,0],nlevs,nrows,ntime)
+														allspecinterpvwe[*,*,ncols-1,t,ispec] = rebin(constant_dummy[*,1],nlevs,nrows,ntime)
 														
-														allspecinterpvsn[*,*,0,t,ispec] = rebin(constant_dummy[*,2],nlevs,ncols)
-														allspecinterpvsn[*,*,nrows-1,t,ispec] = rebin(constant_dummy[*,3],nlevs,ncols)
+														allspecinterpvsn[*,*,0,*,ispec] = rebin(constant_dummy[*,2],nlevs,ncols,ntime)
+														allspecinterpvsn[*,*,nrows-1,*,ispec] = rebin(constant_dummy[*,3],nlevs,ncols,ntime)
 												 end
 										
 										endcase

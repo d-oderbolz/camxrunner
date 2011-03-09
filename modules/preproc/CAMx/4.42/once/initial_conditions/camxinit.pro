@@ -560,8 +560,8 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 										endelse
 										
 										; do the increment
-										allspecinterpvwe[*,*,*,t,ispec] = allspecinterpvwe[*,*,*,t,ispec] + increment_dummy
-										allspecinterpvsn[*,*,*,t,ispec] = allspecinterpvsn[*,*,*,t,ispec] + increment_dummy
+										allspecinterpv[*,*,*,ispec] = allspecinterpvwe[*,*,*,ispec] + increment_dummy
+										allspecinterpv[*,*,*,ispec] = allspecinterpvsn[*,*,*,ispec] + increment_dummy
 										
 									end
 									
