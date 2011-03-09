@@ -930,10 +930,10 @@ IF (doplots = 1) THEN BEGIN
 
 	IF (dopng EQ 1) THEN BEGIN
 		for ispec=0,nspec-1 do begin
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'world'+time24+'.png'
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur'+time24+'.png'
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint'+time24+'.png' 
-			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint'+time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'world_'+ ibdate+'_' +time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps ' +plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.png'
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps '+plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.png' 
+			SPAWN, 'convert ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps ' + plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.png'
 		endfor
 	ENDIF
 	
