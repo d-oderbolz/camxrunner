@@ -258,7 +258,7 @@ function common.state.buildTasksAndDeps()
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
-										days, independent_days,
+										days independent_days,
 										metadata meta
 						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
 						AND			independent_days.day_iso = substr(independent.id,0,11)
@@ -287,7 +287,7 @@ function common.state.buildTasksAndDeps()
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
-										days, independent_days,
+										days independent_days,
 										metadata meta
 						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
 						AND			independent_days.day_iso = substr(independent.id,0,11)
@@ -316,7 +316,7 @@ function common.state.buildTasksAndDeps()
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
-										days, independent_days,
+										days independent_days,
 										metadata meta
 						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
 						AND			independent_days.day_iso = substr(independent.id,0,11)
@@ -343,7 +343,7 @@ function common.state.buildTasksAndDeps()
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
-										days, independent_days,
+										days independent_days,
 										metadata meta,
 										types t
 						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
