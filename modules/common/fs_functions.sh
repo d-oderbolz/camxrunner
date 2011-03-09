@@ -1161,8 +1161,7 @@ function test_module()
 	
 	link=$(common.runner.createTempFile $FUNCNAME)
 	dirlink=$(common.runner.createTempFile $FUNCNAME)
-	
-	
+
 	ln -s -f $a $link
 	ln -s -f $d $dirlink
 	
@@ -1227,8 +1226,8 @@ function test_module()
 	is "$(common.fs.isLink? /dev/null)" "false" "common.fs.isLink? /dev/null"
 	
 	# Remove target file to test broken link function
-	rm $d/testfile
-	is "$(common.fs.isBrokenLink? $dirlink/testfile)" "true" "common.fs.isBrokenLink?"
+	rm $a
+	is "$(common.fs.isBrokenLink? $link)" "true" "common.fs.isBrokenLink?"
 	
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
