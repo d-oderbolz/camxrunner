@@ -623,6 +623,8 @@ CXR_UNIVERSAL_TIMING_DB=${CXR_UNIVERSAL_DIR}/timing.sqlite
 # Global data is normally not deleted
 CXR_GLOBAL_DIR=$CXR_STATE_DIR/$CXR_LEVEL_GLOBAL
 
+mkdir -p $CXR_GLOBAL_DIR
+
 # If a run should fail abnormally, this file is created
 CXR_GLOBAL_ABNORMAL_TERMINATION_FILE=$CXR_GLOBAL_DIR/abnormal_termination
 
