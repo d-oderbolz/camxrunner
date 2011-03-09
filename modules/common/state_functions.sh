@@ -1314,7 +1314,7 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you really want to delete all lockfiles stored under ${CXR_STATE_DIR}?" )" == false ]]
 				then
 					# No 
-					main.log -a "Will not delete any state information"
+					main.log -a "Will not modify any state information"
 				else
 					find ${CXR_STATE_DIR}/ -noleaf -name '*.lock' -exec rm {} \; 2>/dev/null
 				fi
@@ -1325,7 +1325,7 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you really want to delete the whole state database ${CXR_STATE_DB_FILE}?" )" == false  ]]
 				then
 					# No 
-					main.log -a "Will not delete any state information"
+					main.log -a "Will not modify any state information"
 				else
 					# Yes
 					rm -f ${CXR_STATE_DB_FILE}
@@ -1340,7 +1340,7 @@ function common.state.cleanup()
 				if [[ "$(common.user.getOK "Do you really want to remove old instances?" )" == false  ]]
 				then
 					# No 
-					main.log -a   "Will not delete any state information"
+					main.log -a   "Will not modify any state information"
 					return 0
 				else
 					instances=$(find "${CXR_ALL_INSTANCES_DIR}/" -noleaf -type d -maxdepth 1 -name ${CXR_CONTINUE} 2>/dev/null)
@@ -1365,7 +1365,7 @@ function common.state.cleanup()
 			specific-tasks)
 			
 				# First, we build a select statement,
-				# then we execute it (SELECT & DELETE) one-by-one
+				# then we execute it (SELECT & UPDATE) one-by-one
 				
 				# First select the module type or module name
 				if [[ "$(common.user.getOK "Do you want to delete specific module types (otherwise, you get a list of modules)?" )" == true  ]]
@@ -1384,7 +1384,7 @@ function common.state.cleanup()
 					
 					if [[ $which_step == all ]]
 					then
-						main.log -a "You pre-selected all module types for deletion"
+						main.log -a "You pre-selected all module types for removal"
 						where_module=""
 					elif [[ $which_step == none ]]
 					then
@@ -1410,7 +1410,7 @@ function common.state.cleanup()
 					
 					if [[ $which_step == all ]]
 					then
-						main.log -a "You pre-selected all modules for deletion"
+						main.log -a "You pre-selected all modules for removal"
 						where_module="1=1"
 					elif [[ $which_step == none ]]
 					then
@@ -1436,7 +1436,7 @@ function common.state.cleanup()
 				
 				if [[ $which_day == all ]]
 				then
-					main.log -a "You pre-selected all days for deletion"
+					main.log -a "You pre-selected all days for removal"
 					start_offset=0
 					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
 					all_days=true
@@ -1461,7 +1461,7 @@ function common.state.cleanup()
 					fi
 				fi
 				
-				confirm_days="$(common.user.getOK "Do you want to confirm each deletion?" )"
+				confirm_days="$(common.user.getOK "Do you want to confirm each removal?" )"
 
 				if [[ "$confirm_days" == true ]]
 				then
@@ -1477,7 +1477,7 @@ function common.state.cleanup()
 						if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
 						then
 							# No 
-							main.log -a "Will not delete this information"
+							main.log -a "Will not remove this information"
 							
 							if [[ "$following_days" == true ]]
 							then
@@ -1489,8 +1489,8 @@ function common.state.cleanup()
 								fi
 							fi
 						else
-							#Yes, delete
-							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
+							#Yes, mark as TODO
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='TODO' WHERE $where"
 						fi
 							
 					done
@@ -1519,7 +1519,7 @@ function common.state.cleanup()
 				
 				;; # specific
 			none)
-				main.log -w "Will not delete any state information" 
+				main.log -w "Will not modify any state information" 
 				return 0
 				;; # none
 		
