@@ -75,11 +75,11 @@ CXR_META_MODULE_VERSION='$Id$'
 # Format: $date@$module@$invocation
 #
 # Example:
-# > echo "${dependency} $(common.task.getId "$module" "$day_offset" "$iInvocation" )" >> $output_file
+# > echo "${dependency} $(common.task.getId "$module" "$day_iso" "$iInvocation" )" >> $output_file
 # 
 # Parameters:
 # $1 - module name
-# $2 - day offset
+# $2 - iso day
 # $3 - iInvocation
 ################################################################################
 function common.task.getId()
@@ -99,7 +99,7 @@ function common.task.getId()
 	else
 		# Use parameters
 		module="${1}"
-		date="$(common.date.OffsetToDate "${2:-0}")"
+		date=${2:-${CXR_DATE}}
 		invocation="${3:-1}"
 	fi
 	
@@ -431,7 +431,7 @@ function common.task.createParallelDependencyList()
 	       d.day_iso || '@' || t.module
 	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
-	AND   d.day_offset = t.day_offset;
+	AND   d.day_iso = substr(t.id,0,11);
 
 	------------------------------------
 	-- Then add all the dependencies. 
@@ -601,7 +601,7 @@ function common.task.countOpenTasks()
 ################################################################################
 # Function: common.task.countAllWorkers
 #
-# Returns the number of all workers (on any machine).
+# Returns the number of all workers (on any instace).
 #
 ################################################################################
 function common.task.countAllWorkers()
@@ -627,7 +627,7 @@ function common.task.countAllWorkers()
 # Function: common.task.countMyRunningWorkers
 #
 # Returns the number of running workers (running from the POV of the Operating system) 
-# on this machine.
+# on this instance.
 #
 ################################################################################
 function common.task.countMyRunningWorkers()
@@ -640,7 +640,7 @@ function common.task.countMyRunningWorkers()
 	count=0
 	
 	# Find only my "RUNNING" entries
-	running_pids="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='${CXR_MACHINE}';")"
+	running_pids="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE instance='${CXR_INSTANCE}';")"
 	
 	oIFS="$IFS"
 	IFS='
@@ -669,7 +669,7 @@ function common.task.countMyRunningWorkers()
 ################################################################################
 # Function: common.task.countRunningWorkers
 #
-# Returns the number of running workers (on any machine).
+# Returns the number of running workers (on any instance).
 #
 ################################################################################
 function common.task.countRunningWorkers()
@@ -793,6 +793,9 @@ function common.task.setNextTask()
 		# The waiting should ensure that all workers are past their check for do_we_continue
 		sleep $(( 2 * $CXR_WAITING_SLEEP_SECONDS ))
 		
+		# Remove this worker
+		common.task.removeWorker $CXR_WORKER_PID
+		
 		# It is safe to do this because the test for the continue file comes 
 		# very early in the worker 
 		common.state.deleteMyContinueFile
@@ -809,7 +812,7 @@ function common.task.setNextTask()
 	
 	# get first relevant entry in the DB
 	# We join with instance_tasks to get only tasks we are interested in
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,t.type,t.exclusive,t.day_offset,t.invocation FROM tasks t, instance_tasks it WHERE (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,t.type,t.exclusive,d.day_offset,t.invocation FROM tasks t, instance_tasks it, days d WHERE (d.day_iso=substr(t.id,0,11)) AND (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -910,7 +913,7 @@ function common.task.waitingWorker()
 	local pid
 	pid=$1
 	 
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_WAITING}' WHERE pid=$pid AND instance='$CXR_INSTANCE'"
 	
 	main.log -v  "common.task.Worker (pid: $pid) changed its state to waiting"
 }
@@ -934,7 +937,7 @@ function common.task.runningWorker()
 	local pid
 	pid=$1
 	 
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE workers set status='${CXR_STATUS_RUNNING}' WHERE pid=$pid AND instance='$CXR_INSTANCE'"
 	
 	main.log -v "common.task.Worker (pid: $pid) changed its state to running"
 }
@@ -961,7 +964,7 @@ function common.task.removeWorker()
 	pid=$1
 	
 	# Remove from DB
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM workers WHERE pid=$pid AND hostname='$CXR_MACHINE'"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM workers WHERE pid=$pid AND instance='$CXR_INSTANCE'"
 	
 	# Kill the process
 	kill $pid 2>/dev/null
@@ -1016,7 +1019,7 @@ function common.task.Worker()
 	CXR_WORKER_PID=$(cat $tmp)
 	
 	# Insert this worker
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, hostname,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_MACHINE','$CXR_STATUS_WAITING',$(date "+%s"))"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, instance,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_INSTANCE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
 	main.log -a -B  "Worker (pid ${CXR_WORKER_PID}, id ${CXR_WORKER_ID}) starts on $CXR_MACHINE..."
 
@@ -1112,7 +1115,7 @@ function common.task.Worker()
 					fi
 					
 					# It's possible that we have been "shot" in the meantime
-					if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+					if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND instance='$CXR_INSTANCE'" )" == $CXR_STATUS_KILLED ]]
 					then
 						# We have done our duty
 						common.task.removeWorker $CXR_WORKER_PID
@@ -1186,7 +1189,7 @@ function common.task.Worker()
 			sleep $CXR_WAITING_SLEEP_SECONDS
 			
 			# It's possible that we have been "shot" in the meantime
-			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND hostname='$CXR_MACHINE'" )" == $CXR_STATUS_KILLED ]]
+			if [[ "$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM workers WHERE pid=$CXR_WORKER_PID AND instance='$CXR_INSTANCE'" )" == $CXR_STATUS_KILLED ]]
 			then
 				# We have done our duty
 				common.task.removeWorker $CXR_WORKER_PID
@@ -1270,7 +1273,7 @@ function common.task.spawnWorkers()
 ################################################################################
 # Function: common.task.removeAllWorkers
 # 
-# Removes all workers
+# Removes all workers of this instance.
 # 
 ################################################################################
 function common.task.removeAllWorkers()
@@ -1278,7 +1281,7 @@ function common.task.removeAllWorkers()
 {
 	main.log  "We remove all workers on $CXR_MACHINE."
 	
-	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE hostname='$CXR_MACHINE'")
+	for pid in $(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT pid FROM workers WHERE instance='$CXR_INSTANCE'")
 	do
 		common.task.removeWorker "$pid"
 	done
@@ -1448,9 +1451,9 @@ function common.task.init()
 
 			# Write Update statement to file
 			# We only give ranks to stuff that was not yet sucessfully done
-			# note that all invocations of a given (module, day) pair get the same ID.
+			# note that all invocations of a given (module, day) pair get the same rank.
 			# This is by design and correct.
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND day_offset=$_day_offset AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules);" >> $tempfile
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND substr(id,0,11)=(SELECT day_iso FROM days WHERE day_offset=$_day_offset) AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules);" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
@@ -1490,7 +1493,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.task.getId test 0 2)" "${CXR_START_DATE}@test@2" "common.task.getId normal"
+	is "$(common.task.getId test ${CXR_START_DATE} 2)" "${CXR_START_DATE}@test@2" "common.task.getId normal"
 	
 	# Testing parser. 
 	common.task.parseId ${CXR_START_DATE}@convert_emissions@2

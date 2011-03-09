@@ -171,7 +171,6 @@ function common.state.buildTasksAndDeps()
 						module,
 						type,
 						exclusive,
-						day_offset,
 						invocation,
 						status,
 						epoch_m) 
@@ -179,7 +178,6 @@ function common.state.buildTasksAndDeps()
 						m.module,
 						m.type,
 						m.exclusive, 
-						d.day_offset, 
 						i.value as invocation,
 						'$CXR_STATUS_TODO',
 						$(date "+%s")
@@ -196,7 +194,6 @@ function common.state.buildTasksAndDeps()
 						module,
 						type,
 						exclusive,
-						day_offset,
 						invocation,
 						status,
 						epoch_m) 
@@ -204,7 +201,6 @@ function common.state.buildTasksAndDeps()
 										m.module,
 										m.type,
 										m.exclusive,
-										0,
 										i.value as invocation,
 										'$CXR_STATUS_TODO',
 										$(date "+%s")
@@ -263,10 +259,14 @@ function common.state.buildTasksAndDeps()
 										dependent.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
+										days dependent_days,
+										days, independent_days,
 										metadata meta
-						WHERE		independent.module = meta.value
+						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
+						AND			independent_days.day_iso = substr(independent.id,0,11)
+						AND			independent.module = meta.value
 						AND			dependent.module = meta.module
-						AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+						AND			((dependent_days.day_offset = independent_days.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
 										OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
 						AND			dependent.invocation = 1
 						AND			independent.invocation = 1
@@ -288,10 +288,14 @@ function common.state.buildTasksAndDeps()
 										dependent.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
+										days dependent_days,
+										days, independent_days,
 										metadata meta
-						WHERE		independent.module = substr(meta.value,1,length(meta.value)-2)
+						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
+						AND			independent_days.day_iso = substr(independent.id,0,11)
+						AND     independent.module = substr(meta.value,1,length(meta.value)-2)
 						AND			dependent.module = meta.module
-						AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
+						AND			independent_days.day_offset = dependent_days.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
 						AND			dependent.invocation = 1
 						AND			independent.invocation = 1
 						AND 		meta.field='CXR_META_MODULE_DEPENDS_ON'
@@ -310,12 +314,16 @@ function common.state.buildTasksAndDeps()
 						SELECT 	independent.module,
 										independent.day_offset,
 										dependent.module,
-										dependent.day_offset
+										dependent_days.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
+										days dependent_days,
+										days, independent_days,
 										metadata meta
-						WHERE		dependent.module = meta.module
-						AND			((dependent.day_offset = independent.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
+						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
+						AND			independent_days.day_iso = substr(independent.id,0,11)
+						AND			dependent.module = meta.module
+						AND			((dependent_days.day_offset = independent_days.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
 										OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
 						AND			independent.type = meta.value -- Because we check for equality, -<n> is automatically excluded
 						AND			dependent.invocation = 1
@@ -336,11 +344,15 @@ function common.state.buildTasksAndDeps()
 										dependent.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
+										days dependent_days,
+										days, independent_days,
 										metadata meta,
 										types t
-						WHERE		dependent.module = meta.module
+						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
+						AND			independent_days.day_iso = substr(independent.id,0,11)
+						AND			dependent.module = meta.module
 						AND			independent.type = t.type
-						AND			independent.day_offset = dependent.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
+						AND			independent_days.day_offset = dependent_days.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
 						AND			dependent.invocation = 1
 						AND			independent.invocation = 1
 						AND			meta.value GLOB '*-[0-9]'   -- Test for - followed by one digit
@@ -814,9 +826,7 @@ function common.state.updateInfo()
 		DELETE FROM instance_tasks WHERE
 		instance='$CXR_INSTANCE'
 		AND id IN 
-		  (SELECT id FROM tasks t, days d WHERE 
-		                                 (t.day_offset = d.day_offset) 
-		                                 AND d.day_iso NOT IN ($day_list)
+		  (SELECT id FROM tasks t WHERE substr(id,0,11) NOT IN ($day_list)
 		  );
 		
 		EOT
@@ -939,7 +949,6 @@ function common.state.init()
 	                                 module							TEXT,
 	                                 type								TEXT,
 	                                 exclusive					TEXT,
-	                                 day_offset					INTEGER,
 	                                 invocation					INTEGER,
 	                                 status							TEXT,
 	                                 seconds_estimated	INTEGER,
@@ -952,7 +961,7 @@ function common.state.init()
 	
 	-- Table for workers
 	CREATE TABLE IF NOT EXISTS workers (pid							INTEGER,
-	                                    hostname				TEXT,
+	                                    instance				TEXT,
 	                                    status					TEXT,
 	                                    current_task		TEXT,
 	                                    epoch_m					INTEGER);
@@ -1003,6 +1012,7 @@ function common.state.storeStatus()
 	# Set the current state data
 	module="${CXR_META_MODULE_NAME}"
 	day_offset="${CXR_DAY_OFFSET}"
+	day_iso="${CXR_DATE}"
 	invocation="${CXR_INVOCATION:-1}"
 	
 	# Do we care at all?
@@ -1018,7 +1028,7 @@ function common.state.storeStatus()
 	
 		"$CXR_STATUS_RUNNING") 
 			# Check if this was already started
-			if [[ $(common.state.hasFinished? "$module" "$day_offset" "$invocation") == true ]]
+			if [[ $(common.state.hasFinished? "$module" "$day_iso" "$invocation") == true ]]
 			then
 				if [[ "$CXR_RUN_LIST" ]]
 				then
@@ -1059,7 +1069,7 @@ function common.state.storeStatus()
 	esac
 	
 	# Update the database
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation ;"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND substr(id,0,11)='$day_iso' AND invocation=$invocation ;"
 	
 	return $CXR_RET_OK
 }
@@ -1189,7 +1199,7 @@ function common.state.detectInstances()
 #
 # Parameters:	
 # $1 - module name
-# $2 - day_offset
+# $2 - day_iso
 # $3 - invocation
 ################################################################################
 function common.state.hasFinished?()
@@ -1197,24 +1207,25 @@ function common.state.hasFinished?()
 {
 	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
+		main.dieGracefully "needs a module, a day_iso and a invocation as input" 
 		echo false
 	fi
 	
 	local module
-	local day_offset
+	local day_iso
 	local invocation
 	local task
 	local status
 	
 	module="$1"
-	day_offset="$2"
+	day_iso="$2"
 	invocation="$3"
-	task="$(common.task.getId $module $day_offset $invocation)"
+	
+	task="$(common.task.getId $module $day_iso $invocation)"
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND substr(id,0,11)='$day_iso' AND invocation=$invocation")
 	
 	case $status in
 	
@@ -1240,70 +1251,6 @@ function common.state.hasFinished?()
 		*) 
 			main.log -e "Task $task has unknown status: $status"
 			echo false
-			;;
-	esac
-}
-
-################################################################################
-# Function: common.state.hasFailed?
-#	
-# Check if a specific task has failed (similar to <common.state.hasFinished?>
-# but with subtle differences).
-#
-# Parameters:	
-# $1 - module name
-# $2 - day_offset
-# $3 - invocation
-################################################################################
-function common.state.hasFailed?()
-################################################################################
-{
-	if [[ $# -ne 3 ]]
-	then
-		main.dieGracefully "needs a module, a day_offset and a invocation as input" 
-		echo false
-	fi
-	
-	local module
-	local day_offset
-	local invocation
-	local task
-	local status
-	
-	module="$1"
-	day_offset="$2"
-	invocation="$3"
-	task="$(common.task.getId $module $day_offset $invocation)"
-	
-	main.log -v "Testing if task ${task} is done..."
-	
-	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND day_offset=$day_offset AND invocation=$invocation")
-	
-	case $status in
-	
-		$CXR_STATUS_SUCCESS) 
-			echo false 
-			;;
-			
-		$CXR_STATUS_FAILURE) 
-			main.log -w "Task $task failed."
-			echo true
-			;;
-		
-		$CXR_STATUS_RUNNING)
-			main.log -v "Task $task is marked as still running."
-			echo false
-			;;
-			
-		$CXR_STATUS_TODO)
-			main.log -v "Task $task has not started yet."
-			echo false
-			;;
-		
-		*) 
-			# Unknown := failed
-			main.log -e "Task $task has unknown status: $status"
-			echo true
 			;;
 	esac
 }
@@ -1525,7 +1472,7 @@ function common.state.cleanup()
 						main.log -a "Planning to delete these tasks:"
 						
 						# Delete just the current one
-						where="$where_module AND day_offset=$iOffset"
+						where="$where_module AND day_iso IN (SELECT day_iso FROM days WHERE day_offset =$iOffset)"
 						
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 	
@@ -1553,7 +1500,7 @@ function common.state.cleanup()
 				else
 						# Confirm all at once
 						
-						where="$where_module AND day_offset BETWEEN $start_offset AND $stop_offset"
+						where="$where_module AND substr(id,0,11) in (SELECT day_iso FROM days WHERE day_offset BETWEEN $start_offset AND $stop_offset)"
 						
 						main.log -a "Planning to delete these tasks:"
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
