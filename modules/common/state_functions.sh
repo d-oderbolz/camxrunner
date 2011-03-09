@@ -609,7 +609,7 @@ function common.state.updateInfo()
 					else
 						# If the name of the module is in the disabled list, this should not be run (except if it was found in the enabled list)
 						run_it=false
-						main.log -a "Module $module is disabled."
+						main.log -a "  Module $module is disabled."
 					fi
 					
 					# find out if we have a function called getNumInvocations
