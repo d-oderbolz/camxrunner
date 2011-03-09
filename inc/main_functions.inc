@@ -189,7 +189,7 @@ function main.addError()
 		# Add text to the stack (if empty a newline is written)
 		# No -e (one line per error) - the lines are counted later
 		# Could be that the state db is not yet initialized
-		echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}" 2> /dev/null
+		(echo "${1:-No message}" >> "${CXR_INSTANCE_FILE_ERROR_STACK}") &> /dev/null || :
 	
 	fi
 	
@@ -358,7 +358,7 @@ function main.log()
 		# Could be that the state db is not yet initialized
 		if [[ -d "$(dirname ${CXR_INSTANCE_FILE_FAILED_DAYS:-})" ]]
 		then
-			echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS:-/dev/null}"
+			(echo "${CXR_DATE:-date_not_defined}" >> "${CXR_INSTANCE_FILE_FAILED_DAYS}" ) &> /dev/null || :
 		fi
 		
 		# max index of the call-stack

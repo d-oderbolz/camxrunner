@@ -719,7 +719,7 @@ function common.runner.createTempFile()
 	if [[ "${store}" == true ]]
 	then
 		# Add to list (ignore if it fails, maybe the instance dir was removed)
-		echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST || :
+		(echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST) &> /dev/null || :
 	fi
 	
 	echo $name
@@ -1125,7 +1125,7 @@ function common.runner.getLock()
 		# We got the lock 
 		
 		# Save it in the templist (ignore errors)
-		echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST || :
+		(echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST) &> /dev/null || :
 		
 		# write our ID into the locklink
 		echo $CXR_INSTANCE > "$locklink"
