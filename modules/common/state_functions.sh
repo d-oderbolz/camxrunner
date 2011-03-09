@@ -216,7 +216,6 @@ function common.state.buildTasksAndDeps()
 						module,
 						type,
 						exclusive,
-						day_offset,
 						invocation,
 						status,
 						epoch_m) 
@@ -224,7 +223,6 @@ function common.state.buildTasksAndDeps()
 										m.module,
 										m.type,
 										m.exclusive, 
-										$(( $CXR_NUMBER_OF_SIM_DAYS - 1 )), 
 										i.value as invocation,
 										'$CXR_STATUS_TODO',
 										$(date "+%s")
@@ -254,9 +252,9 @@ function common.state.buildTasksAndDeps()
 						dependent_module, 
 						dependent_day_offset)
 						SELECT 	independent.module,
-										independent.day_offset,
+										independent_days.day_offset,
 										dependent.module,
-										dependent.day_offset
+										dependent_days.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
@@ -283,9 +281,9 @@ function common.state.buildTasksAndDeps()
 						dependent_module, 
 						dependent_day_offset)
 						SELECT 	independent.module,
-										independent.day_offset,
+										independent_days.day_offset,
 										dependent.module,
-										dependent.day_offset
+										dependent_days.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
@@ -312,7 +310,7 @@ function common.state.buildTasksAndDeps()
 						dependent_module, 
 						dependent_day_offset)
 						SELECT 	independent.module,
-										independent.day_offset,
+										independent_days.day_offset,
 										dependent.module,
 										dependent_days.day_offset
 						FROM 		tasks dependent,
@@ -339,9 +337,9 @@ function common.state.buildTasksAndDeps()
 						dependent_module, 
 						dependent_day_offset)
 						SELECT 	independent.module,
-										independent.day_offset,
+										independent_days.day_offset,
 										dependent.module,
-										dependent.day_offset
+										dependent_days.day_offset
 						FROM 		tasks dependent,
 										tasks independent,
 										days dependent_days,
