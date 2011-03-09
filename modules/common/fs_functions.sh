@@ -1224,11 +1224,7 @@ function test_module()
 	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
 	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
 	is "$(common.fs.isLink? /dev/null)" "false" "common.fs.isLink? /dev/null"
-	
-	# Remove target file to test broken link function
-	rm $a
-	is "$(common.fs.isBrokenLink? $link)" "true" "common.fs.isBrokenLink?"
-	
+
 	# We expect a difference of max 1 second (if we are at the boundary)
 	differs_less_or_equal $rtc $ft 1 "common.fs.getMtime immediate, time difference ok"
 	is $(common.fs.isAbsolutePath? /) true "common.fs.isAbsolutePath? /"
@@ -1313,6 +1309,10 @@ function test_module()
 	is $(common.fs.exists? ${a}.${suffix} ) false "common.fs.CompressOutput with simple file, not matching pattern"
 	
 	# No decompression needed (its not compressed)
+	
+	# Remove target file to test broken link function
+	rm $a
+	is "$(common.fs.isBrokenLink? $link)" "true" "common.fs.isBrokenLink?"
 	
 	########################################
 	# teardown tests if needed
