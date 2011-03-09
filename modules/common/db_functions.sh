@@ -192,10 +192,7 @@ function common.db.init()
 #
 # Function that returns a resultset on stdout. 
 # Do not use this function to alter the database - we aquire no writelock in CAMxRunner!
-# However, to avoid writers from changing the DB, an exclusive DB lock may be acquired.
-# Control this behaviour with CXR_DB_X_LOCK_READ.
-# If this variable is true, this pragma is added:
-# PRAGMA locking_mode = exclusive; 
+#
 #
 # On error, we try to re-execute the statement, because we fail if the DB is locked.
 # (SQLite issues "I/O Error" but means "DB locked")
@@ -243,14 +240,6 @@ function common.db.getResultSet()
 		return $CXR_RET_OK
 	fi
 
-	# Add pragmas
-	
-	if [[ "CXR_DB_X_LOCK_READ" == true ]]
-	then
-		sql="PRAGMA locking_mode = exclusive;
-"
-	fi
-	
 	# Detect type of statement
 	if [[ "$statement" == - ]]
 	then
@@ -319,14 +308,7 @@ $statement"
 		main.dieGracefully "Error in SQL statement: $sql"
 	fi
 	
-	if [[ "CXR_DB_X_LOCK_READ" == true ]]
-	then
-		# Because locking_mode = exclusive is not silent, result starts with "exclusive\n"
-		echo "$result" | sed '1d'
-	else
-		echo "$result"
-	fi
-
+	echo "$result"
 }
 
 ################################################################################
@@ -339,8 +321,7 @@ $statement"
 # On error, we try to re-execute the statement, because we fail if the DB is locked.
 # (SQLite issues "I/O Error" but means "DB locked")
 #
-# We add the following pragmas in front of the statement 
-# PRAGMA locking_mode = exclusive; to avoid "database disk image is malformed" errors on index update
+# We add pragmas in front of the statement:
 # PRAGMA legacy_file_format = on; to ensure compatibility with older sqlite3 systems
 #
 # All statements are grouped into one single, immediate transaction (see <http://www.sqlite.org/lang_transaction.html>
@@ -380,8 +361,7 @@ function common.db.change()
 	retval=1
 	
 	# Add pragmas
-	sql="PRAGMA locking_mode = exclusive;
-PRAGMA legacy_file_format = on;
+	sql="PRAGMA legacy_file_format = on;
 "
 	
 	# Start TRX if needed
