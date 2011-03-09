@@ -197,29 +197,7 @@ function boundary_conditions()
 	local dy
 	
 	iSpec=0
-	
-	# Set according to input (ternary operator did not work as expected)
-	if [[ ${CXR_IC_BC_TC_DO_PLOT:-false} == true ]]
-	then
-		doplots=1
-	else
-		doplots=0
-	fi
-	
-	if [[ ${CXR_IC_BC_TC_DO_PNG:-false} == true ]]
-	then
-		dopng=1
-	else
-		dopng=0
-	fi
-		
-	if [[ ${CXR_IC_BC_TC_RM_PS:-false} == true ]]
-	then
-		deleteps=1
-	else
-		deleteps=0
-	fi
-	
+
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true  ]]
 	then
@@ -364,7 +342,7 @@ function boundary_conditions()
 					
 					cat <<-EOF > $exec_tmp_file
 					.run $(basename ${CXR_BC_PROC_INPUT_FILE})
-					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$dx,$dy,'$IBDATE',${doplots},'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',${dopng},${deleteps}${extra}
+					$(basename ${CXR_BC_PROC_INPUT_FILE} .pro),'${CXR_MOZART_INPUT_FILE}','${CXR_METEO_INPUT_FILE}','${CXR_MET_MODEL}','${CXR_ZP_INPUT_FILE}','${CXR_BC_ASC_OUTPUT_FILE}',$NLEV,$mozart_array,$camx_array,'${CXR_RUN}',$CXR_MASTER_ORIGIN_XCOORD,$CXR_MASTER_ORIGIN_YCOORD,$dx,$dy,'$IBDATE',$(common.math.convertBoolean ${CXR_IC_BC_TC_DO_PLOT:-false}),'$CXR_IC_BC_TC_PLOT_BASE_DIR',$CXR_IC_BC_TC_PLOT_TIME,'${CXR_RUN}',$(common.math.convertBoolean ${CXR_IC_BC_TC_DO_PNG:-false}),$(common.math.convertBoolean ${CXR_IC_BC_TC_RM_PS:-false})${extra}
 					exit
 					EOF
 						

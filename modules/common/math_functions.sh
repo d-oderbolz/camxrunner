@@ -131,6 +131,43 @@ function common.math.compareVersions()
 }
 
 ################################################################################
+# Function: common.math.convertBoolean
+#
+# Converts an internal true/false boolean to another system (default: 1/0).
+# Needed because some programs such as IDL need integer truth values.
+# Returns the input on error.
+#
+# Parameters:
+# $1 - a logical literal (true or false)
+# $2 - new true value (default: 1)
+# $3 - new false value (default: 0)
+################################################################################
+function common.math.convertBoolean()
+################################################################################
+{
+	local input
+	local true_val
+	local false_val
+	
+	input="${1}"
+	true_val="${2:-1}"
+	false_val="${3:-0}"
+	
+	if [[ $input == true ]]
+	then
+		echo $true_val
+	elif [[ $input == false ]]
+	then
+		echo $false_val
+	else
+		echo "$input"
+		main.log -e "Did not get a logical as input: $*"
+	fi
+}
+
+
+
+################################################################################
 # Function: common.math.not
 #
 # Provides the logical NOT function or our true/false logical literals.
