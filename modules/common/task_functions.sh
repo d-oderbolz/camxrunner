@@ -795,7 +795,7 @@ function common.task.setNextTask()
 		
 		# It is safe to do this because the test for the continue file comes 
 		# very early in the worker 
-		common.state.deleteContinueFiles
+		common.state.deleteMyContinueFile
 		
 		# Release Lock
 		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
@@ -1343,13 +1343,13 @@ function common.task.controller()
 		then
 			main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
 			
-			# there are no more tasks, remove all continue files after some waiting
+			# there are no more tasks, remove our file after some waiting
 			# The waiting should ensure that all workers are past their check for do_we_continue
 			sleep $(( 2 * $CXR_WAITING_SLEEP_SECONDS ))
 			
 			# It is safe to do this because the test for the continue file comes 
 			# very early in the workers
-			common.state.deleteContinueFiles
+			common.state.deleteMyContinueFile
 		fi
 		
 	done
@@ -1358,7 +1358,7 @@ function common.task.controller()
 	then
 		# We now wait for the last workers to finish
 		main.log -a "Waiting until running workers are done..."
-		while [[ $(common.task.countMyRunningWorkers) -gt 0 ]] 
+		while [[ $(common.task.countMyRunningWorkers) -gt 0 ]]
 		do
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		done

@@ -103,11 +103,24 @@ function common.state.getFirstDayModelled()
 }
 
 ################################################################################
-# Function: common.state.deleteContinueFiles
+# Function: common.state.deleteMyContinueFile
+#
+# Deletes the continue files of this instance
+################################################################################
+function common.state.deleteMyContinueFile()
+################################################################################
+{
+	main.log -w  "The continue file of ${CXR_INSTANCE} will be deleted now!"
+	
+	rm -f ${CXR_CONTINUE_FILE} &> /dev/null
+}
+
+################################################################################
+# Function: common.state.deleteAllContinueFiles
 #
 # Deletes the continue files of all instances
 ################################################################################
-function common.state.deleteContinueFiles()
+function common.state.deleteAllContinueFiles()
 ################################################################################
 {
 	main.log -w  "The continue files of all instances of this run will be deleted now!"

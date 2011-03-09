@@ -701,7 +701,7 @@ function main.dieGracefully()
 	
 	# Stop this run on all machines
 	# Delete any .CONTINUE FILES
-	common.state.deleteContinueFiles
+	common.state.deleteAllContinueFiles
 	
 	# Delete everything from the instance_tasks table
 	if [[ -e "$CXR_STATE_DB_FILE" && $(main.functionExists? common.db.change) == true ]]

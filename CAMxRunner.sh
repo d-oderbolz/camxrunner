@@ -529,7 +529,7 @@ then
 		#Delete .CONTINUE files of all instances
 		if [[ "$(common.user.getOK "You chose the option -s (stop run). Do you really want to stop the run ${CXR_RUN}?" )" == true  ]]
 		then
-			common.state.deleteContinueFiles
+			common.state.deleteAllContinueFiles
 		fi
 	elif [[ "${CXR_LIST_INFO}" == true ]]
 	then
