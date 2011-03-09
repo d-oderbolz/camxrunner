@@ -108,7 +108,7 @@ function common.module.areDependenciesOk?()
 	WHERE 
 	      t.module = m.module
 	AND   dd.day_iso = substr(t.id,0,11)
-	AND   d.day_offset = d.independent_day_offset
+	AND   dd.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
 	AND   t.id NOT IN (SELECT id FROM instance_tasks)
 	AND   d.dependent_module='$module'
