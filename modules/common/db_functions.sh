@@ -304,7 +304,7 @@ $statement"
 		trial=$(( $trial + 1 ))
 		
 		# We prolong the waiting time 
-		sleep $(( $CXR_DB_RETRY_WAIT_SECONDS * $trial ))
+		sleep $(common.math.FloatOperation "$CXR_DB_RETRY_WAIT_SECONDS * $trial")
 		
 	done # retry loop
 
