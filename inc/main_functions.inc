@@ -506,6 +506,7 @@ function main.doCleanup()
 	trap - INT TERM EXIT
 	
 	local error_count
+	local errors
 	local dummy_file
 	local arrKeys
 	local keyString
@@ -547,9 +548,13 @@ function main.doCleanup()
 		
 		for currentLogFile in ${CXR_LOGS[@]}
 		do
-			echo "Error list from ${currentLogFile}:" 1>&2
+			errors="$(grep "${CXR_LOG_PREFIX_ERR}" $currentLogFile)"
 			
-			grep "${CXR_LOG_PREFIX_ERR}" $currentLogFile 1>&2 || :
+			if [[ "$errors" ]]
+			then
+				echo "Error list from ${currentLogFile}:" 1>&2
+				echo "$errors" 1>&2
+			fi
 		done
 		
 		if [[ "${error_count:-0}" -ne 0 ]]
