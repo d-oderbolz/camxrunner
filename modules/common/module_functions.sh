@@ -85,9 +85,12 @@ function common.module.areDependenciesOk?()
 	failedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT t.id
-	FROM dependencies d, tasks t
-	WHERE 
-	      t.module = d.independent_module
+	FROM dependencies d, 
+	     tasks t,
+	     days independent_days
+	WHERE independent_days.day_iso = substr(t.id,1,10)
+	AND   independent_days.day_offset = d.independent_day_offset
+	AND   t.module = d.independent_module
 	AND   t.status='$CXR_STATUS_FAILURE'
 	AND   d.dependent_module='$module'
 	AND   d.dependent_day_offset=$day_offset;
@@ -97,7 +100,7 @@ function common.module.areDependenciesOk?()
 	
 	if [[ ! -z "$failedIds" && $CXR_DRY == false ]]
 	then
-		main.dieGracefully "Task $* depends on these failed tasks:\n$failedIds"
+		main.dieGracefully "Task $module ($day_iso) depends on these failed tasks:\n$failedIds"
 	fi
 	
 	# Find out if any of the dependencies is disabled and not done
@@ -105,14 +108,11 @@ function common.module.areDependenciesOk?()
 	
 	SELECT t.id
 	FROM dependencies d, 
-	     modules m, 
 	     tasks t, 
-	     days dd
-	WHERE 
-	      t.module = m.module
-	AND   dd.day_iso = substr(t.id,1,10)
-	AND   dd.day_offset = d.independent_day_offset
-	AND   m.module = d.independent_module
+	     days independent_days
+	WHERE independent_days.day_iso = substr(t.id,1,10)
+	AND   independent_days.day_offset = d.independent_day_offset
+	AND   t.module = d.independent_module
 	AND   t.id NOT IN (SELECT id FROM instance_tasks)
 	AND   d.dependent_module='$module'
 	AND   d.dependent_day_offset=$day_offset
@@ -126,9 +126,9 @@ function common.module.areDependenciesOk?()
 		# There are some disabled ones
 		if [[ "$CXR_IGNORE_DISABLED_DEPENDENCIES" == false ]]
 		then
-			main.dieGracefully "Task $* depends on disabled modules that are unfinished:\n$disabledIds"
+			main.dieGracefully "Task $module ($day_iso) depends on disabled modules that are unfinished:\n$disabledIds"
 		else
-			main.log -w "Task $* depends on disabled modules that are unfinished:\n${disabledIds}.\nSince CXR_IGNORE_DISABLED_DEPENDENCIES is true, we ignore this, but its possible that $* will fail."
+			main.log -w "Task $module ($day_iso) depends on disabled modules that are unfinished:\n${disabledIds}.\nSince CXR_IGNORE_DISABLED_DEPENDENCIES is true, we ignore this, but its possible that the module will fail."
 		fi
 	fi
 	
@@ -136,13 +136,14 @@ function common.module.areDependenciesOk?()
 	unfinishedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT t.id
-	FROM dependencies d, tasks t
-	WHERE 
-	      t.module = d.independent_module
+	FROM dependencies d, tasks t, days independent_days
+	WHERE independent_days.day_iso=substr(t.id,1,10)
+	AND   t.module = d.independent_module
 	AND   t.id IN (SELECT id FROM instance_tasks)
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=$day_offset;
+	AND   d.dependent_day_offset=$day_offset
+	AND   d.independent_day_offset =  independent_days.day_offset;
 	
 	EOT
 	)
@@ -150,7 +151,7 @@ function common.module.areDependenciesOk?()
 	if [[ ! -z "$unfinishedIds" ]]
 	then
 		# Still unfinished stuff
-		main.log -a "Task $* depends on these tasks that are not yet finished:\n$unfinishedIds"
+		main.log -a "Task $module ($day_iso) depends on these tasks that are not yet finished:\n$unfinishedIds"
 		echo false
 	else
 		# all OK
