@@ -63,9 +63,9 @@ function common.module.areDependenciesOk?()
 		return $CXR_RET_OK
 	fi
 	
-	if [[ $# -ne 2 ]]
+	if [[ $# -ne 3 ]]
 	then
-		main.dieGracefully "needs a module name and a day offset as input, got $*"
+		main.dieGracefully "Programming error - needs a module name, a day offset and a day_iso as input, got $*"
 	fi
 	
 	local module
