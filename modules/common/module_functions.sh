@@ -107,7 +107,7 @@ function common.module.areDependenciesOk?()
 	     days dd
 	WHERE 
 	      t.module = m.module
-	AND   dd.day_iso = substr(t.id,0,11)
+	AND   dd.day_iso = substr(t.id,1,10)
 	AND   dd.day_offset = d.independent_day_offset
 	AND   m.module = d.independent_module
 	AND   t.id NOT IN (SELECT id FROM instance_tasks)

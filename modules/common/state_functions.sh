@@ -75,7 +75,7 @@ function common.state.getLastDayOffsetModelled()
 	local result
 	
 	# We use the ID of a task to got the ISO date
-	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(d.day_offset) FROM tasks t, days d WHERE d.day_iso=substr(t.id,0,11);")
+	result=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT MAX(d.day_offset) FROM tasks t, days d WHERE d.day_iso=substr(t.id,1,10);")
 	
 	if [[ -z "$result" ]]
 	then
@@ -260,8 +260,8 @@ function common.state.buildTasksAndDeps()
 										days dependent_days,
 										days independent_days,
 										metadata meta
-						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
-						AND			independent_days.day_iso = substr(independent.id,0,11)
+						WHERE		dependent_days.day_iso = substr(dependent.id,1,10)
+						AND			independent_days.day_iso = substr(independent.id,1,10)
 						AND			independent.module = meta.value
 						AND			dependent.module = meta.module
 						AND			((dependent_days.day_offset = independent_days.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
@@ -289,8 +289,8 @@ function common.state.buildTasksAndDeps()
 										days dependent_days,
 										days independent_days,
 										metadata meta
-						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
-						AND			independent_days.day_iso = substr(independent.id,0,11)
+						WHERE		dependent_days.day_iso = substr(dependent.id,1,10)
+						AND			independent_days.day_iso = substr(independent.id,1,10)
 						AND     independent.module = substr(meta.value,1,length(meta.value)-2)
 						AND			dependent.module = meta.module
 						AND			independent_days.day_offset = dependent_days.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
@@ -318,8 +318,8 @@ function common.state.buildTasksAndDeps()
 										days dependent_days,
 										days independent_days,
 										metadata meta
-						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
-						AND			independent_days.day_iso = substr(independent.id,0,11)
+						WHERE		dependent_days.day_iso = substr(dependent.id,1,10)
+						AND			independent_days.day_iso = substr(independent.id,1,10)
 						AND			dependent.module = meta.module
 						AND			((dependent_days.day_offset = independent_days.day_offset AND independent.type IS NOT '${CXR_TYPE_PREPROCESS_ONCE}')
 										OR (independent.type = '${CXR_TYPE_PREPROCESS_ONCE}')) --If the dependency is on OT Pre, no restriction applies to the day_offset
@@ -346,8 +346,8 @@ function common.state.buildTasksAndDeps()
 										days independent_days,
 										metadata meta,
 										types t
-						WHERE		dependent_days.day_iso = substr(dependent.id,0,11)
-						AND			independent_days.day_iso = substr(independent.id,0,11)
+						WHERE		dependent_days.day_iso = substr(dependent.id,1,10)
+						AND			independent_days.day_iso = substr(independent.id,1,10)
 						AND			dependent.module = meta.module
 						AND			independent.type = t.type
 						AND			independent_days.day_offset = dependent_days.day_offset - abs(substr(meta.value,-1,1)) -- we subtract the digit after the -. abs is used like a type cast
@@ -824,7 +824,7 @@ function common.state.updateInfo()
 		DELETE FROM instance_tasks WHERE
 		instance='$CXR_INSTANCE'
 		AND id IN 
-		  (SELECT id FROM tasks t WHERE substr(id,0,11) NOT IN ($day_list)
+		  (SELECT id FROM tasks t WHERE substr(id,1,10) NOT IN ($day_list)
 		  );
 		
 		EOT
@@ -1067,7 +1067,7 @@ function common.state.storeStatus()
 	esac
 	
 	# Update the database
-	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND substr(id,0,11)='$day_iso' AND invocation=$invocation ;"
+	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks set status='$status' WHERE module='$module' AND substr(id,1,10)='$day_iso' AND invocation=$invocation ;"
 	
 	return $CXR_RET_OK
 }
@@ -1223,7 +1223,7 @@ function common.state.hasFinished?()
 	
 	main.log -v "Testing if task ${task} is done..."
 	
-	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND substr(id,0,11)='$day_iso' AND invocation=$invocation")
+	status=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT status FROM tasks WHERE module='$module' AND substr(id,1,10)='$day_iso' AND invocation=$invocation")
 	
 	case $status in
 	
@@ -1423,7 +1423,7 @@ function common.state.cleanup()
 				
 				# Get all days and add all as above
 				# The id contains the ISO date
-				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT substr(t.id,0,11) day_iso FROM tasks t WHERE $where_module UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
+				days="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT substr(t.id,1,10) day_iso FROM tasks t WHERE $where_module UNION SELECT 'all' FROM dual UNION SELECT 'none' FROM dual")"
 				
 				oIFS="$IFS"
 				# set IFS to newline that select parses correctly
@@ -1498,7 +1498,7 @@ function common.state.cleanup()
 				else
 						# Confirm all at once
 						
-						where="$where_module AND substr(id,0,11) in (SELECT day_iso FROM days WHERE day_offset BETWEEN $start_offset AND $stop_offset)"
+						where="$where_module AND substr(id,1,10) in (SELECT day_iso FROM days WHERE day_offset BETWEEN $start_offset AND $stop_offset)"
 						
 						main.log -a "Planning to delete these tasks:"
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"

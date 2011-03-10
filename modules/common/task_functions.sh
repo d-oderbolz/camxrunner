@@ -431,7 +431,7 @@ function common.task.createParallelDependencyList()
 	       d.day_iso || '@' || t.module
 	FROM tasks t, days d, modules m
 	WHERE m.module = t.module
-	AND   d.day_iso = substr(t.id,0,11);
+	AND   d.day_iso = substr(t.id,1,10);
 
 	------------------------------------
 	-- Then add all the dependencies. 
@@ -812,7 +812,7 @@ function common.task.setNextTask()
 	
 	# get first relevant entry in the DB
 	# We join with instance_tasks to get only tasks we are interested in
-	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,t.type,t.exclusive,d.day_offset,t.invocation FROM tasks t, instance_tasks it, days d WHERE (d.day_iso=substr(t.id,0,11)) AND (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
+	potential_task_data="$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT t.id,t.module,t.type,t.exclusive,d.day_offset,t.invocation FROM tasks t, instance_tasks it, days d WHERE (d.day_iso=substr(t.id,1,10)) AND (t.id = it.id AND it.instance = '$CXR_INSTANCE' ) AND t.status='${CXR_STATUS_TODO}' AND t.rank NOT NULL ORDER BY rank ASC LIMIT 1")"
 	
 	# Check status
 	if [[ $? -ne 0 ]]
@@ -1453,7 +1453,7 @@ function common.task.init()
 			# We only give ranks to stuff that was not yet sucessfully done
 			# note that all invocations of a given (module, day) pair get the same rank.
 			# This is by design and correct.
-			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND substr(id,0,11)=(SELECT day_iso FROM days WHERE day_offset=$_day_offset) AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules);" >> $tempfile
+			echo "UPDATE tasks SET rank=$current_id WHERE module='$_module' AND substr(id,1,10)=(SELECT day_iso FROM days WHERE day_offset=$_day_offset) AND status IS NOT '$CXR_STATUS_SUCCESS' AND rank IS NULL AND module in (SELECT module FROM modules);" >> $tempfile
 
 			# Increase ID
 			current_id=$(( $current_id + 1 ))
