@@ -327,7 +327,7 @@ pro header_parser::parse
 										regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
 	
 										print,'Finding end of header of BC file - may take a while...'
-										print,'We assume header is less than' + strtim(MAX_HEADER_LENGTH,2) + ' long'
+										print,'We assume header is less than' + strtrim(MAX_HEADER_LENGTH,2) + ' long'
 										
 										data=strarr(MAX_HEADER_LENGTH)
 										
