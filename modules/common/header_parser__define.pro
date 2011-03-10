@@ -318,14 +318,18 @@ pro header_parser::parse
 										; Its natsty, but we have to search for the first 
 										; update time in the file because the headers look totally
 										; different under different converters.
-										; Its inefficent since get_update_times essentially does the same
+										; Inefficent since get_update_times essentially does the same
+										
+										; Use for efficiency, IDLs STREGEX is SLOOOW.
+										MAX_HEADER_LENGTH=1000
 										
 										; This is what we seek
 										regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
 	
 										print,'Finding end of header of BC file - may take a while...'
-										n_lines=FILE_LINES(self.filename)
-										data=strarr(n_lines)
+										print,'We assume header is less than' + strtim(MAX_HEADER_LENGTH,2) + ' long'
+										
+										data=strarr(MAX_HEADER_LENGTH)
 										
 										; Rewind file
 										Point_Lun,parser_lun,0
