@@ -315,10 +315,36 @@ pro header_parser::parse
 									END
 
 		'BOUNDARY':		BEGIN
-										; This code assumes a 9-something format!
-										; 4 fixed lines
-										; then 4 arrays in 2 pairs for W/E and S/N
-										self.header_length = 4 + nspec + 4 + 2 * Ceil( FLOAT(nx * 4)/9 ) + 2 * Ceil( FLOAT(ny * 4)/9 )
+										; Its natsty, but we have to search for the first 
+										; update time in the file because the headers look totally
+										; different under different converters.
+										; Its inefficent since get_update_times essentially does the same
+										
+										; This is what we seek
+										regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
+	
+										print,'Finding end of header of BC file - may take a while...'
+										n_lines=FILE_LINES(self.filename)
+										data=strarr(n_lines)
+										
+										; Rewind file
+										Point_Lun,parser_lun,0
+										
+										readf, parser_lun, data
+										
+										; Apply regex
+										found=stregex(data,regex)
+										
+										; get matches
+										matches=WHERE(found NE -1, count)
+										
+										if (count NE -1) then begin
+											; the header lenght is the pos. of the first match because
+											; we are 0-based
+											self.header_length = matches[0]
+										endif else begin
+											message,'Could not find first update time, hence cannot determine header lenght!'
+										endelse
 									END
 
 		'EMISSIONS':	BEGIN
