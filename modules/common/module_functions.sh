@@ -51,6 +51,7 @@ CXR_META_MODULE_VERSION='$Id$'
 # Parameters:
 # $1 - module name for which to check
 # $2 - day_offset for which to check
+# $3 - day_iso for which to check
 ################################################################################
 function common.module.areDependenciesOk?()
 ################################################################################
@@ -69,14 +70,16 @@ function common.module.areDependenciesOk?()
 	
 	local module
 	local day_offset
+	local day_iso
 	local disabledIds
 	local unfinishedIds
 	local failedIds
 	
-	module="$1"
+	module="${1}"
 	day_offset="${2}"
+	day_iso="${3}"
 	
-	main.log -v "Evaluating if all tasks $module depends on for offset $day_offset are done."
+	main.log -v "Evaluating if all tasks $module depends on at $day_iso (offset $day_offset) are done."
 	
 	# If any dependency has failed, we stop the run
 	failedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
@@ -112,7 +115,7 @@ function common.module.areDependenciesOk?()
 	AND   m.module = d.independent_module
 	AND   t.id NOT IN (SELECT id FROM instance_tasks)
 	AND   d.dependent_module='$module'
-	AND   d.dependent_day_offset=dd.day_offset
+	AND   d.dependent_day_offset=$day_offset
 	AND   t.status NOT IN ('$CXR_STATUS_SUCCESS','$CXR_STATUS_RUNNING');
 	
 	EOT
@@ -133,10 +136,9 @@ function common.module.areDependenciesOk?()
 	unfinishedIds=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" - <<-EOT
 	
 	SELECT t.id
-	FROM dependencies d, tasks t, modules m
+	FROM dependencies d, tasks t
 	WHERE 
 	      t.module = d.independent_module
-	AND   m.module = d.independent_module
 	AND   t.id IN (SELECT id FROM instance_tasks)
 	AND   t.status IS NOT '$CXR_STATUS_SUCCESS'
 	AND   d.dependent_module='$module'

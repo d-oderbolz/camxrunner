@@ -1003,6 +1003,7 @@ function common.task.Worker()
 	local invocation
 	local module
 	local day_offset
+	local day_iso
 	local shown
 	local start_epoch
 	local waited_seconds
@@ -1063,7 +1064,9 @@ function common.task.Worker()
 				invocation="$_invocation"
 				exclusive="$_exclusive"
 				
-				main.log -v "module: $module day_offset: $day_offset invocation: $invocation"
+				day_iso="$(common.date.OffsetToDate $day_offset)"
+				
+				main.log -v "module: $module day: $day_iso invocation: $invocation"
 				
 				if [[ ${CXR_ALLOW_MODEL_CONCURRENCY:-false} == false ]]
 				then
@@ -1091,15 +1094,15 @@ function common.task.Worker()
 				start_epoch="$(date "+%s")"
 				
 				# We need to wait until all dependencies are ok
-				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" )" == true ]]
+				until [[ "$(common.module.areDependenciesOk? "$module" "$day_offset" "$day_iso" )" == true ]]
 				do
 					# At least show once that we wait
 					if [[ $shown == false  ]]
 					then
 						shown=true
-						main.log -a "Waiting for dependencies of $module to be done for day $day_offset"
+						main.log -a "Waiting for dependencies of $module to be done for day $day_iso"
 					else
-						main.log -v "Waiting for dependencies of $module to be done for day $day_offset"
+						main.log -v "Waiting for dependencies of $module to be done for day $day_iso"
 					fi
 					
 					# Tell the system we wait, then sleep
@@ -1111,7 +1114,7 @@ function common.task.Worker()
 					# Test of we waited to long (not if CXR_DEPENDENCY_TIMEOUT_SEC is -1)
 					if [[ $CXR_DEPENDENCY_TIMEOUT_SEC -ne -1 && $waited_seconds -gt $CXR_DEPENDENCY_TIMEOUT_SEC ]]
 					then
-						main.dieGracefully "It took longer than CXR_DEPENDENCY_TIMEOUT_SEC ($CXR_DEPENDENCY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_offset"
+						main.dieGracefully "It took longer than CXR_DEPENDENCY_TIMEOUT_SEC ($CXR_DEPENDENCY_TIMEOUT_SEC) seconds to fullfill the dependencies of $module for day $day_iso"
 					fi
 					
 					# It's possible that we have been "shot" in the meantime
@@ -1127,7 +1130,7 @@ function common.task.Worker()
 				# Time to work
 				common.task.runningWorker $CXR_WORKER_PID
 				
-				main.log -v "module: $module\nday_offset: $day_offset\ninvocation: $invocation\nexclusive: $_exclusive\nwait time for dependencies: $waited_seconds s"
+				main.log -v "module: $module\nday: $day_iso\ninvocation: $invocation\nexclusive: $_exclusive\nwait time for dependencies: $waited_seconds s"
 				
 				# Setup environment
 				common.date.setVars "$CXR_START_DATE" "${day_offset:-0}"
