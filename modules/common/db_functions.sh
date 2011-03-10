@@ -429,7 +429,8 @@ COMMIT TRANSACTION;"
 
 		trial=$(( $trial + 1 ))
 		
-		sleep $CXR_DB_RETRY_WAIT_SECONDS
+		# We prolong the waiting time 
+		sleep $(common.math.FloatOperation "$CXR_DB_RETRY_WAIT_SECONDS * $trial")
 	
 	done # retry loop
 	
