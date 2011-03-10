@@ -851,6 +851,9 @@ IF (doplots = 1) THEN BEGIN
 	UpperRightLon=35
 	UpperRightLat=70
 	
+	; Number of contour levels
+	nContourLevels=10
+	
 	LowerLeftLonIndex=WHERE(lonmoz GE LowerLeftLon, count)
 	if (count EQ -1) then message,'Could not find lower left lon left index for europe'
 	LowerLeftLonIndex=MIN(LowerLeftLonIndex)
@@ -878,9 +881,9 @@ IF (doplots = 1) THEN BEGIN
 	
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
-			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endif else begin
-			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, europe[*,*,0,MOZtime,ispec], eurlon, eurlat,  c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')], nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endelse
 
 		DEVICE, /CLOSE
@@ -898,9 +901,9 @@ IF (doplots = 1) THEN BEGIN
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
-			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endif else begin
-			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterp[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endelse
 
 		DEVICE, /CLOSE
@@ -918,9 +921,9 @@ IF (doplots = 1) THEN BEGIN
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
-			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, max_value=spec2max->get(mozart_specs[ispec]), /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endif else begin
-			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=5, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
+			CONTOUR, allspecinterpv[*,*,0,MOZtime,ispec], meteoLon[*,*], meteoLat[*,*], c_charsize=1, /overplot, c_colors=[FSC_Color('purple'), FSC_Color('blue'), FSC_Color('green'), FSC_Color('orange'), FSC_Color('red')],  nlevels=nContourLevels,/downhill, /isotropic, font=0, c_thick=2, c_labels=[1,1,1,1,1]
 		endelse
 
 		DEVICE, /CLOSE
