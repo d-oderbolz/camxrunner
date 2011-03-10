@@ -874,7 +874,7 @@ IF (doplots = 1) THEN BEGIN
 	for ispec=0,nspec-1 do begin
 	
 		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-		MAP_SET, /continents, /isotropic, limit=[LowerLeftLat,UpperRightLat,LowerLeftLon,UpperRightLon]
+		MAP_SET, /continents, /isotropic, limit=[LowerLeftLat,LowerLeftLon,UpperRightLat,UpperRightLon]
 	
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
@@ -894,7 +894,7 @@ IF (doplots = 1) THEN BEGIN
 	for ispec=0,nspec-1 do begin
 
 		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_horint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+		MAP_SET, /continents, /isotropic, limit=[LowerLeftLat,LowerLeftLon,UpperRightLat,UpperRightLon]
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
@@ -914,7 +914,7 @@ IF (doplots = 1) THEN BEGIN
 	for ispec=0,nspec-1 do begin
 
 		DEVICE, FILENAME=plotdir+mozart_specs[ispec]+'eur_verint_'+ ibdate+'_' +time24+'.ps', /COLOR, XSIZE=a4_xsize_l, YSIZE=a4_ysize_l, XOFFSET=2, YOFFSET=2
-		MAP_SET, /continents, /isotropic, limit=[33,-12,70,23]
+		MAP_SET, /continents, /isotropic, limit=[LowerLeftLat,LowerLeftLon,UpperRightLat,UpperRightLon]
 
 		; Do we have a max-value?
 		if (spec2max->iscontained(mozart_specs[ispec])) then begin
