@@ -1368,7 +1368,7 @@ function common.state.cleanup()
 				# then we execute it (SELECT & UPDATE) one-by-one
 				
 				# First select the module type or module name
-				if [[ "$(common.user.getOK "Do you want to delete specific module types (otherwise, you get a list of modules)?" )" == true  ]]
+				if [[ "$(common.user.getOK "Do you want to remove specific module types (otherwise, you get a list of modules)?" )" == true  ]]
 				then
 					# Module types it is.
 					# We add the value "all" and "none" to the result
@@ -1378,7 +1378,7 @@ function common.state.cleanup()
 					# set IFS to newline that select parses correctly
 					IFS='
 '
-					which_step="$(common.user.getMenuChoice "Which module types state information should be deleted?" "${steps}" "none" )"
+					which_step="$(common.user.getMenuChoice "Which module types state information should be removed?" "${steps}" "none" )"
 					# Reset IFS
 					IFS="$oIFS"
 					
@@ -1388,7 +1388,7 @@ function common.state.cleanup()
 						where_module=""
 					elif [[ $which_step == none ]]
 					then
-						main.log -a "You chose not to delete any data."
+						main.log -a "You chose not to modify any data."
 						continue
 					else
 						where_module="type='$which_step'"
@@ -1404,7 +1404,7 @@ function common.state.cleanup()
 					# set IFS to newline that select parses correctly
 					IFS='
 '
-					which_step="$(common.user.getMenuChoice "Which modules state information should be deleted?" "${steps}" "none" )"
+					which_step="$(common.user.getMenuChoice "Which modules state information should be removed?" "${steps}" "none" )"
 					# Reset IFS
 					IFS="$oIFS"
 					
@@ -1414,7 +1414,7 @@ function common.state.cleanup()
 						where_module="1=1"
 					elif [[ $which_step == none ]]
 					then
-						main.log -a "You chose not to delete any data."
+						main.log -a "You chose not to modify any data."
 						continue
 					else
 						where_module="module='$which_step'"
@@ -1429,7 +1429,7 @@ function common.state.cleanup()
 				# set IFS to newline that select parses correctly
 				IFS='
 '
-				which_day="$(common.user.getMenuChoice "Which days state information should be deleted?" "$days" "none" )"
+				which_day="$(common.user.getMenuChoice "Which days state information should be removed?" "$days" "none" )"
 				
 				# Reset IFS
 				IFS="$oIFS"
@@ -1444,7 +1444,7 @@ function common.state.cleanup()
 					
 				elif [[ $which_day == none ]]
 					then
-						main.log -a "You chose not to delete any data."
+						main.log -a "You chose not to modify any data."
 						continue
 				else
 					start_offset=$(common.date.toOffset $which_day)
@@ -1452,11 +1452,11 @@ function common.state.cleanup()
 					stop_offset=$start_offset
 					all_days=false
 					# If this is true, we loop through the following days
-					following_days="$(common.user.getOK "Do you want to delete consecutive days?" )"
+					following_days="$(common.user.getOK "Do you want to remove consecutive days?" )"
 					
 					if [[ "$following_days" == true ]]
 					then
-						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we delete?" "$days" )"
+						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we remove?" "$days" )"
 						stop_offset=$(common.date.toOffset $stop_day)
 					fi
 				fi
@@ -1467,21 +1467,21 @@ function common.state.cleanup()
 				then
 					for iOffset in $(seq $start_offset $stop_offset)
 					do
-						main.log -a "Planning to delete these tasks:"
+						main.log -a "Planning to remove these tasks:"
 						
 						# Delete just the current one
 						where="$where_module AND day_iso IN (SELECT day_iso FROM days WHERE day_offset =$iOffset)"
 						
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 	
-						if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
+						if [[ "$(common.user.getOK "Do you really want to remove these tasks?" )" == false ]]
 						then
 							# No 
 							main.log -a "Will not remove this information"
 							
 							if [[ "$following_days" == true ]]
 							then
-								if [[ "$(common.user.getOK "Do you want to continue to delete tasks?" )" == false ]]
+								if [[ "$(common.user.getOK "Do you want to continue removing tasks?" )" == false ]]
 								then
 									break
 								else
@@ -1500,17 +1500,17 @@ function common.state.cleanup()
 						
 						where="$where_module AND substr(id,1,10) in (SELECT day_iso FROM days WHERE day_offset BETWEEN $start_offset AND $stop_offset)"
 						
-						main.log -a "Planning to delete these tasks:"
+						main.log -a "Planning to remove these tasks:"
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 						
-						if [[ "$(common.user.getOK "Do you really want to delete these tasks?" )" == false ]]
+						if [[ "$(common.user.getOK "Do you really want to remove these tasks?" )" == false ]]
 						then
 							# No 
-							main.log -a "Will not delete this information"
+							main.log -a "Will not modify this information"
 							continue
 						else
 							# Yes 
-							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM tasks WHERE $where"
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$CXR_STATUS_TODO' WHERE $where"
 						fi
 						
 					fi # Confirm-each?
