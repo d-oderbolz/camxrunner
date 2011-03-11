@@ -1258,8 +1258,10 @@ function common.state.hasFinished?()
 #	
 # Depending on user selection:
 # - Deletes all state information
-# - Deletes only part of the state information
-# All is in a endless loop so one can quickly delete a lot of stuff
+# - Modifies only part of the state information (sets status to TODO)
+# All is in a endless loop so one can quickly modify a lot of stuff
+#
+# TODO: set tasks to SUCCESS!
 # 
 ################################################################################
 function common.state.cleanup()

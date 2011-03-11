@@ -711,6 +711,8 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		
 	endcase
 	
+ENDFOR ; Species-for-modification
+
 	print,"******************************************"
 	print,'Some overview data of file ' + outfile_bc
 	print,'For each face, species and level, reporting '
@@ -750,10 +752,6 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 	ENDFOR ; faces
 	
 	print,"******************************************"
-	
-ENDFOR ; Species-for-modification
-
-
 
 FOR t = 0, ntime - 1 DO BEGIN
 

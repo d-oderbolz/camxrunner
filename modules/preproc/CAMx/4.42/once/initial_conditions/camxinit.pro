@@ -569,6 +569,8 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 		
 	endcase
 	
+ENDFOR ; Species-for-modification
+
 	print,"******************************************"
 	print,'Some overview data of file ' + outfile_ic
 	print,'For each species and level, reporting '
@@ -589,11 +591,10 @@ FOR ispec = 0, nspec - 1 DO BEGIN
 				MEAN(REFORM(data[*,*,k,*]))*1000,$
 				max_ppm*1000
 		ENDFOR ; Levels
-	ENDFOR ; Species
-		
-	print,"******************************************"
 	
-ENDFOR ; Species-for-modification
+	ENDFOR ; species
+
+	print,"******************************************"
 
 
 print,'Writing INITIAL data file ' + outfile_ic
