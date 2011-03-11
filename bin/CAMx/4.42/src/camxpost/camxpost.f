@@ -125,6 +125,8 @@ c-----Optional items
       if (iostatus.ne.0) then
       	projection='UTM'
      	endif
+     	
+c----- We support the spcial case 'INDEX' to use directly indices
       write(*,*) 'Projection: ', projection
       
       read(*,'(20x,f6.4)',IOSTAT=iostatus) cfactor
@@ -207,6 +209,8 @@ c-----Read and write the four header records
 c     dco The original code assumes that coordinates are in UTM
 c     dco and therefore, multiplies distances by 1000
 c     dco This Hack allows us to keep the rest of the code intact
+c     dco We also allow 'INDEX', then we use the coordinates (must be ints)
+c     dco directly as indices
 			if (projection.eq.'LATLON') then
 				conv2metre = 1.0
 			else
