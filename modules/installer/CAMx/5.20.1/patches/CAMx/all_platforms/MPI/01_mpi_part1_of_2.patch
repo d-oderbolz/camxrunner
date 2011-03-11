@@ -1,0 +1,75 @@
+--- node_get_nbc.f
++++ node_get_nbc.f
+@@ -11,7 +11,7 @@
+ c
+       implicit none
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.30_patch 110303
+ c
+ c-----------------------------------------------------------------------
+ c    Description:
+@@ -38,11 +38,13 @@
+ c    LOG:
+ c-----------------------------------------------------------------------
+ c
++c    --gwilson-- 03/03/11 changed the allocation of the temp buffer
++c
+ c-----------------------------------------------------------------------
+ c    Include files:
+ c-----------------------------------------------------------------------
+ c
+-      include 'chmdat.com'
++      include 'chmdat.inc'
+ c
+ c-----------------------------------------------------------------------
+ c    Argument declarations:
+@@ -121,8 +123,8 @@
+ c
+       if (nbuff_save .eq. 0) then
+          if (allocated(buffnest)) deallocate (buffnest)
+-         allocate( buffnest( 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec ) )
+-         nbuff_save = 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec
++         allocate( buffnest( 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec ) )
++         nbuff_save = 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec
+       endif
+       if (node_buffs(mynum)%nrecv > nbuff_save) then
+          if (allocated(buffnest)) deallocate (buffnest)
+@@ -227,7 +229,7 @@
+ c
+       implicit none
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.30 101201
+ c
+ c-----------------------------------------------------------------------
+ c    Description:
+@@ -506,7 +508,7 @@
+ c
+       implicit none
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.30 101201
+ c
+ c-----------------------------------------------------------------------
+ c    Description:
+@@ -538,7 +540,7 @@
+ c    Include files:
+ c-----------------------------------------------------------------------
+ c
+-      include 'chmdat.com'
++      include 'chmdat.inc'
+ c
+ c-----------------------------------------------------------------------
+ c    Argument declarations:
+@@ -617,8 +619,8 @@
+ c
+       if (nbuff_save .eq. 0) then
+          if (allocated(buffnest)) deallocate (buffnest)
+-         allocate( buffnest( 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp ) )
+-         nbuff_save = 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp
++         allocate( buffnest( 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp ) )
++         nbuff_save = 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp
+       endif
+       if (node_buffs(mynum)%nrecv > nbuff_save) then
+          if (allocated(buffnest)) deallocate (buffnest)

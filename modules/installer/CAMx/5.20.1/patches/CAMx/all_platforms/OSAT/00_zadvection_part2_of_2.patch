@@ -1,0 +1,20 @@
+--- zfluxsa.f
++++ zfluxsa.f	
+@@ -4,7 +4,7 @@
+      &           icell,jcell,rhofac,deltat,d1d,fluxcls,cnccls,cncafter)
+       use tracer
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.21 100615
+ c
+ c-----------------------------------------------------------------------
+ c   Description:
+@@ -92,7 +92,7 @@
+ c
+ c  --- handle the top layer ---
+ c
+-            if( fluxtmp(numlay) .LT. 0. ) then
++            if( fluxcls(icls,numlay) .LT. 0. ) then
+                 fluxtmp(numlay) = fluxcls(icls,numlay) * 
+      &             satop(icell,jcell,ispc) * ptop_fac(ispc) * rhofac /
+      &                                          cnccls(icls,numlay+1)
