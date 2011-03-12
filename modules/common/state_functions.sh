@@ -1292,7 +1292,7 @@ function common.state.cleanup()
 		message="Do you want to further change the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to clean (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump all-locks specific-tasks all-tasks old-instances none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to modify (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump release-all-locks modify-tasks delete-all-tasks delete-old-instances none" "none")
 		
 		case "$what" in
 		
@@ -1312,7 +1312,7 @@ function common.state.cleanup()
 				fi
 				;;
 		
-			all-locks)
+			release-all-locks)
 				if [[ "$(common.user.getOK "Do you really want to delete all lockfiles stored under ${CXR_STATE_DIR}?" )" == false ]]
 				then
 					# No 
@@ -1322,7 +1322,7 @@ function common.state.cleanup()
 				fi
 				;;
 		
-			all-tasks)
+			delete-all-tasks)
 				# Do we do this?
 				if [[ "$(common.user.getOK "Do you really want to delete the whole state database ${CXR_STATE_DB_FILE}?" )" == false  ]]
 				then
@@ -1334,9 +1334,9 @@ function common.state.cleanup()
 					main.log -a "Done."
 				fi #Delete?
 				
-				;; # all-tasks
+				;; # delete-all-tasks
 			
-			old-instances)
+			delete-old-instances)
 			
 				# Do we do this?
 				if [[ "$(common.user.getOK "Do you really want to remove old instances?" )" == false  ]]
@@ -1362,13 +1362,21 @@ function common.state.cleanup()
 					main.log -a "Done."
 				fi #Delete?
 			
-				;; # old-instances
+				;; # delete-old-instances
 					
-			specific-tasks)
+			modify-tasks)
 			
+				
+				if [[ "$(common.user.getOK "Do you want to mark the tasks you will select as SUCCESSFUL? (If not, they will be marked as TODO)" N )" == true ]]
+				then
+					new_status=$CXR_STATUS_SUCCESS
+				else
+					new_status=$CXR_STATUS_TODO
+				fi
+				
 				# First, we build a select statement,
 				# then we execute it (SELECT & UPDATE) one-by-one
-				
+
 				# First select the module type or module name
 				if [[ "$(common.user.getOK "Do you want to remove specific module types (otherwise, you get a list of modules)?" )" == true  ]]
 				then
@@ -1491,8 +1499,8 @@ function common.state.cleanup()
 								fi
 							fi
 						else
-							#Yes, mark as TODO
-							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='TODO' WHERE $where"
+							#Yes, mark as new_status
+							common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "UPDATE tasks SET status='$new_status' WHERE $where"
 						fi
 							
 					done
