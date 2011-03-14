@@ -153,9 +153,15 @@ end
 function header_parser::prefill,charlen,count
 ; =============================================================
 
-	target=string(replicate(32B,count*charlen))
+	target=''
 	
-	return,target
+	for j=1,charlen do begin
+			target = target + '0'
+	endfor
+	
+	target_f=replicate(target,count)
+	
+	return,target_f
 
 end
 
@@ -209,9 +215,11 @@ pro header_parser::parse
 		
 		; We must prefill string variables
 		; we read type and note in a single call
-		typeNote=self.prefill(4,70)
+		; for some reason, we must read more than expected
+		type=self.prefill(4,10)
+		note=self.prefill(4,60)
 		
-		ione=1L
+		ione=FIX(1)
 		rdum=0.0
 		nspec=0L
 		ibdate=0L
@@ -229,11 +237,12 @@ pro header_parser::parse
 		nx2=0L
 		ny2=0L
 		
-		readu,parser_lun,typeNote
+		readu,parser_lun,type
+		readu,parser_lun,note
 		
 		; Now build the type and note strings
-		type=strcompress(strmid(typeNote,0,40),/REMOVE_ALL)
-		note=strcompress(strmid(typeNote,40,240),/REMOVE_ALL)
+		type=strcompress(type,/REMOVE_ALL)
+		note=strcompress(note,/REMOVE_ALL)
 		
 		readu,parser_lun,ione
 		readu,parser_lun,nspec
