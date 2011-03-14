@@ -153,13 +153,7 @@ end
 function header_parser::prefill,charlen,count
 ; =============================================================
 
-	target=''
-	
-	for j=1,charlen do begin
-			target = target + '0'
-	endfor
-	
-	target_f=replicate(target,count)
+	target_f=string(replicate(32B,charlen*count))
 	
 	return,target_f
 
