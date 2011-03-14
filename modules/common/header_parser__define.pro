@@ -211,29 +211,29 @@ pro header_parser::parse
 		; we read type and note in a single call
 		typeNote=self.prefill(4,70)
 		
-		ione=1
-		rdum=0.0
-		nspec=0
-		ibdate=0
-		btime=0.0
-		iedate=0
-		etime=0.0
-		iutm=0
-		xorg=0.0
-		yorg=0.0
-		delx=0.0
-		dely=0.0
-		nx=0
-		ny=0
-		nz=0
-		nx2=0
-		ny2=0
+;		ione=1
+;		rdum=0.0
+;		nspec=0
+;		ibdate=0
+;		btime=0.0
+;		iedate=0
+;		etime=0.0
+;		iutm=0
+;		xorg=0.0
+;		yorg=0.0
+;		delx=0.0
+;		dely=0.0
+;		nx=0
+;		ny=0
+;		nz=0
+;		nx2=0
+;		ny2=0
 		
 		readu,parser_lun,typeNote
 		
 		; Now build the type and note strings
-		type=strcompress(strjoin(typeNote[0:9]),/REMOVE_ALL)
-		note=strcompress(strjoin(typeNote[10:69]),/REMOVE_ALL)
+		type=strcompress(strmid(typeNote,0,40),/REMOVE_ALL)
+		note=strcompress(strmid(typeNote,40,240),/REMOVE_ALL)
 		
 		readu,parser_lun,ione
 		readu,parser_lun,nspec
