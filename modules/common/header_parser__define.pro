@@ -205,7 +205,7 @@ pro header_parser::parse
 	
 	if ( self.is_binary ) then begin
 		; Binary
-		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED
+		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
 		
 		; We must prefill string variables
 		; we read type and note in a single call
