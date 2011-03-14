@@ -210,16 +210,19 @@ pro header_parser::parse
 	; Depending on the flag is_binary we open ascii or not
 	
 	if ( self.is_binary ) then begin
+	
+		print,"Binary is extremely broken..."
+	
 		; Binary
 		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
 		
+		point_lun,parser_lun,0
+		
 		; We must prefill string variables
 		; we read type and note in a single call
-		; for some reason, we must read more than expected
-		type=self.prefill(4,10)
-		note=self.prefill(4,60)
+		typeNote=self.prefill(4,70)
 		
-		ione=FIX(1)
+		ione=1L
 		rdum=0.0
 		nspec=0L
 		ibdate=0L
@@ -237,12 +240,14 @@ pro header_parser::parse
 		nx2=0L
 		ny2=0L
 		
-		readu,parser_lun,type
-		readu,parser_lun,note
+		readu,parser_lun,typeNote
+		
+		; Now, the pointer magically advanced to byte 312
+		point_lun,parser_lun,285
 		
 		; Now build the type and note strings
-		type=strcompress(type,/REMOVE_ALL)
-		note=strcompress(note,/REMOVE_ALL)
+		type=strcompress(strmid(typeNote,0,40),/REMOVE_ALL)
+		note=strcompress(strmid(typeNote,40,240),/REMOVE_ALL)
 		
 		readu,parser_lun,ione
 		readu,parser_lun,nspec
@@ -272,7 +277,7 @@ pro header_parser::parse
 		readu,parser_lun,ione
 		readu,parser_lun,nx2
 		readu,parser_lun,ny2
-
+		
 		; Store the compressed result
 		self.scalars->add,'name',type
 		self.scalars->add,'type',type
