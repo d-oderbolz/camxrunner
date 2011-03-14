@@ -223,60 +223,33 @@ pro header_parser::parse
 		typeNote=self.prefill(4,70)
 		
 		ione=1L
-		rdum=0.0
 		nspec=0L
+		
 		ibdate=0L
-		btime=0.0
+		btime=0L
 		iedate=0L
-		etime=0.0
+		etime=0L
+		
+		rdum=0.0
 		iutm=0L
-		xorg=0.0
-		yorg=0.0
-		delx=0.0
-		dely=0.0
+		xorg=FLOAT(0.0)
+		yorg=FLOAT(0.0)
+		delx=FLOAT(0.0)
+		dely=FLOAT(0.0)
 		nx=0L
 		ny=0L
 		nz=0L
 		nx2=0L
 		ny2=0L
 		
-		readu,parser_lun,typeNote
-		
-		; Now, the pointer magically advanced to byte 312
-		point_lun,parser_lun,285
+		readu,parser_lun,typeNote,ione,nspec,ibdate,btime,iedate,etime
+		readu,parser_lun,rdum,rdum,iutm,xorg,yorg,delx,dely,nx,ny,nz,idum,idum,rdum,rdum,rdum
+		readu,parser_lun,ione,ione,nx2,ny2
 		
 		; Now build the type and note strings
 		type=strcompress(strmid(typeNote,0,40),/REMOVE_ALL)
 		note=strcompress(strmid(typeNote,40,240),/REMOVE_ALL)
 		
-		readu,parser_lun,ione
-		readu,parser_lun,nspec
-		
-		readu,parser_lun,ione
-		
-		readu,parser_lun,ibdate
-		readu,parser_lun,btime
-		readu,parser_lun,iedate
-		readu,parser_lun,etime
-		readu,parser_lun,rdum
-		readu,parser_lun,rdum
-		readu,parser_lun,iutm
-		readu,parser_lun,xorg
-		readu,parser_lun,yorg
-		readu,parser_lun,delx
-		readu,parser_lun,dely
-		readu,parser_lun,nx
-		readu,parser_lun,ny
-		readu,parser_lun,nz
-		readu,parser_lun,idum
-		readu,parser_lun,idum
-		readu,parser_lun,rdum
-		readu,parser_lun,rdum
-		readu,parser_lun,rdum
-		readu,parser_lun,ione
-		readu,parser_lun,ione
-		readu,parser_lun,nx2
-		readu,parser_lun,ny2
 		
 		; Store the compressed result
 		self.scalars->add,'name',type
@@ -301,9 +274,8 @@ pro header_parser::parse
 		arspec=strArr(nspec)
 		
 		; prefill
-		for i=0L, n_elements(arspec) -1 do begin
-			arspec[i]=self.prefill(4,10)
-		endfor
+		for i=0L, nspec-1 do arspec[i]='????????????????????????????????????????'
+
 	
 		; Now read nspec species
 		readu, parser_lun, arspec
