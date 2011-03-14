@@ -161,7 +161,7 @@ function header_parser::prefill,charlen,count
 	
 	target_f=replicate(target,count)
 	
-	return,target
+	return,target_f
 
 end
 
