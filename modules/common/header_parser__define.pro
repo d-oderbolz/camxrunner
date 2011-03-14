@@ -79,8 +79,11 @@
 ;       A new header_parser object.
 ;
 ; EXAMPLE:
+;       ASCII:
 ;       hp = obj_new('header_parser','CAMx-v4.51-co5-s173-sem064-aug-sept-2003/Outputs/ascii/CAMx-v4.51-co5-s173-sem064-aug-sept-2003.20030906.avrg.grd03.asc')
 ;
+;      BINARY:
+;      hp = obj_new('header_parser','/afs/psi.ch/intranet/LAC/projects/BAFU-PSAT/CAMxRuns/Runs/CAMx-v4.51-bafu-psat-2006-s326-sem084/Inputs/broken/run1/bc_bafu-psat_moz_060601.bin',1)
 ;   
 ;-
 ; =============================================================
@@ -204,7 +207,7 @@ pro header_parser::parse
 	if (FILE_TEST(self.filename,/ZERO_LENGTH) ) then message,'File is empty: ' + self.filename
 	
 	; Setup IO Error handler
-	ON_IOError, IO_Error
+	;ON_IOError, IO_Error
 	
 	; Depending on the flag is_binary we open ascii or not
 	
