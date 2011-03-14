@@ -205,8 +205,6 @@ pro header_parser::parse
 	
 	if ( self.is_binary ) then begin
 	
-		print,"Binary is extremely broken..."
-	
 		; Binary
 		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
 		
@@ -268,7 +266,7 @@ pro header_parser::parse
 		arspec=strArr(nspec)
 		
 		; prefill
-		for i=0L, nspec-1 do arspec[i]='????????????????????????????????????????'
+		for i=0L, nspec-1 do arspec[i]=self.prefill(4,10)
 
 	
 		; Now read nspec species
