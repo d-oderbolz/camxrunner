@@ -153,15 +153,9 @@ end
 function header_parser::prefill,charlen,count
 ; =============================================================
 
-	target=''
+	target=string(replicate(32B,count*charlen))
 	
-	for j=1,charlen do begin
-			target = target + '0'
-	endfor
-	
-	target_f=replicate(target,count)
-	
-	return,target_f
+	return,target
 
 end
 
@@ -211,11 +205,11 @@ pro header_parser::parse
 	
 	if ( self.is_binary ) then begin
 		; Binary
-		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED
 		
-		; We must prefill all string variables we want to read
-		type=self.prefill(4,10)
-		note=self.prefill(4,60)
+		; We must prefill string variables
+		; we read type and note in a single call
+		typeNote=self.prefill(4,70)
 		
 		ione=1
 		rdum=0.0
@@ -235,8 +229,13 @@ pro header_parser::parse
 		nx2=0
 		ny2=0
 		
-		readu,parser_lun,type
-		readu,parser_lun,note
+		readu,parser_lun,typeNote
+		
+		; Now build the type and note strings
+		type=strcompress(strjoin(typeNote[0:9]),/REMOVE_ALL)
+		note=strcompress(strjoin(typeNote[10:69]),/REMOVE_ALL)
+		
+		readu,parser_lun,ione
 		readu,parser_lun,nspec
 		
 		readu,parser_lun,ione
@@ -266,9 +265,9 @@ pro header_parser::parse
 		readu,parser_lun,ny2
 
 		; Store the compressed result
-		self.scalars->add,'name',strcompress(type,/REMOVE_ALL)
-		self.scalars->add,'type',strcompress(type,/REMOVE_ALL)
-		self.scalars->add,'note',strcompress(note,/REMOVE_ALL)
+		self.scalars->add,'name',type
+		self.scalars->add,'type',type
+		self.scalars->add,'note',note
 		self.scalars->add,'nspec',nspec
 		
 		self.scalars->add,'ibdate',ibdate
