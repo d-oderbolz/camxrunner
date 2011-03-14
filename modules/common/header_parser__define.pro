@@ -154,14 +154,12 @@ function header_parser::prefill,charlen,count
 ; =============================================================
 
 	target=''
-
-	for i=1,count do begin
 	
-		for j=1,charlen do begin
+	for j=1,charlen do begin
 			target = target + '0'
-		endfor
-	
 	endfor
+	
+	target_f=replicate(target,count)
 	
 	return,target
 
