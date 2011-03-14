@@ -101,8 +101,6 @@ function header_parser::init, filename, is_binary
 	; Fix optional stuff
 	if (N_ELEMENTS(is_binary) EQ 0)  then is_binary = 0
 	
-	if (is_binary) then message,"Binary I/O is not yet implemented!"
-	
 	; Exit if file is not readable
 	if (~ FILE_TEST(filename,/READ) ) then message,'File not readable: ' + filename
 	
@@ -128,6 +126,42 @@ function header_parser::init, filename, is_binary
 	self->parse
 	
 	return, 1
+end
+
+;+
+; =============================================================
+;
+; FUNCTIONNAME:
+;       HEADER_PARSER::PREFILL
+;
+; PURPOSE:
+;       Prefills a string for binary read. To read a 
+;       character*4(10) String, prefill the target string:
+;       target=prefill(4,10)
+;       readu,parser_lun,target
+;
+; CALLING SEQUENCE:
+;
+;       target=prefill(4,10)
+;       
+;       
+;-
+; =============================================================
+function header_parser::prefill,charlen,count
+; =============================================================
+
+	target=''
+
+	for i=1,count do begin
+	
+		for j=1,charlen do begin
+			target = target + '0'
+		endfor
+	
+	endfor
+	
+	return,target
+
 end
 
 ;+
@@ -169,7 +203,7 @@ pro header_parser::parse
 	; Is the file empty?
 	if (FILE_TEST(self.filename,/ZERO_LENGTH) ) then message,'File is empty: ' + self.filename
 	
-	; Setupt IO Error handler
+	; Setup IO Error handler
 	ON_IOError, IO_Error
 	
 	; Depending on the flag is_binary we open ascii or not
@@ -177,186 +211,320 @@ pro header_parser::parse
 	if ( self.is_binary ) then begin
 		; Binary
 		openr,parser_lun,self.filename,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+		
+		; We must prefill all string variables we want to read
+		type=self.prefill(4,10)
+		note=self.prefill(4,60)
+		
+		ione=1
+		rdum=0.0
+		nspec=0
+		ibdate=0
+		btime=0.0
+		iedate=0
+		etime=0.0
+		iutm=0
+		xorg=0.0
+		yorg=0.0
+		delx=0.0
+		dely=0.0
+		nx=0
+		ny=0
+		nz=0
+		nx2=0
+		ny2=0
+		
+		readu,parser_lun,type
+		readu,parser_lun,note
+		readu,parser_lun,nspec
+		
+		readu,parser_lun,ione
+		
+		readu,parser_lun,ibdate
+		readu,parser_lun,btime
+		readu,parser_lun,iedate
+		readu,parser_lun,etime
+		readu,parser_lun,rdum
+		readu,parser_lun,rdum
+		readu,parser_lun,iutm
+		readu,parser_lun,xorg
+		readu,parser_lun,yorg
+		readu,parser_lun,delx
+		readu,parser_lun,dely
+		readu,parser_lun,nx
+		readu,parser_lun,ny
+		readu,parser_lun,nz
+		readu,parser_lun,idum
+		readu,parser_lun,idum
+		readu,parser_lun,rdum
+		readu,parser_lun,rdum
+		readu,parser_lun,rdum
+		readu,parser_lun,ione
+		readu,parser_lun,ione
+		readu,parser_lun,nx2
+		readu,parser_lun,ny2
+
+		; Store the compressed result
+		self.scalars->add,'name',strcompress(type,/REMOVE_ALL)
+		self.scalars->add,'type',strcompress(type,/REMOVE_ALL)
+		self.scalars->add,'note',strcompress(note,/REMOVE_ALL)
+		self.scalars->add,'nspec',nspec
+		
+		self.scalars->add,'ibdate',ibdate
+		self.scalars->add,'btime',btime
+		self.scalars->add,'iedate',iedate
+		self.scalars->add,'etime',etime
+		self.scalars->add,'iutm',iutm
+		self.scalars->add,'xorg',xorg
+		self.scalars->add,'yorg',yorg
+		self.scalars->add,'delx',delx
+		self.scalars->add,'dely',dely
+		self.scalars->add,'nx',nx
+		self.scalars->add,'ny',ny
+		self.scalars->add,'nz',nz
+		
+		; Lets read the species
+		arspec=strArr(nspec)
+		
+		; prefill
+		for i=0L, n_elements(arspec) -1 do begin
+			arspec[i]=self.prefill(4,10)
+		endfor
+	
+		; Now read nspec species
+		readu, parser_lun, arspec
+		
+		; Trim
+		arspec = strcompress(arspec,/REMOVE_ALL)
+		
+		; Save this array in instance variable
+		self.arspec = Ptr_new(arspec)
+		
+		; Add species to internal hash
+		; Value is the index.
+		for i=0L, n_elements(arspec) -1 do begin
+			self.species->add,strtrim(arspec[i],2),i
+			; The same, but reversed (attention: key must be a string)
+			self.reversed_species->add,strtrim(i,2),strtrim(arspec[i],2)
+		endfor
+		
+		; Sanity check here!
+		if (n_elements(arspec) NE nspec ) then begin
+			print,"WRN: nspec (' + strtrim(nspec,2) + ') not equal to number of species counted (' + strtrim(n_elements(arspec),2) + ') We use the counted number!)"
+			self.scalars->add,'nspec',LONG(n_elements(arspec))
+		endif
+		
+		if (nx NE nx2 ) then begin
+			print,"WRN: Inconsistent header: first nx not eqal no second!"
+		endif
+		
+		if (ny NE ny2 ) then begin
+			print,"WRN: Inconsistent header: first ny not eqal no second!"
+		endif
+		
+		if (nx LT 1 ) then print,'WRN: nx less than 1 (' + strtrim(nx,2) + ')!'
+		if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
+		if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
+		
+		; Header length
+		print,"For binary files, the header length is given in bytes. (Wrong for BC files!)"
+		point_lun, -1 * parser_lun, pos
+		
+		self.header_length = pos
+		
 	endif else begin
 		; ASCII
 		openr,parser_lun,self.filename,/GET_LUN
-	endelse
+		
+		; Initialize variables
 	
-	; Initialize variables
+		; We read whole header into a array first, then parse that
+		header_lines=4
+		header_arr=strArr(header_lines)
 	
-	; We read whole header into a array first, then parse that
-	header_lines=4
-	header_arr=strArr(header_lines)
+		; Currently, all supported headers look the same.
+		; Later, we might need a case statment.
+		
+		; Code valid for AVERAGE, AIRQUALITY, BOUNDARY and EMISSIONS
+		
+		; Read header w/o species
+		readf, parser_lun, header_arr
+		
+		; Format specifications for writing header lines 2 to 4
+		line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
+		
+		; The thrid line is hard to read. Sometimes, 2 values "stick together"
+		; We use Michels criterion: if the length of the 3rd line is LE 100, we use the
+		; Format string, otherwise, we parse using strtrim
+		line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
+		line4 = '(4I5)'
+		
+		; Now parse each line
+		; The first line is tougher than it seems since
+		; this is valid:
+		; AIRQUALITYCAMx-v4.51-bafu3-june-2006-s147-sem045-nib_p20
+	
+		; Extract type (first 10 characters...)
+		; we trim to be on the safe side
+		type=strtrim(strmid(header_arr[0],0,10),2)
+		note=strtrim(strmid(header_arr[0],10),2)
+		
+		reads, header_arr[1], ione1, nspec, ibdate, btime, iedate, etime, format=line2
+		
+		if ( strlen(header_arr[2]) LE 100 ) then begin
+			print,"Header line 3 has less than or 100 characters, we use formatted input"
+			reads, header_arr[2], rdum1, rdum2, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum1, idum2, rdum3, rdum4, rdum5, format=line3
+		endif else begin
+			print,"Header line 3 has more than 100 characters, we split the string"
+		
+			line3 = strSplit(header_arr[2],' ',/EXTRACT)
+		
+			rdum1=line3[0]
+			rdum2=line3[1]
+			iutm=line3[2]
+			xorg=line3[3]
+			yorg=line3[4]
+			delx=line3[5]
+			dely=line3[6]
+			nx=line3[7]
+			ny=line3[8]
+			nz=line3[9]
+			idum1=line3[10]
+			idum2=line3[11]
+			rdum3=line3[12]
+			rdum4=line3[13]
+			rdum5=line3[14]
+		endelse
+		
+		reads, header_arr[3], ione2, ione3, nx2, ny2, format=line4
+	
+		; Is the file type supported?
+		if (~ self.file_types->iscontained(type)) then message,'Filetype not supported: ' + type
+	
+		; Add scalar data to internal hash
+		; w/o dummy variables
+		; Casted to proper type
+		
+		; For historical reasons, type is also called name
+		self.scalars->add,'name',type
+		self.scalars->add,'type',type
+		
+		self.scalars->add,'note',note
+		self.scalars->add,'nspec',LONG(strtrim(nspec,2))
+		self.scalars->add,'ibdate',ibdate
+		self.scalars->add,'btime',btime
+		self.scalars->add,'iedate',iedate
+		self.scalars->add,'etime',etime
+		self.scalars->add,'iutm',LONG(strtrim(iutm,2))
+		self.scalars->add,'xorg',FLOAT(strtrim(xorg,2))
+		self.scalars->add,'yorg',FLOAT(strtrim(yorg,2))
+		self.scalars->add,'delx',FLOAT(strtrim(delx,2))
+		self.scalars->add,'dely',FLOAT(strtrim(dely,2))
+		self.scalars->add,'nx',LONG(strtrim(nx,2))
+		self.scalars->add,'ny',LONG(strtrim(ny,2))
+		self.scalars->add,'nz',LONG(strtrim(nz,2))
+		
+		; Create array of (trimmed) species
+		arspec=strArr(nspec)
+	
+		; Now read nspec species
+		readf, parser_lun, arspec
+		
+		; Trim
+		arspec = strtrim(arspec,2)
+		
+		; Save this array in instance variable
+		self.arspec = Ptr_new(arspec)
+		
+		; Add species to internal hash
+		; Value is the index.
+		for i=0L, n_elements(arspec) -1 do begin
+			self.species->add,strtrim(arspec[i],2),i
+			; The same, but reversed (attention: key must be a string)
+			self.reversed_species->add,strtrim(i,2),strtrim(arspec[i],2)
+		endfor
+		
+		; Sanity check here!
+		if (n_elements(arspec) NE nspec ) then begin
+			print,"WRN: nspec (' + strtrim(nspec,2) + ') not equal to number of species counted (' + strtrim(n_elements(arspec),2) + ') We use the counted number!)"
+			self.scalars->add,'nspec',LONG(n_elements(arspec))
+		endif
+		
+		if (nx NE nx2 ) then begin
+			print,"WRN: Inconsistent header: first nx not eqal no second!"
+		endif
+		
+		if (ny NE ny2 ) then begin
+			print,"WRN: Inconsistent header: first ny not eqal no second!"
+		endif
+		
+		if (nx LT 1 ) then print,'WRN: nx less than 1 (' + strtrim(nx,2) + ')!'
+		if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
+		if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
+		
+		; Set the header length
+		; The header length does not include any time or height dependent stuff
+		
+		print,"For ASCII files, the header length is given in lines"
+		
+		CASE type OF
+		
+			'AVERAGE':		BEGIN
+											; 4 Fixed lines followed by the species
+											self.header_length = 4 + nspec
+										END
+	
+			'AIRQUALITY':	BEGIN
+											; 4 Fixed lines followed by the species
+											self.header_length = 4 + nspec
+										END
+	
+			'BOUNDARY':		BEGIN
+											; Its natsty, but we have to search for the first 
+											; update time in the file because the headers look totally
+											; different under different converters.
+											; Inefficent since get_update_times essentially does the same
+											
+											; Use for efficiency, IDLs STREGEX is SLOOOW.
+											MAX_HEADER_LENGTH=1000
+											
+											; This is what we seek
+											regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
+		
+											print,'Finding end of header of BC file - may take a while...'
+											print,'We assume header is less than ' + strtrim(MAX_HEADER_LENGTH,2) + ' lines long'
+											
+											data=strarr(MAX_HEADER_LENGTH)
+											
+											; Rewind file
+											Point_Lun,parser_lun,0
+											
+											readf, parser_lun, data
+											
+											; Apply regex
+											found=stregex(data,regex)
+											
+											; get matches
+											matches=WHERE(found NE -1, count)
+											
+											if (count NE -1) then begin
+												; the header lenght is the pos. of the first match because
+												; we are 0-based
+												self.header_length = matches[0]
+											endif else begin
+												message,'Could not find first update time, hence cannot determine header lenght!'
+											endelse
+										END
+	
+			'EMISSIONS':	BEGIN
+											; 4 Fixed lines followed by the species
+											self.header_length = 4 + nspec
+										END	
+	
+		ENDCASE
+		
 
-	; Currently, all supported headers look the same.
-	; Later, we might need a case statment.
-	
-	; Code valid for AVERAGE, AIRQUALITY, BOUNDARY and EMISSIONS
-	
-	; Read header w/o species
-	readf, parser_lun, header_arr
-	
-	; Format specifications for writing header lines 2 to 4
-	line2 = '(I2, I3, I7, F6.0, I6, F6.0)'
-	
-	; The thrid line is hard to read. Sometimes, 2 values "stick together"
-	; We use Michels criterion: if the length of the 3rd line is LE 100, we use the
-	; Format string, otherwise, we parse using strtrim
-	line3 = '(F10.1, F11.1, I4, F10.1, F11.1, F7.0, F7.0, I4, I4, I4, I4, I4, F7.0, F7.0, F7.0)'
-	line4 = '(4I5)'
-	
-	; Now parse each line
-	; The first line is tougher than it seems since
-	; this is valid:
-	; AIRQUALITYCAMx-v4.51-bafu3-june-2006-s147-sem045-nib_p20
-
-	; Extract type (first 10 characters...)
-	; we trim to be on the safe side
-	type=strtrim(strmid(header_arr[0],0,10),2)
-	note=strtrim(strmid(header_arr[0],10),2)
-	
-	reads, header_arr[1], ione1, nspec, ibdate, btime, iedate, etime, format=line2
-	
-	if ( strlen(header_arr[2]) LE 100 ) then begin
-		print,"Header line 3 has less than or 100 characters, we use formatted input"
-		reads, header_arr[2], rdum1, rdum2, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum1, idum2, rdum3, rdum4, rdum5, format=line3
-	endif else begin
-		print,"Header line 3 has more than 100 characters, we split the string"
-	
-		line3 = strSplit(header_arr[2],' ',/EXTRACT)
-	
-		rdum1=line3[0]
-		rdum2=line3[1]
-		iutm=line3[2]
-		xorg=line3[3]
-		yorg=line3[4]
-		delx=line3[5]
-		dely=line3[6]
-		nx=line3[7]
-		ny=line3[8]
-		nz=line3[9]
-		idum1=line3[10]
-		idum2=line3[11]
-		rdum3=line3[12]
-		rdum4=line3[13]
-		rdum5=line3[14]
-	endelse
-	
-	reads, header_arr[3], ione2, ione3, nx2, ny2, format=line4
-
-	; Is the file type supported?
-	if (~ self.file_types->iscontained(type)) then message,'Filetype not supported: ' + type
-
-	; Add scalar data to internal hash
-	; w/o dummy variables
-	; Casted to proper type
-	
-	; For historical reasons, type is also called name
-	self.scalars->add,'name',type
-	self.scalars->add,'type',type
-	
-	self.scalars->add,'note',note
-	self.scalars->add,'nspec',LONG(strtrim(nspec,2))
-	self.scalars->add,'ibdate',ibdate
-	self.scalars->add,'btime',btime
-	self.scalars->add,'iedate',iedate
-	self.scalars->add,'etime',etime
-	self.scalars->add,'iutm',LONG(strtrim(iutm,2))
-	self.scalars->add,'xorg',FLOAT(strtrim(xorg,2))
-	self.scalars->add,'yorg',FLOAT(strtrim(yorg,2))
-	self.scalars->add,'delx',FLOAT(strtrim(delx,2))
-	self.scalars->add,'dely',FLOAT(strtrim(dely,2))
-	self.scalars->add,'nx',LONG(strtrim(nx,2))
-	self.scalars->add,'ny',LONG(strtrim(ny,2))
-	self.scalars->add,'nz',LONG(strtrim(nz,2))
-	
-	; Create array of (trimmed) species
-	arspec=strArr(nspec)
-
-	; Now read nspec species
-	readf, parser_lun, arspec
-	
-	; Trim
-	arspec = strtrim(arspec,2)
-	
-	; Save this array in instance variable
-	self.arspec = Ptr_new(arspec)
-	
-	; Add species to internal hash
-	; Value is the index.
-	for i=0L, n_elements(arspec) -1 do begin
-		self.species->add,strtrim(arspec[i],2),i
-		; The same, but reversed (attention: key must be a string)
-		self.reversed_species->add,strtrim(i,2),strtrim(arspec[i],2)
-	endfor
-	
-	; Sanity check here!
-	if (n_elements(arspec) NE nspec ) then begin
-		print,"WRN: nspec (' + strtrim(nspec,2) + ') not equal to number of species counted (' + strtrim(n_elements(arspec),2) + ') We use the counted number!)"
-		self.scalars->add,'nspec',LONG(n_elements(arspec))
-	endif
-	
-	if (nx LT 1 ) then print,'WRN: nx less than 1 (' + strtrim(nx,2) + ')!'
-	if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
-	if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
-	
-	; Set the header length
-	; The header length does not include any time or height dependent stuff
-	CASE type OF
-	
-		'AVERAGE':		BEGIN
-										; 4 Fixed lines followed by the species
-										self.header_length = 4 + nspec
-									END
-
-		'AIRQUALITY':	BEGIN
-										; 4 Fixed lines followed by the species
-										self.header_length = 4 + nspec
-									END
-
-		'BOUNDARY':		BEGIN
-										; Its natsty, but we have to search for the first 
-										; update time in the file because the headers look totally
-										; different under different converters.
-										; Inefficent since get_update_times essentially does the same
-										
-										; Use for efficiency, IDLs STREGEX is SLOOOW.
-										MAX_HEADER_LENGTH=1000
-										
-										; This is what we seek
-										regex='^ {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2} {1,}[0-9]{4} {1,}[0-9]{1,2}\.[0-9]{0,2}$'
-	
-										print,'Finding end of header of BC file - may take a while...'
-										print,'We assume header is less than ' + strtrim(MAX_HEADER_LENGTH,2) + ' lines long'
-										
-										data=strarr(MAX_HEADER_LENGTH)
-										
-										; Rewind file
-										Point_Lun,parser_lun,0
-										
-										readf, parser_lun, data
-										
-										; Apply regex
-										found=stregex(data,regex)
-										
-										; get matches
-										matches=WHERE(found NE -1, count)
-										
-										if (count NE -1) then begin
-											; the header lenght is the pos. of the first match because
-											; we are 0-based
-											self.header_length = matches[0]
-										endif else begin
-											message,'Could not find first update time, hence cannot determine header lenght!'
-										endelse
-									END
-
-		'EMISSIONS':	BEGIN
-										; 4 Fixed lines followed by the species
-										self.header_length = 4 + nspec
-									END	
-
-	ENDCASE
+	endelse ; binary?
 	
 	; Free the LUN (closes unit)
 	IF N_Elements(parser_lun) NE 0 THEN Free_Lun, parser_lun
@@ -569,6 +737,11 @@ end
 function header_parser::get_update_times
 ; =============================================================
 
+	if ( self.is_binary ) then begin
+		print,'WRN: Cannot get update times for binary files'
+		return,0
+	endif
+	
 	; Default
 	update_times=!VALUES.F_NAN
 	
