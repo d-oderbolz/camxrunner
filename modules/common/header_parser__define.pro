@@ -211,23 +211,23 @@ pro header_parser::parse
 		; we read type and note in a single call
 		typeNote=self.prefill(4,70)
 		
-;		ione=1
-;		rdum=0.0
-;		nspec=0
-;		ibdate=0
-;		btime=0.0
-;		iedate=0
-;		etime=0.0
-;		iutm=0
-;		xorg=0.0
-;		yorg=0.0
-;		delx=0.0
-;		dely=0.0
-;		nx=0
-;		ny=0
-;		nz=0
-;		nx2=0
-;		ny2=0
+		ione=1L
+		rdum=0.0
+		nspec=0L
+		ibdate=0L
+		btime=0.0
+		iedate=0L
+		etime=0.0
+		iutm=0L
+		xorg=0.0
+		yorg=0.0
+		delx=0.0
+		dely=0.0
+		nx=0L
+		ny=0L
+		nz=0L
+		nx2=0L
+		ny2=0L
 		
 		readu,parser_lun,typeNote
 		
