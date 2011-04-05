@@ -305,7 +305,7 @@ $statement"
 	
 	if [[ $retval -ne 0 ]]
 	then
-		main.dieGracefully "Error in SQL statement: $sql"
+		main.dieGracefully "Error in SQL statement ($db_file): $sql"
 	fi
 	
 	echo "$result"
@@ -446,7 +446,7 @@ COMMIT TRANSACTION;"
 	if [[ $retval -ne 0 ]]
 	then
 		# Even after retrying, we failed
-		main.dieGracefully "Error in SQL statement: $sql"
+		main.dieGracefully "Error in SQL statement ($db_file): $sql"
 	fi
 }
 
