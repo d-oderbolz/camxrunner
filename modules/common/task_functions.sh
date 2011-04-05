@@ -1137,9 +1137,9 @@ function common.task.Worker()
 				
 				if [[ $CXR_RELOAD_CONF == true ]]
 				then
-					main.log -v "CXR_RELOAD_CONF is true, we (silently) reload the config..."
+					main.log -v "CXR_RELOAD_CONF is true, we reload the config..."
 					
-					main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}" &> /dev/null
+					main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 				fi
 				
 				main.log -a -B "Worker $CXR_WORKER_ID (PID: $CXR_WORKER_PID on $CXR_MACHINE) assigned to $module (invocation $invocation) for $CXR_DATE"
