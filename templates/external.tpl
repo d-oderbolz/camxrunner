@@ -20,7 +20,7 @@ ls -1 CAMx.????????.in > $tmpfile
 while read file
 do
 	ln -s -f $file CAMx.in
-	aprun -n CXR_NUMBER_OF_TASKS -N CXR_TASKS_PER_NODE -d $CXR_CPUS_PER_TASK $CXR_MODEL_EXEC
+	aprun -n $CXR_NUMBER_OF_TASKS -N $CXR_TASKS_PER_NODE -d $CXR_CPUS_PER_TASK $CXR_MODEL_EXEC
 done < $tmpfile
 
 rm $tmpfile

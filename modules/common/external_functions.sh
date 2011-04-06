@@ -65,10 +65,10 @@ function common.external.init()
 		main.dieGracefully "Could not find ${template}!"
 	fi
 	
-	main.log -a "Preparing external run on a HPC machine..."
+	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* are expected."
 	
 	tmpdir=$(common.runner.createTempDir $FUNCNAME false)
-	main.log -a "You will find all files for the run in $tmpdir"
+	main.log -a -B "You will find all files for the run in $tmpdir"
 	
 	ofile=$tmpdir/run_script.sh
 	
@@ -88,6 +88,25 @@ function common.external.init()
 		fi
 		
 	done < $template
+	
+	# Now create all CAMx.in files
+	# Source the model
+	
+	module_path="$(common.module.getPath "model")"
+	source $module_path
+	
+	# We must modify the rule for the CAMx.in files
+	CXR_MODEL_CTRL_FILE_RULE='${tmpdir}/CAMx.${CXR_DATE_RAW}.in'
+	
+	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 )) )
+	do
+		common.date.setVars "$CXR_START_DATE" "$iOffset"
+		
+		# Call the relevant functions of the model module
+		set_variables
+		write_model_control_file
+
+	done
 	
 	main.log -a "Done."
 	
