@@ -14,7 +14,7 @@ $(echo -e "\043")SBATCH --ncpus-per-task=${CXR_CPUS_PER_TASK}
 
 export OMP_NUM_THREADS=$CXR_TASKS_PER_NODE
 
-tmpfile=$(mktemp /tmp/cxr.XXXXXXX)
+tmpfile=\$(mktemp /tmp/cxr.XXXXXXX)
 
 ls -1 CAMx.????????.in > $tmpfile
 
