@@ -67,7 +67,7 @@ function common.external.init()
 	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* are expected."
 	
-	tmpdir=$(common.runner.createTempDir $FUNCNAME false)
+	tmpdir=$(common.runner.createTempDir run-external false)
 	main.log -a -B "You will find all files for the run in $tmpdir"
 	
 	ofile=$tmpdir/run_script.sh
