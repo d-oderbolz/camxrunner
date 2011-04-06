@@ -363,7 +363,7 @@ function initial_conditions()
 					mozart_array="["
 					camx_array="["
 					
-					for iMapping in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
+					for iMapping in $(seq 0 $(( $CXR_NUMBER_OF_GCTM_SPECIES - 1 )))
 					do
 						
 						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$iMapping]} | cut -d: -f2)

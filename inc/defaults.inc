@@ -1013,7 +1013,7 @@ CXR_CAMX_MOZART_MAPPING[12]=ISOP:ISOP_VMR_inst
 CXR_CAMX_MOZART_MAPPING[13]=TOL:TOLUENE_VMR_inst
 
 # Automatically count # species (no dummy)
-CXR_NUM_MOZART_SPECIES=$(( ${#CXR_CAMX_MOZART_MAPPING[@]} ))
+CXR_NUMBER_OF_GCTM_SPECIES=$(( ${#CXR_CAMX_MOZART_MAPPING[@]} ))
 
 ####################
 # Plotting BC data

@@ -361,7 +361,7 @@ function common.performance.getSystemLoadPercent()
 	rawLoad=$(top -b -n1 | head -n1 | awk '{print $NF}')
 	
 	# Divide this number by number of cores and multply by 100
-	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUM_CORES" 2)
+	Load=$(common.math.FloatOperation "($rawLoad * 100) / $CXR_NUMBER_OF_CORES" 2)
 	
 	echo $Load
 	

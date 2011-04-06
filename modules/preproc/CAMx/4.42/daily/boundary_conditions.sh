@@ -312,7 +312,7 @@ function boundary_conditions()
 					mozart_array="["
 					camx_array="["
 					
-					for iSpec in $(seq 0 $(( $CXR_NUM_MOZART_SPECIES - 1 )))
+					for iSpec in $(seq 0 $(( $CXR_NUMBER_OF_GCTM_SPECIES - 1 )))
 					do
 						
 						mozart_spec=$(echo ${CXR_CAMX_MOZART_MAPPING[$iSpec]} | cut -d: -f2)
