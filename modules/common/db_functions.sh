@@ -45,6 +45,55 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
+# Function: common.db.bootstrap
+#
+# Since the DB is a core functionality, it is needed even to start the installer.
+# This function compiles sqlite, if needed.
+#
+################################################################################
+function common.db.bootstrap()
+################################################################################
+{
+	main.log -a "It seems that you have no sqlite available. I will do an ad-hoc compilation..."
+	
+	# We need to load installer stuff
+	source $CXR_CENF_DIR/installer.conf
+	
+	src_dir=$CXR_SQLITE_SRC_DIR
+	
+	binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}
+				
+	# We constantly add to this file
+	logfile=${binary_name}.log
+	
+	echo "**** $(date) Compiling source in $src_dir on $(uname -n)...\n" | tee -a $logfile
+	
+	if [[ -L "$src_dir" ]]
+	then
+		echo "(a link to $(common.fs.getLinkTarget $src_dir))" | tee -a $logfile
+	fi
+	
+	cd $src_dir || main.dieGracefully "Could not change to $src_dir"
+	
+	libdir=${CXR_LIB_DIR}/${executable}/$HOSTTYPE
+	mkdir -p $libdir
+	
+	# Clean up whatever there was
+	echo "make clean DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
+	make clean DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile
+	
+	# Make it!
+	echo "make DESTINATION=${CXR_BIN_DIR} LIBDIR=${libdir} SUFFIX=${suffix}" | tee -a $logfile
+	make DESTINATION="${CXR_BIN_DIR}" LIBDIR=${libdir} SUFFIX="${suffix}" | tee -a $logfile 
+
+	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
+	then
+		main.dieGracefully "The compilation of $executable did not complete successfully"
+	fi
+
+}
+
+################################################################################
 # Function: common.db.init
 #
 # Performs version checks on all visible sqlite DBs. It also checks the integrity of 
@@ -87,14 +136,25 @@ function common.db.init()
 	set +e
 	
 	${CXR_SQLITE_EXEC} $x <<-EOT
-	
 	SELECT * FROM sqlite_master WHERE 1=2;
-	
 	EOT
 	
 	if [[ $? -ne 0 ]]
 	then
-		main.dieGracefully "It seems that the binary sqlite must be recompiled (./CAMxRunner -I) , even the simplest query failed."
+		# Failed, we try to bootstrap
+		common.db.bootstrap
+		# The name needs to be reset
+		CXR_SQLITE_EXEC="$(main.getBinaryName sqlite3 true)"
+		
+		# Retry
+		${CXR_SQLITE_EXEC} $x <<-EOT
+		SELECT * FROM sqlite_master WHERE 1=2;
+		EOT
+		
+		if [[ $? -ne 0 ]]
+		then
+			main.dieGracefully "It seems that the binary sqlite must be recompiled (./CAMxRunner -I) , even the simplest query failed."
+		fi
 	fi
 	
 	# Test if we have libfunctions

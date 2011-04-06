@@ -1177,7 +1177,7 @@ function common.runner.releaseLock()
 		if [[ -e "$target" && "$(dirname "$target")" == ${CXR_TMP_DIR} ]]
 		then
 			# and the target. For security reasons, we
-			# check if it resides really in CXR_TEMP_DIR
+			# check if it resides really in CXR_TMP_DIR
 			rm -f "$target"
 		fi
 		
