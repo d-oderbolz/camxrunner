@@ -726,7 +726,7 @@ CXR_INSTANCE_HASH_DUMMY_FILES=Dummy_Files
 
 # In this hash, we store links that got new targets
 # These will be re-created after the run
-CXR_INSTANCE_HASH_RELOCATED_LINKS=Relaocated_Links
+CXR_INSTANCE_HASH_RELOCATED_LINKS=Relocated_Links
 
 # This hash holds module-specific config items
 CXR_INSTANCE_HASH_CONF=conf

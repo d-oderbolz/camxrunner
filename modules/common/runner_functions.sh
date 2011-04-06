@@ -820,13 +820,17 @@ function common.runner.removeTempFiles()
 		
 		set $pair
 		
-		link="${1:-/dev/null}"
-		target="${2:-/dev/null}"
+		# Default is the empty string
+		link="${1:-}"
+		target="${2:-}"
 		
-		# Create new link
-		if [[ ! -f "$link" ]]
+		if [[ "$link" && "$target" ]]
 		then
-			ln -s -f "$target" "$link"
+			# Create new link
+			if [[ ! -f "$link" ]]
+			then
+				ln -s -f "$target" "$link"
+			fi
 		fi
 	done
 	
