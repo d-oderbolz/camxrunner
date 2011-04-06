@@ -566,22 +566,31 @@ function common.hash.has?()
 		# get the rowcount
 		rowcount=$(common.db.getResultSet "$db_file" "$level" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 
-		if [[ "$rowcount" -gt 0 ]]
-		then
-			# Get the value
-			value=$(common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
+		if [[ "${rowcount}" =~ $CXR_PATTERN_NUMERIC ]]
+		then 
+			# OK, numeric
+			if [[ "$rowcount" -gt 0 ]]
+			then
+				# Get the value
+				value=$(common.db.getResultSet "$db_file" "$level" "SELECT value FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
+				
+				# Fill cache
+				CXR_CACHE_H_HASH="$hash"
+				CXR_CACHE_H_LEVEL="$level"
+				CXR_CACHE_H_KEY="$key"
+				CXR_CACHE_H_VALUE="$value"
+				_has=true
+				_value=$value
+			else
+				_has=false
+			fi # Rowcount-gt-0?
 			
-			# Fill cache
-			CXR_CACHE_H_HASH="$hash"
-			CXR_CACHE_H_LEVEL="$level"
-			CXR_CACHE_H_KEY="$key"
-			CXR_CACHE_H_VALUE="$value"
-			_has=true
-			_value=$value
 		else
-			_has=false
-		fi
-	fi
+			# Not numeric
+			main.dieGracefully "DB did not return numeric answer: "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1; ($db_file)"
+		fi # is-numeric?
+		
+	fi # db file around
 	
 	echo $_has
 }
