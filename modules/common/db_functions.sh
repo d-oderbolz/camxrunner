@@ -57,8 +57,10 @@ function common.db.bootstrap()
 	main.log -a "It seems that you have no sqlite available. I will do an ad-hoc compilation..."
 	
 	# We need to load installer stuff
-	source $CXR_CENF_DIR/installer.conf
+	source $CXR_CONF_DIR/installer.conf
 	
+	#No suffix
+	suffix=
 	src_dir=$CXR_SQLITE_SRC_DIR
 	
 	binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}
