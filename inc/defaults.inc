@@ -43,13 +43,13 @@ CXR_START_EPOCH="$(date "+%s")"
 # This is our process number (to be used when exiting on error)
 CXR_PID=$$
 
-# This pattern is used to find numbers
+# This pattern is used to identify numbers
 #
-#                    Word Boundaries -----+
-#                    |                    |
-#                    | Possible minus     |
-#                    | |                  |
-CXR_PATTERN_NUMERIC='\b-?[0-9]+(\.[0-9]*)?\b'
+#                    Line Boundaries ----+
+#                    |                   |
+#                    | Possible minus    |
+#                    | |                 |
+CXR_PATTERN_NUMERIC='^-?[0-9]+(\.[0-9]*)?$'
 
 ################################################################################
 # Default Behaviour     ########################################################
