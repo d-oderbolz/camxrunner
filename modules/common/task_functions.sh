@@ -1222,9 +1222,6 @@ function common.task.spawnWorkers()
 	local iWorker
 	local nWorkers
 	
-	# This variable makes sure the controller is responsible for cleanup
-	CXR_CONTROLLER_CLEANUP_AUTHORITY=true
-	
 	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
 	then
 		mb_needed=$(common.check.PredictModelOutputMb)

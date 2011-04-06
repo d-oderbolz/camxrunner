@@ -693,15 +693,7 @@ function main.dieGracefully()
 	local maxNests
 	local last
 	
-	# Pseudo-Singleton
-	if [[ "${CXR_TERMINATION_IN_PROGRESS:-false}" == true ]]
-	then
-		return $CXR_RET_OK
-	else
-		CXR_TERMINATION_IN_PROGRESS=true
-	fi
-	
-	# touching this file flags this as abnormal
+	# touching this file flags this as abnormal termination
 	touch "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE"
 	
 	# Stop this run on all machines
@@ -734,11 +726,8 @@ function main.dieGracefully()
 
 	main.log -a  "Note that it may take a while for all processes to stop.\n##########################################################"
 	
-	if [[ "${CXR_CONTROLLER_CLEANUP_AUTHORITY:-false}" == false ]]
-	then
-		# Cleanup kills the processes
-		main.doCleanup
-	fi
+	# Cleanup kills the processes
+	main.doCleanup
 }
 
 ################################################################################
