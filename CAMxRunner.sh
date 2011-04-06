@@ -113,11 +113,16 @@ function main.usage()
 	  The list of modules to be run can be modified (the order is unimportant):
 	
 	  -r"list of modules or types"
-	      When using -r together with more than one instance, 
-	      this instance will only work on the modules given.
-        This can be used to assign CPU intensive tasks like the model to strong machines.
+	        When using -r together with more than one instance, 
+	        this instance will only work on the modules given.
+          This can be used to assign CPU intensive tasks like the model to strong machines.
+        
+	  -e    Prepares an external model run on an MPI machine. This just generates CAMx.in 
+	        files and a script to run the job on the HPC system. 
+	        Uses external.conf as last conf file, allowing you to rewrite any 
+	        directories and/or rules.
 	  
-	  -L   List all available modules. (this command is sensitive to the run name)
+	  -L    List all available modules. (this command is sensitive to the run name)
 	  ----------------------------------------------------------------------------
 	  Examples:
 	  
@@ -225,7 +230,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dSlvVFwct:sD:nP:ITr:CRLh" opt
+while getopts ":dSlvVFwct:sD:nP:ITr:CReLh" opt
 do
 	case "${opt}" in
 		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_PARALLEL_PROCESSING=false ; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -253,6 +258,7 @@ do
 		R) 	CXR_HOLLOW=true; CXR_USER_TEMP_REPEAT_RUN=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
 		
 		r) 	CXR_RUN_LIST="${OPTARG:-}" ;;
+		e) 	CXR_HOLLOW=true; CXR_EXTERNAL=true ;;
 		L) 	CXR_HOLLOW=true; CXR_USER_TEMP_LIST_MODULES=true;;
 		
 		h) CXR_HOLLOW=true; main.usage ;;

@@ -360,6 +360,9 @@ CXR_CLEANUP=false
 # When set to true, we show only info and quit
 CXR_LIST_INFO=false
 
+# If true, we prepare an external run
+CXR_EXTERNAL=false
+
 # When true, we display all modules
 CXR_LIST_MODULES=false
 
