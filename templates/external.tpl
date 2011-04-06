@@ -5,10 +5,11 @@
 # Local variables cannot (and should not) be expanded
 # make sure that these are not on the same line as an expandable variable
 # because we work line-per-line.
+# If you need to expand a commented line, echo the comment using -e "\043"
 
-#SBATCH --ntasks=${CXR_NUMBER_OF_TASKS}
-#SBATCH --ntasks-per-node=${CXR_TASKS_PER_NODE}
-#SBATCH --ncpus-per-task=${CXR_CPUS_PER_TASK}
+$(echo -e "\043")SBATCH --ntasks=${CXR_NUMBER_OF_TASKS}
+$(echo -e "\043")SBATCH --ntasks-per-node=${CXR_TASKS_PER_NODE}
+$(echo -e "\043")SBATCH --ncpus-per-task=${CXR_CPUS_PER_TASK}
 #SBATCH --time=00:30:00
 
 export OMP_NUM_THREADS=$CXR_TASKS_PER_NODE
