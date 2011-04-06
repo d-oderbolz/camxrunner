@@ -102,78 +102,12 @@ function getProblemSize()
 function set_variables() 
 ################################################################################
 {
-	local redirected
-	
-	redirected=${1:-false}
-	
 	# First of all, reset checks.
 	# We will later continuously add entries to these 2 lists.
 	# CAREFUL: If you add files to CXR_CHECK_THESE_OUTPUT_FILES,
 	# these are deleted if he user runs the -F option. Do not mix up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
-	
-	# Adjust output dir if needed (to use a local FS for the model - FAST!)
-	# do only if we did not already do it
-	if [[ $redirected == false && $CXR_USE_SCRATCH == true && -w $CXR_SCRATCH_DIR ]]
-	then
-		# We will locally switch OUTPUT_DIR to a temp dir
-		dir=$(common.runner.createTempDir ${FUNCNAME}-out)
-		
-		if [[ "$dir" ]]
-		then
-			main.log -a "Since CXR_USE_SCRATCH is true, we write the model output to $dir"
-			
-			# The model might need some files from the previous day,
-			# which are not in the scratch dir
-
-			if [[ "$(common.date.isFirstDayOfSimulation?)" == false || $CXR_START_WITH_RESTART == true ]]
-			then
-				main.log -a "Pre-evaluating restart rules..."
-				CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
-				
-				if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-				then
-					CXR_NESTED_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
-				else
-					CXR_NESTED_GRID_RESTART_INPUT_FILE=
-				fi
-				
-				# PiG 
-				if [[ "$CXR_PLUME_IN_GRID" == true ]]
-				then
-					CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
-				fi # PiG?
-			
-				if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
-				then
-					CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
-					
-					if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-					then
-						CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
-					else
-						CXR_SA_NESTED_RESTART_INPUT_FILE=
-					fi # Are there nested grids?
-					
-				fi # SA tools?
-					
-			fi # did we pass the first day?
-			
-			# Store old directory name and switch
-			CXR_REAL_OUTPUT_DIR=$CXR_OUTPUT_DIR
-			CXR_OUTPUT_DIR=$dir
-		else
-			main.log -w "Could not create tempdir in CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR). Will not use it."
-		fi
-	else
-		# Turn off scratch (maybe not writeable)
-		if [[ $redirected == false && $CXR_USE_SCRATCH == true ]]
-		then
-			main.log -w "It seems that CXR_SCRATCH_DIR ($CXR_SCRATCH_DIR) is not writeable. Will not use it."
-			CXR_USE_SCRATCH=false
-		fi
-	fi
 	
 	# Evaluate most important rules first
 	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE)
@@ -247,47 +181,45 @@ function set_variables()
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_INITIAL_CONDITIONS_INPUT_FILE"
 	else
 		## Only needed after the first day 
-		if [[ $CXR_USE_SCRATCH == false ]]
+
+		# We use scratch, these rules where already expanded
+		CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
+		
+		if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
 		then
-			# We use scratch, these rules where already expanded
-			CXR_MASTER_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_MASTER_GRID_RESTART_FILE_RULE" false CXR_MASTER_GRID_RESTART_FILE_RULE)
+			CXR_NESTED_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
+		else
+			CXR_NESTED_GRID_RESTART_INPUT_FILE=
+		fi
+		
+		# PiG 
+		if [[ "$CXR_PLUME_IN_GRID" == true ]]
+		then
+			CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
+		fi # PiG?
+	
+		if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
+		then
+			CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
 			
 			if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
 			then
-				CXR_NESTED_GRID_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_NESTED_GRID_RESTART_FILE_RULE" false CXR_NESTED_GRID_RESTART_FILE_RULE)
+				CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
 			else
-				CXR_NESTED_GRID_RESTART_INPUT_FILE=
-			fi
+				CXR_SA_NESTED_RESTART_INPUT_FILE=
+			fi # Are there nested grids?
 			
-			# PiG 
-			if [[ "$CXR_PLUME_IN_GRID" == true ]]
-			then
-				CXR_PIG_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PIG_RESTART_FILE_RULE" false CXR_PIG_RESTART_FILE_RULE)
-			fi # PiG?
+		fi # Probing
 		
-			if [[ "$CXR_PROBING_TOOL" == "OSAT" || "$CXR_PROBING_TOOL" == "PSAT" || "$CXR_PROBING_TOOL" == "GOAT" || "$CXR_PROBING_TOOL" == "APCA" ]] 
-			then
-				CXR_SA_MASTER_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_MASTER_RESTART_FILE_RULE" false CXR_SA_MASTER_RESTART_FILE_RULE)
-				
-				if [[ $CXR_NUMBER_OF_GRIDS -gt 1 ]]
-				then
-					CXR_SA_NESTED_RESTART_INPUT_FILE=$(common.runner.evaluateRule "$CXR_SA_NESTED_RESTART_FILE_RULE" false CXR_SA_NESTED_RESTART_FILE_RULE)
-				else
-					CXR_SA_NESTED_RESTART_INPUT_FILE=
-				fi # Are there nested grids?
-				
-			fi # Probing
-			
-			if [[ "$CXR_PLUME_IN_GRID" == true ]]
-			then
-				#Checks
-				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
-			fi # PiG?
+		if [[ "$CXR_PLUME_IN_GRID" == true ]]
+		then
+			#Checks
+			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_POINT_SOURCES_INPUT_FILE $CXR_PIG_RESTART_INPUT_FILE"
+		fi # PiG?
 
-			#Checks are needed in any case
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_SA_MASTER_RESTART_INPUT_FILE $CXR_SA_NESTED_RESTART_INPUT_FILE"
-			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
-		fi # Using scratch?
+		#Checks are needed in any case
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_SA_MASTER_RESTART_INPUT_FILE $CXR_SA_NESTED_RESTART_INPUT_FILE"
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MASTER_GRID_RESTART_INPUT_FILE $CXR_NESTED_GRID_RESTART_INPUT_FILE"
 	
 	fi #First day?
 	
@@ -1140,20 +1072,6 @@ function model()
 			
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
-			
-			if [[ $CXR_USE_SCRATCH == true ]]
-			then
-				# If we used scratch, move data
-				mv "$CXR_OUTPUT_DIR"/* "$CXR_REAL_OUTPUT_DIR" || main.dieGracefully "Could not move model output from $CXR_OUTPUT_DIR to $CXR_REAL_OUTPUT_DIR"
-				
-				# tempdir will be deleted automatically
-			
-				# Reset value
-				CXR_OUTPUT_DIR="$CXR_REAL_OUTPUT_DIR"
-				
-				# Re-evaluate rules
-				set_variables true
-			fi # Using scratch
 			
 			# Check for Errors and Warnings
 			

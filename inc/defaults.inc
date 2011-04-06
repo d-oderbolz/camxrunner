@@ -246,10 +246,6 @@ CXR_ALIVE=alive
 # Set inital values of features ################################################
 ################################################################################
 
-# If CXR_USE_SCRATCH is true, the model writes its output 
-# directly to CXR_SCRATCH_DIR. After the run, the output is moved to $CXR_OUTPUT_DIR
-CXR_USE_SCRATCH=true
-
 # If CXR_RELOAD_CONF is true, the configration is reloaded before
 # each new task. This is only needed if your configuration changes over time
 # (e. g. "Use these windfiles for day 1 and 4"), otherwise it slows things down somewhat
