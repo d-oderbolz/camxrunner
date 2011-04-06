@@ -135,7 +135,7 @@ function common.db.init()
 	# turn off errexit
 	set +e
 	
-	sql_version="$( ${CXR_SQLITE_EXEC} -version)"
+	sql_version="$( ${CXR_SQLITE_EXEC} -version )"
 	
 	# Either we get no version string or maybe it is too low
 	if [[ -z "sql_version" || $(common.math.compareVersions 3.7 $sql_version) -eq -1 ]]
