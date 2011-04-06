@@ -73,7 +73,7 @@ function getNumInvocations()
 	# This module needs as many invocations as days
 	# You cold ask: "Why is this not a daily module?" 
 	# Its because initial_conditions needs the data (of day 1, that is)
-	echo ${CXR_NUMBER_OF_SIM_DAYS}
+	echo ${CXR_NUMBER_OF_SIMULATION_DAYS}
 }
 
 ################################################################################

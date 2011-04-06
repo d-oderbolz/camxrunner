@@ -295,7 +295,7 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
 # count simulation days
-CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
+CXR_NUMBER_OF_SIMULATION_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
 
 # Init Db subsystem
 common.db.init

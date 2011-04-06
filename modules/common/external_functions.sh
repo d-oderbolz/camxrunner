@@ -55,7 +55,34 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.external.init()
 ################################################################################
 {
+	local tempdir
+	local template
+	
+	template=$CXR_TEMPLATES_DIR/external.tpl
+	
+	if [[ ! -e $template ]]
+	then
+		main.dieGracefully "Could not find ${template}!"
+	fi
+	
 	main.log -a "Preparing external run on a HPC machine..."
+	
+	tmpdir=$(common.runner.createTempDir $FUNCNAME false)
+	main.log -a "You will find all files for the run in $tmpdir"
+	
+	ofile=$tmpdir/run_script.sh
+	
+	cd $tmpdir
+	
+	# Evaluate template
+	while read line
+	do
+		newline=$(common.runner.evaluateRule "$line" true line false)
+		echo "$newline" >> $ofile
+	done < $template
+	
+	main.log -a "Done."
+	
 	
 	
 }

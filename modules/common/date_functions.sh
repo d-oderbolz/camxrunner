@@ -673,7 +673,7 @@ function common.date.DaysLeftInWeek()
 	if [[ $truncate == true ]]
 	then
 		start_offset=$(common.date.toOffset $dim_d)
-		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
+		difference=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - $start_offset ))
 		
 		if [[ $difference -lt $left ]]
 		then
@@ -727,7 +727,7 @@ function common.date.DaysLeftInMonth()
 	if [[ $truncate == true ]]
 	then
 		start_offset=$(common.date.toOffset $dim_d)
-		difference=$(( ${CXR_NUMBER_OF_SIM_DAYS} - $start_offset ))
+		difference=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - $start_offset ))
 		
 		if [[ $difference -lt $left ]]
 		then
@@ -824,7 +824,7 @@ function common.date.toOffset()
 		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
 		echo ""
 		return $CXR_RET_ERROR
-	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 	then
 		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct date in YYYY-MM-DD form. Got $*"
 		echo ""
@@ -907,12 +907,12 @@ function common.date.getModelHour()
 	
 	if [[ "${offset}" -lt 0 ]]
 	then
-		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )). Got $*"
+		main.log -e  "The date you requested is smaller than the start date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )). Got $*"
 		echo ""
 		return $CXR_RET_ERROR
-	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+	elif [[ ${offset} -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 	then
-		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )). Got $*"
+		main.log -e  "The date you requested is larger than the end date of the simulation.\nMake sure to supply a correct offset in the range 0 - $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )). Got $*"
 		echo ""
 		return $CXR_RET_ERROR
 	elif [[ ${offset} -eq 0 ]]
@@ -942,7 +942,7 @@ function common.date.getTotalModelHours()
 ################################################################################
 {
 	local totHours
-	totHours=$(common.date.getModelHour $(( $CXR_NUMBER_OF_SIM_DAYS - 1 )) )
+	totHours=$(common.date.getModelHour $(( $CXR_NUMBER_OF_SIMULATION_DAYS - 1 )) )
 	
 	# Add the hours of the last day        (given like 2400)
 	#                                                    |
@@ -1451,7 +1451,7 @@ function common.date.isFirstDayOfSimulation? ()
 function common.date.isLastDayOfSimulation? ()
 ################################################################################
 {
-	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIM_DAYS} -1 ))"  ]]
+	if [[ "$CXR_DAY_OFFSET" -eq "$((${CXR_NUMBER_OF_SIMULATION_DAYS} -1 ))"  ]]
 	then
 		echo true
 	else

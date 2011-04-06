@@ -137,7 +137,7 @@ function set_variables()
 	
 	# There is one input file per day and station
 	# later we need to determine the station from the running index
-	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) )
 	do
 		common.date.setVars "$CXR_START_DATE" "$day_offset"
 		

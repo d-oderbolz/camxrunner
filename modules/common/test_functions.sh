@@ -220,7 +220,7 @@ function common.test.all()
 		CXR_HOLLOW=true
 		
 		# count simulation days
-		CXR_NUMBER_OF_SIM_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")
+		CXR_NUMBER_OF_SIMULATION_DAYS=$(common.date.DaysBetween "$CXR_START_DATE" "$CXR_STOP_DATE")
 		
 		# Let's just initialise the date variables for day 0
 		common.date.setVars "$CXR_START_DATE" "0"

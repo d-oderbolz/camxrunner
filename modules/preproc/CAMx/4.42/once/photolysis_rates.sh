@@ -80,7 +80,7 @@ function getNumInvocations()
 			
 		daily )
 			# One for each day
-			echo $CXR_NUMBER_OF_SIM_DAYS
+			echo $CXR_NUMBER_OF_SIMULATION_DAYS
 			;;
 			
 		weekly )
@@ -257,9 +257,9 @@ function photolysis_rates()
 						fi
 						
 						# We cannot go beyond the last day
-						if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+						if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 						then
-							start_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+							start_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 ))
 						fi
 						
 						common.date.setVars "$CXR_START_DATE" "$start_offset"
@@ -288,9 +288,9 @@ function photolysis_rates()
 					fi
 					
 					# We cannot go beyond the last day
-					if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+					if [[ $start_offset -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 					then
-						start_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+						start_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 ))
 					fi
 					
 					common.date.setVars "$CXR_START_DATE" "$start_offset"

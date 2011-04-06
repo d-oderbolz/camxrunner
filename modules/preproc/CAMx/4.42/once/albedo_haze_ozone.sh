@@ -86,7 +86,7 @@ function getNumInvocations()
 			
 		daily )
 			# One for each day
-			echo $CXR_NUMBER_OF_SIM_DAYS
+			echo $CXR_NUMBER_OF_SIMULATION_DAYS
 			;;
 			
 		weekly )
@@ -370,7 +370,7 @@ function albedo_haze_ozone()
 				# This is independent of the invocation
 				day_offset=0
 				common.date.setVars "$CXR_START_DATE" "$day_offset"
-				num_days=${CXR_NUMBER_OF_SIM_DAYS}
+				num_days=${CXR_NUMBER_OF_SIMULATION_DAYS}
 				
 				main.log -b "Running AHOMAP for whole period..."
 				;;
@@ -398,9 +398,9 @@ function albedo_haze_ozone()
 				fi
 				
 				# We cannot go beyond the last day
-				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 				then
-					day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+					day_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 ))
 				fi
 				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"
@@ -436,9 +436,9 @@ function albedo_haze_ozone()
 				fi
 				
 				# We cannot go beyond the last day
-				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIM_DAYS} -1 )) ]]
+				if [[ $day_offset -gt $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) ]]
 				then
-					day_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} -1 ))
+					day_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} -1 ))
 				fi
 				
 				common.date.setVars "$CXR_START_DATE" "$day_offset"

@@ -80,7 +80,7 @@ function getNumInvocations()
 	elif [[ "$CXR_PROBING_TOOL" == "CPA" ]]
 	then
 		# One call per model day
-		echo $CXR_NUMBER_OF_SIM_DAYS
+		echo $CXR_NUMBER_OF_SIMULATION_DAYS
 	else
 		main.log -a "CXR_PROBING_TOOL is not PA, we do not run extract_pa_data."
 		echo 0
@@ -135,7 +135,7 @@ function set_variables()
 	####################################
 
 	# There is one input file per day 
-	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIM_DAYS} -1 )) )
+	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) )
 	do
 		common.date.setVars "$CXR_START_DATE" "$day_offset"
 		

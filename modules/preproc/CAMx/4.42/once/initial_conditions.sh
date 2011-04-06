@@ -432,7 +432,7 @@ function initial_conditions()
 							x,y,dx,dy|${CXR_MASTER_ORIGIN_XCOORD},${CXR_MASTER_ORIGIN_YCOORD},${dx},${dy}
 							iutm     |${CXR_UTM_ZONE}
 							st date  |${CXR_YEAR_S}${CXR_DOY},0
-							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIM_DAYS} - 1 )),24
+							end date |${CXR_YEAR_S}$(( ${CXR_DOY} + ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 )),24
 							EOF
 						else
 							main.dieGracefully "could not create the topconc file ${CXR_TOPCONC_OUTPUT_FILE}"

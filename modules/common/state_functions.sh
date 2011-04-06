@@ -750,7 +750,7 @@ function common.state.updateInfo()
 		# last could be empty
 		if [[ "$last" ]]
 		then
-			if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIM_DAYS} -gt "$last" ]]
+			if [[ $last -gt -1 && ${CXR_NUMBER_OF_SIMULATION_DAYS} -gt "$last" ]]
 			then
 				main.log "It seems that the number of simulation days increased since the last run. Make sure you repeat all needed steps (e. g. AHOMAP/TUV)"
 				longer=true
@@ -770,7 +770,7 @@ function common.state.updateInfo()
 	# Replace the days
 	echo "DELETE FROM days;" >> $sqlfile
 	
-	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 )) )
+	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 )) )
 	do
 		echo  "INSERT INTO days (day_offset,day_iso) VALUES ($iOffset,'$(common.date.OffsetToDate $iOffset)');" >> $sqlfile
 	done
@@ -1441,7 +1441,7 @@ function common.state.cleanup()
 				then
 					main.log -a "You pre-selected all days for removal"
 					start_offset=0
-					stop_offset=$(( ${CXR_NUMBER_OF_SIM_DAYS} - 1 ))
+					stop_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 ))
 					all_days=true
 					following_days=false
 					
