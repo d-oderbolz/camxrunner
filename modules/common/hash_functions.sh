@@ -587,7 +587,7 @@ function common.hash.has?()
 			
 		else
 			# Not numeric
-			main.dieGracefully "DB did not return numeric answer: "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1; ($db_file)"
+			main.dieGracefully "DB did not return numeric answer: SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1; ($db_file)"
 		fi # is-numeric?
 		
 	fi # db file around
