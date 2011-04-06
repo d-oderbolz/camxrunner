@@ -135,11 +135,10 @@ function common.db.init()
 	# turn off errexit
 	set +e
 	
-	${CXR_SQLITE_EXEC} $x <<-EOT
-	SELECT * FROM sqlite_master WHERE 1=2;
-	EOT
+	sql_version="$( ${CXR_SQLITE_EXEC} -version)"
 	
-	if [[ $? -ne 0 ]]
+	# Either we get no version string or maybe it is too low
+	if [[ -z "sql_version" || $(common.math.compareVersions 3.7 $sql_version) -eq -1 ]]
 	then
 		# Failed, we try to bootstrap
 		common.db.bootstrap
