@@ -107,14 +107,6 @@ function common.db.bootstrap()
 function common.db.init()
 ################################################################################
 {
-	# Make sure we initialize enly once
-	if [[ ${CXR_DB_INITIALIZED:-false} == true ]]
-	then
-		return $CXR_RET_OK
-	else
-		CXR_DB_INITIALIZED=true
-	fi
-	
 	local x
 	
 	local -a directories

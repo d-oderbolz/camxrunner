@@ -583,10 +583,7 @@ function common.check.reportMD5()
 		then
 			main.log -e  "Programming error: no filename passed!"
 		fi
-		
-		# Maybe we need to init the DB (tests itself if its needed)
-		common.db.init
-		
+
 		local file
 		local isLocal
 		local hash

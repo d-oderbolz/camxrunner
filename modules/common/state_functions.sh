@@ -864,12 +864,6 @@ function common.state.init()
 	CXR_TMP_DECOMP_DIR="$(common.runner.createTempDir decomp false)"
 	
 	##################
-	# Init Db subsystem
-	##################
-	
-	common.db.init
-	
-	##################
 	# Init a few Hashes
 	##################
 	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
