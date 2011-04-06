@@ -54,7 +54,7 @@ CXR_META_MODULE_VERSION='$Id$'
 function common.db.bootstrap()
 ################################################################################
 {
-	main.log -a "It seems that you have no sqlite available. I will do an ad-hoc compilation..."
+	main.log -a "It seems that you have no sqlite >= CXR_MIN_SQLITE_VERSION available. I will do an ad-hoc compilation..."
 	
 	# We need to load installer stuff
 	source $CXR_CONF_DIR/installer.conf
@@ -149,7 +149,7 @@ function common.db.init()
 	sql_version="$( ${CXR_SQLITE_EXEC} -version )"
 	
 	# Either we get no version string or maybe it is too low
-	if [[ -z "sql_version" || $(common.math.compareVersions 3.7 $sql_version) -eq -1 ]]
+	if [[ -z "sql_version" || $(common.math.compareVersions $CXR_MIN_SQLITE_VERSION $sql_version) -eq -1 ]]
 	then
 		# Failed, we try to bootstrap
 		common.db.bootstrap

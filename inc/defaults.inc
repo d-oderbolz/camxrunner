@@ -609,6 +609,9 @@ CXR_LEVEL_INSTANCE=instance
 # Suffix for sqlite files
 CXR_DB_SUFFIX=sqlite
 
+# Min Version of SQLite needed
+CXR_MIN_SQLITE_VERSION=3.7
+
 # Some state data is global to all runs (e. g. the hash used for change detection)
 CXR_UNIVERSAL_DIR=${CXR_RUN_DIR}/state/$CXR_LEVEL_UNIVERSAL
 
