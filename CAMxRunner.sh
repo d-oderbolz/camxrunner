@@ -554,6 +554,10 @@ then
 	then
 		# Show possible modules
 		common.module.listAllModules
+	elif [[ "${CXR_EXTERNAL}" == true ]]
+	then
+		# Prepare external run
+		common.external.init
 	elif [[ "${CXR_RUN_TESTS}" == true ]]
 	then
 		# Run the tests
@@ -573,7 +577,7 @@ fi
 
 ### No hollow function gets further here
 
-main.log -H "$progname - running stage\nLoading external modules from ${CXR_COMMON_INPUT_DIR}..." 
+main.log -H "$progname - running stage\nLoading modules from ${CXR_COMMON_INPUT_DIR}..." 
 
 
 ################################################################################
