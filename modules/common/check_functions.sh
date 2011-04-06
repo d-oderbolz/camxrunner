@@ -518,7 +518,6 @@ function common.check.RunnerExecutables()
 # * Set
 # * Present
 # * Executable
-# * also report their MD5 Hashes
 #
 # This function is only visual, does not terminate
 ################################################################################
@@ -549,9 +548,6 @@ function common.check.Vars ()
 					chmod +x "${stripped}" || main.log -w "Could not change permissions on file $FILE"
 
 					# Do not increase error count here - maybe we do not need this one
-				else
-					# All OK, just report MD5
-					common.check.reportMD5 "${stripped}"
 				fi
 			else
 			  # Not present!
