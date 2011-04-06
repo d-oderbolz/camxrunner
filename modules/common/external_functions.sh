@@ -77,8 +77,16 @@ function common.external.init()
 	# Evaluate template
 	while read line
 	do
-		newline=$(common.runner.evaluateRule "$line" true line false)
-		echo "$newline" >> $ofile
+		newline=$(common.runner.evaluateRule "$line" true line false) &> /dev/null
+		
+		# If there are errors we could not expand
+		if [[ "$newline" ]]
+		then
+			echo "$newline" >> $ofile
+		else
+			echo "$line" >> $ofile
+		fi
+		
 	done < $template
 	
 	main.log -a "Done."

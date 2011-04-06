@@ -2,6 +2,9 @@
 
 # This template is expanded by the -e option of the
 # CAMxRunner. You may use variables in here.
+# Local variables cannot (and should not) be expanded
+# make sure that these are not on the same line as an expandable variable
+# because we work line-per-line.
 
 #SBATCH --ntasks=$CXR_NUMBER_OF_TASKS
 #SBATCH --ntasks-per-node=$CXR_TASKS_PER_NODE
