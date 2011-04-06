@@ -566,6 +566,7 @@ function common.hash.has?()
 		# get the rowcount
 		rowcount=$(common.db.getResultSet "$db_file" "$level" "SELECT COUNT(*) FROM hash WHERE hash='$hash' AND key='$key' ORDER BY epoch_c DESC LIMIT 1")
 
+		echo "${rowcount} $db_file"
 		if [[ "${rowcount}" =~ $CXR_PATTERN_NUMERIC ]]
 		then 
 			# OK, numeric
