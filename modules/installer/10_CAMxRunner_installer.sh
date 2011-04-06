@@ -229,7 +229,7 @@ function CAMxRunner_installer()
 					            --bindir=${CXR_BIN_DIR} \
 					            --sbindir=${CXR_BIN_DIR} \
 					            --program-suffix=-${HOSTTYPE}${suffix} 
-					            --mandir=/dev/null | tee -a $logfile
+					            --mandir=${CXR_TMP_DIR} | tee -a $logfile
 
 				fi
 				
