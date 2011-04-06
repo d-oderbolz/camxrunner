@@ -61,6 +61,7 @@ function common.db.bootstrap()
 	
 	#No suffix
 	suffix=
+	executable=sqlite3
 	src_dir=$CXR_SQLITE_SRC_DIR
 	
 	binary_name=${CXR_BIN_DIR}/${executable}-${HOSTTYPE}
