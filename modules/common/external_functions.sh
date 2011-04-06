@@ -73,6 +73,7 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	:
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
