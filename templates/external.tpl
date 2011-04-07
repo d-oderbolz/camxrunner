@@ -6,6 +6,8 @@
 # make sure that these are not on the same line as an expandable variable
 # because we work line-per-line.
 # If you need to expand a commented line, echo the comment using -en "\\043"
+# In general, try to avoid command expansion as the expansion is local.
+# One war around this is to generate a $ sign \\044
 
 $(echo -en "\\043")SBATCH --ntasks=$CXR_EXTERNAL_NUMBER_OF_TASKS
 $(echo -en "\\043")SBATCH --ntasks-per-node=$CXR_EXTERNAL_TASKS_PER_NODE
@@ -14,7 +16,7 @@ $(echo -en "\\043")SBATCH --time=$CXR_EXTERNAL_TIME_NEEDED
 
 export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
-tmpfile=$(mktemp /tmp/cxr.XXXXXXXXXXX)
+tmpfile=$(echo -en "\\045")(mktemp /tmp/cxr.XXXXXXXXXXX)
 
 ls -1 CAMx.????????.in > $tmpfile
 
