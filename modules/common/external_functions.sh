@@ -77,7 +77,7 @@ function common.external.init()
 	# Evaluate template
 	while read line
 	do
-		newline=$(common.runner.evaluateRule "$line" true line false) &> /dev/null
+		newline=$(common.runner.evaluateRule "$line" true line false false) &> /dev/null
 		
 		# If there are errors we could not expand
 		if [[ "$newline" ]]
@@ -103,7 +103,8 @@ function common.external.init()
 		common.date.setVars "$CXR_START_DATE" "$iOffset"
 		
 		# Call the relevant functions of the model module
-		set_variables
+		#             We do not want the rule evaluator to create any missing dirs
+		set_variables false
 		write_model_control_file
 
 	done

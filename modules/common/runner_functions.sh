@@ -434,6 +434,7 @@ function common.runner.printSummary()
 # [$2] - allow_empty if false, a rule must expand to a non-empty string
 # [$3] - optional name of the rule
 # [$4] - try_decompression if false (default true), will not attempt compression (and consequenital renaming)
+# [$5] - create_missing_dirs , if false (default true) minnig directories ore not created
 ################################################################################
 function common.runner.evaluateRule()
 ################################################################################
@@ -448,6 +449,7 @@ function common.runner.evaluateRule()
 	local rule_name
 	local try_decompression
 	local expansion
+	local create_missing_dirs
 	
 	rule="$1"
 
@@ -456,6 +458,7 @@ function common.runner.evaluateRule()
 	rule_name="${3:-}"
 	# By default try decompression
 	try_decompression="${4:-true}"
+	create_missing_dirs"${5:-true}"
 	
 	if [[ -z "$rule" ]]
 	then
@@ -500,7 +503,7 @@ function common.runner.evaluateRule()
 		# This space here  ¦ is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
 		then
 			expansion_dir="$(dirname "$expansion")"
-			if [[ ! -d "${expansion_dir}" ]]
+			if [[ ! -d "${expansion_dir}" && $create_missing_dirs == true ]]
 			then
 				# Dirname does not exists
 				main.log -w "Dir $expansion_dir does not exist - creating it..."
