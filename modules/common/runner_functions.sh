@@ -439,9 +439,9 @@ function common.runner.printSummary()
 function common.runner.evaluateRule()
 ################################################################################
 {
-	if [[  $# -lt 1 || $# -gt 4 ]]
+	if [[  $# -lt 1 || $# -gt 5 ]]
 	then
-		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false!"
+		main.dieGracefully "needs at least string (the rule) as input, at most the rule, true/false, the rule name and true/false, true/false!"
 	fi	
 	
 	local rule
