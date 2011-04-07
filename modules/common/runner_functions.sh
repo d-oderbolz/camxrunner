@@ -458,7 +458,7 @@ function common.runner.evaluateRule()
 	rule_name="${3:-}"
 	# By default try decompression
 	try_decompression="${4:-true}"
-	create_missing_dirs"${5:-true}"
+	create_missing_dirs="${5:-true}"
 	
 	if [[ -z "$rule" ]]
 	then
