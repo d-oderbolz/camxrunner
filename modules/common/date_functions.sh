@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=45
+CXR_META_MODULE_NUM_TESTS=49
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some date functions for the CAMxRunner"
@@ -486,7 +486,38 @@ function common.date.EpochToDateTime()
 	echo "$(date -d "1970-01-01 $epoch_seconds sec" +"%Y-%m-%d %T")"
 }
 
+################################################################################
+# Function: common.date.Season
+# 
+# Returns the lowercase season string (winter(=DJF),spring(=MAM),summer(=JJA),autumn(=SON)) for the given date.
+# This is not based on the scientific definition of the season, just on the month.
+#
+#
+# Parameters:
+# $1 - date in YYYY-MM-DD format
+################################################################################
+function common.date.Season() 
+################################################################################
+{
+	local month
 
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully "Programming error: needs a date of the form YYYY-MM-DD as input. Got $*"
+	fi
+	
+	month=${1:5:2}
+	
+	case $month in 
+	
+		12|01|02) echo winter;;
+		03|04|05) echo spring;;
+		06|07|08) echo summer;;
+		09|10|11) echo autumn;;
+		*) main.dieGracefully "Did not get a YYYY-MM-DD date!";; 
+		
+	esac
+}
 
 ################################################################################
 # Function: common.date.WeekOfYear
@@ -1300,6 +1331,9 @@ function common.date.setVars()
 	# Week of year
 	CXR_WOY=$(common.date.WeekOfYear $CXR_DATE)
 	
+	# Season
+	CXR_SEASON=$(common.date.Season $CXR_DATE)
+	
 	# if offset is 0, we are at the initial day
 	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
 	then
@@ -1488,6 +1522,11 @@ function test_module()
 	is $(common.date.DayOfYear 2009-01-01 4) 0001 "DOY trailing 0"
 	is $(common.date.DayOfYear 2003-04-12) 102 "DOY"
 	is $(common.date.DayOfYear 2009-12-31) 365 "DOY"
+	
+	is $(common.date.Season 2009-12-31) winter "Season: winter"
+	is $(common.date.Season 2009-04-11) spring "Season: spring"
+	is $(common.date.Season 2009-07-20) summer "Season: summer"
+	is $(common.date.Season 2009-09-01) autumn "Season: autumn"
 	
 	is $(common.date.DayOfWeek 2009-12-31) 4 "DOW"
 	is $(common.date.WeekOfYear 2009-12-31) 52 "WOY normal"

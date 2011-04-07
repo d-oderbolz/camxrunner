@@ -106,9 +106,9 @@ function common.external.init()
 	
 	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 )) )
 	do
-		common.user.showProgress
-		
 		common.date.setVars "$CXR_START_DATE" "$iOffset"
+		
+		main.log -a "Processing ${CXR_DATE}..."
 		
 		# Call the relevant functions of the model module
 		#             We do not want the rule evaluator to create any missing dirs
@@ -128,9 +128,6 @@ function common.external.init()
 	done
 	
 	main.log -a "Done."
-	
-	
-	
 }
 
 ################################################################################
