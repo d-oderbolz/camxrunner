@@ -70,7 +70,10 @@ function common.external.init()
 	tmpdir=$(common.runner.createTempDir run-external false)
 	main.log -a -B "You will find all files for the run in $tmpdir"
 	
-	ofile=$tmpdir/run_script.sh
+	ofile=$tmpdir/CAMx_job.sh
+	ofilelist=$tmpdir/input_files.lst
+	
+	: > $ofilelist
 	
 	cd $tmpdir
 	
@@ -106,6 +109,16 @@ function common.external.init()
 		#             We do not want the rule evaluator to create any missing dirs
 		set_variables false
 		write_model_control_file
+		
+		# Write out input files
+		for InputFile in $CXR_CHECK_THESE_INPUT_FILES
+		do
+			if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
+			then
+				# We want to know about this file
+				echo "$InputFile" >> $ofilelist
+			fi
+		done
 
 	done
 	
