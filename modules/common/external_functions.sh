@@ -68,7 +68,8 @@ function common.external.init()
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* are expected."
 	
 	tmpdir=$(common.runner.createTempDir run-external false)
-	main.log -a -B "You will find all files for the run in $tmpdir"
+	
+	main.log -a "You will find all files for the run in $tmpdir"
 	
 	ofile=$tmpdir/CAMx_job.sh
 	ofilelist=$tmpdir/input_files.lst
@@ -80,6 +81,8 @@ function common.external.init()
 	# Evaluate template
 	while read line
 	do
+		common.user.showProgress
+		
 		newline=$(common.runner.evaluateRule "$line" true line false false) &> /dev/null
 		
 		# If there are errors we could not expand
@@ -103,6 +106,8 @@ function common.external.init()
 	
 	for iOffset in $(seq 0 $(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 )) )
 	do
+		common.user.showProgress
+		
 		common.date.setVars "$CXR_START_DATE" "$iOffset"
 		
 		# Call the relevant functions of the model module
