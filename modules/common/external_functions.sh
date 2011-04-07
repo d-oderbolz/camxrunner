@@ -127,7 +127,7 @@ function common.external.init()
 
 	done
 	
-	main.log -a "Done."
+	main.log -a "Done. Your files are in $tmpdir"
 }
 
 ################################################################################
