@@ -296,9 +296,9 @@ function common.db.getResultSet()
 	
 	separator="${4:-$CXR_DELIMITER}"
 
-	if [[ ! -r $db_file ]]
+	if [[ ! -r $db_file || ! -s $db_file ]]
 	then
-		main.log -w "DB file $db_file not readable"
+		main.log -w "DB file $db_file not readable or empty"
 		return $CXR_RET_OK
 	fi
 
@@ -421,6 +421,12 @@ function common.db.change()
 	# count number of trials
 	trial=1
 	retval=1
+	
+	if [[ ! -e $db_file || ! -s $db_file ]]
+	then
+		main.log -w "DB file $db_file empty or not existing."
+		return $CXR_RET_OK
+	fi
 	
 	# Add pragmas
 	sql="PRAGMA legacy_file_format = on;

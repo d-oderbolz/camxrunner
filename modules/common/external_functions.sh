@@ -56,13 +56,10 @@ function common.external.init()
 ################################################################################
 {
 	local tempdir
-	local template
-	
-	template=$CXR_TEMPLATES_DIR/external.tpl
-	
-	if [[ ! -e $template ]]
+
+	if [[ ! -e $CXR_EXTERNAL_TEMPLATE ]]
 	then
-		main.dieGracefully "Could not find ${template}!"
+		main.dieGracefully "Could not find ${CXR_EXTERNAL_TEMPLATE}!"
 	fi
 	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* are expected."
@@ -93,7 +90,7 @@ function common.external.init()
 			echo "$line" >> $ofile
 		fi
 		
-	done < $template
+	done < $CXR_EXTERNAL_TEMPLATE
 	
 	# Now create all CAMx.in files
 	# Source the model

@@ -469,7 +469,7 @@ function common.runner.evaluateRule()
 	else
 		# Non-empty rule - do it
 
-		# Original code example: CXR_ROOT_OUTPUT=$(eval "echo $(echo $CXR_ROOT_OUTPUT_FILE_RULE)")
+		# Do the expansion
 		expansion="$(eval "echo $(echo "$rule")")"
 		
 		# *_FILE_RULE might be compressed, try to decompress if expansion does net exist
