@@ -100,9 +100,9 @@ c-----Read and open I/O files; get user-specified inputs
       read(*,'(20x,i10)') nspecsum
       
       if (nspecsum.gt.mxspecsum) then
-      	write(*,*) 'You want to add up mare than mxspecsum species!'
-      	write(*,*) 'Increase mxspecsum and recompile.'
-      	stop
+        write(*,*) 'You want to add up mare than mxspecsum species!'
+        write(*,*) 'Increase mxspecsum and recompile.'
+        stop
       endif
       
       write(*,*)'Number of species to add up: ',nspecsum
@@ -123,15 +123,15 @@ c-----Read and open I/O files; get user-specified inputs
 c-----Optional items
       read(*,'(20x,a)',IOSTAT=iostatus) projection
       if (iostatus.ne.0) then
-      	projection='UTM'
-     	endif
-     	
+        projection='UTM'
+       endif
+       
       write(*,*) 'Projection: ', projection
       
       read(*,'(20x,f6.4)',IOSTAT=iostatus) cfactor
       if (iostatus.ne.0) then
-      	cfactor=1.0
-     	endif
+        cfactor=1.0
+       endif
       write(*,*) 'Conversion factor: ', cfactor
       
       write(*,*)
@@ -210,11 +210,11 @@ c     dco and therefore, multiplies distances by 1000
 c     dco This Hack allows us to keep the rest of the code intact
 c     dco In the future We may also allow 'INDEX', then we use the coordinates (must be ints)
 c     dco directly as indices
-			if (projection.eq.'LATLON') then
-				conv2metre = 1.0
-			else
-				conv2metre = 1000.
-			endif
+      if (projection.eq.'LATLON') then
+        conv2metre = 1.0
+      else
+        conv2metre = 1000.
+      endif
 
       if (lout11) write(11) ilocx,ilocy,nox,noy
       if (lout15) write(15) ilocx,ilocy,nox,noy
@@ -313,7 +313,7 @@ c-----Read header of observation file and check for species match
             write(*,9030) (mspec1(n),n=1,10)
             write(*,9010) 
             write(*,9020) (obspec(n),n=1,5)
-9030        format('Error could not match OBS species: ', 10a1)
+ 9030       format('Error could not match OBS species: ', 10a1)
             stop
           endif
         enddo
