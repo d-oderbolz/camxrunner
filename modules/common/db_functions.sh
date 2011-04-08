@@ -234,7 +234,9 @@ function common.db.init()
 					common.db.getResultSet $db_file $level "SELECT sql || ';' FROM sqlite_master WHERE type='index';" > $creafile
 					
 					common.db.change $db_file $level $dropfile
-					common.db.change $db_file $level $creafile
+					
+					# Do not fail if db_file is empty
+					common.db.change $db_file $level $creafile true false
 					
 					main.log -a ""
 					
@@ -394,13 +396,14 @@ $statement"
 # $2 - level of the exclusive lock to acquire, either "$CXR_LEVEL_INSTANCE", "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL"
 # $3 - either a statement, a filename or - indicating input from stdin
 # [$4] - boolean do_trx if false (default true), no transaction is started (use for example for .import)
+# [$5] - fail_on_empty (default true) , if false, we ignore missing db files (good to create stuff)
 ################################################################################
 function common.db.change()
 ################################################################################
 {
-	if [[ $# -lt 3 || $# -gt 4 ]]
+	if [[ $# -lt 3 || $# -gt 5 ]]
 	then
-		main.dieGracefully "needs a db file, a level, a statement and an optinal do_trx as input, got $*"
+		main.dieGracefully "needs a db file, a level, a statement and optinal do_trx and fail_on_empty as input, got $*"
 	fi
 	
 	local db_file
@@ -412,17 +415,19 @@ function common.db.change()
 	local retval
 	local result
 	local do_trx
+	local fail_on_empty
 	
 	db_file="$1"
 	level="$2"
 	statement="$3"
 	do_trx="${4:-true}"
+	fail_on_empty="${5:-true}"
 	
 	# count number of trials
 	trial=1
 	retval=1
 	
-	if [[ ! -e $db_file || ! -s $db_file ]]
+	if [[ $fail_on_empty == true && ( ! -e $db_file || ! -s $db_file ) ]]
 	then
 		main.log -w "DB file $db_file empty or not existing."
 		return $CXR_RET_OK

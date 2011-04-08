@@ -518,7 +518,7 @@ function main.doCleanup()
 	set +x
 	
 	# Delete entries in instance_tasks, if possible
-	if [[ -e "$CXR_STATE_DB_FILE" && $(main.functionExists? common.db.change) == true ]]
+	if [[ -s "$CXR_STATE_DB_FILE" && $(main.functionExists? common.db.change) == true ]]
 	then
 		main.log -a "Deleting this instances task list..."
 		common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "DELETE FROM instance_tasks WHERE instance='$CXR_INSTANCE';"

@@ -295,20 +295,11 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 common.db.init
 
 ##################
-# Init a few Hashes
+# Init all Hashes
 ##################
-# Contains the cache for MD5 hashes, it is shared among all runs in this installation
-common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
-
-# In this hash, we store files that where decompressed (for all instances)
-# Implies that all instances see the same CXR_TMP_DIR
-common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
-
-# In this hash, we store all output files that have been generated
-common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE
-
-# In this hash, we store dummy files of a dry run.
-common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
+common.hash.init $CXR_LEVEL_UNIVERSAL
+common.hash.init $CXR_LEVEL_GLOBAL
+common.hash.init $CXR_LEVEL_INSTANCE
 
 # The run determines the files to use
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"

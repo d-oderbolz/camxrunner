@@ -88,31 +88,24 @@ function _common.hash.getDbFile()
 ################################################################################
 # Function: common.hash.init
 #
-# Creates a hash with a given name, if it already exists, nothing happens.
-# We distinguish three visibility levels: 
+# Initializes a hash db on the given level.
 # $CXR_LEVEL_INSTANCE - only visible for this instance
 # $CXR_LEVEL_GLOBAL - visible for all instances of this run
 # $CXR_LEVEL_UNIVERSAL - visible for all instances of all runs
-# Usage note: since we can store metadata in a hash, it is not recommended to encode
-# information in the name of the hash (like it was done before).
 #
 # Parameters:
-# $1 - name of the hash (must be usable as a filename)
-# $2 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL" 
+# $1 - level of hash, either "$CXR_LEVEL_INSTANCE" , "$CXR_LEVEL_GLOBAL" or "$CXR_LEVEL_UNIVERSAL" 
 ################################################################################
 function common.hash.init()
 ################################################################################
 {
-	if [[ $# -ne 2 ]]
+	if [[ $# -ne 1 ]]
 	then
-		main.dieGracefully "needs a hash name and a valid hash-level as input"
+		main.dieGracefully "needs a valid hash-level as input"
 	fi
-	
-	local hash
+
 	local level
-	
-	hash="$1"
-	level="$2"
+	level="$1"
 
 	local db_file
 	
@@ -121,8 +114,8 @@ function common.hash.init()
 	
 	main.log -v "Creating DB $db_file"
 	
-	# Create table, no matter what
-	common.db.change "$db_file" "$level" - <<-EOT 
+	# Create table, no matter what. Do not fail on empty
+	common.db.change "$db_file" "$level" - true false <<-EOT 
 	
 	CREATE TABLE IF NOT EXISTS hash (hash, key, value, epoch_c);
 	
@@ -213,7 +206,7 @@ function common.hash.put()
 	if [[ ! -f "$db_file" ]]
 	then
 		main.log -w "DB $db_file not found!"
-		common.hash.init "$hash" "$level"
+		common.hash.init "$level"
 	else
 		# Change the update time
 		touch "$db_file"
@@ -866,24 +859,24 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	# Instance hash
-	common.hash.init test_instance $CXR_LEVEL_INSTANCE
+	common.hash.init $CXR_LEVEL_INSTANCE
 	common.hash.put test_instance $CXR_LEVEL_INSTANCE "/hallo/gugs" SomeOtherValue
 	common.hash.put test_instance $CXR_LEVEL_INSTANCE "a key with spaces" SomeOtherValue
 	
 	# DB of arrays
-	common.hash.init test_array $CXR_LEVEL_INSTANCE
+	common.hash.init $CXR_LEVEL_INSTANCE
 	common.hash.put test_array $CXR_LEVEL_INSTANCE array1 "1 2 3 4 5"
 	
 	# Read again
 	a=( $(common.hash.get test_array $CXR_LEVEL_INSTANCE array1) )
 	
 	# Glabal DB with strange keys
-	common.hash.init test_global $CXR_LEVEL_GLOBAL
+	common.hash.init $CXR_LEVEL_GLOBAL
 	common.hash.put test_global $CXR_LEVEL_GLOBAL "This key has spaces" "a value"
 	common.hash.put test_global $CXR_LEVEL_GLOBAL "This key also has spaces" "another value"
 	
 	# Universal DB
-	common.hash.init test_universal $CXR_LEVEL_UNIVERSAL
+	common.hash.init $CXR_LEVEL_UNIVERSAL
 	common.hash.put test_universal $CXR_LEVEL_UNIVERSAL /hallo/gugs SomeOtherValue
 	common.hash.put test_universal  $CXR_LEVEL_UNIVERSAL "a key with spaces" SomeOtherValue
 
