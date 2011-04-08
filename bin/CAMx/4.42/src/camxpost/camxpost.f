@@ -15,7 +15,7 @@ c          further processing of stats and plotting of time-series (optional)
 c       4) a file of maximum observations at each site (optional)
 c
 c     NOTES: only layer 1 is processed
-c            only 1 species is processed (but it may be the sum of more than one species)
+c            only 1 species is processed
 c
 c     -Optional output is selected by supplying a valid file name on input
 c     -If the observational file name is blank, obs-related processing and
@@ -23,7 +23,7 @@ c      output will not be performed
 c     -If the gridded output file names are not supplied, they will not be
 c      generated
 c
-      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200)
+      parameter (mxx=200,mxy=200,mxspc=30,mxhr=48,mxsit=100,mxobs=200)
       integer ibgdat(mxhr),ndate(mxobs),nhour(mxobs),
      &        nuse(mxhr),nmax(mxsit),iostatus
       real cread(mxx,mxy),xutm(mxsit),yutm(mxsit),
@@ -95,9 +95,10 @@ c-----Read and open I/O files; get user-specified inputs
      &     'Period to process: ',jday1,ihr1,jday2,ihr2
       hr1 = float(ihr1)
       hr2 = float(ihr2)
-      
-      read(*,'(20x,f5.4)') radmax
-      write(*,*) 'Search radius for max prediction (km/deg): ',radmax
+      read(*,'(20x,10a1)') (mspec1(m),m=1,10)
+      write(*,'(1x,a,10a1)') 'Species name: ',(mspec1(m),m=1,10)
+      read(*,'(20x,f5.0)') radmax
+      write(*,*) 'Search radius for max prediction (km): ',radmax
       read(*,'(20x,4i5)') isub1,isub2,jsub1,jsub2
       write(*,'(1x,a,4i5)') 'Sub-domain to search for peak: ',
      &                      isub1,isub2,jsub1,jsub2
