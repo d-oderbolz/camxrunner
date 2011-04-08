@@ -472,9 +472,6 @@ c----- Print out the "decimal index" of the stations
 	              grdmin(nh,ns) = -999.
 	            endif
 	            
-c         Is the projection "INDEX"?
-          endif 
-
             if (ns.eq.1) then
               do 140 nn = 1,nobhrs
                 if (ndate(nn).eq.ibgdat(nh) .and. 
@@ -501,7 +498,14 @@ c         Is the projection "INDEX"?
               obsmx(ns) = amax1(obsmx(ns),obsconc2(nuse(nh),ns))
               nmax(ns) = nmax(ns) + 1
             endif
+            
+            
  130      continue
+ 
+c         Is the projection "INDEX"?
+          endif 
+ 
+c      Stations
  120    continue
 
 c-----Find peak gridded concentrations over all hours
