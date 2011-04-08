@@ -23,7 +23,7 @@ c      output will not be performed
 c     -If the gridded output file names are not supplied, they will not be
 c      generated
 c
-      parameter (mxx=200,mxy=200,mxspc=30,mxhr=48,mxsit=100,mxobs=200)
+      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200)
       integer ibgdat(mxhr),ndate(mxobs),nhour(mxobs),
      &        nuse(mxhr),nmax(mxsit),iostatus
       real cread(mxx,mxy),xutm(mxsit),yutm(mxsit),
