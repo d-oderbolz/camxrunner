@@ -849,35 +849,8 @@ function common.state.init()
 		main.dieGracefully  "CXR_STATE_DIR not set!"
 	fi
 	
-	# Not started yet - create state dir first
-	if [[ ! -d "${CXR_STATE_DIR}" ]]
-	then
-		mkdir -p "${CXR_STATE_DIR}"
-	fi
-	
-	# Create the global dirs
-	mkdir -p "${CXR_GLOBAL_DIR}"
-	
-	mkdir -p "${CXR_INSTANCE_DIR}"
-
 	# Create directory where we decompress files into
 	CXR_TMP_DECOMP_DIR="$(common.runner.createTempDir decomp false)"
-	
-	##################
-	# Init a few Hashes
-	##################
-	# Contains the cache for MD5 hashes, it is shared among all runs in this installation
-	common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
-	
-	# In this hash, we store files that where decompressed (for all instances)
-	# Implies that all instances see the same CXR_TMP_DIR
-	common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
-	
-	# In this hash, we store all output files that have been generated
-	common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE
-	
-	# In this hash, we store dummy files of a dry run.
-	common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
 	
 	# Creating .continue file
 	echo "Creating the file ${CXR_CONTINUE_FILE}. If this file is deleted, the process stops as soon as possible." 1>&2

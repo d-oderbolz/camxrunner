@@ -598,7 +598,7 @@ CXR_LOG_OUTPUT_DIR=${CXR_RUN_DIR}/log
 
 #State information is stored here
 CXR_STATE_DIR=${CXR_RUN_DIR}/state/$CXR_RUN
-
+mkdir -p $CXR_STATE_DIR
 
 # Supported Types of Hashes/DBs
 CXR_LEVEL_UNIVERSAL=universal

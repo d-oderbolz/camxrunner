@@ -291,14 +291,30 @@ source $CXR_RUN_DIR/inc/load_common_modules.inc
 # Read Config ##################################################################
 ################################################################################
 
+# Init Db subsystem
+common.db.init
+
+##################
+# Init a few Hashes
+##################
+# Contains the cache for MD5 hashes, it is shared among all runs in this installation
+common.hash.init MD5 $CXR_LEVEL_UNIVERSAL
+
+# In this hash, we store files that where decompressed (for all instances)
+# Implies that all instances see the same CXR_TMP_DIR
+common.hash.init $CXR_GLOBAL_HASH_DECOMPRESSED_FILES $CXR_LEVEL_GLOBAL
+
+# In this hash, we store all output files that have been generated
+common.hash.init $CXR_INSTANCE_HASH_OUTPUT_FILES $CXR_LEVEL_INSTANCE
+
+# In this hash, we store dummy files of a dry run.
+common.hash.init $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE
+
 # The run determines the files to use
 main.readConfig "${CXR_RUN}" "${CXR_MODEL}" "${CXR_MODEL_VERSION}" "${CXR_RUN_DIR}"
 
 # count simulation days
 CXR_NUMBER_OF_SIMULATION_DAYS=$(common.date.DaysBetween "${CXR_START_DATE}" "${CXR_STOP_DATE}")
-
-# Init Db subsystem
-common.db.init
 
 ################################################################################
 # Determine name of model exec                                      ############
