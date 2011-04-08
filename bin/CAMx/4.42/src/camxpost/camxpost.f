@@ -126,7 +126,7 @@ c-----Optional items
       	projection='UTM'
      	endif
      	
-c----- We support the spcial case 'INDEX' to use directly indices
+c----- We support the special case 'INDEX' to use directly indices
       write(*,*) 'Projection: ', projection
       
       read(*,'(20x,f6.4)',IOSTAT=iostatus) cfactor
@@ -213,6 +213,8 @@ c     dco We also allow 'INDEX', then we use the coordinates (must be ints)
 c     dco directly as indices
 			if (projection.eq.'LATLON') then
 				conv2metre = 1.0
+			else if (projection.eq.'INDEX') then
+				write(*,*)'We treat station coordinates as indices. Disabled Interpolation.'
 			else
 				conv2metre = 1000.
 			endif
@@ -424,43 +426,54 @@ c     max/min predictions in 9 surrounding grid cells
           nmax(ns) = 0
           write(13,'(a10,a20,2f10.3)') site(ns),sitnam(ns),
      &                                 xutm(ns),yutm(ns)
-          distx = conv2metre*xutm(ns) - xorg
-          disty = conv2metre*yutm(ns) - yorg
-          
+     
+
+     			if (projection.eq.'INDEX') then
+c           In this case, we use the concontrations as-is
+     				prdconc3(nh,ns) = prdconc2(xutm,yutm)
+     				grdmax(nh,ns) = prdconc3(nh,ns)
+	          grdmin(nh,ns) = prdconc3(nh,ns)
+     			else
+	          distx = conv2metre*xutm(ns) - xorg
+	          disty = conv2metre*yutm(ns) - yorg
+	          
 c----- Print out the "decimal index" of the stations
-          decimali = (distx/deltax) + 1
-          decimalj = (disty/deltay) + 1
-          
-          write(*,*) 'Site ',sitnam(ns),' corresponds to cell ',
+	          decimali = (distx/deltax) + 1
+	          decimalj = (disty/deltay) + 1
+	          
+	          write(*,*) 'Site ',sitnam(ns),' corresponds to cell ',
      &               decimali,decimalj
-          
-          ii = int(distx/deltax + 0.5)
-          jj = int(disty/deltay + 0.5)
-          iii = int(distx/deltax + 1.)
-          jjj = int(disty/deltay + 1.)
-          dx = distx - deltax*(float(ii) - 0.5)
-          dy = disty - deltay*(float(jj) - 0.5)
-          do 130 nh = 1,nprdhr-navhour+1
-            if (ii.ge.2 .and. ii.le.nox-2 .and.
+	          
+	          ii = int(distx/deltax + 0.5)
+	          jj = int(disty/deltay + 0.5)
+	          iii = int(distx/deltax + 1.)
+	          jjj = int(disty/deltay + 1.)
+	          dx = distx - deltax*(float(ii) - 0.5)
+	          dy = disty - deltay*(float(jj) - 0.5)
+	          do 130 nh = 1,nprdhr-navhour+1
+	            if (ii.ge.2 .and. ii.le.nox-2 .and.
      &          jj.ge.2 .and. jj.le.noy-2) then
-              cc1 = prdconc2(ii,jj,nh) + (dx/deltax)*
+	              cc1 = prdconc2(ii,jj,nh) + (dx/deltax)*
      &              (prdconc2(ii+1,jj,nh) - prdconc2(ii,jj,nh))
-              cc2 = prdconc2(ii,jj+1,nh) + (dx/deltax)*
+	              cc2 = prdconc2(ii,jj+1,nh) + (dx/deltax)*
      &              (prdconc2(ii+1,jj+1,nh) - prdconc2(ii,jj+1,nh))
-              prdconc3(nh,ns) = cc1 + (dy/deltay)*(cc2 - cc1)
-              grdmax(nh,ns) = 0.
-              grdmin(nh,ns) = 1.e10
-              do i = iii-1,iii+1
-                do j = jjj-1,jjj+1
-                  grdmax(nh,ns) = amax1(grdmax(nh,ns),prdconc2(i,j,nh))
-                  grdmin(nh,ns) = amin1(grdmin(nh,ns),prdconc2(i,j,nh))
-                enddo
-              enddo
-            else
-              prdconc3(nh,ns) = -999.
-              grdmax(nh,ns) = -999.
-              grdmin(nh,ns) = -999.
-            endif
+	              prdconc3(nh,ns) = cc1 + (dy/deltay)*(cc2 - cc1)
+	              grdmax(nh,ns) = 0.
+	              grdmin(nh,ns) = 1.e10
+	              do i = iii-1,iii+1
+	                do j = jjj-1,jjj+1
+	                  grdmax(nh,ns) = amax1(grdmax(nh,ns),prdconc2(i,j,nh))
+	                  grdmin(nh,ns) = amin1(grdmin(nh,ns),prdconc2(i,j,nh))
+	                enddo
+	              enddo
+	            else
+	              prdconc3(nh,ns) = -999.
+	              grdmax(nh,ns) = -999.
+	              grdmin(nh,ns) = -999.
+	            endif
+	            
+c         Is the projection "INDEX"?
+          endif 
 
             if (ns.eq.1) then
               do 140 nn = 1,nobhrs
@@ -573,7 +586,7 @@ cPeak Predicted    : Cell (iii,jjj)       yyjjjhh - yyjjjhh      10.1
      &                     grdmax(nh,ns),grdmin(nh,ns)
  170      continue
  160    continue
- 9060   format(a10,2x,i6,a2,' -',i6,a2,10f10.2)
+ 9060   format(a10,2x,i6,a2,' -',i6,a2,10f10.4)
 
 c-----Write peak observations to separate file
 
