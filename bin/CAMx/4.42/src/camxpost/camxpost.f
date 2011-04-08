@@ -430,7 +430,7 @@ c     max/min predictions in 9 surrounding grid cells
 
      			if (projection.eq.'INDEX') then
 c           In this case, we use the concontrations as-is
-     				prdconc3(nh,ns) = prdconc2(xutm,yutm)
+     				prdconc3(nh,ns) = prdconc2(xutm,yutm,nh)
      				grdmax(nh,ns) = prdconc3(nh,ns)
 	          grdmin(nh,ns) = prdconc3(nh,ns)
      			else
