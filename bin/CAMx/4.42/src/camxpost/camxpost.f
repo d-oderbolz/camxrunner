@@ -23,8 +23,7 @@ c      output will not be performed
 c     -If the gridded output file names are not supplied, they will not be
 c      generated
 c
-      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200,
-     & mxspecsum=10)
+      parameter (mxx=300,mxy=300,mxspc=150,mxhr=48,mxsit=100,mxobs=200)
       integer ibgdat(mxhr),ndate(mxobs),nhour(mxobs),
      &        nuse(mxhr),nmax(mxsit),iostatus
       real cread(mxx,mxy),xutm(mxsit),yutm(mxsit),
@@ -37,9 +36,8 @@ c
       character*200 ipath,statmsg,obsmsg
       character*20 sitnam(mxsit),sitmax
       character*10 atmp,site(mxsit)
-      character*4 filnam(10),fileid(60),mspec(10,mxspc),
+      character*4 filnam(10),fileid(60),mspec1(10),mspec(10,mxspc),
      &            obspec(10)
-      character*10 mspec1(mxspecsum)
       character*2 atim1,atim2,aotmmx1,aotmmx2,autmmx1,autmmx2
       character*7 projection
       data ione /1/
