@@ -48,6 +48,7 @@ Group: Modules  {
       File: conf_functions.sh  (modules/common/conf_functions.sh)
       File: date_functions.sh  (modules/common/date_functions.sh)
       File: db_functions.sh  (modules/common/db_functions.sh)
+      File: external_functions.sh  (modules/common/external_functions.sh)
       File: fs_functions.sh  (modules/common/fs_functions.sh)
       File: hash_functions.sh  (modules/common/hash_functions.sh)
       File: installer_functions.sh  (modules/common/installer_functions.sh)
