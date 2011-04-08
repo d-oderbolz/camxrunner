@@ -98,21 +98,6 @@ c-----Read and open I/O files; get user-specified inputs
       hr1 = float(ihr1)
       hr2 = float(ihr2)
       
-      read(*,'(20x,i10)') nspecsum
-      
-      if (nspecsum.gt.mxspecsum) then
-        write(*,*) 'You want to add up mare than mxspecsum species!'
-        write(*,*) 'Increase mxspecsum and recompile.'
-        stop
-      endif
-      
-      write(*,*)'Number of species to add up: ',nspecsum
-      do ispec = 1,nspecsum
-        read(*,'(20x,10a1)') mspec1(ispec)
-        write(*,'(1x,a,10a1)') 'Species name: ',mspec1(ispec)
-      enddo
-      
-      
       read(*,'(20x,f5.4)') radmax
       write(*,*) 'Search radius for max prediction (km/deg): ',radmax
       read(*,'(20x,4i5)') isub1,isub2,jsub1,jsub2
