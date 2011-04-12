@@ -138,8 +138,11 @@ function common.external.init()
 					suffix=&
 				fi
 				
-				# Build the copy command
-				echo "${CXR_EXTERNAL_COPY_COMMAND} $(basename $InputFile) ${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${InputFile} $suffix" >> $ofilelist
+				#Make sure colons are escaped
+				escapedInputFile="${InputFile//:/\\:}"
+				
+				# Build the copy command. 
+				echo "${CXR_EXTERNAL_COPY_COMMAND} \"$(basename $escapedInputFile)\" \"${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${escapedInputFile}\" $suffix" >> $ofilelist
 			
 				iFile=$(( $iFile + 1 ))
 			fi
