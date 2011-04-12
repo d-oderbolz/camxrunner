@@ -82,7 +82,7 @@ function common.external.init()
 	echo "#" >> $ofilelist
 	
 	# Change permissions
-	chmod +x CAMx_job.sh copy_input_files.sh
+	chmod +x $ofile $ofilelist
 	
 	cd $tmpdir
 	
