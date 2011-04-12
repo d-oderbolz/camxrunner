@@ -33,10 +33,10 @@ tmpfile_red=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr_red.XXXXXXXXXX
 if [[ -e last_day ]]
 then
 	# We start at last_day + 1
-	last=$(cat last_day)
+	last=$(echo -en "\\044")$(echo -en "\\050")cat last_day)
 	
-	line=$(grep -n $last $tmpfile | cut -d: -f2)
-	start=$(( $line + 1 ))
+	line=$(echo -en "\\044")$(echo -en "\\050")grep -n $last $tmpfile | cut -d: -f2)
+	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $line + 1 ))
 	
 	if [[ $start -gt $ndays ]]
 	then
@@ -46,7 +46,7 @@ then
 	else
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
-		tail -n$(( $ndays - $start + 1 )) $tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $tmpfile_red
+		tail -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $ndays - $start + 1 )) $tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $tmpfile_red
 	fi
 else
 	# We start at the beginnig
