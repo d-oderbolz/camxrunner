@@ -69,9 +69,18 @@ function common.external.init()
 	main.log -a "You will find all files for the run in $tmpdir"
 	
 	ofile=$tmpdir/CAMx_job.sh
-	ofilelist=$tmpdir/input_files.lst
+	ofilelist=$tmpdir/copy_input_files.sh
 	
-	: > $ofilelist
+	# Add comment to the ofilelist
+	echo "#!/bin/bash" > $ofilelist
+	echo "#This script works if you have passwerdless shh" >> $ofilelist
+	echo "#<http://www.debian-administration.org/articles/152> set up" >> $ofilelist
+	echo "#You need to run it from a directory containing links to all the files" >> $ofilelist
+	echo "#to be copied." >> $ofilelist
+	echo "#" >> $ofilelist
+	
+	# Change permissions
+	chmod +x CAMx_job.sh copy_input_files.sh
 	
 	cd $tmpdir
 	
@@ -117,8 +126,8 @@ function common.external.init()
 		do
 			if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
 			then
-				# We want to know about this file
-				echo "$InputFile" >> $ofilelist
+				# Build the copy command
+				echo "${CXR_EXTERNAL_COPY_COMMAND} $(basename $InputFile) ${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${InputFile}" >> $ofilelist
 			fi
 		done
 
