@@ -56,6 +56,8 @@ function common.external.init()
 ################################################################################
 {
 	local tempdir
+	local iFile
+	local suffix
 
 	if [[ ! -e $CXR_EXTERNAL_TEMPLATE ]]
 	then
@@ -121,13 +123,25 @@ function common.external.init()
 		set_variables false
 		write_model_control_file
 		
+		iFile=1
+		
 		# Write out input files
 		for InputFile in $CXR_CHECK_THESE_INPUT_FILES
 		do
 			if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
 			then
+				if [[ $(( ${iFile} % ${CXR_EXTERNAL_NUMBER_OF_CONNECTIONS} )) -eq 0 ]]
+				then 
+					# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is in the foreground
+					suffix=
+				else
+					suffix=&
+				fi
+				
 				# Build the copy command
-				echo "${CXR_EXTERNAL_COPY_COMMAND} $(basename $InputFile) ${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${InputFile}" >> $ofilelist
+				echo "${CXR_EXTERNAL_COPY_COMMAND} $(basename $InputFile) ${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${InputFile} $suffix" >> $ofilelist
+			
+				iFile=$(( $iFile + 1 ))
 			fi
 		done
 
