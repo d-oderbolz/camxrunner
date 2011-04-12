@@ -82,6 +82,7 @@ function common.external.init()
 	echo "#" >> $ofilelist
 	
 	# Change permissions
+	touch $ofile $ofilelist
 	chmod +x $ofile $ofilelist
 	
 	cd $tmpdir
