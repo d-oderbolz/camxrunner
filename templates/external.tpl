@@ -37,7 +37,7 @@ then
 	# We start at last_day + 1
 	last=$(echo -en "\\044\\050")cat last_day$(echo -en "\\051")
 	
-	$(echo -e "line=\\044\\050 grep -n \\044last \\044tmpfile | cut -d: -f2  \\051")
+	$(echo -e "line=\\044\\050 grep -n \\044last \\044tmpfile | cut -d: -f1  \\051")
 	
 	start=$(echo -en "\\044\\050\\050 \\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
 	
@@ -61,11 +61,11 @@ while read file
 do
 	ln -s -f $(echo -en "\\044")file CAMx.in
 	aprun -n $CXR_EXTERNAL_NUMBER_OF_TASKS -N $CXR_EXTERNAL_TASKS_PER_NODE -d $CXR_EXTERNAL_CPUS_PER_TASK $CXR_EXTERNAL_MODEL_EXEC
+	
+	# Store the last day processed
+	$(echo -e "echo \\044file > last_day")
 done $(echo -en "\\074 \\044")tmpfile_red
 
-# Store the last day processed
-
-$(echo -e "echo \\044file > last_day")
 
 rm $(echo -en "\\044")tmpfile $(echo -en "\\044")tmpfile_red
 
