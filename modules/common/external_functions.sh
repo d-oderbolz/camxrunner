@@ -64,7 +64,7 @@ function common.external.init()
 		main.dieGracefully "Could not find ${CXR_EXTERNAL_TEMPLATE}!"
 	fi
 	
-	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* are expected."
+	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen."
 	
 	tmpdir=$(common.runner.createTempDir run-external false)
 	
