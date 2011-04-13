@@ -75,7 +75,7 @@ function common.external.init()
 	
 	# Add comment to the ofilelist
 	echo "#!/bin/bash" > $ofilelist
-	echo "#This script works if you have passwerdless shh" >> $ofilelist
+	echo "#This script works perfectly if you have passwordless shh" >> $ofilelist
 	echo "#<http://www.debian-administration.org/articles/152> set up" >> $ofilelist
 	echo "#You need to run it from a directory containing links to all the files" >> $ofilelist
 	echo "#to be copied." >> $ofilelist
@@ -131,19 +131,18 @@ function common.external.init()
 		do
 			if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
 			then
-				if [[ $(( ${iFile} % ${CXR_EXTERNAL_NUMBER_OF_CONNECTIONS} )) -eq 0 ]]
-				then 
-					# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is in the foreground
-					suffix=
-				else
-					suffix=&
-				fi
-				
 				#Make sure colons are escaped
 				escapedInputFile="${InputFile//:/\\:}"
 				
 				# Build the copy command. 
-				echo "${CXR_EXTERNAL_COPY_COMMAND} \"$(basename $escapedInputFile)\" \"${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${escapedInputFile}\" $suffix" >> $ofilelist
+				echo "${CXR_EXTERNAL_COPY_COMMAND} \"$(basename $escapedInputFile)\" \"${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${escapedInputFile}\" &" >> $ofilelist
+			
+				if [[ $(( ${iFile} % ${CXR_EXTERNAL_NUMBER_OF_CONNECTIONS} )) -eq 0 ]]
+				then 
+					# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is "wait"
+					# to wait for all previous subprocesses
+					echo "wait " >> $ofilelist
+				fi
 			
 				iFile=$(( $iFile + 1 ))
 			fi
