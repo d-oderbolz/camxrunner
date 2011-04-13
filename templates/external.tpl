@@ -27,16 +27,17 @@ ls -1 CAMx.????????.in > $tmpfile
 # Count the days
 ndays=$(cat $tmpfile | wc -l)
 
-tmpfile_red=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
+tmpfile_red=$(echo -en "\\044\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
 
 # Extract the next $CXR_EXTERNAL_DAYS_PER_JOB
 if [[ -e last_day ]]
 then
 	# We start at last_day + 1
-	last=$(echo -en "\\044")$(echo -en "\\050")cat last_day$(echo -en "\\051")
+	last=$(echo -en "\\044\\050")cat last_day$(echo -en "\\051")
 	
-	line=$(grep -n $last $tmpfile | cut -d: -f2)
-	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
+	$(echo -en "line=\\044\\050 -n \\044last \\044tmpfile | cut -d: -f2  \\051")
+	
+	start=$(echo -en "\\044\\050\\050") $(echo -en "\\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
 	
 	if [[ $(echo -en "\\044")start -gt $(echo -en "\\044")ndays ]]
 	then
@@ -46,7 +47,8 @@ then
 	else
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
-		$(echo tail) -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")ndays - $(echo -en "\\044")start + 1 )) $(echo -en "\\044")tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $tmpfile_red
+		
+		$(echo -en "tail -n$(( \\044ndays -\\044start + 1)) \\044tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
 	fi
 else
 	# We start at the beginnig

@@ -68,7 +68,9 @@ function common.external.init()
 	
 	tmpdir=$(common.runner.createTempDir run-external false)
 	
+	main.log -a "######################################"
 	main.log -a "You will find all files for the run in $tmpdir"
+	main.log -a "######################################"
 	
 	ofile=$tmpdir/CAMx_job.sh
 	ofilelist=$tmpdir/copy_input_files.sh
