@@ -25,7 +25,7 @@ tmpfile=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo 
 ls -1 CAMx.????????.in > $tmpfile
 
 # Count the days
-ndays=$(cat $tmpfile | wc -l)
+ndays=$(echo -en "\\044")(cat $(echo -en "\\044")tmpfile | wc -l)
 
 tmpfile_red=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
 
@@ -35,10 +35,10 @@ then
 	# We start at last_day + 1
 	last=$(echo -en "\\044")$(echo -en "\\050")cat last_day)
 	
-	line=$(echo -en "\\044")$(echo -en "\\050")grep -n $last $tmpfile | cut -d: -f2)
-	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $line + 1 ))
+	line=$(echo -en "\\044")$(echo -en "\\050")grep -n $(echo -en "\\044")last $(echo -en "\\044")tmpfile | cut -d: -f2)
+	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")line + 1 ))
 	
-	if [[ $start -gt $ndays ]]
+	if [[ $(echo -en "\\044")start -gt $(echo -en "\\044")ndays ]]
 	then
 		# No more days
 		echo "It seems that all days where processed.
@@ -46,21 +46,21 @@ then
 	else
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
-		tail -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $ndays - $start + 1 )) $tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $tmpfile_red
+		tail -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")ndays - $(echo -en "\\044")start + 1 )) $(echo -en "\\044")tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $(echo -en "\\044")tmpfile_red
 	fi
 else
 	# We start at the beginnig
-	head -n$CXR_EXTERNAL_DAYS_PER_JOB $tmpfile > $tmpfile_red
+	head -n$CXR_EXTERNAL_DAYS_PER_JOB $(echo -en "\\044")tmpfile > $(echo -en "\\044")tmpfile_red
 fi
 
 while read file
 do
-	ln -s -f $file CAMx.in
+	ln -s -f $(echo -en "\\044")file CAMx.in
 	aprun -n $CXR_EXTERNAL_NUMBER_OF_TASKS -N $CXR_EXTERNAL_TASKS_PER_NODE -d $CXR_EXTERNAL_CPUS_PER_TASK $CXR_EXTERNAL_MODEL_EXEC
-done < $tmpfile_red
+done < $(echo -en "\\044")tmpfile_red
 
 # Store the last day processed
-echo $file > last_day
+echo $(echo -en "\\044")file > last_day
 
-rm $tmpfile $tmpfile_red
+rm $(echo -en "\\044")tmpfile $(echo -en "\\044")tmpfile_red
 
