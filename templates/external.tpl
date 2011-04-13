@@ -26,7 +26,8 @@ tmpfile=$(echo -en "\\044\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
 $(echo -e "ls -1 CAMx.????????.in > \\044tmpfile")
 
 # Count the days
-ndays=$(cat $(echo -en "\\044")tmpfile | wc -l)
+$(echo -e "ndays=\\044\\050cat \\044tmpfile \\0174 wc -l\\051")
+
 
 tmpfile_red=$(echo -en "\\044\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
 
