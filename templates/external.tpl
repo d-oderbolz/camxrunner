@@ -22,7 +22,7 @@ export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
 # Store all CAMx.in files in a tempfile
 tmpfile=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
-ls -1 CAMx.????????.in > $(echo -en "\\044")tmpfile
+ls -1 CAMx.????????.in > $tmpfile
 
 # Count the days
 ndays=$(cat $tmpfile | wc -l)
@@ -46,11 +46,11 @@ then
 	else
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
-		$(echo tail) -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")ndays - $(echo -en "\\044")start + 1 )) $(echo -en "\\044")tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $(echo -en "\\044")tmpfile_red
+		$(echo tail) -n$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")ndays - $(echo -en "\\044")start + 1 )) $(echo -en "\\044")tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > $tmpfile_red
 	fi
 else
 	# We start at the beginnig
-	$(echo head) -n$CXR_EXTERNAL_DAYS_PER_JOB $(echo -en "\\044")tmpfile > $(echo -en "\\044")tmpfile_red
+	$(echo head) -n$CXR_EXTERNAL_DAYS_PER_JOB $(echo -en "\\044")tmpfile > $tmpfile_red
 fi
 
 while read file
