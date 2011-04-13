@@ -35,9 +35,9 @@ then
 	# We start at last_day + 1
 	last=$(echo -en "\\044\\050")cat last_day$(echo -en "\\051")
 	
-	$(echo -en "line=\\044\\050 -n \\044last \\044tmpfile | cut -d: -f2  \\051")
+	$(echo -en "line=\\044\\050 grep -n \\044last \\044tmpfile | cut -d: -f2  \\051")
 	
-	start=$(echo -en "\\044\\050\\050") $(echo -en "\\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
+	start=$(echo -en "\\044\\050\\050 \\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
 	
 	if [[ $(echo -en "\\044")start -gt $(echo -en "\\044")ndays ]]
 	then
@@ -48,11 +48,11 @@ then
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
 		
-		$(echo -en "tail -n$(( \\044ndays -\\044start + 1)) \\044tmpfile | head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
+		$(echo -en "tail -n\\044\\050\\050 \\044ndays -\\044start + 1\\051\\051 \\044tmpfile \\174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
 	fi
 else
 	# We start at the beginnig
-	$(echo head) -n$CXR_EXTERNAL_DAYS_PER_JOB $(echo -en "\\044")tmpfile > $tmpfile_red
+	$(echo "head -n\\044CXR_EXTERNAL_DAYS_PER_JOB \\044tmpfile > \\044tmpfile_red")
 fi
 
 while read file
