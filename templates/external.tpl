@@ -35,7 +35,7 @@ then
 	# We start at last_day + 1
 	last=$(echo -en "\\044\\050")cat last_day$(echo -en "\\051")
 	
-	$(echo -en "line=\\044\\050 grep -n \\044last \\044tmpfile | cut -d: -f2  \\051")
+	$(echo -e "line=\\044\\050 grep -n \\044last \\044tmpfile | cut -d: -f2  \\051")
 	
 	start=$(echo -en "\\044\\050\\050 \\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
 	
@@ -48,7 +48,7 @@ then
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
 		
-		$(echo -en "tail -n\\044\\050\\050 \\044ndays -\\044start + 1\\051\\051 \\044tmpfile \\174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
+		$(echo -e "tail -n\\044\\050\\050 \\044ndays -\\044start + 1\\051\\051 \\044tmpfile \\174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
 	fi
 else
 	# We start at the beginnig
@@ -62,7 +62,8 @@ do
 done < $(echo -en "\\044")tmpfile_red
 
 # Store the last day processed
-$(echo echo) $(echo -en "\\044")file > last_day
+
+$(echo -e "echo \\044file > last_day")
 
 rm $(echo -en "\\044")tmpfile $(echo -en "\\044")tmpfile_red
 
