@@ -22,10 +22,10 @@ export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
 # Store all CAMx.in files in a tempfile
 tmpfile=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
-ls -1 CAMx.????????.in > $tmpfile
+ls -1 CAMx.????????.in > $(echo -en "\\044")tmpfile
 
 # Count the days
-ndays=$(echo -en "\\044")(cat $(echo -en "\\044")tmpfile | wc -l)
+ndays=$(echo -en "\\044")$(echo -en "\\050")cat $(echo -en "\\044")tmpfile | wc -l$(echo -en "\\051")
 
 tmpfile_red=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
 
@@ -33,10 +33,10 @@ tmpfile_red=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr_red.XXXXXXXXXX
 if [[ -e last_day ]]
 then
 	# We start at last_day + 1
-	last=$(echo -en "\\044")$(echo -en "\\050")cat last_day)
+	last=$(echo -en "\\044")$(echo -en "\\050")cat last_day$(echo -en "\\051")
 	
-	line=$(echo -en "\\044")$(echo -en "\\050")grep -n $(echo -en "\\044")last $(echo -en "\\044")tmpfile | cut -d: -f2)
-	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")line + 1 ))
+	line=$(echo -en "\\044")$(echo -en "\\050")grep -n $(echo -en "\\044")last $(echo -en "\\044")tmpfile | cut -d: -f2$(echo -en "\\051")
+	start=$(echo -en "\\044")$(echo -en "\\050")$(echo -en "\\050") $(echo -en "\\044")line + 1 $(echo -en "\\051")$(echo -en "\\051")
 	
 	if [[ $(echo -en "\\044")start -gt $(echo -en "\\044")ndays ]]
 	then
