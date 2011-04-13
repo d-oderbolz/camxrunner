@@ -21,7 +21,7 @@ $(echo -en "\\043")SBATCH --time=$CXR_EXTERNAL_TIME_NEEDED
 export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
 # Store all CAMx.in files in a tempfile
-tmpfile=$(echo -en "\\044")$(echo -en "\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
+tmpfile=$(echo -en "\\044\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
 ls -1 CAMx.????????.in > $tmpfile
 
 # Count the days
