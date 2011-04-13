@@ -42,7 +42,7 @@ then
 	if [[ $(echo -en "\\044")start -gt $(echo -en "\\044")ndays ]]
 	then
 		# No more days
-		echo "It seems that all days where processed.
+		echo "It seems that all days where processed."
 		exit
 	else
 		# There are more days
