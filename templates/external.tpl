@@ -48,18 +48,18 @@ then
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
 		
-		$(echo -e "tail -n\\044\\050\\050 \\044ndays -\\044start + 1\\051\\051 \\044tmpfile \\174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
+		$(echo -e "tail -n\\044\\050\\050 \\044ndays - \\044start + 1\\051\\051 \\044tmpfile \\174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
 	fi
 else
 	# We start at the beginnig
-	$(echo "head -n\\044CXR_EXTERNAL_DAYS_PER_JOB \\044tmpfile > \\044tmpfile_red")
+	$(echo -e "head -n$CXR_EXTERNAL_DAYS_PER_JOB \\044tmpfile > \\044tmpfile_red")
 fi
 
 while read file
 do
 	ln -s -f $(echo -en "\\044")file CAMx.in
 	aprun -n $CXR_EXTERNAL_NUMBER_OF_TASKS -N $CXR_EXTERNAL_TASKS_PER_NODE -d $CXR_EXTERNAL_CPUS_PER_TASK $CXR_EXTERNAL_MODEL_EXEC
-done < $(echo -en "\\044")tmpfile_red
+done < $tmpfile_red
 
 # Store the last day processed
 
