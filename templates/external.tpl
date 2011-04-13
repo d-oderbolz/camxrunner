@@ -22,7 +22,8 @@ export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
 # Store all CAMx.in files in a tempfile
 tmpfile=$(echo -en "\\044\\050")mktemp /tmp/cxr.XXXXXXXXXXX$(echo -en "\\051")
-ls -1 CAMx.????????.in > $(echo -en "\\044")tmpfile
+
+$(echo -e "ls -1 CAMx.????????.in > \\044tmpfile")
 
 # Count the days
 ndays=$(cat $(echo -en "\\044")tmpfile | wc -l)
@@ -59,7 +60,7 @@ while read file
 do
 	ln -s -f $(echo -en "\\044")file CAMx.in
 	aprun -n $CXR_EXTERNAL_NUMBER_OF_TASKS -N $CXR_EXTERNAL_TASKS_PER_NODE -d $CXR_EXTERNAL_CPUS_PER_TASK $CXR_EXTERNAL_MODEL_EXEC
-done < $(echo -en "\\044")tmpfile_red
+done $(echo -en "\\074 \\044")tmpfile_red
 
 # Store the last day processed
 
