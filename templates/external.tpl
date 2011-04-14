@@ -15,7 +15,7 @@ $(echo -en "\\043")SBATCH --output=$CXR_EXETRNAL_STDLOG
 $(echo -en "\\043")SBATCH --error=$CXR_EXETRNAL_ERRLOG
 $(echo -en "\\043")SBATCH --ntasks=$CXR_EXTERNAL_NUMBER_OF_TASKS
 $(echo -en "\\043")SBATCH --ntasks-per-node=$CXR_EXTERNAL_TASKS_PER_NODE
-$(echo -en "\\043")SBATCH --ncpus-per-task=$CXR_EXTERNAL_CPUS_PER_TASK
+$(echo -en "\\043")SBATCH --cpus-per-task=$CXR_EXTERNAL_CPUS_PER_TASK
 $(echo -en "\\043")SBATCH --time=$CXR_EXTERNAL_TIME_NEEDED
 
 days_per_job=$CXR_EXTERNAL_DAYS_PER_JOB
