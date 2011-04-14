@@ -18,6 +18,8 @@ $(echo -en "\\043")SBATCH --ntasks-per-node=$CXR_EXTERNAL_TASKS_PER_NODE
 $(echo -en "\\043")SBATCH --ncpus-per-task=$CXR_EXTERNAL_CPUS_PER_TASK
 $(echo -en "\\043")SBATCH --time=$CXR_EXTERNAL_TIME_NEEDED
 
+days_per_job=$CXR_EXTERNAL_DAYS_PER_JOB
+
 export OMP_NUM_THREADS=$CXR_EXTERNAL_TASKS_PER_NODE
 
 # Store all CAMx.in files in a tempfile
@@ -31,7 +33,7 @@ $(echo -e "ndays=\\044\\050cat \\044tmpfile \\0174 wc -l\\051")
 
 tmpfile_red=$(echo -en "\\044\\050")mktemp /tmp/cxr_red.XXXXXXXXXXX$(echo -en "\\051")
 
-# Extract the next $CXR_EXTERNAL_DAYS_PER_JOB
+# Extract the next days_per_job lines
 if [[ -e last_day ]]
 then
 	# We start at last_day + 1
@@ -50,11 +52,11 @@ then
 		# There are more days
 		# First get the lines after starting,        then get the first n ones
 		
-		$(echo -e "tail -n\\044\\050\\050 \\044ndays - \\044start + 1\\051\\051 \\044tmpfile \\0174 head -n$CXR_EXTERNAL_DAYS_PER_JOB > \\044tmpfile_red")
+		$(echo -e "tail -n\\044\\050\\050 \\044ndays - \\044start + 1\\051\\051 \\044tmpfile \\0174 head -n\\044days_per_job > \\044tmpfile_red")
 	fi
 else
 	# We start at the beginnig
-	$(echo -e "head -n$CXR_EXTERNAL_DAYS_PER_JOB \\044tmpfile > \\044tmpfile_red")
+	$(echo -e "head -n\\044days_per_job \\044tmpfile > \\044tmpfile_red")
 fi
 
 while read file
