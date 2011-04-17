@@ -477,40 +477,48 @@ c----- Print out the "decimal index" of the stations
 
 c-----Find peak gridded concentrations over all hours
 c     within a user-defined sub-domain and radius from max ob site
-c     CT 9/12/02 Change max jsub2 from noy-2 to noy-1 
+c     CT 9/12/02 Change max jsub2 from noy-2 to noy-1
+c     If radmax = 0, we do not search.
 
-        if (isub1.lt.1 .or. jsub1.lt.1) then
-          isub1 = 2
-          isub2 = nox - 1
-          jsub1 = 2
-          jsub2 = noy - 1
-        else
-          isub1 = max(2,isub1)
-          isub2 = min(nox-1,isub2)
-          jsub1 = max(2,jsub1)
-          jsub2 = min(noy-1,jsub2)
-        endif
-        prdmax = 0.
-        do j = jsub1,jsub2
-          do i = isub1,isub2
-            xloc = (xorg + (i-0.5)*deltax)/conv2metre
-            yloc = (yorg + (j-0.5)*deltay)/conv2metre
-            distx = (xloc - xutm(nsmax))
-            disty = (yloc - yutm(nsmax))
-            dist = sqrt(distx**2 + disty**2)
-            if (dist.le.radmax) then
-              do nh = 1,nprdhr-navhour+1
-                prdmax = amax1(prdmax,prdconc2(i,j,nh))
-                if (prdmax.eq.prdconc2(i,j,nh)) then
-                  iudtmx1 = ibgdat(nh)
-                  iutmmx1 = nint(begtim(nh))
-                  imax = i
-                  jmax = j
-                endif
-              enddo
-            endif
+        if (radmax.gt.0) then
+
+          if (isub1.lt.1 .or. jsub1.lt.1) then
+            isub1 = 2
+            isub2 = nox - 1
+            jsub1 = 2
+            jsub2 = noy - 1
+          else
+            isub1 = max(2,isub1)
+            isub2 = min(nox-1,isub2)
+            jsub1 = max(2,jsub1)
+            jsub2 = min(noy-1,jsub2)
+          endif
+          prdmax = 0.
+          do j = jsub1,jsub2
+            do i = isub1,isub2
+              xloc = (xorg + (i-0.5)*deltax)/conv2metre
+              yloc = (yorg + (j-0.5)*deltay)/conv2metre
+              distx = (xloc - xutm(nsmax))
+              disty = (yloc - yutm(nsmax))
+              dist = sqrt(distx**2 + disty**2)
+              if (dist.le.radmax) then
+                do nh = 1,nprdhr-navhour+1
+                  prdmax = amax1(prdmax,prdconc2(i,j,nh))
+                  if (prdmax.eq.prdconc2(i,j,nh)) then
+                    iudtmx1 = ibgdat(nh)
+                    iutmmx1 = nint(begtim(nh))
+                    imax = i
+                    jmax = j
+                  endif
+                enddo
+              endif
+            enddo
           enddo
-        enddo
+        else
+        	imax = -999
+        	jmax = -999
+        	prdmax = -999. 
+        endif
 
 c-----Write to new PRED/OBS file
 
