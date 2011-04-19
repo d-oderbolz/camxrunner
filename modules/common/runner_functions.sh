@@ -671,6 +671,7 @@ function common.runner.createTempFile()
 	local template
 	local name
 	local do_dir
+	local retval
 	
 	do_dir=false
 	
@@ -713,13 +714,15 @@ function common.runner.createTempFile()
 	if [[ "$do_dir" == true ]]
 	then
 		name=$(mktemp -d $template)
+		retval=$?
 		main.log -v "Created temporary dir $name"
 	else
 		name=$(mktemp $template)
+		retval=$?
 		main.log -v "Created temporary file $name"
 	fi # directory or file?
 	
-	if [[ $? -ne 0 ]]
+	if [[ $retval -ne 0 ]]
 	then
 		# FAILED
 	
@@ -742,7 +745,7 @@ function common.runner.createTempFile()
 	fi
 	
 	echo $name
-	return 0
+	return $CXR_RET_OK
 }
 
 ################################################################################
