@@ -144,7 +144,7 @@ function set_variables()
 	run_on=($CXR_RUN_EXTRACTION_ON_GRID)
 	CXR_IGRID=${run_on[$(( $CXR_INVOCATION - 1 ))]}
 	
-	CXR_STATION_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
+	CXR_MODEL_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
 
 	# the MM5 file to use
 	# only used for ARPA stuff
@@ -152,7 +152,7 @@ function set_variables()
 	CXR_TEMP_GRID_ASC_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)"
 	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_STATION_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MODEL_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
 
 	main.log -a "Configuring station data:"
 
@@ -350,7 +350,7 @@ function extract_station_data
 				# We set this fag to 0 because currently we only run on the innermost domain
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0
 				exit
 				EOF
 				;;
@@ -360,7 +360,7 @@ function extract_station_data
 				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
 				exit
 				EOF
 				;;
@@ -368,11 +368,11 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_STATION_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}
 				exit
 				EOF
 				;;
-			*) 
+			*) main.log -w "I do not know how to start ${CXR_STATION_PROC_INPUT_FILE}!"
 				;;
 		
 		esac
