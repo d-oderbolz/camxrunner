@@ -128,18 +128,34 @@ function common.runner.getY()
 # Parameters:
 #
 # $1 - A integer denoting the domain for which we need the dim (in the range 1..CXR_NUMBER_OF_GRIDS)
+# [$2] - true_output_dimension, if true (default false), you get the number of layer of the output (depends on 
 ################################################################################
 function common.runner.getZ()
 ################################################################################
 {
+	local domain
+	local true_output_dimension
+	local zdim
+	
 	domain=${1:-0}
+	true_output_dimension=${2:-false}
 	
 	if [[ ! ( ${domain} -ge 1 && ${domain} -le ${CXR_NUMBER_OF_GRIDS} ) ]]
 	then
 		main.dieGracefully "domain $1 is out of the range 1..${CXR_NUMBER_OF_GRIDS}"
 	fi
 	
-	echo ${CXR_NUMBER_OF_LAYERS[${domain}]}
+	# The Z dim depends on wether we use 3D output
+	if [[ "${CXR_AVERAGE_OUTPUT_3D}" == false && $true_output_dimension == true ]]
+	then
+		# Only 1 layer
+		zdim=1
+	else
+		# 3D
+		zdim=${CXR_NUMBER_OF_LAYERS[${domain}]}
+	fi
+	
+	echo $zdim
 	
 }
 
