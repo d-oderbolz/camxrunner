@@ -167,42 +167,35 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	height_slice=fltarr(x_dim, y_dim)
 	temp_slice=fltarr(x_dim, y_dim)
 	
-	; Open the input
-	openr,input_t,temp_file, /GET_LUN
-	openr,input_zp,zp_file, /GET_LUN
+	; Open the temp and the pressure file
+	; we read those binary
+	openr,input_t,temp_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+	openr,input_zp,zp_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
 	
 	;do loop for time
 	for iHour=0L,23 do begin
 	
 		; temperature is stored as surface temp and that in levels
 		; Skip header of T file
-		skip_lun,input_t,1
+		hour=0.0
+		idate=0L
 		
 		; read surface temp
-		readf,input_t,temp_slice
+		readu,input_t,hour,idate,temp_slice
 		
 		t[0,0,iHour]=temp_slice
 	
 		;do loop for layers (height & temp file)
 		for iver=0L,z_dim-1 do begin
 			
-			; skip next temp header
-			skip_lun,input_t,1
-			
 			; This is the height-dependent portion
-			readf,input_t,temp_slice
-			
-			; skip one line (timestamp)
-			skip_lun,input_zp,1
+			readu,input_t,hour,idate,temp_slice
 			
 			; height data is first in the ZP file
-			readf,input_zp,height_slice
-			
-			; skip another line (timestamp) of the pressure file
-			skip_lun,input_zp,1
+			readu,input_zp,hour,idate,height_slice
 			
 			; Height data is second
-			readf,input_zp,pressure_slice
+			readu,input_zp,hour,idate,pressure_slice
 			
 			; Fill the "Total" Arrays
 			total_temperature[0,0,iver] = temp_slice
