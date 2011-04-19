@@ -188,9 +188,6 @@ function extract_station_data
 	CXR_INVOCATION=${1}
 	
 	local exec_tmp_file
-	local xdim
-	local ydim
-	local zdim
 	local stations_array
 	local iStation
 	local station_file
@@ -223,20 +220,6 @@ function extract_station_data
 		
 		# Generate Temp file name
 		exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
-		
-		# Calculate extension of grid to extract
-		xdim=$(common.runner.getX $CXR_IGRID)
-		ydim=$(common.runner.getY $CXR_IGRID)
-		
-		# The Z dim depends on wether we use 3D output
-		if [[ "${CXR_AVERAGE_OUTPUT_3D}" == true ]]
-		then
-			# 3D
-			zdim=$(common.runner.getZ $CXR_IGRID)
-		else
-			# Only 1 layer
-			zdim=1
-		fi
 		
 		# We have to prepare the stations array [x,y,filename]
 		# and the species to extract array [speciesname]
@@ -350,7 +333,7 @@ function extract_station_data
 				# We set this fag to 0 because currently we only run on the innermost domain
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${xdim},${ydim},${zdim},${stations_array},'${CXR_METEO_INPUT_FILE}',0
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${stations_array},'${CXR_METEO_INPUT_FILE}'
 				exit
 				EOF
 				;;
@@ -360,7 +343,7 @@ function extract_station_data
 				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${xdim},${ydim},${zdim},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
 				exit
 				EOF
 				;;
@@ -368,7 +351,7 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${xdim},${ydim},${zdim},${stations_array}
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array}
 				exit
 				EOF
 				;;

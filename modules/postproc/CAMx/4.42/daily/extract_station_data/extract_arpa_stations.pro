@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_dim,y_dim,num_levels,stations,temp_file,zp_file,format=fmt,norm_method=norm_method
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,format=fmt,norm_method=norm_method
 	;
 	; Function: extract_arpa_stations
 	;
@@ -29,7 +29,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	; year - year to be extracted	
 	; x_dim - the x dimension of the grid in grid cells of the grid in question	
 	; y_dim - the y dimension of the grid in grid cells of the grid in question
-	; num_levels - the number of levels of the grid in question
+	; z_dim - the number of levels of the grid in question
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 	; zp_file - pressure/height ASCII file
 	; temp_file - temperature ASCII file
@@ -78,6 +78,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	scalars=hp->get_scalars()
 	num_input_species=scalars->get('nspec')
 	head_length = hp->get_header_length()
+	
+	; Get dimensions
+	x_dim=scalars->get('nx')
+	y_dim=scalars->get('ny')
+	z_dim=scalars->get('nz')
 	
 	; Get list of species in average file
 	species=hp->get_species()
@@ -148,9 +153,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 	t=fltarr(x_dim, y_dim, 24)
 	
 	; we need the next arrays becase we need to interpolate to the ground
-	total_pressure=fltarr(x_dim, y_dim, num_levels)
-	total_temperature=fltarr(x_dim, y_dim, num_levels)
-	total_height=fltarr(x_dim, y_dim, num_levels)
+	total_pressure=fltarr(x_dim, y_dim, z_dim)
+	total_temperature=fltarr(x_dim, y_dim, z_dim)
+	total_height=fltarr(x_dim, y_dim, z_dim)
 	
 	; to read, we need the slices
 	pressure_slice=fltarr(x_dim, y_dim)
@@ -174,7 +179,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		t[0,0,iHour]=temp_slice
 	
 		;do loop for layers (height & temp file)
-		for iver=0L,num_levels-1 do begin
+		for iver=0L,z_dim-1 do begin
 			
 			; skip next temp header
 			skip_lun,input_t,1
@@ -307,7 +312,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,x_di
 		for ispec=0L,num_input_species-1 do begin
 		
 			;do loop for layers
-			for iver=0L,num_levels-1 do begin
+			for iver=0L,z_dim-1 do begin
 				
 				skip_lun, input_lun,1, /LINES 
 				

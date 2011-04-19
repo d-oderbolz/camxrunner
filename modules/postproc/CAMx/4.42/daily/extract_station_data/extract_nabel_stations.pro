@@ -1,4 +1,4 @@
-pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,x_dim,y_dim,num_levels,stations,format=fmt
+pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,format=fmt
 ;
 ; Function: extract_nabel_stations
 ;
@@ -15,7 +15,6 @@ pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,speci
 ;	This script is called automatically by the output processor
 ;	<extract_station_data> - *hesitate to change the calling interface*!
 ;
-;
 ; Parameters:
 ; input_file - input file to operate on
 ; output_dir - directory where to store output (no trailing /)
@@ -24,44 +23,9 @@ pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,speci
 ; year - year to be extracted
 ; model_hour - the number of hours already modelled. Used as an offset for time calculations. The first dataset gets this time (model_hour+0)
 ; species - a string array of the species to extract
-; x_dim - the x dimension of the grid in grid cells of the grid in question  
-; y_dim - the y dimension of the grid in grid cells of the grid in question
-; num_levels - the number of levels of the grid in question
 ; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 ; format - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
 ;
-;>            idl No            Species                    unit
-;>              0               NO                         (ppb)
-;>              1               NO2                        (ppb)
-;>              2               O3                         (ppb)
-;>              3               TOL                        (ppb)
-;>              4               XYL                        (ppb)
-;>              5               FORM                       (ppb)
-;>              6               PAN                        (ppb)
-;>              7               CO                         (ppb)
-;>              8               HONO                       (ppb)
-;>              9               HNO3                       (ppb)
-;>             10               H2O2                       (ppb)
-;>             11               ISOP                       (ppb)
-;>             12               PNA                        (ppb)
-;>             13               SO2                        (ppb)
-;>             14               NH3                        (ppb)
-;>             15               PH2O                       (microg/m3)
-;>             16               PNO3                       (microg/m3)
-;>             17               PSO4                       (microg/m3)
-;>             18               PNH4                       (microg/m3)
-;>             19               POA                        (microg/m3)
-;>             20               PEC                        (microg/m3)
-;>             21               SOA1                       (microg/m3)
-;>             22               SOA2                       (microg/m3)
-;>             23               SOA3                       (microg/m3)
-;>             24               SOA4                       (microg/m3)
-;>             25               SOA5                       (microg/m3)
-;>             26               SOA6                       (microg/m3)
-;>             27               SOA7                       (microg/m3)
-;>             28               SOPA                       (microg/m3)
-;>             29               SOPB                       (microg/m3)
-;>
 ;>            The stations are loaded with an @ script which can be created by the CAMx-runner.sh
 ;
 ;*******************************************************************************************************
@@ -79,6 +43,17 @@ print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 ; Check settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; Load header Parser
+hp=obj_new('header_parser',input_file)
+
+; Get number of species in average file
+scalars=hp->get_scalars()
+
+; Get dimensions
+x_dim=scalars->get('nx')
+y_dim=scalars->get('ny')
+z_dim=scalars->get('nz')
+
 num_species = n_elements(species)
 
 ; stations are multidimensional
@@ -95,7 +70,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	if n_Elements(fmt) EQ 0 then fmt='(9e14.9)'
 	
 	; x, y, z, species, hours
-	c=fltArr(x_dim,y_dim,num_levels,num_species,24)
+	c=fltArr(x_dim,y_dim,z_dim,num_species,24)
 	
 	; x, y
 	c1=fltArr(x_dim,y_dim)
@@ -116,7 +91,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	station_luns=intArr(num_stations)
 	
 	;z, species, hours, station
-	z=fltArr(num_levels,num_species,24,num_stations)
+	z=fltArr(z_dim,num_species,24,num_stations)
 	
 	print,'Opening Input file.'
 	
@@ -155,7 +130,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		for ispec=0L,num_species-1 do begin
 		
 			;do loop for layers
-			for iver=0L,num_levels-1 do begin
+			for iver=0L,z_dim-1 do begin
 			
 				;print,'Skipping Species header.'
 				skip_lun, input_lun,1, /LINES 
