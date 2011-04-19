@@ -693,8 +693,14 @@ function main.dieGracefully()
 	local maxNests
 	local last
 	
-	# touching this file flags this as abnormal termination
-	touch "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE"
+	# Pseudo Singleton
+	if [[ -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
+	then
+		return $CXR_RET_OK
+	else
+		# touching this file flags this as abnormal termination
+		touch "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE"
+	fi
 	
 	# Stop this run on all machines
 	# Delete any .CONTINUE FILES

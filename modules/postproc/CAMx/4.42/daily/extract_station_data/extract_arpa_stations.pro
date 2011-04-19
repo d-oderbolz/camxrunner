@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,format=fmt,norm_method=norm_method,is_binary=is_binary
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,norm_method=norm_method,is_binary=is_binary
 	;
 	; Function: extract_arpa_stations
 	;
@@ -33,7 +33,6 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 	; zp_file - pressure/height ASCII file
 	; temp_file - temperature ASCII file
-	; [format=] - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
 	; [norm_method=] - a string selecting the approach to normalize concentrations to standard conditions:
 	;                        'physical' - using the models T and P fields (default)
 	;                        'nabel' - use the NABELs constant factors (ASSUMING h < 1500 m)
