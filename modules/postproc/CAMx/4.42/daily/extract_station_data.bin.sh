@@ -146,13 +146,13 @@ function set_variables()
 	
 	CXR_MODEL_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 
-	# the MM5 file to use
-	# only used for ARPA stuff
-	CXR_ZP_GRID_ASC_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
-	CXR_TEMP_GRID_ASC_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)"
+	# the temp and pressure files to use (binary)
+	CXR_ZP_GRID_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
+	CXR_TEMP_GRID_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)"
+	
 	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MODEL_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_ASC_FILE $CXR_TEMP_GRID_ASC_FILE"
+	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MODEL_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_FILE $CXR_TEMP_GRID_FILE"
 
 	main.log -a "Configuring station data:"
 
@@ -334,7 +334,7 @@ function extract_station_data
 				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}',1
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_FILE}','${CXR_ZP_GRID_FILE}',norm_method='${CXR_NORM_METHOD}',1
 				exit
 				EOF
 				;;
