@@ -275,7 +275,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	station_conc=fltArr(num_input_species,num_stations)
 	
 	; Open the input
-	openr,input_lun,input_file, /GET_LUN
+	if (is_binary) then begin
+		openr,input_lun,input_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+	endif else begin
+		openr,input_lun,input_file, /GET_LUN
+	endelse
 	
 	; Open all the output files
 	; and store the luns

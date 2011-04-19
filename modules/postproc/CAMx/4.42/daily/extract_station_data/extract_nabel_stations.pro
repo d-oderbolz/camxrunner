@@ -94,7 +94,11 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	print,'Opening Input file.'
 	
 	; Open the input
-	openr,input_lun,input_file, /GET_LUN
+	if (is_binary) then begin
+		openr,input_lun,input_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+	endif else begin
+		openr,input_lun,input_file, /GET_LUN
+	endelse
 	
 	print,'Opening all Output files.'
 	
