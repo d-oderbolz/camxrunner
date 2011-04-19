@@ -567,6 +567,21 @@ CXR_TIME_TOTAL_ESTIMATED=0
 CXR_MAX_BAR_WIDTH=80
 
 ################################################################################
+# Parameters for map conversion
+################################################################################
+
+CXR_MAP_EARTH_RADIUS_METRE=6370000
+
+# Supported Projections
+CXR_MAP_PROJECTION_LATLON=LATLON
+CXR_MAP_PROJECTION_LAMBERT=LAMBERT
+CXR_MAP_PROJECTION_POLAR=POLAR
+CXR_MAP_PROJECTION_UTM=UTM
+CXR_MAP_PROJECTION_SWISS=SWISS
+CXR_MAP_PROJECTION_INDEX=INDEX
+
+
+################################################################################
 # Installer - specific settings (find more in the CAMx version specific .conf files)
 ################################################################################
 

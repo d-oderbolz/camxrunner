@@ -178,6 +178,8 @@ function set_variables()
 #	
 # Extracts the model data (innermost domain) from the locations of the stations
 # given in CXR_STATION_X and CXR_STATION_Y.
+# If you want to extract a certain cell, fill CXR_STATION_X and CXR_STATION_Y
+# with data obtained from $(common.map.indexesToModelCoordinates)
 #
 # Calls IDL Procedure <extract_nabel_stations>
 ################################################################################	

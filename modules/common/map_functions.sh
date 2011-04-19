@@ -264,12 +264,13 @@ function common.map.LonLatToIndexes()
 ################################################################################
 # Function: common.map.LonLatToProjection
 #
-# Converts Lon/Lat to model coordinates and back (with switch)
+# Converts Lon/Lat to projected coordinates and back (with switch)
 # Input coordinates must be given in any format supported by the cs2cs 
 # program of Proj.4 <http://proj.osgeo.org/>.
-# Note that we use a spherical earth (R=6370 km) as datum because that is what the 
-# underlying meteo models (MM5/WRF) use. Check if the results are correct for your case!
-# We detected offsets in the km region when using WGS84 as datum!
+# Note that we use a spherical earth (R=$CXR_MAP_EARTH_RADIUS_METRE) as datum 
+# because that is what the underlying meteo models (MM5/WRF) use. 
+# Check if the results are correct for your case!
+# We detected offsets of the order of kms when comparing to WGS84 datum!
 #
 # Supports the same cooordinate systems as CAMx plus Swiss coordinates.
 #
@@ -310,11 +311,11 @@ function common.map.LonLatToProjection()
 	fi
 	
 	case $projection in
-		LAMBERT) proj_string="+proj=lcc +R=6370000 +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2 +no_defs";;
-		POLAR) proj_string="+proj=stere +R=6370000 +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
-		UTM) proj_string="+proj=utm +R=6370000 +units=km +zone=$CXR_UTM_ZONE +no_defs";;
-		SWISS) proj_string="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +x_0=600000 +y_0=200000 +ellps=bessel +units=m +no_defs";;
-		LATLON|LONLAT) 
+		$CXR_MAP_PROJECTION_LAMBERT) proj_string="+proj=lcc +R=$CXR_MAP_EARTH_RADIUS_METRE +units=km +lon_0=$CXR_LAMBERT_CENTER_LONGITUDE +lat_0=$CXR_LAMBERT_CENTER_LATITUDE +lat_1=$CXR_LAMBERT_TRUE_LATITUDE1 +lat_2=$CXR_LAMBERT_TRUE_LATITUDE2 +no_defs";;
+		$CXR_MAP_PROJECTION_POLAR) proj_string="+proj=stere +R=$CXR_MAP_EARTH_RADIUS_METRE +units=km +lon_0=$CXR_POLAR_LONGITUDE_POLE +lat_0=$CXR_POLAR_LATITUDE_POLE +no_defs";;
+		$CXR_MAP_PROJECTION_UTM) proj_string="+proj=utm +R=$CXR_MAP_EARTH_RADIUS_METRE +units=km +zone=$CXR_UTM_ZONE +no_defs";;
+		$CXR_MAP_PROJECTION_SWISS) proj_string="+proj=somerc +lat_0=46.95240555555556 +lon_0=7.439583333333333 +x_0=600000 +y_0=200000 +ellps=bessel +units=m +no_defs";;
+		$CXR_MAP_PROJECTION_LATLON|LONLAT) 
 			# No need to convert.
 			echo "${lon} ${lat}"
 			return $CXR_RET_OK
@@ -323,7 +324,7 @@ function common.map.LonLatToProjection()
 	esac
 	
 	# Call converter
-	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=lonlat +R=6370000 +to $proj_string <<-EOT
+	result="$(${CXR_CS2CS_EXEC} $inv_string -f "%.4f" +proj=lonlat +R=$CXR_MAP_EARTH_RADIUS_METRE +to $proj_string <<-EOT
 	$lon $lat
 	EOT)"
 	

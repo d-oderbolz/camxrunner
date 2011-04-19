@@ -177,7 +177,9 @@ function set_variables()
 # Function: extract_station_data
 #	
 # Extracts the model data (innermost domain) from the locations of the stations
-# given in CXR_STATION_X and CXR_STATION_Y.
+# given in CXR_STATION_X and CXR_STATION_Y in CXR_STATION_PROJECTION
+# If you want to extract a certain cell, fill CXR_STATION_X and CXR_STATION_Y
+# with data obtained from $(common.map.indexesToModelCoordinates)
 #
 # Calls IDL Procedure <extract_nabel_stations>
 ################################################################################	
@@ -209,7 +211,7 @@ function extract_station_data
 		
 		#  --- Check Settings
 		# Postprocessor: we only terminate the module
-		if [[ $(common.check.preconditions) == false  ]]
+		if [[ $(common.check.preconditions) == false ]]
 		then
 			main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met, we exit this module."
 			common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
