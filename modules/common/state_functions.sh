@@ -625,7 +625,7 @@ function common.state.updateInfo()
 						# A module can disable itself
 						if [[ $nInvocations -lt 1 ]]
 						then
-							main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module - we disable it."
+							main.log -a "Module $module returned 0 needed invocations. Probably the configuation is not compatible with this module."
 							run_it=false
 						fi
 					fi
