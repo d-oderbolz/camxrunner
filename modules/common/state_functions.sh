@@ -588,7 +588,7 @@ function common.state.updateInfo()
 				# Returns the empty string if not set
 				wanted_variant=$(common.conf.get "${module}.variant")
 				
-				main.log -a "variant of $file is $variant (needed: $wanted_variant)"
+				main.log -v "variant of $file is $variant (needed: $wanted_variant)"
 				
 				if [[ "$variant" == "$wanted_variant" ]]
 				then
