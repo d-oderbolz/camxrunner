@@ -583,10 +583,12 @@ function common.state.updateInfo()
 				# Determine name and variant of the current file
 				module="$(main.getModuleName $file)"
 				variant="$(main.getModuleVariant $file)"
-				
+
 				# Did the user select a variant? 
 				# Returns the empty string if not set
 				wanted_variant=$(common.conf.get "${module}.variant")
+				
+				main.log -v "variant of $file is $variant (needed: $wanted_variant)"
 				
 				if [[ "$variant" == "$wanted_variant" ]]
 				then
