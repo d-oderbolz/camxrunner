@@ -1,4 +1,4 @@
-pro extract_stations,input_file,output_dir,mmout_file,day,month,year,extract_species,chemistry_mechanism,aerosol_mechanism,write_header,interpolation_method,file_format,output_number_format,is_latlon,x_dim,y_dim,num_levels,stations,do_normalization,normalize_temperature_k,normalize_pressure_pa,is_master_domain
+pro extract_stations,input_file,output_dir,mmout_file,day,month,year,extract_species,chemistry_mechanism,aerosol_mechanism,write_header,interpolation_method,file_format,output_number_format,stations,do_normalization,normalize_temperature_k,normalize_pressure_pa
 ;
 ; Function: extract_stations
 ;
@@ -40,49 +40,11 @@ pro extract_stations,input_file,output_dir,mmout_file,day,month,year,extract_spe
 ; file_format - either 'CSV' or 'IDL'
 ; time_format - either 'HOUR' or an IDL date string
 ; output_number_format - The output format of the numbers.
-; is_latlon - boolean flag, if true, coordinates are assumed to be geographic rather that grid indexes
-; x_dim - the x dimension of the grid in grid cells of the grid in question  
-; y_dim - the y dimension of the grid in grid cells of the grid in question
-; num_levels - the number of levels of the grid in question
 ; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
 ; do_normalization - boolean flag, if true, concentrations are normalized
 ; gasses_unit - Unit in which gasses are represented, suports PPM (Default), PPB, MUGCM (microgram/m**3)
 ; normalize_temperature_k - Temperature in K for normalisation 
 ; normalize_pressure_pa - Pressure in Pa for normalisation 
-; is_master_domain - 1 for the master domain, 0 otherwise. For domains other than master, we need to shift the coordinates.
-;
-;>            idl No            Species                    unit
-;>              0               NO                         (ppb)
-;>              1               NO2                        (ppb)
-;>              2               O3                         (ppb)
-;>              3               TOL                        (ppb)
-;>              4               XYL                        (ppb)
-;>              5               FORM                       (ppb)
-;>              6               PAN                        (ppb)
-;>              7               CO                         (ppb)
-;>              8               HONO                       (ppb)
-;>              9               HNO3                       (ppb)
-;>             10               H2O2                       (ppb)
-;>             11               ISOP                       (ppb)
-;>             12               PNA                        (ppb)
-;>             13               SO2                        (ppb)
-;>             14               NH3                        (ppb)
-;>             15               PH2O                       (microg/m3)
-;>             16               PNO3                       (microg/m3)
-;>             17               PSO4                       (microg/m3)
-;>             18               PNH4                       (microg/m3)
-;>             19               POA                        (microg/m3)
-;>             20               PEC                        (microg/m3)
-;>             21               SOA1                       (microg/m3)
-;>             22               SOA2                       (microg/m3)
-;>             23               SOA3                       (microg/m3)
-;>             24               SOA4                       (microg/m3)
-;>             25               SOA5                       (microg/m3)
-;>             26               SOA6                       (microg/m3)
-;>             27               SOA7                       (microg/m3)
-;>             28               SOPA                       (microg/m3)
-;>             29               SOPB                       (microg/m3)
-;>
 ;
 ;*******************************************************************************************************
 ; Who   When        What
@@ -155,7 +117,7 @@ species=hp->get_species()
 
 ; x, y, z, species, hours
 ; This array has the same dimensions as the average file
-c=fltArr(x_dim,y_dim,num_levels,num_input_species,24)
+c=fltArr(x_dim,y_dim,z_dim,num_input_species,24)
 
 ; This is one slice of the output file (one specific hour and layer)
 c1=fltArr(x_dim,y_dim)
@@ -181,96 +143,13 @@ station_files=output_dir + '/' + stations[2,*]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;z, species, hours, station
-z=fltArr(num_levels,num_input_species,24,num_stations)
+z=fltArr(z_dim,num_input_species,24,num_stations)
 
 ; the time offset (formerly t(i)) is the number of hours already simulated 
 offset=model_hour
 
 print,'Loading species information from define_species.pro'
 @define_species
-	
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Do coordinate transformation of the station coordinates if needed
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; Before this block, station_pos contains station,lat,lon
-; After it, it contains station,col,row tuples
-if (is_latlon) then
-	; Sanity check not included!
-	
-	; Offset to turn MM5 coordinates into CAMx ones (subtract from MM5)
-	; Equal to 2 because MM5 starts one outer grid cell earlier, but
-	; 1 of the 3 cells is used up by the buffer cell
-	; THIS IS ONLY USEFUL FOR NON-MASTER GRIDS!!
-	
-	if (is_master_domain EQ 0) then begin
-		MM5Offset = 2
-	endif else begin
-		MM5Offset = 0
-	endelse
-
-	cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr'
-	spawn, cmd
-	
-	; Read lon-lat data from MM5
-	rv3, mmout_file, 'longicrs', lon, bhi, bhr
-	rv3, mmout_file, 'latitcrs', lat, bhi, bhr
-	
-	; Interchange the first two dimensions
-	; [y,x,z,time] -> [x,y,z,time]
-	lon = TRANSPOSE(lon, [1, 0, 2, 3])
-	lat = TRANSPOSE(lat, [1, 0, 2, 3])
-	
-	; Loop through stations
-	FOR l = 0, num_stations-1 DO BEGIN
-	
-		; The lat-lon values of the selected station are assigned to a variable
-		station_lon = FLOAT(station_pos[0,l])
-		station_lat = FLOAT(station_pos[1,l])
-		
-		; Calculate the squared distance of each grid point from
-		; the point of interest
-		lon_dif = lon[*, *, 0, 1] - station_lon
-		lat_dif = lat[*, *, 0, 1] - station_lat
-		sq_dist = lon_dif[*,*]^2 + lat_dif[*,*]^2
-		
-		; Find the grid point where the squared distance is minimised
-		; We accept a non-integer value
-		index = WHERE(sq_dist EQ MIN(sq_dist))
-		hor_dim = N_ELEMENTS(lon[*,1,0,1])
-		
-		if ( interpolation_method EQ 'NONE' ) then
-		begin
-			; If we do not interpolate, return integer index
-			col = ( index / hor_dim ) - MM5Offset
-			row = ( index MOD hor_dim ) - MM5Offset
-		endif else
-			; Return a "decimal index"
-			col = FLOAT( index ) / hor_dim  - MM5Offset
-			row =      ( index MOD hor_dim ) - MM5Offset
-		endelse
-		
-		; If the correction leads to negative values, warn
-		IF (col LT 0) THEN BEGIN
-		  print,'WARNING: CAMx correction leads to negative coordinate for station ' + station
-		  col = 0
-		ENDIF
-		
-		IF (row LT 0) THEN BEGIN
-		  print,'WARNING: CAMx correction leads to negative coordinate for station ' + station
-		  row = 0
-		ENDIF
-		
-		; Set new values
-		station_pos[0, l] = col
-		station_pos[1, l] = row
-	
-	ENDFOR
-	
-	cmd = 'rm -f LONGICRS LONGICRS.hdr LATITCRS LATITCRS.hdr'
-	spawn, cmd
-endif
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Begin Pressure/Temp preparation
@@ -350,7 +229,7 @@ for hour=0L,23 do begin
 	for ispec=0L,num_input_species-1 do begin
 	
 		;do loop for layers
-		for level=0L,num_levels-1 do begin
+		for level=0L,z_dim-1 do begin
 		
 			; Really interesting for us here is only layer 0.
 			; still, we read all layers
