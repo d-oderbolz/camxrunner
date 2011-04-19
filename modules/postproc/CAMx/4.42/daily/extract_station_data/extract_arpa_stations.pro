@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,format=fmt,norm_method=norm_method
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,format=fmt,norm_method=norm_method,is_binary=is_binary
 	;
 	; Function: extract_arpa_stations
 	;
@@ -38,6 +38,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	;                        'physical' - using the models T and P fields (default)
 	;                        'nabel' - use the NABELs constant factors (ASSUMING h < 1500 m)
 	;                        'none' - do not correct
+	; [is_binary=] - a boolean, if true (default false), we read binary
 	; Output format (comma-separated):
 	; dd : day (character 2 digit)
 	; mm: month (character 2 digit)
@@ -71,8 +72,10 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; Init Header Parser
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
+	if (n_elements(is_binary) eq 0) then is_binary=0
+	
 	; Load header Parser
-	hp=obj_new('header_parser',input_file)
+	hp=obj_new('header_parser',input_file,is_binary)
 	
 	; Get number of species in average file
 	scalars=hp->get_scalars()
@@ -91,7 +94,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; Check settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
-	; physical is 
+	
+	
+	; physical is default norm method
 	if (n_elements(norm_method) EQ 0) then norm_method='physical'
 	norm_method=strlowcase(norm_method)
 	
@@ -299,13 +304,32 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	endfor
 	
 	;skip informational data and species
-	skip_lun, input_lun,head_length, /LINES
+	print,'Skipping big header.'
+	if (is_binary) then begin
+		point_lun, input_lun,head_length
+	endif else begin
+		skip_lun, input_lun,head_length, /LINES
+	endelse
+	
 	;
 	;do loop for time
 	;
 	for iHour=0L,23 do begin
 	
-		skip_lun, input_lun,1, /LINES
+		; Deal with time header
+		if (is_binary) then begin
+			; Reading the time header into dummy variables
+			ibdate=0L
+			btime=0L
+			iedate=0L
+			etime=0L
+			
+			readu,input_lun,ibdate,btime,iedate,etime
+		endif else begin
+			skip_lun, input_lun,1, /LINES
+		endelse
+		
+		
 		;
 		;do loop for species
 		;
@@ -313,11 +337,19 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 		
 			;do loop for layers
 			for iver=0L,z_dim-1 do begin
+			
+				if (is_binary) then begin
+					ione=1L
+					mspec=hp->prefill(4,10)
+	
+					; Read the current data
+					readu,current_input_lun,ione,mspec,conc_slice
+				endif else begin
+					skip_lun, input_lun,1, /LINES 
 				
-				skip_lun, input_lun,1, /LINES 
-				
-				; We let IDL work out the format
-				readf,input_lun,conc_slice,format=fmt
+					; We let IDL work out the format
+					readf,input_lun,conc_slice,format=fmt
+				endelse
 				
 				; We are only interested in ground level 
 				if ( iver EQ 0) then begin

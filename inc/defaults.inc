@@ -13,6 +13,9 @@
 IFS=' 	
 '
 
+# Accept . as decimal point
+export LC_NUMERIC=C
+
 # used to tell the user how to start again
 CXR_CALL="\$ ${0}"
 

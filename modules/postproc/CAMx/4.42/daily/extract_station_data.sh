@@ -327,23 +327,12 @@ function extract_station_data
 		
 		case $(basename ${CXR_STATION_PROC_INPUT_FILE} .pro) in
 
-			extract_stations)
-				# Here, we also need an MM5 file for the pressure (for ppb conversion and potential coordinate conversion), 
-				# as well as a flag to indicate if we look at the master domain or not (for coordinate transformation)
-				# We set this fag to 0 because currently we only run on the innermost domain
-				cat <<-EOF > $exec_tmp_file
-				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${species_array},${stations_array}
-				exit
-				EOF
-				;;
-				
 			extract_arpa_stations)
 				# Here, we also need our ZP and Temp file (for ppb conversion)
 				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}'
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_ASC_FILE}','${CXR_ZP_GRID_ASC_FILE}',norm_method='${CXR_NORM_METHOD}',0
 				exit
 				EOF
 				;;
@@ -351,7 +340,7 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array}
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},0
 				exit
 				EOF
 				;;

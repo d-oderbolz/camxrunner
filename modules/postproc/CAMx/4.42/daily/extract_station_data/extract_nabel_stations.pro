@@ -1,4 +1,4 @@
-pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,format=fmt
+pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,is_binary=is_binary
 ;
 ; Function: extract_nabel_stations
 ;
@@ -24,7 +24,7 @@ pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,speci
 ; model_hour - the number of hours already modelled. Used as an offset for time calculations. The first dataset gets this time (model_hour+0)
 ; species - a string array of the species to extract
 ; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
-; format - The format of the numbers. Normally specified as fmt='(9e14.9)', bin2asc writes (5e14.7)
+; [is_binary=] - a boolean, if true (default false), we read binary
 ;
 ;>            The stations are loaded with an @ script which can be created by the CAMx-runner.sh
 ;
@@ -43,8 +43,11 @@ print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 ; Check settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+if (n_elements(is_binary) eq 0) then is_binary=0
+
+
 ; Load header Parser
-hp=obj_new('header_parser',input_file)
+hp=obj_new('header_parser',input_file,is_binary)
 
 ; Get number of species in average file
 scalars=hp->get_scalars()
@@ -63,17 +66,12 @@ num_stations = s[1]
 if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
 if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 
-	; is fmt set?
-	
+
 	print,'Extracting ' + strtrim(num_species,2) + ' species.'
 	
-	if n_Elements(fmt) EQ 0 then fmt='(9e14.9)'
-	
-	; x, y, z, species, hours
-	c=fltArr(x_dim,y_dim,z_dim,num_species,24)
 	
 	; x, y
-	c1=fltArr(x_dim,y_dim)
+	conc_slice=fltArr(x_dim,y_dim)
 	; time
 	t=fltArr(24)
 	;
@@ -116,14 +114,28 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	head_length=num_species + 4
 	
 	print,'Skipping big header.'
-	skip_lun, input_lun,head_length, /LINES
+	if (is_binary) then begin
+		point_lun, input_lun,head_length
+	endif else begin
+		skip_lun, input_lun,head_length, /LINES
+	endelse
 	;
 	;do loop for time
 	;
 	for i=0L,23 do begin
 	
-		;print,'Skipping time header.'
-		skip_lun, input_lun,1, /LINES
+		; Deal with time header
+		if (is_binary) then begin
+			; Reading the time header into dummy variables
+			ibdate=0L
+			btime=0L
+			iedate=0L
+			etime=0L
+			
+			readu,input_lun,ibdate,btime,iedate,etime
+		endif else begin
+			skip_lun, input_lun,1, /LINES
+		endelse
 		;
 		;do loop for species
 		;
@@ -132,22 +144,27 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 			;do loop for layers
 			for iver=0L,z_dim-1 do begin
 			
-				;print,'Skipping Species header.'
-				skip_lun, input_lun,1, /LINES 
+			if (is_binary) then begin
+					ione=1L
+					mspec=hp->prefill(4,10)
+	
+					; Read the current data
+					readu,current_input_lun,ione,mspec,conc_slice
+				endif else begin
+					skip_lun, input_lun,1, /LINES 
 				
-				readf,input_lun,c1,format=fmt
-				
-				; Do we need c at all?
-				c[0,0,iver,ispec,i]=c1
-				
+					; We let IDL work out the format
+					readf,input_lun,conc_slice
+				endelse
+
 				; loop through the NABEL stations
 				for station=0L,num_stations-1 do begin
 				
 					;ix=44.62
 					;jy=73.26
-					;z1(iver,ispec,i)=bilinear(c1,ix,jy)
+					;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
 					
-					z[iver,ispec,i,station]=bilinear(c1,station_pos[0,station],station_pos[1,station])
+					z[iver,ispec,i,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
 					
 				endfor
 				
@@ -159,7 +176,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		
 			;ix=44.62
 			;jy=73.26
-			;z1(iver,ispec,i)=bilinear(c1,ix,jy)
+			;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
 			
 			; fix the gasses (be careful! Future releases will no longer do this here)
 			
