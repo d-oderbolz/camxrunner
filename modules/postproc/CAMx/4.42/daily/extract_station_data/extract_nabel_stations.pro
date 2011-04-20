@@ -156,7 +156,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 					mspec=hp->prefill(4,10)
 	
 					; Read the current data
-					readu,current_input_lun,ione,mspec,conc_slice
+					readu,input_lun,ione,mspec,conc_slice
 				endif else begin
 					skip_lun, input_lun,1, /LINES 
 				
