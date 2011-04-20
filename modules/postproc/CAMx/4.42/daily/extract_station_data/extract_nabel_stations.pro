@@ -40,6 +40,15 @@ my_revision_string='$Id$'
 my_revision_arr=strsplit(my_revision_string,' ',/EXTRACT)
 print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Constants
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; if a species is in here, its treated as a gas
+gasses=['NO','NO2','O3','TOL','XYL','FORM','PAN','HONO','HNO3','H2O2','ISOP','PNA','SO2','NH3']
+
+ppm2ppb=1000.
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Check settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -129,7 +138,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	;
 	;do loop for time
 	;
-	for i=0L,23 do begin
+	for iHour=0L,23 do begin
 	
 		; Deal with time header
 		if (is_binary) then begin
@@ -169,9 +178,9 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 				
 					;ix=44.62
 					;jy=73.26
-					;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
+					;z1(iver,ispec,iHour)=bilinear(conc_slice,ix,jy)
 					
-					z[iver,ispec,i,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+					z[iver,ispec,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
 					
 				endfor
 				
@@ -181,39 +190,30 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		; loop through the NABEL stations
 		for station=0L,num_stations-1 do begin
 		
-			;ix=44.62
-			;jy=73.26
-			;z1(iver,ispec,i)=bilinear(conc_slice,ix,jy)
+			; fix the gasses
+			for ospec=0,n_elements(species)-1 do begin
 			
-			; fix the gasses (be careful! Future releases will no longer do this here)
+				; is it a gas?
+				dummy=WHERE(gasses EQ species[ospec], count)
+				
+				if (count NE -1) then begin
+					; its a gas
+					z[0,ospec,iHour,station]=z[0,ospec,iHour,station]*ppm2ppb
+				endif
 			
-			z[0,0,i,station]=z[0,0,i,station]*1000
-			z[0,1,i,station]=z[0,1,i,station]*1000
-			z[0,2,i,station]=z[0,2,i,station]*1000
-			z[0,3,i,station]=z[0,3,i,station]*1000
-			z[0,4,i,station]=z[0,4,i,station]*1000
-			z[0,5,i,station]=z[0,5,i,station]*1000
-			z[0,6,i,station]=z[0,6,i,station]*1000
-			z[0,7,i,station]=z[0,7,i,station]*1000
-			z[0,8,i,station]=z[0,8,i,station]*1000
-			z[0,9,i,station]=z[0,9,i,station]*1000
-			z[0,10,i,station]=z[0,10,i,station]*1000
-			z[0,11,i,station]=z[0,11,i,station]*1000
-			z[0,12,i,station]=z[0,12,i,station]*1000
-			z[0,13,i,station]=z[0,13,i,station]*1000
-			z[0,14,i,station]=z[0,14,i,station]*1000
+			endfor
 			
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
-			printf,station_luns[station],i+model_hour,z[0,*,i,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
+			printf,station_luns[station],iHour+model_hour,z[0,*,iHour,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
 			
 		endfor
 	endfor
 	
 	; close all output files
-	for i=0L,num_stations-1 do begin
+	for iStation=0L,num_stations-1 do begin
 	
-		close,station_luns(i)
+		close,station_luns(iStation)
 	
 	endfor
 	
