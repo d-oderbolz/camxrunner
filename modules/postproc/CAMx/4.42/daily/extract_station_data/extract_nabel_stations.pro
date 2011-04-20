@@ -53,41 +53,36 @@ ppm2ppb=1000.
 ; Check settings
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-if (n_elements(is_binary) eq 0) then is_binary=0
-
-
-; Load header Parser
-hp=obj_new('header_parser',input_file,is_binary)
-
-; Get number of species in average file
-scalars=hp->get_scalars()
-num_input_species=scalars->get('nspec')
-input_species=hp->get_species_arr()
-
-; Get dimensions
-x_dim_file=scalars->get('nx')
-y_dim_file=scalars->get('ny')
-z_dim_file=scalars->get('nz')
-
-num_species = n_elements(species)
-
-; stations are multidimensional
-s = size(stations,/DIMENSIONS)
-num_stations = s[1]
-
-if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
-if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
-
+	if (n_elements(is_binary) eq 0) then is_binary=0
+	
+	
+	; Load header Parser
+	hp=obj_new('header_parser',input_file,is_binary)
+	
+	; Get number of species in average file
+	scalars=hp->get_scalars()
+	num_input_species=scalars->get('nspec')
+	input_species=hp->get_species_arr()
+	
+	; Get dimensions
+	x_dim_file=scalars->get('nx')
+	y_dim_file=scalars->get('ny')
+	z_dim_file=scalars->get('nz')
+	
+	num_species = n_elements(species)
+	
+	; stations are multidimensional
+	s = size(stations,/DIMENSIONS)
+	num_stations = s[1]
+	
+	if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
+	if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 
 	print,'Extracting ' + strtrim(num_species,2) + ' species.'
 	
-	
 	; x, y
 	conc_slice=fltArr(x_dim_file,y_dim_file)
-	; time
-	t=fltArr(24)
-	;
-	
+
 	; Station information
 	; We must read the first 2 fields and convert to float afterwards
 	station_pos_str=stations[0:1,*]
@@ -101,7 +96,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	station_luns=intArr(num_stations)
 	
 	;z, species, hours, station
-	z=fltArr(num_levels,num_species,24,num_stations)
+	z=fltArr(num_species,24,num_stations)
 	
 	print,'Opening Input file.'
 	
@@ -159,7 +154,11 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		;
 		for ispec=0L,num_input_species-1 do begin
 		
-			;do loop for layers
+			; Get the name of the species
+			current_species=input_species[ispec]
+		
+			;do loop for layers (we need to do this
+		  ; even if we would not want this species)
 			for iver=0L,z_dim_file-1 do begin
 			
 			if (is_binary) then begin
@@ -174,22 +173,18 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 					; We let IDL work out the format
 					readf,input_lun,conc_slice
 				endelse
-
-				; loop through the NABEL stations
-				for station=0L,num_stations-1 do begin
 				
-					; Get the name of the species
-					current_species=input_species[ispec]
-					
-					; Do we need it?
-					index=WHERE(species EQ current_species, count)
-					
-					if (count NE -1) then begin
-						; Yes
-						z[iver,index,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
-					endif
-					
-				endfor
+				; Do we want this species?
+				index=WHERE(species EQ current_species, count)
+				
+				if (count NE -1 && iver EQ 0) then begin
+					; Yes
+					; loop through the NABEL stations
+					for station=0L,num_stations-1 do begin
+							z[index,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+					endfor
+				
+				endif ; do-we-want-species?
 				
 			endfor
 		endfor
@@ -205,14 +200,14 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 				
 				if (count NE -1) then begin
 					; its a gas
-					z[0,ospec,iHour,station]=z[0,ospec,iHour,station]*ppm2ppb
+					z[ospec,iHour,station]=z[ospec,iHour,station]*ppm2ppb
 				endif
 			
 			endfor
 			
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
-			printf,station_luns[station],iHour+model_hour,z[0,*,iHour,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
+			printf,station_luns[station],iHour+model_hour,z[*,iHour,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
 			
 		endfor
 	endfor
