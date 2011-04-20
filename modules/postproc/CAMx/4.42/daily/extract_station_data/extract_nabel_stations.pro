@@ -1,4 +1,4 @@
-pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,is_binary=is_binary
+pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,num_levels,is_binary=is_binary
 ;
 ; Function: extract_nabel_stations
 ;
@@ -24,6 +24,7 @@ pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,speci
 ; model_hour - the number of hours already modelled. Used as an offset for time calculations. The first dataset gets this time (model_hour+0)
 ; species - a string array of the species to extract
 ; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
+; num_levels - because we cannot infer the levels from the output (may be 1 no save space), we need to know it.
 ; [is_binary=] - a boolean, if true (default false), we read binary
 ;
 ;>            The stations are loaded with an @ script which can be created by the CAMx-runner.sh
@@ -53,9 +54,9 @@ hp=obj_new('header_parser',input_file,is_binary)
 scalars=hp->get_scalars()
 
 ; Get dimensions
-x_dim=scalars->get('nx')
-y_dim=scalars->get('ny')
-z_dim=scalars->get('nz')
+x_dim_file=scalars->get('nx')
+y_dim_file=scalars->get('ny')
+z_dim_file=scalars->get('nz')
 
 num_species = n_elements(species)
 
@@ -71,7 +72,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	
 	
 	; x, y
-	conc_slice=fltArr(x_dim,y_dim)
+	conc_slice=fltArr(x_dim_file,y_dim_file)
 	; time
 	t=fltArr(24)
 	;
@@ -89,7 +90,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	station_luns=intArr(num_stations)
 	
 	;z, species, hours, station
-	z=fltArr(z_dim,num_species,24,num_stations)
+	z=fltArr(z_dim_file,num_species,24,num_stations)
 	
 	print,'Opening Input file.'
 	
@@ -146,7 +147,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		for ispec=0L,num_species-1 do begin
 		
 			;do loop for layers
-			for iver=0L,z_dim-1 do begin
+			for iver=0L,z_dim_file-1 do begin
 			
 			if (is_binary) then begin
 					ione=1L

@@ -333,7 +333,7 @@ function extract_station_data
 				# also, we can specify the method of normalisation
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_FILE}','${CXR_ZP_GRID_FILE}',norm_method='${CXR_NORM_METHOD}',is_binary=0
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_FILE}','${CXR_ZP_GRID_FILE}',$(common.runner.getZ $CXR_IGRID),norm_method='${CXR_NORM_METHOD}',is_binary=0
 				exit
 				EOF
 				;;
@@ -341,7 +341,7 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},is_binary=0
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},$(common.runner.getZ $CXR_IGRID),is_binary=0
 				exit
 				EOF
 				;;

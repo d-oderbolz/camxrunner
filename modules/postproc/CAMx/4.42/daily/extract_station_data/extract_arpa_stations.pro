@@ -1,4 +1,4 @@
-pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_file,zp_file,norm_method=norm_method,is_binary=is_binary
+pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stations,temp_bin_file,zp_bin_file,num_levels,norm_method=norm_method,is_binary=is_binary
 	;
 	; Function: extract_arpa_stations
 	;
@@ -27,12 +27,10 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; day - day to be extracted
 	; month - month	to be extracted
 	; year - year to be extracted	
-	; x_dim - the x dimension of the grid in grid cells of the grid in question	
-	; y_dim - the y dimension of the grid in grid cells of the grid in question
-	; z_dim - the number of levels of the grid in question
 	; stations - a 2D string array with [x,y,filename] in it (x,y may be integer or float grid indexes)
-	; zp_file - pressure/height ASCII file
-	; temp_file - temperature ASCII file
+	; temp_bin_file - temperature BIN file
+	; zp_bin_file - pressure/height BIN file
+	; num_levels - because we cannot infer the levels from the output (may be 1 no save space), we need to know it.
 	; [norm_method=] - a string selecting the approach to normalize concentrations to standard conditions:
 	;                        'physical' - using the models T and P fields (default)
 	;                        'nabel' - use the NABELs constant factors (ASSUMING h < 1500 m)
@@ -82,9 +80,9 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	head_length = hp->get_header_length()
 	
 	; Get dimensions
-	x_dim=scalars->get('nx')
-	y_dim=scalars->get('ny')
-	z_dim=scalars->get('nz')
+	x_dim_file=scalars->get('nx')
+	y_dim_file=scalars->get('ny')
+	z_dim_file=scalars->get('nz')
 	
 	; Get list of species in average file
 	species=hp->get_species()
@@ -153,23 +151,23 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; t[col,row,hour]
 	
 	; The Target arrays
-	pressure=fltarr(x_dim, y_dim, 24)
-	t=fltarr(x_dim, y_dim, 24)
+	pressure=fltarr(x_dim_file, y_dim_file, 24)
+	t=fltarr(x_dim_file, y_dim_file, 24)
 	
 	; we need the next arrays becase we need to interpolate to the ground
-	total_pressure=fltarr(x_dim, y_dim, z_dim)
-	total_temperature=fltarr(x_dim, y_dim, z_dim)
-	total_height=fltarr(x_dim, y_dim, z_dim)
+	total_pressure=fltarr(x_dim_file, y_dim_file, z_dim_file)
+	total_temperature=fltarr(x_dim_file, y_dim_file, z_dim_file)
+	total_height=fltarr(x_dim_file, y_dim_file, z_dim_file)
 	
 	; to read, we need the slices
-	pressure_slice=fltarr(x_dim, y_dim)
-	height_slice=fltarr(x_dim, y_dim)
-	temp_slice=fltarr(x_dim, y_dim)
+	pressure_slice=fltarr(x_dim_file, y_dim_file)
+	height_slice=fltarr(x_dim_file, y_dim_file)
+	temp_slice=fltarr(x_dim_file, y_dim_file)
 	
 	; Open the temp and the pressure file
 	; we read those binary
-	openr,input_t,temp_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
-	openr,input_zp,zp_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+	openr,input_t,temp_bin_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+	openr,input_zp,zp_bin_file,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
 	
 	;do loop for time
 	for iHour=0L,23 do begin
@@ -185,7 +183,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 		t[0,0,iHour]=temp_slice
 	
 		;do loop for layers (height & temp file)
-		for iver=0L,z_dim-1 do begin
+		for iver=0L,num_levels-1 do begin
 			
 			; This is the height-dependent portion
 			readu,input_t,hour,idate,temp_slice
@@ -205,8 +203,8 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 		
 		; For the vertical interpolation, we use 1D Interpolation
 		; Therefore, we need to loop (is there a better way??)
-		for iCol = 0, x_dim - 1 do begin
-			for jRow = 0, y_dim - 1 do begin
+		for iCol = 0, x_dim_file - 1 do begin
+			for jRow = 0, y_dim_file - 1 do begin
 				; Interpolate ground pressure and temperature
 				; Both temperature and pressure correspond to the heights
 				
@@ -247,7 +245,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	
 	
 	; x, y
-	conc_slice=fltArr(x_dim,y_dim)
+	conc_slice=fltArr(x_dim_file,y_dim_file)
 	
 	;Station information
 	; We must read the first 2 fields and conver to float afterwards
@@ -332,7 +330,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 		for ispec=0L,num_input_species-1 do begin
 		
 			;do loop for layers
-			for iver=0L,z_dim-1 do begin
+			for iver=0L,z_dim_file-1 do begin
 			
 				if (is_binary) then begin
 					ione=1L
