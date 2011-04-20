@@ -95,8 +95,8 @@ ppm2ppb=1000.
 	; Logical Unit Numbers of theses files (assigned by IDL)
 	station_luns=intArr(num_stations)
 	
-	;z, species, hours, station
-	z=fltArr(num_species,24,num_stations)
+	;species, station
+	current_station_conc=fltArr(num_species,num_stations)
 	
 	print,'Opening Input file.'
 	
@@ -181,7 +181,7 @@ ppm2ppb=1000.
 					; Yes
 					; loop through the NABEL stations
 					for station=0L,num_stations-1 do begin
-							z[index,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+							current_station_conc[index,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
 					endfor
 				
 				endif ; do-we-want-species?
@@ -200,14 +200,14 @@ ppm2ppb=1000.
 				
 				if (count NE -1) then begin
 					; its a gas
-					z[ospec,iHour,station]=z[ospec,iHour,station]*ppm2ppb
+					current_station_conc[ospec,station]=current_station_conc[ospec,station]*ppm2ppb
 				endif
 			
 			endfor
 			
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
-			printf,station_luns[station],iHour+model_hour,z[*,iHour,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
+			printf,station_luns[station],iHour+model_hour,current_station_conc[*,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
 			
 		endfor
 	endfor
