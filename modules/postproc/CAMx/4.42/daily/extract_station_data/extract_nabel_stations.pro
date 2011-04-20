@@ -90,7 +90,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	station_luns=intArr(num_stations)
 	
 	;z, species, hours, station
-	z=fltArr(z_dim_file,num_species,24,num_stations)
+	z=fltArr(num_levels,num_species,24,num_stations)
 	
 	print,'Opening Input file.'
 	
