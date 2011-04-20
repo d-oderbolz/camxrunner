@@ -181,7 +181,21 @@ ppm2ppb=1000.
 					; Yes
 					; loop through the NABEL stations
 					for station=0L,num_stations-1 do begin
+					
+						; Do the bilinear interpolation
 							current_station_conc[index,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+					
+							; Fix the gasses
+							; is it a gas?
+							dummy=WHERE(gasses EQ current_species, count)
+							
+							if (count NE -1) then begin
+								; its a gas
+								if (station EQ 0 && iHour EQ 0) then print,current_species + ' is a gas.'
+								
+								current_station_conc[index,station]=current_station_conc[index,station]*ppm2ppb
+							endif
+					
 					endfor
 				
 				endif ; do-we-want-species?
@@ -192,19 +206,6 @@ ppm2ppb=1000.
 		; loop through the NABEL stations
 		for station=0L,num_stations-1 do begin
 		
-			; fix the gasses
-			for ospec=0,n_elements(species)-1 do begin
-			
-				; is it a gas?
-				dummy=WHERE(gasses EQ species[ospec], count)
-				
-				if (count NE -1) then begin
-					; its a gas
-					current_station_conc[ospec,station]=current_station_conc[ospec,station]*ppm2ppb
-				endif
-			
-			endfor
-			
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
 			printf,station_luns[station],iHour+model_hour,current_station_conc[*,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
