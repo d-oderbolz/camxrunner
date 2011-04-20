@@ -177,7 +177,7 @@ ppm2ppb=1000.
 				; Do we want this species?
 				index=WHERE(species EQ current_species, count)
 				
-				if (count NE -1 && iver EQ 0) then begin
+				if (count GT 0 && iver EQ 0) then begin
 					; Yes
 					; loop through the NABEL stations
 					for station=0L,num_stations-1 do begin
@@ -189,7 +189,7 @@ ppm2ppb=1000.
 							; is it a gas?
 							dummy=WHERE(gasses EQ current_species, count)
 							
-							if (count NE -1) then begin
+							if (count GT 0) then begin
 								; its a gas
 								if (station EQ 0 && iHour EQ 0) then print,current_species + ' is a gas.'
 								
