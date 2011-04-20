@@ -117,9 +117,8 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	
 	;skip informational data and species
 	
-	; The length of the header depends on the number of species
-	; because they are listed first
-	head_length=num_species + 4
+	; Get header length
+	head_length = hp->get_header_length()
 	
 	print,'Skipping big header.'
 	if (is_binary) then begin
