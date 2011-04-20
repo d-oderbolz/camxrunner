@@ -53,7 +53,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	; IDL Settings
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	; Show Math errors as they occur
-	;!EXCEPT=2
+	!EXCEPT=2
 	COMPILE_OPT IDL2
 	
 	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -155,9 +155,11 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	t=fltarr(x_dim_file, y_dim_file, 24)
 	
 	; we need the next arrays becase we need to interpolate to the ground
-	total_pressure=fltarr(x_dim_file, y_dim_file, z_dim_file)
-	total_temperature=fltarr(x_dim_file, y_dim_file, z_dim_file)
-	total_height=fltarr(x_dim_file, y_dim_file, z_dim_file)
+	; note we use a different z dimension because the output file may
+	; contain only the lowest level to save space
+	total_pressure=fltarr(x_dim_file, y_dim_file, num_levels)
+	total_temperature=fltarr(x_dim_file, y_dim_file, num_levels)
+	total_height=fltarr(x_dim_file, y_dim_file, num_levels)
 	
 	; to read, we need the slices
 	pressure_slice=fltarr(x_dim_file, y_dim_file)
