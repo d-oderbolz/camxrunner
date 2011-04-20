@@ -158,7 +158,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		for ispec=0L,num_species-1 do begin
 		
 			;do loop for layers
-			for iver=0L,num_levels-1 do begin
+			for iver=0L,z_dim_file-1 do begin
 			
 			if (is_binary) then begin
 					ione=1L
