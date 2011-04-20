@@ -106,8 +106,11 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 	; Open all the output files
 	; and store the luns
 	for i=0L,num_stations-1 do begin
+	
+		; We can no longer get the lun because we could only open 29 files then
+		current_output_lun = i + 1
 
-		openw,current_output_lun,station_files[i], /GET_LUN, width=2400
+		openw,current_output_lun,station_files[i], width=2400
 		station_luns[i]=current_output_lun
 		
 	endfor

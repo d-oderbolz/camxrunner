@@ -16,7 +16,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 	;	This script is called automatically by the output processor
 	;	<extract_station_data> - *hesitate to change the calling interface*!
 	;
-	;	Originally, the code used \GET_LUN, but IDL can only open 29 files like this
+	;	Originally, the code used /GET_LUN, but IDL can only open 29 files like this
 	;	(http://idlastro.gsfc.nasa.gov/idl_html_help/Understanding_(LUNs).html) so we
 	;	had to go for the less beautiful approach...
 	;
