@@ -61,6 +61,8 @@ hp=obj_new('header_parser',input_file,is_binary)
 
 ; Get number of species in average file
 scalars=hp->get_scalars()
+num_input_species=scalars->get('nspec')
+input_species=hp->get_species_arr()
 
 ; Get dimensions
 x_dim_file=scalars->get('nx')
@@ -155,7 +157,7 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 		;
 		;do loop for species
 		;
-		for ispec=0L,num_species-1 do begin
+		for ispec=0L,num_input_species-1 do begin
 		
 			;do loop for layers
 			for iver=0L,z_dim_file-1 do begin
@@ -176,11 +178,16 @@ if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 				; loop through the NABEL stations
 				for station=0L,num_stations-1 do begin
 				
-					;ix=44.62
-					;jy=73.26
-					;z1(iver,ispec,iHour)=bilinear(conc_slice,ix,jy)
+					; Get the name of the species
+					current_species=input_species[ispec]
 					
-					z[iver,ispec,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+					; Do we need it?
+					index=WHERE(species EQ current_species, count)
+					
+					if (count NE -1) then begin
+						; Yes
+						z[iver,index,iHour,station]=bilinear(conc_slice,station_pos[0,station],station_pos[1,station])
+					endif
 					
 				endfor
 				
