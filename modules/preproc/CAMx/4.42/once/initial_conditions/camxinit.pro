@@ -359,7 +359,7 @@ latstep = abs(latmoz[1] - latmoz[0])
 
 negative_mozlons=WHERE(lonmoz LT 0, count)
 
-if (count EQ -1) then begin
+if (count EQ 0) then begin
 	; No negative values
 	print,'It seems the GCTM uses a [0,360] Longitude convention. Changing to [-180,180]'
 	lonmoz = lonmoz - 180

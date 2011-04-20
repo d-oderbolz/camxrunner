@@ -404,7 +404,7 @@ latstep = abs(latmoz[1] - latmoz[0])
 
 negative_mozlons=WHERE(lonmoz LT 0, count)
 
-if (count EQ -1) then begin
+if (count EQ 0) then begin
 	; No negative values
 	print,'It seems the GCTM uses a [0,360] Longitude convention. Changing to [-180,180]'
 	lonmoz = lonmoz - 180
@@ -853,19 +853,19 @@ IF (doplots = 1) THEN BEGIN
 	nContourLevels=10
 	
 	LowerLeftLonIndex=WHERE(lonmoz GE LowerLeftLon, count)
-	if (count EQ -1) then message,'Could not find lower left lon left index for europe'
+	if (count EQ 0) then message,'Could not find lower left lon left index for europe'
 	LowerLeftLonIndex=MIN(LowerLeftLonIndex)
 	
 	LowerLeftLatIndex=WHERE(latmoz GE LowerLeftLat, count)
-	if (count EQ -1) then message,'Could not find lower left lat index for europe'
+	if (count EQ 0) then message,'Could not find lower left lat index for europe'
 	LowerLeftLatIndex=MIN(LowerLeftLatIndex)
 	
 	UpperRightLonIndex=WHERE(lonmoz LE UpperRightLon, count)
-	if (count EQ -1) then message,'Could not find upper right lon left index for europe'
+	if (count EQ 0) then message,'Could not find upper right lon left index for europe'
 	UpperRightLonIndex=MAX(UpperRightLonIndex)
 	
 	UpperRightLatIndex=WHERE(latmoz LE UpperRightLat, count)
-	if (count EQ -1) then message,'Could not find upper right left lat index for europe'
+	if (count EQ 0) then message,'Could not find upper right left lat index for europe'
 	UpperRightLatIndex=MAX(UpperRightLatIndex)
 	
 	europe = cuteallspecs[LowerLeftLonIndex:UpperRightLonIndex, LowerLeftLatIndex:UpperRightLatIndex, *, *, *]
