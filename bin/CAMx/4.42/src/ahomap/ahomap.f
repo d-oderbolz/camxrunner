@@ -5,10 +5,6 @@ c     direct input to CAMx.  A CAMx landuse file and TOMS data files must
 c     be supplied as input.  The program assumes a constant haze turbidity
 c     value for the entire grid.
 c
-c  dco, 02/04/2009: Increased inrec and header to 200 chars 
-c                   to allow for longer paths
-c 
-c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Copyright (C) 1998, 2001, 2004, 2005  ENVIRON
 c 
@@ -27,20 +23,25 @@ c write to the Free Software Foundation, Inc.,
 c 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
-      parameter (ncol=300,nrow=300,nlu=11,nday=31,ngrd=4)
+      parameter (ncol=500,nrow=500,nday=31,ngrd=4)
+      parameter (mlu=26)
       parameter (mlon=360,mlat=180)
       dimension xlat(ncol,nrow),xlon(ncol,nrow),iozsim(ncol,nrow,nday)
       dimension xlatcl(mlat),xloncl(mlon)
       dimension iozn(mlon,mlat)
       integer iyr(nday),mo(nday),ida(nday),nxa(ngrd),nya(ngrd),
      &        eyr(nday),emo(nday),eda(nday)
-      integer strlen
-      dimension alb(ncol,nrow,ngrd),fsurf(ncol,nrow,nlu),albcl(nlu)
-      character*200 inrec,header
+      integer nlu,strlen
+      dimension alb(ncol,nrow,ngrd),fsurf(ncol,nrow,mlu)
+      dimension albcw(11),albcz(26)
+      character*80 inrec,header
       character*200 inline
-      character*8 lcoord
+      character*8 lcoord,hdrstr
       logical lsnow
-      data albcl/.08,.05,.05,.05,.05,.05,.04,.08,.05,.05,.05/
+      data albcw/.08,.05,.05,.05,.05,.05,.04,.08,.05,.05,.05/
+      data albcz/.04,.04,.04,.05,.05,.05,.05,.05,.05,.05,
+     &           .05,.05,.05,.05,.05,.05,.05,.05,.05,.05,
+     &           .08,.05,.05,.08,.05,.05/
       data iout,iland /10,11/
 c
 c-----Input grid specifics
@@ -76,7 +77,7 @@ c
 c-----Open output file
 c
       read(*,'(20x,a)') inrec
-      open(iout,file=inrec,status='unknown')
+      open(iout,file=inrec,status='unknown')               
       write(*,*)'Opened output file: ',inrec
 c
 c-----Loop over number of landuse files, open and read
@@ -103,12 +104,40 @@ c
           nx = nxa(1)
           ny = nya(1)
         endif
+c----Read landuse file
+
+        read(iland) hdrstr 
+        if (hdrstr(1:5) .EQ. 'LUCAT') then
+           read(hdrstr(6:7),'(i2)') nlu
+           if (nlu .NE. 11 .and. nlu .NE. 26) then
+             write(*,'(/,2A)') 'Number of landuse categories on',
+     &                         ' landuse file does not equal number'
+             write(*,'(2A)')   'of categories for the available dry',
+     &                         ' deposition schemes in CAMx:'
+             write(*,'(A,I)') 'Number in landuse file:          ',nlu 
+             write(*,'(2A)') 'Number in dry deposition scheme:',
+     &                        ' 11 or 26 '
+             write(*,'(2A)') 'Generate a new landuse file with ',
+     &                   'the correct number of landuse categories.' 
+             stop
+           endif
+        else
+          write(*,'(/,A)') '*** Reading OLD landuse format! ***'
+          write(*,'(2A)') 'Assume Wesely scheme with 11 landuse',
+     &                    'categories.' 
+          rewind(iland)
+          nlu = 11 
+        endif
         read(iland) (((fsurf(i,j,l),i=1,nxa(ng)),j=1,nya(ng)),l=1,nlu)
         do j = 1,nya(ng)
           do i = 1,nxa(ng)
             alb(i,j,ng) = 0
             do lu = 1,nlu
-              alb(i,j,ng) = alb(i,j,ng) + fsurf(i,j,lu)*albcl(lu)
+             if (nlu .EQ. 11) then
+              alb(i,j,ng) = alb(i,j,ng) + fsurf(i,j,lu)*albcw(lu)
+             else
+              alb(i,j,ng) = alb(i,j,ng) + fsurf(i,j,lu)*albcz(lu)
+             endif
             enddo
             albmax = amax1(albmax,alb(i,j,ng))
             albmin = amin1(albmin,alb(i,j,ng))
@@ -156,10 +185,8 @@ c
       write(*,*)'Number of TOMS files: ',nfils
 
       do 50 nda = 1,nfils
-      	
-      	icount = 0
-      	
         iunit = 20
+        icount = 0
         read(*,'(20x,a)') inline
         read(inline,*) ibday,ieday
         do j=1,200
@@ -170,8 +197,7 @@ c
            endif
         enddo
 
-209     icount = 0
-        iyr(nda) = ibday/10000
+209     iyr(nda) = ibday/10000
         mo(nda)  = (ibday-iyr(nda)*10000)/100
         ida(nda) = ibday-iyr(nda)*10000-mo(nda)*100
 
@@ -179,8 +205,8 @@ c
         emo(nda) = (ieday-eyr(nda)*10000)/100
         eda(nda) = ieday-eyr(nda)*10000-emo(nda)*100
 
-        write(*,*)'Opening: ',inrec
-        open(iunit,file=inrec,status='old')
+        open(iunit,file=inrec,status='old')               
+        write(*,*)'Opened: ',inrec
 
         write(*,'(3(A,i3,x))') 
      &  ' Beg time: year =',iyr(nda),'month =',mo(nda),'day =',ida(nda)

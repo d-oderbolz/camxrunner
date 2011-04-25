@@ -17,6 +17,16 @@ each landuse file you provide.
 
 Revsion History
 ---------------
+May 2010:
+1. Added capability of reading the new landuse type (26 catgories for Zhang's 
+   deposition scheme). 
+
+Sep 2009:
+1. A counter variable used to assist with determining the TOMS filename was not
+   initialized before it was used.  For compilers that automatically initialize
+   variables to zero, there is no problem.  Otherwise, TOMS files would not be
+   properly opened and processed. This problem has been corrected.
+
 Feb 2008:
 1. AHOMAP.F and TOMSPREP.F have been generalized to automatically handle older
    TOMS files (on 1.25 x 1.00 degree grid) and the latest OMI TOMS files (on
