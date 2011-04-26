@@ -1,75 +1,24 @@
 --- node_send_nbc.f
 +++ node_send_nbc.f
-@@ -11,7 +11,7 @@
- c
-       implicit none
- c
--c----CAMx v5.20.1 1007014
+@@ -14 +14 @@
+-c----CAMx v5.30 101223
 +c----CAMx v5.30_patch 110303
- c
- c-----------------------------------------------------------------------
- c    Description:
-@@ -39,11 +39,13 @@
- c    LOG:
- c-----------------------------------------------------------------------
- c
+@@ -41,0 +42,2 @@
 +c    --gwilson-- 03/03/11 changed the allocation of the temp buffer
 +c
- c-----------------------------------------------------------------------
- c    Include files:
- c-----------------------------------------------------------------------
- c
--      include 'chmdat.com'
-+      include 'chmdat.inc'
- c
- c-----------------------------------------------------------------------
- c    Argument declarations:
-@@ -107,8 +109,8 @@
-       enddo
-       if (nbuff_save .eq. 0) then
-          if (allocated(buffnest)) deallocate (buffnest)
+@@ -110,2 +112,2 @@
 -         allocate( buffnest( 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec ) )
 -         nbuff_save = 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec
 +         allocate( buffnest( 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec ) )
 +         nbuff_save = 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*nspec
-       endif
- c
-       do nm=1,nmachs
-@@ -196,7 +198,7 @@
- c
-       implicit none
- c
--c----CAMx v5.20.1 1007014
+@@ -199 +201 @@
+-c----CAMx v5.30 101223
 +c----CAMx v5.30 101201
- c
- c-----------------------------------------------------------------------
- c    Description:
-@@ -378,7 +380,7 @@
- c
-       implicit none
- c
--c----CAMx v5.20.1 1007014
+@@ -381 +383 @@
+-c----CAMx v5.30 101223
 +c----CAMx v5.30 101201
- c
- c-----------------------------------------------------------------------
- c    Description:
-@@ -410,7 +412,7 @@
- c    Include files:
- c-----------------------------------------------------------------------
- c
--      include 'chmdat.com'
-+      include 'chmdat.inc'
- c
- c-----------------------------------------------------------------------
- c    Argument declarations:
-@@ -476,8 +478,8 @@
-       enddo
-       if (nbuff_save .eq. 0) then
-          if (allocated(buffnest)) deallocate (buffnest)
+@@ -479,2 +481,2 @@
 -         allocate( buffnest( 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp ) )
 -         nbuff_save = 2*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp
 +         allocate( buffnest( 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp ) )
 +         nbuff_save = 10*(mmxp(ifm)+mmyp(ifm))*mmzp(ifm)*ntotsp
-       endif   
- c
-       do nm=1,nmachs
