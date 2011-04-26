@@ -1,8 +1,6 @@
-      subroutine isurfcon
+      subroutine isurfcon(mlus)
 
       include 'uamvascii.inc'
-
-      mlus = 11
 
    10 continue
 

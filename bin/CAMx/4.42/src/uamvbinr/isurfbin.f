@@ -1,8 +1,6 @@
-      subroutine isurfbin
+      subroutine isurfbin(mlus)
 
       include 'uamvbinr.inc'
-
-      mlus = 11
 
    10 continue
 
