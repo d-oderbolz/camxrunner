@@ -471,7 +471,7 @@ function main.sendMessage()
 		if [[ "$address" ]]
 		then
 			# send it if we have an adress
-			echo -e $2 | mail -s "$1" $adress
+			echo -e $2 | mail -s "$1" $address
 		fi
 	done
 	
