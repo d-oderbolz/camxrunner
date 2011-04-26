@@ -652,6 +652,7 @@ function common.runner.createDummyFile()
 # Note that we cannot use a hash to store tempfiles since otherwise a deadlock would occur.
 # 
 # If your tempfile is used to call an executable like AHOMAP, use the wrapper <common.runner.createJobFile>
+# this allows the user to see these files later.
 #
 # Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
 # <common.runner.removeTempFiles>
@@ -722,6 +723,9 @@ function common.runner.createTempFile()
 		main.log -v "Created temporary file $name"
 	fi # directory or file?
 	
+	# name to caller
+	echo $name
+	
 	if [[ $retval -ne 0 ]]
 	then
 		# FAILED
@@ -744,7 +748,7 @@ function common.runner.createTempFile()
 		(echo $name >> $CXR_INSTANCE_FILE_TEMP_LIST) &> /dev/null || :
 	fi
 	
-	echo $name
+	
 	return $CXR_RET_OK
 }
 

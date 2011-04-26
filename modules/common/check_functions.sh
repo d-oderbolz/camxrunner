@@ -790,7 +790,7 @@ function common.check.preconditions()
 		# Decrease global indent level
 		main.decreaseLogIndent
 		
-		main.log -v   "Checking Directories ..."
+		main.log -v "Checking Directories ..."
 		
 		# Increase global indent level
 		main.increaseLogIndent
