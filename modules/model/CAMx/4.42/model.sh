@@ -619,7 +619,7 @@ function write_model_control_file()
 		echo " Dry_Deposition         = .${CXR_DRY_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE}
 	else
 		# Different drydep models starting with 5.30
-		echo " Drydep_Model         = ${CXR_DRYDEP_MODEL}," >> ${CXR_MODEL_CTRL_FILE}
+		echo " Drydep_Model           = '${CXR_DRYDEP_MODEL}'," >> ${CXR_MODEL_CTRL_FILE}
 	fi
 
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
