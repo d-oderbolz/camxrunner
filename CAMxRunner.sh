@@ -100,6 +100,8 @@ function main.usage()
 	  -s    stop this run gracefully (stop all runners executing this run)
 	  
 	  -DYYYY-MM-DD execute a specific simulation day given in the form YYYY-MM-DD
+	               Attention: if you want to run One-Time pre- or postprocessing,
+	               you must include the first and the last simulation day, respectively.
 	  
 	  -n    No removal of tempfiles. Useful for partial runs on compressed input.
 
