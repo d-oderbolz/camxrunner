@@ -454,7 +454,7 @@ function main.sendMessage()
 	
 	
 	#Add SMS Adress if needed
-	if [[ ${CXR_SEND_SMS} == true  ]]
+	if [[ ${CXR_SEND_SMS} == true ]]
 	then
 		adresses="$adresses $CXR_SMSADDR"
 	fi

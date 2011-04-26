@@ -612,8 +612,16 @@ function write_model_control_file()
 	echo " Chemistry_Solver       = '${CXR_CHEMISTRY_SOLVER}',      ! (CMC,IEH,LSODE,EBI(5.x))" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " PiG_Submodel           = '${CXR_PIG_SUBMODEL}',     ! (None,GREASD,IRON)" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Probing_Tool           = '${CXR_PROBING_TOOL}',     ! (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC,HDDM(5.x))" >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Chemistry              = .${CXR_CHEMISTRY}.," >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Dry_Deposition         = .${CXR_DRY_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
+	echo " Chemistry              = .${CXR_CHEMISTRY}.," >> ${CXR_MODEL_CTRL_FILE}
+	
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.3" )" -eq 1 ]]
+	then
+		# Different drzdep models starting with 5.30
+		echo " Drydep_Model         = ${CXR_DRYDEP_MODEL}," >> ${CXR_MODEL_CTRL_FILE}
+	else
+		echo " Dry_Deposition         = .${CXR_DRY_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE}
+	fi
+
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# Some CAMx 5.x features
