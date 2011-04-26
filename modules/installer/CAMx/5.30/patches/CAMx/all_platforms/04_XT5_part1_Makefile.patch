@@ -1,0 +1,48 @@
+--- Y:/oderbolz/tmp/CAMx5.30/Makefile	Thu Dec 23 22:00:00 2010
++++ Y:/oderbolz/tmp/CAMX5.30_Manno/Makefile	Thu Mar 10 16:48:42 2011
+@@ -41 +41,3 @@
+-MPI_INST = /usr/local/mpich
++MPI_INST = $(MPICH_DIR)
++
++HDF5PGI_DIR = $(CRAY_HDF5_DIR)/hdf5-pgi
+@@ -88,2 +90,6 @@
+-   HDF_LIB  = -L/usr/lib -L/usr/local/lib -lhdf5 -lz
+-   HDF_INC  = /usr/local/include/hdf5
++##   HDF_LIB  = -L/usr/lib -L/usr/local/lib -lhdf5 -lz
++   HDF_LIB  = -L$(HDF5PGI_DIR)/lib -lhdf5 -lz
++#
++##   HDF_INC  = /usr/local/include/hdf5
++   HDF_INC  = $(HDF5PGI_DIR)/include/hdf5
++#
+@@ -98 +104,2 @@
+-   LIBS     = $(MPI_LIBS) $(HDF_OBJ) $(HDF_LIB)
++##   LIBS     = $(MPI_LIBS) $(HDF_OBJ) $(HDF_LIB)
++   LIBS     = $(MPI_LIBS) $(HDF_OBJ)
+@@ -269 +276 @@
+-	   FC=pgf90 \
++	   FC=ftn \
+@@ -271 +278,2 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio"
++
+@@ -274,2 +282,2 @@
+-	   FC=pgf90 \
+-	   CC=gcc \
++	   FC=ftn \
++	   CC=cc \
+@@ -277 +285,2 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio"
++
+@@ -279 +288 @@
+-	   FC=pgf90 \
++	   FC=ftn \
+@@ -282 +291 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic"
+@@ -880 +889,4 @@
+-	cc -c -o $@ -I$(INCLUDES) $<
++	@echo "      "
++	@echo $(INCLUDES)
++	@echo "      "
++	cc -c -o $@ $(INCLUDES) $<

@@ -1,0 +1,10 @@
+--- Makefile
++++ Makefile
+@@ -3 +3,2 @@
+-MPI_INST = /usr/local/mpich
++##MPI_INST = /usr/local/mpich
++MPI_INST = $(MPICH_DIR)
+@@ -7 +8,2 @@
+-CC = gcc
++##CC = gcc
++CC = cc
