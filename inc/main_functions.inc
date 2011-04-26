@@ -451,6 +451,7 @@ function main.sendMessage()
 ################################################################################
 {
 	local adresses
+	local address
 	
 	
 	#Add SMS Adress if needed
@@ -465,11 +466,14 @@ function main.sendMessage()
 		adresses="$adresses $CXR_MAILADDR"
 	fi
 	
-	if [[ "${adresses}"  ]]
-	then
-		# send it if we have any adresses
-		echo -e $2 | mail -s "$1" $adresses
-	fi
+	for address in $adresses
+	do
+		if [[ "$address" ]]
+		then
+			# send it if we have an adress
+			echo -e $2 | mail -s "$1" $adress
+		fi
+	done
 	
 	# Twitter
 	if [[ ${CXR_SEND_TWITTER} == true ]]
