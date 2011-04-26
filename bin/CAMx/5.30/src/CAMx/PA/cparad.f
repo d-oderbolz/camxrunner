@@ -1,0 +1,70 @@
+      subroutine cparad( rad, nr, pa, npa, nn, dtfact )
+      use filunit
+      use chmstry
+      use camxcom
+      use procan
+      use tracer
+c
+c----CAMx v5.30 101223
+c
+c     CPARAD saves radical concentrations for CPA output
+c     and sets the CPA names and position numbers on the 
+c     first call from PASETUP
+c
+c     Copyright 1996 - 2010
+c     ENVIRON International Corporation
+c
+c     Modifications:
+c        none
+c
+c     Input arguments:
+c        rad                 radical concentrations array (ppm)
+c        nr                  dimension of radical array
+c        pa                  CPA parameter array (ppb units)
+c        npa                 dimension of pa array
+c        nn                  counter of CPA parameters filled
+c        dtfact              ratio of time step to averaging interval
+c
+c     Output arguments:
+c        pa                  CPA parameter array (ppb units)
+c        nn                  counter of CPA parameters filled
+c
+c     Routines called:
+c        none
+c
+c     Called by:
+c        CHEMDRIV
+c        PASETUP
+c
+      implicit none
+      include 'camx.prm'
+c
+      integer npa, nr, nn, in_nn
+      real    dtfact, ppbfact
+      real    pa(npa), rad(nr)
+c
+c-----Entry point
+c
+      ppbfact = 1000.
+      in_nn = nn
+c
+      nn = nn + 1
+      ptname(nn)  = 'OH'
+      pa(nn) = dtfact*rad(kOH)*ppbfact
+c
+      nn = nn + 1
+      ptname(nn)  = 'HO2'
+      pa(nn) = dtfact*rad(kHO2)*ppbfact
+c
+      if( nn .GT. MXCPA ) then
+         write(iout,'(//,a)') 'ERROR in CPARAD:'
+         write(iout,*) 'Number of outputs requested exceeds limit.'
+         write(iout,*) 
+     &     'Increase the parameter MXCPA in include file procan.inc'
+         write(iout,'(1X,A,I5)')
+     &         'You need room for at least this many species: ',in_nn+2
+         call camxerr()
+      end if
+c
+      return
+      end
