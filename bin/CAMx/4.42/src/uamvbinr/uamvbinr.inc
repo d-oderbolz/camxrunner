@@ -24,6 +24,7 @@ c     explicitly in isurfcon.
       real*4 fland(mxx,mxy,mxspc)
       common /flandcom/ fland
 
+      character*8  luheader
       character*80 msg
       character*10 mavspc(mxspc)
       parameter (maxfin = 10)

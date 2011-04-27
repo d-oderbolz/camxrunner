@@ -154,6 +154,8 @@ function convert_landuse()
 	# In this module, CXR_INVOCATION corresponds to the grid number.
 	CXR_INVOCATION=${1}
 	
+	local type
+	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true ]]
 	then
@@ -180,10 +182,25 @@ function convert_landuse()
 			then
 				main.log -w "File ${CXR_OUTPUT_FILE} exists - file will skipped."
 			else
+				if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.3" )" -eq 1 ]]
+				then
+					# Version before 5.3
+					type=SURFACE
+				else
+					# 5.3 or later use the new landuse data
+					case $CXR_DRYDEP_MODEL in
+						ZHANG03)  type=SURFACEN26;;
+						WESELY89) type=SURFACEN11;;
+						NONE)     type=SURFACEN11;;
+						*) main.dieGracefully "Unsupported Dry Deposition model $CXR_DRYDEP_MODEL" ;;
+					esac
+					
+				fi
+			
 				# Call the converter, collect sterr and stout
 				# 0 indicates stdout for logging
-				main.log "Calling ${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE26  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null "
-				${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} SURFACE26  $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
+				main.log "Calling ${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} $type $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null "
+				${CXR_UAMVBINR_EXEC} ${CXR_INPUT_FILE} ${CXR_OUTPUT_FILE} $type $(common.runner.getX ${CXR_IGRID}) $(common.runner.getY ${CXR_IGRID}) $(common.runner.getZ ${CXR_IGRID}) /dev/null 2>&1 | tee -a $CXR_LOG
 			fi
 			
 		else

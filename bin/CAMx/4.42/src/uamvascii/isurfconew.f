@@ -1,18 +1,15 @@
-      subroutine isurfcon
+      subroutine isurfconew(mlus)
 
       include 'uamvascii.inc'
 
    10 continue
    
-      mlus=11
 
 c
-c   surface roughness removed from surf file (tcm, 3/8/93)
-c
-c     read(InNum,end=100,err=200) 
-c    &    ((emob(i,j), i=1,nox),j=1,noy)
-c     write(OutNum,30,err=210)  
-c    &    ((emob(i,j), i=1,nox),j=1,noy)
+c  In the 5.30+ file, there is a header of 8 bytes we must read as well
+
+      read(InNum,err=200) luheader
+      write(OutNum,err=210) luheader
 
       read(InNum,end=100,err=200) 
      &    (((fland(i,j,k), i=1,nox),j=1,noy),k=1,mlus)
