@@ -68,9 +68,9 @@ c     read(*,*) nox, noy, nlayer
       ELSE IF (IFILE .EQ. 'SURFACE   ') THEN 
           CALL ISURFCON
       ELSE IF (IFILE .EQ. 'SURFACEN11') THEN 
-          CALL ISURFCONEW(11)
+          CALL ISURFNEW(11)
       ELSE IF (IFILE .EQ. 'SURFACEN26') THEN 
-          CALL ISURFCONEW(26)
+          CALL ISURFNEW(26)
       ELSE IF (IFILE .EQ. 'TERRAIN   ') THEN 
           CALL ITERRCON 
       ELSE IF (IFILE .EQ. 'VDIFFUSION') THEN 

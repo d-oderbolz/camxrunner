@@ -1,4 +1,4 @@
-      subroutine isurfconew(mlus)
+      subroutine isurfnew(mlus)
 
       include 'uamvascii.inc'
 
