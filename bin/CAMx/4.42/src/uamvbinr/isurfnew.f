@@ -1,4 +1,4 @@
-      subroutine isurfbinew(mlus)
+      subroutine isurfnew(mlus)
 
       include 'uamvbinr.inc'
 

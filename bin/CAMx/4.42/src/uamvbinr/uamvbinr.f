@@ -68,10 +68,10 @@ c      read(*,*) nox, noy, nlayer
           CALL IUH2OBIN 
       ELSE IF (IFILE .EQ. 'SURFACE   ') THEN 
           CALL ISURFBIN
-      ELSE IF (IFILE .EQ. 'SURFACEN26') THEN 
-          CALL ISURFBINEW(26)
       ELSE IF (IFILE .EQ. 'SURFACEN11') THEN 
-          CALL ISURFBINEW(11)
+          CALL ISURFNEW(11)
+      ELSE IF (IFILE .EQ. 'SURFACEN26') THEN 
+          CALL ISURFNEW(26)
       ELSE IF (IFILE .EQ. 'TERRAIN   ') THEN 
           CALL ITERRBIN 
       ELSE IF (IFILE .EQ. 'VDIFFUSION') THEN 
