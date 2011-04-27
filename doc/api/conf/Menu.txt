@@ -102,11 +102,21 @@ Group: Modules  {
 
       Group: CAMx  {
 
-         File: 11_Converter_installer.sh  (modules/installer/CAMx/5.20.1/11_Converter_installer.sh)
-         File: 20_HDF_installer.sh  (modules/installer/CAMx/5.20.1/20_HDF_installer.sh)
-         File: 21_CAMx_installer.sh  (modules/installer/CAMx/5.20.1/21_CAMx_installer.sh)
-         File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/5.20.1/22_Pre_and_Postprocessor_installer.sh)
-         File: 30_testcase_installer.sh  (modules/installer/CAMx/5.20.1/30_testcase_installer.sh)
+         File: 11_Converter_installer.sh  (modules/installer/CAMx/5.30/11_Converter_installer.sh)
+         File: 20_HDF_installer.sh  (modules/installer/CAMx/5.30/20_HDF_installer.sh)
+         File: 21_CAMx_installer.sh  (modules/installer/CAMx/5.30/21_CAMx_installer.sh)
+         File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/5.30/22_Pre_and_Postprocessor_installer.sh)
+         File: 30_testcase_installer.sh  (modules/installer/CAMx/5.30/30_testcase_installer.sh)
+
+         Group: 5.20.1  {
+
+            File: 11_Converter_installer.sh  (modules/installer/CAMx/5.20.1/11_Converter_installer.sh)
+            File: 20_HDF_installer.sh  (modules/installer/CAMx/5.20.1/20_HDF_installer.sh)
+            File: 21_CAMx_installer.sh  (modules/installer/CAMx/5.20.1/21_CAMx_installer.sh)
+            File: 22_Pre_and_Postprocessor_installer.sh  (modules/installer/CAMx/5.20.1/22_Pre_and_Postprocessor_installer.sh)
+            File: 30_testcase_installer.sh  (modules/installer/CAMx/5.20.1/30_testcase_installer.sh)
+            }  # Group: 5.20.1
+
          }  # Group: CAMx
 
       File: PMCAMx/2008/10_PMCAMx_installer.sh  (modules/installer/PMCAMx/2008/10_PMCAMx_installer.sh)
@@ -134,9 +144,9 @@ Group: Modules  {
 
                File: extract_arpa_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_arpa_stations.pro)
                File: extract_nabel_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_nabel_stations.pro)
-               File: extract_stations  (modules/postproc/CAMx/4.42/daily/extract_station_data/extract_stations.pro)
                }  # Group: Extract_station_data
 
+            File: extract_station_data.bin.sh  (modules/postproc/CAMx/4.42/daily/extract_station_data.bin.sh)
             File: extract_station_data.sh  (modules/postproc/CAMx/4.42/daily/extract_station_data.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/4.42/daily/run_aqmfad.sh)
             }  # Group: Daily
@@ -158,9 +168,9 @@ Group: Modules  {
 
                File: extract_arpa_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_arpa_stations.pro)
                File: extract_nabel_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_nabel_stations.pro)
-               File: extract_stations  (modules/postproc/CAMx/4.51/daily/extract_station_data/extract_stations.pro)
                }  # Group: Extract_station_data
 
+            File: extract_station_data.bin.sh  (modules/postproc/CAMx/4.51/daily/extract_station_data.bin.sh)
             File: extract_station_data.sh  (modules/postproc/CAMx/4.51/daily/extract_station_data.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/4.51/daily/run_aqmfad.sh)
             }  # Group: Daily
@@ -182,9 +192,9 @@ Group: Modules  {
 
                File: extract_arpa_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_arpa_stations.pro)
                File: extract_nabel_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_nabel_stations.pro)
-               File: extract_stations  (modules/postproc/CAMx/5.10/daily/extract_station_data/extract_stations.pro)
                }  # Group: Extract_station_data
 
+            File: extract_station_data.bin.sh  (modules/postproc/CAMx/5.10/daily/extract_station_data.bin.sh)
             File: extract_station_data.sh  (modules/postproc/CAMx/5.10/daily/extract_station_data.sh)
             File: run_aqmfad.sh  (modules/postproc/CAMx/5.10/daily/run_aqmfad.sh)
             }  # Group: Daily
@@ -297,9 +307,9 @@ Group: Modules  {
 
             File: extract_arpa_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_arpa_stations.pro)
             File: extract_nabel_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_nabel_stations.pro)
-            File: extract_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_stations.pro)
             }  # Group: Extract_station_data
 
+         File: extract_station_data.bin.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.bin.sh)
          File: extract_station_data.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.sh)
          File: run_aqmfad.sh  (modules/postproc/CAMx/5.20.1/daily/run_aqmfad.sh)
          }  # Group: Daily
