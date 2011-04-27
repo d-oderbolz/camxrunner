@@ -34,6 +34,7 @@ mixhtcon.o \
 itempcon.o \
 iuh2ocon.o \
 isurfcon.o \
+isurfnew.o \
 iterrcon.o \
 ikvcon.o \
 outcccon.o \

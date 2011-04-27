@@ -34,6 +34,7 @@ mixhtbin.o \
 itempbin.o \
 iuh2obin.o \
 isurfbin.o \
+isurfnew.o \
 iterrbin.o \
 ikvbin.o \
 outccbin.o \
