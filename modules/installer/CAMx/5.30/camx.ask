@@ -33,7 +33,9 @@
 # Lines of the Form COMMENT|String are echoed as is
 #
 #
-COMMENT|Geometry parameters are no longer needed for CAMx 5.x
+COMMENT|Geometry parameters
+
+MXCELLS|I|What is the maximum of cells in any direction and any domain?|200
 
 COMMENT|These are lookup parameters (TUV) which change camx.prm
 NOZN|I||CXR_NOZN

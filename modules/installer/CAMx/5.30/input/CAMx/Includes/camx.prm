@@ -35,7 +35,7 @@ c
       integer   MXCHDRN
       integer   NOVERLP
 c
-      parameter ( MXCELLS =      200 )
+      parameter ( MXCELLS =      @MXCELLS@ )
       parameter ( MXLAYER =       28 )
       parameter ( MXSPEC  =      @MXSPEC@ )
       parameter ( MXREACT =      217 )

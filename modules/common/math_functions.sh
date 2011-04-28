@@ -131,6 +131,35 @@ function common.math.compareVersions()
 }
 
 ################################################################################
+# Function: common.math.if_then_else
+#
+# Implements the ternary operator.
+#
+# Parameters:
+# $1 - an boolean expression yeilding either true or false
+# $2 - the value to return if true
+# $3 - the value to return otherwise
+################################################################################
+function common.math.if_then_else()
+################################################################################
+{
+	local ifvar
+	local thenvar
+	local elsevar
+	
+	ifvar=$1
+	thenvar=$2
+	elsevar=$3
+	
+	if [[ $ifvar == true ]]
+	then
+		echo $thenvar
+	else
+		echo $elsevar
+	fi
+}
+
+################################################################################
 # Function: common.math.convertBoolean
 #
 # Converts an internal true/false boolean to another system (default: 1/0).
