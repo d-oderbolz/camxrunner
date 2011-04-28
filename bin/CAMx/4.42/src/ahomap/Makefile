@@ -27,7 +27,7 @@ ifeq ($(strip $(DESTINATION)),)
 endif
 
 
-# FLGS =  -byteswapio -Wl,-Bstatic 
+# FLGS =  -byteswapio -Wl,-Bstatic  -g
 
 FLGS =  -Mbyteswapio -Bstatic
 
