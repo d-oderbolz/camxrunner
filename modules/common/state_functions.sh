@@ -1346,6 +1346,9 @@ function common.state.cleanup()
 				
 				# First, we build a select statement,
 				# then we execute it (SELECT & UPDATE) one-by-one
+				
+				# Defaults
+				confirm_days=false
 
 				# First select the module type or module name
 				if [[ "$(common.user.getOK "Do you want to remove specific module types (otherwise, you get a list of modules)?" )" == true  ]]
@@ -1438,11 +1441,10 @@ function common.state.cleanup()
 					then
 						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we remove?" "$days" )"
 						stop_offset=$(common.date.toOffset $stop_day)
+						confirm_days="$(common.user.getOK "Do you want to confirm each removal?" )"
 					fi
 				fi
 				
-				confirm_days="$(common.user.getOK "Do you want to confirm each removal?" )"
-
 				if [[ "$confirm_days" == true ]]
 				then
 					for iOffset in $(seq $start_offset $stop_offset)
