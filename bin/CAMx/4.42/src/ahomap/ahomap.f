@@ -34,7 +34,7 @@ c
       integer nlu,strlen
       dimension alb(ncol,nrow,ngrd),fsurf(ncol,nrow,mlu)
       dimension albcw(11),albcz(26)
-      character*80 inrec,header
+      character*200 inrec,header
       character*200 inline
       character*8 lcoord,hdrstr
       logical lsnow
