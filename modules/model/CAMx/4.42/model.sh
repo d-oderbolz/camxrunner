@@ -988,6 +988,11 @@ function execute_model()
 	# The CAMx.in file is in the state dir
 	cd ${CXR_STATE_DIR}
 	
+	if [[ ! -x "${CXR_MODEL_EXEC:-}" ]]
+	then
+		main.dieGracefully "CXR_MODEL_EXEC (${CXR_MODEL_EXEC}) is not executable!"
+	fi
+	
 	main.log -a "Calling ${CXR_MODEL_EXEC}..."
 	
 	# Call the executable while collecting stderr and stdout
