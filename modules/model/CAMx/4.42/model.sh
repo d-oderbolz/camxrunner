@@ -988,6 +988,8 @@ function execute_model()
 	# The CAMx.in file is in the state dir
 	cd ${CXR_STATE_DIR}
 	
+	main.log -a "Calling ${CXR_MODEL_EXEC}..."
+	
 	# Call the executable while collecting stderr and stdout
 	$CXR_MODEL_EXEC 2>&1 | tee -a $CXR_LOG
 	
