@@ -30,7 +30,7 @@ pro camxinit $
 ; fmoz - mozart input file for initial day
 ; first_meteo_file - name of a MM5 output file of domain 1 for initial day or a WRF IDL savefile (needed only for lat/lon information)
 ; metmodel - name of the meteo model ('MM5', 'WRF')
-; zpfile - zp file of domain 1 for initial day
+; zpfile - binary zp file of domain 1 for initial day
 ; outfile_ic - name of the output file for initial conditions (ASCII)
 ; outfile_tc - name of the output file for top concentrations
 ; nlevs - the number of vertical layers in CAMx
@@ -301,30 +301,30 @@ mozart_pressureinterp = FLTARR(ncols,nrows,nlevsmoz)
 
 print,'Reading pressure file...'
 
-; Read zp input file
-; Note that free format reading might not work
-; if the height and pressure values have such a number of digits
-; that their field is full and different fields are not separated
-; by space. In that case a format specification is required.
-; This format depends on the converter that was used to produce the
-; ascii height/pressure file.
-OPENR, lun, zpfile, /GET_LUN
+; Read zp input file binary
+openr,lun, zpfile,/GET_LUN,/F77_UNFORMATTED,/SWAP_ENDIAN
+
 height = FLTARR(ncols, nrows, nlevs)
 pres = FLTARR(ncols, nrows, nlevs)
 height2d = FLTARR(ncols,nrows)
 pres2d = FLTARR(ncols,nrows)
-datemm5camx = 0.0
-timemm5camx = 0
 
+; Dummys needed for readu
+hour=0.0
+idate=0L
+
+; We ignore time (we need just the first step for IC)
 FOR k = 0, nlevs - 1 DO BEGIN
-  READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
-  READF, lun, height2d
-  READF, lun, FORMAT = formatdt, datemm5camx, timemm5camx
-  READF, lun, pres2d
-    
-  height[*,*,k] = height2d
-  pres[*,*,k] = pres2d
+  ; height data is first in the ZP file
+	readu,lun,hour,idate,height2d
+			
+	; Pressure data is second
+	readu,lun,hour,idate,pres2d
+
+	height[*,*,k] = height2d
+	pres[*,*,k] = pres2d
 ENDFOR
+
 
 FREE_LUN, lun
 

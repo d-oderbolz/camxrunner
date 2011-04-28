@@ -193,7 +193,7 @@ pro extract_arpa_stations,input_file,output_dir,write_header,day,month,year,stat
 			; height data is first in the ZP file
 			readu,input_zp,hour,idate,height_slice
 			
-			; Height data is second
+			; Pressure data is second
 			readu,input_zp,hour,idate,pressure_slice
 			
 			; Fill the "Total" Arrays

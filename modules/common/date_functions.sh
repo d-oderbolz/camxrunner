@@ -1334,6 +1334,9 @@ function common.date.setVars()
 	# Season
 	CXR_SEASON=$(common.date.Season $CXR_DATE)
 	
+	# The thing ENVIRON calls JULIAN
+	CXR_CAMXJULIAN="${CXR_YEAR_S}$(common.date.DayOfYear ${CXR_DATE} 3 )"
+	
 	# if offset is 0, we are at the initial day
 	if [[ "$CXR_DAY_OFFSET" -eq 0 ]]
 	then

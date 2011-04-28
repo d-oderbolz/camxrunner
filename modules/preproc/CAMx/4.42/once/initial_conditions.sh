@@ -30,7 +30,7 @@
 
 # the predicate "-<n>" refers to some previous model day, so ${CXR_TYPE_MODEL}-1 means that all model modules of the previous day must be successful before this module may run. 
 
-CXR_META_MODULE_DEPENDS_ON="convert_meteo"
+CXR_META_MODULE_DEPENDS_ON=""
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -131,8 +131,8 @@ function set_variables()
 	NLEV=${CXR_NUMBER_OF_LAYERS[1]}
 	
 	# The date needed by this function is a bit strange
-	# It needs a 2-digit yoer and a 3-digit DOY
-	IBDATE="${CXR_YEAR_S}$(common.date.DayOfYear ${CXR_START_DATE} 3 )"
+	# It needs a 2-digit year and a 3-digit DOY
+	IBDATE="${CXR_CAMXJULIAN}"
 	
 	# Evaluate some rules
 	
@@ -160,7 +160,7 @@ function set_variables()
 		CXR_METEO_INPUT_FILE="$(common.runner.evaluateRule "$CXR_MMOUT_FILE_RULE" false CXR_MMOUT_FILE_RULE)"
 		
 		# And finally the ZP file
-		CXR_ZP_INPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)"
+		CXR_ZP_INPUT_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
 	
 		# space separated list of input files to check
 		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_METEO_INPUT_FILE $CXR_ZP_INPUT_FILE $CXR_MOZART_INPUT_FILE"
