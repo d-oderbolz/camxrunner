@@ -1,0 +1,20 @@
+--- Makefile
++++ Makefile
+@@ -271 +271 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio "
+@@ -277 +277 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio "
+@@ -282 +282 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio "
+@@ -290 +290 @@
+-	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O2 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio "
+@@ -296 +296 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio "
+@@ -301 +301 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O2 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio "
