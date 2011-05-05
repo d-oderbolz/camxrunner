@@ -425,6 +425,8 @@ function common.state.updateInfo()
 	then
 		main.log -a "This is not a real run, we assume module info is up-to-date"
 		return $CXR_RET_OK
+	else
+		main.log -a "Collecting module information, might take a while..."
 	fi
 	
 	success_file=/dev/null
@@ -527,9 +529,7 @@ function common.state.updateInfo()
 	      $CXR_MODEL_INPUT_DIR \
 	      $CXR_POSTPROCESSOR_DAILY_INPUT_DIR \
 	      $CXR_POSTPROCESSOR_ONCE_INPUT_DIR)
-	      
-	main.log -a "Collecting module information, might take a while..."
-	
+
 	# For the syntax of the sql_module_list
 	first=true
 	
@@ -537,6 +537,8 @@ function common.state.updateInfo()
 	do
 		type=${types[$iIteration]}
 		dir=${dirs[$iIteration]}
+		
+		common.user.showProgress
 		
 		# The enabled and disabled strings are lists
 		case "$type" in
@@ -578,6 +580,8 @@ function common.state.updateInfo()
 
 			for file in $files
 			do
+				
+				common.user.showProgress
 				common.check.reportMD5 $file
 				
 				# Determine name and variant of the current file
