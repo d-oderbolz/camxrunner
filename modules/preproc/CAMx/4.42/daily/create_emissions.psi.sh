@@ -220,14 +220,23 @@ function create_emissions()
 			#	bionly=0 : calculate all anthropogenic and biogenic Emissions - we use this the first 7 days
 			#	bionly=1 : calculate only biogenic Emissions, ignore anthropogenic
 			#	bionly=2 : calculate only biogenic Emissions, use existing anthropogenic for the current weekday - we use this after offset 6
-			if [[ "${CXR_DAY_OFFSET}" -gt 6 ]]
+			
+			if [[ "${CXR_EMISSION_EXPLICIT_BIONLY:-}" ]]
 			then
-				main.log -a "We already have 7 days worth of emission data, anthropoginc data will be taken corresponding to the current weekday..."
-				bionly=2
+				main.log -a "You set CXR_EMISSION_EXPLICIT_BIONLY, we use $CXR_EMISSION_EXPLICIT_BIONLY"
+				bionly=${CXR_EMISSION_EXPLICIT_BIONLY}
 			else
-				main.log -a "We have less than 7 days worth of emission data, will calculate anthropogenic data..."
-				bionly=0
-			fi
+				
+				if [[ "${CXR_DAY_OFFSET}" -gt 6 ]]
+				then
+					main.log -a "We already have 7 days worth of emission data, anthropogenic data will be read corresponding to the current weekday..."
+					bionly=2
+				else
+					main.log -a "We have less than 7 days worth of emission data, will calculate anthropogenic data..."
+					bionly=0
+				fi # Do we have more than 7 days done?
+			
+			fi # set explicitly
 			
 			# We need to prepare a couple of special variables
 			metmodel="$(common.string.toLower $CXR_MET_MODEL)"
