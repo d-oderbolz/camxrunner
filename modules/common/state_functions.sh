@@ -580,7 +580,6 @@ function common.state.updateInfo()
 			for file in $files
 			do
 				
-				common.user.showProgress
 				common.check.reportMD5 $file
 				
 				# Determine name and variant of the current file
