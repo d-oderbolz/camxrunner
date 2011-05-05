@@ -275,7 +275,7 @@ function common.module.getTypeSlow()
 	
 	# We ASSUME that each instance of this file is of the same type
 	# We must allow for variant names
-	file="$(find ${CXR_RUN_DIR}/ -noleaf -name ${1}.*.sh | head -n1)"
+	file="$(find ${CXR_RUN_DIR}/ -noleaf -name ${1}.*.sh -or -name ${1}.sh | head -n1)"
 	
 	if [[ ! "$file" ]]
 	then
