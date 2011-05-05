@@ -274,7 +274,13 @@ function common.module.getTypeSlow()
 	local file
 	
 	# We ASSUME that each instance of this file is of the same type
-	file="$(find ${CXR_RUN_DIR}/ -noleaf -name ${1}.sh | head -n1)"
+	# We must allow for variant names
+	file="$(find ${CXR_RUN_DIR}/ -noleaf -name ${1}.*.sh | head -n1)"
+	
+	if [[ ! "$file" ]]
+	then
+		main.dieGracefully "Did not find any file that implements ${1}!"
+	fi
 	
 	metafield=$(grep '^[[:space:]]\{0,\}CXR_META_MODULE_TYPE=.*' $file)
 	value="$(expr match "$metafield" '.*=\(.*\)')" || :

@@ -504,7 +504,6 @@ function common.state.updateInfo()
 	
 	fi # are there -r arguments?
 
-	
 	# For performance reasons, we collect all SQL change statements in a file and
 	# execute it later (if CXR_FIRST_INSTANCE is true!)
 	
