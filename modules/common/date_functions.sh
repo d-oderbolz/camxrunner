@@ -87,7 +87,7 @@ function common.date.isWallDaytime?()
 {
 	local hourOfDay
 	
-	hourOfDay=$(date '+%l')
+	hourOfDay=$(date '+%k')
 	
 	if [[ $hourOfDay -ge ${CXR_DAYTIME_START_HOUR:-8} && \
 	      $hourOfDay -le ${CXR_DAYTIME_STOP_HOUR:-18} ]]
