@@ -787,21 +787,22 @@ function common.task.setNextTask()
 	# Are there open tasks at all?
 	if [[ "$task_count" -eq 0 ]]
 	then
+		# Release Lock
+		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
+		
 		main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
+
 		sleep $(( 2 * $CXR_WAITING_SLEEP_SECONDS ))
-		
-		# Remove this worker
-		common.task.removeWorker $CXR_WORKER_PID
 		
 		# It is safe to do this because the test for the continue file comes 
 		# very early in the worker 
 		common.state.deleteMyContinueFile
 		
-		# Release Lock
-		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
+		# Remove this worker
+		common.task.removeWorker $CXR_WORKER_PID
 		
 		echo ""
 		return $CXR_RET_OK
