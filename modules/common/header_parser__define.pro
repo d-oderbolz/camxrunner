@@ -226,9 +226,9 @@ pro header_parser::parse
 		nspec=0L
 		
 		ibdate=0L
-		btime=0L
+		btime=0.
 		iedate=0L
-		etime=0L
+		etime=0.
 		
 		rdum=0.0
 		iutm=0L
