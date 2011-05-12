@@ -1204,7 +1204,9 @@ function common.runner.releaseLock()
 		rm -f "$locklink" 2> /dev/null
 		main.log -v "lock $lock released."
 		
-	if [[ -e "$target" && "$(dirname "$target")" == "$(dirname "${CXR_TMP_DIR}")" ]]
+		# Attention: dirname is terrible stupid. We must add a fake file to get the right answer.
+		#                                                                         |
+		if [[ -e "$target" && "$(dirname "$target")" == "$(dirname "${CXR_TMP_DIR}/dummy")" ]]
 		then
 			# and the target. For security reasons, we
 			# check if it resides really in CXR_TMP_DIR
