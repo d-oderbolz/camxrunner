@@ -99,6 +99,13 @@ function common.check.PredictFileSizeMb ()
 function common.check.PredictModelOutputMb()
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo 0
+		return $CXR_RET_OK
+	fi
+	
 	local cells
 	local time_steps
 	local size
@@ -134,6 +141,13 @@ function common.check.PredictModelOutputMb()
 function common.check.MbNeeded() 
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
+	
 	if [[ $# -ne 2  ]]
 	then
 		main.dieGracefully "needs 2 parameters: a path and a number (megabytes needed)"
@@ -280,6 +294,12 @@ function common.check.DataType()
 function common.check.ModelLimits()
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	main.log -a -B  "Checking model limits for ${CXR_MODEL_EXEC}..."
 	
 	# We must find the play file
@@ -430,12 +450,18 @@ function common.check.ModelLimits()
 # Function: common.check.ExecLimits
 #
 # Checks if our support executables support the current grid sizes.
-# Primitive chock that is based on settings in defaults.inc
+# Primitive check that is based on settings in defaults.inc
 #
 ################################################################################
 function common.check.ExecLimits()
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	main.log -a -B  "Checking limits for the support executables..."
 	
 	# We must find the play file
@@ -486,6 +512,12 @@ function common.check.ExecLimits()
 function common.check.RunnerExecutables()
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	local file
 	
 	# We use a bash 3.x structure, the so-called "here-variable"
@@ -524,6 +556,12 @@ function common.check.RunnerExecutables()
 function common.check.Vars ()
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	local executable
 	local stripped
 	
@@ -577,7 +615,7 @@ function common.check.Vars ()
 function common.check.reportMD5() 
 ################################################################################
 {
-	if [[ "${CXR_REPORT_MD5}" == true ]]
+	if [[ "${CXR_REPORT_MD5}" == true && $CXR_FAST == false ]]
 	then
 		if [[ $# -ne 1 ]]
 		then
@@ -661,6 +699,13 @@ function common.check.reportMD5()
 function common.check.preconditions() 
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo true
+		return $CXR_RET_OK
+	fi
+	
 	# Does the user want to limit the checks?
 	local limited
 	local do_input
@@ -1075,6 +1120,14 @@ function common.check.preconditions()
 function common.check.ModuleRequirements() 
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo true
+		return $CXR_RET_OK
+	fi
+	
+	
 	# Test if Module was already announced (for efficiency and log-file size reasons)
 	local found
 	local requirement
@@ -1182,7 +1235,7 @@ function common.check.ModuleRequirements()
 								then
 									main.log -e  "Module $CXR_META_MODULE_NAME mandatorily needs the executable $what which was not found."
 									echo false
-									return 0
+									return $CXR_RET_OK
 								else
 									main.log -w  "Module $CXR_META_MODULE_NAME needs the executable $what which was not found."
 								fi
@@ -1200,7 +1253,7 @@ function common.check.ModuleRequirements()
 
 	# If we arrive here, it is fine
 	echo true
-	return 0
+	return $CXR_RET_OK
 
 }
 
@@ -1222,6 +1275,13 @@ function common.check.ModuleRequirements()
 function common.check.postconditions() 
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo true
+		return $CXR_RET_OK
+	fi
+	
 	local errors_found
 	local output_file
 	
@@ -1249,7 +1309,7 @@ function common.check.postconditions()
 		done
 		
 		echo true
-		return 0
+		return $CXR_RET_OK
 	fi
 
 	main.log -a "Checking Postconditions:"
@@ -1343,6 +1403,12 @@ function common.check.isVersionSupported?()
 function common.check.runner() 
 ################################################################################
 {
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	# Each directory in $CXR_RUN_SUBDIRS must exist
 	local dir
 	local subdir

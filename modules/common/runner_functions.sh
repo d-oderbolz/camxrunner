@@ -1125,7 +1125,7 @@ function common.runner.getLock()
 		
 		while ! ln -s ${tempfile} ${locklink} 2> /dev/null
 		do
-			if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited == 0" 0 ) -eq 1 ]]
+			if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited > 10" 0 ) -eq 1 ]]
 			then
 				main.log -a "Waiting for lock $lock (level $level) ..."
 				# Safe time thanks to short-circuit logic
@@ -1202,7 +1202,9 @@ function common.runner.releaseLock()
 	
 		# Remove the link
 		rm -f "$locklink" 2> /dev/null
-		main.log -v "lock $lock released."
+		
+		main.log -a "Releasing lock, target $target , $(dirname "$target") $(dirname "${CXR_TMP_DIR}/dummy")"
+		
 		
 		# Attention: dirname is terrible stupid. We must add a fake file to get the right answer.
 		#                                                                         |
@@ -1212,6 +1214,8 @@ function common.runner.releaseLock()
 			# check if it resides really in CXR_TMP_DIR
 			rm -f "$target"
 		fi
+		
+		main.log -v "lock $lock released."
 		
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock released."

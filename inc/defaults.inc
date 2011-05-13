@@ -383,6 +383,9 @@ CXR_SINGLE_DAYS=
 # When set to true, CAMx is not run, only other runners on the same rn are stopped
 CXR_STOP_RUN=false
 
+# When set to true, a lot of checking is not done
+CXR_FAST=false
+
 # When set to true, existing Output files are overwritten (see also CXR_SKIP_EXISTING)
 CXR_FORCE=false
 

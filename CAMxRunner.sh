@@ -83,6 +83,8 @@ function main.usage()
 	  -d    causes a dry run (always uses a single worker)
 	  
 	  -l    Log even if in dryrun
+	  
+	  -f    fast mode - disables most checks. Recommended only for quick-and-dirty jobs.
 
 	  -F    overwrites existing output files (force)
 
@@ -232,7 +234,7 @@ source $CXR_RUN_DIR/inc/defaults.inc
 # When using getopts, never directly call a function inside the case,
 # otherwise getopts does not process any parameters that come later
 # (we are in a loop!)
-while getopts ":dSlvVFwct:sD:nP:ITr:CReLh" opt
+while getopts ":dSlvVFfwct:sD:nP:ITr:CReLh" opt
 do
 	case "${opt}" in
 		d) 	CXR_USER_TEMP_DRY=true; CXR_USER_TEMP_DO_FILE_LOGGING=false; CXR_USER_TEMP_PARALLEL_PROCESSING=false ; CXR_USER_TEMP_LOG_EXT="-dry" ;;
@@ -240,6 +242,7 @@ do
 		l) 	CXR_USER_TEMP_FORCE_LOG=true;;
 		v) 	CXR_LOG_LEVEL_SCREEN=$(( 2 * $CXR_LOG_LEVEL_SCREEN )) ;;
 		V) 	CXR_LOG_LEVEL_FILE=$(( 2 * $CXR_LOG_LEVEL_FILE )) ;;
+		F) 	CXR_USER_TEMP_FAST=true ;;
 		F) 	CXR_USER_TEMP_FORCE=true ;;
 		w) 	CXR_USER_TEMP_WAIT_4_INPUT=true ;;
 		c) 	CXR_HOLLOW=true; CXR_USER_TEMP_CLEANUP=true; CXR_USER_TEMP_DO_FILE_LOGGING=false ;;
@@ -361,6 +364,11 @@ then
 	# No logging!
 	# Log to the null device
 	CXR_LOG=/dev/null
+fi
+
+if [[ "${CXR_FAST" == true ]]
+then
+	main.log -a -B "With the -f(ast) option, you disabled most checks. Be careful to test the output!"
 fi
 
 #### Check for contradictions and take action (incomplete!)
