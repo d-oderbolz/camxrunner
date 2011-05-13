@@ -1203,10 +1203,6 @@ function common.runner.releaseLock()
 		# Remove the link
 		rm -f "$locklink" 2> /dev/null
 		
-		
-		main.log -a "Releasing lock, target $target , $(dirname "$target") $(readlink -m "${CXR_TMP_DIR}")"
-		
-		
 		# We must account for the fact that CXR_TMP_DIR is a link
 		if [[ -e "$target" && "$(dirname "$target")" == "$(readlink -m "${CXR_TMP_DIR}")" ]]
 		then
