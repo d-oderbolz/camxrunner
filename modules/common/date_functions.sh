@@ -909,8 +909,8 @@ function common.date.OffsetToDate()
 # Function: common.date.getModelHour
 # 
 # Calculates the number of hours since model start (the current day does not count, since
-# we are at the very beginning of it. Considers CXR_START_HOUR.
-# Note that CAMx gives hours in hhhh format, this function returns truncated hh fomat.
+# we are at the very beginning of it.) Considers CXR_START_HOUR.
+# Note that CAMx gives hours in fractional hh.hh format, this function returns truncated hh fomat.
 #
 #
 # Example:
@@ -949,7 +949,7 @@ function common.date.getModelHour()
 	elif [[ ${offset} -eq 0 ]]
 	then
 		# First day
-		echo $(( ( 2400 - ${CXR_START_HOUR} ) / 100 ))
+		echo $(( ( ${CXR_START_HOUR} ) / 100 ))
 		return $CXR_RET_OK
 	else
 		echo $(( ( ( ${offset} * 2400 ) - ${CXR_START_HOUR} ) / 100 ))
