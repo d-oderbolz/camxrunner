@@ -372,13 +372,21 @@ function common.performance.getSystemLoadPercent()
 #
 # A performance metric that takes both Memory and CPU into account.
 # We calculate the length of the vector determined by memory and CPU use.
-# This metrich could be extended by an arbitrary number of metrics :-)
+# This idea could be extended by an arbitrary number of variables.
+# Note that this is a relatively expensive operation.
 #
 #
 ################################################################################
 function common.performance.getReaLoadPercent()
 ################################################################################
 {
+	# In the fast case, we assume an idle machine
+	if [[ "${CXR_FAST}" == true ]]
+	then
+		echo 0
+		return $CXR_RET_OK
+	fi
+	
 	local mem
 	local cpu
 	local load
