@@ -1199,16 +1199,16 @@ function common.runner.releaseLock()
 	
 		locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 		target="$(common.fs.getLinkTarget $locklink)"
-	
+		
 		# Remove the link
 		rm -f "$locklink" 2> /dev/null
 		
-		main.log -a "Releasing lock, target $target , $(dirname "$target") $(dirname "${CXR_TMP_DIR}/dummy")"
+		
+		main.log -a "Releasing lock, target $target , $(dirname "$target") $(readlink -m "${CXR_TMP_DIR}")"
 		
 		
-		# Attention: dirname is terrible stupid. We must add a fake file to get the right answer.
-		#                                                                         |
-		if [[ -e "$target" && "$(dirname "$target")" == "$(dirname "${CXR_TMP_DIR}/dummy")" ]]
+		# We must account for the fact that CXR_TMP_DIR is a link
+		if [[ -e "$target" && "$(dirname "$target")" == "$(readlink -m "${CXR_TMP_DIR}")" ]]
 		then
 			# and the target. For security reasons, we
 			# check if it resides really in CXR_TMP_DIR
