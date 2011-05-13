@@ -81,7 +81,7 @@ ppm2ppb=1000.
 	xsize = N_Elements(columnHeaders)
 	
 	; Define output format with tabs
-	numberfmt_arr=replicate(', "	" ,G15.7',20)
+	numberfmt_arr=replicate(', "	" ,G15.7',num_species)
 
 	ofmt = '(A' + strjoin(numberfmt_arr) + ')'
 	
