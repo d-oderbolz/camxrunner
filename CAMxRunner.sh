@@ -366,7 +366,7 @@ then
 	CXR_LOG=/dev/null
 fi
 
-if [[ "${CXR_FAST" == true ]]
+if [[ "${CXR_FAST}" == true ]]
 then
 	main.log -a -B "With the -f(ast) option, you disabled most checks. Be careful to test the output!"
 fi
