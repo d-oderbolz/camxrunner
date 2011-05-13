@@ -349,7 +349,7 @@ function main.log()
 		fi
 	fi
 	
-	blank_message="${prefix}${1}"
+	blank_message="${prefix}${1:-}"
 
 	### In case of error, write current day to failed days file
 	### and increase error count
