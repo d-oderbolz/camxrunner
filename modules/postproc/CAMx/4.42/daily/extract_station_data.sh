@@ -341,7 +341,7 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},$(common.runner.getZ $CXR_IGRID),is_binary=0
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},$(common.runner.getZ $CXR_IGRID),is_binary=0
 				exit
 				EOF
 				;;
