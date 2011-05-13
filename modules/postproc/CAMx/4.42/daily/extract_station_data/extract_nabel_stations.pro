@@ -1,4 +1,4 @@
-pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,species,stations,num_levels,is_binary=is_binary
+pro extract_nabel_stations,input_file,output_dir,write_header,day,month,year,model_hour,species,stations,num_levels,is_binary=is_binary
 ;
 ; Function: extract_nabel_stations
 ;
@@ -18,6 +18,7 @@ pro extract_nabel_stations,input_file,output_dir,day,month,year,model_hour,speci
 ; Parameters:
 ; input_file - input file to operate on
 ; output_dir - directory where to store output (no trailing /)
+; write_header - boolean flag to indicate if a header is needed (usually for first day)
 ; day - day to be extracted
 ; month - month  to be extracted
 ; year - year to be extracted
@@ -75,6 +76,15 @@ ppm2ppb=1000.
 	s = size(stations,/DIMENSIONS)
 	num_stations = s[1]
 	
+	; Define header vector
+	columnHeaders = ['Model_Hour',species]
+	xsize = N_Elements(columnHeaders)
+	
+	; Define output format with tabs
+	numberfmt_arr=replicate(', "	" ,G15.7',20)
+
+	ofmt = '(A' + strjoin(numberfmt_arr) + ')'
+	
 	if ( num_species EQ 0) then message,"Must get more than 0 species to extract!"
 	if ( num_stations EQ 0) then message,"Must get more than 0 stations to extract!"
 
@@ -118,6 +128,21 @@ ppm2ppb=1000.
 
 		openw,current_output_lun,station_files[i], width=2400
 		station_luns[i]=current_output_lun
+		
+		; If we must, write the header
+		if (write_header and N_Elements(columnHeaders) NE 0) then begin
+			print,'Writing Header...'
+			
+				; This is Fanning code: http://www.dfanning.com/tip_examples/write_csv_data.pro
+				; Make sure these are strings.
+				sColumns = StrTrim(columnHeaders, 2)
+	
+				; Add a tab to each value except the last one.
+				sColumns[0:xsize-2] = sColumns[0:xsize-2] + '	'
+	
+				; Write the headers to the file.
+				PrintF, station_luns[i], sColumns
+		endif
 		
 	endfor
 	
@@ -208,7 +233,7 @@ ppm2ppb=1000.
 		
 			; the time in hours is calculated using the offset
 			; The with of the arguments is calculated from the number of species
-			printf,station_luns[station],iHour+model_hour,current_station_conc[*,station],format = '(A,' + strtrim((num_species + 1),2) + 'G15.7)'
+			printf,station_luns[station],iHour+model_hour,current_station_conc[*,station],format = ofmt
 			
 		endfor
 	endfor
