@@ -335,8 +335,8 @@ function boundary_conditions()
 						LATLON) dx="$CXR_MASTER_CELL_XSIZE"
 						        dy="$CXR_MASTER_CELL_YSIZE";;
 						                   
-						LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
-						                   dy=$(common.math.FortranFloatOperationFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
+						LAMBERT|POLAR|UTM) dx=$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_XSIZE * 1000")
+						                   dy=$(common.math.FortranFloatOperation "$CXR_MASTER_CELL_YSIZE * 1000");;
 					
 					esac
 					

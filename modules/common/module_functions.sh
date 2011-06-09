@@ -338,8 +338,8 @@ function common.module.listModuleType()
 			
 			"${CXR_TYPE_MODEL}" ) 
 			call="-r"
-			module_directories="${CXR_POSTPROCESSOR_DAILY_INPUT_DIR}" 
-			disabled_modules="${CXR_DISABLED_DAILY_POSTPROC:-}";;
+			module_directories="${CXR_MODEL_INPUT_DIR}" 
+			disabled_modules="${CXR_DISABLED_MODEL:-}";;
 			
 		"${CXR_TYPE_POSTPROCESS_DAILY}" ) 
 			call="-r"

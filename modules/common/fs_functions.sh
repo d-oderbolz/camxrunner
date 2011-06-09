@@ -542,7 +542,8 @@ function common.fs.FileSizeMb()
 		return $CXR_RET_PARAM_ERROR
 	fi
 	
-	size=$(du -m "$1" | cut -f1)
+	# Tail is needed in case this is run on a directory
+	size=$(du -m "$1" | tail -n1 | cut -f1)
 	
 	echo $size
 	

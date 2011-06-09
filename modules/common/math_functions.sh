@@ -236,6 +236,11 @@ function common.math.not()
 function common.math.roundToInteger()
 ################################################################################
 {
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully  "needs a floting point number as input"
+	fi
+	
 	printf %0.f ${1}
 }
 
