@@ -29,7 +29,6 @@
 			source $FUNCTION_FILE
 			
 			if [[ $(main.CheckModuleRequirements "${CXR_META_MODULE_NAME}" \ 
-																					 "${CXR_META_MODULE_VERSION:-}" \
 																					 "${CXR_META_MODULE_DESCRIPTION:-}" \
 																					 "${CXR_META_MODULE_DOC_URL:-}" \
 																					 "${CXR_META_MODULE_AUTHOR:-}" \

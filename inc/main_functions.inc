@@ -1490,18 +1490,16 @@ function main.getModuleVariant()
 #
 # Parameters:
 # $1 - CXR_META_MODULE_NAME
-# $2 - CXR_META_MODULE_VERSION
-# $3 - CXR_META_MODULE_DESCRIPTION
-# $4 - CXR_META_MODULE_DOC_URL
-# $5 - CXR_META_MODULE_AUTHOR
-# $6 - CXR_META_MODULE_NUM_TESTS
-# $7 - CXR_META_MODULE_REQ_SPECIAL
+# $2 - CXR_META_MODULE_DESCRIPTION
+# $3 - CXR_META_MODULE_DOC_URL
+# $4 - CXR_META_MODULE_AUTHOR
+# $5 - CXR_META_MODULE_NUM_TESTS
+# $6 - CXR_META_MODULE_REQ_SPECIAL
 ################################################################################
 function main.CheckModuleRequirements() 
 ################################################################################
 {
 	local module_name
-	local module_version
 	local module_description
 	local module_doc_url
 	local module_author
@@ -1509,12 +1507,11 @@ function main.CheckModuleRequirements()
 	local module_req_special
 	
 	module_name="${1}"
-	module_version="${2:-}"
-	module_description="${3:-}"
-	module_doc_url="${4:-}"
-	module_author="${5:-}"
-	module_num_tests="${6:-}"
-	module_req_special="${7:-}"
+	module_description="${2}"
+	module_doc_url="${3}"
+	module_author="${4}"
+	module_num_tests="${5}"
+	module_req_special="${6}"
 
 	# Disable checks for fast guys
 	if [[ $CXR_FAST == true ]]
@@ -1546,7 +1543,7 @@ function main.CheckModuleRequirements()
 	if [[ "$found" == false ]]
 	then
 	
-		main.log -v "\nLoading ${module_name} - Version ${module_version}\n"
+		main.log -v "\nLoading ${module_name}\n"
 	
 		# Increase global indent level
 		main.increaseLogIndent
