@@ -650,9 +650,25 @@ function common.state.updateInfo()
 						fi # first one?
 					fi # running it?
 					
-					# Add metadata
-					# grep the CXR_META_ vars that are not commented out
-					list=$(grep '^[[:space:]]\{0,\}CXR_META_[_A-Z]\{1,\}=.*' $file)
+					# Add metadata, unset old meta vars first
+					unset ${!CXR_META_MODULE*}
+					
+					source $file
+					
+					# Check if we meet requirements
+					if [[ $(main.CheckModuleRequirements $CXR_META_MODULE_NAME \
+																							 $CXR_META_MODULE_VERSION \
+																							 $CXR_META_MODULE_DESCRIPTION \
+																							 $CXR_META_MODULE_DOC_URL \
+																							 $CXR_META_MODULE_AUTHOR \
+																							 $CXR_META_MODULE_NUM_TESTS \
+																							 $CXR_META_MODULE_REQ_SPECIAL) == false ]]
+					then
+						main.log -e "Requirements for module $CXR_META_MODULE_NAME are not met!"
+					fi
+					
+					# grep the CXR_META_ vars out of environment
+					list=$(set | grep '^CXR_META_[_A-Z]\{1,\}=.*')
 					
 					oIFS="$IFS"
 					# Set IFS to newline

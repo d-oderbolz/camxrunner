@@ -16,7 +16,7 @@
 	
 		main.log "Reading modules from ${CURRENT_DIR} (if there are any)..."
 		
-		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null)
+		for FUNCTION_FILE in $(ls ${CURRENT_DIR}/*.sh 2>/dev/null) 
 		do
 			
 			# Create the "bare" name
@@ -27,6 +27,17 @@
 			CXR_META_MODULE_NAME=$RAW_FUNCTION_NAME
 			
 			source $FUNCTION_FILE
+			
+			if [[ $(main.CheckModuleRequirements $CXR_META_MODULE_NAME \
+																					 $CXR_META_MODULE_VERSION \
+																					 $CXR_META_MODULE_DESCRIPTION \
+																					 $CXR_META_MODULE_DOC_URL \
+																					 $CXR_META_MODULE_AUTHOR \
+																					 $CXR_META_MODULE_NUM_TESTS \
+																					 $CXR_META_MODULE_REQ_SPECIAL) == false ]]
+			then
+				main.dieGracefully "Requirements for core module $CXR_META_MODULE_NAME are not met!"
+			fi
 			
 		done
 		

@@ -1475,3 +1475,180 @@ function main.getModuleVariant()
 	echo "$variant"
 	return $CXR_RET_OK
 }
+
+
+################################################################################
+# Function: main.CheckModuleRequirements
+#	
+# Checks if the currently loaded module requests a CAMxRunner and configuration
+# Version less or equal than current one and if it needs anything special 
+# (like special executables).
+# The executable check is still a bit rough - the problem is that we do net know
+# which variable name the module expects the binary to be in.
+#
+# Returns true on success, false otherwise
+#
+# Parameters:
+# $1 - CXR_META_MODULE_NAME
+# $2 - CXR_META_MODULE_VERSION
+# $3 - CXR_META_MODULE_DESCRIPTION
+# $4 - CXR_META_MODULE_DOC_URL
+# $5 - CXR_META_MODULE_AUTHOR
+# $6 - CXR_META_MODULE_NUM_TESTS
+# $7 - CXR_META_MODULE_REQ_SPECIAL
+################################################################################
+function main.CheckModuleRequirements() 
+################################################################################
+{
+	local module_name
+	local module_version
+	local module_description
+	local module_doc_url
+	local module_author
+	local module_num_tests
+	local module_req_special
+	
+	module_name="${1}"
+	module_version="${2}"
+	module_description="${3}"
+	module_doc_url="${4}"
+	module_author="${5}"
+	module_num_tests="${6}"
+	module_req_special="${7}"
+
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo true
+		return $CXR_RET_OK
+	fi
+	
+	
+	# Test if Module was already announced (for efficiency and log-file size reasons)
+	local found
+	local requirement
+	local elements
+	local n_elements
+	local kind
+	local what
+	local need
+	local executable
+	local found
+	local version
+	local result
+	
+	result=true
+	found=false
+	
+	found=$(main.isSubstringPresent? "$CXR_ANNOUNCED_MODULES" "$module_name")
+	
+	# We announce only if it was not found
+	if [[ "$found" == false ]]
+	then
+	
+		main.log -v "\nLoading ${module_name} - Version ${module_version}\n"
+	
+		# Increase global indent level
+		main.increaseLogIndent
+		
+		main.log -v   "==========================================================\nName of the Module: *${module_name}*\n==========================================================\n"
+		main.log -v   "Description:\n$module_description\n"
+		main.log -v   "More Information can be found here:\n$module_doc_url\n"     
+		main.log -v   "The Module was written by: $module_author\nAnd is released under these terms:\n$module_license\n"
+
+		if [[ "${module_num_tests:-0}" -gt 0  ]]
+		then
+			main.log -v "This module contains a test suite."
+		fi
+
+		# Decrease global indent level
+		main.decreaseLogIndent
+	fi
+	
+	################################################################################
+	# Perform exectuable check
+	################################################################################
+	
+	if [[ "${module_req_special:-}" && ( "${module_req_special:-}" != "-" ) ]]
+	then
+		# Parsing something like "exec|dot|optional exec|wget"
+		
+		# Attention - we need tha standard IFS here!
+		for requirement in $module_req_special
+		do
+			# Save old IFS
+			oIFS="$IFS"
+			IFS="$CXR_DELIMITER"
+			
+			# get requirement into array
+			elements=($requirement)
+			
+			# Reset IFS
+			IFS="$oIFS"
+			
+			n_elements=${#elements[@]}
+			
+			# do we have at least 2 elements?
+			if [[ ${n_elements} -eq 2 ]]
+			then
+				# only stl. "exec|dot"
+				kind=$(common.string.trim ${elements[0]})
+				what=$(common.string.trim ${elements[1]})
+				# The default is that we need it really
+				need=mandatory
+			elif [[ ${n_elements} -eq 3 ]]
+			then
+				# only stl. "exec|dot|optional"
+				kind=$(common.string.trim ${elements[0]})
+				what=$(common.string.trim ${elements[1]})
+				need=$(common.string.trim ${elements[2]})
+			else
+				# this is wrong!
+				main.log -e  "Requirement string $requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
+			fi
+			
+			case "$kind" in
+			
+				"exec") # Now we search the environment for this executable
+							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
+							do
+								# We try to get the real name, but allow empty
+								wanted_name="$(main.getBinaryName "$what" true)"
+								
+								if [[ "$wanted_name" && "${!executable}" ]]
+								then
+									# strip arguments
+									if [[ "$(basename $( echo ${!executable} | cut -d" " -f1))" == "$(basename "$wanted_name")" && -x $( echo ${!executable} | cut -d" " -f1) ]]
+									then
+										main.log -v "${!executable} matches $what and is executable"
+										found=true
+										break
+									fi
+								fi
+							done
+							
+							if [[ "$found" == false ]]
+							then
+								if [[ "$need" == mandatory ]]
+								then
+									main.log -e "Module $module_name mandatorily needs the executable $what which was not found."
+									result=false
+								else
+									main.log -w "Module $module_name optinally needs the executable $what which was not found."
+								fi
+							fi
+							;;
+				*) main.log -e  "Currently, only exec requirements are supported." ;;
+			esac
+			
+		done
+	fi
+	
+	# Decrease global indent level
+	main.decreaseLogIndent
+
+
+	# If we arrive here, it is fine
+	echo $result
+	return $CXR_RET_OK
+}
