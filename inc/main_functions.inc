@@ -1509,12 +1509,12 @@ function main.CheckModuleRequirements()
 	local module_req_special
 	
 	module_name="${1}"
-	module_version="${2}"
-	module_description="${3}"
-	module_doc_url="${4}"
-	module_author="${5}"
-	module_num_tests="${6}"
-	module_req_special="${7}"
+	module_version="${2:-}"
+	module_description="${3:-}"
+	module_doc_url="${4:-}"
+	module_author="${5:-}"
+	module_num_tests="${6:-}"
+	module_req_special="${7:-}"
 
 	# Disable checks for fast guys
 	if [[ $CXR_FAST == true ]]
