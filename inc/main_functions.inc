@@ -1589,24 +1589,24 @@ function main.CheckModuleRequirements()
 			if [[ ${n_elements} -eq 2 ]]
 			then
 				# only stl. "exec|dot"
-				kind=$(common.string.trim ${elements[0]})
-				what=$(common.string.trim ${elements[1]})
+				kind=${elements[0]}
+				what=${elements[1]}
 				# The default is that we need it really
 				need=mandatory
 			elif [[ ${n_elements} -eq 3 ]]
 			then
 				# only stl. "exec|dot|optional"
-				kind=$(common.string.trim ${elements[0]})
-				what=$(common.string.trim ${elements[1]})
-				need=$(common.string.trim ${elements[2]})
+				kind=${elements[0]}
+				what=${elements[1]}
+				need=${elements[2]}
 			else
 				# this is wrong!
 				main.log -e  "Requirement string $requirement contains an error. We need two or three pipe-separated fields like exec|idl or exec|idl|optional depending on the actual needs"
 			fi
 			
-			case "$kind" in
+			case $kind in
 			
-				"exec") # Now we search the environment for this executable
+				exec) # Now we search the environment for this executable
 							for executable in $(set | grep -e ^CXR_*.*_EXEC= | cut -d= -f1)
 							do
 								# We try to get the real name, but allow empty
