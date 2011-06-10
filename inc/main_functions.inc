@@ -1553,8 +1553,8 @@ function main.CheckModuleRequirements()
 		
 		main.log -v   "==========================================================\nName of the Module: *${module_name}*\n==========================================================\n"
 		main.log -v   "Description:\n$module_description\n"
-		main.log -v   "More Information can be found here:\n$module_doc_url\n"     
-		main.log -v   "The Module was written by: $module_author\nAnd is released under these terms:\n$module_license\n"
+		main.log -v   "More Information can be found here:\n$module_doc_url\n"
+		main.log -v   "The Module was written by: $module_author\n"
 
 		if [[ "${module_num_tests:-0}" -gt 0  ]]
 		then

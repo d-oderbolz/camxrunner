@@ -28,13 +28,13 @@
 			
 			source $FUNCTION_FILE
 			
-			if [[ $(main.CheckModuleRequirements $CXR_META_MODULE_NAME \
-																					 $CXR_META_MODULE_VERSION \
-																					 $CXR_META_MODULE_DESCRIPTION \
-																					 $CXR_META_MODULE_DOC_URL \
-																					 $CXR_META_MODULE_AUTHOR \
-																					 $CXR_META_MODULE_NUM_TESTS \
-																					 $CXR_META_MODULE_REQ_SPECIAL) == false ]]
+			if [[ $(main.CheckModuleRequirements ${CXR_META_MODULE_NAME} \
+																					 ${CXR_META_MODULE_VERSION:-} \
+																					 ${CXR_META_MODULE_DESCRIPTION:-} \
+																					 ${CXR_META_MODULE_DOC_URL:-} \
+																					 ${CXR_META_MODULE_AUTHOR:-} \
+																					 ${CXR_META_MODULE_NUM_TESTS:-0} \
+																					 ${CXR_META_MODULE_REQ_SPECIAL:-}) == false ]]
 			then
 				main.dieGracefully "Requirements for core module $CXR_META_MODULE_NAME are not met!"
 			fi
