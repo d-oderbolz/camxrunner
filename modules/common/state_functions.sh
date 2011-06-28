@@ -1461,14 +1461,14 @@ function common.state.cleanup()
 				then
 					for iOffset in $(seq $start_offset $stop_offset)
 					do
-						main.log -a "Planning to remove these tasks:"
+						main.log -a "Planning to update these tasks:"
 						
 						# Delete just the current one
 						where="$where_module AND day_iso IN (SELECT day_iso FROM days WHERE day_offset =$iOffset)"
 						
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 	
-						if [[ "$(common.user.getOK "Do you really want to remove these tasks?" )" == false ]]
+						if [[ "$(common.user.getOK "Do you really want to update these tasks?" )" == false ]]
 						then
 							# No 
 							main.log -a "Will not remove this information"
@@ -1494,10 +1494,10 @@ function common.state.cleanup()
 						
 						where="$where_module AND substr(id,1,10) in (SELECT day_iso FROM days WHERE day_offset BETWEEN $start_offset AND $stop_offset)"
 						
-						main.log -a "Planning to remove these tasks:"
+						main.log -a "Planning to update these tasks:"
 						common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT id FROM tasks WHERE $where"
 						
-						if [[ "$(common.user.getOK "Do you really want to remove these tasks?" )" == false ]]
+						if [[ "$(common.user.getOK "Do you really want to update these tasks?" )" == false ]]
 						then
 							# No 
 							main.log -a "Will not modify this information"
