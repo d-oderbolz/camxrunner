@@ -38,7 +38,7 @@ C
         STOP
       ENDIF
 C
-      READ  (inlin,2000,iostat=iierr) 
+      READ  (7,2000,iostat=iierr) 
      $ XREF,YREF,IUTM,XORG,YORG,DELTAX,DELTAY,NOXG,
      $ NOYG,NOZG,NCELL1,NCELL2,SURFHT,HTMIN1,HTMIN2
      
@@ -46,12 +46,12 @@ C
      	
         write(*,*) 'Trying alternate format of header line 3'
         
-        READ  (inlin,2001,iostat=iierr) 
+        READ  (7,2001,iostat=iierr) 
      $  XREF,YREF,IUTM,XORG,YORG,DELTAX,DELTAY,NOXG,
      $  NOYG,NOZG,NCELL1,NCELL2,SURFHT,HTMIN1,HTMIN2
         if (iierr .ne. 0) then
           write(*,*) 'Trying alternate format of header line 3'
-          READ  (inlin,2002) 
+          READ  (7,2002) 
      $    XREF,YREF,IUTM,XORG,YORG,DELTAX,DELTAY,NOXG,
      $    NOYG,NOZG,NCELL1,NCELL2,SURFHT,HTMIN1,HTMIN2
         endif
