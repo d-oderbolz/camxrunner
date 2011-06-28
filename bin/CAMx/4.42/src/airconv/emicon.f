@@ -34,7 +34,7 @@ C
      $ ORGX,ORGY,IZONE,UTMX,UTMY,DELTAX,DELTAY,NX,NY,
      $ NZ,NZLOWR,NZUPPR,HTSUR,HTLOW,HTUPP
      
-     if (iierr .ne. 0) then
+      if (iierr .ne. 0) then
      	
         write(*,*) 'Error in region record format.'
         write(*,*) 'Trying alternate format.'
