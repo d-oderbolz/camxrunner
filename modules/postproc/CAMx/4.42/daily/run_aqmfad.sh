@@ -214,6 +214,8 @@ function run_aqmfad()
 	# In this module, CXR_INVOCATION corresponds to the entry in CXR_RUN_AQMFAD_ON_GRID
 	CXR_INVOCATION=${1}
 	
+	set -xv
+	
 	local ofile
 
 	#Was this stage already completed?
@@ -284,6 +286,8 @@ function run_aqmfad()
 	else
 		main.log "Stage $(common.task.getId) was already started, therefore we do not run it. To clean the state database, run \n \t ${CXR_CALL} -c \n and rerun."
 	fi
+	
+	set +xv
 }
 
 ################################################################################
