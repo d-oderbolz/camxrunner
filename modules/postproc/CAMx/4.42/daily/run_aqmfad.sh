@@ -257,8 +257,8 @@ function run_aqmfad()
 		# Do it.
 		if [[ "$CXR_DRY" == false ]]
 		then
-			main.log   "Running aqmfad on grid ${CXR_IGRID}..."
-			main.log   "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE})"    
+			main.log -a  "Running aqmfad on grid ${CXR_IGRID}..."
+			main.log -a  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE})"    
 
 			# Call aqmfad while collecting stderr only
 			${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
