@@ -251,77 +251,19 @@ function common.performance.reportEta()
 ################################################################################
 # Function: common.performance.getMemUsedPercent
 #
-# Estimates the percentage of used memory from the output of top by sampling
-# CXR_CHECK_MEMORY_SAMPLES times
+# Estimates the percentage of used memory from the output of ps
 #
 ################################################################################
 function common.performance.getMemUsedPercent()
 ################################################################################
 {
 	local usedPercent
-	local iColumn
-	local MemColumn
-	local found
-	local used
-	local iIter
+
+	usedPercent="$(ps aux | awk '{sum +=$4}; END {print sum}')"
 	
-	usedPercent=0
-	iColumn=1
-	found=false
+	main.log -v "Currently $usedPercent % of memory are in use"
 	
-	if [[ $CXR_CHECK_MEMORY_SAMPLES -lt 1 ]]
-	then
-		main.log -w "CXR_CHECK_MEMORY_SAMPLES has an invalid value of $CXR_CHECK_MEMORY_SAMPLES. Using 1"
-		CXR_CHECK_MEMORY_SAMPLES=1
-	fi
-	
-	headers=$(top -b -n1 | head -n7 | tail -n1)
-	for item in $headers
-	do
-		# Memory percent may be in different columns
-		if [[ $item == %MEM ]]
-		then
-			found=true
-			MemColumn=$iColumn
-			break
-		fi
-		
-		iColumn=$(( $iColumn + 1 ))
-	done
-	
-	if [[ $found == true ]]
-	then
-		# Sample. We cannot use -n$CXR_CHECK_MEMORY_SAMPLES because of the headers
-		for iIter in $(seq 1 $CXR_CHECK_MEMORY_SAMPLES)
-		do
-			# The first 7 lines are header
-			for used in $(top -b -n1 | sed '1,7d' | awk "{ print \$$MemColumn }")
-			#                                                                            ^ Escape awk $ for shell
-			do
-				if [[ $used =~ $CXR_PATTERN_NUMERIC ]]
-				then
-					usedPercent="$(common.math.FloatOperation "$usedPercent + $used" 1)"
-				else
-					main.log -w "Non-numerig output of top: $used"
-				fi
-			done
-			
-			# We wait 1 second before resampling
-			sleep 1
-		
-		done # Iterate over samples
-		
-		# Divide by sample size
-		usedPercent="$(common.math.FloatOperation "$usedPercent / $CXR_CHECK_MEMORY_SAMPLES" 1)"
-		
-		main.log -v "Currently $usedPercent % of memory are in use"
-		
-		echo $usedPercent
-	else
-		main.log -w "Could not find column %MEM of top - cannot determine amount of used memory"
-		echo 0
-	fi
-	
+	echo $usedPercent
 }
 
 ################################################################################
