@@ -36,15 +36,13 @@ C
      
       if (iierr .ne. 0) then
      	
-        write(*,*) 'Error in region record format.'
-        write(*,*) 'Trying alternate format.'
+        write(*,*) 'Trying alternate format of header line 3'
         
         READ  (inlin,2001,iostat=iierr) 
      $   ORGX,ORGY,IZONE,UTMX,UTMY,DELTAX,DELTAY,NX,NY,
      $   NZ,NZLOWR,NZUPPR,HTSUR,HTLOW,HTUPP
         if (iierr .ne. 0) then
-          write(*,*) 'Error in region record format.'
-          write(*,*) 'Trying alternate format.'
+          write(*,*) 'Trying alternate format of header line 3'
           READ  (inlin,2002) 
      $     ORGX,ORGY,IZONE,UTMX,UTMY,DELTAX,DELTAY,NX,NY,
      $     NZ,NZLOWR,NZUPPR,HTSUR,HTLOW,HTUPP
@@ -61,9 +59,9 @@ C
 c     2000 is the old format of header line 3, 2001 the new one, 2002 yet another one
  2000 FORMAT(F10.4,1X,F10.4,1X,I3,F10.4,1X,F10.4,1X,2F7.0,5I4,3F7.0)
  2001 FORMAT(2(F16.5,1X),I3,1X,4(F16.5,1X),5I4,3F7.0)
- 
  2002  FORMAT(F10.1,1X,F10.1,1X,I3,F10.1,1X,F10.1,2X,F10.0,
      $        1X,F10.0,5I4,3F7.0)
+     
       READ  (7,1002) IX,IY,NXCLL,NYCLL
  1002 FORMAT(4I5)
       READ  (7,1003) ((MSPEC(I,J),I=1,10),J=1,NSPECS)

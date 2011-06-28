@@ -13,8 +13,28 @@ C
       READ(7,2100)IFILE, NOTE,NSEG, NSPECS, IDATE, BEGTIM, JDATE, ENDTIM
       WRITE(9)IFILE,NOTE,NSEG,NSPECS,IDATE,BEGTIM,JDATE,ENDTIM
       WRITE (IOUT,1005) IDATE, BEGTIM, JDATE, ENDTIM
-      READ(7,2001) ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
-     $          NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
+
+      READ  (inlin,2000,iostat=iierr) 
+     $ ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
+     $ NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
+     
+      if (iierr .ne. 0) then
+     	
+        write(*,*) 'Trying alternate format of header line 3'
+        
+        READ  (inlin,2001,iostat=iierr) 
+     $  ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
+     $  NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
+        if (iierr .ne. 0) then
+          write(*,*) 'Trying alternate format of header line 3'
+          READ  (inlin,2002) 
+     $    ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
+     $    NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
+        endif
+      
+      endif
+
+
       WRITE (9)      ORGX,ORGY,IZONE,UTMX,UTMY,DELTAX,DELTAY,NX,NY,
      $ NZ,NZLOWR,NZUPPR,HTSUR,HTLOW,HTUPP
       WRITE (IOUT,2001) ORGX,ORGY,IZONE,UTMX,UTMY,DELTAX,DELTAY,NX,NY,
@@ -55,6 +75,12 @@ C
  1005 FORMAT(5X,2(I10,F10.2))
  1006 FORMAT(I4,10A1)
  1007 FORMAT(9E14.7)
+ 
+c     2000 is the old format of header line 3, 2001 the new one, 2002 yet another one
+ 2000 FORMAT(F10.4,1X,F10.4,1X,I3,F10.4,1X,F10.4,1X,2F7.0,5I4,3F7.0)
  2001 FORMAT(2(F16.5,1X),I3,1X,4(F16.5,1X),5I4,3F7.0)
+ 2002  FORMAT(F10.1,1X,F10.1,1X,I3,F10.1,1X,F10.1,2X,F10.0,
+     $        1X,F10.0,5I4,3F7.0)
+     
  2100 FORMAT(10A1,60A1,/,I2,1X,I3,1X,I6,F6.0,I6,F6.0)
       END
