@@ -590,7 +590,7 @@ PRINTF, lun, ione, nspec, ibdate, btime, iedate, etime, FORMAT = line2
 line3 = '(2(F16.5,1X),I3,1X,4(F16.5,1X),5I4,3F7.0)'
 PRINTF, lun, rdum, rdum, iutm, xorg, yorg, delx, dely, nx, ny, nz, idum, idum, rdum, rdum, rdum, FORMAT = line3
 line4 = '(4I5)'
-PRINTF, lun, 0, 0, nx, ny, FORMAT = line4
+PRINTF, lun, ione, ione, nx, ny, FORMAT = line4
 PRINTF, lun, mspec
 line19 = '(3I10)'
 line20 = '(9I14)'

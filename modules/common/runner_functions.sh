@@ -1827,7 +1827,7 @@ function common.runner.recreateRun()
 	# Ask user if we need to copy/link input data 
 	common.runner.recreateInput "$newRun" "$oldRun"
 	
-	main.log -a "Make sure to adjust the CXR_DISABLED_* and CXR_ENABLED_* variables according to the re-used data.\nIf you linked data, check the value of CXR_ALLOW_WRITING_TO_LINKS. (It is not recommended to write to Links because if might overwrite exisitng data)."
+	main.log -a "Make sure to adjust the CXR_DISABLED_* and CXR_ENABLED_* variables according to the re-used data.\nIf you linked data, check the value of CXR_ALLOW_WRITING_TO_LINKS. (It is not recommended to write to Links because if might overwrite existing data)."
 	# Thats all.
 }
 
