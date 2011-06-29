@@ -24,7 +24,10 @@ C
       WRITE(9) IFILE,NOTE,NSEG,NSPECS,IDATE,BEGTIM,JDATE,ENDTIM
       WRITE (IOUT,1007) IDATE, BEGTIM, JDATE, ENDTIM
       
-      READ  (7,2000,iostat=iierr) 
+C   READ 3RD LINE INTO STRING, THEN READ REPEATEDLY FROM STRING
+      read(7,'(a)') inlin
+      
+      READ  (inlin,2000,iostat=iierr) 
      $ ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
      $ NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
      
@@ -32,12 +35,12 @@ C
      	
         write(*,*) 'Trying alternate format of header line 3'
         
-        READ  (7,2001,iostat=iierr) 
+        READ  (inlin,2001,iostat=iierr) 
      $  ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
      $  NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
         if (iierr .ne. 0) then
           write(*,*) 'Trying alternate format of header line 3'
-          READ  (7,2002) 
+          READ  (inlin,2002) 
      $    ORGX, ORGY, IZONE, UTMX, UTMY, DELTAX, DELTAY,
      $    NX, NY, NZ, NZLOWR, NZUPPR, HTSUR, HTLOW, HTUPP
         endif

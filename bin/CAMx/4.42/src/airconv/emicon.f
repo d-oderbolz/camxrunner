@@ -28,6 +28,7 @@ C
       READ (7,2100)IFILE,NOTE,NSEG,NSPECS,IDATE,BEGTIM,JDATE,ENDTIM
 2100  FORMAT(10A1,60A1,/,I2,1X,I2,1X,I6,F6.0,I6,F6.0)
       WRITE (IOUT,1005) IDATE, BEGTIM, JDATE, ENDTIM
+      
       read(7,'(a)') inlin
       
       READ  (inlin,2000,iostat=iierr) 
