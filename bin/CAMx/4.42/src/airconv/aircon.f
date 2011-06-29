@@ -6,6 +6,7 @@ C      TO RUN THE MODEL
 C
       INCLUDE 'nampar.cmd'
       COMMON/LCM/ EMOB(MXX,MXY,MXSPC)
+      character*256 inlin
 C
 C   READ AND WRITE OUT FILE HEADER INFORMATION
 C

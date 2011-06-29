@@ -17,6 +17,7 @@ Ctcm  DIMENSION AVSNAM(10)
 C
 Ctcm  DATA AVSNAM /1HA,1HV,1HE,1HR,1HA,1HG,1HE,1H-,1HS,1H /
       character*4 AVSNAM(10)
+      character*256 inlin
 C
       DATA AVSNAM /'A','V','E','R','A','G','E','-','S',' '/
 C
