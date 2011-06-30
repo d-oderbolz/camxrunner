@@ -266,6 +266,10 @@ pro header_parser::parse
 		self.scalars->add,'yorg',yorg
 		self.scalars->add,'delx',delx
 		self.scalars->add,'dely',dely
+		; Add dx and dy as synonyms of delx and dely
+		self.scalars->add,'dx',delx
+		self.scalars->add,'dy',dely
+		
 		self.scalars->add,'nx',nx
 		self.scalars->add,'ny',ny
 		self.scalars->add,'nz',nz
