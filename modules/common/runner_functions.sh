@@ -1524,11 +1524,11 @@ function common.runner.getNewRunName()
 	run=${model}-v${version}
 	
 	# Ask user for rest of name
-	addition="$(common.user.getInput "The Run name so far is ${run}- what do you want to add (spaces will be replaced by _)?")"
-	addition="$(common.string.trim $addition)"
+	addition="$(common.user.getInput "The Run name so far is ${run}- how do you want to complete the name (spaces will be replaced by _)?")"
+	addition="$(common.string.trim "$addition")"
 	
 	# Replace any spaces left by _
-	addition=${addition// /_}
+	addition="${addition// /_}"
 
 	run="${run}-$addition"
 	
@@ -1779,7 +1779,7 @@ function common.runner.recreateRun()
 	local newRun
 	
 	# Is this the correct run?
-	if [[ "$(common.user.getOK "Do you want to repeat ${1}?\nIf you say no, you may select another run.")" == false ]]
+	if [[ "$(common.user.getOK "Do you want to create a new configuration based on ${1}?\nIf you say no, you may select another run.")" == false ]]
 	then
 		#no, ask
 		oldRunConf=$(common.runner.getExistingConfigFile)
@@ -1821,7 +1821,7 @@ function common.runner.recreateRun()
 	
 	# Create Directories
 	
-	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file (CXR_DISABLED_* and CXR_ENABLED_*) now if needed!\nPress any key to continue..."
+	common.user.pause "We will now load the configuration file ${newRun}.conf (more than once) to create directories and Input.\nPlease adjust this file (CXR_DISABLED_* and CXR_ENABLED_*) now if needed.\n(Focus on settings for input and output directories)\nPress any key to continue..."
 	common.runner.createMissingDirs "$newRun"
 	
 	# Ask user if we need to copy/link input data 
