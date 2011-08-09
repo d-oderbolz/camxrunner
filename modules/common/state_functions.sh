@@ -658,7 +658,7 @@ function common.state.updateInfo()
 					# Check if we meet requirements
 					if [[ $(main.CheckModuleRequirements "${module}" "${CXR_META_MODULE_DESCRIPTION:-}" "${CXR_META_MODULE_DOC_URL:-}" "${CXR_META_MODULE_AUTHOR:-}" "${CXR_META_MODULE_NUM_TESTS:-0}" "${CXR_META_MODULE_REQ_SPECIAL:-}") == false ]]
 					then
-						main.log -e "Requirements for module $CXR_META_MODULE_NAME are not met!"
+						main.log -e "Requirements for module $module are not met!"
 					fi
 					
 					# grep the CXR_META_ vars out of environment
