@@ -224,7 +224,6 @@ Group: Modules  {
                File: albedo_haze_ozone.sh  (modules/preproc/CAMx/4.42/once/albedo_haze_ozone.sh)
                File: check_input.sh  (modules/preproc/CAMx/4.42/once/check_input.sh)
                File: convert_landuse.sh  (modules/preproc/CAMx/4.42/once/convert_landuse.sh)
-               File: convert_meteo.sh  (modules/preproc/CAMx/4.42/once/convert_meteo.sh)
                File: initial_conditions.sh  (modules/preproc/CAMx/4.42/once/initial_conditions.sh)
                File: photolysis_rates.sh  (modules/preproc/CAMx/4.42/once/photolysis_rates.sh)
                }  # Group: Once
@@ -246,7 +245,6 @@ Group: Modules  {
                File: albedo_haze_ozone.sh  (modules/preproc/CAMx/4.51/once/albedo_haze_ozone.sh)
                File: check_input.sh  (modules/preproc/CAMx/4.51/once/check_input.sh)
                File: convert_landuse.sh  (modules/preproc/CAMx/4.51/once/convert_landuse.sh)
-               File: convert_meteo.sh  (modules/preproc/CAMx/4.51/once/convert_meteo.sh)
                File: initial_conditions.sh  (modules/preproc/CAMx/4.51/once/initial_conditions.sh)
                File: photolysis_rates.sh  (modules/preproc/CAMx/4.51/once/photolysis_rates.sh)
                }  # Group: Once
@@ -268,7 +266,6 @@ Group: Modules  {
                File: albedo_haze_ozone.sh  (modules/preproc/CAMx/5.10/once/albedo_haze_ozone.sh)
                File: check_input.sh  (modules/preproc/CAMx/5.10/once/check_input.sh)
                File: convert_landuse.sh  (modules/preproc/CAMx/5.10/once/convert_landuse.sh)
-               File: convert_meteo.sh  (modules/preproc/CAMx/5.10/once/convert_meteo.sh)
                File: initial_conditions.sh  (modules/preproc/CAMx/5.10/once/initial_conditions.sh)
                File: photolysis_rates.sh  (modules/preproc/CAMx/5.10/once/photolysis_rates.sh)
                }  # Group: Once
@@ -293,32 +290,81 @@ File: Disclaimer  (doc/Disclaimer.txt)
 
 Group: Modules  {
 
-   File: 5.10/model.sh  (modules/model/CAMx/5.10/model.sh)
-   File: 5.20.1/model.sh  (modules/model/CAMx/5.20.1/model.sh)
+   Group: model  {
+
+      File: 5.10/model.sh  (modules/model/CAMx/5.10/model.sh)
+      File: 5.20.1/model.sh  (modules/model/CAMx/5.20.1/model.sh)
+
+      Group: Postproc  {
+
+         Group: Daily  {
+
+            File: avgdif.sh  (modules/postproc/CAMx/5.20.1/daily/avgdif.sh)
+            File: convert_output.sh  (modules/postproc/CAMx/5.20.1/daily/convert_output.sh)
+
+            Group: Extract_station_data  {
+
+               File: extract_arpa_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_arpa_stations.pro)
+               File: extract_nabel_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_nabel_stations.pro)
+               }  # Group: Extract_station_data
+
+            File: extract_station_data.bin.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.bin.sh)
+            File: extract_station_data.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.sh)
+            File: run_aqmfad.sh  (modules/postproc/CAMx/5.20.1/daily/run_aqmfad.sh)
+            }  # Group: Daily
+
+         Group: Once  {
+
+            File: concatenate_station_data.sh  (modules/postproc/CAMx/5.20.1/once/concatenate_station_data.sh)
+            File: extract_pa_data.sh  (modules/postproc/CAMx/5.20.1/once/extract_pa_data.sh)
+            File: set_permissions.sh  (modules/postproc/CAMx/5.20.1/once/set_permissions.sh)
+            }  # Group: Once
+
+         }  # Group: Postproc
+
+      Group: Preproc  {
+
+         Group: Daily  {
+
+            File: boundary_conditions.sh  (modules/preproc/CAMx/5.20.1/daily/boundary_conditions.sh)
+            File: convert_emissions.sh  (modules/preproc/CAMx/5.20.1/daily/convert_emissions.sh)
+            File: create_emissions.psi.sh  (modules/preproc/CAMx/5.20.1/daily/create_emissions.psi.sh)
+            File: run_emifad.sh  (modules/preproc/CAMx/5.20.1/daily/run_emifad.sh)
+            }  # Group: Daily
+
+         Group: Once  {
+
+            File: albedo_haze_ozone.sh  (modules/preproc/CAMx/5.20.1/once/albedo_haze_ozone.sh)
+            File: check_input.sh  (modules/preproc/CAMx/5.20.1/once/check_input.sh)
+            File: convert_landuse.sh  (modules/preproc/CAMx/5.20.1/once/convert_landuse.sh)
+            File: initial_conditions.sh  (modules/preproc/CAMx/5.20.1/once/initial_conditions.sh)
+            File: photolysis_rates.sh  (modules/preproc/CAMx/5.20.1/once/photolysis_rates.sh)
+            }  # Group: Once
+
+         }  # Group: Preproc
+
+      }  # Group: model
+
+   File: model.sh  (modules/model/CAMx/5.30/model.sh)
 
    Group: Postproc  {
 
       Group: Daily  {
 
-         File: avgdif.sh  (modules/postproc/CAMx/5.20.1/daily/avgdif.sh)
-         File: convert_output.sh  (modules/postproc/CAMx/5.20.1/daily/convert_output.sh)
-
-         Group: Extract_station_data  {
-
-            File: extract_arpa_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_arpa_stations.pro)
-            File: extract_nabel_stations  (modules/postproc/CAMx/5.20.1/daily/extract_station_data/extract_nabel_stations.pro)
-            }  # Group: Extract_station_data
-
-         File: extract_station_data.bin.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.bin.sh)
-         File: extract_station_data.sh  (modules/postproc/CAMx/5.20.1/daily/extract_station_data.sh)
-         File: run_aqmfad.sh  (modules/postproc/CAMx/5.20.1/daily/run_aqmfad.sh)
+         File: avgdif.sh  (modules/postproc/CAMx/5.30/daily/avgdif.sh)
+         File: convert_output.sh  (modules/postproc/CAMx/5.30/daily/convert_output.sh)
+         File: extract_arpa_stations  (modules/postproc/CAMx/5.30/daily/extract_station_data/extract_arpa_stations.pro)
+         File: extract_nabel_stations  (modules/postproc/CAMx/5.30/daily/extract_station_data/extract_nabel_stations.pro)
+         File: extract_station_data.bin.sh  (modules/postproc/CAMx/5.30/daily/extract_station_data.bin.sh)
+         File: extract_station_data.sh  (modules/postproc/CAMx/5.30/daily/extract_station_data.sh)
+         File: run_aqmfad.sh  (modules/postproc/CAMx/5.30/daily/run_aqmfad.sh)
          }  # Group: Daily
 
       Group: Once  {
 
-         File: concatenate_station_data.sh  (modules/postproc/CAMx/5.20.1/once/concatenate_station_data.sh)
-         File: extract_pa_data.sh  (modules/postproc/CAMx/5.20.1/once/extract_pa_data.sh)
-         File: set_permissions.sh  (modules/postproc/CAMx/5.20.1/once/set_permissions.sh)
+         File: concatenate_station_data.sh  (modules/postproc/CAMx/5.30/once/concatenate_station_data.sh)
+         File: extract_pa_data.sh  (modules/postproc/CAMx/5.30/once/extract_pa_data.sh)
+         File: set_permissions.sh  (modules/postproc/CAMx/5.30/once/set_permissions.sh)
          }  # Group: Once
 
       }  # Group: Postproc
@@ -327,20 +373,19 @@ Group: Modules  {
 
       Group: Daily  {
 
-         File: boundary_conditions.sh  (modules/preproc/CAMx/5.20.1/daily/boundary_conditions.sh)
-         File: convert_emissions.sh  (modules/preproc/CAMx/5.20.1/daily/convert_emissions.sh)
-         File: create_emissions.psi.sh  (modules/preproc/CAMx/5.20.1/daily/create_emissions.psi.sh)
-         File: run_emifad.sh  (modules/preproc/CAMx/5.20.1/daily/run_emifad.sh)
+         File: boundary_conditions.sh  (modules/preproc/CAMx/5.30/daily/boundary_conditions.sh)
+         File: convert_emissions.sh  (modules/preproc/CAMx/5.30/daily/convert_emissions.sh)
+         File: create_emissions.psi.sh  (modules/preproc/CAMx/5.30/daily/create_emissions.psi.sh)
+         File: run_emifad.sh  (modules/preproc/CAMx/5.30/daily/run_emifad.sh)
          }  # Group: Daily
 
       Group: Once  {
 
-         File: albedo_haze_ozone.sh  (modules/preproc/CAMx/5.20.1/once/albedo_haze_ozone.sh)
-         File: check_input.sh  (modules/preproc/CAMx/5.20.1/once/check_input.sh)
-         File: convert_landuse.sh  (modules/preproc/CAMx/5.20.1/once/convert_landuse.sh)
-         File: convert_meteo.sh  (modules/preproc/CAMx/5.20.1/once/convert_meteo.sh)
-         File: initial_conditions.sh  (modules/preproc/CAMx/5.20.1/once/initial_conditions.sh)
-         File: photolysis_rates.sh  (modules/preproc/CAMx/5.20.1/once/photolysis_rates.sh)
+         File: albedo_haze_ozone.sh  (modules/preproc/CAMx/5.30/once/albedo_haze_ozone.sh)
+         File: check_input.sh  (modules/preproc/CAMx/5.30/once/check_input.sh)
+         File: convert_landuse.sh  (modules/preproc/CAMx/5.30/once/convert_landuse.sh)
+         File: initial_conditions.sh  (modules/preproc/CAMx/5.30/once/initial_conditions.sh)
+         File: photolysis_rates.sh  (modules/preproc/CAMx/5.30/once/photolysis_rates.sh)
          }  # Group: Once
 
       }  # Group: Preproc
