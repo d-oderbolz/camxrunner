@@ -80,7 +80,7 @@ function main.usage()
 	  
 	  -T    Starts a test of the current Installation
 
-	  -d    causes a dry run (always uses a single worker)
+	  -d    causes a dry run (always uses a single worker). Also displays expected input and output files of each step.
 	  
 	  -l    Log even if in dryrun
 	  
@@ -369,6 +369,11 @@ fi
 if [[ "${CXR_FAST}" == true ]]
 then
 	main.log -a -B "With the -f(ast) option, you disabled most checks. Be careful to test the output!"
+
+	if [[ "${CXR_DRY}" == true ]]
+	then
+		main.dieGracefully "It makes no sense to use -f with -d"
+	fi
 fi
 
 #### Check for contradictions and take action (incomplete!)

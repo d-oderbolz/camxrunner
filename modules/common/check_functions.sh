@@ -706,6 +706,20 @@ function common.check.preconditions()
 		return $CXR_RET_OK
 	fi
 	
+	# In a dryrun, quickly show all expected in- and output files
+	if [[ "$CXR_DRY" == true ]]
+	then
+
+		main.log -a -b "Expected Input files:"
+		# We replace the spaces by newlines
+		main.log -a ${CXR_CHECK_THESE_INPUT_FILES// /\\n}
+
+		main.log -a -b "Expected Output files:"
+		# We replace the spaces by newlines
+		main.log -a ${CXR_CHECK_THESE_OUTPUT_FILES// /\\n}
+
+	fi
+	
 	# Does the user want to limit the checks?
 	local limited
 	local do_input
@@ -824,7 +838,7 @@ function common.check.preconditions()
 		# Decrease global indent level
 		main.decreaseLogIndent
 		
-		main.log -v   "Checking Executables ..."
+		main.log -v  "Checking Executables ..."
 		
 		# Increase global indent level
 		main.increaseLogIndent
