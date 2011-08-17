@@ -158,8 +158,8 @@ function common.math.case()
 	elsecase=
 
 	current_case="$1"
-	labels="($2)"
-	values="($3)"
+	labels=($2)
+	values=($3)
 	
 	for iElement in $(seq -f"%.0f" 0 $(( ${#labels[@]} - 1 )))
 	do
