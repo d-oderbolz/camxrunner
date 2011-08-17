@@ -244,6 +244,7 @@ function common.module.resolveType()
 # 
 # For a given module name, returns the type of the module.
 # Needs a fully updated CXR_STATE_DB_FILE!
+# If we do not find a name, we resort to module.getTypeSlow
 #
 # Parameters:
 # $1 - name of a module
@@ -251,8 +252,17 @@ function common.module.resolveType()
 function common.module.getType()
 ################################################################################
 {
-	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM modules WHERE module='$1'")
-	echo "$type"
+	local module
+	module="$1"
+	
+	type=$(common.db.getResultSet "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "SELECT type FROM modules WHERE module='$module'")
+	
+	if [[ "$type" ]]
+	then
+		echo "$type"
+	else
+		echo $(common.module.getTypeSlow "$module")
+	fi
 }
 
 ################################################################################
@@ -486,7 +496,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.module.getTypeSlow boundary_conditions)" "${CXR_TYPE_PREPROCESS_DAILY}" "common.module.getTypeSlow boundary_conditions"
+	is "$(common.module.getType boundary_conditions)" "${CXR_TYPE_PREPROCESS_DAILY}" "common.module.getType boundary_conditions"
 
 	########################################
 	# teardown tests if needed
