@@ -486,7 +486,7 @@ function test_module()
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is "$(common.module.getType boundary_conditions)" "${CXR_TYPE_PREPROCESS_DAILY}" "common.module.getType boundary_conditions"
+	is "$(common.module.getTypeSlow boundary_conditions)" "${CXR_TYPE_PREPROCESS_DAILY}" "common.module.getType boundary_conditions"
 
 	########################################
 	# teardown tests if needed
