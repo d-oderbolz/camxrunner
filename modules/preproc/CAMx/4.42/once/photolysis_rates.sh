@@ -137,7 +137,7 @@ function set_variables()
 	# Evaluate some rules
 	CXR_AHOMAP_INPUT_FILE="$(common.runner.evaluateRule "$CXR_ALBEDO_HAZE_OZONE_FILE_RULE" false CXR_ALBEDO_HAZE_OZONE_FILE_RULE)"
 	# Output files must not be decompressed!
-	CXR_TUV_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE false)"
+	CXR_TUV_OUTPUT_FILE="$(common.runner.evaluateRule "$CXR_PHOTOLYSIS_RATES_FILE_RULE" false CXR_PHOTOLYSIS_RATES_FILE_RULE false)"
 	
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_AHOMAP_INPUT_FILE"

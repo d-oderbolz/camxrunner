@@ -149,7 +149,7 @@ function set_variables()
 	# Set non-grid specific variables
 	########################################################################
 	
-	CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYIS_RATES_FILE_RULE" false CXR_PHOTOLYIS_RATES_FILE_RULE true $create_missing_dirs)
+	CXR_PHOTOLYIS_RATES_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PHOTOLYSIS_RATES_FILE_RULE" false CXR_PHOTOLYSIS_RATES_FILE_RULE true $create_missing_dirs)
 	CXR_INITIAL_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_INITIAL_CONDITIONS_FILE_RULE" false CXR_INITIAL_CONDITIONS_FILE_RULE true $create_missing_dirs)
 	CXR_BOUNDARY_CONDITIONS_INPUT_FILE=$(common.runner.evaluateRule "$CXR_BOUNDARY_CONDITIONS_FILE_RULE" false CXR_BOUNDARY_CONDITIONS_FILE_RULE true $create_missing_dirs)
 	
