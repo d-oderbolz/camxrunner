@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=28
+CXR_META_MODULE_NUM_TESTS=33
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains some math functions for the CAMxRunner, mostly to add floating point features to bash"
@@ -131,12 +131,65 @@ function common.math.compareVersions()
 }
 
 ################################################################################
-# Function: common.math.if_then_else
+# Function: common.math.case
 #
-# Implements the ternary operator.
+# Implements a case statement. This is useful to implement rules that have
+# a structure that depends on a variable. It is smarter to use this function than 
+# a bash if-statement because for a bash if-statement the variable in question must be 
+# known at the time when the if-statement is evaluated (which is when the config file
+# is read).
 #
 # Parameters:
-# $1 - an boolean expression yeilding either true or false
+# $1 - a value to define the current case
+# $2 - a list of values that label all cases (* is the else case). Items my not contain spaces!
+# $3 - a list of values to return for the respective cases. Items my not contain spaces!
+################################################################################
+function common.math.case()
+################################################################################
+{
+	local current_case
+	local labels
+	local values
+	local elsecase
+	
+	local iElement
+	local current_label
+	
+	elsecase=
+
+	current_case="$1"
+	labels="($2)"
+	values="($3)"
+	
+	for iElement in $(seq -f"%.0f" 0 $(( ${#labels[@]} - 1 )))
+	do
+		current_label=${labels[$iElement]}
+		
+		if [[ $current_label == '*' ]]
+		then
+			elsecase=${values[$iElement]}
+		elsif [[ $current_label == $current_case ]]
+			echo ${values[$iElement]}
+			return $CXR_RET_OK
+		fi
+	done
+	
+	# If we arrived here, there was no math, return elsecase
+	echo $elsecase
+	return $CXR_RET_OK
+}
+
+################################################################################
+# Function: common.math.if_then_else
+#
+# Implements the ternary operator. This is useful to implement rules that have
+# a structure that depends on a variable. It is smarter to use this function than 
+# a bash if-statement because for a bash if-statement the variable in question must be 
+# known at the time when the if-statement is evaluated (which is when the config file
+# is read)
+#
+# Parameters:
+# $1 - an boolean expression yielding either true or false
 # $2 - the value to return if true
 # $3 - the value to return otherwise
 ################################################################################
@@ -608,7 +661,14 @@ function test_module()
 	is "$(common.math.meanVector "1 1 1")" 1 "common.math.meanVector - all 1"
 	is "$(common.math.meanVector "0 0 0")" 0 "common.math.meanVector - all 0"
 	is "$(common.math.meanVector "1000")" 1000 "common.math.meanVector - single 1000"
-
+	
+	is "$(common.math.if_then_else true Yes No)" Yes "common.math.if_then_else true"
+	is "$(common.math.if_then_else false Yes No)" No "common.math.if_then_else false"
+	
+	is "$(common.math.case one "one two three" "1 2 3")" 1 "common.math.case existing case"
+	is "$(common.math.case four "one two three" "1 2 3")" "" "common.math.case non-existing case, no default"
+	is "$(common.math.case four "one two three *" "1 2 3 number")" number "common.math.case non-existing case, default"
+	
 	########################################
 	# teardown tests if needed
 	########################################
