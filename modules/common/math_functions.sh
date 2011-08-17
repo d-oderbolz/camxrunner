@@ -133,7 +133,13 @@ function common.math.compareVersions()
 ################################################################################
 # Function: common.math.case
 #
-# Implements a case statement. This is useful to implement rules that have
+# Implements a case statement. You must provide a scalar value and two lists:
+# the list of labels that is searched for the scalar (the labels)  and a list of values 
+# returned for the label at the same index. The label "else" has  special meaning, it 
+# is returned when no label matches.
+# if no match is found and no else case is given, the empty string is returned.
+# 
+# This is useful to implement rules that have
 # a structure that depends on a variable. It is smarter to use this function than 
 # a bash if-statement because for a bash if-statement the variable in question must be 
 # known at the time when the if-statement is evaluated (which is when the config file
@@ -163,12 +169,13 @@ function common.math.case()
 	
 	for iElement in $(seq -f"%.0f" 0 $(( ${#labels[@]} - 1 )))
 	do
-		current_label=${labels[$iElement]}
+		current_label="${labels[$iElement]}"
 		
-		if [[ $current_label == '*' ]]
+		if [[ $current_label == 'else' ]]
 		then
 			elsecase=${values[$iElement]}
-		elsif [[ $current_label == $current_case ]]
+		elif [[ $current_label == $current_case ]]
+		then
 			echo ${values[$iElement]}
 			return $CXR_RET_OK
 		fi
