@@ -712,11 +712,11 @@ function common.check.preconditions()
 
 		main.log -a -b "Expected Input files:"
 		# We replace the spaces by newlines
-		main.log -a ${CXR_CHECK_THESE_INPUT_FILES// /\\n}
+		main.log -a "${CXR_CHECK_THESE_INPUT_FILES// /\\n}"
 
 		main.log -a -b "Expected Output files:"
 		# We replace the spaces by newlines
-		main.log -a ${CXR_CHECK_THESE_OUTPUT_FILES// /\\n}
+		main.log -a "${CXR_CHECK_THESE_OUTPUT_FILES// /\\n}"
 
 	fi
 	
