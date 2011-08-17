@@ -147,7 +147,7 @@ function common.math.compareVersions()
 #
 # Parameters:
 # $1 - a value to define the current case
-# $2 - a list of values that label all cases (* is the else case). Items my not contain spaces!
+# $2 - a list of values that label all cases (the word else is reserved). Items my not contain spaces!
 # $3 - a list of values to return for the respective cases. Items my not contain spaces!
 ################################################################################
 function common.math.case()
