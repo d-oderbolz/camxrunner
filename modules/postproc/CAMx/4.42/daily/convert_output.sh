@@ -205,19 +205,19 @@ function set_variables()
 
 	# Checks for the input (where the links we created point to)
 	CXR_CHECK_THESE_INPUT_FILES="${CXR_AVG_INPUT_FILE} \
-								${CXR_ZP_GRID_INPUT_FILE} \
-								${CXR_WIND_GRID_INPUT_FILE} \
-								${CXR_TEMP_GRID_INPUT_FILE} \
-								${CXR_VAPOR_INPUT_FILE} \
-								${CXR_KV_GRID_INPUT_FILE} "
+ ${CXR_ZP_GRID_INPUT_FILE} \
+ ${CXR_WIND_GRID_INPUT_FILE} \
+ ${CXR_TEMP_GRID_INPUT_FILE} \
+ ${CXR_VAPOR_INPUT_FILE} \
+ ${CXR_KV_GRID_INPUT_FILE} "
 
 	# Checks for the output
 	CXR_CHECK_THESE_OUTPUT_FILES="${CXR_AVG_OUTPUT_FILE} \
-								 ${CXR_ZP_GRID_OUTPUT_FILE} \
-								 ${CXR_WIND_GRID_OUTPUT_FILE} \
-								 ${CXR_TEMP_GRID_OUTPUT_FILE} \
-								 ${CXR_VAPOR_OUTPUT_FILE} \
-								 ${CXR_KV_GRID_OUTPUT_FILE} "
+ ${CXR_ZP_GRID_OUTPUT_FILE} \
+ ${CXR_WIND_GRID_OUTPUT_FILE} \
+ ${CXR_TEMP_GRID_OUTPUT_FILE} \
+ ${CXR_VAPOR_OUTPUT_FILE} \
+ ${CXR_KV_GRID_OUTPUT_FILE} "
 	
 	# Create "real" arrays 
 	CXR_INPUT_FILES=($CXR_CHECK_THESE_INPUT_FILES)

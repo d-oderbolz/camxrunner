@@ -182,13 +182,13 @@ function set_variables()
 	# NO Emissions
 	
 	#Checks
-	CXR_CHECK_THESE_INPUT_FILES="$aqmfad_dir/$(basename ${CXR_AVG_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) \
-							$aqmfad_dir/$(basename ${CXR_KV_GRID_ASC_INPUT_FILE})"
+	CXR_CHECK_THESE_INPUT_FILES="${CXR_AVG_ASC_INPUT_FILE} \
+ ${CXR_TERRAIN_GRID_ASC_INPUT_FILE} \
+ ${CXR_ZP_GRID_ASC_INPUT_FILE} \
+ ${CXR_WIND_GRID_ASC_INPUT_FILE} \
+ ${CXR_TEMP_GRID_ASC_INPUT_FILE} \
+ ${CXR_VAPOR_ASC_INPUT_FILE} \
+ ${CXR_KV_GRID_ASC_INPUT_FILE}"
 
 	# The outputfile checks cannot be formulated using rules yet...
 	# results in something like
