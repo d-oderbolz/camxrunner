@@ -674,7 +674,7 @@ function test_module()
 	
 	is "$(common.math.case one "one two three" "1 2 3")" 1 "common.math.case existing case"
 	is "$(common.math.case four "one two three" "1 2 3")" "" "common.math.case non-existing case, no default"
-	is "$(common.math.case four "one two three *" "1 2 3 number")" number "common.math.case non-existing case, default"
+	is "$(common.math.case four "one two three else" "1 2 3 number")" number "common.math.case non-existing case, default"
 	
 	########################################
 	# teardown tests if needed
