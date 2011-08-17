@@ -309,7 +309,7 @@ function create_ahomap_control_file()
 		then
 			# File does not exist or is empty
 		
-			if [[ $CXR_DRY == false  ]]
+			if [[ $CXR_DRY == false ]]
 			then
 				# Download
 				common.install.downloadFile ${CURRENT_URL} $CXR_AHOMAP_OZONE_COLUMN_DIR/${CXR_AHOMAP_OZONE_COLUMN_FILE}
@@ -472,7 +472,7 @@ function albedo_haze_ozone()
 		main.log  "Preparing Albedo/Haze/Ozone data for run ${CXR_RUN}..."
 		
 		# Is the output there?
-		if [[ ! -s "$CXR_AHOMAP_OUTPUT_FILE"  ]]
+		if [[ ! -s "$CXR_AHOMAP_OUTPUT_FILE" ]]
 		then
 			# File not yet there
 		
