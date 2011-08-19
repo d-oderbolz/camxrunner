@@ -1363,7 +1363,7 @@ function common.state.cleanup()
 				confirm_days=false
 
 				# First select the module type or module name
-				if [[ "$(common.user.getOK "Do you want to remove specific module types (otherwise, you get a list of modules)?" )" == true  ]]
+				if [[ "$(common.user.getOK "Do you want to update specific module types (otherwise, you get a list of modules)?" )" == true  ]]
 				then
 					# Module types it is.
 					# We add the value "all" and "none" to the result
