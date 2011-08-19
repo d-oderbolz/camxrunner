@@ -831,7 +831,7 @@ function main.getBinaryName()
 				echo "${alias_output}"
 				return $CXR_RET_OK
 			fi
-		endif
+		fi
 	
 		which_output="$(which "${exec_name}" 2>/dev/null)"
 		
@@ -844,7 +844,7 @@ function main.getBinaryName()
 				echo "${which_output}"
 				return $CXR_RET_OK
 			fi
-		endif
+		fi
 		
 	set -e
 	
