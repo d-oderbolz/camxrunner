@@ -790,7 +790,7 @@ function common.task.setNextTask()
 		# Release Lock
 		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
 		
-		main.log -a "Controller: This was the last task to be processed, notifying system after security pause...\nController: Do not be alarmed: Running processes will have time to finish."
+		main.log -a "All tasks have been assigned."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
