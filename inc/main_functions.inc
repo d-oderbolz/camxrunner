@@ -819,34 +819,46 @@ function main.getBinaryName()
 	
 	# We must allow errors
 	set +e
+	
 		alias_output="$(alias "${exec_name}" 2>/dev/null)"
+		
+		if [[ $? -eq 0 ]]
+		then
+			# Ok, found it
+			if [[ "$alias_output" ]]
+			then
+				main.log -v "${exec_name} is an alias to ${alias_output}"
+				echo "${alias_output}"
+				return $CXR_RET_OK
+			fi
+		endif
 	
 		which_output="$(which "${exec_name}" 2>/dev/null)"
+		
+		if [[ $? -eq 0 ]]
+		then
+			# Ok, found it
+			if [[ "$which_output" ]]
+			then
+				main.log -v "${exec_name} is an alias to ${which_output}"
+				echo "${which_output}"
+				return $CXR_RET_OK
+			fi
+		endif
+		
 	set -e
 	
-	# Set output to "" if which failed
-	if [[ $? -eq 0 ]]
+
+	# Still no match
+	if [[ "$allow_empty" == true ]]
 	then
-		# Ok, found it
-		if [[ "$alias_output" ]]
-		then
-			main.log -v "${exec_name} is an alias to ${alias_output}"
-		fi
-		
-		main.log -v "Binary ${exec_name} is actually called ${which_output}"
-		echo "${which_output}"
+		# optional param is true,
+		# We do not care and return the empty string
+		main.log -v "Binary $exec_name not found"
+		echo "" 
 	else
-		# Still no match
-		if [[ "$allow_empty" == true ]]
-		then
-			# optional param is true,
-			# We do not care and return the empty string
-			main.log -v "Binary $exec_name not found"
-			echo "" 
-		else
-			# NOK-just issue a warning (if we are compiling e.g.)
-			main.log -w "Could not find a suitable executable for binary $exec_name. The which command also did not find anything.\nRecompile this components using\n\t\$ CAMxRunner.sh -I"
-		fi
+		# NOK-just issue a warning (if we are compiling e.g.)
+		main.log -w "Could not find a suitable executable for binary $exec_name. The which command also did not find anything.\nRecompile this components using\n\t\$ CAMxRunner.sh -I"
 	fi
 
 	return $CXR_RET_OK
