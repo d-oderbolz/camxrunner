@@ -4,7 +4,7 @@
 # Postprocessor for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
 #
-# Version: $Id: run_aqmfad.sh 6777 2011-08-17 10:58:07Z oderbolz $ 
+# Version: $Id$ 
 #
 # Runs aqmfad, the script which creates the direct access files
 #
@@ -58,7 +58,7 @@ CXR_META_MODULE_AUTHOR="Daniel C. Oderbolz (2008 - 2010), CAMxRunner@psi.ch"
 CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerland (http://creativecommons.org/licenses/by-sa/2.5/ch/deed.en)"
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
-CXR_META_MODULE_VERSION='$Id: run_aqmfad.sh 6777 2011-08-17 10:58:07Z oderbolz $'
+CXR_META_MODULE_VERSION='$Id$'
 
 ################################################################################
 # Function: getNumInvocations
