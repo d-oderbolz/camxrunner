@@ -126,10 +126,6 @@ function set_variables()
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
 	
-	# We work in a temp dir. Here we store links to all the input files,
-	# wherever they are.
-	aqmfad_dir="$(common.runner.createTempDir aqmfad)"
-	
 	########################################################################
 	# Set variables
 	########################################################################
@@ -145,40 +141,26 @@ function set_variables()
 	
 	#aqmfad needs ASCII Input
 	CXR_AVG_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_ASC_FILE_RULE" false CXR_AVG_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_AVG_ASC_INPUT_FILE 
-	
+
 	# TERRAIN
 	CXR_TERRAIN_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TERRAIN_ASC_FILE_RULE" false CXR_TERRAIN_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_TERRAIN_GRID_ASC_INPUT_FILE 
-	
+
 	# Pressure
 	CXR_ZP_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_PRESSURE_ASC_FILE_RULE" false CXR_PRESSURE_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_ZP_GRID_ASC_INPUT_FILE 
-	
+
 	# Wind
 	CXR_WIND_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_WIND_ASC_FILE_RULE" false CXR_WIND_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_WIND_GRID_ASC_INPUT_FILE 
 	
 	# Temperature
 	CXR_TEMP_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_TEMPERATURE_ASC_FILE_RULE" false CXR_TEMPERATURE_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_TEMP_GRID_ASC_INPUT_FILE 
-	
+
 	# Vapor
 	CXR_VAPOR_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_VAPOR_ASC_FILE_RULE" false CXR_VAPOR_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_VAPOR_ASC_INPUT_FILE 
-	
+
 	# No Cloud
 	# Vertical K
 	CXR_KV_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_K_ASC_FILE_RULE" false CXR_K_ASC_FILE_RULE)
-	# Create link
-	ln -s -t $aqmfad_dir $CXR_KV_GRID_ASC_INPUT_FILE 
-	
+
 	# NO Emissions
 	
 	#Checks
@@ -233,8 +215,6 @@ function run_aqmfad()
 			return $CXR_RET_ERR_PRECONDITIONS
 		fi
 		
-		cd $aqmfad_dir || return $CXR_RET_ERROR
-		
 		# Test if any of the output file pre-exists
 		for ofile in $CXR_CHECK_THESE_OUTPUT_FILES;
 		do
@@ -258,10 +238,10 @@ function run_aqmfad()
 		if [[ "$CXR_DRY" == false ]]
 		then
 			main.log -a  "Running aqmfad on grid ${CXR_IGRID}..."
-			main.log -a  "${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE})"    
+			main.log -a  "${CXR_AQMFAD_EXEC} fi_aqm=${CXR_AVG_ASC_INPUT_FILE} fi_terrain=${CXR_TERRAIN_GRID_ASC_INPUT_FILE} fi_zp=${CXR_ZP_GRID_ASC_INPUT_FILE} fi_t=${CXR_TEMP_GRID_ASC_INPUT_FILE} fi_q=${CXR_VAPOR_ASC_INPUT_FILE} fi_kv=${CXR_KV_GRID_ASC_INPUT_FILE} fi_uv=${CXR_WIND_GRID_ASC_INPUT_FILE}"
 
 			# Call aqmfad while collecting stderr only
-			${CXR_AQMFAD_EXEC} fi_aqm=$(basename ${CXR_AVG_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) fi_zp=$(basename ${CXR_ZP_GRID_ASC_INPUT_FILE}) fi_t=$(basename ${CXR_TEMP_GRID_ASC_INPUT_FILE}) fi_q=$(basename ${CXR_VAPOR_ASC_INPUT_FILE}) fi_kv=$(basename ${CXR_KV_GRID_ASC_INPUT_FILE}) fi_uv=$(basename ${CXR_WIND_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
+			${CXR_AQMFAD_EXEC} fi_aqm=${CXR_AVG_ASC_INPUT_FILE} fi_terrain=${CXR_TERRAIN_GRID_ASC_INPUT_FILE} fi_zp=${CXR_ZP_GRID_ASC_INPUT_FILE} fi_t=${CXR_TEMP_GRID_ASC_INPUT_FILE} fi_q=${CXR_VAPOR_ASC_INPUT_FILE} fi_kv=${CXR_KV_GRID_ASC_INPUT_FILE} fi_uv=${CXR_WIND_GRID_ASC_INPUT_FILE} 2>> $CXR_LOG
 		else
 			main.log "This is a dryrun, no action required"
 		fi
