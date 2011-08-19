@@ -790,7 +790,7 @@ function common.task.setNextTask()
 		# Release Lock
 		common.runner.releaseLock NextTask "$CXR_LEVEL_GLOBAL"
 		
-		main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
+		main.log -a "Controller: This was the last task to be processed, notifying system after security pause...\nController: Do not be alarmed: Running processes will have time to finish."
 		
 		# there are no more tasks, remove all continue files after some waiting
 		# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1305,7 +1305,7 @@ function common.task.controller()
 	
 	i=0
 	
-	main.log "Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is swell.)"
+	main.log "Controller: Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is swell.)"
 	
 	while [[ -f "$CXR_CONTINUE_FILE" ]]
 	do
@@ -1324,12 +1324,12 @@ function common.task.controller()
 		then
 			# TODO: Safely remove a sleeping worker before it wakes up
 			# when a worker gets status CXR_STATUS_KILLED, it will remove itself
-			main.log -w "ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
+			main.log -w "Controller: ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
 		fi
 		
 		if [[ $(common.task.countMyRunningWorkers) -lt $CXR_MAX_PARALLEL_PROCS ]]
 		then
-			main.log -w "Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive! (maybe some have not started yet)"
+			main.log -w "Controller: Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive! (maybe some have not started yet)"
 		fi
 		
 		# Report the Estimated Time of arrival every now and then
@@ -1345,7 +1345,7 @@ function common.task.controller()
 		
 		if [[ "$task_count" -eq 0 ]]
 		then
-			main.log -a "This was the last task to be processed, notifying system after security pause...\nDo not be alarmed: Running processes will have time to finish."
+			main.log -a "Controller: This was the last task to be processed, notifying system after security pause...\nController: Do not be alarmed: Running processes will have time to finish."
 			
 			# there are no more tasks, remove our file after some waiting
 			# The waiting should ensure that all workers are past their check for do_we_continue
@@ -1361,14 +1361,14 @@ function common.task.controller()
 	if [[ ! -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
 	then
 		# We now wait for the last workers to finish
-		main.log -a "Waiting until running workers are done..."
+		main.log -a "Controller: Waiting until running workers are done..."
 		while [[ $(common.task.countMyRunningWorkers) -gt 0 ]]
 		do
 			sleep $CXR_WAITING_SLEEP_SECONDS
 		done
 		
 	else
-		main.log -w "Abnormal termination - all workers will be taken down now."
+		main.log -w "Controller: Abnormal termination - all workers will be taken down now."
 	fi
 }
 
