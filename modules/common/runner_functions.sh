@@ -1526,15 +1526,16 @@ function common.runner.getNewRunName()
 	
 	# Ask user for rest of name
 	addition="$(common.user.getInput "The Run name so far is ${prefix}- how do you want to complete the name (spaces will be replaced by _)?")"
+	# trim spaces at left and right end
 	addition="$(common.string.trim "$addition")"
 	
-	# Replace any spaces left by _
+	# Replace any spaces in the string by _
 	addition="${addition// /_}"
 
 	run="${prefix}-$addition"
 	
 	# Name ok? 
-	while [[ $(common.check.RunName ${run} == false) ]]
+	while [[ $(common.check.RunName "${run}" == false) ]]
 	do
 		main.log -a "New Run name ${run} does not conform to the rules."
 		

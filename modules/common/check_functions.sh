@@ -1412,6 +1412,7 @@ function common.check.RunName()
 	if [[ $# -ne 1 ]]
 	then
 		main.log -e "Programming error: needs a string as input"
+		echo false
 		return 1
 	fi
 	
