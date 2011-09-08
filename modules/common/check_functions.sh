@@ -1395,7 +1395,7 @@ function common.check.runner()
 # Much of the code here is repeated from <main.setModelAndVersion>
 #
 # Returns:
-# Retruns 0 if ok, 1 otherwise.
+# Returns true if OK, false otherwise.
 #
 # Parameters:
 # $1 - String
@@ -1419,14 +1419,16 @@ function common.check.RunName()
 	
 	if [[ "$run" == installer ]]
 	then
+		echo  true
 		return 0
 	fi
 	
 	# Length must not exceed 60 because we use it as
 	# "note" field in all files
-	if [[ $(common.string.len $run) -gt 60  ]]
+	if [[ $(common.string.len $run) -gt 60 ]]
 	then
 		main.log -e "A run name must not be longer than 60 characters!"
+		echo false
 		return 0
 	fi
 	
@@ -1447,11 +1449,16 @@ function common.check.RunName()
 	# Then there is vVersion, remove v to the left:
 	version=${run_array[1]#v}
 	
-	#This returns non-0 if its not ok
+	#This returns non-0 if it's not ok
 	common.check.isVersionSupported? $version $model
-		
-	# We return the return value
-	return $?
+	
+	if [[ $? -ne 0 ]]
+	then
+		echo false
+	else
+		echo true
+	fi
+	
 }
 
 ################################################################################

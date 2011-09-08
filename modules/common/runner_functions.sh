@@ -1507,6 +1507,7 @@ function common.runner.getNewRunName()
 	local supported
 	local version
 	local run
+	local prefix
 	local addition
 	
 	model="$(common.user.getMenuChoice "Which model should be used?\nIf your desired model is not in this list, adjust CXR_SUPPORTED_MODELS \n(Currently $CXR_SUPPORTED_MODELS)" "$CXR_SUPPORTED_MODELS" )"
@@ -1521,19 +1522,22 @@ function common.runner.getNewRunName()
 	
 	common.check.isVersionSupported? "$version" "$model" || main.dieGracefully "The version you supplied is not supported. Adjust CXR_SUPPORTED_MODEL_VERSIONS."
 	
-	run=${model}-v${version}
+	prefix=${model}-v${version}
 	
 	# Ask user for rest of name
-	addition="$(common.user.getInput "The Run name so far is ${run}- how do you want to complete the name (spaces will be replaced by _)?")"
+	addition="$(common.user.getInput "The Run name so far is ${prefix}- how do you want to complete the name (spaces will be replaced by _)?")"
 	addition="$(common.string.trim "$addition")"
 	
 	# Replace any spaces left by _
 	addition="${addition// /_}"
 
-	run="${run}-$addition"
+	run="${prefix}-$addition"
 	
 	# Name ok? 
-	common.check.RunName $run || main.dieGracefully "Could not determine new run name"
+	while [[ $(common.check.RunName ${run} == false) ]]
+	then
+		 main.log -a "New Run name ${run} does not conform to the rules."
+	fi
 	
 	echo "$run"
 }
