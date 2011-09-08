@@ -472,7 +472,7 @@ then
 	
 		# Make sure Run name is ok (Model.vVersion...)
 		# check_functions.sh
-		if [[ $(common.check.RunName ${CXR_RUN} == false) ]]
+	if [[ $(common.check.RunName ${CXR_RUN}) == false ]]
 		then
 			main.dieGracefully "Sorry, but a Run name (the link you create) must start with the string MODEL.vX.YZ where MODEL is one of $CXR_SUPPORTED_MODELS and X.YZ is the CAMx Version number."
 		fi

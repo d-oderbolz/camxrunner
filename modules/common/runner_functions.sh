@@ -1535,7 +1535,7 @@ function common.runner.getNewRunName()
 	run="${prefix}-$addition"
 	
 	# Name ok? 
-	while [[ $(common.check.RunName "${run}" == false) ]]
+	while [[ $(common.check.RunName "${run}")  == false ]]
 	do
 		main.log -a "New Run name ${run} does not conform to the rules."
 		
