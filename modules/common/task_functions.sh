@@ -1044,7 +1044,6 @@ function common.task.Worker()
 			_id=""
 			
 			# common.task.setNextTask provides tasks in an atomic fashion
-			# already moves the task descriptor into "running" position
 			# Sets a couple of "background" variables
 			# This is a blocking call (we wait until we get a task)
 			common.task.setNextTask
@@ -1222,6 +1221,7 @@ function common.task.spawnWorkers()
 {
 	local iWorker
 	local nWorkers
+	local task_count
 	
 	if [[ "${CXR_CHECK_MODEL_SPACE_REQUIRED}" == true  ]]
 	then
@@ -1248,24 +1248,32 @@ function common.task.spawnWorkers()
 	
 	for iWorker in $(seq 1 $nWorkers)
 	do
-		
-		# Determine logfile for this worker.
-		# We use a different naming convention if we have more than 1 worker only
-		if [[ $nWorkers -gt 1 ]]
+	
+		task_count=$(common.task.countOpenTasks)
+	
+		# Are there open tasks at all?
+		if [[ "$task_count" -ne 0 ]]
 		then
-			CXR_LOGS[$iWorker]=${CXR_LOG%.log}_${CXR_MACHINE}_${iWorker}.log
+			# Determine logfile for this worker.
+			# We use a different naming convention if we have more than 1 worker only
+			if [[ $nWorkers -gt 1 ]]
+			then
+				CXR_LOGS[$iWorker]=${CXR_LOG%.log}_${CXR_MACHINE}_${iWorker}.log
+			else
+				CXR_LOGS[$iWorker]=${CXR_LOG}
+			fi
+			
+			# Create a worker and send it to background
+			common.task.Worker $iWorker ${CXR_LOGS[$iWorker]} &
+			
+			if [[ "$1" -gt 1 ]]
+			then
+				# Wait a bit to avoid congestion
+				main.log -a "We wait 60 seconds until we launch the next worker to see the memory demand"
+				sleep 60
+			fi
 		else
-			CXR_LOGS[$iWorker]=${CXR_LOG}
-		fi
-		
-		# Create a worker and send it to background
-		common.task.Worker $iWorker ${CXR_LOGS[$iWorker]} &
-		
-		if [[ "$1" -gt 1 ]]
-		then
-			# Wait a bit to avoid congestion
-			main.log -a "We wait 60 seconds until we launch the next worker to see the memory demand"
-			sleep 60
+			main.log -a "There are no more tasks, will not spawn more workers."
 		fi
 		
 	done
