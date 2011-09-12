@@ -442,6 +442,9 @@ function test_module()
 	main.log -a "Magadino in LonLat: $(common.map.ProjectionToLonLat 715500 113200 SWISS)"
 	main.log -a "Indexes of Magadino D1 (direct): $(common.map.ProjectionToIndexes 715500 113200 1 SWISS)"
 
+	# Same for Hohenpeissenberg
+	main.log -a "Hohenpeissenberg in Swiss coordinates $(common.map.LonLatToProjection 11.0097 47.8013 SWISS)"
+
 	########################################
 	# teardown tests if needed
 	########################################
