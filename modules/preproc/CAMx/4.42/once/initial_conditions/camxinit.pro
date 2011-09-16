@@ -608,7 +608,7 @@ ENDFOR ; Species-for-modification
 	print,"******************************************"
 	print,'Some overview data of file ' + outfile_ic
 	print,'For each species and level, reporting '
-	print,'Min, Avg, Max converted to PPB (data written is in PPM)'
+	print,'Min, Avg, Max converted to PPB or ng/m**3 (data written is in PPM or ug/m**3)'
 	
 	FOR ispec = 0, nspec - 1 DO BEGIN
 	
