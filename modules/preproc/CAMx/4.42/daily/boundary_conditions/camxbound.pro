@@ -748,7 +748,7 @@ ENDFOR ; Species-for-modification
 	print,"******************************************"
 	print,'Some overview data of file ' + outfile_bc
 	print,'For each face, species and level, reporting '
-	print,'Min, Avg, Max converted to PPB (data written is in PPM)'
+	print,'Min, Avg, Max converted to PPB or ng/m**3 (data written is in PPM or ug/m**3)'
 	
 	faces=['West','East','South','North']
 	
