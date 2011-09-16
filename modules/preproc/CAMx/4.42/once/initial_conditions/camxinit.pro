@@ -42,7 +42,10 @@ pro camxinit $
 ; delx - x resolution in meters or degrees longitute (float)
 ; dely - y resolution in meters or degrees longitute (float)
 ; ibdate - initial date in YYDOY form so 02001 is the 1. Jan 2002
-; extra - structure to pass in additional arguments to increase certain species (iO3) or set them constant (cO3) (either one or the other. Unit: PPM)
+; extra - structure to pass in additional arguments to 
+;          increase certain species (iO3) or 
+;          set them constant (cO3) (either one or the other. Unit: PPM)
+;          or to test the interpolation using constant values (tO3)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 COMPILE_OPT IDL2
@@ -99,11 +102,31 @@ if ( N_tags(extra) GT 0 ) then begin
 					if (data_modification EQ 'none') then begin
 						data_modification='constant'
 						data_modification_prefix='C'
+
 					endif else begin
 						if (data_modification EQ 'increment' || data_modification EQ 'test' ) then begin
 							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
+					
+					; Check if this is an additional species not known yet
+					species=strupcase(strmid(tags[i],1))
+
+					dummy=WHERE(camx_specs EQ species,count)
+					
+					if (count EQ 0) then begin
+						print,"Treating additional constant species ",species
+						nspec=nspec + 1
+						
+						; Add species to list
+						camx_specs_new=strarr(nspec)
+						camx_specs_new[0:nspec-2]=camx_specs
+						camx_specs_new[nspec-1]=species
+						camx_specs=camx_specs_new
+						
+					endif
+					
+					
 				  end
 				  
 				'T' : begin
@@ -240,11 +263,20 @@ endfor ; level
 ; In order to be able to loop over species, an array containing all of them is created
 allspecs = FLTARR(ncolsmoz, nrowsmoz, nlevsmoz, ntime, nspec)
 
-; Loop through the MOZART species and loading them
+; Loop through the MOZART species and load them
 ; we ASSUME that all are gaseous and given as Volume mixing ratio
 for ispec=0,nspec-1 do begin
 
-	; Do we have such a variable?
+	if (ispec GE n_elements(mozart_specs)) then begin
+	
+		; we need to treat an additional species.
+		; we do not yet inject the constant value, this is done later
+		
+		allspecs[*,*,*,*,ispec] = 0
+		
+	endif else begin
+	
+		; Do we have such a MOZART variable?
 	varid = NCDF_VARID(ncid, mozart_specs[ispec])
 	
 	if ( varid EQ -1 ) then message,"The MOZART file " + fmoz + " does not contain " + mozart_specs[ispec]
@@ -286,7 +318,9 @@ for ispec=0,nspec-1 do begin
 		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
 	endelse
 	
-endfor
+	endelse ; is this a known species?
+	
+endfor ; read each species
 
 NCDF_CLOSE, ncid      ; Close the NetCDF file
 
