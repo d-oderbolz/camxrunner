@@ -136,9 +136,7 @@ if ( N_tags(extra) GT 0 ) then begin
 					
 					; Check if this is an additional species not known yet
 					species=strupcase(strmid(tags[i],1))
-					
-					stop
-					
+
 					dummy=WHERE(camx_specs EQ species,count)
 					
 					if (count EQ 0) then begin
@@ -149,6 +147,7 @@ if ( N_tags(extra) GT 0 ) then begin
 						camx_specs_new=strarr(nspec)
 						camx_specs_new[0:nspec-2]=camx_specs
 						camx_specs_new[nspec-1]=species
+						camx_specs=camx_specs_new
 						
 					endif
 					
