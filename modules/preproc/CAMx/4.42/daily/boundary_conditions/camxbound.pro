@@ -82,8 +82,7 @@ if ( N_PARAMS() LT 14) then begin
 	deleteps=1 
 endif
 
-; Always use uppercase species
-mozart_specs=strupcase(mozart_specs)
+; Always use uppercase CAMx species
 camx_specs=strupcase(camx_specs)
 
 nspec=n_elements(mozart_specs)
