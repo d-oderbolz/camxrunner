@@ -82,6 +82,10 @@ if ( N_PARAMS() LT 14) then begin
 	deleteps=1 
 endif
 
+; Always use uppercase species
+mozart_specs=strupcase(mozart_specs)
+camx_specs=strupcase(camx_specs)
+
 nspec=n_elements(mozart_specs)
 nspec_c=n_elements(camx_specs)
 
@@ -124,6 +128,23 @@ if ( N_tags(extra) GT 0 ) then begin
 					if (data_modification EQ 'none') then begin
 						data_modification='constant'
 						data_modification_prefix='C'
+						
+						; Check if this is an additional species not known yet
+						species=strupcase(strmid(tags[i],1))
+						
+						dummy=WHERE(camx_specs EQ species,count)
+						
+						if (count EQ 0) then begin
+							print,"Treating additional constant species ",species
+							nspec=nspec + 1
+							
+							; Add species to list
+							camx_specs_new=strarr(nspec)
+							camx_specs_new[0:nspec-2]=camx_specs
+							camx_specs_new[nspec-1]=species
+							
+						endif
+						
 					endif else begin
 						if (data_modification EQ 'increment' || data_modification EQ 'test' ) then begin
 							message,"You cannot use constant or test and increment together!"
@@ -283,53 +304,64 @@ endfor ; time
 ; In order to be able to loop over species, an array containing all of them is created
 allspecs = FLTARR(ncolsmoz, nrowsmoz, nlevsmoz, ntime, nspec)
 
-; Loop through the MOZART species and loading them
+; Loop through the MOZART species and load them
 ; we ASSUME that all are gaseous and given as Volume mixing ratio
 for ispec=0,nspec-1 do begin
 
-	; Do we have such a variable?
-	varid = NCDF_VARID(ncid, mozart_specs[ispec])
+	if (ispec GE n_elements(mozart_specs)) then begin
 	
-	if ( varid EQ -1 ) then message,"The MOZART file " + fmoz + " does not contain " + mozart_specs[ispec]
-
-	print,"Loading " + mozart_specs[ispec] + " (CAMx species " + camx_specs[ispec] + ")"
-
-	NCDF_VARGET, ncid, varid ,dummy
-	
-	; Now it depends on whether we need to test the interpolation or not
-	; if this secies is tested, we inject the constant value here.
-	; other modifications are done AFTER interpolation.
-	
-	if (data_modification EQ 'test') then begin
-		; Find the correspondig entry in the extra structure
-		; it is called tO3 for Ozone (CAMx convention)
-		Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
-		Tag_Num = Tag_Num[0]
-		if (Tag_Num LT 0) then begin
+		; we need to treat an additional species.
+		; we do not yet inject the constant value, this is done later
 		
-			; Tag not found, no modification
-			print,"You specified test values for some species but not for " + camx_specs[ispec]
+		allspecs[*,*,*,*,ispec] = 0
 		
+	endif else begin
+	
+		; Do we have such a MOZART variable?
+		varid = NCDF_VARID(ncid, mozart_specs[ispec])
+		
+		if ( varid EQ -1 ) then message,"The MOZART file " + fmoz + " does not contain " + mozart_specs[ispec]
+	
+		print,"Loading " + mozart_specs[ispec] + " (CAMx species " + camx_specs[ispec] + ")"
+	
+		NCDF_VARGET, ncid, varid ,dummy
+		
+		; Now it depends on whether we need to test the interpolation or not
+		; if this secies is tested, we inject the constant value here.
+		; other modifications are done AFTER interpolation.
+		
+		if (data_modification EQ 'test') then begin
+			; Find the correspondig entry in the extra structure
+			; it is called tO3 for Ozone (CAMx convention)
+			Tag_Num = where( Tags EQ data_modification_prefix + camx_specs[ispec] )
+			Tag_Num = Tag_Num[0]
+			if (Tag_Num LT 0) then begin
+			
+				; Tag not found, no modification
+				print,"You specified test values for some species but not for " + camx_specs[ispec]
+			
+				; We also need to reverse all concentrations (3rd dimension, here 1 based)
+				; Also we convert to PPM
+				allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
+				
+			endif else begin
+				; Found a tag, inject the constant value
+				constant_dummy = extra.(Tag_Num)
+		
+				print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
+			
+				allspecs[*,*,*,*,ispec] = constant_dummy
+			endelse
+			
+		endif else begin
 			; We also need to reverse all concentrations (3rd dimension, here 1 based)
 			; Also we convert to PPM
 			allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-			
-		endif else begin
-			; Found a tag, inject the constant value
-			constant_dummy = extra.(Tag_Num)
-	
-			print,'WRN: The species ' + camx_specs[ispec] + ' will be set to ' + strtrim(constant_dummy,2) + 'PPM everywhere to test interpolation!'
-		
-			allspecs[*,*,*,*,ispec] = constant_dummy
 		endelse
 		
-	endif else begin
-		; We also need to reverse all concentrations (3rd dimension, here 1 based)
-		; Also we convert to PPM
-		allspecs[*,*,*,*,ispec] = reverse(dummy,3) * vmr2ppm
-	endelse
+	endelse ; is this a known species?
 	
-endfor
+endfor ; read each species
 
 NCDF_CLOSE, ncid      ; Close the NetCDF file
 

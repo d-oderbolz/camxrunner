@@ -265,7 +265,7 @@ function boundary_conditions()
 						# Add the rest of the syntax
 						extra=",extra=${extra}"
 						
-					elif [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT  ]]
+					elif [[ "${CXR_IC_BC_TC_METHOD}" == MOZART_INCREMENT ]]
 					then
 					
 						# Open the bracket
