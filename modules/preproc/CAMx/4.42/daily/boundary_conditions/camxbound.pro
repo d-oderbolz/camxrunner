@@ -127,28 +127,32 @@ if ( N_tags(extra) GT 0 ) then begin
 					if (data_modification EQ 'none') then begin
 						data_modification='constant'
 						data_modification_prefix='C'
-						
-						; Check if this is an additional species not known yet
-						species=strupcase(strmid(tags[i],1))
-						
-						dummy=WHERE(camx_specs EQ species,count)
-						
-						if (count EQ 0) then begin
-							print,"Treating additional constant species ",species
-							nspec=nspec + 1
-							
-							; Add species to list
-							camx_specs_new=strarr(nspec)
-							camx_specs_new[0:nspec-2]=camx_specs
-							camx_specs_new[nspec-1]=species
-							
-						endif
-						
+
 					endif else begin
 						if (data_modification EQ 'increment' || data_modification EQ 'test' ) then begin
 							message,"You cannot use constant or test and increment together!"
 						endif
 					endelse
+					
+					; Check if this is an additional species not known yet
+					species=strupcase(strmid(tags[i],1))
+					
+					stop
+					
+					dummy=WHERE(camx_specs EQ species,count)
+					
+					if (count EQ 0) then begin
+						print,"Treating additional constant species ",species
+						nspec=nspec + 1
+						
+						; Add species to list
+						camx_specs_new=strarr(nspec)
+						camx_specs_new[0:nspec-2]=camx_specs
+						camx_specs_new[nspec-1]=species
+						
+					endif
+					
+					
 				  end
 				  
 				'T' : begin
