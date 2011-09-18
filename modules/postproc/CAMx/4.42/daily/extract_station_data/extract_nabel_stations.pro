@@ -46,7 +46,7 @@ print,my_revision_arr[1] + ' has revision ' + my_revision_arr[2]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; if a species is in here, its treated as a gas
-gasses=['NO','NO2','O3','TOL','XYL','FORM','PAN','HONO','HNO3','H2O2','ISOP','PNA','SO2','NH3']
+gasses=['NO','NO2','O3','TOL','XYL','FORM','PAN','HONO','HNO3','H2O2','ISOP','PNA','SO2','NH3','TERP', 'SULF']
 
 ppm2ppb=1000.
 
