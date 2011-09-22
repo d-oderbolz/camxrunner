@@ -1324,17 +1324,7 @@ function common.task.controller()
 		
 		# Detect Lockup (all workers are waiting)
 		common.task.detectLockup
-		
-		# Look at system load
-		ReaLoad=$(common.performance.getReaLoadPercent)
-		
-		if [[ $ReaLoad -gt $CXR_LOAD_WARN_THRESHOLD ]]
-		then
-			# TODO: Safely remove a sleeping worker before it wakes up
-			# when a worker gets status CXR_STATUS_KILLED, it will remove itself
-			main.log -w "Controller: ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
-		fi
-		
+
 		if [[ $(common.task.countMyRunningWorkers) -lt $CXR_MAX_PARALLEL_PROCS ]]
 		then
 			main.log -w "Controller: Somehow, less than $CXR_MAX_PARALLEL_PROCS workers are alive! (maybe some have not started yet)"
@@ -1347,6 +1337,16 @@ function common.task.controller()
 		if [[ $i -eq 0 ]]
 		then
 			common.performance.reportEta
+			
+			# Look at system load
+			ReaLoad=$(common.performance.getReaLoadPercent)
+		
+			if [[ $ReaLoad -gt $CXR_LOAD_WARN_THRESHOLD ]]
+			then
+				# TODO: Safely remove a sleeping worker before it wakes up
+				# when a worker gets status CXR_STATUS_KILLED, it will remove itself
+				main.log -w "Controller: ReaLoad exceeds $CXR_LOAD_WARN_THRESHOLD %!"
+			fi
 		fi
 		
 		task_count=$(common.task.countOpenTasks)

@@ -280,7 +280,7 @@ CXR_WAITING_SLEEP_SECONDS=10
 
 # When CXR_REPORT_INTERVAL * CXR_WAITING_SLEEP_SECONDS seconds have elapsed, 
 # we report the Estimated Time of arrival
-CXR_REPORT_INTERVAL=10
+CXR_REPORT_INTERVAL=60
 
 # This time in seconds is waited in each wait iteration for a lock
 CXR_LOCK_SLEEP_SECONDS=0.01
