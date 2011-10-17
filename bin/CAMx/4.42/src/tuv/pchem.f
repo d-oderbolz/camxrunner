@@ -73,17 +73,18 @@ cgy modified for camx by greg yarwood, see comments below
 * local:
       REAL wc(kw), wu(kw)
       CHARACTER*7 sapver
-      INTEGER iw, isap, nsap, nsap99, ncl, ncb2002, niu, icl
-      parameter (nsap=23, nsap99=26, ncl=3, ncb2002=12, niu=11)
+      INTEGER iw, isap, nsap, nsap99, ncl, ncb2002, niu, ncb6, icl
+      parameter (nsap=23, nsap99=26, ncl=3, ncb2002=12, niu=11, ncb6=23)
       character*12, saprc97(nsap), saprc99(nsap99)
       character*12, clreac(ncl), cb2002(ncb2002)
       character*12, iupac04(niu), namsig, namphi
-      data saprc97    /'ACET-93C.PHF', 'ACROLEIN.PHF', 'AFG1.PHF    ',
-     & 'AFG2.PHF    ', 'BZCHO.PHF   ', 'CCHOR.PHF   ', 'CO2H.PHF    ',
-     & 'GLYOXAL1.PHF', 'GLYOXAL2.PHF', 'H2O2.PHF    ', 'HCHONEWM.PHF',
-     & 'HCHONEWR.PHF', 'HONO.PHF    ', 'ISPD.PHF    ', 'KETONE.PHF  ',
-     & 'MEGLYOX1.PHF', 'MEGLYOX2.PHF', 'NO2.PHF     ', 'NO3NO.PHF   ',
-     & 'NO3NO2.PHF  ', 'O3O1D.PHF   ', 'O3O3P.PHF   ', 'RCHO.PHF    '/
+      character*12  cb6(ncb6)
+!      data saprc97    /'ACET-93C.PHF', 'ACROLEIN.PHF', 'AFG1.PHF    ',
+!     & 'AFG2.PHF    ', 'BZCHO.PHF   ', 'CCHOR.PHF   ', 'CO2H.PHF    ',
+!     & 'GLYOXAL1.PHF', 'GLYOXAL2.PHF', 'H2O2.PHF    ', 'HCHONEWM.PHF',
+!     & 'HCHONEWR.PHF', 'HONO.PHF    ', 'ISPD.PHF    ', 'KETONE.PHF  ',
+!     & 'MEGLYOX1.PHF', 'MEGLYOX2.PHF', 'NO2.PHF     ', 'NO3NO.PHF   ',
+!     & 'NO3NO2.PHF  ', 'O3O1D.PHF   ', 'O3O3P.PHF   ', 'RCHO.PHF    '/
       data saprc99    /'ACETONE.PHF ', 'ACROLEIN.PHF', 'BACL_ADJ.PHF',
      & 'BZCHO.PHF   ', 'C2CHO.PHF   ', 'CCHO_R.PHF  ', 'COOH.PHF    ',
      & 'GLY_ABS.PHF ', 'GLY_R.PHF   ', 'H2O2.PHF    ', 'HCHO_M.PHF  ',
@@ -92,14 +93,23 @@ cgy modified for camx by greg yarwood, see comments below
      & 'MGLY_ADJ.PHF', 'NO2.PHF     ', 'NO3NO.PHF   ', 'NO3NO2.PHF  ',
      & 'O3O1D.PHF   ', 'O3O3P.PHF   ', 'ISPD.PHF    '/
       data clreac     /'Cl2.txt     ', 'HOCl.txt    ', 'HCOCl.txt   '/
-      data cb2002     /'Acro.cqy    ', 'H2o2.cqy    ', 'Hono_no2.cqy',
-     & 'No2.cqy     ', 'No3no.cqy   ', 'O3o3p.cqy   ', 'Ccho.cqy    ',
-     & 'Hchos.cqy   ', 'Hchor.cqy   ', 'Hono_no.cqy ', 'No3no2.cqy  ',
-     & 'O3o1d.cqy   '/
+!      data cb2002     /'Acro.cqy    ', 'H2o2.cqy    ', 'Hono_no2.cqy',
+!     & 'No2.cqy     ', 'No3no.cqy   ', 'O3o3p.cqy   ', 'Ccho.cqy    ',
+!     & 'Hchos.cqy   ', 'Hchor.cqy   ', 'Hono_no.cqy ', 'No3no2.cqy  ',
+!     & 'O3o1d.cqy   '/
       data iupac04    /'O3_O1D.phf  ', 'O3_O3P.phf  ', 'HCHO_H.phf  ',
      &                 'HCHO_H2.phf ', 'HONO.phf    ', 'HO2NO2.phf  ',
      &                 'HNO3.phf    ', 'N2O5.phf    ', 'NTR.phf     ',
      &                 'PAN.phf     ', 'MGLY.phf    '/
+      data cb6        /'NO2.PHF     ', 'O3O3P.PHF   ', 'O3O1D.PHF   ',
+     &                 'H2O2.PHF    ', 'NO3_NO2.PHF ', 'NO3_NO.PHF  ',
+     &                 'N2O5.PHF    ', 'HONO.PHF    ', 'HNO3.PHF    ',
+     &                 'PNA.PHF     ', 'PAN.PHF     ', 'MEPX.PHF    ',
+     &                 'NTR.PHF     ', 'FORM_R.PHF  ', 'FORM_M.PHF  ',
+     &                 'ALD2_R.PHF  ', 'ALDX_R.PHF  ', 'KET.PHF     ',
+     &                 'ACET.PHF    ', 'ISPD.PHF    ', 'GLYD.PHF    ',
+     &                 'GLY_R.PHF   ', 'MGLY.PHF    ' /
+
 *_______________________________________________________________________
 
 * complete wavelength grid
@@ -261,12 +271,12 @@ cgy
 C ISPD + hv -> Products
       CALL r99(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel)
 
-c SAPRC97 mechanism
-      sapver = 'SAPRC97'
-      do isap=1,nsap
-        CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
-     &            saprc97(isap),sapver)
-      enddo
+!c SAPRC97 mechanism
+!      sapver = 'SAPRC97'
+!      do isap=1,nsap
+!        CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
+!     &            saprc97(isap),sapver)
+!      enddo
 
 c SAPRC99 mechanism
       sapver = 'SAPRC99'
@@ -280,12 +290,12 @@ c Chlorine mechanism
         CALL rcl(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,clreac(icl))
       enddo
 
-c CB_2002 mechanism
-      sapver = 'CB_2002'
-      do isap=1,ncb2002
-        CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
-     &            cb2002(isap),sapver)
-      enddo
+!c CB_2002 mechanism
+!      sapver = 'CB_2002'
+!      do isap=1,ncb2002
+!        CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
+!     &            cb2002(isap),sapver)
+!      enddo
 
 c IUPAC 2002 data
 
@@ -334,6 +344,13 @@ c use rsap to calculate rates from re-binned IUPAC data
       do isap=1,niu
         CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
      &            iupac04(isap),sapver)
+      enddo
+
+c CB6 mechanism
+      sapver = 'CB6'
+      do isap=1,ncb6
+        CALL rsap(nw,wl,wc,nz,tlev,airlev,j,sq,jlabel,
+     &            cb6(isap),sapver)
       enddo
 
 cgy

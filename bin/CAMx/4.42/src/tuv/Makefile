@@ -49,7 +49,7 @@ FOBJS = addpnt.o zero1.o zero2.o inter1.o inter2.o inter3.o inter4.o fsum.o     
         futr.o fery.o fchap.o zenith.o sundis.o refrac.o
 
 # Setings for pgf77
-FCFLGS = -Kieee -Bstatic 
+FCFLGS = -Kieee -Bstatic_pgi 
 
 all:    tuv tuvcompr
 

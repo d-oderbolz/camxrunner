@@ -8548,7 +8548,7 @@ c --- increment the weighting function counter (j)
 c
       j = j+1
       jlabel(j) = sapvrs//': '//rname
-      fname='DATAJ1/'//sapvrs//'/'//rname
+      fname='DATAJ1/'//trim(sapvrs)//'/'//rname
       if (idb.eq.1) write(*,'(a,a2,a,a)') 'Reading '//sapvrs//
      &                                    ' file: ', fname
       iloc=1
@@ -8641,7 +8641,7 @@ c
 c
       return
 c
- 999  write(*,*) 'Fatal error reading SAPRC data file:'
+ 999  write(*,*) 'Fatal error reading '//sapvrs//' data file:'
       write(*,*) fname
       write(*,*) 'at location = ', iloc , ' look for iloc in rn.f'
       stop

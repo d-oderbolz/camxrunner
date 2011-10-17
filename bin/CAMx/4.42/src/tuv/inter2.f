@@ -75,7 +75,7 @@
       DO 10, i = 2, n
          IF (x(i) .LE. x(i-1)) THEN
             ierr = 1
-            WRITE(*,*)'data not sorted'
+            WRITE(*,*)'data not sorted',i,x(i),x(i-1)
             RETURN
          ENDIF
    10 CONTINUE     
