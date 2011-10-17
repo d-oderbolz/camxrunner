@@ -1,0 +1,1 @@
+../../4.42/daily/extract_station_data.bin.sh
