@@ -662,7 +662,7 @@ function write_model_control_file()
 	
 	echo " HDF_Format_Output         = .${CXR_HDF_FORMAT_OUTPUT}.," >> ${CXR_MODEL_CTRL_FILE}
 	
-	if [[${CXR_HDF_FORMAT_OUTPUT} == true ]]
+	if [[ ${CXR_HDF_FORMAT_OUTPUT} == true ]]
 	then
 		echo " HDF_File_Root          = .${CXR_HDF_FILE_ROOT}.," >> ${CXR_MODEL_CTRL_FILE}
 	fi 
