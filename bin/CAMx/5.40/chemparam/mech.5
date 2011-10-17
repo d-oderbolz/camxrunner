@@ -1,0 +1,331 @@
+  1  NO2                          =       1 NO          1 O      
+  2  O        O2       M          =       1 O3          1 M      
+  3  O        O3                  =       2 O2     
+  4  O        NO       M          =       1 NO2         1 M      
+  5  O        NO2                 =       1 NO          1 O2     
+  6  O        NO2                 =       1 NO3    
+  7  O3       NO                  =       1 NO2         1 O2     
+  8  O3       NO2                 =       1 O2          1 NO3    
+  9  NO       NO3                 =       2 NO2    
+ 10  NO       NO       O2         =       2 NO2    
+ 11  NO2      NO3                 =       1 N2O5   
+ 12  N2O5                         =       1 NO2         1 NO3    
+ 13  N2O5     H2O                 =       2 HNO3   
+ 14  NO2      NO3                 =       1 NO          1 NO2         1 O2     
+ 15  NO3                          =       1 NO          1 O2     
+ 16  NO3                          =       1 NO2         1 O      
+ 17  O3                           =       1 O           1 O2     
+ 18  O3                           =       1 O1D         1 O2     
+ 19  O1D      H2O                 =       2 OH     
+ 20  O1D      M                   =       1 O           1 M      
+ 21  OH       NO                  =       1 HONO   
+ 22  HONO                         =       1 OH          1 NO     
+ 23  HONO                         =       1 HO2         1 NO2    
+ 24  OH       HONO                =       1 NO2    
+ 25  OH       NO2                 =       1 HNO3   
+ 26  OH       NO3                 =       1 HO2         1 NO2    
+ 27  OH       HNO3                =       1 NO3         1 H2O    
+ 28  HNO3                         =       1 OH          1 NO2    
+ 29  OH       CO                  =       1 HO2    
+ 30  OH       O3                  =       1 HO2    
+ 31  HO2      NO                  =       1 OH          1 NO2    
+ 32  HO2      NO2                 =       1 HNO4   
+ 33  HNO4                         =       1 HO2         1 NO2    
+ 34  HNO4                         =    0.61 HO2      0.61 NO2      0.39 OH     
+                                       0.39 NO3    
+ 35  HNO4     OH                  =       1 NO2    
+ 36  HO2      O3                  =       1 OH     
+ 37  HO2      HO2                 =       1 HO2H        1 O2     
+ 38  HO2      HO2      H2O        =       1 HO2H        1 O2          1 H2O    
+ 39  NO3      HO2                 =     0.8 OH        0.8 NO2       0.2 HNO3   
+ 40  NO3      NO3                 =       2 NO2         1 O2     
+ 41  HO2H                         =       2 OH     
+ 42  HO2H     OH                  =       1 HO2    
+ 43  OH       HO2                 =  
+ 44  OH       SO2                 =       1 HO2         1 SULF   
+ 45  OH       H2                  =       1 HO2    
+ 46  CXO2     NO                  =       1 NO2         1 HCHO        1 HO2    
+ 47  CXO2     HO2                 =       1 COOH        1 O2     
+ 48  CXO2     NO3                 =       1 HCHO        1 HO2         1 NO2    
+ 49  CXO2     CXO2                =       1 MEOH        1 HCHO        1 O2     
+ 50  CXO2     CXO2                =       2 HCHO        2 HO2    
+ 51  RO2R     NO                  =       1 NO2         1 HO2    
+ 52  RO2R     HO2                 =       1 ROOH   
+ 53  RO2R     NO3                 =       1 NO2         1 O2          1 HO2    
+ 54  RO2R     CXO2                =       1 HO2      0.75 HCHO     0.25 MEOH   
+ 55  RO2R     RO2R                =       1 HO2    
+ 56  R2O2     NO                  =       1 NO2    
+ 57  R2O2     HO2                 =       1 HO2    
+ 58  R2O2     NO3                 =       1 NO2    
+ 59  R2O2     CXO2                =       1 CXO2   
+ 60  R2O2     RO2R                =       1 RO2R   
+ 61  R2O2     R2O2                =  
+ 62  RO2N     NO                  =       1 RNO3   
+ 63  RO2N     HO2                 =       1 ROOH   
+ 64  RO2N     CXO2                =       1 HO2      0.25 MEOH      0.5 MEK    
+                                        0.5 PROD     0.75 HCHO   
+ 65  RO2N     NO3                 =       1 NO2         1 O2          1 HO2    
+                                          1 MEK    
+ 66  RO2N     RO2R                =       1 HO2       0.5 MEK       0.5 PROD   
+ 67  RO2N     R2O2                =       1 RO2N   
+ 68  RO2N     RO2N                =       1 MEK         1 HO2         1 PROD   
+ 69  CCO3     NO2                 =       1 PAN    
+ 70  PAN                          =       1 CCO3        1 NO2    
+ 71  CCO3     NO                  =       1 CXO2        1 NO2    
+ 72  CCO3     HO2                 =    0.75 CO3H     0.25 CO2H     0.25 O3     
+ 73  CCO3     NO3                 =       1 CXO2        1 NO2    
+ 74  CCO3     CXO2                =       1 CO2H        1 HCHO   
+ 75  CCO3     RO2R                =       1 CO2H   
+ 76  CCO3     R2O2                =       1 CCO3   
+ 77  CCO3     RO2N                =       1 CO2H        1 PROD   
+ 78  CCO3     CCO3                =       2 CXO2   
+ 79  RCO3     NO2                 =       1 PAN2   
+ 80  PAN2                         =       1 RCO3        1 NO2    
+ 81  RCO3     NO                  =       1 NO2         1 CCHO        1 RO2R   
+ 82  RCO3     HO2                 =    0.75 RC3H     0.25 RC2H     0.25 O3     
+ 83  RCO3     NO3                 =       1 NO2         1 CCHO        1 RO2R   
+ 84  RCO3     CXO2                =       1 RC2H        1 HCHO   
+ 85  RCO3     RO2R                =       1 RC2H   
+ 86  RCO3     R2O2                =       1 RCO3   
+ 87  RCO3     RO2N                =       1 RC2H        1 PROD   
+ 88  RCO3     CCO3                =       1 CXO2        1 CCHO        1 RO2R   
+ 89  RCO3     RCO3                =       2 CCHO        2 RO2R   
+ 90  BZCO     NO2                 =       1 PBZN   
+ 91  PBZN                         =       1 BZCO        1 NO2    
+ 92  BZCO     NO                  =       1 NO2         1 BZO         1 R2O2   
+ 93  BZCO     HO2                 =    0.75 RC3H     0.25 RC2H     0.25 O3     
+ 94  BZCO     NO3                 =       1 NO2         1 BZO         1 R2O2   
+ 95  BZCO     CXO2                =       1 RC2H        1 HCHO   
+ 96  BZCO     RO2R                =       1 RC2H   
+ 97  BZCO     R2O2                =       1 BZCO   
+ 98  BZCO     RO2N                =       1 RC2H        1 PROD   
+ 99  BZCO     CCO3                =       1 CXO2        1 BZO         1 R2O2   
+100  BZCO     RCO3                =       1 CCHO        1 RO2R        1 BZO    
+                                          1 R2O2   
+101  BZCO     BZCO                =       2 BZO         2 R2O2   
+102  MCO3     NO2                 =       1 MPAN   
+103  MPAN                         =       1 MCO3        1 NO2    
+104  MCO3     NO                  =       1 NO2         1 HCHO        1 CCO3   
+105  MCO3     HO2                 =    0.75 RC3H     0.25 RC2H     0.25 O3     
+106  MCO3     NO3                 =       1 NO2         1 HCHO        1 CCO3   
+107  MCO3     CXO2                =       1 RC2H        1 HCHO   
+108  MCO3     RO2R                =       1 RC2H   
+109  MCO3     R2O2                =       1 MCO3   
+110  MCO3     RO2N                =       2 RC2H   
+111  MCO3     CCO3                =       1 CXO2        1 HCHO        1 CCO3   
+112  MCO3     RCO3                =       1 HCHO        1 CCO3        1 CCHO   
+                                          1 RO2R   
+113  MCO3     BZCO                =       1 HCHO        1 CCO3        1 BZO    
+                                          1 R2O2   
+114  MCO3     MCO3                =       2 HCHO        2 CCO3   
+115  TBUO     NO2                 =       1 RNO3   
+116  TBUO                         =       1 ACET        1 CXO2   
+117  BZO      NO2                 =       1 NPHE   
+118  BZO      HO2                 =       1 PHEN   
+119  BZO                          =       1 PHEN   
+120  BZNO     NO2                 =       2 XN     
+121  BZNO     HO2                 =       1 NPHE   
+122  BZNO                         =       1 NPHE   
+123  HCHO                         =       2 HO2         1 CO     
+124  HCHO                         =       1 CO     
+125  HCHO     OH                  =       1 HO2         1 CO     
+126  HCHO     HO2                 =       1 HCO3   
+127  HCO3                         =       1 HO2         1 HCHO   
+128  HCO3     NO                  =       1 HC2H        1 NO2         1 HO2    
+129  HCHO     NO3                 =       1 HNO3        1 HO2         1 CO     
+130  CCHO     OH                  =       1 CCO3   
+131  CCHO                         =       1 CO          1 HO2         1 CXO2   
+132  CCHO     NO3                 =       1 HNO3        1 CCO3   
+133  RCHO     OH                  =   0.034 RO2R    0.001 RO2N    0.965 RCO3   
+                                      0.034 CO      0.034 CCHO   
+134  RCHO                         =       1 CCHO        1 RO2R        1 CO     
+                                          1 HO2    
+135  RCHO     NO3                 =       1 HNO3        1 RCO3   
+136  ACET     OH                  =       1 HCHO        1 CCO3        1 R2O2   
+137  ACET                         =       1 CCO3        1 CXO2   
+138  MEK      OH                  =    0.37 RO2R    0.042 RO2N    0.616 R2O2   
+                                      0.492 CCO3    0.096 RCO3    0.115 HCHO   
+                                      0.482 CCHO     0.37 RCHO   
+139  MEK                          =       1 CCO3        1 CCHO        1 RO2R   
+140  MEOH     OH                  =       1 HCHO        1 HO2    
+141  COOH     OH                  =    0.35 HCHO     0.35 OH       0.65 CXO2   
+142  COOH                         =       1 HCHO        1 HO2         1 OH     
+143  ROOH     OH                  =       1 RCHO     0.34 RO2R     0.66 OH     
+144  ROOH                         =       1 RCHO        1 HO2         1 OH     
+145  GLY                          =       2 CO          2 HO2    
+146  GLY                          =       1 HCHO        1 CO     
+147  GLY      OH                  =    0.63 HO2      1.26 CO       0.37 RCO3   
+148  GLY      NO3                 =       1 HNO3     0.63 HO2      1.26 CO     
+                                       0.37 RCO3   
+149  MGLY                         =       1 HO2         1 CO          1 CCO3   
+150  MGLY     OH                  =       1 CO          1 CCO3   
+151  MGLY     NO3                 =       1 HNO3        1 CO          1 CCO3   
+152  BACL                         =       2 CCO3   
+153  PHEN     OH                  =    0.24 BZO      0.76 RO2R     0.23 GLY    
+154  PHEN     NO3                 =       1 HNO3        1 BZO    
+155  CRES     OH                  =    0.24 BZO      0.76 RO2R     0.23 MGLY   
+156  CRES     NO3                 =       1 HNO3        1 BZO    
+157  NPHE     NO3                 =       1 HNO3        1 BZNO   
+158  BALD     OH                  =       1 BZCO   
+159  BALD                         =  
+160  BALD     NO3                 =       1 HNO3        1 BZCO   
+161  METH     OH                  =     0.5 RO2R    0.416 CO      0.084 HCHO   
+                                      0.416 MEK     0.084 MGLY      0.5 MCO3   
+162  METH     O3                  =   0.008 HO2       0.1 RO2R    0.208 OH     
+                                        0.1 RCO3     0.45 CO        0.2 HCHO   
+                                        0.9 MGLY    0.333 HC2H   
+163  METH     NO3                 =     0.5 HNO3      0.5 RO2R      0.5 CO     
+                                        0.5 MCO3      0.5 XN     
+164  METH     O                   =       1 RCHO   
+165  METH                         =    0.34 HO2      0.33 RO2R     0.33 OH     
+                                       0.67 CCO3     0.67 CO       0.67 HCHO   
+                                       0.33 MCO3   
+166  MVK      OH                  =     0.3 RO2R    0.025 RO2N    0.675 R2O2   
+                                      0.675 CCO3      0.3 HCHO    0.675 RCHO   
+                                        0.3 MGLY   
+167  MVK      O3                  =   0.064 HO2      0.05 RO2R    0.164 OH     
+                                       0.05 RCO3    0.475 CO        0.1 HCHO   
+                                       0.95 MGLY    0.351 HC2H   
+168  MVK      O                   =    0.45 RCHO     0.55 MEK    
+169  MVK                          =     0.3 CXO2      0.7 CO        0.7 PROD   
+                                        0.3 MCO3   
+170  ISPD     OH                  =    0.67 RO2R    0.041 RO2N    0.289 MCO3   
+                                      0.336 CO      0.055 HCHO    0.129 CCHO   
+                                      0.013 RCHO     0.15 MEK     0.332 PROD   
+                                       0.15 GLY     0.174 MGLY   
+171  ISPD     O3                  =     0.4 HO2     0.048 RO2R    0.048 RCO3   
+                                      0.285 OH      0.498 CO      0.125 HCHO   
+                                      0.047 CCHO     0.21 MEK     0.023 GLY    
+                                      0.742 MGLY      0.1 HC2H    0.372 RC2H   
+172  ISPD     NO3                 =   0.799 RO2R    0.051 RO2N     0.15 MCO3   
+                                      0.572 CO       0.15 HNO3    0.227 HCHO   
+                                      0.218 RCHO    0.008 MGLY    0.572 RNO3   
+                                      0.278 XN     
+173  ISPD                         =   1.233 HO2     0.467 CCO3      0.3 RCO3   
+                                      1.233 CO        0.3 HCHO    0.467 CCHO   
+                                      0.233 MEK    
+174  PROD     OH                  =   0.379 HO2     0.473 RO2R     0.07 RO2N   
+                                      0.029 CCO3    0.049 RCO3    0.213 HCHO   
+                                      0.084 CCHO    0.558 RCHO    0.115 MEK    
+                                      0.329 PROD   
+175  PROD                         =    0.96 RO2R     0.04 RO2N    0.515 R2O2   
+                                      0.667 CCO3    0.333 RCO3    0.506 HCHO   
+                                      0.246 CCHO     0.71 RCHO   
+176  RNO3     OH                  =   0.338 NO2     0.113 HO2     0.376 RO2R   
+                                      0.173 RO2N    0.596 R2O2     0.01 HCHO   
+                                      0.439 CCHO    0.213 RCHO    0.006 ACET   
+                                      0.177 MEK     0.048 PROD     0.31 RNO3   
+                                      0.352 XN     
+177  RNO3                         =       1 NO2     0.341 HO2     0.564 RO2R   
+                                      0.095 RO2N    0.152 R2O2    0.134 HCHO   
+                                      0.431 CCHO    0.147 RCHO     0.02 ACET   
+                                      0.243 MEK     0.435 PROD   
+178  DCB1     OH                  =       1 RCHO        1 RO2R        1 CO     
+179  DCB1     O3                  =     1.5 HO2       0.5 OH        1.5 CO     
+                                          1 GLY    
+180  DCB2     OH                  =       1 R2O2        1 RCHO        1 CCO3   
+181  DCB2                         =       1 RO2R      0.5 CCO3      0.5 HO2    
+                                          1 CO          1 R2O2      0.5 GLY    
+                                        0.5 MGLY   
+182  DCB3     OH                  =       1 R2O2        1 RCHO        1 CCO3   
+183  DCB3                         =       1 RO2R      0.5 CCO3      0.5 HO2    
+                                          1 CO          1 R2O2      0.5 GLY    
+                                        0.5 MGLY   
+184  CH4      OH                  =       1 CXO2   
+185  ETHE     OH                  =       1 RO2R     1.61 HCHO    0.195 CCHO   
+186  ETHE     O3                  =    0.12 OH       0.12 HO2       0.5 CO     
+                                          1 HCHO     0.37 HC2H   
+187  ETHE     NO3                 =       1 RO2R        1 RCHO        1 XN     
+188  ETHE     O                   =     0.5 HO2       0.2 RO2R      0.3 CXO2   
+                                      0.491 CO      0.191 HCHO     0.25 CCHO   
+                                      0.009 GLY    
+189  ISOP     OH                  =   0.907 RO2R    0.093 RO2N    0.079 R2O2   
+                                      0.624 HCHO     0.23 METH     0.32 MVK    
+                                      0.357 ISPD   
+190  ISOP     O3                  =   0.266 OH      0.066 RO2R    0.008 RO2N   
+                                      0.126 R2O2    0.192 MCO3    0.275 CO     
+                                      0.592 HCHO      0.1 PROD     0.39 METH   
+                                       0.16 MVK     0.204 HC2H     0.15 RC2H   
+191  ISOP     NO3                 =   0.187 NO2     0.749 RO2R    0.064 RO2N   
+                                      0.187 R2O2    0.936 ISPD    0.813 RNO3   
+192  ISOP     O                   =    0.01 RO2N     0.24 R2O2     0.25 CXO2   
+                                       0.24 MCO3     0.24 HCHO     0.75 PROD   
+193  TERP     OH                  =    0.75 RO2R     0.25 RO2N      0.5 R2O2   
+                                      0.276 HCHO    0.474 RCHO    0.276 PROD   
+194  TERP     O3                  =   0.567 OH      0.033 HO2     0.031 RO2R   
+                                       0.18 RO2N    0.729 R2O2    0.123 CCO3   
+                                      0.201 RCO3    0.157 CO      0.235 HCHO   
+                                      0.205 RCHO     0.13 ACET    0.276 PROD   
+                                      0.001 GLY     0.031 BACL    0.103 HC2H   
+                                      0.189 RC2H   
+195  TERP     NO3                 =   0.474 NO2     0.276 RO2R     0.25 RO2N   
+                                       0.75 R2O2    0.474 RCHO    0.276 RNO3   
+                                       0.25 XN     
+196  TERP     O                   =   0.147 RCHO    0.853 PROD   
+197  ALK1     OH                  =       1 RO2R        1 CCHO   
+198  ALK2     OH                  =   0.246 OH      0.121 HO2     0.612 RO2R   
+                                      0.021 RO2N     0.16 CO      0.039 HCHO   
+                                      0.155 RCHO    0.417 ACET    0.248 GLY    
+                                      0.121 HC2H   
+199  ALK3     OH                  =   0.695 RO2R     0.07 RO2N    0.559 R2O2   
+                                      0.236 TBUO    0.026 HCHO    0.445 CCHO   
+                                      0.122 RCHO    0.024 ACET    0.332 MEK    
+200  ALK4     OH                  =   0.835 RO2R    0.143 RO2N    0.936 R2O2   
+                                      0.011 CXO2    0.011 CCO3    0.002 CO     
+                                      0.024 HCHO    0.455 CCHO    0.244 RCHO   
+                                      0.452 ACET     0.11 MEK     0.125 PROD   
+201  ALK5     OH                  =   0.653 RO2R    0.347 RO2N    0.948 R2O2   
+                                      0.026 HCHO    0.099 CCHO    0.204 RCHO   
+                                      0.072 ACET    0.089 MEK     0.417 PROD   
+202  ARO1     OH                  =   0.224 HO2     0.765 RO2R    0.011 RO2N   
+                                      0.055 PROD    0.118 GLY     0.119 MGLY   
+                                      0.017 PHEN    0.207 CRES    0.059 BALD   
+                                      0.491 DCB1    0.108 DCB2    0.051 DCB3   
+203  ARO2     OH                  =   0.187 HO2     0.804 RO2R    0.009 RO2N   
+                                      0.097 GLY     0.287 MGLY    0.087 BACL   
+                                      0.187 CRES     0.05 BALD    0.561 DCB1   
+                                      0.099 DCB2    0.093 DCB3   
+204  OLE1     OH                  =    0.91 RO2R     0.09 RO2N    0.205 R2O2   
+                                      0.732 HCHO    0.294 CCHO    0.497 RCHO   
+                                      0.005 ACET    0.119 PROD   
+205  OLE1     O3                  =   0.155 OH      0.056 HO2     0.022 RO2R   
+                                      0.001 RO2N    0.076 CXO2    0.345 CO     
+                                        0.5 HCHO    0.154 CCHO    0.363 RCHO   
+                                      0.001 ACET    0.215 PROD    0.185 HC2H   
+                                       0.05 CO2H    0.119 RC2H   
+206  OLE1     NO3                 =   0.824 RO2R    0.176 RO2N    0.488 R2O2   
+                                      0.009 CCHO    0.037 RCHO    0.024 ACET   
+                                      0.511 RNO3    0.489 XN     
+207  OLE1     O                   =    0.45 RCHO    0.437 MEK     0.113 PROD   
+208  OLE2     OH                  =   0.918 RO2R    0.082 RO2N    0.001 R2O2   
+                                      0.244 HCHO    0.732 CCHO    0.511 RCHO   
+                                      0.127 ACET    0.072 MEK     0.061 BALD   
+                                      0.025 METH    0.025 ISPD   
+209  OLE2     O3                  =   0.378 OH      0.003 HO2     0.033 RO2R   
+                                      0.002 RO2N    0.137 R2O2    0.197 CXO2   
+                                      0.137 CCO3    0.006 RCO3    0.265 CO     
+                                      0.269 HCHO    0.456 CCHO    0.305 RCHO   
+                                      0.045 ACET    0.026 MEK     0.006 PROD   
+                                      0.042 BALD    0.026 METH    0.073 HC2H   
+                                      0.129 CO2H    0.303 RC2H   
+210  OLE2     NO3                 =   0.391 NO2     0.442 RO2R    0.136 RO2N   
+                                      0.711 R2O2     0.03 CXO2    0.079 HCHO   
+                                      0.507 CCHO    0.151 RCHO    0.102 ACET   
+                                      0.001 MEK     0.015 BALD    0.048 MVK    
+                                      0.321 RNO3    0.288 XN     
+211  OLE2     O                   =   0.013 HO2     0.012 RO2R    0.001 RO2N   
+                                      0.012 CO      0.069 RCHO    0.659 MEK    
+                                      0.259 PROD    0.012 METH   
+212  ETOH     OH                  =    0.05 RO2R     0.95 HO2     0.081 HCHO   
+                                       0.96 CCHO   
+213  MTBE     OH                  =   0.743 RO2R    0.078 RO2N    0.381 R2O2   
+                                      0.162 CXO2    0.016 TBUO    0.234 HCHO   
+                                      0.024 ACET    0.719 MEK     0.007 PROD   
+214  MBUT     OH                  =   0.935 RO2R    0.065 RO2N    0.311 HCHO   
+                                      0.624 CCHO    0.311 RCHO    0.624 ACET   
+215  MBUT     O3                  =   0.099 OH      0.099 HO2     0.365 CO     
+                                        0.3 HCHO      0.7 RCHO    0.015 ACET   
+                                      0.259 HC2H    0.285 RC2H   
+216  MBUT     NO3                 =   0.935 RO2R    0.065 RO2N    0.935 RCHO   
+                                      0.934 ACET        1 RNO3   
+217  MBUT     O                   =    0.45 RCHO     0.55 MEK    
