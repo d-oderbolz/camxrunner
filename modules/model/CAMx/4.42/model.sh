@@ -620,9 +620,17 @@ function write_model_control_file()
 	else
 		# Different drydep models starting with 5.30
 		echo " Drydep_Model           = '${CXR_DRYDEP_MODEL}'," >> ${CXR_MODEL_CTRL_FILE}
-		# Option for photolyisi rate correction
+		# Option for photolysis rate correction
 		echo " TUV_Cloud_Adjust       = .${CXR_TUV_CLOUD_ADJUST}.," >> ${CXR_MODEL_CTRL_FILE}
+		
+		# Starting with CAMx 5.40, we also have the option to adjust the Photolysis for Aerosols
+		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -lt 1 ]]
+		then
+			echo " TUV_Aero_Adjust       = .${CXR_TUV_AERO_ADJUST}.," >> ${CXR_MODEL_CTRL_FILE}
+		fi # Version  larger >= 5.4
 	fi
+	
+	
 
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
 	
@@ -643,8 +651,22 @@ function write_model_control_file()
 	echo "!--- Output specifications ---" >> ${CXR_MODEL_CTRL_FILE} 
 	echo "" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Root_Output_Name          = '${CXR_ROOT_OUTPUT}'," >> ${CXR_MODEL_CTRL_FILE} 
-	echo " Average_Output_3D         = .${CXR_AVERAGE_OUTPUT_3D}.," >> ${CXR_MODEL_CTRL_FILE} 
-	echo " HDF_Format_Output         = .${CXR_HDF_FORMAT_OUTPUT}.," >> ${CXR_MODEL_CTRL_FILE} 
+	
+	# For some reason, this parameter changed its name with CAMx 5.40
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -eq 1 ]]
+	then
+		echo " Average_Output_3D         = .${CXR_AVERAGE_OUTPUT_3D}.," >> ${CXR_MODEL_CTRL_FILE}
+	else
+		echo " Output_3D_Grid            = .${CXR_AVERAGE_OUTPUT_3D}.," >> ${CXR_MODEL_CTRL_FILE}
+	fi
+	
+	echo " HDF_Format_Output         = .${CXR_HDF_FORMAT_OUTPUT}.," >> ${CXR_MODEL_CTRL_FILE}
+	
+	if [[${CXR_HDF_FORMAT_OUTPUT} == true ]]
+	then
+		echo " HDF_File_Root          = .${CXR_HDF_FILE_ROOT}.," >> ${CXR_MODEL_CTRL_FILE}
+	fi 
+	
 	echo " Number_of_Output_Species  = ${CXR_NUMBER_OF_OUTPUT_SPECIES}," >> ${CXR_MODEL_CTRL_FILE}
 	
 	
