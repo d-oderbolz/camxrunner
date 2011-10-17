@@ -761,7 +761,7 @@ CXR_SUPPORTED_MODELS="CAMx PMCAMx"
 #                           Model 1 ...
 
 # Supported CAMx Versions (space separated)
-CXR_SUPPORTED_MODEL_VERSIONS[0]="4.42 4.51 5.10 5.20.1 5.30"
+CXR_SUPPORTED_MODEL_VERSIONS[0]="4.42 4.51 5.10 5.20.1 5.30 5.40"
 CXR_SUPPORTED_MODEL_VERSIONS[1]="2008"
 
 # Comma separated list of subdirectories which must be in $CXR_RUN_DIR
