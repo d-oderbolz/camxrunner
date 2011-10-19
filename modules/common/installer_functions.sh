@@ -116,7 +116,7 @@ function common.install.init()
 	
 	message="Do you want to run the installer for the CAMxRunner, some converters, model and the testcase?"
 
-	while [ "$(common.user.getOK "$message" )" == true ]
+	while [[ "$(common.user.getOK "$message" )" == true ]]
 	do
 		# Fix the message
 		message="Do you want to further run the installer for the CAMxRunner, some converters, model and the testcase (for other models/versions)?"
