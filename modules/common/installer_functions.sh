@@ -183,7 +183,6 @@ function common.install.getPatchTarget()
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
 	# +++ /path/to/new some other stuff might be here
-	# I know I spawn 2 procs here...
 	file=$(basename $(grep -h '+++' "$patch" | head -n1 | cut -f2 -d' '))
 	
 	if [[ "$file"  ]]
