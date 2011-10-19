@@ -33,7 +33,7 @@
 
 # the predicate "-<n>" refers to some previous model day, so ${CXR_TYPE_MODEL}-1 means that all model modules of the previous day must be successful before this module may run. 
 
-CXR_META_MODULE_DEPENDS_ON="create_emissions"
+CXR_META_MODULE_DEPENDS_ON="convert_emissions"
 
 # Also for the management of parallel tasks
 # If this is true, no new tasks will be given out as long as this runs
@@ -41,7 +41,7 @@ CXR_META_MODULE_DEPENDS_ON="create_emissions"
 CXR_META_MODULE_RUN_EXCLUSIVELY=false
 
 # Add description of what it does (in "", use \n for newline)
-CXR_META_MODULE_DESCRIPTION="Runs the program emifad, which creates emission direct access files for aqm, a PSI/LAC visualisation tool\nNot portable!"
+CXR_META_MODULE_DESCRIPTION="Runs the program emifad on binary emission data, which creates emission direct access files for aqm, a PSI/LAC visualisation tool\nNot portable!"
 
 # Either "${CXR_TYPE_COMMON}", "${CXR_TYPE_PREPROCESS_ONCE}", "${CXR_TYPE_PREPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_DAILY}","${CXR_TYPE_POSTPROCESS_ONCE}", "${CXR_TYPE_MODEL}" or "${CXR_TYPE_INSTALLER}"
 CXR_META_MODULE_TYPE="${CXR_TYPE_PREPROCESS_DAILY}"
@@ -152,13 +152,13 @@ function set_variables()
 	ln -s -t $emifad_dir $CXR_TERRAIN_GRID_ASC_INPUT_FILE 
 	
 	# Emissions
-	CXR_EMISSION_GRID_ASC_INPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_ASC_FILE_RULE" false CXR_EMISSION_ASC_FILE_RULE)
+	CXR_EMISSION_GRID_INPUT_FILE=$(common.runner.evaluateRule "$CXR_EMISSION_FILE_RULE" false CXR_EMISSION_FILE_RULE)
 	# Create link
-	ln -s -t $emifad_dir $CXR_EMISSION_GRID_ASC_INPUT_FILE 
+	ln -s -t $emifad_dir $CXR_EMISSION_GRID_INPUT_FILE 
 	
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$emifad_dir/$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) \
-							$emifad_dir/$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE})"
+							$emifad_dir/$(basename ${CXR_EMISSION_GRID_INPUT_FILE})"
 
 
 	# The outputfile checks cannot be formulated using rules yet...
@@ -166,7 +166,7 @@ function set_variables()
 	# ~/@direct/camx-v4.51-bafu3-june-2006-s147-sem302-1only.20060621.avrg.grd01.asc_01 ...
 	for hour in $(seq 1 24)
 	do
-	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIRECT_OUTPUT_DIR/$(common.string.toLower $(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}))_$(common.string.leftPadZero $hour 2)"
+	CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $CXR_DIRECT_OUTPUT_DIR/$(common.string.toLower $(basename ${CXR_EMISSION_GRID_INPUT_FILE}))_$(common.string.leftPadZero $hour 2)"
 	done
 }
 
@@ -229,12 +229,12 @@ function run_emifad()
 		
 		ls -la
 		
-		main.log -a "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
+		main.log -a "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
 
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			# Call emifad while collecting only stderr
-			${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_ASC_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
+			${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
 		else
 			main.log "This is a dryrun, no action required"
 		fi
