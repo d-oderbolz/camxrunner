@@ -45,7 +45,7 @@ NRUF|I||CXR_NRUF
 NHGHT|I||CXR_NHGHT
 NZEN|I||CXR_NZEN
 
-MXSPEC|I|What is the number of simulated species?|100
+MXSPEC|I|What is the number of simulated species?|120
 TEMPLO|I|What is the minimum temperature for chemical reactions?|200.
 TEMPHI|I|What is the maximum temperature for chemical reactions?|320.
 PRESLO|I|What is the minimum pressure for chemical reactions?|100.0
