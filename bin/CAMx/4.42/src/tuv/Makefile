@@ -20,8 +20,9 @@
 
 # Compiler
 ifeq ($(strip $(FC)),)
-FC=pgf77
+FC=pgf90
 endif
+
 
 ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
