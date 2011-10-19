@@ -147,7 +147,7 @@ function common.install.init()
 		
 		common.check.isVersionSupported? $CXR_MODEL_VERSION $CXR_MODEL
 		
-		main.log  "Installing system for $CXR_MODEL $CXR_MODEL_VERSION..."
+		main.log -a "Installing system for $CXR_MODEL $CXR_MODEL_VERSION..."
 		
 		# reload config for this version (the run is called "installer")
 		main.readConfig "installer" "$CXR_MODEL" "$CXR_MODEL_VERSION" "$CXR_RUN_DIR"
