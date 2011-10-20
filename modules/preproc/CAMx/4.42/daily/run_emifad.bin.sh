@@ -229,12 +229,12 @@ function run_emifad()
 		
 		ls -la
 		
-		main.log -a "${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
+		main.log -a "${CXR_EMIFAD_EXEC} dir_direct=$CXR_DIRECT_OUTPUT_DIR fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE})"
 
 		if [[ "$CXR_DRY" == false  ]]
 		then
 			# Call emifad while collecting only stderr
-			${CXR_EMIFAD_EXEC} fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
+			${CXR_EMIFAD_EXEC} dir_direct=$CXR_DIRECT_OUTPUT_DIR fi_emi=$(basename ${CXR_EMISSION_GRID_INPUT_FILE}) fi_terrain=$(basename ${CXR_TERRAIN_GRID_ASC_INPUT_FILE}) 2>> $CXR_LOG
 		else
 			main.log "This is a dryrun, no action required"
 		fi
