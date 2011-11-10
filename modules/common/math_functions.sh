@@ -44,7 +44,8 @@ CXR_META_MODULE_VERSION='$Id$'
 #
 # Compares two numerical version strings of the form 1.2.11... (any depth)
 # with each other. The comparison is done hierarchically until a decision is reached,
-# so 4.4.40 is smaller than 4.5
+# so 4.4.40 is smaller than 4.5.
+# Make sure to add trainling zeros when comparing, 5.30 is larger than 5.4
 #
 # Returns:
 # - -1 if version 1 is larger than version 2

@@ -614,7 +614,7 @@ function write_model_control_file()
 	echo " Probing_Tool           = '${CXR_PROBING_TOOL}',     ! (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC,HDDM(5.x))" >> ${CXR_MODEL_CTRL_FILE} 
 	echo " Chemistry              = .${CXR_CHEMISTRY}.," >> ${CXR_MODEL_CTRL_FILE}
 	
-	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.3" )" -eq 1 ]]
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.30" )" -eq 1 ]]
 	then
 		# Smaller than 5.30
 		echo " Dry_Deposition         = .${CXR_DRY_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE}
@@ -625,7 +625,7 @@ function write_model_control_file()
 		echo " TUV_Cloud_Adjust       = .${CXR_TUV_CLOUD_ADJUST}.," >> ${CXR_MODEL_CTRL_FILE}
 		
 		# Starting with CAMx 5.40, we also have the option to adjust the Photolysis for Aerosols
-		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -lt 1 ]]
+		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.40" )" -ne 1 ]]
 		then
 			echo " TUV_Aero_Adjust       = .${CXR_TUV_AERO_ADJUST:-false}.," >> ${CXR_MODEL_CTRL_FILE}
 		fi # Version >= 5.4
@@ -654,7 +654,7 @@ function write_model_control_file()
 	echo " Root_Output_Name          = '${CXR_ROOT_OUTPUT}'," >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# For some reason, this parameter changed its name with CAMx 5.40
-	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -eq 1 ]]
+	if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.40" )" -eq 1 ]]
 	then
 		echo " Average_Output_3D         = .${CXR_AVERAGE_OUTPUT_3D}.," >> ${CXR_MODEL_CTRL_FILE}
 	else
