@@ -47,9 +47,9 @@ CXR_META_MODULE_VERSION='$Id$'
 # so 4.4.40 is smaller than 4.5
 #
 # Returns:
-# - -1 if version 1 is higher than version 2
+# - -1 if version 1 is larger than version 2
 # - 0 if they are the same or on error
-# - +1 if version 2 is higher than version 1
+# - +1 if version 1 is smaller than version 2
 #
 # Parameters:
 # $1 - Version number 1

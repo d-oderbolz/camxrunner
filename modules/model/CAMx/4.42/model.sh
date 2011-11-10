@@ -625,10 +625,10 @@ function write_model_control_file()
 		echo " TUV_Cloud_Adjust       = .${CXR_TUV_CLOUD_ADJUST}.," >> ${CXR_MODEL_CTRL_FILE}
 		
 		# Starting with CAMx 5.40, we also have the option to adjust the Photolysis for Aerosols
-		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -ne 1 ]]
+		if [[ "$(common.math.compareVersions "$CXR_MODEL_VERSION" "5.4" )" -lt 1 ]]
 		then
 			echo " TUV_Aero_Adjust       = .${CXR_TUV_AERO_ADJUST:-false}.," >> ${CXR_MODEL_CTRL_FILE}
-		fi # Version  larger >= 5.4
+		fi # Version >= 5.4
 	fi
 	
 	
