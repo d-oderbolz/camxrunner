@@ -3,23 +3,49 @@
 # This template is expanded by the -e option of the
 # CAMxRunner. You may use variables in here.
 #
-# The code here is written for the rosa system at CSCS,
-# which uses the SLURM queuing system.
+# The code here is written for the Merlin4 system at PSI,
+# which uses the SGE (Sun grid engine, soon certainly called OGE) queuing system.
 #
 # Local variables cannot (and should not) be expanded
 # make sure that these are not on the same line as an expandable variable
 # because we work line-per-line.
 #
+# We could think about using the task array (-t) feature of SGE later
+
+# BEGIN SGE INSTRUCTIONS
+
+# Use bash
+$(echo -en "\\043")$ -S /bin/bash
+
+#
 # If you need to expand a commented line, echo the comment using -en "\\043"
 # In general, try to avoid command expansion as the expansion is local.
 # One way around this is to generate a $ sign ( and ) using the trick above
+# Set Emailaddress and send email at beginning and end
+$(echo -en "\\043")$ -o $CXR_MAILADDR
+$(echo -en "\\043")$ -m b e
 
-$(echo -en "\\043")SBATCH --output=$CXR_EXTERNAL_STDLOG
-$(echo -en "\\043")SBATCH --error=$CXR_EXTERNAL_ERRLOG
-$(echo -en "\\043")SBATCH --ntasks=$CXR_EXTERNAL_NUMBER_OF_TASKS
-$(echo -en "\\043")SBATCH --ntasks-per-node=$CXR_EXTERNAL_TASKS_PER_NODE
-$(echo -en "\\043")SBATCH --cpus-per-task=$CXR_EXTERNAL_CPUS_PER_TASK
-$(echo -en "\\043")SBATCH --time=$CXR_EXTERNAL_TIME_NEEDED
+# Name the job
+$(echo -en "\\043")$ -N $CXR_RUN
+
+# Redirect STDOUT and STDERR
+$(echo -en "\\043")$ -o $CXR_EXTERNAL_STDLOG
+$(echo -en "\\043")$ -e $CXR_EXTERNAL_ERRLOG
+
+# Run task from the current directory
+$(echo -en "\\043")$ -cwd
+
+# Choose parallel Environment (e. g. orte)
+$(echo -en "\\043")$ -pe $CXR_EXTERNAL_PE $CXR_EXTERNAL_NUMBER_OF_TASKS
+
+# We ask for soft realtime
+$(echo -en "\\043")$ -l s_rt=$CXR_EXTERNAL_TIME_NEEDED
+
+# Fix the SGE environment-handling bug (bash):
+source /usr/share/Modules/init/sh
+export -n -f module
+
+# END SGE INSTRUCTIONS
 
 days_per_job=$CXR_EXTERNAL_DAYS_PER_JOB
 
