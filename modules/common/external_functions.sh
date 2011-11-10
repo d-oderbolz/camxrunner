@@ -47,9 +47,9 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.external.init
 #
-# Performs version checks on all visible sqlite DBs. It also checks the integrity of 
-# sqlite and if we can load the extensions.
-# Performs vacuum and checks the integrity. 
+# Prepares a run for external use. Produces one script to transfer the input data
+# and another one to control the server. Also creates all needed CAMx.in files.
+# The control script uses CXR_EXTERNAL_TEMPLATE as a basis.
 #
 ################################################################################
 function common.external.init()
@@ -64,7 +64,7 @@ function common.external.init()
 		main.dieGracefully "Could not find ${CXR_EXTERNAL_TEMPLATE}!"
 	fi
 	
-	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen."
+	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen and can be ignored."
 	
 	tmpdir=$(common.runner.createTempDir run-external false)
 	
@@ -77,7 +77,8 @@ function common.external.init()
 	
 	# Add comment to the ofilelist
 	echo "#!/bin/bash" > $ofilelist
-	echo "#This script works perfectly if you have passwordless shh" >> $ofilelist
+	echo "#This script copies the input data for $CXR_RUN to the HPC system" >> $ofilelist
+	echo "#It works perfectly if you have passwordless shh" >> $ofilelist
 	echo "#<http://www.debian-administration.org/articles/152> set up" >> $ofilelist
 	echo "#You need to run it from a directory containing links to all the files" >> $ofilelist
 	echo "#to be copied." >> $ofilelist
