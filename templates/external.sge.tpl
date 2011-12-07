@@ -35,7 +35,7 @@ $(echo -en "\\043")$ -e $CXR_EXTERNAL_ERRLOG
 # Run task from the current directory
 $(echo -en "\\043")$ -cwd
 
-# Choose parallel Environment (e. g. orte)
+# Choose parallel Environment (e. g. smp) and request slots
 $(echo -en "\\043")$ -pe $CXR_EXTERNAL_PE $CXR_EXTERNAL_NUMBER_OF_TASKS
 
 # We ask for soft realtime
