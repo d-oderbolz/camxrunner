@@ -443,7 +443,7 @@ function CAMx_installer()
 			cd $CXR_CAMX_CHEMPARAM_TAR_DIR || main.dieGracefully "could not change to ${CXR_CAMX_CHEMPARAM_TAR_DIR}"
 			
 			# create target dir
-			mkdir ${chemparam_dir} || main.dieGracefully "could not create ${chemparam_dir}"
+			mkdir -p ${chemparam_dir} || main.dieGracefully "could not create ${chemparam_dir}"
 			
 			# Copy the files
 			cp * ${chemparam_dir} || main.dieGracefully "could not copy chemparam files"
