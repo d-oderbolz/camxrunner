@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=35
+CXR_META_MODULE_NUM_TESTS=37
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -61,6 +61,33 @@ function common.fs.isNotEmpty?()
 	then
 		echo true
 	else
+		echo false
+	fi
+}
+
+################################################################################
+# Function: common.fs.isFilledDir?
+# 
+# Returns true if argument is an existing directory with content, false otherwise.
+#
+# Parameters:
+# $1 - path of directory to test
+################################################################################
+function common.fs.isFilledDir?()
+################################################################################
+{
+	path="${1}"
+	
+	if [[ -e "$path" ]]
+	then
+		if [[ "$(ls -A $path)" ]]
+		then
+			echo true
+		else
+			echo false
+		fi
+	else
+		# Non-existing
 		echo false
 	fi
 }
@@ -1259,6 +1286,10 @@ function test_module()
 	is "$(common.fs.isSubDirOf? /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib)" true "common.fs.isSubDirOf? using hyphens"
 	is "$(common.fs.isSubDirOf?  /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs)" false "common.fs.isSubDirOf? real world"
 	is "$(common.fs.isSubDirOf?   /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss)" false "common.fs.isSubDirOf? real world"
+	
+	# Test detection of filled dirs
+	is "$(common.fs.isFilledDir? $tempdir)" true "common.fs.isFilledDir? on $tempdir"
+	is "$(common.fs.isFilledDir? $d)" false "common.fs.isFilledDir? on $d"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a" &> /dev/null

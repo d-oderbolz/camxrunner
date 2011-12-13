@@ -1698,7 +1698,9 @@ function common.runner.getConfigItem()
 #
 # Asks the user which parts of an existing runs input data must by copied, moved or
 # linked to a new run.
-# TODO: Rewrite using a loop
+# 
+# The code assures that the Input and the Emiss directory are distinct. Meteo data
+# is currently not  considered.
 #
 # Parameters:
 # $1 - New Run-name 
@@ -1730,8 +1732,18 @@ function common.runner.recreateInput()
 	oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun))"
 	newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
 	
+	if [[ ! "$oldEmissDir" ]]
+	then
+		main.dieGracefully "Could not find the Emission dir of $oldRun - maybe it is a broken link!"
+	fi
+	
 	oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR $oldRun))"
 	newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
+	
+	if [[ ! "$oldInputDir" ]]
+	then
+		main.dieGracefully "Could not find the Input dir of $oldRun - maybe it is a broken link!"
+	fi
 	
 	# make sure they are not subdirs of each other
 	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
@@ -1745,20 +1757,52 @@ function common.runner.recreateInput()
 		# Re-use Emissions
 		
 		# Do not take chances - only work on empty target directory
-		# we use the fact that rmdir crashes if the directory is non-empty
-		rmdir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a link or copy to $oldEmissDir! $newEmissDir must be empty"
+		if [[ "$(common.fs.isFilledDir? "$newEmissDir")" == true ]]
+		then
+			main.dieGracefully "Could not replace $newEmissDir by a link or copy to $oldEmissDir! $newEmissDir must be empty"
+		fi
+		
+		rmdir $newEmissDir
 		
 		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
 		then
 			# copy (dereference links)
-			cp -r -L $oldEmissDir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
+			cp -r -L "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
 		else
-			# link
-			ln -s $oldEmissDir $newEmissDir || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
+			# if we  are on the same FS, we hardlik each file. To check, 
+			# we need to create the target
+			mkdir -p "$newEmissDir"
+			
+			if [[ "$(common.fs.sameDevice? "$oldEmissDir" "$newEmissDir")" == true ]]
+			then
+				main.log -a "$oldEmissDir and $newEmissDir are on the same device. I hardlink each file."
+				
+				pushd . &> /dev/null
+				cd "$newEmissDir"
+				
+				for file in $(ls -A "$oldEmissDir")
+				do
+					ln "$file"
+				done
+				
+				echo "These files where created as hardlinks to $oldEmissDir" > README.TXT
+				
+				# Return to where we where
+				popd &> /dev/null
+			else
+				main.log -a "$oldEmissDir and $newEmissDir are not on the same device. I softlink the directory."
+				ln -s -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
+			if
 		fi
 	fi
 	
-	rmdir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
+	# Do not take chances - only work on empty target directory
+	if [[ "$(common.fs.isFilledDir? "$newInputDir")" == true ]]
+	then
+		main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
+	fi
+	
+	rmdir $newInputDir
 	
 	# Other Inputs
 	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldRun  located in $oldInputDir?")" == true ]]
@@ -1769,8 +1813,30 @@ function common.runner.recreateInput()
 			# copy (dereference links)
 			cp -r -L $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
 		else
-			# link
-			ln -s $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a link to $oldInputDir!"
+			# if we  are on the same FS, we hardlik each file. To check, 
+			# we need to create the target
+			mkdir -p "$newEmissDir"
+			
+			if [[ "$(common.fs.sameDevice? "$oldInputDir" "$newInputDir")" == true ]]
+			then
+				main.log -a "$oldInputDir and $newInputDir are on the same device. I hardlink each file."
+				
+				pushd . &> /dev/null
+				cd "$newInputDir"
+				
+				for file in $(ls -A "$oldInputDir")
+				do
+					ln "$file"
+				done
+				
+				echo "These files where created as hardlinks to $oldInputDir" > README.TXT
+				
+				# Return to where we where
+				popd &> /dev/null
+			else
+				main.log -a "$oldInputDir and $newInputDir are not on the same device. I softlink the directory."
+				ln -s -f "$oldInputDir" "$newInputDir" || main.dieGracefully "Could not replace $newInputDir by a link to $oldInputDir!"
+			fi
 		fi
 	fi
 }
