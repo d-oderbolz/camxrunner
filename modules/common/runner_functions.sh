@@ -1792,7 +1792,7 @@ function common.runner.recreateInput()
 			else
 				main.log -a "$oldEmissDir and $newEmissDir are not on the same device. I softlink the directory."
 				ln -s -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
-			if
+			fi
 		fi
 	fi
 	
