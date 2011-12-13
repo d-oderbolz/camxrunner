@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=37
+CXR_META_MODULE_NUM_TESTS=38
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -1181,6 +1181,7 @@ function test_module()
 	b=$(common.runner.createTempFile $FUNCNAME)
 	c=$(common.runner.createTempFile $FUNCNAME)
 	d=$(common.runner.createTempDir $FUNCNAME)
+	e=$(common.runner.createTempDir $FUNCNAME)
 	
 	# To really test the linking stuff, we ned to now the resolved name of
 	# the tempdir
@@ -1289,7 +1290,8 @@ function test_module()
 	
 	# Test detection of filled dirs
 	is "$(common.fs.isFilledDir? $tempdir)" true "common.fs.isFilledDir? on $tempdir"
-	is "$(common.fs.isFilledDir? $d)" false "common.fs.isFilledDir? on $d"
+	is "$(common.fs.isFilledDir? $d)" true "common.fs.isFilledDir? on $d"
+	is "$(common.fs.isFilledDir? $e)" false "common.fs.isFilledDir? on $e"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a" &> /dev/null
