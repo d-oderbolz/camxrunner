@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=39
+CXR_META_MODULE_NUM_TESTS=38
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -1292,7 +1292,6 @@ function test_module()
 	is "$(common.fs.isFilledDir? $tempdir)" true "common.fs.isFilledDir? on $tempdir"
 	is "$(common.fs.isFilledDir? $d)" true "common.fs.isFilledDir? on $d"
 	is "$(common.fs.isFilledDir? $e)" false "common.fs.isFilledDir? on $e"
-	is "$(common.fs.isFilledDir? /dev/null)" false "common.fs.isFilledDir? on /dev/null"
 	
 	# test the dos-detection
 	${CXR_UNIX2DOS_EXEC} "$a" &> /dev/null
