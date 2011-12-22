@@ -1764,7 +1764,7 @@ function common.runner.recreateInput()
 		
 		rmdir $newEmissDir
 		
-		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
+		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
 		then
 			# copy (dereference links)
 			cp -r -L "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
@@ -1782,7 +1782,7 @@ function common.runner.recreateInput()
 				
 				for file in $(ls -A "$oldEmissDir")
 				do
-					ln "$file"
+					ln "${oldEmissDir}/${file}"
 				done
 				
 				echo "These files where created as hardlinks to $oldEmissDir" > README.TXT
@@ -1808,7 +1808,7 @@ function common.runner.recreateInput()
 	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldRun  located in $oldInputDir?")" == true ]]
 	then
 		# Re-use Other stuff
-		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we symlink to it)")" == true ]]
+		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
 		then
 			# copy (dereference links)
 			cp -r -L $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
@@ -1826,7 +1826,7 @@ function common.runner.recreateInput()
 				
 				for file in $(ls -A "$oldInputDir")
 				do
-					ln "$file"
+					ln "${oldInputDir}/${file}"
 				done
 				
 				echo "These files where created as hardlinks to $oldInputDir" > README.TXT
@@ -1858,7 +1858,7 @@ function common.runner.recreateRun()
 	local newRun
 	
 	# Is this the correct run?
-	if [[ "$(common.user.getOK "Do you want to create a new configuration based on ${1}?\nIf you say no, you may select another run.")" == false ]]
+	if [[ "$(common.user.getOK "Do you want to create a new configuration and prepare input data based on ${1}?\nIf you say no, you may select another run.")" == false ]]
 	then
 		#no, ask
 		oldRunConf=$(common.runner.getExistingConfigFile)
