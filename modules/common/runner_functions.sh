@@ -1777,18 +1777,13 @@ function common.runner.recreateInput()
 			then
 				main.log -a "$oldEmissDir and $newEmissDir are on the same device. I hardlink each file."
 				
-				pushd . &> /dev/null
-				cd "$newEmissDir"
-				
 				for file in $(ls -A "$oldEmissDir")
 				do
-					ln "${oldEmissDir}/${file}"
+					ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 
 				done
 				
 				echo "These files where created as hardlinks to $oldEmissDir" > README.TXT
 				
-				# Return to where we where
-				popd &> /dev/null
 			else
 				main.log -a "$oldEmissDir and $newEmissDir are not on the same device. I softlink the directory."
 				ln -s -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
@@ -1821,18 +1816,13 @@ function common.runner.recreateInput()
 			then
 				main.log -a "$oldInputDir and $newInputDir are on the same device. I hardlink each file."
 				
-				pushd . &> /dev/null
-				cd "$newInputDir"
-				
 				for file in $(ls -A "$oldInputDir")
 				do
-					ln "${oldInputDir}/${file}"
+					ln "${oldInputDir}/${file}" "${newInputDir}/${file}"
 				done
 				
 				echo "These files where created as hardlinks to $oldInputDir" > README.TXT
-				
-				# Return to where we where
-				popd &> /dev/null
+
 			else
 				main.log -a "$oldInputDir and $newInputDir are not on the same device. I softlink the directory."
 				ln -s -f "$oldInputDir" "$newInputDir" || main.dieGracefully "Could not replace $newInputDir by a link to $oldInputDir!"
