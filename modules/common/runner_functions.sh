@@ -1775,11 +1775,12 @@ function common.runner.recreateInput()
 			
 			if [[ "$(common.fs.sameDevice? "$oldEmissDir" "$newEmissDir")" == true ]]
 			then
-				main.log -a "$oldEmissDir and $newEmissDir are on the same device. I hardlink each file."
+				main.log -a "$oldEmissDir and $newEmissDir are on the same device. I try to hardlink each file."
 				
 				for file in $(ls -A "$oldEmissDir")
 				do
-					ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 
+					# if ln fails, we try ln -s 
+					ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${oldEmissDir}/${file}" "${newEmissDir}/${file}"
 				done
 				
 				echo "These files where created as hardlinks to $oldEmissDir" > README.TXT
@@ -1818,7 +1819,8 @@ function common.runner.recreateInput()
 				
 				for file in $(ls -A "$oldInputDir")
 				do
-					ln "${oldInputDir}/${file}" "${newInputDir}/${file}"
+					# if ln fails, we try ln -s 
+					ln "${oldInputDir}/${file}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${oldInputDir}/${file}" "${newInputDir}/${file}"
 				done
 				
 				echo "These files where created as hardlinks to $oldInputDir" > README.TXT
