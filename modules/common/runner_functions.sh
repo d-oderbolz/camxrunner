@@ -3,7 +3,7 @@
 #
 # Common script for the CAMxRunner 
 # See http://people.web.psi.ch/oderbolz/CAMxRunner 
-#
+# 
 # Version: $Id$ 
 #
 # Title: Core CAMxRunner Functions
@@ -1772,23 +1772,16 @@ function common.runner.recreateInput()
 			# if we  are on the same FS, we hardlik each file. To check, 
 			# we need to create the target
 			mkdir -p "$newEmissDir"
+
+			main.log -a "I try to hardlink each file, if I fail, I create softlinks"
 			
-			if [[ "$(common.fs.sameDevice? "$oldEmissDir" "$newEmissDir")" == true ]]
-			then
-				main.log -a "$oldEmissDir and $newEmissDir are on the same device. I try to hardlink each file."
-				
-				for file in $(ls -A "$oldEmissDir")
-				do
-					# if ln fails, we try ln -s 
-					ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${oldEmissDir}/${file}" "${newEmissDir}/${file}"
-				done
-				
-				echo "These files where created as hardlinks to $oldEmissDir" > README.TXT
-				
-			else
-				main.log -a "$oldEmissDir and $newEmissDir are not on the same device. I softlink the directory."
-				ln -s -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a link to $oldEmissDir!"
-			fi
+			for file in $(ls -A "$oldEmissDir")
+			do
+				# if ln fails, we try ln -s 
+				ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${oldEmissDir}/${file}" "${newEmissDir}/${file}"
+			done
+			
+			echo "These files where created as links to $oldEmissDir" > README.TXT
 		fi
 	fi
 	
@@ -1809,26 +1802,19 @@ function common.runner.recreateInput()
 			# copy (dereference links)
 			cp -r -L $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
 		else
-			# if we  are on the same FS, we hardlik each file. To check, 
-			# we need to create the target
+
+			# create the target
 			mkdir -p "$newEmissDir"
 			
-			if [[ "$(common.fs.sameDevice? "$oldInputDir" "$newInputDir")" == true ]]
-			then
-				main.log -a "$oldInputDir and $newInputDir are on the same device. I hardlink each file."
-				
-				for file in $(ls -A "$oldInputDir")
-				do
-					# if ln fails, we try ln -s 
-					ln "${oldInputDir}/${file}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${oldInputDir}/${file}" "${newInputDir}/${file}"
-				done
-				
-				echo "These files where created as hardlinks to $oldInputDir" > README.TXT
-
-			else
-				main.log -a "$oldInputDir and $newInputDir are not on the same device. I softlink the directory."
-				ln -s -f "$oldInputDir" "$newInputDir" || main.dieGracefully "Could not replace $newInputDir by a link to $oldInputDir!"
-			fi
+			main.log -a "I try to hardlink each file, if I fail, I create softlinks"
+			
+			for file in $(ls -A "$oldInputDir")
+			do
+				# if ln fails, we try ln -s 
+				ln "${oldInputDir}/${file}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${oldInputDir}/${file}" "${newInputDir}/${file}"
+			done
+			
+			echo "These files where created as links to $oldInputDir" > README.TXT
 		fi
 	fi
 }

@@ -311,6 +311,8 @@ function common.fs.isLocal?()
 # 
 # Returns true if the two arguments reside on the same device.
 # This test is crucial whan attempting to hard-link.
+# Note that on AFS, hardlinks are impossible between different directories even
+# if they reside on the same device.
 #
 # Parameters:
 # $1 - path1 to test
