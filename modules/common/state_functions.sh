@@ -1349,7 +1349,7 @@ function common.state.cleanup()
 			modify-tasks)
 			
 				
-				if [[ "$(common.user.getOK "Do you want to mark the tasks you will select as SUCCESSFUL? (If not, they will be marked as TODO)" N )" == true ]]
+				if [[ "$(common.user.getOK "Do you want to prevent the tasks you will select from running by marking them as SUCCESS? (If not, they will be marked as TODO and hence be rerun)" N )" == true ]]
 				then
 					new_status=$CXR_STATUS_SUCCESS
 				else
@@ -1373,7 +1373,7 @@ function common.state.cleanup()
 					# set IFS to newline that select parses correctly
 					IFS='
 '
-					which_step="$(common.user.getMenuChoice "Which module types state information should be removed?" "${steps}" "none" )"
+					which_step="$(common.user.getMenuChoice "Which module types state information should be updated?" "${steps}" "none" )"
 					# Reset IFS
 					IFS="$oIFS"
 					
@@ -1399,7 +1399,7 @@ function common.state.cleanup()
 					# set IFS to newline that select parses correctly
 					IFS='
 '
-					which_step="$(common.user.getMenuChoice "Which modules state information should be removed?" "${steps}" "none" )"
+					which_step="$(common.user.getMenuChoice "Which modules state information should be updated?" "${steps}" "none" )"
 					# Reset IFS
 					IFS="$oIFS"
 					
@@ -1424,7 +1424,7 @@ function common.state.cleanup()
 				# set IFS to newline that select parses correctly
 				IFS='
 '
-				which_day="$(common.user.getMenuChoice "Which days state information should be removed?" "$days" "none" )"
+				which_day="$(common.user.getMenuChoice "Which days state information should be updated?" "$days" "none" )"
 				
 				# Reset IFS
 				IFS="$oIFS"
@@ -1447,11 +1447,11 @@ function common.state.cleanup()
 					stop_offset=$start_offset
 					all_days=false
 					# If this is true, we loop through the following days
-					following_days="$(common.user.getOK "Do you want to remove consecutive days?" )"
+					following_days="$(common.user.getOK "Do you want to update some following days as well?" )"
 					
 					if [[ "$following_days" == true ]]
 					then
-						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we remove?" "$days" )"
+						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we update?" "$days" )"
 						stop_offset=$(common.date.toOffset $stop_day)
 						confirm_days="$(common.user.getOK "Do you want to confirm each removal?" )"
 					fi
@@ -1471,7 +1471,7 @@ function common.state.cleanup()
 						if [[ "$(common.user.getOK "Do you really want to update these tasks?" )" == false ]]
 						then
 							# No 
-							main.log -a "Will not remove this information"
+							main.log -a "Will not change this information"
 							
 							if [[ "$following_days" == true ]]
 							then
