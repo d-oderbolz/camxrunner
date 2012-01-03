@@ -1804,7 +1804,7 @@ function common.runner.recreateInput()
 		else
 
 			# create the target
-			mkdir -p "$newEmissDir"
+			mkdir -p "$newInputDir"
 			
 			main.log -a "I try to hardlink each file, if I fail, I create softlinks"
 			
