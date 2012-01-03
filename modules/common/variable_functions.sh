@@ -79,6 +79,8 @@ function common.variables.getValue()
 	
 	item=${1}
 	
+	# This is just a check to see if the variable
+	# is really available
 	set | grep ${item}= &>/dev/null
 	
 	if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
