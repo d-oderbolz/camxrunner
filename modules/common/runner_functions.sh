@@ -1777,8 +1777,21 @@ function common.runner.recreateInput()
 			
 			for file in $(ls -A "$oldEmissDir")
 			do
+				# The file could be a link, dereference
+				target="$(common.fs.getLinkTarget "$file")"
+				
+				if [[ ! "$target" ]]
+				then
+					main.dieGracefully "It seems that $file is a broken link, we stop."
+				fi
+				
+				if [[ "$target" != "$file" ]]
+				then
+					main.log -a "$file \n points to \n $target, we link there."
+				fi
+				
 				# if ln fails, we try ln -s 
-				ln "${oldEmissDir}/${file}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${oldEmissDir}/${file}" "${newEmissDir}/${file}"
+				ln "${target}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${target}" "${newEmissDir}/${file}"
 			done
 			
 			echo "These files where created as links to $oldEmissDir" > README.TXT
@@ -1810,8 +1823,21 @@ function common.runner.recreateInput()
 			
 			for file in $(ls -A "$oldInputDir")
 			do
+				# The file could be a link, dereference
+				target="$(common.fs.getLinkTarget "$file")"
+				
+				if [[ ! "$target" ]]
+				then
+					main.dieGracefully "It seems that $file is a broken link, we stop."
+				fi
+				
+				if [[ "$target" != "$file" ]]
+				then
+					main.log -a "$file \n points to \n $target, we link there."
+				fi
+
 				# if ln fails, we try ln -s 
-				ln "${oldInputDir}/${file}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${oldInputDir}/${file}" "${newInputDir}/${file}"
+				ln "${target}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${target}" "${newInputDir}/${file}"
 			done
 			
 			echo "These files where created as links to $oldInputDir" > README.TXT

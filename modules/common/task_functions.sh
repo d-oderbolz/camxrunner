@@ -944,7 +944,7 @@ function common.task.runningWorker()
 }
 
 
-################################################################################
+###############################################################################
 # Function: common.task.removeWorker
 #
 # kills the common.task.Worker of the given pid and alse removes it from the process list.

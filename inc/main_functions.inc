@@ -548,7 +548,7 @@ function main.doCleanup()
 		# All the non-hollow stuff goes here
 		error_count=$(main.countErrors)
 		
-		main.log -a -B "Error Report (may be repeated)"
+		main.log -a -B "Error Report (may be repeated or empty)"
 		
 		for currentLogFile in ${CXR_LOGS[@]}
 		do
