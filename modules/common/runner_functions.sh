@@ -1728,11 +1728,11 @@ function common.runner.recreateInput()
 	oldRun=$2
 	
 	# get the relevant directories. 
-	# We fully resolve the paths
+	# We fully resolve the old paths (not the new one because it does not exist)
 	oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR $oldRun))"
 	newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
 	
-	if [[ ! "$oldEmissDir" ]]
+	if [[ ! -d "$oldEmissDir" ]]
 	then
 		main.dieGracefully "Could not find the Emission dir of $oldRun - maybe it is a broken link!"
 	fi
@@ -1740,7 +1740,7 @@ function common.runner.recreateInput()
 	oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR $oldRun))"
 	newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
-	if [[ ! "$oldInputDir" ]]
+	if [[ ! -d "$oldInputDir" ]]
 	then
 		main.dieGracefully "Could not find the Input dir of $oldRun - maybe it is a broken link!"
 	fi
@@ -1796,6 +1796,12 @@ function common.runner.recreateInput()
 			
 			echo "These files where created as links to $oldEmissDir" > README.TXT
 		fi
+	else
+		# Create Emiss dir if we do not re-use emission data
+		if [[ ! -d "$newEmissDir" ]]
+		then
+			mkdir -p "$newEmissDir"
+		fi
 	fi
 	
 	# Do not take chances - only work on empty target directory
@@ -1835,12 +1841,20 @@ function common.runner.recreateInput()
 				then
 					main.log -a "$file \n points to \n $target, we link there."
 				fi
+				
+				echo "ln ${target} ${newInputDir}/${file} 2>/dev/null || ln -s ${target} ${newInputDir}/${file}"
 
 				# if ln fails, we try ln -s 
 				ln "${target}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${target}" "${newInputDir}/${file}"
 			done
 			
 			echo "These files where created as links to $oldInputDir" > README.TXT
+		fi
+	else
+		# Create Emiss dir if we do not re-use emission data
+		if [[ ! -d "$newInputDir" ]]
+		then
+			mkdir -p "$newInputDir"
 		fi
 	fi
 }
