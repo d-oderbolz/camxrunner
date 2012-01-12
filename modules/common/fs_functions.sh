@@ -469,9 +469,18 @@ function common.fs.getLinkTarget()
 	
 	if [[ $allow_missing == true ]]
 	then
+		# Allow missing targets
 		target="$(readlink -m -s "$path")"
 	else
+		# Don't allow missing targets
 		target="$(readlink -f -s "$path")"
+		
+		if [[ ! -e "$target" ]]
+		then
+			target=""
+			main.log -w "Link target $target does not exist."
+		fi
+		
 	fi
 	
 	echo "$target"

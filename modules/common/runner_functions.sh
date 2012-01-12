@@ -1777,8 +1777,8 @@ function common.runner.recreateInput()
 			
 			for file in $(ls -A "$oldEmissDir")
 			do
-				# The file could be a link, dereference
-				target="$(common.fs.getLinkTarget "$file")"
+				# The file could be a link, dereference the absolute path
+				target="$(common.fs.getLinkTarget "${oldEmissDir}/$file")"
 				
 				if [[ ! "$target" ]]
 				then
@@ -1829,8 +1829,8 @@ function common.runner.recreateInput()
 			
 			for file in $(ls -A "$oldInputDir")
 			do
-				# The file could be a link, dereference
-				target="$(common.fs.getLinkTarget "$file")"
+				# The file could be a link, dereference the absolute path
+				target="$(common.fs.getLinkTarget "${oldInputDir}/$file")"
 				
 				if [[ ! "$target" ]]
 				then
@@ -1842,8 +1842,6 @@ function common.runner.recreateInput()
 					main.log -a "$file \n points to \n $target, we link there."
 				fi
 				
-				echo "ln ${target} ${newInputDir}/${file} 2>/dev/null || ln -s ${target} ${newInputDir}/${file}"
-
 				# if ln fails, we try ln -s 
 				ln "${target}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${target}" "${newInputDir}/${file}"
 			done
