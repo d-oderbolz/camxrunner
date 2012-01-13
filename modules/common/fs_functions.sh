@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=38
+CXR_META_MODULE_NUM_TESTS=39
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -1258,8 +1258,9 @@ function test_module()
 	########################################
 	
 	# Since CXR_TMP_DIR might be a link itself, we must take precautions
-	is "$(common.fs.getLinkTarget $link)" "$tempdir/$(basename $a)" "common.fs.getLinkTarget"
+	is "$(common.fs.getLinkTarget $link)" "$tempdir/$(basename $a)" "common.fs.getLinkTarget - link to a tempfile"
 	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$dirtarget/testfile" "common.fs.getLinkTarget - real file, linked dir"
+	is "$(common.fs.getLinkTarget $(basename $a))" "" "common.fs.getLinkTarget - Relative path"
 	
 	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
 	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
