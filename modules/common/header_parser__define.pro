@@ -104,17 +104,8 @@ function header_parser::init, filename, is_binary
 	; Fix optional stuff
 	if (N_ELEMENTS(is_binary) EQ 0)  then is_binary = 0
 	
-	; Exit if file is not readable. Somehow, IDL cannot check the readability of symlinks?
-	if (~ FILE_TEST(filename,/SYMLINK) ) then begin
-		if (~ FILE_TEST(filename,/READ) ) then message,'File not readable: ' + filename
-	endif else begin
-		; Its a symlink
-		target=FILE_READLINK(filename)
-		if (~ FILE_TEST(target,/READ) ) then message,'Target File not readable: ' + target
-		
-		print,'Reading from symlink ' + filename + ' -> ' + target
-	endelse
-	
+	; Becasue of AFS, we cannot really test if a file is readable
+
 	; Instatiate Hashmaps
 	self.scalars = obj_new('hashtable')
 	self.species = obj_new('hashtable')
