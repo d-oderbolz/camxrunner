@@ -362,6 +362,11 @@ function common.runner.printSummary()
 	# Revision control
 	##################
 	
+	if [[ $CXR_AVERAGE_OUTPUT_3D == true ]]
+	then
+		main.log -a -B "At least currently, 3D output is on (CXR_AVERAGE_OUTPUT_3D=true)."
+	fi
+	
 	# Get revisions of configuration and the CAMxRunner.sh
 	# The other variables are set in main.readConfig
 	CXR_RUNNER_REV=$(main.getRevision $0)
