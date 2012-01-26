@@ -364,7 +364,9 @@ function common.runner.printSummary()
 	
 	if [[ $CXR_AVERAGE_OUTPUT_3D == true ]]
 	then
-		main.log -a -B "At least currently, 3D output is on (CXR_AVERAGE_OUTPUT_3D=true)."
+		main.log -a -B "At least currently, 3D output is ON (CXR_AVERAGE_OUTPUT_3D=true)."
+	else
+		main.log -a -B "At least currently, 3D output is OFF (CXR_AVERAGE_OUTPUT_3D=false)."
 	fi
 	
 	# Get revisions of configuration and the CAMxRunner.sh
