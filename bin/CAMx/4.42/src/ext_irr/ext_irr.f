@@ -51,10 +51,10 @@ c
       parameter( IORIRR = 10 )
       parameter( IOWASC = 20 )
       parameter( IOWBIN = 21 )
-      parameter( MXRXN  = 180 )
+      parameter( MXRXN  = 96 )
       parameter( MXHOUR = 50 )
       parameter( MXCELL = 100 )
-      parameter( MXLAY  = 10 )
+      parameter( MXLAY  = 20 )
       parameter( MXFILE = 99 )
       parameter( CONFAC = 1E-6 )
 
@@ -63,7 +63,7 @@ c-----------------------------------------------------------------------
 c   Local variables:
 c-----------------------------------------------------------------------
 c
-      character*240 fname, infile(MXFILE)
+      character*200 fname, infile(MXFILE)
       character*80  runmsg, string
       character*20  keywrd
       character*10  species, ftype
@@ -168,6 +168,7 @@ c
       idtlst = 0
       timlst = 0.0
       idatcnt = 0
+      nhours = 0
 c
 c  --- the simulation message ---
 c
@@ -355,7 +356,7 @@ c
      &                                  nlaysim, 1, nlaysim, 0., 0., 0.
                  write(IOWBIN,ERR=7013) 1, 1, nxsim, nysim
                  do i=1,nirrrxn
-                   write(species,'(A,I2.2)') 'Rxn_',i
+                   write(species,'(A,I3.3)') 'Rxn_',i
                    read(species,'(10A1)') (ispec(j,i),j=1,10)
                  enddo
                  write(IOWBIN,ERR=7013)((ispec(i,j),i=1,10),j=1,nirrrxn)
@@ -553,7 +554,7 @@ c-----------------------------------------------------------------------
 c   Format statements:
 c-----------------------------------------------------------------------
 c
- 9000 format(I10,A,F10.2,5(A,I10),100(A,E15.8))
+ 9000 format(I10,A,F10.2,5(A,I10),500(A,E15.8))
 c
 c-----------------------------------------------------------------------
 c   Exist point:

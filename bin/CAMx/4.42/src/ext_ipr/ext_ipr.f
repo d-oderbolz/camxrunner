@@ -48,7 +48,7 @@ c
       parameter(  IORIPR   = 10 )
       parameter(  IOWASC   = 20 )
       parameter(  MXPROC   = 99 )
-      parameter(  MXSPEC   = 150 )
+      parameter(  MXSPEC   = 30 )
       parameter(  MXFILE   = 99 )
       parameter(  CONFAC   = 1E-6 )
       parameter(  CDPPB = "PPB" )
@@ -152,7 +152,7 @@ c -----------------------------------------------------------------------
 c    Local variables:
 c -----------------------------------------------------------------------
 c
-      character*240    fname, infile(MXFILE)
+      character*200    fname, infile(MXFILE)
       character*80     runmsg, string
       character*25     prcnam(MXPROC)
       character*20     keywrd
@@ -166,8 +166,7 @@ c
       integer       jrec, nfiles, ifile, idtlst
       integer       iclbeg, iclend, jclbeg, jclend, kclbeg, kclend
       integer       i, j
-      real          begtim, endtim
-      real*4        orgx, orgy, xsize, ysize
+      real*4        begtim, endtim, orgx, orgy, xsize, ysize
       real*4        cipr(MXPROC), ciprtot(MXPROC,MXSPEC)
       real*4        abs_error, rel_error, timlst
       logical       lexist, lppb
