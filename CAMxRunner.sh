@@ -612,6 +612,10 @@ main.log -H "$progname - running stage\nLoading modules from ${CXR_COMMON_INPUT_
 common.runner.printSummary
 common.user.wait 10
 
+# Check if the selected binary supports our settings
+common.check.ModelLimits
+common.check.ExecLimits
+
 ################################################################################
 # Check load
 ################################################################################

@@ -318,10 +318,6 @@ function common.runner.reportDimensions()
 		y=$(common.runner.getY ${iGrid})
 		z=$(common.runner.getZ ${iGrid})
 		
-		main.log -a -B "Grid dimensions domain ${iGrid} (incl. buffer cells):"
-		main.log -a "X: ${x}\nY: ${y}\nZ: ${z}\n"
-		
-		main.log -a -b "Lon/Lat Corners ${iGrid} (incl. buffer cells):"
 		sw="$(common.map.indexesToLonLat 1 1 $iGrid)"
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToLonLat>)
@@ -335,11 +331,21 @@ function common.runner.reportDimensions()
 		ne="$(common.map.indexesToModelCoordinates $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
 		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
 		
+		main.log -a "--------------------------------------------------------------------------------"
+		main.log -a " Dimensions Grid ${iGrid}"
+		main.log -a " Dim G. ${iGrid}     X: ${x}\nY: ${y}\nZ: ${z}"
+		main.log -a " Lon/Lat Corners     SE: $se SW: $sw NW: $nw NE: $ne"
+		main.log -a "--------------------------------------------------------------------------------"
+
 	done
 	
 	nCells="$(common.runner.countAllCells3D)"
 	
-	main.log -B "Total number of cells: $nCells"
+	main.log -a " \# of all cells    $nCells"
+	main.log -a "--------------------------------------------------------------------------------"
+
+	
+
 	
 }
 
@@ -352,46 +358,34 @@ function common.runner.reportDimensions()
 function common.runner.printSummary()
 ################################################################################
 {
-	# Print mission, if available
-	if [[ "${CXR_MISSION:-}" ]]
-	then
-		main.log -a -B "Mission of ${CXR_RUN}:\n${CXR_MISSION}"
-	fi
-	
-	##################
-	# Revision control
-	##################
-	
-	if [[ $CXR_AVERAGE_OUTPUT_3D == true ]]
-	then
-		main.log -a -B "At least currently, 3D output is ON (CXR_AVERAGE_OUTPUT_3D=true)."
-	else
-		main.log -a -B "At least currently, 3D output is OFF (CXR_AVERAGE_OUTPUT_3D=false)."
-	fi
-	
-	# Get revisions of configuration and the CAMxRunner.sh
-	# The other variables are set in main.readConfig
-	CXR_RUNNER_REV=$(main.getRevision $0)
-	
-	main.log -v -B "Runner (${CXR_RUN}) revision ${CXR_RUNNER_REV}" 
-	
-	if [[ "$CXR_BASECONFIG_REV" -gt "$CXR_CONFIG_REV" ]]
-	then
-		main.log -w "The Configuration file $(basename ${CXR_CONFIG}) \n was derived from an older revision ($CXR_CONFIG_REV) of the $CXR_BASECONFIG file (current revision: ${CXR_BASECONFIG_REV}).\n this is not necessarily bad, but check if the two files agree logically (e. g. using diff) \n\n To recreate the config, consider to rename the existing configuration and do a dry-run: \n \t \$ mv ${CXR_CONFIG} ${CXR_CONFIG}.old \n \t \$ $0 -d\n"	 
-	fi
-	
-	# Look at the system load
+	# Collect data
 	load=$(common.performance.getReaLoadPercent)
-	main.log -a "System Load (Memory & CPU): $load %"
-
 	mb_needed=$(common.check.PredictModelOutputMb)
-	main.log "I estimate that this simulation will take ${mb_needed} MB of space in ${CXR_OUTPUT_DIR}."
+
+	main.log -a "================================================================================"
+	main.log -a " Run name:           ${CXR_RUN}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Mission:            ${CXR_MISSION:--}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Emissions:          ${CXR_EMMISS_SCENARIO}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Probing:            ${CXR_PROBING_TOOL}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " \# Species:         ${CXR_NUMBER_OF_OUTPUT_SPECIES}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " 3D option (current) ${CXR_AVERAGE_OUTPUT_3D}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Approx. storage     ${mb_needed} MB
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Output dir          ${CXR_OUTPUT_DIR}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " System Load         ${load}
 
 	# Show grid dimensions
 	common.runner.reportDimensions
 	
-	main.log -B "Using $CXR_NUMBER_OF_OUTPUT_SPECIES output species"
-	
+	main.log -a "================================================================================"
+
 	if [[ "${CXR_LOG_LEVEL_SCREEN}" -ge "${CXR_LOG_LEVEL_VRB}"  ]]
 	then
 		common.variables.list
@@ -400,11 +394,7 @@ function common.runner.printSummary()
 		
 		main.log -v -b "Bash stack size: $(ulimit -s)" 
 	fi
-	
-	# Check if the selected binary supports our settings
-	common.check.ModelLimits
-	common.check.ExecLimits
-	
+
 }
 
 ################################################################################
