@@ -369,13 +369,15 @@ function common.runner.printSummary()
 	main.log -a "................................................................................"
 	main.log -a " 3D option (curr.)?  ${CXR_AVERAGE_OUTPUT_3D}"
 	main.log -a "................................................................................"
+	main.log -a " OMP_NUM_THREADS     ${OMP_NUM_THREADS}"
+	main.log -a "................................................................................"
 	main.log -a " Approx. storage     ${mb_needed} MB"
 	main.log -a "................................................................................"
 	main.log -a " Output dir          ${CXR_OUTPUT_DIR}"
 	main.log -a "................................................................................"
 	main.log -a " Config reload?      ${CXR_RELOAD_CONF}"
 	main.log -a "................................................................................"
-	main.log -a " System Load         ${load}"
+	main.log -a " System Load         ${load}%"
 
 	# Show grid dimensions
 	common.runner.reportDimensions
@@ -1624,7 +1626,7 @@ function common.runner.createMissingDirs()
 	# Get directories (create as needed)
 	for dir in $(set | grep -e "^CXR_\([A-Z_]\)*DIR=" | cut -d= -f1)
 	do
-			main.log -a "Variable $dir has value: ${!dir}\n"
+			main.log -a "$dir : ${!dir}\n"
 
 			# is it set?
 			if [[ "${!dir}" ]]
