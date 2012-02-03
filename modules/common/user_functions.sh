@@ -231,7 +231,7 @@ function common.user.getInput()
 # Waits until the user presses a button
 #
 # Example:
-#> pause
+#> common.user.pause
 #
 # Cannot be used in a loop like (because read is used internally): 
 #
@@ -250,6 +250,40 @@ function common.user.pause()
 	echo "${CXR_SINGLE_LINE}" 1>&2
 	echo -e "${1:-Press a key of your choice to continue...}" 1>&2
 	read -n 1 dummy
+}
+
+################################################################################
+# Function: common.user.wait
+#	
+# Waits a certain number of seconds
+#
+# Example:
+#> common.user.wait
+#
+#
+# Parameters:
+# $1 - number of seconds to wait
+################################################################################
+function common.user.wait() 
+################################################################################
+{
+	if [[  $# -ne 1 || ! "$1" =~ $CXR_PATTERN_NUMERIC ]]
+	then
+		main.log -e  "needs a number (seconds to wait) as input, got $*"
+		echo false
+		return $CXR_RET_ERROR
+	fi
+	
+	local seconds=${1}
+	
+	main.log -a "We will now wait $seconds seconds..."
+	
+	for iter in $(seq 1 $seconds)
+	do
+		common.user.showProgress
+		sleep 1
+	done
+	
 }
 
 ################################################################################

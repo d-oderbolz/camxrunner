@@ -606,10 +606,11 @@ main.log -H "$progname - running stage\nLoading modules from ${CXR_COMMON_INPUT_
 
 
 ################################################################################
-# Show a summary of the configuration
+# Show a summary of the configuration and wait 10 seconds
 ################################################################################
 
 common.runner.printSummary
+common.user.wait 10
 
 ################################################################################
 # Check load
