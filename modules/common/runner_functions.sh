@@ -322,19 +322,11 @@ function common.runner.reportDimensions()
 		# we add one because otherwise we get the lower left 
 		# corner of the upper right most cell (see <common.map.indexesToLonLat>)
 		ne="$(common.map.indexesToLonLat $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
-		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
-		
-		main.log -a -b "Model Coordinates Corners ${iGrid} (incl. buffer cells):"
-		sw="$(common.map.indexesToModelCoordinates 1 1 $iGrid)"
-		# we add one because otherwise we get the lower left 
-		# corner of the upper right most cell (see <common.map.indexesToModelCoordinates>)
-		ne="$(common.map.indexesToModelCoordinates $(( $x + 1 )) $(( $y + 1 )) $iGrid)"
-		main.log -a "south-west corner: $sw\nnorth-east corner: $ne\n"
-		
+
 		main.log -a "--------------------------------------------------------------------------------"
 		main.log -a " Dimensions Grid ${iGrid}"
 		main.log -a " Dim G. ${iGrid}     X: ${x}\nY: ${y}\nZ: ${z}"
-		main.log -a " Lon/Lat Corners     SE: $se SW: $sw NW: $nw NE: $ne"
+		main.log -a " Lon/Lat Corners     SW: $sw NE: $ne"
 		main.log -a "--------------------------------------------------------------------------------"
 
 	done
@@ -363,25 +355,25 @@ function common.runner.printSummary()
 	mb_needed=$(common.check.PredictModelOutputMb)
 
 	main.log -a "================================================================================"
-	main.log -a " Run name            ${CXR_RUN}
+	main.log -a " Run name            ${CXR_RUN}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Mission             ${CXR_MISSION:--}
+	main.log -a " Mission             ${CXR_MISSION:--}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Emissions           ${CXR_EMMISS_SCENARIO}
+	main.log -a " Emissions           ${CXR_EMMISS_SCENARIO}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Probing             ${CXR_PROBING_TOOL}
+	main.log -a " Probing             ${CXR_PROBING_TOOL}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " \# Species          ${CXR_NUMBER_OF_OUTPUT_SPECIES}
+	main.log -a " \# Species          ${CXR_NUMBER_OF_OUTPUT_SPECIES}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " 3D option (curr.)?  ${CXR_AVERAGE_OUTPUT_3D}
+	main.log -a " 3D option (curr.)?  ${CXR_AVERAGE_OUTPUT_3D}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Approx. storage     ${mb_needed} MB
+	main.log -a " Approx. storage     ${mb_needed} MB"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Output dir          ${CXR_OUTPUT_DIR}
+	main.log -a " Output dir          ${CXR_OUTPUT_DIR}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Config reload?      ${CXR_RELOAD_CONF}
+	main.log -a " Config reload?      ${CXR_RELOAD_CONF}"
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " System Load         ${load}
+	main.log -a " System Load         ${load}"
 
 	# Show grid dimensions
 	common.runner.reportDimensions
