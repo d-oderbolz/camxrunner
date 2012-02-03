@@ -363,21 +363,23 @@ function common.runner.printSummary()
 	mb_needed=$(common.check.PredictModelOutputMb)
 
 	main.log -a "================================================================================"
-	main.log -a " Run name:           ${CXR_RUN}
+	main.log -a " Run name            ${CXR_RUN}
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Mission:            ${CXR_MISSION:--}
+	main.log -a " Mission             ${CXR_MISSION:--}
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Emissions:          ${CXR_EMMISS_SCENARIO}
+	main.log -a " Emissions           ${CXR_EMMISS_SCENARIO}
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " Probing:            ${CXR_PROBING_TOOL}
+	main.log -a " Probing             ${CXR_PROBING_TOOL}
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " \# Species:         ${CXR_NUMBER_OF_OUTPUT_SPECIES}
+	main.log -a " \# Species          ${CXR_NUMBER_OF_OUTPUT_SPECIES}
 	main.log -a "--------------------------------------------------------------------------------"
-	main.log -a " 3D option (current) ${CXR_AVERAGE_OUTPUT_3D}
+	main.log -a " 3D option (curr.)?  ${CXR_AVERAGE_OUTPUT_3D}
 	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " Approx. storage     ${mb_needed} MB
 	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " Output dir          ${CXR_OUTPUT_DIR}
+	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Config reload?      ${CXR_RELOAD_CONF}
 	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " System Load         ${load}
 
