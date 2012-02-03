@@ -359,6 +359,8 @@ function common.runner.printSummary()
 	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " Mission             ${CXR_MISSION:--}"
 	main.log -a "--------------------------------------------------------------------------------"
+	main.log -a " Mail to             ${CXR_MAILADDR:--}"
+	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " Emissions           ${CXR_EMMISS_SCENARIO}"
 	main.log -a "--------------------------------------------------------------------------------"
 	main.log -a " Probing             ${CXR_PROBING_TOOL}"
