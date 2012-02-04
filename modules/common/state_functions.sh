@@ -1239,7 +1239,7 @@ function common.state.hasFinished?()
 ################################################################################
 # Function: common.state.cleanup
 #	
-# Depending on user selection:
+# Interactive function. Depending on user selection:
 # - Deletes all state information
 # - Modifies only part of the state information (sets status to TODO)
 # All is in a endless loop so one can quickly modify a lot of stuff
@@ -1452,7 +1452,18 @@ function common.state.cleanup()
 					if [[ "$following_days" == true ]]
 					then
 						stop_day="$(common.user.getMenuChoice "Until (and including) which day should we update?" "$days" )"
-						stop_offset=$(common.date.toOffset $stop_day)
+						
+						if [[ $stop_day == all ]]
+						then
+							stop_offset=$(( ${CXR_NUMBER_OF_SIMULATION_DAYS} - 1 ))
+						elif [[ $stop_day == none ]]
+							then
+								main.log -a "You chose not to modify any data."
+								continue
+						else
+							stop_offset=$(common.date.toOffset $stop_day)
+						fi
+
 						confirm_days="$(common.user.getOK "Do you want to confirm each removal?" )"
 					fi
 				fi
