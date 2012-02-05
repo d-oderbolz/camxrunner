@@ -431,7 +431,7 @@ function main.log()
 	if [[  "${log_level}" -gt "${CXR_LOG_LEVEL_ALW}" && "${log_level}" -lt "${CXR_LOG_LEVEL_INF}" && "${CXR_LOG_LEVEL_EXTERNAL:-${CXR_LOG_LEVEL_ERR}}" -ge "${log_level}" ]]
 	then
 		# The sending is done in the background
-		main.sendMessage "Log" "${blank_message} - ${call_stack}" &
+		main.sendMessage "${CXR_RUN:-CAMxRunner} on ${CXR_MACHINE:-$(uname -n)}" "${blank_message} - ${call_stack}" &
 	fi
 	
 	return $CXR_RET_OK
