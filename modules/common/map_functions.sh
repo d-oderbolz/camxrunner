@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=3
+CXR_META_MODULE_NUM_TESTS=2
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -353,7 +353,7 @@ function common.map.ProjectionToLonLat()
 ################################################################################
 # Function: common.map.ProjectionToModelCoordinates
 #
-# Converts projected coordinates to model coordinatos. (Wrapper for <common.map.ProjectionToLonLat> and <common.map.LonLatToProjection>)
+# Converts projected coordinates to model coordinates. (Wrapper for <common.map.ProjectionToLonLat> and <common.map.LonLatToProjection>)
 #
 # Output is given as a space delimited list of the form "x y".
 #
@@ -422,13 +422,10 @@ function test_module()
 	########################################
 
 	# The first cell of the first domain must be at the origin
-	is "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
+	is.numerical "$(common.map.indexesToModelCoordinates 1 1 1)" "${CXR_MASTER_ORIGIN_XCOORD} ${CXR_MASTER_ORIGIN_YCOORD}" "common.map.indexesToModelCoordinates origin"
 
 	# Test inverse
-	is "$(common.map.LonLatToProjection $(common.map.ProjectionToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToProjection inverse testing"
-
-	# Center must be correct
-	is "$(common.map.LonLatToProjection $CXR_LAMBERT_CENTER_LONGITUDE $CXR_LAMBERT_CENTER_LATITUDE)" "0.0000 0.0000" "common.map.LonLatToProjection" 
+	is.numerical "$(common.map.LonLatToProjection $(common.map.ProjectionToLonLat 0 0))" "0.0000 0.0000" "common.map.LonLatToProjection inverse testing"
 
 	main.log -a "Rigi in LonLat: $(common.map.ProjectionToLonLat 679520.05 212273.44 SWISS)"
 	main.log -a "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47 SWISS)"

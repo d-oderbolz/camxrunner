@@ -228,6 +228,48 @@ function _equals()
 }
 
 ################################################################################
+# Function: _equals.numerical
+#
+# Internal function to test equality (FP comparison). Compares space-delimited 
+# arrays element-wise
+#
+# Parameters:
+# $1 - the actual result
+# $2 - the expected result
+################################################################################
+function _equals.numerical()
+################################################################################
+{
+	local result=(${1:-})
+	local expected=(${2:-})
+	
+	local n_result=${#result[@]}
+	local n_expected=${#expected[@]}
+	local i
+	
+	# if number of elements is not the same, we choke
+	if [[ $n_result -ne $n_expected ]]
+	then
+		return 1
+	fi
+	
+	for i in $(seq 0 $(( $n_result - 1 ))
+	do
+		comp=$(common.math.FloatOperation "${result[$i]} == ${expected[$i]}" 0)
+		
+		# bc uses logic, but this is UNIX, where 0=good
+		if [[ $comp -ne 1 ]]
+		then
+			return 1
+		fi
+		
+	done
+
+	# If we arrive here, its all good
+	return 0
+}
+
+################################################################################
 # Function: _less_than
 #
 # Internal function to test if a result is less than a expected value
@@ -398,13 +440,14 @@ function _isnt_diag()
 	diag "         got: '$result'" 
 	diag "not expected: '$expected'"
 }
+
 ################################################################################
 # Function: is
 #
-# Tests for equality, the most important test function.
+# Tests for string equality, the most important test function.
 #
 # Example:
-# > is $(common.math.abs 0) 0 "common.math.abs of 0 is 0"
+# > is $(common.string.toLower HELLO) hello "common.string.toLower of HELLO is hello"
 #
 # Parameters:
 # $1 - actual result
@@ -420,6 +463,35 @@ function is()
 	local name="${3:-''}"
 
 	_equals "$result" "$expected"
+	(( $? == 0 ))
+	ok $? "$name"
+	local r=$?
+	(( r != 0 )) && _is_diag "$result" "$expected"
+	return $r 
+}
+
+################################################################################
+# Function: is.numerical
+#
+# Tests for numerical equality. Use this when comapring numbers, not <is()>
+#
+# Example:
+# > is.numerical $(common.math.abs 0) 0 "common.math.abs of 0 is 0"
+#
+# Parameters:
+# $1 - actual result
+# $2 - expected result
+# [$3] - test name
+################################################################################
+function is.numerical()
+################################################################################
+{
+
+	local result="${1:-}"
+	local expected="${2:-}"
+	local name="${3:-''}"
+
+	_equals.numerical "$result" "$expected"
 	(( $? == 0 ))
 	ok $? "$name"
 	local r=$?
