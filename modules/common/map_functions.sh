@@ -434,7 +434,7 @@ function test_module()
 	main.log -a "Rigi in LV03: $(common.map.LonLatToProjection 8.5 47 SWISS)"
 	
 	# Get the index of Payerne
-	main.log -a "Indexes of Payerne: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 3)"
+	main.log -a "Indexes of Payerne D1: $(common.map.LonLatToIndexes $(common.map.ProjectionToLonLat 562285 184775 SWISS) 1)"
 	main.log -a "Indexes of Payerne D1 (direct): $(common.map.ProjectionToIndexes 562285 184775 1 SWISS)"
 	main.log -a "LonLat Payerne: $(common.map.ProjectionToLonLat 562285 184775 SWISS)"
 
