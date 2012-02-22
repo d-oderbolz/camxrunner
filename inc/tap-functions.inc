@@ -253,7 +253,7 @@ function _equals.numerical()
 		return 1
 	fi
 	
-	for i in $(seq 0 $(( $n_result - 1 ))
+	for i in $(seq 0 $(( $n_result - 1 )) )
 	do
 		comp=$(common.math.FloatOperation "${result[$i]} == ${expected[$i]}" 0)
 		
