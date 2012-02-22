@@ -1643,7 +1643,7 @@ function main.CheckModuleRequirements()
 									main.log -e "Module $module_name mandatorily needs the executable $what which was not found."
 									result=false
 								else
-									main.log -w "Module $module_name optinally needs the executable $what which was not found."
+									main.log -w "Module $module_name optionally needs the executable $what which was not found."
 								fi
 							fi
 							;;
