@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/pagsh.openafs
 
 # This template is expanded by the -e option of the
 # CAMxRunner. You may use variables in here.
@@ -25,6 +25,9 @@ $(echo -en "\\043")$ -S /bin/bash
 $(echo -en "\\043")$ -o $CXR_MAILADDR
 $(echo -en "\\043")$ -m b e
 
+$(echo -en "\\043")$ -v PATH
+$(echo -en "\\043")$ -v LD_LIBRARY_PATH
+
 # Name the job
 $(echo -en "\\043")$ -N $CXR_RUN
 
@@ -46,6 +49,11 @@ source /usr/share/Modules/init/sh
 export -n -f module
 
 # END SGE INSTRUCTIONS
+
+# We need to source this for AFS
+source /gpfs/home/oderbolz/mpiafs.bash
+
+echo "Running on $(/bin/hostname) at $(/bin/date) using ticket cache $KRB5CCNAME"
 
 days_per_job=$CXR_EXTERNAL_DAYS_PER_JOB
 
