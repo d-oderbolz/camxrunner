@@ -1395,7 +1395,7 @@ function main.readConfig()
 			source "${file}"
 			
 			# Add to loaded list
-			loaded="${loaded} ${md5}"
+			loaded="${loaded:-} ${md5}"
 		else
 			main.log -v "A file with the same MD5 hash as ${file} ($md5) was already loaded!"
 		fi
