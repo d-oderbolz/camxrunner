@@ -466,7 +466,7 @@ function main.sendMessage()
 		adresses="$adresses $CXR_MAILADDR"
 	fi
 	
-	for address in $adresses
+	for address in ${adresses:-}
 	do
 		if [[ "$address" ]]
 		then
@@ -1388,7 +1388,7 @@ function main.readConfig()
 		md5="$(main.getMD5 "$file")"
 		
 		# Was this already loaded?
-		if [[ $(main.isSubstringPresent? "$loaded" "$md5") == false ]]
+		if [[ $(main.isSubstringPresent? "${loaded:-}" "$md5") == false ]]
 		then
 			main.log -a  "Loading ${file} rev ${rev}. MD5: ${md5}"
 		
