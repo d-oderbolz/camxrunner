@@ -160,15 +160,14 @@ function common.install.init()
 }
 
 ################################################################################
-# Function: common.install.getPatchTarget
+# Function: common.install.getPatchTargets
 #	
-# Parses a Patch file and finds out the target file base name.
-# This allows us to name the patches arbitrarily.
+# Parses a Patch file and finds out the target files.
 #
 # Parameters:
 # $1 - Full Path to the patch in question
 ################################################################################
-function common.install.getPatchTarget()
+function common.install.getPatchTargets()
 ################################################################################
 {
 	local patch
@@ -183,22 +182,18 @@ function common.install.getPatchTarget()
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
 	# +++ /path/to/new some other stuff might be here
-	file=$(basename $(grep -h '+++' "$patch" | head -n1 | cut -f2 -d' '))
+	files=$(grep -h '+++' "$patch" | cut -f2 -d' ')
 	
-	if [[ "$file"  ]]
-	then
-		echo "$file"
-	else
-		main.dieGracefully "Could not find any filename"
-	fi
-	
+	echo "$files"
+
 }
 
 ################################################################################
 # Function: common.install.applyPatch
 #	
-# Recursively patches a number of files in a directory by applying patches in another directory.
-# Refer to CAMxRunner Developers Handbook on patch naming convention.
+# Recursively patches a number of files in a directory by applying patches to another directory.
+# Refer to CAMxRunner Developers Handbook (https://intranet.psi.ch/LAC/CAMxRunnerDevelopersGuide)
+# on how to create such patches.
 #
 # .svn directories are ignored
 #
@@ -236,6 +231,10 @@ function common.install.applyPatch()
 	
 	main.log  "Applying patches in $patch_dir to $src_dir..."
 	
+	pushd . > /dev/null
+	cd "$src_dir" || main.dieGracefully "could not change to directory to be patched."
+
+	
 	# Create a list of all patches in all Subdirectories of $patch_dir
 	patchlist=$(common.runner.createTempFile $FUNCNAME)
 	
@@ -249,7 +248,7 @@ function common.install.applyPatch()
 	# while read LINE
 	# do
 	# done
-
+	
 	# This is not possible because I want to read input from stdin as well.
 	# Therefore, I use a slightly more cumbersome/inefficient construct:
 	curline=1
@@ -263,7 +262,7 @@ function common.install.applyPatch()
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
-			main.dieGracefully "could not read name of file to be patched."
+			main.dieGracefully "Could determine name of patch."
 		fi
 		
 		# Is the patch a dos-file ?
@@ -277,49 +276,16 @@ function common.install.applyPatch()
 				main.dieGracefully "could not convert $patch_file to Unix format!"
 			fi
 		fi
-		
-		# Which file do we need to patch?
-		file=$(common.install.getPatchTarget $patch_file)
-		
-		##########
-		# Get the relative path of the current patch
-		##########
-		
-		# How long is the part we need to romeve?
-		# we add 1 because of /
-		len_patch_dir=$(( ${#patch_dir} + 1 ))
 
-		# Give back substring starting at position $len_patch_dir
-		# and then the "path-part"
-		current_dir=$(dirname ${patch_file:$len_patch_dir})
-		
-		# Complete path of the file to patch
-		real_file=$src_dir/$current_dir/$file
-		
-		main.log -v   "$patch_file\nREAL_FILE: $real_file"
-
-		if [[ -f $real_file  ]]
+		if [[ "$ask_user" == true ]]
 		then
-			if [[ "$ask_user" == true  ]]
+			# Ask user
+			
+			main.log -a   "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
+			main.log -a   "This patch affects these files: $(common.install.getPatchTargets $patch_file)"
+			
+			if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file)?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 			then
-				# Ask user
-				
-				main.log -a   "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
-				
-				if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file) to $real_file?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
-				then
-					echo "Applying patch $patch_file to $real_file" >> "${logfile}"
-					patch $real_file < $patch_file
-					
-					# Test status
-					if [[ $? -ne 0 ]]
-					then
-						main.dieGracefully "could not patch $real_file with $patch_file"
-					fi
-					
-				fi
-			else
-				# Just do it
 				echo "Applying patch $patch_file to $real_file" >> "${logfile}"
 				patch $real_file < $patch_file
 				
@@ -328,11 +294,22 @@ function common.install.applyPatch()
 				then
 					main.dieGracefully "could not patch $real_file with $patch_file"
 				fi
+				
 			fi
 		else
-			main.log -e  "file $real_file does not exist. Check the header of $patch_file!"
+			# Just do it
+			echo "Applying patch $patch_file " >> "${logfile}"
+			
+			# Execute patch and assume the paths are  relative in there.
+			patch -p0 -i  $patch_file
+			
+			# Test status
+			if [[ $? -ne 0 ]]
+			then
+				main.dieGracefully "could not patch $real_file with $patch_file"
+			fi
 		fi
-		
+
 		# Increment
 		curline=$(( $curline + 1 ))
 	done
@@ -391,17 +368,16 @@ function test_module()
 	# Setup tests if needed
 	########################################
 	
-	# Create a broken patch
+	# Create a patch
 	# According to spec, we consider only the first one
 	a=$(common.runner.createTempFile)
 	echo "+++ /path/to/new" > $a
-	echo "+++ /path/to/newer" >> $a
 	
 	########################################
 	# Tests. If the number changes, change CXR_META_MODULE_NUM_TESTS
 	########################################
 	
-	is $(common.install.getPatchTarget $a) new "common.install.getPatchTarget of a broken patch"
+	is $(common.install.getPatchTargets $a) /path/to/new "common.install.getPatchTarget of a patch"
 
 	########################################
 	# teardown tests if needed
