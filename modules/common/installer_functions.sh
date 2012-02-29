@@ -259,9 +259,6 @@ function common.install.applyPatch()
 		# the last of which is line $curline
 		patch_file=$(head -n $curline $patchlist | tail -n 1)
 		
-		# patch is stupid so I work locally
-		ln -s $patch_file
-		
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
@@ -283,14 +280,14 @@ function common.install.applyPatch()
 		if [[ "$ask_user" == true ]]
 		then
 			# Ask user
-			
+			files="$(common.install.getPatchTargets $patch_file)"
 			main.log -a   "Found patch $(basename $patch_file). Here are the first few lines:\n$(head -n$CXR_PATCH_HEADER_LENGHT $patch_file)\n"
-			main.log -a   "This patch affects these files: $(common.install.getPatchTargets $patch_file)"
+			main.log -a   "This patch affects these files: $files"
 			
 			if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file)?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 			then
-				echo "Applying patch $patch_file to $real_file" >> "${logfile}"
-				patch $real_file < $patch_file
+				echo "Applying patch $patch_file to $files..." >> "${logfile}"
+				patch -p0 -i $(basename $patch_file)
 				
 				# Test status
 				if [[ $? -ne 0 ]]
@@ -304,7 +301,7 @@ function common.install.applyPatch()
 			echo "Applying patch $patch_file " >> "${logfile}"
 			
 			# Execute patch and assume the paths are  relative in there.
-			patch -p0 -i $(basename $patch_file)
+			patch -p0 -i $patch_file
 			
 			# Test status
 			if [[ $? -ne 0 ]]
@@ -313,9 +310,6 @@ function common.install.applyPatch()
 			fi
 		fi
 		
-		# remove link
-		rm $(basename $patch_file)
-
 		# Increment
 		curline=$(( $curline + 1 ))
 	done
