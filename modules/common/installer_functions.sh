@@ -259,6 +259,9 @@ function common.install.applyPatch()
 		# the last of which is line $curline
 		patch_file=$(head -n $curline $patchlist | tail -n 1)
 		
+		# patch is stupid so I work locally
+		ln -s $patch_file
+		
 		# Test status
 		if [[ $(common.array.allElementsZero? "${PIPESTATUS[@]}") == false ]]
 		then
@@ -301,7 +304,7 @@ function common.install.applyPatch()
 			echo "Applying patch $patch_file " >> "${logfile}"
 			
 			# Execute patch and assume the paths are  relative in there.
-			patch -p0 -i  $patch_file
+			patch -p0 -i $(basename $patch_file)
 			
 			# Test status
 			if [[ $? -ne 0 ]]
@@ -309,10 +312,16 @@ function common.install.applyPatch()
 				main.dieGracefully "could not patch $real_file with $patch_file"
 			fi
 		fi
+		
+		# remove link
+		rm $(basename $patch_file)
 
 		# Increment
 		curline=$(( $curline + 1 ))
 	done
+	
+	# return
+	popd > /dev/null
 	
 }
 
