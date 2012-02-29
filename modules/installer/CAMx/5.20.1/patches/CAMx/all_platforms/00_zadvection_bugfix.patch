@@ -1,0 +1,51 @@
+--- CAMx/zadvec.f
++++ CAMx/zadvec.f
+@@ -11,7 +11,7 @@
+       use rtracchm
+       use tracer
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.21 100615
+ c
+ c     ZADVEC drives vertical transport of concentrations.  The operation
+ c     is performed on the regular model species (losat = False) or source
+@@ -143,8 +143,8 @@
+ c
+       integer icls
+       real fluxlay(MXLAYER)
+-      real fluxcls(MXTRCLS,MXLAYER+1)
+-      real cnccls(MXTRCLS,MXLAYER)
++      real fluxcls(MXTRCLS,MXLAYER)
++      real cnccls(MXTRCLS,MXLAYER+1)
+       real cncafter(MXTRCLS,MXLAYER)
+ c
+ c=================== Source Apportionment End  =======================
+@@ -201,7 +201,7 @@
+                   cnccls(icls,k) = 0.
+                   cncafter(icls,k) = 0.
+                enddo
+-               fluxcls(icls,k+1) = 0.
++               cnccls(icls,nlay+1) = 0.
+              enddo
+           endif
+ c
+--- OSAT/zfluxsa.f
++++ OSAT/zfluxsa.f	
+@@ -4,7 +4,7 @@
+      &           icell,jcell,rhofac,deltat,d1d,fluxcls,cnccls,cncafter)
+       use tracer
+ c
+-c----CAMx v5.20.1 1007014
++c----CAMx v5.21 100615
+ c
+ c-----------------------------------------------------------------------
+ c   Description:
+@@ -92,7 +92,7 @@
+ c
+ c  --- handle the top layer ---
+ c
+-            if( fluxtmp(numlay) .LT. 0. ) then
++            if( fluxcls(icls,numlay) .LT. 0. ) then
+                 fluxtmp(numlay) = fluxcls(icls,numlay) * 
+      &             satop(icell,jcell,ispc) * ptop_fac(ispc) * rhofac /
+      &                                          cnccls(icls,numlay+1)

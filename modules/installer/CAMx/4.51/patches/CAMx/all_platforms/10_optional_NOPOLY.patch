@@ -1,0 +1,11 @@
+--- SOAP/soapdat.f
++++ SOAP/soapdat.f
+@@ -21,7 +21,7 @@
+       data csat     /7.82, 227., 0.726, 136, 3.92, 55.8, 0.0/
+       data cstemp   /7*298.0/
+       data deltah   /66800.,66800.,42000.,42000.,75500.,75500.,0.0/
+-      data fpoly0   /0.025/
++      data fpoly0   /0.0/
+       data flagsoap /7*1/
+ c
+       end

@@ -1,5 +1,5 @@
---- Y:/oderbolz/tmp/CAMx5.30/Makefile	Thu Dec 23 22:00:00 2010
-+++ Y:/oderbolz/tmp/CAMX5.30_Manno/Makefile	Thu Mar 10 16:48:42 2011
+--- Makefile	Thu Dec 23 22:00:00 2010
++++ Makefile	Thu Mar 10 16:48:42 2011
 @@ -41 +41,3 @@
 -MPI_INST = /usr/local/mpich
 +MPI_INST = $(MPICH_DIR)

@@ -1,0 +1,11 @@
+--- IO_hdf/hdf5_f2c.c
++++ IO_hdf/hdf5_f2c.c
+@@ -96 +96 @@
+-dsetid = H5Dopen(fileid, dname);
++ dsetid = H5Dopen(fileid, dname, H5P_DEFAULT);
+@@ -187 +187 @@
+-dsetid = H5Dopen(fileid, dname);
++ dsetid = H5Dopen(fileid, dname, H5P_DEFAULT);
+@@ -306 +306 @@
+-dsetid = H5Dcreate(fileid, dname, memtype, mspcid, propid);
++dsetid = H5Dcreate1(fileid, dname, memtype, mspcid, propid);

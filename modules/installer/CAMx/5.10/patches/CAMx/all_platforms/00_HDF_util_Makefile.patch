@@ -1,0 +1,17 @@
+--- CAMx/MPI/util/Makefile
++++ CAMx/MPI/util/Makefile
+@@ -6,12 +6,12 @@
+ 
+ CC = gcc
+ 
+-LIB = -L$(MPI_INST)/lib -lmpich
++LIB = -lmpich
+ 
+ INC = $(MPI_INST)/include
+ 
+ #####CFLAGS = -O2 -m32 -I $(INC)
+-CFLAGS = -O2 -I $(INC)
++CFLAGS = -O2 
+ 
+ OBJS= par_assoc_buff.o  \
+       par_send_noblock.o  \
