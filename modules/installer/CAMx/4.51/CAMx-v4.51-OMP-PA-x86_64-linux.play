@@ -1,18 +1,18 @@
-#This is a machine-generated file. Generated on Tue Nov 30 23:21:19 CET 2010 by user oderbolz
+#This is a machine-generated file. Generated on Sun Feb 26 19:51:03 CET 2012 by user oderbolz
 #It can be used to replay an installation.
-MXCOL1|97
+MXCOL1|200
 MXCOL2|128
 MXCOL3|150
-MXROW1|90
+MXROW1|280
 MXROW2|113
 MXROW3|134
 MXLAY1|16
 MXLAY2|16
 MXLAY3|16
-MXCOLA|150
-MXROWA|134
+MXCOLA|200
+MXROWA|280
 MXLAYA|16
-MX1D|150
+MX1D|280
 NOZN|5
 NALB|5
 NHAZE|3
@@ -28,3 +28,4 @@ PRESHI|1100.
 MXTRSP|99
 MXFDDM|1
 MXPACEL|31200
+MXCELR|70
