@@ -287,7 +287,7 @@ function common.install.applyPatch()
 			if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file)?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 			then
 				echo "Applying patch $patch_file to $files..." >> "${logfile}"
-				patch -p0 -i $(basename $patch_file)
+				patch -p0 -i $patch_file
 				
 				# Test status
 				if [[ $? -ne 0 ]]
