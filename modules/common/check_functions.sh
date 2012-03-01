@@ -122,7 +122,7 @@ function common.check.PredictModelOutputMb()
 	fi
 	
 	# Add storage needed for Probing tools
-	case "${CXR_PROBING_TOOL}"
+	case "${CXR_PROBING_TOOL}" in
 	
 		PA) probing_factor=1.8 ;; 
 		PSAT|OSAT) probing_factor=2.0 ;;
