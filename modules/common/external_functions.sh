@@ -65,8 +65,8 @@ function common.external.init()
 	fi
 	
 	# On an external machine it is possible that no run was ever started
-	# Therefore we must initialize
-	common.state.updateInfo
+	# Therefore we must initialize (force!)
+	common.state.updateInfo true
 	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen and can be ignored."
 	
@@ -115,8 +115,6 @@ function common.external.init()
 	# Source the model functions to get its functions
 	
 	module_path="$(common.module.getPath "model")"
-	
-	echo "module path: $module_path"
 	
 	source $module_path
 	

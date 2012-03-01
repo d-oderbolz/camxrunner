@@ -386,6 +386,9 @@ function common.state.buildTasksAndDeps()
 # - metadata
 # - instance_tasks (each instance selects its own tasks)
 # (there are others, but they are taken care of in <common.task.init>)
+#
+# Parameters:
+# $1 - boolean force (default false), if true we do it even for a hollow run.
 ################################################################################
 function common.state.updateInfo()
 ################################################################################
@@ -419,9 +422,12 @@ function common.state.updateInfo()
 	local day_list
 	local first
 	local success_file
+	local force
+	
+	force=${1:-false}
 	
 	# If we are hollow, we assume its ok
-	if [[ $CXR_HOLLOW == true ]]
+	if [[ $force == false && $CXR_HOLLOW == true ]]
 	then
 		main.log -a "This is not a real run, we assume module info is up-to-date"
 		return $CXR_RET_OK
