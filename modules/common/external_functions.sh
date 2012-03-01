@@ -64,6 +64,10 @@ function common.external.init()
 		main.dieGracefully "Could not find ${CXR_EXTERNAL_TEMPLATE}!"
 	fi
 	
+	# On an external machine it is possible that no run was ever started
+	# Therefore we must initialize
+	common.state.updateInfo
+	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen and can be ignored."
 	
 	tmpdir=$(common.runner.createTempDir run-external false)
@@ -108,9 +112,12 @@ function common.external.init()
 	done < $CXR_EXTERNAL_TEMPLATE
 	
 	# Now create all CAMx.in files
-	# Source the model
+	# Source the model functions to get its functions
 	
 	module_path="$(common.module.getPath "model")"
+	
+	echo "module path: $module_path"
+	
 	source $module_path
 	
 	# We must modify the rule for the CAMx.in files
