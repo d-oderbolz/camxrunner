@@ -92,7 +92,7 @@ function common.check.PredictFileSizeMb ()
 # Takes into account if 3D output is requested or not.
 # Probing tools are taken into account, but crudely.
 # The factor C(Options) is currently a constant, it might take other options
-# like HDF, source apportionment etc. into account later.
+# like HDF etc. into account later.
 #
 # TODO: take into account instance_tasks table!
 #
@@ -125,7 +125,7 @@ function common.check.PredictModelOutputMb()
 	case "${CXR_PROBING_TOOL}"
 	
 		PA) probing_factor=1.8 ;; 
-		PSAT|OSAT) probing_factor=1.1 ;;
+		PSAT|OSAT) probing_factor=2.0 ;;
 
 	esac
 	
