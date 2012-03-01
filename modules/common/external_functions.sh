@@ -66,6 +66,7 @@ function common.external.init()
 	
 	# On an external machine it is possible that no run was ever started
 	# Therefore we must initialize (force!)
+	common.state.init
 	common.state.updateInfo true
 	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen and can be ignored."
