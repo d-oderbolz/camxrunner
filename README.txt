@@ -11,4 +11,4 @@ http://people.web.psi.ch/oderbolz/CAMxRunner
 When changing the CAMx-runner.sh, make sure to commit it to the 
 SVN Repository using
 
-	svn commit -m"This is wath I did ..." CAMx-runner.sh
+	svn commit -m"This is what I did ..." CAMx-runner.sh
