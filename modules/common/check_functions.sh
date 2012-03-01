@@ -90,6 +90,7 @@ function common.check.PredictFileSizeMb ()
 #
 # Formula: sum (dx_i * dy_i * dz_i) * ( t / t_res) * nspec * C(Options) * f_margin
 # Takes into account if 3D output is requested or not.
+# Probing tools are taken into account, but crudely.
 # The factor C(Options) is currently a constant, it might take other options
 # like HDF, source apportionment etc. into account later.
 #
@@ -109,6 +110,9 @@ function common.check.PredictModelOutputMb()
 	local cells
 	local time_steps
 	local size
+	local probing_factor
+	
+	probing_factor=1
 
 	# Determine size of output field
 	if [[ ${CXR_AVERAGE_OUTPUT_3D} == true  ]]; then
@@ -117,12 +121,20 @@ function common.check.PredictModelOutputMb()
 		cells=$(common.runner.countAllCells2D)
 	fi
 	
+	# Add storage needed for Probing tools
+	case "${CXR_PROBING_TOOL}"
+	
+		PA) probing_factor=1.8 ;; 
+		PSAT|OSAT) probing_factor=1.1 ;;
+
+	esac
+	
 	# Our constant is designed for 10^5 cells
 	cells=$(common.math.FloatOperation "$cells / 100000")
 	
 	time_steps=$(common.math.FloatOperation "(60 * 24 * ${CXR_NUMBER_OF_SIMULATION_DAYS}) / ${CXR_OUTPUT_FREQUENCY}" 0)
 	
-	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN}" 0)
+	size=$(common.math.FloatOperation "${cells} * ${time_steps} * ${CXR_NUMBER_OF_OUTPUT_SPECIES} * ${CXR_C_SPACE} * ${CXR_F_MARGIN} * ${probing_factor}" 0)
 	
 	echo "$size"
 }
