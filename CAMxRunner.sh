@@ -123,8 +123,8 @@ function main.usage()
         
 	  -e    Prepares an external model run on an MPI machine. This just generates CAMx.in 
 	        files and a script to run the job on the HPC system. 
-	        Uses external.conf as last conf file, allowing you to rewrite any 
-	        directories and/or rules.
+	        Uses external.conf as second to last conf file, allowing you to inject any 
+	        directories and/or rules (like a new base.conf)
 	  
 	  -L    List all available modules. (this command is sensitive to the run name)
 	  ----------------------------------------------------------------------------
