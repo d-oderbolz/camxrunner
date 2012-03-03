@@ -1,0 +1,11 @@
+This file documents a compilation of CAMx 5.30, done on Wed Feb 29 15:12:12 CET 2012 by oderbolz
+Output Binary name: /afs/psi.ch/project/MM5V3-7-4/CAMxRunner/bin/CAMx/5.30/CAMx-v5.30-OMP-None-CMAQ-SOA-x86_64-linux
+HDF: false
+PARALELL PARADIGM: OMP
+PLATFORM: pg_linuxomp
+FC: /opt/pgi/pgi-10.1/linux86-64/10.1/bin/pgf90
+
+pgf90 10.1-0 64-bit target on x86-64 Linux -tp nehalem-64 
+Copyright 1989-2000, The Portland Group, Inc.  All Rights Reserved.
+Copyright 2000-2010, STMicroelectronics, Inc.  All Rights Reserved.
+Applying patch /afs/psi.ch/project/MM5V3-7-4/CAMxRunner/modules/installer/CAMx/5.30/patches/CAMx/all_platforms/01_mpi_bgfix.patch to 
