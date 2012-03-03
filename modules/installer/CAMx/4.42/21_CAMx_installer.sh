@@ -430,7 +430,7 @@ function CAMx_installer()
 		cp "$playfile" "${conffile}"
 		
 		# Inject comment
-		echo "\# $binary_description" >> "${conffile}"
+		echo -e "\\043 $binary_description" >> "${conffile}"
 		
 		########################################
 		main.log -a  "Installation of chemparam files..."
