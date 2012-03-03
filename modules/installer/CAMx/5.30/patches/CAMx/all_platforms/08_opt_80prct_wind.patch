@@ -1,0 +1,14 @@
+--- IO_bin/readinp.f	Sat Dec 10 21:49:34 2011
++++ IO_bin/readinp.f	Sat Mar 03 21:42:41 2012
+@@ -126,0 +127,6 @@
++      
++c     Optional adjustment parameter for wind
++      real wind_factor
++      
++      wind_factor = 0.8
++      
+@@ -236,0 +243,4 @@
++          
++          unext(i,j,k) = unext(i,j,k) * wind_factor
++          vnext(i,j,k) = vnext(i,j,k) * wind_factor
++          
