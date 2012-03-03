@@ -199,7 +199,7 @@ function CAMx_installer()
 		
 		main.log  "The new binary will be called $binary_name"
 		
-		binary_description="(common.user.getInput "Please give ashort description of this binary:")"
+		binary_description="$(common.user.getInput "Please give ashort description of this binary:")"
 		
 		# Here we store the current configuration
 		conffile=${binary_name}.conf
