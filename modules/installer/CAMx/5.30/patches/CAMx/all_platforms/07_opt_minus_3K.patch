@@ -1,0 +1,17 @@
+--- CAMx/updtmet.f	Sat Dec 10 21:49:37 2011
++++ CAMx/updtmet.f	Sat Mar 03 01:42:58 2012
+@@ -95,0 +96,5 @@
++c     This is just needed to adjust Temperature (for sensitivity)
++      real :: deltaTemp
++      
++      deltaTemp = -3.0
++
+@@ -160,0 +166,5 @@
++            
++            if (deltaTemp.ne.0) then
++            	tempk(i,j,k) = tempk(i,j,k) + deltaTemp
++            endif
++            
+@@ -164,0 +175,2 @@
++            
++            if (k.eq.1 .and. deltaTemp.ne.0) tsurf(i,j) = tsurf(i,j) + deltaTemp

@@ -64,6 +64,7 @@ function CAMx_installer()
 		
 		# This is the filename we finally want
 		local binary_name
+		local binary_description
 		local target_prm_file
 		local expected_name
 		local run
@@ -198,6 +199,8 @@ function CAMx_installer()
 		
 		main.log  "The new binary will be called $binary_name"
 		
+		binary_description="(common.user.getInput "Please give ashort description of this binary:")"
+		
 		# Here we store the current configuration
 		conffile=${binary_name}.conf
 		
@@ -208,6 +211,7 @@ function CAMx_installer()
 		# Logging
 		echo "This file documents a compilation of $CXR_MODEL $CXR_MODEL_VERSION, done on $(date) by $USER" >> "${logfile}"
 		echo "Output Binary name: $binary_name" >> "${logfile}"
+		echo "$binary_description" >> "${logfile}"
 		
 		# hdf? (Not reflected in name)
 		hdf=$(common.user.getOK "Do you want to compile ${CXR_MODEL} with hdf support?\nthis requires the hdf library (see previous step of installation)" Y )
@@ -424,6 +428,9 @@ function CAMx_installer()
 		########################################
 		
 		cp "$playfile" "${conffile}"
+		
+		# Inject comment
+		echo "\# $binary_description" >> "${conffile}"
 		
 		########################################
 		main.log -a  "Installation of chemparam files..."
