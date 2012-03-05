@@ -1,5 +1,5 @@
---- Makefile.pg_64bit	Sat Dec 10 21:49:39 2011
-+++ Makefile.pg_64bit	Mon Mar 05 16:22:09 2012
+--- Makefile	Sat Dec 10 21:49:39 2011
++++ Makefile	Mon Mar 05 16:22:09 2012
 @@ -156 +156 @@
 -	   FLGS="$(INCLUDES) -convert big_endian -O3 -align dcommons"
 +	   FLGS="$(INCLUDES) -convert big_endian -O0 -align dcommons"
