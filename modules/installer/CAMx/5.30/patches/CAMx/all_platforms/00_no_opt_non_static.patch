@@ -1,5 +1,5 @@
---- Makefile	Sat Dec 10 21:49:39 2011
-+++ Makefile	Mon Mar 05 16:22:09 2012
+--- Makefile.pg_64bit	Sat Dec 10 21:49:39 2011
++++ Makefile.pg_64bit	Mon Mar 05 21:56:57 2012
 @@ -156 +156 @@
 -	   FLGS="$(INCLUDES) -convert big_endian -O3 -align dcommons"
 +	   FLGS="$(INCLUDES) -convert big_endian -O0 -align dcommons"
@@ -9,6 +9,33 @@
 @@ -167 +167 @@
 -	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -convert big_endian -O3 -align dcommons"
 +	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -convert big_endian -O0 -align dcommons"
+@@ -176 +176 @@
+-	   FLGS="-O2 -Wf,-I$(CAMx_INC) -I$(MPI_INC)"
++	   FLGS="-O0 -Wf,-I$(CAMx_INC) -I$(MPI_INC)"
+@@ -182 +182 @@
+-	   FLGS="-DSGI $(DEFHDF) -O2 -Wf,$(INCLUDES)"
++	   FLGS="-DSGI $(DEFHDF) -O0 -Wf,$(INCLUDES)"
+@@ -187 +187 @@
+-	   FLGS="-O2 -Wf,-I$(CAMx_INC) -I$(MPI_INC)"
++	   FLGS="-O0 -Wf,-I$(CAMx_INC) -I$(MPI_INC)"
+@@ -252 +252 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O0 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+@@ -258 +258 @@
+-	   FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
++	   FLGS="$(INCLUDES) -DIBM $(DEFHDF) -O0 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+@@ -263 +263 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O0 -static -brename:.flush,.flush_ -brename:.etime,.etime_ -brename:.dtime,.dtime_ -brename:.fdate,.fdate_"
+@@ -271 +271 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O0 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
+@@ -277 +277 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O0 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
+@@ -282 +282 @@
+-	   FLGS="$(INCLUDES) -mcmodel=medium -O2 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -mcmodel=medium -O0 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 @@ -290 +290 @@
 -	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 +	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
@@ -18,6 +45,24 @@
 @@ -301 +301 @@
 -	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 +	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -309 +309 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
+@@ -315 +315 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
+@@ -320 +320 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
+@@ -328 +328 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
+@@ -334 +334 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
+@@ -339 +339 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O2 -mieee-fp -align dcommons -extend_source -convert big_endian"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -openmp -O0 -mieee-fp -align dcommons -extend_source -convert big_endian"
 @@ -347 +347 @@
 -	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
 +	   FLGS="-I$(CAMx_INC) -V -O0 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
