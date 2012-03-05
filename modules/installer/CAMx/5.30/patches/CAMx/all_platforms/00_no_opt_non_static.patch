@@ -1,0 +1,29 @@
+--- Makefile.pg_64bit	Sat Dec 10 21:49:39 2011
++++ Makefile.pg_64bit	Mon Mar 05 16:22:09 2012
+@@ -156 +156 @@
+-	   FLGS="$(INCLUDES) -convert big_endian -O3 -align dcommons"
++	   FLGS="$(INCLUDES) -convert big_endian -O0 -align dcommons"
+@@ -162 +162 @@
+-	   FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O3 -align dcommons"
++	   FLGS="$(INCLUDES) -DALPHA $(DEFHDF) -convert big_endian -O0 -align dcommons"
+@@ -167 +167 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -convert big_endian -O3 -align dcommons"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -convert big_endian -O0 -align dcommons"
+@@ -290 +290 @@
+-	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -296 +296 @@
+-	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -301 +301 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
+@@ -347 +347 @@
+-	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++	   FLGS="-I$(CAMx_INC) -V -O0 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
+@@ -353 +353 @@
+-	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O3 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) $(INCLUDES) -DPC_LINUX1 $(DEFHDF) -O0 -V -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
+@@ -358 +358 @@
+-	   FLGS="-I$(CAMx_INC) -V -O3 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
++	   FLGS="-I$(CAMx_INC) -V -O0 -m64 -N11 -YEXT_NAMES=LCS -YEXT_SFX=_ -s -YCFRL=1 -W132 -lU77 -L/Applications/Absoft/lib64"
