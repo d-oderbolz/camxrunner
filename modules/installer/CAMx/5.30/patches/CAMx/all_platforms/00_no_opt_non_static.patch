@@ -1,5 +1,5 @@
---- Makefile.pg_64bit	Sat Dec 10 21:49:39 2011
-+++ Makefile.pg_64bit	Mon Mar 05 21:56:57 2012
+--- Makefile	Sat Dec 10 21:49:39 2011
++++ Makefile	Mon Mar 05 21:59:53 2012
 @@ -156 +156 @@
 -	   FLGS="$(INCLUDES) -convert big_endian -O3 -align dcommons"
 +	   FLGS="$(INCLUDES) -convert big_endian -O0 -align dcommons"
@@ -38,13 +38,13 @@
 +	   FLGS="$(INCLUDES) -mcmodel=medium -O0 -pc 64 -Kieee -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
 @@ -290 +290 @@
 -	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
-+	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
++	   FLGS="-I$(CAMx_INC) -mcmodel=medium -I$(MPI_INC) -mp -O0 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio"
 @@ -296 +296 @@
 -	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
-+	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
++	   FLGS="$(INCLUDES) -DPC_LINUX1 $(DEFHDF) -mcmodel=medium -O0 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio"
 @@ -301 +301 @@
 -	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O2 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio -Bstatic_pgi"
-+	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O0 -pc 64 -Kieee -Mconcur=nonuma -Mdalign -Mextend -Mnoframe -byteswapio"
++	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -mcmodel=medium -mp -O0 -pc 64 -Kieee  -Mdalign -Mextend -Mnoframe -byteswapio"
 @@ -309 +309 @@
 -	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O2 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
 +	   FLGS="-I$(CAMx_INC) -I$(MPI_INC) -O0 -mieee-fp -align dcommons -extend_source -convert big_endian -static"
