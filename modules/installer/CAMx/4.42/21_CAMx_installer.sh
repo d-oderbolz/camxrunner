@@ -197,6 +197,14 @@ function CAMx_installer()
 			binary_name=${CXR_MODEL_BIN_DIR}/$(common.user.getInput "What should be the name of the new binary?")
 		fi
 		
+		if [[ -e $binary_name ]]
+		then
+			if [[ "$(common.user.getOK "The executable $binary_name already exists. Do you want to overwrite?" N )" == false  ]]
+			then
+				main.dieGracefully "User Stopped."
+			fi
+		fi
+		
 		main.log  "The new binary will be called $binary_name"
 		
 		binary_description="$(common.user.getInput "Please give ashort description of this binary:")"
