@@ -1,13 +1,15 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 15:28:53 2012
-@@ -82,0 +83,6 @@
++++ CAMx/CAMx.f	Fri Mar 09 15:43:57 2012
+@@ -69,0 +70 @@
++      include 'custom.inc'
+@@ -82,0 +84,6 @@
 +      
 +c     Index into Ozone_Offset_PPB and PPM conc
 +      integer ozone_offset_index, icol, irow, ilay
 +      integer ozone_offset_index_last
 +      real ozone_offset_ppm
 +      
-@@ -291,0 +298,33 @@
+@@ -291,0 +299,33 @@
 +
 +           write(*,'(a20,$)')    'Adj. O3 .....'
 +           write(iout,'(a20,$)') 'Adj. O3 .....'
