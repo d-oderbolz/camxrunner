@@ -45,12 +45,16 @@
 +           enddo
 +
 --- CAMx/readnml.f	Sat Dec 10 21:49:37 2011
-+++ CAMx/readnml.f	Fri Mar 09 14:08:34 2012
-@@ -84 +84,2 @@
++++ CAMx/readnml.f	Fri Mar 09 15:19:05 2012
+@@ -57,0 +58,3 @@
++      
++      real   Ozone_Offset_PPB(24)
++      
+@@ -84 +87,2 @@
 -     & Dry_Deposition
 +     & Dry_Deposition,
 +     & NML_Ozone_Offset_PPB
-@@ -192,0 +194,4 @@
+@@ -192,0 +197,4 @@
 +
 +c     ozone control
 +      Ozone_Offset_PPB = NML_Ozone_Offset_PPB
