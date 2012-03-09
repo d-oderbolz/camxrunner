@@ -43,23 +43,9 @@
 +             enddo
 +           enddo
 +
---- CAMx/readnml.f	Sat Dec 10 21:49:37 2011
-+++ CAMx/readnml.f	Fri Mar 09 15:40:31 2012
-@@ -57,0 +58,3 @@
-+      
-+      include 'custom.inc'
-+      
-@@ -84 +87 @@
--     & Dry_Deposition
-+     & Dry_Deposition, NML_Ozone_Offset_PPB 
-@@ -192,0 +196,4 @@
-+
-+c     ozone control
-+      Ozone_Offset_PPB = NML_Ozone_Offset_PPB
-+
 --- Includes/custom.inc	Fri Mar 09 15:05:24 2012
-+++ Includes/custom.inc	Fri Mar 09 15:38:01 2012
-@@ -0,0 +1,19 @@
++++ Includes/custom.inc	Fri Mar 09 16:21:27 2012
+@@ -0,0 +1,17 @@
 +c----CAMx v5.30 101223
 +c 
 +c     Here, custom flags are included
@@ -74,13 +60,18 @@
 +c     Ozone_Offset_PPB -- Offset of Ozone to add for each model hour
 +c-----------------------------------------------------------------------
 +c
-+      real   NML_Ozone_Offset_PPB(24)
-+      real   Ozone_Offset_PPB(24)
 +c
 +      common /custom/ Ozone_Offset_PPB
 +c
 \ No newline at end of file
---- Includes/namelist.inc	Sat Dec 10 21:49:32 2011
-+++ Includes/namelist.inc	Fri Mar 09 15:37:37 2012
-@@ -109,0 +110 @@
-+
+--- SOAP/soapdat.f	Sat Dec 10 21:49:30 2011
++++ SOAP/soapdat.f	Fri Mar 09 16:22:46 2012
+@@ -17,0 +18 @@
++      include 'custom.inc'
+@@ -26 +27,5 @@
+-c
++      
++c     we abuse this for out little ozone experiment
++      data Ozone_Offset_PPB /0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
++      &                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0/
++      
