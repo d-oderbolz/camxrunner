@@ -1,5 +1,5 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 15:43:57 2012
++++ CAMx/CAMx.f	Fri Mar 09 16:29:17 2012
 @@ -69,0 +70 @@
 +      include 'custom.inc'
 @@ -82,0 +84,6 @@
@@ -22,9 +22,9 @@
 +           
 +c     For all hours expect the first, we need to remove the last addition
 +           if (ozone_offset_index .gt. 1) then
-+           	ozone_offset_ppm = (Ozone_Offset_PPB(ozone_offset_index) * 1000.) - (Ozone_Offset_PPB(ozone_offset_index_last) * 1000.)
++           	ozone_offset_ppm = (ozone_offset_ppb(ozone_offset_index) * 1000.) - (ozone_offset_ppb(ozone_offset_index_last) * 1000.)
 +           else
-+           	ozone_offset_ppm = (Ozone_Offset_PPB(ozone_offset_index) * 1000.)
++           	ozone_offset_ppm = (ozone_offset_ppb(ozone_offset_index) * 1000.)
 +           endif
 +           
 +c     We loop thorugh conc(1) this holds the concentrations of the coarse domain
@@ -44,8 +44,8 @@
 +           enddo
 +
 --- Includes/custom.inc	Fri Mar 09 15:05:24 2012
-+++ Includes/custom.inc	Fri Mar 09 16:21:27 2012
-@@ -0,0 +1,17 @@
++++ Includes/custom.inc	Fri Mar 09 16:34:48 2012
+@@ -0,0 +1,19 @@
 +c----CAMx v5.30 101223
 +c 
 +c     Here, custom flags are included
@@ -61,17 +61,19 @@
 +c-----------------------------------------------------------------------
 +c
 +c
-+      common /custom/ Ozone_Offset_PPB
++      real ozone_offset_ppb(24)
++      
++      common /custom/ ozone_offset_ppb
 +c
 \ No newline at end of file
 --- SOAP/soapdat.f	Sat Dec 10 21:49:30 2011
-+++ SOAP/soapdat.f	Fri Mar 09 16:22:46 2012
++++ SOAP/soapdat.f	Fri Mar 09 16:28:08 2012
 @@ -17,0 +18 @@
 +      include 'custom.inc'
 @@ -26 +27,5 @@
 -c
 +      
 +c     we abuse this for out little ozone experiment
-+      data Ozone_Offset_PPB /0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
++      data ozone_offset_ppb /0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
 +      &                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0/
 +      
