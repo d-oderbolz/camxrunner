@@ -1,5 +1,5 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 23:05:53 2012
++++ CAMx/CAMx.f	Fri Mar 09 23:32:05 2012
 @@ -82,0 +83,6 @@
 +      
 +c     Index into Ozone_Offset_PPB and PPM conc
@@ -7,13 +7,14 @@
 +      integer ozone_offset_index_last
 +      real ozone_offset_ppm
 +      
-@@ -90,0 +97,5 @@
+@@ -90,0 +97,6 @@
 +      
 +      real ozone_offset_ppb(24)
 +            
 +c     our static 24 hour array to modify O3
-+      data ozone_offset_ppb /24*0.0/
-@@ -291,0 +303,33 @@
++      data ozone_offset_ppb /-1.0  -5.0 -10.0 -15.0 -20.0 -20.0 -15.0 -10.0 -5.0 0.0 5.0 10.0
++      &                       20.0 20.0  20.0  20.0  20.0  15.0  10.0   0.0  0.0 0.0 0.0 0.0/
+@@ -291,0 +304,33 @@
 +
 +           write(*,'(a20,$)')    'Adj. O3 .....'
 +           write(iout,'(a20,$)') 'Adj. O3 .....'
