@@ -1,5 +1,5 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 13:31:16 2012
++++ CAMx/CAMx.f	Fri Mar 09 15:04:56 2012
 @@ -70,0 +71,2 @@
 +c     Needed to modify ozone
 +      include 'namelist.inc'
@@ -10,13 +10,13 @@
 +      integer ozone_offset_index_last
 +      real ozone_offset_ppm
 +      
-@@ -291,0 +300,28 @@
+@@ -291,0 +300,33 @@
 +
 +           write(*,'(a20,$)')    'Adj. O3 .....'
 +           write(iout,'(a20,$)') 'Adj. O3 .....'
 +           
 +c-----We add O3 offset but make sure that we remove the last value (otherwise we have build-up!)
-+c     Note that we assume O3 to be at position 3!
++c     Note that we assume O3 to be at position 3 in the internal fields as well as in the average fields
 +
 +           ozone_offset_index = time/100
 +           ozone_offset_index_last = ozone_offset_index - 1
@@ -33,11 +33,16 @@
 +           do ilay = 1,nlay(1)
 +             do icol = 1,ncol(1)
 +               do irow = 1, nrow(1)
-+                 conc(icol,irow,ilay,3) = conc(icol,irow,ilay,3) + ozone_offset_ppm
++c                 This indexing code is from readcnc.f 
++c                 O3 is in position 3
++                  n3d = icol + ncol(1)*(irow - 1) + ncol(1)*nrow(1)*(ilay - 1)
++                  n4d = n3d + ncol(1)*nrow(1)*nlay(1)*2
++c                we adjust both the instantaneous and the average field
++                 conc(n4d) = conc(n4d) + ozone_offset_ppm
++                 avcnc(n4d) = avcnc(n4d) + ozone_offset_ppm
 +               enddo
 +             enddo
 +           enddo
-+
 +
 --- CAMx/readnml.f	Sat Dec 10 21:49:37 2011
 +++ CAMx/readnml.f	Fri Mar 09 14:08:34 2012
@@ -50,7 +55,7 @@
 +c     ozone control
 +      Ozone_Offset_PPB = NML_Ozone_Offset_PPB
 +
---- Includes/custom.inc	Fri Mar 09 14:11:14 2012
+--- Includes/custom.inc	Fri Mar 09 15:05:24 2012
 +++ Includes/custom.inc	Fri Mar 09 14:05:30 2012
 @@ -0,0 +1,18 @@
 +c----CAMx v5.30 101223
