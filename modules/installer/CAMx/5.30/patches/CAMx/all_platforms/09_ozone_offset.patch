@@ -40,16 +40,26 @@
 +
 +
 --- CAMx/readnml.f	Sat Dec 10 21:49:37 2011
-+++ CAMx/readnml.f	Fri Mar 09 11:48:03 2012
++++ CAMx/readnml.f	Fri Mar 09 14:08:34 2012
 @@ -84 +84,2 @@
 -     & Dry_Deposition
 +     & Dry_Deposition,
-+     & Ozone_Offset_PPB
-@@ -192,0 +194 @@
++     & NML_Ozone_Offset_PPB
+@@ -192,0 +194,4 @@
 +
---- Includes/camx.inc	Sat Dec 10 21:49:32 2011
-+++ Includes/camx.inc	Fri Mar 09 11:40:09 2012
-@@ -85,0 +86,11 @@
++c     ozone control
++      Ozone_Offset_PPB = NML_Ozone_Offset_PPB
++
+--- Includes/custom.inc	Fri Mar 09 14:11:14 2012
++++ Includes/custom.inc	Fri Mar 09 14:05:30 2012
+@@ -0,0 +1,18 @@
++c----CAMx v5.30 101223
++c 
++c     Here, custom flags are included
++c
++c-----------------------------------------------------------------------
++
++
 +c
 +c-----------------------------------------------------------------------
 +c     Variables for customisations:
@@ -63,7 +73,7 @@
 +c
 \ No newline at end of file
 --- Includes/namelist.inc	Sat Dec 10 21:49:32 2011
-+++ Includes/namelist.inc	Fri Mar 09 11:47:46 2012
++++ Includes/namelist.inc	Fri Mar 09 14:05:55 2012
 @@ -109,0 +110,2 @@
 +c     Added by DCO to allow increase in O3
-+      real          Ozone_Offset_PPB(24)
++      real          NML_Ozone_Offset_PPB(24)
