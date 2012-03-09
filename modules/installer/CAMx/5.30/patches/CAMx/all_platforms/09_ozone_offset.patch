@@ -1,15 +1,19 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 16:29:17 2012
-@@ -69,0 +70 @@
-+      include 'custom.inc'
-@@ -82,0 +84,6 @@
++++ CAMx/CAMx.f	Fri Mar 09 23:05:53 2012
+@@ -82,0 +83,6 @@
 +      
 +c     Index into Ozone_Offset_PPB and PPM conc
 +      integer ozone_offset_index, icol, irow, ilay
 +      integer ozone_offset_index_last
 +      real ozone_offset_ppm
 +      
-@@ -291,0 +299,33 @@
+@@ -90,0 +97,5 @@
++      
++      real ozone_offset_ppb(24)
++            
++c     our static 24 hour array to modify O3
++      data ozone_offset_ppb /24*0.0/
+@@ -291,0 +303,33 @@
 +
 +           write(*,'(a20,$)')    'Adj. O3 .....'
 +           write(iout,'(a20,$)') 'Adj. O3 .....'
@@ -43,37 +47,3 @@
 +             enddo
 +           enddo
 +
---- Includes/custom.inc	Fri Mar 09 15:05:24 2012
-+++ Includes/custom.inc	Fri Mar 09 16:34:48 2012
-@@ -0,0 +1,19 @@
-+c----CAMx v5.30 101223
-+c 
-+c     Here, custom flags are included
-+c
-+c-----------------------------------------------------------------------
-+
-+
-+c
-+c-----------------------------------------------------------------------
-+c     Variables for customisations:
-+c
-+c     Ozone_Offset_PPB -- Offset of Ozone to add for each model hour
-+c-----------------------------------------------------------------------
-+c
-+c
-+      real ozone_offset_ppb(24)
-+      
-+      common /custom/ ozone_offset_ppb
-+c
-\ No newline at end of file
---- SOAP/soapdat.f	Sat Dec 10 21:49:30 2011
-+++ SOAP/soapdat.f	Fri Mar 09 16:28:08 2012
-@@ -17,0 +18 @@
-+      include 'custom.inc'
-@@ -26 +27,5 @@
--c
-+      
-+c     we abuse this for out little ozone experiment
-+      data ozone_offset_ppb /0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-+      &                      0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0/
-+      
