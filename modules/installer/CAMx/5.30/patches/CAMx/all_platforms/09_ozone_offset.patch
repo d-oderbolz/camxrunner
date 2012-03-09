@@ -1,16 +1,13 @@
 --- CAMx/CAMx.f	Sat Dec 10 21:49:36 2011
-+++ CAMx/CAMx.f	Fri Mar 09 15:04:56 2012
-@@ -70,0 +71,2 @@
-+c     Needed to modify ozone
-+      include 'namelist.inc'
-@@ -82,0 +85,6 @@
++++ CAMx/CAMx.f	Fri Mar 09 15:28:53 2012
+@@ -82,0 +83,6 @@
 +      
 +c     Index into Ozone_Offset_PPB and PPM conc
 +      integer ozone_offset_index, icol, irow, ilay
 +      integer ozone_offset_index_last
 +      real ozone_offset_ppm
 +      
-@@ -291,0 +300,33 @@
+@@ -291,0 +298,33 @@
 +
 +           write(*,'(a20,$)')    'Adj. O3 .....'
 +           write(iout,'(a20,$)') 'Adj. O3 .....'
@@ -45,10 +42,10 @@
 +           enddo
 +
 --- CAMx/readnml.f	Sat Dec 10 21:49:37 2011
-+++ CAMx/readnml.f	Fri Mar 09 15:19:05 2012
++++ CAMx/readnml.f	Fri Mar 09 15:31:17 2012
 @@ -57,0 +58,3 @@
 +      
-+      real   Ozone_Offset_PPB(24)
++      include 'custom.inc'
 +      
 @@ -84 +87,2 @@
 -     & Dry_Deposition
