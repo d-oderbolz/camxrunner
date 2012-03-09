@@ -143,7 +143,7 @@ function common.install.init()
 		DEFAULT_VERSION=${array[0]}
 	
 		#Generate a menu automatically
-		CXR_MODEL_VERSION=$(common.user.getMenuChoice "Which version of $model should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
+		CXR_MODEL_VERSION=$(common.user.getMenuChoice "Which version of $CXR_MODEL should be used?\nIf your desired version is not in this list, adjust CXR_SUPPORTED_MODEL_VERSIONS \n(Currently $supported)" "$supported" "$DEFAULT_VERSION")
 		
 		common.check.isVersionSupported? $CXR_MODEL_VERSION $CXR_MODEL
 		
