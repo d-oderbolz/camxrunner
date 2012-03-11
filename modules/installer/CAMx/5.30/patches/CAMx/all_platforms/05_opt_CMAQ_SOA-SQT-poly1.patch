@@ -1,0 +1,100 @@
+--- SOAP/soachem.f	Sat Dec 10 21:49:30 2011
++++ SOAP/soachem.f	Wed Feb 29 12:34:12 2012
+@@ -10,0 +11,5 @@
++c     Data adjusted according to Carlton, A. G., P. V. Bhave, et al. (2010). 
++c     "Model Representation of Secondary Organic Aerosol in CMAQv4.7." EST
++c     (Table S-4 and Tabel 1. Note that yields wehre mass-based. 
++c     ARO1=TOLA, ARO2=XYLA)
++c
+@@ -13,2 +18,2 @@
+-c        TOLA + OH  -> 0.044 CG1 + 0.085 CG2 ; 1.80e-12 @ -355.
+-c        XYLA + OH  -> 0.027 CG1 + 0.118 CG2 ; 1.70e-11 @ -116.
++c        TOLA + OH  -> 0.042 CG1 + 0.080 CG2 ; 1.81e-12 @ -355.  (rxn 01)
++c        XYLA + OH  -> 0.021 CG1 + 0.062 CG2 ; 2.64e-11          (rxn 02)
+@@ -19,9 +24,10 @@
+-c        ISP  + O   ->                       ; 3.60e-11
+-c        ISP  + OH  -> 0.015 CG3 + 0.12 CG4  ; 2.54e-11 @ -407.6
+-c        ISP  + O3  ->                       ; 7.86e-15 @ 1912.
+-c        ISP  + NO3 ->                       ; 3.03e-12 @ 448.
+-c
+-c        TRP  + O   -> 0.065 CG5 + 0.29 CG6  ; 2.79e-11
+-c        TRP  + OH  -> 0.065 CG5 + 0.29 CG6  ; 1.20e-11 @ -440.
+-c        TRP  + O3  -> 0.065 CG5 + 0.29 CG6  ; 6.30e-16 @ 580.
+-c        TRP  + NO3 -> 0.065 CG5 + 0.29 CG6  ; 1.20e-12 @ -490.
++c        ISP  + O   ->                       ; 3.60e-11           (rxn 03)
++c        ISP  + OH  -> 0.020 CG3 + 0.164 CG4  ; 2.54e-11 @ -407.6 (rxn 04)
++c        ISP  + O3  ->                       ; 7.86e-15 @ 1912.   (rxn 05)
++c        ISP  + NO3 ->                       ; 3.03e-12 @ 448.    (rxn 06)
++c
++c        TRP  + O   -> 0.113 CG5 + 0.368 CG6  ; 3.27e-11           (rxn 07)
++c        dco: Unsure about the next three. The sign of the exponents changed!!
++c        TRP  + OH  -> 0.065 CG5 + 0.29 CG6  ; 2.5e-11 @ 408.     (rxn 08)
++c        TRP  + O3  -> 0.065 CG5 + 0.29 CG6  ; 1.08e-15 @ -821.    (rxn 09)
++c        TRP  + NO3 -> 0.065 CG5 + 0.29 CG6  ; 3.66e-12 @ 175.   (rxn 10)
+@@ -30,3 +36,3 @@
+-c        SQT  + OH  -> 0.85 CG7              ; 1.97e-10
+-c        SQT  + O3  -> 0.85 CG7              ; 1.16e-14
+-c        SQT  + NO3 -> 0.85 CG7              ; 1.90e-11
++c        SQT  + OH  -> 0.83 CG7              ; 1.97e-10           (rxn 11)
++c        SQT  + O3  -> 0.83 CG7              ; 1.16e-14           (rxn 12)
++c        SQT  + NO3 -> 0.83 CG7              ; 1.90e-11           (rxn 13)
+@@ -86,2 +92,2 @@
+-      data  rkpar / 1.80d-12, -355.0d0,  ! rxn 1
+-     &              1.70d-11, -116.0d0,  ! rxn 2
++      data  rkpar / 1.81d-12, -355.0d0,  ! rxn 1
++     &              2.64d-11,    0.0d0,  ! rxn 2
+@@ -92,4 +98,4 @@
+-     &              2.79d-11,    0.0d0,  ! rxn 7
+-     &              1.20d-11, -440.0d0,  ! rxn 8
+-     &              6.30d-16,  580.0d0,  ! rxn 9
+-     &              1.20d-12, -490.0d0,  ! rxn 10
++     &              3.27d-11,    0.0d0,  ! rxn 7
++     &              2.50d-11,  408.0d0,  ! rxn 8
++     &              1.08d-15, -821.0d0,  ! rxn 9
++     &              3.66d-12,  175.0d0,  ! rxn 10
+@@ -101,2 +107,2 @@
+-      data  yval  / 0.044,       0.085,  ! rxn 1
+-     &              0.027,       0.118,  ! rxn 2
++      data  yval  / 0.042,       0.080,  ! rxn 1
++     &              0.021,       0.062,  ! rxn 2
+@@ -104 +110 @@
+-     &              0.015,       0.12 ,  ! rxn 4
++     &              0.020,       0.164 , ! rxn 4
+@@ -107,7 +113,7 @@
+-     &              0.065,       0.29 ,  ! rxn 7
+-     &              0.065,       0.29 ,  ! rxn 8
+-     &              0.065,       0.29 ,  ! rxn 9
+-     &              0.065,       0.29 ,  ! rxn 10
+-     &              0.85 ,       0.0  ,  ! rxn 11
+-     &              0.85 ,       0.0  ,  ! rxn 12
+-     &              0.85 ,       0.0   / ! rxn 13
++     &              0.113,       0.368 , ! rxn 7
++     &              0.113,       0.368 , ! rxn 8
++     &              0.113,       0.368 , ! rxn 9
++     &              0.113,       0.368 , ! rxn 10
++     &              0.83 ,       0.0  ,  ! rxn 11
++     &              0.83 ,       0.0  ,  ! rxn 12
++     &              0.83 ,       0.0   / ! rxn 13
+--- SOAP/soapdat.f	Sat Dec 10 21:49:30 2011
++++ SOAP/soapdat.f	Thu Mar 01 09:35:04 2012
+@@ -14,0 +15,5 @@
++c     
++c     Data adjusted according to Carlton, A. G., P. V. Bhave, et al. (2010). 
++c     "Model Representation of Secondary Organic Aerosol in CMAQv4.7." EST
++c     The Thermodynamic data of SQT was not changed.
++c     
+@@ -18,2 +23,2 @@
+-c
+-      data mwsoap   /150., 150., 130., 130., 180., 180., 210./
++c                    CG1   CG2   CG3   CG4   CG5   CG6   CG7
++      data mwsoap   /180., 180., 96. , 96. , 168., 168., 378./
+@@ -21 +26,2 @@
+-      data csat     /7.82, 227., 0.726, 136, 3.92, 55.8, 0.0/
++c                    CG1   CG2   CG3   CG4   CG5   CG6   CG7
++      data csat     /1.82, 27.8, 0.617,116., 14., 133.7, 0.0/
+@@ -23,2 +29,3 @@
+-      data deltah   /66800.,66800.,42000.,42000.,75500.,75500.,0.0/
+-      data fpoly0   /0.025/
++c                    CG1    CG2    CG3    CG4    CG5    CG6    CG7
++      data deltah   /25000.,25000.,40000.,40000.,40000.,40000.,0.0/
++      data fpoly0   /1.000/
