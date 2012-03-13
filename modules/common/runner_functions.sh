@@ -1743,6 +1743,8 @@ function common.runner.recreateInput()
 		
 		# remove .conf
 		oldEmissRun="$(basename "$oldEmissRunConfig" .conf)"
+		
+		main.log -a "Re-using emissions from $oldEmissRun "
 	else
 		# Use oldRun
 		oldEmissRun="$oldRun"
@@ -1764,6 +1766,8 @@ function common.runner.recreateInput()
 		
 		# remove .conf
 		oldInputRun="$(basename $oldInputRunConfig .conf)"
+		
+		main.log -a "Re-using other Inputs from $oldInputRun "
 	else
 		# Use oldRun
 		oldInputRun="$oldRun"
