@@ -1,0 +1,5 @@
+--- Makefile.pg_64bit	Sat Dec 10 21:49:39 2011
++++ Makefile.pg_64bit	Tue Mar 13 09:11:05 2012
+@@ -863 +863 @@
+-	$(FC) -c -o Dummy/mpi_dummy.o Dummy/mpi_dummy.f
++	$(FC) -c $(FLGS) -o Dummy/mpi_dummy.o Dummy/mpi_dummy.f
