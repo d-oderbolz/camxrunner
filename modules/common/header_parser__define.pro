@@ -4,7 +4,7 @@
 ;
 ; PURPOSE:
 ; Parses (ASCII) CAMx Input and output files, returns 2 hashes. 
-; Hash scalars cotains the scalars
+; Hash scalars contains the scalars
 ; Hash species contains the species in the file
 ;
 ; CATEGORY:
@@ -123,6 +123,7 @@ function header_parser::init, filename, is_binary
 	self.file_types->add,'AIRQUALITY',1
 	self.file_types->add,'BOUNDARY',1
 	self.file_types->add,'EMISSIONS',1
+	self.file_types->add,'INSTANT',1
 	
 	; Parse it now
 	self->parse
@@ -307,8 +308,23 @@ pro header_parser::parse
 		if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
 		if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
 		
+		; For BC, we need to read to the end
+		if (type EQ 'BOUNDARY') then begin
+		
+			ncell=0L
+			iedge=0L
+			idum=0
+		
+			for f=1,4 do begin
+				readu, parser_lun,ione,iedge,ncell
+				for icell=0L,ncell-1 do begin
+					readu, parser_lun,icell,idum,idum,idum
+				endfor
+			endfor
+		endif
+		
 		; Header length
-		print,"For binary files, the header length is given in bytes. (Wrong for BC files!)"
+		print,"For binary files, the header length is given in bytes."
 		point_lun, -1 * parser_lun, pos
 		
 		self.header_length = pos
