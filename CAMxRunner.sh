@@ -638,11 +638,6 @@ INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname
 main.sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
 main.log "$INFO"
 
-if [[ "${CXR_HOLLOW}" == false || "${CXR_DRY}" == true ]]
-then
-	main.log "Output will be written to ${CXR_OUTPUT_DIR}\nWe run ${CXR_MODEL} ${CXR_MODEL_VERSION} using the chemparam File ${CXR_CHEMPARAM_INPUT_FILE}. We process ${CXR_TUV_NO_OF_REACTIONS} photolytic reactions\n" 
-fi
-
 if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ]]
 then
 	main.log "In this run, at most ${CXR_ERROR_THRESHOLD} errors will be tolerated before stopping.\n"
