@@ -323,10 +323,12 @@ pro header_parser::parse
 			endfor
 		endif
 		
-		; Header length
-		print,"For binary files, the header length is given in bytes."
-		point_lun, -1 * parser_lun, pos
+		print,idum
 		
+		; Header length
+		
+		point_lun, -1 * parser_lun, pos
+		print,"For binary files, the header length is given in bytes (" + strtrim(pos,2) + ")"
 		self.header_length = pos
 		
 	endif else begin
