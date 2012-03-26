@@ -68,7 +68,7 @@ function common.check.concentrations()
 		main.dieGracefully "needs 1 string (a pattern) as input"
 	fi
 	
-	main.log -a "Concentration summary:"
+	main.log -a -B "Concentration summary:"
 	
 	local exec_tmp_file
 	local pattern
