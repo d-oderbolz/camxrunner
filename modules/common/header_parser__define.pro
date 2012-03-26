@@ -313,7 +313,7 @@ pro header_parser::parse
 			ncell=0L
 			iedge=0
 			idum=0
-			;dummy=0
+			dummy=0
 		
 			for f=1,4 do begin
 				readu, parser_lun,ione,iedge,ncell
