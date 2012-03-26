@@ -311,9 +311,9 @@ pro header_parser::parse
 		; For BC, we need to read to the end
 		if (type EQ 'BOUNDARY') then begin
 		
-			ncell=0L
-			iedge=0L
-			idum=0
+			;ncell=0L
+			;iedge=0L
+			;idum=0
 		
 			for f=1,4 do begin
 				readu, parser_lun,ione,iedge,ncell
