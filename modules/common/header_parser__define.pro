@@ -272,7 +272,6 @@ pro header_parser::parse
 		; prefill
 		for i=0L, nspec-1 do arspec[i]=self.prefill(4,10)
 
-	
 		; Now read nspec species
 		readu, parser_lun, arspec
 		
@@ -308,7 +307,7 @@ pro header_parser::parse
 		if (ny LT 1 ) then print,'WRN: ny less than 1 (' + strtrim(ny,2) + ')!'
 		if (nz LT 1 ) then print,'WRN: nz less than 1 (' + strtrim(nz,2) + ')!'
 		
-		; For BC, we need to read to the end
+		; For BC, we need to read more
 		if (type EQ 'BOUNDARY') then begin
 		
 			ncell=0L
@@ -319,7 +318,7 @@ pro header_parser::parse
 				readu, parser_lun,ione,iedge,ncell
 				print,ncell
 				; we read an (4,ncell) integer array
-				dummy_arr=intarr(4,ncell)
+				dummy_arr=intarr(ncell,4)
 				readu, parser_lun,dummy_arr
 
 			endfor ; 4 faces
