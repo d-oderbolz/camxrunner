@@ -318,10 +318,9 @@ pro header_parser::parse
 			for f=1,4 do begin
 				readu, parser_lun,ione,iedge,ncell
 				print,ncell
-				; we read ncell times an integer array of 4 elements
-				dummy_arr=intarr(4)
-				
-				for icell=0,ncell-1 do readu, parser_lun,dummy_arr
+				; we read an (4,ncells) integer array
+				dummy_arr=intarr(4,ncells)
+				readu, parser_lun,dummy_arr
 
 			endfor ; 4 faces
 			
