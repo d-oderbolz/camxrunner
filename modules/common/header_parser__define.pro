@@ -318,17 +318,11 @@ pro header_parser::parse
 			dummy1=intarr(4,ny)
 			dummy2=intarr(4,nx)
 			readu, parser_lun,ione,iedge,ncell,dummy1
-			print,ione,iedge,ncell
 			readu, parser_lun,ione,iedge,ncell,dummy1
-			print,ione,iedge,ncell
 			readu, parser_lun,ione,iedge,ncell,dummy2
-			print,ione,iedge,ncell
 			readu, parser_lun,ione,iedge,ncell,dummy2
-			print,ione,iedge,ncell
 
 		endif
-		
-		print,idum
 		
 		; Header length
 		
