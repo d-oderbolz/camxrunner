@@ -631,8 +631,6 @@ function write_model_control_file()
 		fi # Version >= 5.4
 	fi
 	
-	
-
 	echo " Wet_Deposition         = .${CXR_WET_DEPOSITION}.," >> ${CXR_MODEL_CTRL_FILE} 
 	
 	# Some CAMx 5.x features
@@ -1087,7 +1085,7 @@ function model()
 				write_sa_receptor_definitions_file
 			fi
 			
-			if [[ $(common.check.preconditions) == false  ]]
+			if [[ $(common.check.preconditions) == false ]]
 			then
 				main.log  "Preconditions for ${CXR_META_MODULE_NAME} are not met!"
 				common.state.storeStatus ${CXR_STATUS_FAILURE}  > /dev/null
@@ -1115,6 +1113,13 @@ function model()
 				fi
 			done
 			
+			# Show a summary of the concentrations in IC or Inst /BC/Emiss
+			if [[ ${CXR_RESTART} == true ]]
+			then
+				common.check.concentrations "{${CXR_MASTER_GRID_RESTART_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
+			else
+				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
+			fi
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
 			
@@ -1158,6 +1163,10 @@ function model()
 				# We notify the caller of the problem
 				retval=$CXR_RET_ERR_POSTCONDITIONS
 			else
+			
+				# Show summary of concentrations
+				common.check.concentrations "${CXR_AVG_OUTPUT_ARR_FILES[1]}"
+			
 				# We store the fact model run was completed
 				common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 				retval=$CXR_RET_OK

@@ -27,12 +27,7 @@ CXR_META_MODULE_NUM_TESTS=2
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
 # If a requirement is not binding, optional is added at the end
-CXR_META_MODULE_REQ_SPECIAL="exec|md5sum|optional"
-
-# This string describes special requirements this module has
-# it is a space-separated list of requirement|value[|optional] tuples.
-# If a requirement is not binding, optional is added at the end
-CXR_META_MODULE_REQ_SPECIAL="exec|dos2unix"
+CXR_META_MODULE_REQ_SPECIAL="exec|md5sum|optional exec|dos2unix exec|idl"
 
 # Add description of what it does (in "", use \n for newline)
 CXR_META_MODULE_DESCRIPTION="Contains most of the check functions for the CAMxRunner"
@@ -48,6 +43,50 @@ CXR_META_MODULE_LICENSE="Creative Commons Attribution-Share Alike 2.5 Switzerlan
 
 # Do not change this line, but make sure to run "svn propset svn:keywords "Id" FILENAME" on the current file
 CXR_META_MODULE_VERSION='$Id$'
+
+################################################################################
+# Function: common.check.concentrations
+#	
+# Lists a summary of the concentrations identified by the given pattern.
+# Uses the IDL procedure summarize_bin_files.
+# 
+# Parameters:
+# $1 - a pattern describing the files to be summarized. Use {} to indicate alternation
+################################################################################
+function common.check.concentrations() 
+################################################################################
+{
+	# Disable checks for fast guys
+	if [[ $CXR_FAST == true ]]
+	then
+		echo 0
+		return $CXR_RET_OK
+	fi
+
+	if [[ $# -ne 1 ]]
+	then
+		main.dieGracefully "needs 1 string (a pattern) as input"
+	fi
+	
+	main.log -a "Concentration summary:"
+	
+	local exec_tmp_file
+	local pattern
+	
+	pattern="$1"
+	
+	exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
+
+
+	cat <<-EOF > $exec_tmp_file
+	.run summarize_bin_files.pro
+	summarize_bin_files,'$pattern'
+	exit
+	EOF
+	
+	${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
+	
+}
 
 ################################################################################
 # Function: common.check.BashVersion
