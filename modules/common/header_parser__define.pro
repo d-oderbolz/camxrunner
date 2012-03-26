@@ -315,22 +315,17 @@ pro header_parser::parse
 			idum=0
 			dummy=0
 		
-			for f=1,4 do begin
-				readu, parser_lun,ione,iedge,ncell
-				print,ione,iedge,ncell
-				
-				for icell=1,ncell do begin
-					for fi=1,4 do begin
-						readu, parser_lun,dummy
-					endfor
-				endfor
-				
-				; we read an (4,ncell) integer array
-				;dummy_arr=intarr(4,ncell)
-				;readu, parser_lun,dummy_arr
+			dummy1=intarr(4,ny)
+			dummy2=intarr(4,nx)
+			readu, parser_lun,ione,iedge,ncell,dummy1
+			print,ione,iedge,ncell
+			readu, parser_lun,ione,iedge,ncell,dummy1
+			print,ione,iedge,ncell
+			readu, parser_lun,ione,iedge,ncell,dummy2
+			print,ione,iedge,ncell
+			readu, parser_lun,ione,iedge,ncell,dummy2
+			print,ione,iedge,ncell
 
-			endfor ; 4 faces
-			
 		endif
 		
 		print,idum
