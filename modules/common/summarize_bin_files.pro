@@ -458,7 +458,7 @@ pro summarize_bin_files,file_pattern
 				xsize=5
 				
 				sData = strjoin([species_arr[ispec],string(species_min[ispec],format='(F15.7)'),string(c_avg,format='(F15.7)'),string(species_max[ispec],format='(F15.7)'),string(c_rsd,format='(F15.7)')],'	')
-				sData[0:xsize-2, *] = sData[0:xsize-2, *] + "	"
+				sData[0:xsize-2] = sData[0:xsize-2] + "	"
 				
 				print,sData
 			endfor
