@@ -287,6 +287,9 @@ function common.install.applyPatch()
 			if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file)?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 			then
 				echo "Applying patch $patch_file to $files..." >> "${logfile}"
+				echo " This is the patch:" >> "${logfile}"
+				cat $patch_file >> "${logfile}"
+				
 				patch -p0 -i $patch_file
 				
 				# Test status
@@ -299,6 +302,8 @@ function common.install.applyPatch()
 		else
 			# Just do it
 			echo "Applying patch $patch_file " >> "${logfile}"
+			echo " This is the patch:" >> "${logfile}"
+			cat $patch_file >> "${logfile}"
 			
 			# Execute patch and assume the paths are  relative in there.
 			patch -p0 -i $patch_file
