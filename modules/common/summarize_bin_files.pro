@@ -7,6 +7,9 @@ pro summarize_bin_files,file_pattern
 	; file2 (Type), nx x ny x nz
 	;   ...
 	
+	; To calculate a numerically stable average and standard deviation,
+	; we use the algorithm by  Donald E. Knuth (1998). The Art of Computer Programming, volume 2: Seminumerical Algorithms
+	
 	; The idea is to run this for IC/INST/BC/EMISS before running the model
 	; Also supports AVERAGE files
 	
@@ -57,8 +60,8 @@ pro summarize_bin_files,file_pattern
 		
 		species_min = fltarr(nspec) ; running min
 		species_max = fltarr(nspec) ; running max
-		species_sum = fltarr(nspec) ; running sum
-		species_sum_of_squares = fltarr(nspec) ; running sum-of-squares
+		species_avg = fltarr(nspec) ; running average
+		species_prevar = fltarr(nspec) ; running pre-variance
 		
 		;; Print data
 		print, current_input_file + " (" + type + ") " + strtrim(nx,2) + "x" + strtrim(ny,2) + "x" + strtrim(nz,2)
@@ -149,10 +152,10 @@ pro summarize_bin_files,file_pattern
 															readu,current_input_lun,ione,mspec,avg_arr_slice
 															
 															; Current stats
-															c_min = min(avg_arr_slice)
-															c_max = max(avg_arr_slice)
-															c_tot = total(avg_arr_slice)
-															c_n = n_elements(avg_arr_slice)
+															data=avg_arr_slice
+															c_min = min(data)
+															c_max = max(data)
+															c_n = n_elements(data)
 															
 															; Update stats
 															if (cells_seen[ispec] GT 0) then begin
@@ -163,15 +166,21 @@ pro summarize_bin_files,file_pattern
 																species_max[ispec] = c_max
 															endelse
 															
-															cells_seen[ispec] += c_n
-															species_sum[ispec] += c_tot
-															
 															for i=0,c_n - 1 do begin
-																species_sum_of_squares[ispec] += avg_arr_slice[i] ^ 2
-															endfor
-															
+																if cells_seen[ispec] eq 0 then begin
+																	; init (prevar[0] is 0, no need to fix)
+																	species_avg[ispec] = data[i]
+																endif else begin
+																	; update average and variance
+																	last_avg=data[ispec]
+																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+																endelse
+																cells_seen[ispec] ++
+															endfor ; update avg and prevar for each cell
+
 	
-						              	endfor
+						              	endfor ; layers
 		
 					              endfor ; species
 					              
@@ -204,10 +213,10 @@ pro summarize_bin_files,file_pattern
 															readu,current_input_lun,ione,mspec,ic_arr_slice
 															
 															; Current stats
-															c_min = min(ic_arr_slice)
-															c_max = max(ic_arr_slice)
-															c_tot = total(ic_arr_slice)
-															c_n = n_elements(ic_arr_slice)
+															data=ic_arr_slice
+															c_min = min(data)
+															c_max = max(data)
+															c_n = n_elements(data)
 															
 															; Update stats
 															if (cells_seen[ispec] GT 0) then begin
@@ -218,12 +227,18 @@ pro summarize_bin_files,file_pattern
 																species_max[ispec] = c_max
 															endelse
 															
-															cells_seen[ispec] += c_n
-															species_sum[ispec] += c_tot
-															
 															for i=0,c_n - 1 do begin
-																species_sum_of_squares[ispec] += ic_arr_slice[i] ^ 2
-															endfor
+																if cells_seen[ispec] eq 0 then begin
+																	; init (prevar[0] is 0, no need to fix)
+																	species_avg[ispec] = data[i]
+																endif else begin
+																	; update average and variance
+																	last_avg=data[ispec]
+																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+																endelse
+																cells_seen[ispec] ++
+															endfor ; update avg and prevar for each cell
 	
 						              	endfor
 		
@@ -268,10 +283,10 @@ pro summarize_bin_files,file_pattern
 															readu,current_input_lun,ione,mspec,bc_west_east_arr_slice
 															
 															; Current stats
-															c_min = min(bc_west_east_arr_slice)
-															c_max = max(bc_west_east_arr_slice)
-															c_tot = total(bc_west_east_arr_slice)
-															c_n = n_elements(bc_west_east_arr_slice)
+															data=bc_west_east_arr_slice
+															c_min = min(data)
+															c_max = max(data)
+															c_n = n_elements(data)
 															
 															; Update stats
 															if (cells_seen[ispec] GT 0) then begin
@@ -282,12 +297,18 @@ pro summarize_bin_files,file_pattern
 																species_max[ispec] = c_max
 															endelse
 															
-															cells_seen[ispec] += c_n
-															species_sum[ispec] += c_tot
-															
 															for i=0,c_n - 1 do begin
-																species_sum_of_squares[ispec] += bc_west_east_arr_slice[i] ^ 2
-															endfor
+																if cells_seen[ispec] eq 0 then begin
+																	; init (prevar[0] is 0, no need to fix)
+																	species_avg[ispec] = data[i]
+																endif else begin
+																	; update average and variance
+																	last_avg=data[ispec]
+																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+																endelse
+																cells_seen[ispec] ++
+															endfor ; update avg and prevar for each cell
 
 														endfor ; Faces
 														
@@ -300,10 +321,10 @@ pro summarize_bin_files,file_pattern
 															readu,current_input_lun,ione,mspec,bc_south_north_arr_slice
 															
 															; Current stats
-															c_min = min(bc_south_north_arr_slice)
-															c_max = max(bc_south_north_arr_slice)
-															c_tot = total(bc_south_north_arr_slice)
-															c_n = n_elements(bc_south_north_arr_slice)
+															data=bc_south_north_arr_slice
+															c_min = min(data)
+															c_max = max(data)
+															c_n = n_elements(data)
 															
 															; Update stats
 															if (cells_seen[ispec] GT 0) then begin
@@ -314,12 +335,19 @@ pro summarize_bin_files,file_pattern
 																species_max[ispec] = c_max
 															endelse
 															
-															cells_seen[ispec] += c_n
-															species_sum[ispec] += c_tot
-															
 															for i=0,c_n - 1 do begin
-																species_sum_of_squares[ispec] += bc_south_north_arr_slice[i] ^ 2
-															endfor
+																if cells_seen[ispec] eq 0 then begin
+																	; init (prevar[0] is 0, no need to fix)
+																	species_avg[ispec] = data[i]
+																endif else begin
+																	; update average and variance
+																	last_avg=data[ispec]
+																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+																endelse
+																cells_seen[ispec] ++
+															endfor ; update avg and prevar for each cell
+
 
 														endfor ; Faces
 
@@ -356,10 +384,10 @@ pro summarize_bin_files,file_pattern
 														readu,current_input_lun,ione,mspec,emiss_arr_slice
 														
 														; Current stats
-														c_min = min(emiss_arr_slice)
-														c_max = max(emiss_arr_slice)
-														c_tot = total(emiss_arr_slice)
-														c_n = n_elements(emiss_arr_slice)
+														data=emiss_arr_slice
+														c_min = min(data)
+														c_max = max(data)
+														c_n = n_elements(data)
 														
 														; Update stats
 														if (cells_seen[ispec] GT 0) then begin
@@ -370,13 +398,19 @@ pro summarize_bin_files,file_pattern
 															species_max[ispec] = c_max
 														endelse
 														
-														cells_seen[ispec] += c_n
-														
-														species_sum[ispec] += c_tot
-														
 														for i=0,c_n - 1 do begin
-															species_sum_of_squares[ispec] += emiss_arr_slice[i] ^ 2
-														endfor
+															if cells_seen[ispec] eq 0 then begin
+																; init (prevar[0] is 0, no need to fix)
+																species_avg[ispec] = data[i]
+															endif else begin
+																; update average and variance
+																last_avg=data[ispec]
+																species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+															endelse
+															cells_seen[ispec] ++
+														endfor ; update avg and prevar for each cell
+
 
 													endfor ; emissions species
 														
@@ -405,13 +439,13 @@ pro summarize_bin_files,file_pattern
 															ione=1L
 															mspec=hp->prefill(4,10)
 															readu,current_input_lun,ione,mspec,inst_arr_slice
-															
+
 															; Current stats
-															c_min = min(inst_arr_slice)
-															c_max = max(inst_arr_slice)
-															c_tot = total(inst_arr_slice)
-															c_n = n_elements(inst_arr_slice)
-															
+															data=inst_arr_slice
+															c_min = min(data)
+															c_max = max(data)
+															c_n = n_elements(data)
+														
 															; Update stats
 															if (cells_seen[ispec] GT 0) then begin
 																if c_min LT species_min[ispec] then species_min[ispec] = c_min
@@ -421,12 +455,19 @@ pro summarize_bin_files,file_pattern
 																species_max[ispec] = c_max
 															endelse
 															
-															cells_seen[ispec] += c_n
-															species_sum[ispec] += c_tot
-															
 															for i=0,c_n - 1 do begin
-																species_sum_of_squares[ispec] += inst_arr_slice[i] ^ 2
-															endfor
+																if cells_seen[ispec] eq 0 then begin
+																	; init (prevar[0] is 0, no need to fix)
+																	species_avg[ispec] = data[i]
+																endif else begin
+																	; update average and variance
+																	last_avg=data[ispec]
+																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
+																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
+																endelse
+																cells_seen[ispec] ++
+															endfor ; update avg and prevar for each cell
+
 
 						              	endfor
 		
@@ -447,10 +488,9 @@ pro summarize_bin_files,file_pattern
 				; translate to unsorted
 				ispec=sorted[iispec]
 			
-				c_avg=species_sum[ispec]/cells_seen[ispec]
 				; RSD is ratio of sd by mean
-				if c_avg gt 0 then begin
-					c_rsd=sqrt(1/((cells_seen[ispec]-1)*cells_seen[ispec]) * ((cells_seen[ispec]+1)*species_sum_of_squares[ispec] - (species_sum[ispec])^2))/c_avg
+				if species_avg[ispec] gt 0 then begin
+					c_rsd=sqrt(species_prevar[ispec]/(cells_seen[ispec] - 1))/species_avg[ispec]
 				endif else begin
 					c_rsd=0.0
 				endelse
@@ -458,7 +498,7 @@ pro summarize_bin_files,file_pattern
 				xsize=5
 				delimiter=STRING(9B)
 
-				sData = [species_arr[ispec],string(species_min[ispec],format='(F15.7)'),string(c_avg,format='(F15.7)'),string(species_max[ispec],format='(F15.7)'),string(c_rsd,format='(F15.7)')]
+				sData = [species_arr[ispec],string(species_min[ispec],format='(F15.7)'),string(species_avg[ispec],format='(F15.7)'),string(species_max[ispec],format='(F15.7)'),string(c_rsd,format='(F15.7)')]
 				sData[0:xsize-2,*] = sData[0:xsize-2,*] + delimiter
 				
 				print,sData
