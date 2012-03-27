@@ -61,7 +61,7 @@ pro summarize_bin_files,file_pattern
 		species_sum_of_squares = fltarr(nspec) ; running sum-of-squares
 		
 		;; Print data
-		print, file_basename(current_input_file) + " (" + type + ") " + strtrim(nx,2) + "x" + strtrim(ny,2) + "x" + strtrim(nz,2)
+		print, current_input_file + " (" + type + ") " + strtrim(nx,2) + "x" + strtrim(ny,2) + "x" + strtrim(nz,2)
 		
 		; Prepare data structures
 		case type of

@@ -229,7 +229,7 @@ function common.install.applyPatch()
 		main.dieGracefully "$FUNCNAE:$LINENO - needs two existing directories as input, either $patch_dir or $src_dir not found."
 	fi
 	
-	main.log -a "Applying patches in $patch_dir to $src_dir..."
+	main.log -a "Applying patches in $patch_dir to $src_dir. Logging to $logfile ..."
 	
 	pushd . > /dev/null
 	cd "$src_dir" || main.dieGracefully "could not change to directory to be patched."
