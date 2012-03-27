@@ -182,7 +182,7 @@ function common.install.getPatchTargets()
 	
 	# Simple parser, we look for (See also http://en.wikipedia.org/wiki/Diff)
 	# +++ /path/to/new some other stuff might be here
-	files=$(grep -h '+++' "$patch" | cut -f2 -d' ')
+	files=$(grep -h '+++' "$patch" | awk '{print $2}' )
 	
 	echo "$files"
 
@@ -218,7 +218,6 @@ function common.install.applyPatch()
 	local file
 	local len_patch_dir
 	local current_dir
-	local real_file
 	
 	patch_dir="$1"
 	src_dir="$2"
@@ -303,7 +302,7 @@ function common.install.applyPatch()
 				# Test status
 				if [[ $? -ne 0 ]]
 				then
-					main.dieGracefully "could not patch $real_file with $patch_file"
+					main.dieGracefully "could not apply patch $patch_file"
 				fi
 				
 				set +xv
@@ -323,7 +322,7 @@ function common.install.applyPatch()
 			# Test status
 			if [[ $? -ne 0 ]]
 			then
-				main.dieGracefully "could not patch $real_file with $patch_file"
+				main.dieGracefully "could not apply patch $patch_file"
 			fi
 		fi
 		
