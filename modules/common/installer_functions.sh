@@ -213,6 +213,7 @@ function common.install.applyPatch()
 	
 	local patchlist
 	local curline
+	local nlines
 	local patch_file
 	local file
 	local len_patch_dir
@@ -252,7 +253,9 @@ function common.install.applyPatch()
 	# This is not possible because I want to read input from stdin as well.
 	# Therefore, I use a slightly more cumbersome/inefficient construct:
 	curline=1
-	while [ $curline -le $(wc -l < $patchlist) ]
+	nlines=$(wc -l < $patchlist)
+	
+	while [[ $curline -le $nlines ]]
 	do
 		# Read the current line (I know this is not nice, read comment above)
 		# Read first $curline lines
@@ -286,6 +289,9 @@ function common.install.applyPatch()
 			
 			if [[ "$(common.user.getOK "Do you want to apply the patch $(basename $patch_file)?\nCheck if the patch is compatible with the current platform." Y )" == true  ]]
 			then
+				set -xv
+			
+			
 				echo "Applying patch $patch_file to $files..." >> "${logfile}"
 				echo " This is the patch:" >> "${logfile}"
 				echo "=============================" >> "${logfile}"
@@ -299,6 +305,8 @@ function common.install.applyPatch()
 				then
 					main.dieGracefully "could not patch $real_file with $patch_file"
 				fi
+				
+				set +xv
 				
 			fi
 		else
