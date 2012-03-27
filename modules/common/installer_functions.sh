@@ -291,11 +291,11 @@ function common.install.applyPatch()
 				set -xv
 			
 			
-				echo "Applying patch $patch_file to $files..." >> "${logfile}"
-				echo " This is the patch:" >> "${logfile}"
-				echo "=============================" >> "${logfile}"
-				cat $patch_file >> "${logfile}"
-				echo "=============================" >> "${logfile}"
+				echo "Applying patch $patch_file to $files..." >> ${logfile}
+				echo " This is the patch:" >> ${logfile}
+				echo "=============================" >> ${logfile}
+				cat $patch_file >> ${logfile}
+				echo "=============================" >> ${logfile}
 				
 				patch -p0 -i $patch_file
 				
@@ -310,11 +310,11 @@ function common.install.applyPatch()
 			fi
 		else
 			# Just do it
-			echo "Applying patch $patch_file " >> "${logfile}"
-			echo " This is the patch:" >> "${logfile}"
-			echo "=============================" >> "${logfile}"
-			cat $patch_file >> "${logfile}"
-			echo "=============================" >> "${logfile}"
+			echo "Applying patch $patch_file " >> ${logfile}
+			echo " This is the patch:" >> ${logfile}
+			echo "=============================" >> ${logfile}
+			cat $patch_file >> ${logfile}
+			echo "=============================" >> ${logfile}
 			
 			# Execute patch and assume the paths are  relative in there.
 			patch -p0 -i $patch_file
