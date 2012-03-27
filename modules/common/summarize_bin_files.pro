@@ -172,7 +172,7 @@ pro summarize_bin_files,file_pattern
 																	species_avg[ispec] = data[i]
 																endif else begin
 																	; update average and variance
-																	last_avg=data[ispec]
+																	last_avg=species_avg[ispec]
 																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 																endelse
@@ -233,7 +233,7 @@ pro summarize_bin_files,file_pattern
 																	species_avg[ispec] = data[i]
 																endif else begin
 																	; update average and variance
-																	last_avg=data[ispec]
+																	last_avg=species_avg[ispec]
 																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 																endelse
@@ -303,7 +303,7 @@ pro summarize_bin_files,file_pattern
 																	species_avg[ispec] = data[i]
 																endif else begin
 																	; update average and variance
-																	last_avg=data[ispec]
+																	last_avg=species_avg[ispec]
 																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 																endelse
@@ -341,7 +341,7 @@ pro summarize_bin_files,file_pattern
 																	species_avg[ispec] = data[i]
 																endif else begin
 																	; update average and variance
-																	last_avg=data[ispec]
+																	last_avg=species_avg[ispec]
 																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 																endelse
@@ -404,7 +404,7 @@ pro summarize_bin_files,file_pattern
 																species_avg[ispec] = data[i]
 															endif else begin
 																; update average and variance
-																last_avg=data[ispec]
+																last_avg=species_avg[ispec]
 																species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 															endelse
@@ -461,7 +461,7 @@ pro summarize_bin_files,file_pattern
 																	species_avg[ispec] = data[i]
 																endif else begin
 																	; update average and variance
-																	last_avg=data[ispec]
+																	last_avg=species_avg[ispec]
 																	species_avg[ispec] = last_avg + (data[i] - last_avg) / cells_seen[ispec]
 																	species_prevar[ispec] = species_prevar[ispec] + (data[i] - last_avg)*(data[i] - last_avg)
 																endelse
