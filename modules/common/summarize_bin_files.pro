@@ -456,7 +456,7 @@ pro summarize_bin_files,file_pattern
 				endelse
 				
 				xsize=5
-				theFormat = '(' + StrTrim(xsize,2) + '(F, :, "	"))'
+				theFormat = '(' + StrTrim(xsize,2) + '(A, :, "	"))'
 				
 				print,strjoin([species_arr[ispec],string(species_min[ispec],format='(F15.7)'),string(c_avg,format='(F15.7)'),string(species_max[ispec],format='(F15.7)'),string(c_rsd,format='(F15.7)')],'	'),format=theFormat
 			endfor
