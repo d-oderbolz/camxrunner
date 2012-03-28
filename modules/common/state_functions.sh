@@ -1327,10 +1327,7 @@ function common.state.cleanup()
 				
 			file-checksums)
 			
-				if [[ "$(common.user.getOK "This option allows you to query checksums (MD5) of files. Continue?" )" == true  ]]
-				then
-					common.state.checksumInterface
-				fi
+				common.state.checksumInterface
 
 				;; # file-checksums
 			
@@ -1562,7 +1559,7 @@ function common.state.checksumInterface()
 	
 	main.log -a "Starting simple interface to query MD5 hashes in ${db_file}\nYou can also use ${CXR_SQLITE_EXEC} or the Firefox extension SQLite Manager for this.\nYou can either search for files or MD5 hashes."
 
-	message="Do you want to query the MD5  hash database?"
+	message="This option allows you to query checksums (MD5) of files. Continue?"
 	
 	while [[ "$(common.user.getOK "$message" )" == true ]]
 	do
@@ -1570,32 +1567,38 @@ function common.state.checksumInterface()
 		message="Do you want to further query the MD5  hash database?"
 	
 		# what do you want?
-		what=$(common.user.getMenuChoice "" "file-MD5 MD5-file none"  "none")
+		what=$(common.user.getMenuChoice "" "file-MD5 MD5-file quit"  "quit")
 		
 		case "$what" in
 		
 			file-MD5)
 				file=$(common.user.getInput "Please enter the filename you are looking for (% is allowed)")
 				select="SELECT key, value, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash='MD5' AND key LIKE '$file';"
-
+		
+				result=$(common.db.getResultSet "$db_file" "$CXR_LEVEL_UNIVERSAL" "$select")
+				
+				echo
+				echo "$result"
+				echo
+				
 				;;
 			
 			MD5-file)
 				md5=$(common.user.getInput "Please enter the MD5 hash you are looking for (% is allowed)")
 				select="SELECT key, value, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash='MD5' AND value LIKE '$md5';"
+		
+				result=$(common.db.getResultSet "$db_file" "$CXR_LEVEL_UNIVERSAL" "$select")
+				
+				echo
+				echo "$result"
+				echo
 
 				;;
 		
-			none) return 0
+			quit) return 0
 		
 		esac
 		
-		result=$(common.db.getResultSet "$db_file" "$CXR_LEVEL_UNIVERSAL" "$select")
-		
-		echo
-		echo "$result"
-		echo
-	
 	done
 	
 }
