@@ -1332,7 +1332,7 @@ function common.state.cleanup()
 					common.state.checksumInterface
 				fi
 
-				;; file-checksums
+				;; # file-checksums
 			
 			delete-old-instances)
 			
