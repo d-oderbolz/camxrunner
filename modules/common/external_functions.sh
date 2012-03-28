@@ -145,7 +145,7 @@ function common.external.init()
 		write_model_control_file
 		
 		if [[ ${CXR_EXTERNAL_DO_TRANSFER_SCRIPT:-true} == true ]]
-			then
+		then
 			# Init counter
 			iFile=1
 			
@@ -165,15 +165,15 @@ function common.external.init()
 						# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is "wait"
 						# to wait for all previous subprocesses
 						echo "wait " >> $ofilelist
-					fi
+					fi # Add wait?
 				
 					iFile=$(( $iFile + 1 ))
 				fi # file wanted?
-			fi # write copy script
-			
-		done
+			done #for each input file
+		
+		fi # create transfer script?
 
-	done
+	done # for each day
 	
 	main.log -a "Done. Your files are in $tmpdir"
 }
