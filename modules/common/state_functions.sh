@@ -1576,13 +1576,13 @@ function common.state.checksumInterface()
 		
 			file-MD5)
 				file=$(common.user.getInput "Please enter the filename you are looking for (% is allowed)")
-				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE key LIKE '$file';"
+				select="SELECT key, value, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash='MD5' AND key LIKE '$file';"
 
 				;;
 			
 			MD5-file)
 				md5=$(common.user.getInput "Please enter the MD5 hash you are looking for (% is allowed)")
-				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash LIKE '$md5';"
+				select="SELECT key, value, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash='MD5' AND value LIKE '$md5';"
 
 				;;
 		
