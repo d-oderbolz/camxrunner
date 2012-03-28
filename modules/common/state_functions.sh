@@ -1574,7 +1574,7 @@ function common.state.checksumInterface()
 			file-MD5)
 				file=$(common.user.getInput "Please enter the filename you are looking for (% is allowed)")
 				select="SELECT key, value, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash='MD5' AND key LIKE '$file' ORDER BY key;"
-		
+
 				result=$(common.db.getResultSet "$db_file" "$CXR_LEVEL_UNIVERSAL" "$select")
 				
 				echo

@@ -47,7 +47,8 @@ CXR_META_MODULE_VERSION='$Id$'
 ################################################################################
 # Function: common.external.init
 #
-# Prepares a run for external use. Produces one script to transfer the input data
+# Prepares a run for external use on a HPC batch system. 
+# Produces one script to transfer the input data
 # and another one to control the server. Also creates all needed CAMx.in files.
 # The control script uses CXR_EXTERNAL_TEMPLATE as a basis.
 #
@@ -71,28 +72,35 @@ function common.external.init()
 	
 	main.log -a "Preparing external run on a HPC machine...\nErrors of the type *unbound variable* may happen and can be ignored."
 	
-	tmpdir=$(common.runner.createTempDir run-external false)
+	tmpdir=$(common.runner.createTempDir ${CXR_RUN} false)
 	
 	main.log -a "######################################"
 	main.log -a "You will find all files for the run in $tmpdir"
 	main.log -a "######################################"
 	
 	ofile=$tmpdir/CAMx_job.sh
-	ofilelist=$tmpdir/copy_input_files.sh
+	touch $ofile
+	chmod +x $ofile
 	
-	# Add comment to the ofilelist
-	echo "#!/bin/bash" > $ofilelist
-	echo "#This script copies the input data for $CXR_RUN to the HPC system" >> $ofilelist
-	echo "#It works perfectly if you have passwordless shh" >> $ofilelist
-	echo "#<http://www.debian-administration.org/articles/152> set up" >> $ofilelist
-	echo "#You need to run it from a directory containing links to all the files" >> $ofilelist
-	echo "#to be copied." >> $ofilelist
-	echo "#" >> $ofilelist
+	if [[ ${CXR_EXTERNAL_DO_TRANSFER_SCRIPT:-true} == true ]]
+	then
+		ofilelist=$tmpdir/copy_input_files.sh
+		
+		# Add comment to the ofilelist
+		echo "#!/bin/bash" > $ofilelist
+		echo "#This script copies the input data for $CXR_RUN to the HPC system" >> $ofilelist
+		echo "#It works perfectly if you have passwordless shh" >> $ofilelist
+		echo "#<http://www.debian-administration.org/articles/152> set up" >> $ofilelist
+		echo "#You need to run it from a directory containing links to all the files" >> $ofilelist
+		echo "#to be copied." >> $ofilelist
+		echo "#" >> $ofilelist
+		
+		# Change permissions
+		touch $ofilelist
+		chmod +x ofilelist
+	fi # write copy script?
 	
-	# Change permissions
-	touch $ofile $ofilelist
-	chmod +x $ofile $ofilelist
-	
+
 	cd $tmpdir
 	
 	# Evaluate template
@@ -111,6 +119,9 @@ function common.external.init()
 		fi
 		
 	done < $CXR_EXTERNAL_TEMPLATE
+	
+	# Make sure its Unix
+	${CXR_DOS2UNIX_EXEC} ${ofile}
 	
 	# Now create all CAMx.in files
 	# Source the model functions to get its functions
@@ -133,28 +144,33 @@ function common.external.init()
 		set_variables false
 		write_model_control_file
 		
-		iFile=1
-		
-		# Write out input files
-		for InputFile in $CXR_CHECK_THESE_INPUT_FILES
-		do
-			if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
+		if [[ ${CXR_EXTERNAL_DO_TRANSFER_SCRIPT:-true} == true ]]
 			then
-				#Make sure colons are escaped
-				escapedInputFile="${InputFile//:/\\:}"
+			# Init counter
+			iFile=1
+			
+			# Write out input files
+			for InputFile in $CXR_CHECK_THESE_INPUT_FILES
+			do
+				if [[ $InputFile =~ $CXR_EXTERNAL_INPUT_FILE_LIST_PATTERN ]]
+				then
+					#Make sure colons are escaped
+					escapedInputFile="${InputFile//:/\\:}"
+					
+					# Build the copy command. 
+					echo "${CXR_EXTERNAL_COPY_COMMAND} \"$(basename $escapedInputFile)\" \"${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${escapedInputFile}\" &" >> $ofilelist
 				
-				# Build the copy command. 
-				echo "${CXR_EXTERNAL_COPY_COMMAND} \"$(basename $escapedInputFile)\" \"${CXR_EXTERNAL_REMOTE_USER}@${CXR_EXTERNAL_REMOTE_HOST}:${escapedInputFile}\" &" >> $ofilelist
+					if [[ $(( ${iFile} % ${CXR_EXTERNAL_NUMBER_OF_CONNECTIONS} )) -eq 0 ]]
+					then 
+						# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is "wait"
+						# to wait for all previous subprocesses
+						echo "wait " >> $ofilelist
+					fi
+				
+					iFile=$(( $iFile + 1 ))
+				fi # file wanted?
+			fi # write copy script
 			
-				if [[ $(( ${iFile} % ${CXR_EXTERNAL_NUMBER_OF_CONNECTIONS} )) -eq 0 ]]
-				then 
-					# Every CXR_EXTERNAL_NUMBER_OF_CONNECTIONS'th command is "wait"
-					# to wait for all previous subprocesses
-					echo "wait " >> $ofilelist
-				fi
-			
-				iFile=$(( $iFile + 1 ))
-			fi
 		done
 
 	done
