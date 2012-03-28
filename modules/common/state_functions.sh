@@ -1570,17 +1570,17 @@ function common.state.checksumInterface()
 		message="Do you want to further query the MD5  hash database?"
 	
 		# what do you want?
-		what=$(common.user.getMenuChoice "" "file->MD5 MD5->file none"  "none")
+		what=$(common.user.getMenuChoice "" "file-MD5 MD5-file none"  "none")
 		
 		case "$what" in
 		
-			file->MD5)
+			file-MD5)
 				file=$(common.user.getInput "Please enter the filename you are looking for (% is allowed)")
 				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE key LIKE '$file';"
 
 				;;
 			
-			MD5->file)
+			MD5-file)
 				md5=$(common.user.getInput "Please enter the MD5 hash you are looking for (% is allowed)")
 				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash LIKE '$md5';"
 
