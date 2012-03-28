@@ -1247,7 +1247,8 @@ function common.state.hasFinished?()
 #	
 # Interactive function. Depending on user selection:
 # - Deletes all state information
-# - Modifies only part of the state information (sets status to TODO)
+# - Modifies only part of the state information
+# - shows MD5 information
 # All is in a endless loop so one can quickly modify a lot of stuff
 #
 # 
@@ -1272,15 +1273,15 @@ function common.state.cleanup()
 	local instances 
 	local binstance
 	
-	message="Do you want to change the state database?"
+	message="Do you want to access the state database?"
 	
 	while [[ "$(common.user.getOK "$message" )" == true ]]
 	do
 		# Fix the message
-		message="Do you want to further change the state database?"
+		message="Do you want to further access the state database?"
 		
 		# what do you want?
-		what=$(common.user.getMenuChoice "Which part of the state database do you want to modify (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump release-all-locks modify-tasks delete-all-tasks delete-old-instances none" "none")
+		what=$(common.user.getMenuChoice "Which part of the state database do you want to modify/access (none exits this function)?\nNote that you might need to delete output files in order to repeat a run, or run with ${CXR_CALL} -F (overwrite existing files)" "dump release-all-locks modify-tasks delete-all-tasks file-checksums delete-old-instances none" "none")
 		
 		case "$what" in
 		
@@ -1323,6 +1324,15 @@ function common.state.cleanup()
 				fi #Delete?
 				
 				;; # delete-all-tasks
+				
+			file-checksums)
+			
+				if [[ "$(common.user.getOK "This option allows you to query checksums (MD5) of files. Continue?" )" == true  ]]
+				then
+					common.state.checksumInterface
+				fi
+
+				;; file-checksums
 			
 			delete-old-instances)
 			
@@ -1537,6 +1547,57 @@ function common.state.cleanup()
 		esac # The big one...
 	
 	done # Loop where user can repeatedly delete data
+}
+
+################################################################################
+# Function: common.state.checksumInterface
+#	
+# Provides a primitive interface to the MD5 hashes.
+#
+################################################################################
+function common.state.checksumInterface()
+################################################################################
+{
+	db_file=${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}
+	
+	main.log -a "Starting simple interface to query MD5 hashes in ${db_file}\nYou can also use ${SQLITE_EXEC} or the Firefox extension SQLite Manager for this.\nYou can either search for files or MD5 hashes."
+
+	message="Do you want to query the MD5  hash database?"
+	
+	while [[ "$(common.user.getOK "$message" )" == true ]]
+	do
+		# Fix the message
+		message="Do you want to further query the MD5  hash database?"
+	
+		# what do you want?
+		what=$(common.user.getMenuChoice "" "file->MD5 MD5->file none"  "none")
+		
+		case "$what" in
+		
+			file->MD5)
+				file=$(common.user.getInput "Please enter the filename you are looking for (% is allowed)")
+				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE key LIKE '$file';"
+
+				;;
+			
+			MD5->file)
+				md5=$(common.user.getInput "Please enter the MD5 hash you are looking for (% is allowed)")
+				select="SELECT key, hash, datetime(epoch_c, 'unixepoch') FROM hash WHERE hash LIKE '$md5';"
+
+				;;
+		
+			none) return 0
+		
+		esac
+		
+		result=$(common.db.getResultSet "$db_file" "$CXR_LEVEL_UNIVERSAL" "$select")
+		
+		echo
+		echo "$result"
+		echo
+	
+	done
+	
 }
 
 ################################################################################
