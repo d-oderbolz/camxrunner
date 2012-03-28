@@ -1560,7 +1560,7 @@ function common.state.checksumInterface()
 {
 	db_file=${CXR_UNIVERSAL_DIR}/hashes.${CXR_DB_SUFFIX}
 	
-	main.log -a "Starting simple interface to query MD5 hashes in ${db_file}\nYou can also use ${SQLITE_EXEC} or the Firefox extension SQLite Manager for this.\nYou can either search for files or MD5 hashes."
+	main.log -a "Starting simple interface to query MD5 hashes in ${db_file}\nYou can also use ${CXR_SQLITE_EXEC} or the Firefox extension SQLite Manager for this.\nYou can either search for files or MD5 hashes."
 
 	message="Do you want to query the MD5  hash database?"
 	
