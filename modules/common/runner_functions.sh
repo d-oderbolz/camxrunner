@@ -1743,7 +1743,7 @@ function common.runner.recreateInput()
 	oldRun=$2
 
 	
-	if [[ "$(common.user.getOK "Do you want to use the emission data of another run?\nOtherwise we use $oldRun")" == true ]]
+	if [[ "$(common.user.getOK "Do you want to use the emission data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
 	then
 		# Use another run
 		oldEmissRunConfig="$(common.runner.getExistingConfigFile)"
@@ -1752,21 +1752,33 @@ function common.runner.recreateInput()
 		oldEmissRun="$(basename "$oldEmissRunConfig" .conf)"
 		
 		main.log -a "Reading directory for emission data from $oldEmissRun ..."
+		
+		# get the relevant directories. 
+		# We fully resolve the old paths (not the new one because it does not exist)
+		oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+
+		
 	else
-		# Use oldRun
-		oldEmissRun="$oldRun"
+		if [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		then
+			oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
+		else
+			# Use oldRun
+			oldEmissRun="$oldRun"
+			
+			# get the relevant directories. 
+			# We fully resolve the old paths (not the new one because it does not exist)
+			oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+		fi # use own emission dir?
 	fi
 	
-	# get the relevant directories. 
-	# We fully resolve the old paths (not the new one because it does not exist)
-	oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
 	
 	if [[ ! -d "$oldEmissDir" ]]
 	then
-		main.dieGracefully "Could not find the Emission dir of $oldEmissRun - maybe it is a broken link!"
+		main.dieGracefully "Could not find the Emission dir $oldEmissDir - maybe it is a broken link!"
 	fi
 	
-	if [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use $oldRun")" == true ]]
+	if [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
 	then
 		# Use another run
 		oldInputRunConfig="$(common.runner.getExistingConfigFile)"
@@ -1774,17 +1786,28 @@ function common.runner.recreateInput()
 		# remove .conf
 		oldInputRun="$(basename $oldInputRunConfig .conf)"
 		
-		main.log -a "Reading directory for other inputs from $oldInputRun "
+		main.log -a "Reading directory for other inputs from $oldInputRun ..."
+		
+		# Get directory
+		oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
+
 	else
-		# Use oldRun
-		oldInputRun="$oldRun"
-	fi
 	
-	oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
+		if [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		then
+			oldInputDir=$(common.user.getInput "Please enter the path where the other input data is located:")
+		else
+			# Use oldRun
+			oldInputRun="$oldRun"
+			
+			# Get directory
+			oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
+		fi # Use own directory?
+	fi
 	
 	if [[ ! -d "$oldInputDir" ]]
 	then
-		main.dieGracefully "Could not find the Input dir of $oldInputRun - maybe it is a broken link!"
+		main.dieGracefully "Could not find the Input $oldInputDir - maybe it is a broken link!"
 	fi
 	
 	# Determine targets
