@@ -1896,6 +1896,7 @@ function common.runner.recreateInput()
 			done
 			
 			echo "These files where created as links to $oldEmissDir by $USER on $(date)" >> README.TXT
+		fi # copy?
 	fi # Emission dir set?
 	
 
@@ -1944,6 +1945,8 @@ function common.runner.recreateInput()
 			done
 			
 			echo "These files where created as links to $oldInputDir by $USER on $(date)" >> README.TXT
+		fi # copy
+	
 	fi # Other input dir set?
 	
 }
