@@ -112,6 +112,7 @@ function set_variables()
 	# these are deleted if he user runs the -F option. Do not mix up with input files!
 	CXR_CHECK_THESE_INPUT_FILES=
 	CXR_CHECK_THESE_OUTPUT_FILES=
+	CXR_CHECK_SA_EMISSIONS=
 	
 	# Evaluate most important rules first
 	CXR_ROOT_OUTPUT=$(common.runner.evaluateRule "$CXR_ROOT_OUTPUT_FILE_RULE" false CXR_ROOT_OUTPUT_FILE_RULE true $create_missing_dirs)
@@ -271,6 +272,8 @@ function set_variables()
 				dummyvar="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${CXR_ISRCGROUP}"
 				##Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${!dummyvar}"
+				# This is used to see the concentrations
+				CXR_CHECK_SA_EMISSIONS="${CXR_CHECK_SA_EMISSIONS},${!dummyvar}"
 			done
 		done
 		
@@ -806,7 +809,6 @@ function write_model_control_file()
 					# This is not elegant, but it simulates a 2D Array
 					ELEMENT_NAME="CXR_SA_EMISS_GROUP_GRID_INPUT_${CXR_IGRID}_${iSourceGroup}"
 					echo " SA_Emiss_Group_Grid(${iSourceGroup},${CXR_IGRID}) = '${!ELEMENT_NAME}'," >> ${CXR_MODEL_CTRL_FILE} 
-			
 				done
 			done
 		fi
@@ -1116,9 +1118,9 @@ function model()
 			# Show a summary of the concentrations in IC or Inst /BC/Emiss
 			if [[ ${CXR_RESTART} == true ]]
 			then
-				common.check.concentrations "{${CXR_MASTER_GRID_RESTART_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
+				common.check.concentrations "{${CXR_MASTER_GRID_RESTART_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}${CXR_CHECK_SA_EMISSIONS}}"
 			else
-				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
+				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}${CXR_CHECK_SA_EMISSIONS}}"
 			fi
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
