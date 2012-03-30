@@ -1256,7 +1256,7 @@ function main.source()
 		main.log -a  "Loading sub config from ${file} rev ${rev}. MD5: ${md5}"
 		source $file
 	else
-		main.log -w "Config file $file not found."
+		main.dieGracefully "Config file $file not found."
 	fi
 }
 
