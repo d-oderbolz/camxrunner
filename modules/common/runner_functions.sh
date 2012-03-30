@@ -1751,7 +1751,7 @@ function common.runner.recreateInput()
 		# remove .conf
 		oldEmissRun="$(basename "$oldEmissRunConfig" .conf)"
 		
-		main.log -a "Reading directory for other inputs from $oldEmissRun "
+		main.log -a "Reading directory for emission data from $oldEmissRun ..."
 	else
 		# Use oldRun
 		oldEmissRun="$oldRun"
