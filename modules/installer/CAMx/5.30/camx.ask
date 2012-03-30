@@ -55,7 +55,9 @@ MXRADCL|I|What is the value of MXRADCL (used to be 18, now the default is 16)|16
 COMMENT|These are parameters relevant for Probing - read CAMx documentation!
 
 MXTRSP|I|Size of SA data structures (MXTRSP). Must be at least 99 for PA|1
+MXALCLS|I|maximum number of tracer classes supported (MXALCLS). |42
+MXTRCLS|I|maximum number of tracer classes actually used (MXTRCLS). SOA PSAT requires > 21 |21
 MXPACEL|I|On how many cells do you want to run PA (MXPACEL)|352
 MXPADOM|I|On how many domains do you want to run PA (MXPADOM)|4
 
-# End of camx.ask (plase leave this intact)
+# End of camx.ask (please leave this intact)

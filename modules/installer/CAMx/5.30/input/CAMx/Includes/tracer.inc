@@ -305,8 +305,8 @@ c
       integer ITRHG2
       integer ITRPHG
 c
-      parameter( MXTRCLS  = 21 )
-      parameter( MXALCLS  = 42 )
+      parameter( MXTRCLS  = @MXTRCLS@ )
+      parameter( MXALCLS  = @MXALCLS@ )
       parameter( ITRNOX   =  1 )
       parameter( ITRVOC   =  2 )
       parameter( ITRO3N   =  3 )
