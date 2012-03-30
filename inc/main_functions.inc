@@ -1245,9 +1245,19 @@ function main.source()
 ################################################################################
 {
 	local file
+	local rev
 	file="$1"
 	
-	source $file
+	if [[ -f "$file" ]]
+	then
+		rev="$(main.getRevision "$file")"
+		md5="$(main.getMD5 "$file")"
+		
+		main.log -a  "Loading sub config from ${file} rev ${rev}. MD5: ${md5}"
+		source $file
+	else
+		main.log -w "Config file $file not found."
+	fi
 }
 
 ################################################################################
