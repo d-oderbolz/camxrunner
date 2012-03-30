@@ -86,7 +86,7 @@ function main.usage()
 	  
 	  -f    fast mode - disables most checks. Recommended only for quick-and-dirty jobs.
 
-	  -F    overwrites existing output files (force)
+	  -F    overwrites existing output files (force) - BE CAREFUL, ESPECIALLY WHEN INPUT IS LINKED!
 
 	  -w    wait for missing input files
 
@@ -94,7 +94,7 @@ function main.usage()
 
 	  -V    verbose logfile: talkative script (if given more than once you get even more information)
 
-	  -c    cleanup: removes state information
+	  -c    cleanup: removes state information. Also allows to Query the MD5 database.
 
 	  -t<n> set the threshold for allowed errors (Default ${CXR_ERROR_THRESHOLD}).
 	        a threshold of ${CXR_NO_ERROR_THRESHOLD} ignores errors. 
