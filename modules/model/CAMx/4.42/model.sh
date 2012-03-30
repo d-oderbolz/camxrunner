@@ -273,7 +273,7 @@ function set_variables()
 				##Checks
 				CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${!dummyvar}"
 				# This is used to see the concentrations
-				CXR_CHECK_SA_EMISSIONS="${CXR_CHECK_SA_EMISSIONS},${!dummyvar}"
+				CXR_CHECK_SA_EMISSIONS="${CXR_CHECK_SA_EMISSIONS} ${!dummyvar}"
 			done
 		done
 		
@@ -1123,10 +1123,13 @@ function model()
 				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
 			fi
 			
-			# do it separately for any SA Emission files
+			# do it separately for any SA Emission files because command  line may saturate
 			if [[ "${CXR_CHECK_SA_EMISSIONS}" ]]
 			then
-				common.check.concentrations "{${CXR_CHECK_SA_EMISSIONS}}"
+				for file in ${CXR_CHECK_SA_EMISSIONS}
+				do
+					common.check.concentrations "$file"
+				done
 			fi
 			
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
