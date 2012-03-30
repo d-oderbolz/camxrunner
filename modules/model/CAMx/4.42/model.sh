@@ -1118,10 +1118,17 @@ function model()
 			# Show a summary of the concentrations in IC or Inst /BC/Emiss
 			if [[ ${CXR_RESTART} == true ]]
 			then
-				common.check.concentrations "{${CXR_MASTER_GRID_RESTART_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}${CXR_CHECK_SA_EMISSIONS}}"
+				common.check.concentrations "{${CXR_MASTER_GRID_RESTART_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
 			else
-				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}${CXR_CHECK_SA_EMISSIONS}}"
+				common.check.concentrations "{${CXR_INITIAL_CONDITIONS_INPUT_FILE},${CXR_BOUNDARY_CONDITIONS_INPUT_FILE},${CXR_EMISS_INPUT_ARR_FILES[1]}}"
 			fi
+			
+			# do it separately for any SA Emission files
+			if [[ "${CXR_CHECK_SA_EMISSIONS}" ]]
+			then
+				common.check.concentrations "{${CXR_CHECK_SA_EMISSIONS}}"
+			fi
+			
 			# In case of a dry-run, we do run the model, but we turn on diagnostics
 			execute_model
 			
