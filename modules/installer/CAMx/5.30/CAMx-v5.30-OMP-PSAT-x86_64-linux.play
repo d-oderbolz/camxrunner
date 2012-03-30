@@ -1,0 +1,18 @@
+#This is a machine-generated file. Generated on 30. Mar 2012 by user oderbolz
+#It can be used to replay an installation.
+MXCELLS|280
+NOZN|5
+NALB|5
+NHAZE|3
+NRUF|9
+NHGHT|11
+NZEN|10
+MXSPEC|100
+TEMPLO|200.
+TEMPHI|320.
+PRESLO|100.0
+PRESHI|1100.
+MXRADCL|16
+MXTRSP|1440
+MXPACEL|31200
+MXPADOM|39
