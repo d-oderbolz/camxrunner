@@ -1723,12 +1723,17 @@ function common.runner.recreateInput()
 	# In theory, we could ask for each file, but that would take ages...
 	# Just make sure that the two directories (Emissions/Other Input) are distinct.
 	
+	# We work in three blocks: first determine paths for emissions then "Other Inputs"
+	# Finally perform copying or linking
+	
+	# Here at PSI, we do not usually store the Met data along with the run, so 
+	# it is mostly about IC/BC/AHOMAP/TUV
+	
 	local newRun
 	local oldRun
 	
 	local oldEmissRunConfig
 	local oldInputRunConfig
-	
 	
 	local oldEmissRun
 	local oldInputRun
@@ -1739,109 +1744,136 @@ function common.runner.recreateInput()
 	local oldInputDir
 	local newInputDir
 	
+	local askForEmissions
+	local askForInputs
+	
 	newRun=$1
 	oldRun=$2
-
 	
-	if [[ "$(common.user.getOK "Do you want to use the emission data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
-	then
-		# Use another run
-		oldEmissRunConfig="$(common.runner.getExistingConfigFile)"
-		
-		# remove .conf
-		oldEmissRun="$(basename "$oldEmissRunConfig" .conf)"
-		
-		main.log -a "Reading directory for emission data from $oldEmissRun ..."
-		
-		# get the relevant directories. 
-		# We fully resolve the old paths (not the new one because it does not exist)
-		oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+	# Set default
+	oldEmissDir=
+	oldInputDir=
+	
+	########################################
+	# Get Emissions dir, if any
+	########################################
 
-		
-	else
-		if [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+	if [[ "$(common.user.getOK "Do you want to re-use any emission data ?")" == true ]]
+	then
+		# Re-use Emissions
+		if [[ "$(common.user.getOK "Do you want to use the emission data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
 		then
-			oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
-		else
-			# Use oldRun
-			oldEmissRun="$oldRun"
+			# Use another run
+			oldEmissRunConfig="$(common.runner.getExistingConfigFile)"
+			
+			# remove .conf
+			oldEmissRun="$(basename "$oldEmissRunConfig" .conf)"
+			
+			main.log -a "Reading directory for emission data from $oldEmissRun ..."
 			
 			# get the relevant directories. 
 			# We fully resolve the old paths (not the new one because it does not exist)
 			oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
-		fi # use own emission dir?
-	fi
-	
-	
-	if [[ ! -d "$oldEmissDir" ]]
-	then
-		main.dieGracefully "Could not find the Emission dir $oldEmissDir - maybe it is a broken link!"
-	fi
-	
-	if [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
-	then
-		# Use another run
-		oldInputRunConfig="$(common.runner.getExistingConfigFile)"
-		
-		# remove .conf
-		oldInputRun="$(basename $oldInputRunConfig .conf)"
-		
-		main.log -a "Reading directory for other inputs from $oldInputRun ..."
-		
-		# Get directory
-		oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
-
-	else
-	
-		if [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
-		then
-			oldInputDir=$(common.user.getInput "Please enter the path where the other input data is located:")
 		else
-			# Use oldRun
-			oldInputRun="$oldRun"
+			if [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+			then
+				oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
+			else
+				# Use oldRun
+				oldEmissRun="$oldRun"
+				
+				# get the relevant directories. 
+				# We fully resolve the old paths (not the new one because it does not exist)
+				oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+			fi # use own emission dir?
+		fi # Other run?
+		
+		if [[ "$oldEmissDir" && ! -d "$oldEmissDir" ]]
+		then
+			main.dieGracefully "Could not find the Emission dir $oldEmissDir - maybe it is a broken link!"
+		fi # dir exists?
+	
+	fi # reuse Emission data?
+	
+	########################################
+	# Get other input dir, if any
+	########################################
+	if [[ "$(common.user.getOK "Do you want to re-use any other input data?")" == true ]]
+	then
+		# Re-use Other stuff
+	
+		if [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
+		then
+			# Use another run
+			oldInputRunConfig="$(common.runner.getExistingConfigFile)"
+			
+			# remove .conf
+			oldInputRun="$(basename $oldInputRunConfig .conf)"
+			
+			main.log -a "Reading directory for other inputs from $oldInputRun ..."
 			
 			# Get directory
 			oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
-		fi # Use own directory?
-	fi
+		else
+		
+			if [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+			then
+				oldInputDir=$(common.user.getInput "Please enter the path where the other input data is located:")
+			else
+				# Use oldRun
+				oldInputRun="$oldRun"
+				
+				# Get directory
+				oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
+			fi # Use own directory?
+			
+		fi # other run?
+		
+		if [[ "$oldInputDir" && ! -d "$oldInputDir" ]]
+		then
+			main.dieGracefully "Could not find the Input $oldInputDir - maybe it is a broken link!"
+		fi # dir exists?
+
+	fi # Re-use other data?
 	
-	if [[ ! -d "$oldInputDir" ]]
+	########################################
+	# Do it
+	########################################
+
+	# make sure they are not subdirs of each other
+	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
 	then
-		main.dieGracefully "Could not find the Input $oldInputDir - maybe it is a broken link!"
+		main.dieGracefully "To use the recreate feature, neither $oldEmissDir must be a subdirectory of $oldInputDir or vice versa. Also, they  cannot be the same directories."
 	fi
 	
 	# Determine targets
 	newEmissDir="$(common.runner.getConfigItem CXR_EMISSION_DIR $newRun)"
 	newInputDir="$(common.runner.getConfigItem CXR_INPUT_DIR $newRun)"
 	
-	# make sure they are not subdirs of each other
-	if [[ "$(common.fs.isSubDirOf? "$oldEmissDir" "$oldInputDir" )" == true || "$(common.fs.isSubDirOf? "$oldInputDir" "$oldEmissDir" )" == true ]]
-	then
-		main.dieGracefully "To use the recreate feature, neither $oldEmissDir must be a subdirectory of $oldInputDir or vice versa."
-	fi
-
+	#####################
 	# Emissions
-	if [[ "$(common.user.getOK "Do you want to re-use emission data of $oldEmissRun located in $oldEmissDir ?")" == true ]]
+	#####################
+	
+	# Create Emiss dir anyway
+	if [[ ! -d "$newEmissDir" ]]
 	then
-		# Re-use Emissions
-		
+		mkdir -p "$newEmissDir"
+	fi
+	
+	if [[ "$oldEmissDir" ]]
+	then
 		# Do not take chances - only work on empty target directory
 		if [[ "$(common.fs.isFilledDir? "$newEmissDir")" == true ]]
 		then
 			main.dieGracefully "Could not replace $newEmissDir by a link or copy to $oldEmissDir! $newEmissDir must be empty"
 		fi
 		
-		rmdir $newEmissDir
-		
 		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
 		then
-			# copy (dereference links)
-			cp -r -L "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
+			# copy (dereference links) and force overwrite
+			cp -r -L -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
 		else
-			# if we  are on the same FS, we hardlik each file. To check, 
-			# we need to create the target
-			mkdir -p "$newEmissDir"
-
+			# if we  are on the same FS, we hardlik each file. 
 			main.log -a "I try to hardlink each file, if I fail, I create softlinks"
 			
 			for file in $(ls -A "$oldEmissDir")
@@ -1863,37 +1895,33 @@ function common.runner.recreateInput()
 				ln "${target}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${target}" "${newEmissDir}/${file}"
 			done
 			
-			echo "These files where created as links to $oldEmissDir" > README.TXT
-		fi
-	else
-		# Create Emiss dir if we do not re-use emission data
-		if [[ ! -d "$newEmissDir" ]]
-		then
-			mkdir -p "$newEmissDir"
-		fi
-	fi
+			echo "These files where created as links to $oldEmissDir by $USER on $(date)" >> README.TXT
+	fi # Emission dir set?
 	
-	# Do not take chances - only work on empty target directory
-	if [[ "$(common.fs.isFilledDir? "$newInputDir")" == true ]]
-	then
-		main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
-	fi
-	
-	rmdir $newInputDir
-	
+
+	#####################
 	# Other Inputs
-	if [[ "$(common.user.getOK "Do you want to re-use other input data of $oldInputRun  located in $oldInputDir?")" == true ]]
+	#####################
+	
+	# At least create the new dir
+	if [[ ! -d "$newInputDir" ]]
 	then
-		# Re-use Other stuff
+		mkdir -p "$newInputDir"
+	fi
+	
+	if [[ "$oldInputDir" ]]
+	then
+		# Do not take chances - only work on empty target directory
+		if [[ "$(common.fs.isFilledDir? "$newInputDir")" == true ]]
+		then
+			main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
+		fi
+
 		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
 		then
-			# copy (dereference links)
-			cp -r -L $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
+			# copy (dereference links) and force overwrite
+			cp -r -L -f $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
 		else
-
-			# create the target
-			mkdir -p "$newInputDir"
-			
 			main.log -a "I try to hardlink each file, if I fail, I create softlinks"
 			
 			for file in $(ls -A "$oldInputDir")
@@ -1915,15 +1943,9 @@ function common.runner.recreateInput()
 				ln "${target}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${target}" "${newInputDir}/${file}"
 			done
 			
-			echo "These files where created as links to $oldInputDir" > README.TXT
-		fi
-	else
-		# Create Emiss dir if we do not re-use emission data
-		if [[ ! -d "$newInputDir" ]]
-		then
-			mkdir -p "$newInputDir"
-		fi
-	fi
+			echo "These files where created as links to $oldInputDir by $USER on $(date)" >> README.TXT
+	fi # Other input dir set?
+	
 }
 
 ################################################################################

@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=39
+CXR_META_MODULE_NUM_TESTS=42
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -207,7 +207,8 @@ function common.fs.getSubDirs()
 # 
 # Returns true if argument1 is (in) a subdir of argument2.
 # If they two paths are the same, they are defined to be subdirs of each other.
-# Also works if the first path is the path to a file.
+# Also works if the first path is the path to a file. 
+# Empty strings are accepted as well and are not subdirs by definition
 #
 # Parameters:
 # $1 - path to test if it is a subdir
@@ -223,29 +224,34 @@ function common.fs.isSubDirOf?()
 	path1="$1"
 	path2="$2"
 	
-	# If they are the same, they are subdirs of each other by definition
-	if [[ "$path1" == "$path2" ]]
+	if [[ -z "$path1" || -z "$path2" ]]
 	then
-		echo true
+		echo false
 	else
-		# They are not the same
-		# We add a slash to the suspected root unless the last character is a slash
-		if [[ "${path2: -1}" != "/" ]]
-		#              ¦
-		#     This space is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
-		then
-			path2="$path2"/
-		fi
-		
-		# If path1 is a subdir of path2,
-		# the string making up path1 must be the start of path2
-		if [[ "$(main.isSubstringPresent? "$path1" "$path2")" == true ]]
+		# If they are the same, they are subdirs of each other by definition
+		if [[ "$path1" == "$path2" ]]
 		then
 			echo true
 		else
-			echo false
-		fi
-	fi
+			# They are not the same
+			# We add a slash to the suspected root unless the last character is a slash
+			if [[ "${path2: -1}" != "/" ]]
+			#              ¦
+			#     This space is vital, otherwise, bash thinks we mean a default (see http://tldp.org/LDP/common.math.abs/html/string-manipulation.html)
+			then
+				path2="$path2"/
+			fi
+			
+			# If path1 is a subdir of path2,
+			# the string making up path1 must be the start of path2
+			if [[ "$(main.isSubstringPresent? "$path1" "$path2")" == true ]]
+			then
+				echo true
+			else
+				echo false
+			fi # subdirs?
+		fi # the same
+	fi # empty?
 	
 }
 
@@ -1299,6 +1305,12 @@ function test_module()
 	is "$(common.fs.isSubDirOf? /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib)" true "common.fs.isSubDirOf? using hyphens"
 	is "$(common.fs.isSubDirOf?  /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs)" false "common.fs.isSubDirOf? real world"
 	is "$(common.fs.isSubDirOf?   /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss)" false "common.fs.isSubDirOf? real world"
+	# Empty string test
+	is "$(common.fs.isSubDirOf? /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Emiss "")" true "common.fs.isSubDirOf? right empty"
+	is "$(common.fs.isSubDirOf?  "" /afs/psi.ch/intranet/LAC/oderbolz/CAMxRuns/Runs/CAMx-v4.51-bafu3-june-2006-s147-sem202-sqt-oib/Inputs)" false "common.fs.isSubDirOf? left empty"
+	is "$(common.fs.isSubDirOf?  "" "")" false "common.fs.isSubDirOf? Both empty"
+
+	
 	
 	# Test detection of filled dirs
 	is "$(common.fs.isFilledDir? $tempdir)" true "common.fs.isFilledDir? on $tempdir"
