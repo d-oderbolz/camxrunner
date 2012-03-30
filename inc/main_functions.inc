@@ -1229,6 +1229,28 @@ function main.setVersionDepVariables()
 }
 
 ################################################################################
+# Function: main.source
+#
+# This function sources a config file and make sure proper version information 
+# is displyed. Use this instead of the "source" command when including a config file
+# (e.g for station data) in another config file.
+#
+# Example:
+# > common.runner.sourceConfig bafu_stations.conf
+#
+# Parameters:
+# $1 - name of the file to source
+################################################################################	
+function main.source() 
+################################################################################
+{
+	local file
+	file="$1"
+	
+	source $file
+}
+
+################################################################################
 # Function: main.readConfig
 #
 # Determine relevant config files and load them, also report their names and versions.
