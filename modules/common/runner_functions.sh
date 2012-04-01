@@ -1760,8 +1760,17 @@ function common.runner.recreateInput()
 
 	if [[ "$(common.user.getOK "Do you want to re-use any emission data ?")" == true ]]
 	then
-		# Re-use Emissions
-		if [[ "$(common.user.getOK "Do you want to use the emission data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
+		# Re-use Emissions, find out which ones
+		if [[ "$(common.user.getOK "Do you want to use the emission data of $oldRun?")" == true ]]
+		then
+			# Reuse emission of $oldRun
+			# Use oldRun
+			oldEmissRun="$oldRun"
+				
+			# get the relevant directories. 
+			# We fully resolve the old paths (not the new one because it does not exist)
+			oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+		elif [[ "$(common.user.getOK "Do you want to use the emission data of another run?")" == true ]]
 		then
 			# Use another run
 			oldEmissRunConfig="$(common.runner.getExistingConfigFile)"
@@ -1774,19 +1783,12 @@ function common.runner.recreateInput()
 			# get the relevant directories. 
 			# We fully resolve the old paths (not the new one because it does not exist)
 			oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
+		elif [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		then
+			oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
 		else
-			if [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
-			then
-				oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
-			else
-				# Use oldRun
-				oldEmissRun="$oldRun"
-				
-				# get the relevant directories. 
-				# We fully resolve the old paths (not the new one because it does not exist)
-				oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
-			fi # use own emission dir?
-		fi # Other run?
+			main.log -a "Seems like you do not want to re-use any emssions."
+		fi # Which emissions?
 		
 		if [[ "$oldEmissDir" && ! -d "$oldEmissDir" ]]
 		then
@@ -1801,8 +1803,14 @@ function common.runner.recreateInput()
 	if [[ "$(common.user.getOK "Do you want to re-use any other input data?")" == true ]]
 	then
 		# Re-use Other stuff
-	
-		if [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
+		if [[ "$(common.user.getOK "Do you want to use other input data of $oldRun")" == true ]]
+		then
+			# Use oldRun
+			oldInputRun="$oldRun"
+			
+			# Get directory
+			oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
+		elif [[ "$(common.user.getOK "Do you want to use other input data of another run?\nOtherwise we use the data used in $oldRun")" == true ]]
 		then
 			# Use another run
 			oldInputRunConfig="$(common.runner.getExistingConfigFile)"
@@ -1814,21 +1822,13 @@ function common.runner.recreateInput()
 			
 			# Get directory
 			oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
-		else
-		
-			if [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
-			then
+		elif [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		then
 				oldInputDir=$(common.user.getInput "Please enter the path where the other input data is located:")
-			else
-				# Use oldRun
-				oldInputRun="$oldRun"
-				
-				# Get directory
-				oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
-			fi # Use own directory?
-			
-		fi # other run?
-		
+		else
+			main.log -a "Seems like you do not want to re-use any other inputs."
+		fi # which input data?
+
 		if [[ "$oldInputDir" && ! -d "$oldInputDir" ]]
 		then
 			main.dieGracefully "Could not find the Input $oldInputDir - maybe it is a broken link!"
@@ -1868,7 +1868,7 @@ function common.runner.recreateInput()
 			main.dieGracefully "Could not replace $newEmissDir by a link or copy to $oldEmissDir! $newEmissDir must be empty"
 		fi
 		
-		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
+		if [[ "$(common.user.getOK "Do you want to copy the emission data? (if not, we create a link to it) N")" == true ]]
 		then
 			# copy (dereference links) and force overwrite
 			cp -r -L -f "$oldEmissDir" "$newEmissDir" || main.dieGracefully "Could not replace $newEmissDir by a copy of $oldEmissDir!"
@@ -1918,7 +1918,7 @@ function common.runner.recreateInput()
 			main.dieGracefully "Could not replace $newInputDir by a link or copy to $oldInputDir! $newInputDir must be empty"
 		fi
 
-		if [[ "$(common.user.getOK "Do you want to copy the data? (if not, we create a link to it) N")" == true ]]
+		if [[ "$(common.user.getOK "Do you want to copy the other input data? (if not, we create a link to it) N")" == true ]]
 		then
 			# copy (dereference links) and force overwrite
 			cp -r -L -f $oldInputDir $newInputDir || main.dieGracefully "Could not replace $newInputDir by a copy of $oldInputDir!"
