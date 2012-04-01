@@ -1783,7 +1783,7 @@ function common.runner.recreateInput()
 			# get the relevant directories. 
 			# We fully resolve the old paths (not the new one because it does not exist)
 			oldEmissDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_EMISSION_DIR "$oldEmissRun"))"
-		elif [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		elif [[ "$(common.user.getOK "Do you want to use emission data from a specific directory?")" == true ]]
 		then
 			oldEmissDir=$(common.user.getInput "Please enter the path where the emission data is located:")
 		else
@@ -1822,7 +1822,7 @@ function common.runner.recreateInput()
 			
 			# Get directory
 			oldInputDir="$(common.fs.getLinkTarget $(common.runner.getConfigItem CXR_INPUT_DIR "$oldInputRun"))"
-		elif [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?\nOtherwise we use the data used in $oldRun")" == true ]]
+		elif [[ "$(common.user.getOK "Do you want to use other input data from a specific directory?")" == true ]]
 		then
 				oldInputDir=$(common.user.getInput "Please enter the path where the other input data is located:")
 		else
