@@ -1,6 +1,8 @@
 --- IO_bin/readinp.f	Sat Dec 10 22:49:34 2011
-+++ IO_bin/readinp.f	Tue Apr 03 12:42:53 2012
-@@ -291,0 +292,3 @@
++++ IO_bin/readinp.f	Tue Apr 03 13:31:04 2012
+@@ -291,0 +292,5 @@
 +        
 +        write(iout,'(a,f10.1)')
 +     &          'Temp at Payerne',tnext(88,95,1)-273.15
++     
++        call flush
