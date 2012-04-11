@@ -1020,6 +1020,11 @@ function common.task.Worker()
 	# read pid from file
 	CXR_WORKER_PID=$(cat $tmp)
 	
+	# Test other approach
+	MY_PID=$( /bin/ps -p $$ -o pid= )
+	
+	main.log -a "PIDs: $CXR_WORKER_PID $MY_PID $$"
+	
 	# Insert this worker
 	common.db.change "$CXR_STATE_DB_FILE" "$CXR_LEVEL_GLOBAL" "INSERT OR REPLACE INTO workers (pid, instance,status,epoch_m) VALUES ($CXR_WORKER_PID,'$CXR_INSTANCE','$CXR_STATUS_WAITING',$(date "+%s"))"
 	
