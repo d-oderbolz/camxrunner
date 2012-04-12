@@ -97,7 +97,7 @@ function common.external.init()
 		
 		# Change permissions
 		touch $ofilelist
-		chmod +x ofilelist
+		chmod +x $ofilelist
 	fi # write copy script?
 	
 
