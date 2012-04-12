@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export OMP_NUM_THREADS=$NSLOTS
+export OMP_NUM_THREADS=$(echo -en "\\074 \\044")NSLOTS
 
 # Store all CAMx.in files in a tempfile
 tmpfile=$(echo -en "\\044\\050")mktemp /gpfs/home/oderbolz/cxr.XXXXXXXXXXX$(echo -en "\\051")
