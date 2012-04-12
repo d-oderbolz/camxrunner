@@ -139,7 +139,7 @@ function set_variables()
 	run_on=($CXR_RUN_AQMFAD_ON_GRID)
 	CXR_IGRID=${run_on[$(( $CXR_INVOCATION - 1 ))]}
 	
-	#aqmfad needs ASCII Input
+	# bin avg file
 	CXR_AVG_INPUT_FILE=$(common.runner.evaluateRule "$CXR_AVG_FILE_RULE" false CXR_AVG_FILE_RULE)
 
 	# TERRAIN is still read ASCII
