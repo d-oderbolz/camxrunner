@@ -51,7 +51,7 @@ c
       parameter( IORIRR = 10 )
       parameter( IOWASC = 20 )
       parameter( IOWBIN = 21 )
-      parameter( MXRXN  = 96 )
+      parameter( MXRXN  = 156 )
       parameter( MXHOUR = 50 )
       parameter( MXCELL = 100 )
       parameter( MXLAY  = 20 )

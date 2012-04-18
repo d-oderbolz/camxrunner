@@ -450,30 +450,20 @@ function main.log()
 function main.sendMessage()
 ################################################################################
 {
-	local adresses
-	local address
-	
-	
+
 	#Add SMS Adress if needed
-	if [[ ${CXR_SEND_SMS} == true ]]
+	if [[ ${CXR_SEND_SMS} == true && "$CXR_SMSADDR" ]]
 	then
-		adresses="$adresses $CXR_SMSADDR"
+		# send it if we have an adress
+		echo -e $2 | mail -s "$1" "$CXR_SMSADDR"
 	fi
 	
 	# Add Email if needed
-	if [[ ${CXR_SEND_EMAIL} == true  ]]
+	if [[ ${CXR_SEND_EMAIL} == true && "$CXR_MAILADDR" ]]
 	then
-		adresses="$adresses $CXR_MAILADDR"
+		# send it if we have an adress
+		echo -e $2 | mail -s "$1" "$CXR_MAILADDR"
 	fi
-	
-	for address in ${adresses:-}
-	do
-		if [[ "$address" ]]
-		then
-			# send it if we have an adress
-			echo -e $2 | mail -s "$1" $address
-		fi
-	done
 	
 	# Twitter
 	if [[ ${CXR_SEND_TWITTER} == true ]]
