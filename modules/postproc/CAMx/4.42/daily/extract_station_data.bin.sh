@@ -6,7 +6,7 @@
 #
 # Version: $Id$ 
 #
-# Extracts NABEL or other station data
+# Extracts NABEL or other station data and CPA data if PA is run
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch).
 # This software is provided as is without any warranty whatsoever. See doc/Disclaimer.txt for details. See doc/Disclaimer.txt for details.
@@ -137,7 +137,7 @@ function set_variables()
 	########################################################################
 	
 	# IDL-based extraction of NABEL data needs just the 
-	# data from this specific grid in ASCII data
+	# data from this specific grid in BIN data
 	
 	# Grid specific - we need to define CXR_IGRID
 	# Read it from the variable
@@ -150,9 +150,15 @@ function set_variables()
 	CXR_ZP_GRID_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
 	CXR_TEMP_GRID_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)"
 	
-	
 	#Checks
 	CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_MODEL_INPUT_FILE $CXR_STATION_PROC_INPUT_FILE $CXR_ZP_GRID_FILE $CXR_TEMP_GRID_FILE"
+
+	# CPA file if running PA
+	if [[ $CXR_PROBING_TOOL == PA ]]
+	then
+		CXR_CPA_FILE="$(common.runner.evaluateRule "$CXR_PA_CPA_OUTPUT_FILE_RULE" false CXR_PA_CPA_OUTPUT_FILE_RULE)"
+		CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $CXR_CPA_FILE"
+	fi
 
 	main.log -a "Configuring station data:"
 
@@ -169,6 +175,14 @@ function set_variables()
 		
 		# Checks
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
+	
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]=cpa_${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}
+			# Checks
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]}"
+		fi
+		
 	done
 
 }
@@ -223,6 +237,12 @@ function extract_station_data
 		# Generate Temp file name
 		exec_tmp_file=$(common.runner.createJobFile $FUNCNAME)
 		
+		# Another one if CPA is wanted
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			exec_tmp_file_cpa=$(common.runner.createJobFile ${FUNCNAME}_cpa)
+		fi
+		
 		# We have to prepare the stations array [x,y,filename]
 		# and the species to extract array [speciesname]
 
@@ -238,6 +258,12 @@ function extract_station_data
 			# We remove the path from it to save space in the call
 			# (easier to read)
 			station_file="$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})"
+			
+			# CPA has another output file
+			if [[ $CXR_PROBING_TOOL == PA ]]
+			then
+				station_file_cpa="$(basename ${CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]})"
+			fi
 			
 			# In case of a dry-run, create a dummy file
 			if [[ "$CXR_DRY" == true  ]]
@@ -269,6 +295,15 @@ function extract_station_data
 			
 			# Here we need not single quotes, because we have a 2D array
 			stations_array="${stations_array}${station},"
+			
+			if [[ $CXR_PROBING_TOOL == PA ]]
+			then
+				station_cpa="['${x}','${y}','${station_file_cpa}']"
+			
+				# Here we need not single quotes, because we have a 2D array
+				stations_array_cpa="${stations_array_cpa}${station_cpa},"
+			fi
+			
 		done
 		
 		# If the stations array is empty (eg. because all indexes are beyond the given domain) we quit
@@ -337,6 +372,12 @@ function extract_station_data
 				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${stations_array},'${CXR_TEMP_GRID_FILE}','${CXR_ZP_GRID_FILE}',$(common.runner.getZ $CXR_IGRID),norm_method='${CXR_NORM_METHOD}',is_binary=1
 				exit
 				EOF
+				
+				if [[ $CXR_PROBING_TOOL == PA ]]
+				then
+					main.log -a "We run PA, but the extractor extract_arpa_stations cannot handle CPA data.\nUse extract_nabel_stations if you need CPA data."
+				fi
+				
 				;;
 			extract_nabel_stations)
 				
@@ -345,7 +386,20 @@ function extract_station_data
 				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},$(common.runner.getZ $CXR_IGRID),is_binary=1
 				exit
 				EOF
+				
+				# File for CPA extraction
+				if [[ $CXR_PROBING_TOOL == PA ]]
+				then
+					main.log -a "We run PA, therefore CPA data will be extracted."
+					
+				cat <<-EOF > $exec_tmp_file_cpa
+				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array_cpa},$(common.runner.getZ $CXR_IGRID),is_binary=1
+				exit
+				EOF
+				fi
 				;;
+				
 			*) main.log -w "I do not know how to start ${CXR_STATION_PROC_INPUT_FILE}!"
 				;;
 		
@@ -356,6 +410,11 @@ function extract_station_data
 			
 			# Then we run it, while preserving the output
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
+			
+			if [[ -s $exec_tmp_file_cpa ]]
+			then
+				${CXR_IDL_EXEC} < ${exec_tmp_file_cpa} 2>&1 | tee -a $CXR_LOG
+			fi
 			
 		else
 			main.log "This is a dry-run, no action required"
