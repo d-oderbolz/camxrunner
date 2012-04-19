@@ -13,8 +13,8 @@ pro summarize_bin_files,file_pattern
 	; The idea is to run this for IC/INST/BC/EMISS before running the model
 	; Also supports AVERAGE and hence CPA files
 	
-	; Suppress Math errors until end
-	!EXCEPT=1
+	; Suppress Math errors completely here
+	!EXCEPT=0
 	
 	fichiers = file_search(strtrim(file_pattern,2),count=n_fichiers)
 	if n_fichiers le 0L then message,'no files found.'
