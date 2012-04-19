@@ -11,7 +11,10 @@ pro summarize_bin_files,file_pattern
 	; we use the algorithm by  Donald E. Knuth (1998). The Art of Computer Programming, volume 2: Seminumerical Algorithms
 	
 	; The idea is to run this for IC/INST/BC/EMISS before running the model
-	; Also supports AVERAGE files
+	; Also supports AVERAGE and hence CPA files
+	
+	; Suppress Math errors until end
+	!EXCEPT=1
 	
 	fichiers = file_search(strtrim(file_pattern,2),count=n_fichiers)
 	if n_fichiers le 0L then message,'no files found.'
