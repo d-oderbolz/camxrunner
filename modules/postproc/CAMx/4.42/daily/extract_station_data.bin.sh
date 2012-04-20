@@ -178,7 +178,8 @@ function set_variables()
 	
 		if [[ $CXR_PROBING_TOOL == PA ]]
 		then
-			CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]=cpa_${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}
+			CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]=$(dirname ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})
+			
 			# Checks
 			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_CPA_OUTPUT_ARR_FILES[${iStation}]}"
 		fi
@@ -205,6 +206,7 @@ function extract_station_data
 	
 	local exec_tmp_file
 	local stations_array
+	local stations_array_cpa
 	local iStation
 	local station_file
 	local x
@@ -250,6 +252,11 @@ function extract_station_data
 
 		# Open brackets
 		stations_array="["
+		
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			stations_array_cpa="["
+		fi
 		
 		for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) )
 		do
@@ -405,7 +412,7 @@ function extract_station_data
 		
 		esac
 
-		if [[ "$CXR_DRY" == false  ]]
+		if [[ "$CXR_DRY" == false ]]
 		then
 			
 			# Then we run it, while preserving the output

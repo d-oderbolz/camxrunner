@@ -111,6 +111,8 @@ function set_variables()
 	local iStation
 	local day_offset
 	local index
+	local cpa_out
+	local cpa_in
 	
 	index=0
 
@@ -133,6 +135,19 @@ function set_variables()
 	
 		#Define Output check
 		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
+	
+		# Prepare CPA file
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			cpa_out=$(dirname ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})
+			
+			# There might be also a CPA file
+			CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]=$cpa_out
+				
+			#Define Output check
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $cpa_out"
+		fi
+		
 	done
 	
 	# There is one input file per day and station
@@ -153,6 +168,17 @@ function set_variables()
 			
 			#Checks
 			CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES ${CXR_STATION_INPUT_ARR_FILES[${index}]}"
+			
+			if [[ $CXR_PROBING_TOOL == PA ]]
+			then
+				cpa_in=$(dirname ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})
+				
+				# file might not exist
+				if [[ -e $cpa_in ]]
+				then
+					CXR_STATION_INPUT_ARR_FILES_CPA[${index}]=$cpa_in
+				fi
+			fi
 			
 			#increment index
 			index=$(($index + 1))
@@ -177,6 +203,16 @@ function concatenate_station_data
 	local index
 	local iFile
 	local oFile
+	local skip
+	local skip_cpa
+	local do_cpa
+	
+	if [[ ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]} -gt 0 ]]
+	then
+		do_cpa=true
+	else
+		do_cpa=false
+	fi
 	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true ]]
@@ -210,8 +246,29 @@ function concatenate_station_data
 				# Don't skip
 				skip[${iStation}]=false
 			fi
+			
+			# Same for cpa
+			if  [[ $do_cpa == true ]]
+			then
+				if [[ -e ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]} ]]
+				then
+					if [[ $CXR_SKIP_EXISTING == true ]]
+					then
+						main.log -w "File ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]} exists - because of CXR_SKIP_EXISTING, file will skipped."
+						# Skip this file
+						skip_cpa[${iStation}]=true
+					else
+						main.dieGracefully "File ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]} exists, CXR_SKIP_EXISTING is false!"
+					fi
+				else
+					# Don't skip
+					skip_cpa[${iStation}]=false
+				fi
+			fi
+		
 		done
 		
+		# Processing normal files
 		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES[@]} - 1)) )
 		do
 				# Input file
@@ -231,6 +288,31 @@ function concatenate_station_data
 				if [[ "$CXR_DRY" == false  ]]
 				then
 					cat "${CXR_STATION_INPUT_ARR_FILES[${index}]}" >> "${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
+				else
+					main.log -a "This is a dry-run, no action required"
+				fi
+		done
+
+		# Processing CPA files
+		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]} - 1)) )
+		do
+				# Input file
+				iFile="${CXR_STATION_INPUT_ARR_FILES_CPA[$index]}"
+				# For the output, we need to calculate the modulus with respect to the number of stations
+				iStation=$(( $index % ${#CXR_STATION[@]} ))
+				
+				if [[ ${skip_cpa[${iStation}]} == true ]]
+				then
+					# Skip this station file if needed
+					continue
+				fi
+				
+				main.log -a "Adding ${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]} to ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}..."
+				
+				#Dry?
+				if [[ "$CXR_DRY" == false  ]]
+				then
+					cat "${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]}" >> "${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}"
 				else
 					main.log -a "This is a dry-run, no action required"
 				fi
