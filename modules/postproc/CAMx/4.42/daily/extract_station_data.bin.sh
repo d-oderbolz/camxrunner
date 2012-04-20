@@ -361,8 +361,7 @@ function extract_station_data
 		
 		if [[ $CXR_PROBING_TOOL == PA ]]
 		then
-			main.log -a "Hardcoding CPA species for CB05"
-			species_array_cpa="['OxProd','OxLoss','PO3_net','PO3_VOCsns','PO3_NOxsns','PH2O2_PHN3','O3_dest','OH_new','HO2_new','HOx_new','newOH_O1D','newOH_HONO','nOH_O3_OLE','nwHO2_HCHO','RO2_new','OHw_CO','OHw_CH4','OHw_PAR','OHw_ETHA','OHw_TOL','OHw_XYL','OHw_ETH','OHw_OLE','OHw_IOLE','OHw_ISOP','OHw_TERP','OHw_all_HC','ISOPwOx','TERPwOx','OH_rctd','HO2_rctd','HOx_rctd','RO2_rctd','OHfromHO2','Y_OHperHO2','OH_term','HO2_term','HOx_term','RO2_term','HOx_CL','HCHOp_eth','HCHO_ole','HCHO_iole','HCHO_terp','HCHOp_isop','HCHOp_ispd','HCHOp_Tot','HNO3_OHNO2','HNO3_NO3HC','HNO3_N2O5','PANprodNet','PANlossNet','RNO3_prod','NOxrecycl','NOw_HO2','NOw_RO2s','NOw_RCO3s','J_NO2','J_O3O1D','J_Cld_Adj','OH','HO2','NO3','N2O5']"
+			main.log -a "Using these CPA species for CB05:\n${CXR_PA_CPA_SPECIES}"
 		fi
 
 		# Change to directory of IDL procedures
@@ -420,7 +419,7 @@ function extract_station_data
 				stations=${stations_array_cpa}
 				ptr_stations=ptr_new(stations)
 				
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array_cpa},*ptr_stations,$(common.runner.getZ $CXR_IGRID),is_binary=1
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${CXR_PA_CPA_SPECIES},*ptr_stations,$(common.runner.getZ $CXR_IGRID),is_binary=1
 				exit
 				EOF
 				fi
