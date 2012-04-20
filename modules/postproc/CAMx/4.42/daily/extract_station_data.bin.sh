@@ -437,7 +437,7 @@ function extract_station_data
 			# Then we run it, while preserving the output
 			${CXR_IDL_EXEC} < ${exec_tmp_file} 2>&1 | tee -a $CXR_LOG
 			
-			if [[ -s $exec_tmp_file_cpa ]]
+			if [[ -s ${exec_tmp_file_cpa:-/dev/null} ]]
 			then
 				${CXR_IDL_EXEC} < ${exec_tmp_file_cpa} 2>&1 | tee -a $CXR_LOG
 			fi
