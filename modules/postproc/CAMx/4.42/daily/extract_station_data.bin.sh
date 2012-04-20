@@ -328,6 +328,11 @@ function extract_station_data
 		# Close brackets and remove last ","
 		stations_array="${stations_array%,}]"
 		
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			stations_array_cpa="${stations_array_cpa%,}]"
+		fi
+		
 		# We also need information on the species to extract
 		
 		# Open brackets
@@ -353,6 +358,12 @@ function extract_station_data
 		fi
 		# Close brackets and remove last ","
 		species_array="${species_array%,}]"
+		
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			main.log -a "Hardcoding CPA species for CB05"
+			species_array_cpa="['OxProd','OxLoss']"
+		fi
 
 		# Change to directory of IDL procedures
 		cd $(dirname ${CXR_STATION_PROC_INPUT_FILE}) || return $CXR_RET_ERROR
@@ -401,7 +412,7 @@ function extract_station_data
 					
 				cat <<-EOF > $exec_tmp_file_cpa
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array_cpa},$(common.runner.getZ $CXR_IGRID),is_binary=1
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array_cpa},${stations_array_cpa},$(common.runner.getZ $CXR_IGRID),is_binary=1
 				exit
 				EOF
 				fi
