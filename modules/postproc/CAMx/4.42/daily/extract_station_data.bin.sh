@@ -401,7 +401,11 @@ function extract_station_data
 				
 				cat <<-EOF > $exec_tmp_file
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},${stations_array},$(common.runner.getZ $CXR_IGRID),is_binary=1
+				
+				stations=${stations_array}
+				ptr_stations=ptr_new(stations)
+				
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_MODEL_INPUT_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array},*ptr_stations,$(common.runner.getZ $CXR_IGRID),is_binary=1
 				exit
 				EOF
 				
@@ -412,7 +416,11 @@ function extract_station_data
 					
 				cat <<-EOF > $exec_tmp_file_cpa
 				.run $(basename ${CXR_STATION_PROC_INPUT_FILE})
-				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array_cpa},${stations_array_cpa},$(common.runner.getZ $CXR_IGRID),is_binary=1
+				
+				stations=${stations_array_cpa}
+				ptr_stations=ptr_new(stations)
+				
+				$(basename ${CXR_STATION_PROC_INPUT_FILE} .pro),'${CXR_CPA_FILE}','${CXR_STATION_OUTPUT_DIR}',${write_header},${CXR_DAY},${CXR_MONTH},${CXR_YEAR},${CXR_MODEL_HOUR},${species_array_cpa},*ptr_stations,$(common.runner.getZ $CXR_IGRID),is_binary=1
 				exit
 				EOF
 				fi
