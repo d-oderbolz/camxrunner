@@ -207,7 +207,7 @@ function concatenate_station_data
 	local skip_cpa
 	local do_cpa
 	
-	if [[ ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]} -gt 0 ]]
+	if [[ ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]:-0} -gt 0 ]]
 	then
 		do_cpa=true
 	else
