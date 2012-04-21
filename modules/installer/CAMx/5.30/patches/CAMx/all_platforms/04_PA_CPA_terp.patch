@@ -1,0 +1,16 @@
+--- PA/cpamech6.f	Sat Dec 10 22:49:33 2011
++++ PA/cpamech6.f	Sat Apr 21 00:28:23 2012
+@@ -6 +6 @@
+-c----CAMx v5.30 101223
++c----CAMx v5.40 111010
+@@ -37,0 +38 @@
++C**   02 04/20/2012 BK     Added TERPwOx
+@@ -862,0 +864,8 @@
++C
++C
++C...  { Terpenes with other oxidants }
++      nn = nn + 1
++      ptname(nn)  = 'TERPwOx'
++      PA(nn) = R(155)   !TERP+O3
++     &       + R(156)   !TERP+NO3
++     &       + R(153)   !TERP+O
