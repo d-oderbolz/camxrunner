@@ -173,10 +173,13 @@ function set_variables()
 			then
 				cpa_in=$(dirname ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})
 				
+				main.log -a "$cpa_in"
+				
 				# file might not exist
 				if [[ -e $cpa_in ]]
 				then
 					CXR_STATION_INPUT_ARR_FILES_CPA[${index}]=$cpa_in
+					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $cpa_in"
 				fi
 			fi
 			
@@ -214,7 +217,10 @@ function concatenate_station_data
 		main.log -a "Found CPA files, will also concatenate these"
 		do_cpa=true
 	else
-		main.log -a "No CPA files found."
+		if [[ $CXR_PROBING_TOOL == PA ]]
+		then
+			main.log -w "Probing tool is PA, but I found no CPA files. Maybe you did not use the correct extraction script (CXR_STATION_PROC_INPUT_FILE)?"
+		fi
 		do_cpa=false
 	fi
 	
@@ -297,30 +303,33 @@ function concatenate_station_data
 				fi
 		done
 
-		# Processing CPA files
-		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]} - 1)) )
-		do
-				# Input file
-				iFile="${CXR_STATION_INPUT_ARR_FILES_CPA[$index]}"
-				# For the output, we need to calculate the modulus with respect to the number of stations
-				iStation=$(( $index % ${#CXR_STATION[@]} ))
-				
-				if [[ ${skip_cpa[${iStation}]} == true ]]
-				then
-					# Skip this station file if needed
-					continue
-				fi
-				
-				main.log -a "Adding ${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]} to ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}..."
-				
-				#Dry?
-				if [[ "$CXR_DRY" == false  ]]
-				then
-					cat "${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]}" >> "${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}"
-				else
-					main.log -a "This is a dry-run, no action required"
-				fi
-		done
+		if  [[ $do_cpa == true ]]
+		then
+			# Processing CPA files
+			for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]} - 1)) )
+			do
+					# Input file
+					iFile="${CXR_STATION_INPUT_ARR_FILES_CPA[$index]}"
+					# For the output, we need to calculate the modulus with respect to the number of stations
+					iStation=$(( $index % ${#CXR_STATION[@]} ))
+					
+					if [[ ${skip_cpa[${iStation}]} == true ]]
+					then
+						# Skip this station file if needed
+						continue
+					fi
+					
+					main.log -a "Adding ${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]} to ${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}..."
+					
+					#Dry?
+					if [[ "$CXR_DRY" == false  ]]
+					then
+						cat "${CXR_STATION_INPUT_ARR_FILES_CPA[${index}]}" >> "${CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]}"
+					else
+						main.log -a "This is a dry-run, no action required"
+					fi
+			done
+		fi # CPA?
 		
 		# Check if all went well
 		# Postprocessor: we only terminate the module
