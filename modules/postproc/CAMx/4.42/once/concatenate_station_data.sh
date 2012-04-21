@@ -124,29 +124,7 @@ function set_variables()
 	
 	common.date.setVars "$CXR_START_DATE" 0
 	
-	# There is one output file per station
-	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
-	do
-		# Needed to expand the file rule
-		station=${CXR_STATION[${iStation}]}
-	
-		# Output files must not be decompressed!
-		CXR_STATION_OUTPUT_ARR_FILES[${iStation}]=$(common.runner.evaluateRule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
-	
-		#Define Output check
-		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
-	
-		# Prepare CPA file
-		if [[ $CXR_PROBING_TOOL == PA ]]
-		then
-			cpa_out=$(dirname ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})
-			
-			# There might be also a CPA file (cannot check it becasue we do not yet know if we have the input data)
-			CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]=$cpa_out
-		fi
-		
-	done
-	
+
 	# There is one input file per day and station
 	# later we need to determine the station from the running index
 	for day_offset in $(seq 0 $((${CXR_NUMBER_OF_SIMULATION_DAYS} -1 )) )
@@ -182,6 +160,31 @@ function set_variables()
 			index=$(($index + 1))
 		done # stations
 	done # days
+	
+	# There is one output file per station
+	for iStation in $(seq 0 $(($CXR_NUMBER_OF_STATIONS-1)) );
+	do
+		# Needed to expand the file rule
+		station=${CXR_STATION[${iStation}]}
+	
+		# Output files must not be decompressed!
+		CXR_STATION_OUTPUT_ARR_FILES[${iStation}]=$(common.runner.evaluateRule "$CXR_CUMULATIVE_STATION_FILE_RULE" false CXR_CUMULATIVE_STATION_FILE_RULE false)
+	
+		#Define Output check
+		CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]}"
+	
+		# Prepare CPA file
+		if [[ ${!CXR_STATION_INPUT_ARR_FILES_CPA[@]} ]]
+		then
+			cpa_out=$(dirname ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_OUTPUT_ARR_FILES[${iStation}]})
+			
+			# CPA file expected
+			CXR_STATION_OUTPUT_ARR_FILES_CPA[${iStation}]=$cpa_out
+			
+			CXR_CHECK_THESE_OUTPUT_FILES="$CXR_CHECK_THESE_OUTPUT_FILES $cpa_out"
+		fi
+		
+	done # stations
 }
 
 ################################################################################
