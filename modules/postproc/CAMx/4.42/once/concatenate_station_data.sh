@@ -207,10 +207,14 @@ function concatenate_station_data
 	local skip_cpa
 	local do_cpa
 	
-	if [[ ${#CXR_STATION_INPUT_ARR_FILES_CPA[@]:-0} -gt 0 ]]
+	# Check if CXR_STATION_INPUT_ARR_FILES_CPA is set
+	# http://stackoverflow.com/questions/874389/bash-test-for-a-variable-unset-using-a-function
+	if [[ ${!CXR_STATION_INPUT_ARR_FILES_CPA[@]} ]]
 	then
+		main.log -a "Found CPA files, will also concatenate these"
 		do_cpa=true
 	else
+		main.log -a "No CPA files found."
 		do_cpa=false
 	fi
 	
