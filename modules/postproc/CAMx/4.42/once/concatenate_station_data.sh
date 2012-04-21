@@ -171,15 +171,13 @@ function set_variables()
 			
 			if [[ $CXR_PROBING_TOOL == PA ]]
 			then
-				cpa_in=$(dirname ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})/cpa_$(basename ${CXR_STATION_INPUT_ARR_FILES[${iStation}]})
-				
-				main.log -a "$cpa_in"
+				cpa_in=$(dirname ${CXR_STATION_INPUT_ARR_FILES[${index}]})/cpa_$(basename ${CXR_STATION_INPUT_ARR_FILES[${index}]})
 				
 				# file might not exist
-				if [[ -e $cpa_in ]]
+				if [[ -e "$cpa_in" ]]
 				then
-					CXR_STATION_INPUT_ARR_FILES_CPA[${index}]=$cpa_in
-					CXR_CHECK_THESE_INPUT_FILES="$CXR_CHECK_THESE_INPUT_FILES $cpa_in"
+					# Do not check these (we know its there now)
+					CXR_STATION_INPUT_ARR_FILES_CPA[${index}]="$cpa_in"
 				fi
 			fi
 			
@@ -278,8 +276,8 @@ function concatenate_station_data
 		
 		done
 		
-		# Processing normal files
-		for index in $(seq 0 $(( ${#CXR_STATION_INPUT_ARR_FILES[@]} - 1)) )
+		# Processing normal files (preventing seq from using engineering notation)
+		for index in $(seq -f"%.0f" 0 $(( ${#CXR_STATION_INPUT_ARR_FILES[@]} - 1)) )
 		do
 				# Input file
 				iFile="${CXR_STATION_INPUT_ARR_FILES[$index]}"
