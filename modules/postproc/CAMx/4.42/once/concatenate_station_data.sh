@@ -116,9 +116,6 @@ function set_variables()
 	
 	index=0
 	
-	# We set this true later when we have seen CPA files
-	do_cpa=false
-
 	########################################################################
 	# Set variables
 	########################################################################
@@ -178,7 +175,6 @@ function set_variables()
 				then
 					# Do not check these (we know its there now)
 					CXR_STATION_INPUT_ARR_FILES_CPA[${index}]="$cpa_in"
-					do_cpa=true
 				fi
 			fi
 			
@@ -207,24 +203,26 @@ function concatenate_station_data
 	local oFile
 	local skip
 	local skip_cpa
+	local do_cpa
 
-	
-	# Check if CXR_STATION_INPUT_ARR_FILES_CPA is set
-	# http://stackoverflow.com/questions/874389/bash-test-for-a-variable-unset-using-a-function
-	if [[ $do_cpa == true ]]
-	then
-		main.log -a "Found CPA files, will also concatenate these"
-	else
-		if [[ $CXR_PROBING_TOOL == PA ]]
-		then
-			main.log -w "Probing tool is PA, but I found no CPA files. Maybe you did not use the correct extraction script (CXR_STATION_PROC_INPUT_FILE)?"
-		fi
-	fi
-	
 	#Was this stage already completed?
 	if [[ $(common.state.storeStatus ${CXR_STATUS_RUNNING}) == true ]]
 	then
 		set_variables
+		
+		# Check if CXR_STATION_INPUT_ARR_FILES_CPA is set
+		# http://stackoverflow.com/questions/874389/bash-test-for-a-variable-unset-using-a-function
+		if [[ ${!CXR_STATION_INPUT_ARR_FILES_CPA[@]} ]]
+		then
+			main.log -a "Found CPA files, will also concatenate these"
+			do_cpa=true
+		else
+			if [[ $CXR_PROBING_TOOL == PA ]]
+			then
+				main.log -w "Probing tool is PA, but I found no CPA files. Maybe you did not use the correct extraction script (CXR_STATION_PROC_INPUT_FILE)?"
+			fi
+			do_cpa=false
+		fi
 	
 		#  --- Check Settings
 		if [[ $(common.check.preconditions) == false  ]]
