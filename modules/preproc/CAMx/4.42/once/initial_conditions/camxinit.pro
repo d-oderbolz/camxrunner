@@ -700,7 +700,7 @@ ENDIF ELSE BEGIN
   print,'File ' + outfile_tc + ' exists, will not overwrite it.'
 ENDELSE
 
-print,'INITIAL Conditions & TOCONC prepared.'
+print,'INITIAL Conditions & TOPCONC prepared (We prepare TOPCONC even if it is not needed by newer CAMx versions).'
 
 END
 
