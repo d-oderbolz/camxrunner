@@ -1,0 +1,5 @@
+--- SOAP/soapdat.f	Sat Dec 10 21:49:30 2011
++++ SOAP/soapdat.f	Fri Mar 09 22:58:59 2012
+@@ -24 +24 @@
+-      data fpoly0   /0.025/
++      data fpoly0   /0.075/
