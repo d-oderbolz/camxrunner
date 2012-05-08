@@ -71,13 +71,18 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz))
+      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),mspec(10,1))
 
 
 c     PRINT DOMAIN DEFINITIONS
       print *, xorg,yorg
       print *, nx,ny,nz
       print *, dx, dy
+      
+c     ADD THE NAMES FOR PBL LAYER DEPTH
+      do i=1,10
+        write(mspec(i,nspec+2),'(a1)') namez(i:i)
+      enddo
 
 c     WRITE HEADER FOR NEW FILE 
       write(20) name,note,ione,1,ibdate,btime,iedate,etime 
@@ -123,7 +128,7 @@ c
 
 c       WRITE VERTICALLY AVERAGED HOURLY CONCS/RATES
         write (20) ibdate,btime,iedate,etime
-        write (20) ione,namez,
+        write (20) ione,(mspec(i,isp),i=1,10),
      +      ((zpbl(i,j),i=1,nx),j=1,ny)
 
 
