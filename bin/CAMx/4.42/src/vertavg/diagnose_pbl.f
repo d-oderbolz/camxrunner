@@ -80,7 +80,7 @@ c     PRINT DOMAIN DEFINITIONS
       print *, dx, dy
 
 c     WRITE HEADER FOR NEW FILE 
-      write(20) name,note,ione,nspec+2,ibdate,btime,iedate,etime 
+      write(20) name,note,ione,1,ibdate,btime,iedate,etime 
       write(20) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,ione,
      +  ncell1,ncell2,surfht,htmin1,htmin2
       write(20) ione,ione, nx,ny

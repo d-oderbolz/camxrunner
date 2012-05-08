@@ -8,5 +8,6 @@ CAMx Kv file       |/afs/psi.ch/intranet/LAC/keller_j/linuxwrf/out_3.2.1/2006060
 CAMx ZP file       |/afs/psi.ch/intranet/LAC/keller_j/linuxwrf/out_3.2.1/20060601/s326/camxw_zp_domain1_a14_s326:2006-06-01
 Avg File           |/afs/psi.ch/intranet/LAC/projects/BAFU-PSAT/CAMxRuns/Runs/CAMx-v5.30-bafu-psat-2006-s326-sem437-PA/Outputs/CAMx-v5.30-bafu-psat-2006-s326-sem437-PA.20060601.avrg.grd01
 Output file        |./test_pbl.bin
+nz                 |14
 IEOF
 
