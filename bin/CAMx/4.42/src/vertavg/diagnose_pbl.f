@@ -81,7 +81,7 @@ c     PRINT DOMAIN DEFINITIONS
       
 c     ADD THE NAMES FOR PBL LAYER DEPTH
       do i=1,10
-        write(mspec(i,nspec+2),'(a1)') namez(i:i)
+        write(mspec(i,1),'(a1)') namez(i:i)
       enddo
 
 c     WRITE HEADER FOR NEW FILE 
