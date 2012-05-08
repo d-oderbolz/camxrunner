@@ -20,7 +20,7 @@
 
 # Compiler
 ifeq ($(strip $(FC)),)
-FC=pgf77
+FC=pgf90
 endif
 
 ifeq ($(strip $(DESTINATION)),)
@@ -35,12 +35,12 @@ TARGT =  all
 
 all: vertavg diagnose_pbl
 
-OBJCTS = \
-vertavg.o \
-diagnose_pbl.o
+vertavg: vertavg.o
+	$(FC) -o $(DESTINATION)/vertavg-$(HOSTTYPE) $(FLGS) vertavg.o $(LIBS)
 
-$(TARGT): $(OBJCTS)
-	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
+diagnose_pbl: diagnose_pbl.o
+	$(FC) -o $(DESTINATION)/diagnose_pbl-$(HOSTTYPE) $(FLGS) diagnose_pbl.o $(LIBS)
+
 .f.o	:
 	$(FC) -c -o $@ $(FLGS) $<
 
