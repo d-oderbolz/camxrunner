@@ -31,7 +31,9 @@ FLGS = -byteswapio -Bstatic
 
 LIBS = 
 
-TARGT =  vertavg
+TARGT =  all
+
+all: vertavg diagnose_pbl
 
 OBJCTS = \
 vertavg.o \
