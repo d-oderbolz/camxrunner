@@ -27,6 +27,7 @@ c With one species (PBL_Z)
 
 
       real, allocatable ::  rkv(:,:,:)           ! kv 
+      real, allocatable ::  zh(:,:,:)            ! ht
       integer,allocatable :: zpbl(:,:)           ! PBL depth
       integer :: nz
 
@@ -47,7 +48,11 @@ c     READ IN INPUTS
       read (*,'(20x,a)')infile
       open (10,file=infile,status='old',form='unformatted')
       print *, 'open CAMx Kv file ', infile
-      
+
+      read (*,'(20x,a)')infile
+      open (11,file=infile,status='old',form='unformatted')
+      print *, 'open CAMx ZP file ', infile
+
       read (*,'(20x,a)')infile
       open (13,file=infile,status='old',form='unformatted')
       print *, 'open average file ', infile
@@ -66,7 +71,7 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (rkv(nx,ny,nz),zpbl(nx,ny))
+      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz))
 
 
 c     PRINT DOMAIN DEFINITIONS
@@ -90,6 +95,7 @@ c       READ IN MET VARIABLES FIRST
 
         do k=1,nz
           read (10,end=130) hour,idate,((rkv(i,j,k),i=1,nx),j=1,ny)
+          read (11,end=130) hour1,idate1,((zh(i,j,k),i=1,nx),j=1,ny)
         enddo
 
        if (ibdate.gt.idate.or.(ibdate.eq.idate.and.btime.gt.hour)) then
