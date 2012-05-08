@@ -34,7 +34,8 @@ LIBS =
 TARGT =  vertavg
 
 OBJCTS = \
-vertavg.o
+vertavg.o \
+diagnose_pbl.o
 
 $(TARGT): $(OBJCTS)
 	$(FC) -o $(DESTINATION)/$(TARGT)-$(HOSTTYPE) $(FLGS) $(OBJCTS) $(LIBS)
