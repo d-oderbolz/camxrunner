@@ -1,0 +1,19 @@
+#!/bin/csh
+
+# Determines the PBL height from KV/ZP. Gemoetry is taken from an average file
+
+foreach DATE (990813 990814 990815 990816 990817 990818 990819 990820 990821 990822)
+
+foreach RUN (run34pa run35pa )
+mkdir -p ../output/$RUN/avrg/pblavg
+
+./diagnose_pbl << IEOF
+CAMx Kv file       |/disk41/tceq/mm5_new/mm5v3_camxv4/04km/camx.kv.tceq04km.$DATE.run6_vert14km.kvpatch1.bin
+CAMx ZP file       |/disk41/tceq/mm5_new/mm5v3_camxv4/04km/camx.zp.tceq04km.$DATE.run6_vert14km.bin
+Avg File           |../../output/$RUN/camx_v4.03.$DATE.$RUN.favrg
+Output file        |../output/$RUN/avrg/pblavg/camx.$RUN.$DATE.pblavg.avrg.04km
+IEOF
+end
+
+
+end
