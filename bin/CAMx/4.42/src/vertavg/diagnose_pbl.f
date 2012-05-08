@@ -3,6 +3,8 @@ c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Copyright (C) 2011  ENVIRON
 c
+c $Id$
+c
 c This program is free software; you can redistribute it and/or
 c modify it under the terms of the GNU General Public License
 c as published by the Free Software Foundation; either version 2
@@ -64,7 +66,7 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (mspec(10,1), rkv(nx,ny,nz),zpbl(nx,ny)
+      allocate rkv(nx,ny,nz),zpbl(nx,ny)
 
 
 c     PRINT DOMAIN DEFINITIONS
