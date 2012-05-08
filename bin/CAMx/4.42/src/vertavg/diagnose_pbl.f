@@ -118,7 +118,7 @@ c
 c       WRITE VERTICALLY AVERAGED HOURLY CONCS/RATES
         write (20) ibdate,btime,iedate,etime
         write (20) ione,namez,
-     +      ((zpbl(i,j,isp),i=1,nx),j=1,ny)
+     +      ((zpbl(i,j),i=1,nx),j=1,ny)
 
 
         print *, 'finished processing on ', ibdate,btime,iedate,etime
