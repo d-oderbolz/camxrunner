@@ -27,7 +27,7 @@ ifeq ($(strip $(DESTINATION)),)
 	DESTINATION = ../..
 endif
 
-FLGS = -byteswapio -Bstatic
+FLGS = -byteswapio -Bstatic -Mbounds
 
 LIBS = 
 
