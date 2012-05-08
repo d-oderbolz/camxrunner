@@ -66,7 +66,7 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate rkv(nx,ny,nz),zpbl(nx,ny)
+      allocate (rkv(nx,ny,nz),zpbl(nx,ny))
 
 
 c     PRINT DOMAIN DEFINITIONS
