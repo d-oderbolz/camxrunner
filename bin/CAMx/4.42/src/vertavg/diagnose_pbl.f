@@ -34,14 +34,13 @@ c With one species (PBL_Z)
       real,allocatable ::  dz(:),pres(:)         ! nz
 
 
-      character*4, allocatable :: mspec(:,:)     ! (10,nspec+2)
       character*4 name(10),note(60)
       character*256 infile,outfile,line
       character*60 message
-      character*10 cspec,namei,namez
+      character*40 namez
 
       data ione /1/
-      data namez /'PBL_Z     '/
+      data namez /'P   B   L   _   Z                       '/
 
 c     READ IN INPUTS
 
@@ -71,18 +70,13 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),mspec(10,1))
+      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz))
 
 
 c     PRINT DOMAIN DEFINITIONS
       print *, xorg,yorg
       print *, nx,ny,nz
       print *, dx, dy
-      
-c     ADD THE NAMES FOR PBL LAYER DEPTH
-      do i=1,10
-        write(mspec(i,1),'(a1)') namez(i:i)
-      enddo
 
 c     WRITE HEADER FOR NEW FILE 
       write(20) name,note,ione,1,ibdate,btime,iedate,etime 
@@ -128,7 +122,7 @@ c
 
 c       WRITE VERTICALLY AVERAGED HOURLY CONCS/RATES
         write (20) ibdate,btime,iedate,etime
-        write (20) ione,(mspec(i,isp),i=1,10),
+        write (20) ione,namez,
      +      ((zpbl(i,j),i=1,nx),j=1,ny)
 
 
