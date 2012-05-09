@@ -130,6 +130,8 @@ c       rows
         
         
 c       READ IN CONCS (ONLY NEEDED FOR CORRECT HEADER)
+        print *, 'nz_real', nz_real
+        print *, 'nspec', nspec
         read (13,end=200) ibdate,btime,iedate,etime
         do isp=1,nspec
           do k=1,nz_real
