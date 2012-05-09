@@ -30,6 +30,7 @@ c With one species (PBL_Z)
       real, allocatable ::  zh(:,:,:)            ! ht
       real, allocatable ::  pr(:,:,:)            ! pressure
       integer,allocatable :: zpbl(:,:)           ! PBL depth
+      real,allocatable :: conc(:,:,:,:)
       integer :: nz
 
       real,allocatable ::  dz(:),pres(:)         ! nz
@@ -71,7 +72,7 @@ c     READ HEADERS OF AVG FILE
      +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),pr(nx,ny,nz))
+      allocate (mspec(10,nspec),rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),pr(nx,ny,nz),conc(nx,ny,nz,nspec))
 
 
 c     PRINT DOMAIN DEFINITIONS
@@ -81,7 +82,7 @@ c     PRINT DOMAIN DEFINITIONS
 
 c     WRITE HEADER FOR NEW FILE 
       write(20) name,note,ione,1,ibdate,btime,iedate,etime 
-      write(20) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,ione,
+      write(20) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,nz_real,
      +  ncell1,ncell2,surfht,htmin1,htmin2
       write(20) ione,ione, nx,ny
       write(20) namez
@@ -124,6 +125,22 @@ c           levels
 c         columns
           enddo
 c       rows
+        enddo
+        
+        
+c       READ IN CONCS (ONLY NEEDED FOR CORRECT HEADER)
+        read (13,end=200) ibdate,btime,iedate,etime
+        if (ibdate .ne. idate .or. nint(btime) .ne. nint(hour/100.)) 
+     +  then
+c          write(*,*) ibdate, idate, btime, nint(hour/100.), etime
+          print *, 'Avrg/PA time  does not match met time'
+          stop
+        endif
+        do isp=1,nspec
+          do k=1,nz_real
+            read (13) ione,(mspec(i,isp),i=1,10),
+     +        ((conc(i,j,k,isp),i=1,nx),j=1,ny)
+          enddo
         enddo
 
 c       WRITE PBL HEIGHTS OF CURRENT TIME
