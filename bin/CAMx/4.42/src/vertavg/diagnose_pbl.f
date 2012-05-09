@@ -73,7 +73,7 @@ c     READ HEADERS OF AVG FILE
       read (13) ijunk,ijunk, nx,ny
        
       allocate (mspec(10,nspec),rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),
-     +pr(nx,ny,nz),conc(nx,ny,nz,nspec))
+     +pr(nx,ny,nz),conc(nx,ny,nz_real,nspec))
 
 
 c     PRINT DOMAIN DEFINITIONS
@@ -130,8 +130,6 @@ c       rows
         
         
 c       READ IN CONCS (ONLY NEEDED FOR CORRECT HEADER)
-        print *, 'nz_real', nz_real
-        print *, 'nspec', nspec
         read (13,end=200) ibdate,btime,iedate,etime
         do isp=1,nspec
           do k=1,nz_real
