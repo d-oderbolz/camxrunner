@@ -30,11 +30,10 @@ c With one species (PBL_Z)
       real, allocatable ::  zh(:,:,:)            ! ht
       real, allocatable ::  pr(:,:,:)            ! pressure
       integer,allocatable :: zpbl(:,:)           ! PBL depth
-      real,allocatable :: conc(:,:,:,:)
       integer :: nz
 
       real,allocatable ::  dz(:),pres(:)         ! nz
-      character*4, allocatable :: mspec(:,:)
+
 
       character*4 name(10),note(60)
       character*256 infile,outfile,line
@@ -69,11 +68,10 @@ c     READ IN INPUTS
 c     READ HEADERS OF AVG FILE
       read (13) name,note,ijunk,nspec,ibdate,btime,iedate,etime 
       read (13) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,
-     +  nz_real,ncell1,ncell2,surfht,htmin1,htmin2
+     +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (mspec(10,nspec),rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),
-     +pr(nx,ny,nz),conc(nx,ny,nz_real,nspec))
+      allocate (rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),pr(nx,ny,nz))
 
 
 c     PRINT DOMAIN DEFINITIONS
@@ -127,16 +125,6 @@ c         columns
           enddo
 c       rows
         enddo
-        
-        
-c       READ IN CONCS (ONLY NEEDED FOR CORRECT HEADER)
-        read (13,end=200) ibdate,btime,iedate,etime
-        do isp=1,nspec
-          do k=1,nz_real
-            read (13) ione,(mspec(i,isp),i=1,10),
-     +        ((conc(i,j,k,isp),i=1,nx),j=1,ny)
-          enddo
-        enddo
 
 c       WRITE PBL HEIGHTS OF CURRENT TIME
         write (20) ibdate,btime,iedate,etime
@@ -145,7 +133,7 @@ c       WRITE PBL HEIGHTS OF CURRENT TIME
 
 
         print *, 'finished processing on ', idate,hour
-       
+       print *, zpbl
 c     Time
       enddo
 130   continue
