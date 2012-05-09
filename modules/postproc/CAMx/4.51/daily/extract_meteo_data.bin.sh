@@ -1,0 +1,1 @@
+../../4.42/daily/extract_meteo_data.bin.sh
