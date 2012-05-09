@@ -125,7 +125,7 @@ c
           enddo
         enddo
 
-c       WRITE VERTICALLY PBL
+c       WRITE PBL HEIGHT
         write (20) ibdate,btime,iedate,etime
         write (20) ione,namez,
      +      ((zpbl(i,j),i=1,nx),j=1,ny)
