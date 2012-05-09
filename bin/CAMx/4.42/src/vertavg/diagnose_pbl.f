@@ -121,13 +121,12 @@ c
 c           levels
             enddo
  100        zpbl(i,j) = zh(i,j,kpbl)
-            write(*,*) kpbl, zh(i,j,kpbl)
 c         columns
           enddo
 c       rows
         enddo
 
-c       WRITE PBL HEIGHT
+c       WRITE PBL HEIGHTS OF CURRENT TIME
         write (20) ibdate,btime,iedate,etime
         write (20) ione,namez,
      +      ((zpbl(i,j),i=1,nx),j=1,ny)
