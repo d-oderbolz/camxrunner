@@ -116,19 +116,22 @@ c
               dz2 = zh(i,j,k) - zh(i,j,k-1)
               zr = dz2/dz1
               critk = 0.03*dz1*dz1*(1. + zr)/200.
+              
+              write(*,*) dz1,dz2,zr,critk,rkv(i,j,k-1)
+              
               if (rkv(i,j,k-1) .gt. critk) kpbl = k
             enddo
  100        zpbl(i,j) = zh(i,j,kpbl)
           enddo
         enddo
 
-c       WRITE VERTICALLY AVERAGED HOURLY CONCS/RATES
+c       WRITE VERTICALLY PBL
         write (20) ibdate,btime,iedate,etime
         write (20) ione,namez,
      +      ((zpbl(i,j),i=1,nx),j=1,ny)
 
 
-        print *, 'finished processing on ', ibdate,btime,iedate,etime
+        print *, 'finished processing on ', idate,hour
        
 
       enddo
