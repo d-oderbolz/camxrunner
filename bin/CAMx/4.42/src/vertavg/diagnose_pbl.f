@@ -131,12 +131,6 @@ c       rows
         
 c       READ IN CONCS (ONLY NEEDED FOR CORRECT HEADER)
         read (13,end=200) ibdate,btime,iedate,etime
-        if (ibdate .ne. idate .or. nint(btime) .ne. nint(hour/100.)) 
-     +  then
-c          write(*,*) ibdate, idate, btime, nint(hour/100.), etime
-          print *, 'Avrg/PA time  does not match met time'
-          stop
-        endif
         do isp=1,nspec
           do k=1,nz_real
             read (13) ione,(mspec(i,isp),i=1,10),
