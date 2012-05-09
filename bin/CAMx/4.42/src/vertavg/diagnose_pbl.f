@@ -34,7 +34,7 @@ c With one species (PBL_Z)
       integer :: nz
 
       real,allocatable ::  dz(:),pres(:)         ! nz
-
+      character*4, allocatable :: mspec(:,:)
 
       character*4 name(10),note(60)
       character*256 infile,outfile,line
