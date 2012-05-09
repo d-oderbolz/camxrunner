@@ -97,6 +97,7 @@ c       READ IN MET VARIABLES FIRST
           read (10,end=130) hour,idate,((rkv(i,j,k),i=1,nx),j=1,ny)
           read (11,end=130) hour1,idate1,((zh(i,j,k),i=1,nx),j=1,ny)
           read (11,end=130) hour2,idate2,((pr(i,j,k),i=1,nx),j=1,ny)
+c       layers
         enddo
 
        if (ibdate.gt.idate.or.(ibdate.eq.idate.and.btime.gt.hour)) then
@@ -120,9 +121,13 @@ c
               write(*,*) dz1,dz2,zr,critk,rkv(i,j,k-1)
               
               if (rkv(i,j,k-1) .gt. critk) kpbl = k
+c           levels
             enddo
  100        zpbl(i,j) = zh(i,j,kpbl)
+            write(*,*) kpbl, zh(i,j,kpbl)
+c         columns
           enddo
+c       rows
         enddo
 
 c       WRITE PBL HEIGHT
@@ -133,7 +138,7 @@ c       WRITE PBL HEIGHT
 
         print *, 'finished processing on ', idate,hour
        
-
+c     Time
       enddo
 130   continue
 200   continue
