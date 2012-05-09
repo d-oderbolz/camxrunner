@@ -29,7 +29,7 @@ c With one species (PBL_Z)
       real, allocatable ::  rkv(:,:,:)           ! kv 
       real, allocatable ::  zh(:,:,:)            ! ht
       real, allocatable ::  pr(:,:,:)            ! pressure
-      integer,allocatable :: zpbl(:,:)           ! PBL depth
+      real,allocatable :: zpbl(:,:)           ! PBL depth
       integer :: nz
 
       real,allocatable ::  dz(:),pres(:)         ! nz
