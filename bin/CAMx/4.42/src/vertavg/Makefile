@@ -46,4 +46,5 @@ diagnose_pbl: diagnose_pbl.o
 
 clean :
 	-rm -f *.o
-	-rm -f $(DESTINATION)/$(TARGT)-$(HOSTTYPE)
+	-rm -f $(DESTINATION)/vertavg-$(HOSTTYPE)
+	-rm -f $(DESTINATION)/diagnose_pbl-$(HOSTTYPE)
