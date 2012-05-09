@@ -69,10 +69,11 @@ c     READ IN INPUTS
 c     READ HEADERS OF AVG FILE
       read (13) name,note,ijunk,nspec,ibdate,btime,iedate,etime 
       read (13) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,
-     +  ijunk,ncell1,ncell2,surfht,htmin1,htmin2
+     +  nz_real,ncell1,ncell2,surfht,htmin1,htmin2
       read (13) ijunk,ijunk, nx,ny
        
-      allocate (mspec(10,nspec),rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),pr(nx,ny,nz),conc(nx,ny,nz,nspec))
+      allocate (mspec(10,nspec),rkv(nx,ny,nz),zpbl(nx,ny),zh(nx,ny,nz),
+     +pr(nx,ny,nz),conc(nx,ny,nz,nspec))
 
 
 c     PRINT DOMAIN DEFINITIONS
@@ -82,7 +83,7 @@ c     PRINT DOMAIN DEFINITIONS
 
 c     WRITE HEADER FOR NEW FILE 
       write(20) name,note,ione,1,ibdate,btime,iedate,etime 
-      write(20) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,nz_real,
+      write(20) rdum,rdum,iutm,xorg,yorg,dx,dy,nx,ny,ione,
      +  ncell1,ncell2,surfht,htmin1,htmin2
       write(20) ione,ione, nx,ny
       write(20) namez
