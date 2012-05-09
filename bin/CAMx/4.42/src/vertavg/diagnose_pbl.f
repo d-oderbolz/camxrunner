@@ -117,9 +117,6 @@ c
               dz2 = zh(i,j,k) - zh(i,j,k-1)
               zr = dz2/dz1
               critk = 0.03*dz1*dz1*(1. + zr)/200.
-              
-              write(*,*) dz1,dz2,zr,critk,rkv(i,j,k-1)
-              
               if (rkv(i,j,k-1) .gt. critk) kpbl = k
 c           levels
             enddo
