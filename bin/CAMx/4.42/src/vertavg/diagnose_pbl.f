@@ -133,7 +133,7 @@ c       WRITE PBL HEIGHTS OF CURRENT TIME
 
 
         print *, 'finished processing on ', idate,hour
-       print *, zpbl
+
 c     Time
       enddo
 130   continue
