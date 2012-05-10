@@ -378,7 +378,7 @@ function common.module.listModuleType()
 		#Count modules
 		num_modules=$(ls ${pattern} 2> /dev/null | wc -l)
 		
-		if [[ "$num_modules" -gt 0  ]]
+		if [[ "$num_modules" -gt 0 ]]
 		then
 			main.log -v  "  $(printf %-32s%-75s Name call)"
 			

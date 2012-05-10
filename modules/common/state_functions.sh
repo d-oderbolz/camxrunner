@@ -596,14 +596,14 @@ function common.state.updateInfo()
 				# Returns the empty string if not set
 				wanted_variant=$(common.conf.get "${module}.variant")
 				
-				main.log -v "variant of $file is $variant (needed: $wanted_variant)"
+				main.log -a "variant of $file is $variant (needed: $wanted_variant)"
 				
 				if [[ "$variant" == "$wanted_variant" ]]
 				then
 				
 					if [[ "$wanted_variant" ]]
 					then
-						main.log -v "Considering variant $wanted_variant of $module"
+						main.log -a "Considering variant $wanted_variant of $module"
 					fi
 				
 					# Is this module active? (Enabled wins over disabled)
