@@ -146,7 +146,7 @@ function set_variables()
 
 	# the pressure and kv files to use (binary)
 	CXR_ZP_GRID_FILE="$(common.runner.evaluateRule "$CXR_PRESSURE_FILE_RULE" false CXR_PRESSURE_FILE_RULE)"
-	CXR_KV_GRID_INPUT_ARR_FILE=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE true $create_missing_dirs)
+	CXR_KV_GRID_FILE=$(common.runner.evaluateRule "$CXR_K_FILE_RULE" false CXR_K_FILE_RULE)
 	CXR_TEMP_GRID_FILE="$(common.runner.evaluateRule "$CXR_TEMPERATURE_FILE_RULE" false CXR_TEMPERATURE_FILE_RULE)"
 	
 	
@@ -225,7 +225,7 @@ function extract_meteo_data
 		
 		# Lets create this file
 		${CXR_DIAGNOSE_PBL_EXEC} <<-IEOF
-CAMx Kv file       |${CXR_KV_GRID_INPUT_ARR_FILE}
+CAMx Kv file       |${CXR_KV_GRID_FILE}
 CAMx ZP file       |${CXR_ZP_GRID_FILE}
 Avg File           |${CXR_MODEL_INPUT_FILE}
 Output file        |${fake_avg_file}
