@@ -388,6 +388,8 @@ function common.runner.printSummary()
 	main.log -a "................................................................................"
 	main.log -a " # Photolyt. react.  ${CXR_TUV_NO_OF_REACTIONS}"
 	main.log -a "................................................................................"
+	main.log -a " TUV reactions       ${CXR_TUV_REACTION_NUMBERS}"
+	main.log -a "................................................................................"
 	main.log -a " 3D option (now)     ${CXR_AVERAGE_OUTPUT_3D}"
 	main.log -a "................................................................................"
 	main.log -a " OMP_NUM_THREADS     ${OMP_NUM_THREADS}"
