@@ -546,14 +546,14 @@ function common.fs.isBrokenLink?()
 	
 	path="$1"
 	
-	if [[ ! -L "$path" ]]
+	common.fs.isLink? "$path"
+	
+	if [[ $_result == false ]]
 	then
 		# Not a link
 		echo false
 	else
-		target="$(common.fs.getLinkTarget $path)"
-		
-		if [[ -z "$path" || ! -e "$target" ]]
+		if [[ -z "$path" || ! -e "$_target" ]]
 		then
 			# Broken
 			echo true
