@@ -522,12 +522,12 @@ function common.fs.isLink?()
 	then
 		# Link
 		_result=true
-		echo true
 	else
 		# No Link
 		_result=false
-		echo false
 	fi # Link?
+	
+	echo $_result
 }
 
 ################################################################################
@@ -554,7 +554,7 @@ function common.fs.isBrokenLink?()
 	
 	if [[ $_result == false ]]
 	then
-		# Not a link
+		# Not a link, hence not broken
 		echo false
 	else
 		if [[ -z "$path" || ! -e "$_target" ]]

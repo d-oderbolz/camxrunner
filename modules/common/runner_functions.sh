@@ -1140,6 +1140,7 @@ function common.runner.getLock()
 		# If stale, delete it
 		if [[ $(common.fs.isBrokenLink? ${locklink}) == true ]]
 		then
+			main.log -a "${locklink} seems to be stale."
 			rm -f ${locklink}
 		fi
 		
