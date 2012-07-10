@@ -1140,7 +1140,7 @@ function common.runner.getLock()
 		# If stale, delete it
 		if [[ $(common.fs.isBrokenLink? ${locklink}) == true ]]
 		then
-			main.log -a "${locklink} seems to be stale."
+			main.log -w "${locklink} seems to be stale, removing it."
 			rm -f ${locklink}
 		fi
 		
@@ -1908,7 +1908,7 @@ function common.runner.recreateInput()
 				ln "${target}" "${newEmissDir}/${file}" 2>/dev/null || ln -s "${target}" "${newEmissDir}/${file}"
 			done
 			
-			echo "These files where created as links to $oldEmissDir by $USER on $(date)" >> README.TXT
+			echo "These files where created as links to $oldEmissDir by $USER on $(date)" >> "${newEmissDir}/README.TXT"
 		fi # copy?
 	fi # Emission dir set?
 	
@@ -1957,7 +1957,7 @@ function common.runner.recreateInput()
 				ln "${target}" "${newInputDir}/${file}" 2>/dev/null || ln -s "${target}" "${newInputDir}/${file}"
 			done
 			
-			echo "These files where created as links to $oldInputDir by $USER on $(date)" >> README.TXT
+			echo "These files where created as links to $oldInputDir by $USER on $(date)" >> "${newInputDir}/README.TXT"
 		fi # copy
 	
 	fi # Other input dir set?
@@ -2011,7 +2011,7 @@ function common.runner.recreateRun()
 		ln -s $CXR_RUNNER_NAME $newRun
 	else
 		# run already existists, OK? ###############################################
-		if [[ $(common.user.getOK "$newRun already exists. Do you want to continue?" N ) == false  ]]
+		if [[ $(common.user.getOK "$newRun already exists. Do you want to continue?" N ) == false ]]
 		then
 			# No
 			exit
