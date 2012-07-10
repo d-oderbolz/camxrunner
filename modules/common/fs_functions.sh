@@ -483,7 +483,6 @@ function common.fs.getLinkTarget()
 		
 		if [[ ! -e "$target" ]]
 		then
-			target=""
 			main.log -w "Link target $target does not exist."
 		fi
 		
@@ -511,8 +510,8 @@ function common.fs.isLink?()
 	
 	path="$1"
 	
-	# Get the target and store globally
-	_target="$(common.fs.getLinkTarget $path)"
+	# Get the target and store globally (allow missing links and files)
+	_target="$(common.fs.getLinkTarget $path true)"
 	# Result is global, too
 	_result=false
 	
