@@ -675,6 +675,8 @@ function common.runner.createDummyFile()
 # Replaces calls to mktemp and removes the need to remove the temp files, this is done by 
 # <common.runner.removeTempFiles>
 #
+# We use <common.fs.getLinkTarget> to determine the "real" name of the file.
+#
 # Recommended call:
 # >TMPFILE=$(common.runner.createTempFile $FUNCNAME)
 #
@@ -740,6 +742,9 @@ function common.runner.createTempFile()
 		retval=$?
 		main.log -v "Created temporary file $name"
 	fi # directory or file?
+	
+	# We need to follow any links
+	name="$(common.fs.getLinkTarget "$name")"
 	
 	# name to caller
 	echo $name
@@ -1086,6 +1091,9 @@ function common.runner.waitForLock()
 # If we get the lock, a link in the appropiate directory is created and
 # the path to the file is stored in the Tempfile list. (Thanks to Stefan Tramm for the symlink idea)
 #
+# Since symlink does not seem to be entirely atomic on AFS, we check if somebody stole the
+# lock in the meantime. If ao, we must wait again.
+#
 # Locking in general is harder than one thinks. We use an operation that generally
 # is atomic on most filesystems (check yours!): symlink.
 # I experimented a bit with Lamports Bakery algoritm, but its not trivial to implement
@@ -1124,16 +1132,21 @@ function common.runner.getLock()
 	local mtime
 	local tempfile
 	local locklink
+	local got_lock
+	local target
 	
 	lock="$1"
 	level="$2"
 	seconds_waited=0
 	shown=false
+	got_lock=false
 	
 	# For debug reasons, locking can be turned off.
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
 	
+		# If the link points to this file, I have the lock
+		# if it points to another file, someone managed to steal the lock
 		tempfile="$(common.runner.createTempFile lock)"
 		locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 	
@@ -1144,36 +1157,53 @@ function common.runner.getLock()
 			rm -f ${locklink}
 		fi
 		
-		while ! ln -s ${tempfile} ${locklink} 2> /dev/null
+		while [[ $got_lock == false ]]
 		do
-			if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited > 10" 0 ) -eq 1 ]]
-			then
-				main.log -a "Waiting for lock $lock (level $level) ..."
-				# Safe time thanks to short-circuit logic
-				shown=true
-			fi
-
-			# is it an older lock?
-			mtime=$(common.fs.getMtime $locklink)
-			if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
-			then
-				main.log -w "Removing old lock $locklink"
-				rm -f $locklink
-			fi
 		
-			# We sleep a random amount of time
-			sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
-			sleep $sleeptime
+			while ! ln -s ${tempfile} ${locklink} 2> /dev/null
+			do
+				if [[ $shown == false && $(common.math.FloatOperation "$seconds_waited > 10" 0 ) -eq 1 ]]
+				then
+					main.log -a "Waiting for lock $lock (level $level) ..."
+					# Safe time thanks to short-circuit logic
+					shown=true
+				fi
+	
+				# is it an older lock?
+				mtime="$(common.fs.getMtime "$locklink")"
+				if [[ $mtime -gt 0 && $mtime -lt "$CXR_START_EPOCH" ]]
+				then
+					main.log -w "Removing old lock $locklink"
+					rm -f $locklink
+				fi
 			
-			seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS )
+				# We sleep a random amount of time
+				sleeptime="$(common.math.RandomNumber 0 $CXR_LOCK_SLEEP_SECONDS)"
+				sleep $sleeptime
+				
+				seconds_waited=$(common.math.FloatOperation "$seconds_waited + $sleeptime" $CXR_NUM_DIGITS )
+				
+				if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 ) -eq 1 ]]
+				then
+					main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
+				fi
+			done # Inner loop to acquire the lock
+	
+			# If we arrive here, we should have the lock. However, due to AFS magic,
+			# it is still possible that someone else stole it
+			target="$(common.fs.getLinkTarget "$locklink")"
 			
-			if [[ $(common.math.FloatOperation "$seconds_waited > $CXR_LOCK_TIMEOUT_SEC" 0 ) -eq 1 ]]
+			if [[ $target == $tempfile ]]
 			then
-				main.dieGracefully "Lock $lock (${level}) took longer than CXR_LOCK_TIMEOUT_SEC to get!"
+				got_lock=true
+			else
+				main.log -w "Hey, somebody stole my lock $lock"
 			fi
-		done
-
-		# We got the lock 
+			
+			
+		done # Outer loop to check if lock was stolen
+		
+		# Here, we can be pretty certain we have the lock
 		
 		# Save it in the templist (ignore errors)
 		(echo $locklink >> $CXR_INSTANCE_FILE_TEMP_LIST) &> /dev/null || :
