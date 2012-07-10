@@ -453,12 +453,6 @@ function common.fs.isDos?()
 # if "allow missing path components" is true, we allow any path component to be non-existing.
 # By default, just the file is allowed to be missing.
 #
-# Because this is a costly function, its recommended to call it like this:
-# > common.fs.isLink? $(dirname "${output_file}") &> /dev/null
-# > if [[ "$_result" == true ]]
-# > then
-# > 	# target is in $_target
-#
 #
 # Parameters:
 # $1 - path to link to dereference
@@ -499,6 +493,15 @@ function common.fs.getLinkTarget()
 # or the original path, also _result will contain true or false.
 # The Empty string is not a link by definition.
 #
+# Note that this function also deal with "partial links"
+# that is with files which contain a path component that is a link.
+# test -L does not offer this.
+#
+# Because this is a costly function, its recommended to call it like this:
+# > common.fs.isLink? $(dirname "${output_file}") &> /dev/null
+# > if [[ "$_result" == true ]]
+# > then
+# > 	# target is in $_target
 #
 # Parameters:
 # $1 - path to link to test
@@ -546,7 +549,8 @@ function common.fs.isBrokenLink?()
 	
 	path="$1"
 	
-	common.fs.isLink? "$path"
+	# This is more powerful than test -L
+	common.fs.isLink? "$path" &> /dev/null
 	
 	if [[ $_result == false ]]
 	then
