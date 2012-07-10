@@ -963,6 +963,8 @@ function common.runner.removeTempFiles()
 # Function: common.runner.getLockLinkName
 #
 # Returns the name of a lock-link to use, depending on the lock level (directory)
+# The lock link is the name of the link that is checked for existence.
+# The target of the link is a tempfile.
 #
 # Parameters:
 # $1 - the name of the lock to get
@@ -1128,12 +1130,12 @@ function common.runner.getLock()
 	seconds_waited=0
 	shown=false
 	
-	tempfile="$(common.runner.createTempFile lock)"
-	locklink="$(common.runner.getLockLinkName "$lock" "$level")"
-	
 	# For debug reasons, locking can be turned off.
 	if [[ $CXR_NO_LOCKING == false ]]
 	then
+	
+		tempfile="$(common.runner.createTempFile lock)"
+		locklink="$(common.runner.getLockLinkName "$lock" "$level")"
 	
 		# If stale, delete it
 		if [[ $(common.fs.isBrokenLink? ${locklink}) == true ]]
@@ -1181,7 +1183,7 @@ function common.runner.getLock()
 		main.log -v "Lock $lock (${level}) acquired."
 	else
 		main.log -w "CXR_NO_LOCKING is true. No lock acquired."
-	fi # Lockinc turned off?
+	fi # Locking turned off?
 }
 
 ################################################################################
