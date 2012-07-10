@@ -22,7 +22,7 @@
 CXR_META_MODULE_TYPE="${CXR_TYPE_COMMON}"
 
 # If >0, this module supports testing
-CXR_META_MODULE_NUM_TESTS=42
+CXR_META_MODULE_NUM_TESTS=41
 
 # This string describes special requirements this module has
 # it is a space-separated list of requirement|value[|optional] tuples.
@@ -445,7 +445,7 @@ function common.fs.isDos?()
 # Function: common.fs.getLinkTarget
 #
 # Returns the link target of a file/directory (even if target is non-existing).
-# Returns the empty string on error (for example if the input is non-existing)
+# Throws a warning on error (for example if the input is non-existing but we expect it to be there)
 # Resolves any component (!) of a path.
 # Does not work in MacOSX: 
 # <http://stackoverflow.com/questions/7665/how-to-resolve-symbolic-links-in-a-shell-script>
@@ -1265,7 +1265,6 @@ function test_module()
 	# Since CXR_TMP_DIR might be a link itself, we must take precautions
 	is "$(common.fs.getLinkTarget $link)" "$tempdir/$(basename $a)" "common.fs.getLinkTarget - link to a tempfile"
 	is "$(common.fs.getLinkTarget $dirlink/testfile)" "$dirtarget/testfile" "common.fs.getLinkTarget - real file, linked dir"
-	is "$(common.fs.getLinkTarget $(basename $a))" "" "common.fs.getLinkTarget - Relative path"
 	
 	is "$(common.fs.isLink? $link)" "true" "common.fs.isLink?"
 	is "$(common.fs.isLink? $dirlink/testfile)" "true" "common.fs.isLink? - real file, linked dir"
