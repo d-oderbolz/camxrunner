@@ -226,19 +226,23 @@ function common.performance.reportEta()
 	
 	# How many seconds have elapsed?
 	elapsed=$(( $(date "+%s") - $CXR_START_EPOCH ))
-	left=$(( $CXR_TIME_TOTAL_ESTIMATED - $elapsed ))
 	
-	if [[ $left -gt 0 ]]
+	if [[ $CXR_TIME_TOTAL_ESTIMATED -gt 0 ]]
 	then
-		# OK, we are within estimation
+		# we can estimate
 		percentDone=$(common.math.FloatOperation "(100 * $elapsed) / $CXR_TIME_TOTAL_ESTIMATED" 0)
+		
+		if [[ $percentDone -gt 100 ]]
+		then
+			percentDone=100
+		fi
 	
 		# Only goes to stderr
 		echo -e "\nWorkers (Running/Total): $(common.task.countRunningWorkers)/$(common.task.countAllWorkers)" 1>&2
 		echo "Tasks (Successful/Failed/Total): $(common.task.countSuccessfulTasks)/$(common.task.countFailedTasks)/$(common.task.countAllTasks)" 1>&2
 		echo "Runtime so far: $(common.date.humanSeconds $elapsed)" 1>&2
 		echo "Estimated remaining time of this run: $(common.date.humanSeconds $left)" 1>&2
-		common.user.showProgressBar $percentDone
+		common.user.showProgressBar "$percentDone"
 	else
 		# Duh, our time is up...
 		:
