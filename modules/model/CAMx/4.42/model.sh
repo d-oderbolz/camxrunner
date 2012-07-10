@@ -1176,11 +1176,12 @@ function model()
 				retval=$CXR_RET_ERR_POSTCONDITIONS
 			else
 			
+				# We store the fact model run was completed
+				common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
+			
 				# Show summary of concentrations
 				common.check.concentrations "${CXR_AVG_OUTPUT_ARR_FILES[1]}"
 			
-				# We store the fact model run was completed
-				common.state.storeStatus ${CXR_STATUS_SUCCESS} > /dev/null
 				retval=$CXR_RET_OK
 			fi
 			
