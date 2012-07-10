@@ -57,7 +57,7 @@ function common.check.concentrations()
 ################################################################################
 {
 	# Disable checks for fast guys
-	if [[ $CXR_FAST == true ]]
+	if [[ $CXR_FAST == true || $CXR_NO_CONC_CHECK == true ]]
 	then
 		echo 0
 		return $CXR_RET_OK

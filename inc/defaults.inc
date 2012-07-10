@@ -74,6 +74,12 @@ CXR_STATUS_KILLED=KILLED	# Used to signal a worker that it must terminate
 # Dangerous, especially in parallel mode; should only be used when debugging
 CXR_NO_LOCKING=false
 
+# Set this to true to disable display of average concentrations
+# (IC/BC/INST/AVG) Saves time, especially on 3D files,
+# however, if somethings is strage in the neighbourhood,
+# setting this to false may reveal important facts.
+CXR_NO_CONC_CHECK=true
+
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
 # We need this because if we cannet got a lock, the statement "fails"
