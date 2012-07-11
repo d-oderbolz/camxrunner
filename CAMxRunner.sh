@@ -723,7 +723,7 @@ then
 	fi # are there tasks at all?
 fi
 
-elapsed_seconds=$(( $(date "+%s") - $CXR_START_EPOCH ))
+elapsed_seconds=$(common.math.FloatOperation "$(date "+%s") - $CXR_START_EPOCH" 0)
 main.log -a "$CXR_RUN finished at $(date), we ran $elapsed_seconds s - $(common.date.humanSeconds $elapsed_seconds)"
 
 # Echo the "Finish message"

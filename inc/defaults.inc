@@ -43,8 +43,18 @@ HOSTTYPE=$(uname -i)-$(echo "$(uname -s)" | tr "[:upper:]" "[:lower:]")
 # TODO: This must be the minimum of all running instances
 CXR_START_EPOCH="$(date "+%s")"
 
-# This is our process number (to be used when exiting on error)
-CXR_PID=$$
+# This is our process number (to be used when exiting on error adn to kill the process group)
+# Getting the pid is not easy, we do not want to create unnecessary processes...
+# Note that we need to use out own tempfile mechanism here
+tmp=$(mktemp /tmp/cxr_XXXXXXX)
+
+# The pid is the parent of the awk process
+# and the 4th field of /proc/self/stat is the Parent PID
+awk '{print $4}' /proc/self/stat > $tmp
+# read pid from file
+CXR_PID=$(cat $tmp)
+
+rm -f $tmp
 
 # This pattern is used to identify numbers
 #

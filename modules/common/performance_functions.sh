@@ -220,12 +220,11 @@ function common.performance.reportEta()
 ################################################################################
 {
 	local percentDone
-	local estimatedTimeSeconds
 	local elapsed
 	local left
 	
 	# How many seconds have elapsed?
-	elapsed=$(( $(date "+%s") - $CXR_START_EPOCH ))
+	elapsed=$(common.math.FloatOperation "$(date "+%s") - $CXR_START_EPOCH" 0)
 	
 	if [[ $CXR_TIME_TOTAL_ESTIMATED -gt 0 ]]
 	then
@@ -235,6 +234,9 @@ function common.performance.reportEta()
 		if [[ $percentDone -gt 100 ]]
 		then
 			percentDone=100
+			left=0
+		else
+			left=$(common.math.FloatOperation "$CXR_TIME_TOTAL_ESTIMATED - $elapsed" 0)
 		fi
 	
 		# Only goes to stderr

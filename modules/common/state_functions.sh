@@ -1608,7 +1608,7 @@ function common.state.checksumInterface()
 #	
 # Checks if the .continue file still exists,
 # if not, CXR_RET_CONTINUE_MISSING is returned. Also checks the error threshold
-# ends run if we are too high and toches the CONTINUE file
+# ends run if we are too high and touches the ALIVE file
 #
 ################################################################################
 function common.state.doContinue?()
@@ -1618,15 +1618,18 @@ function common.state.doContinue?()
 	error_count=$(main.countErrors)
 	
 	# Report error count and ReaLoad
-	main.log -a -b "Current Error Count: $error_count\nCurrent ReaLoad: $(common.performance.getReaLoadPercent) %"
-
-	# Check error threshold, but only if the value of
-	# of CXR_ERROR_THRESHOLD is not -1
-	if [[ ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
+	if [[ $error_count -gt 0 ]]
 	then
-		main.dieGracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		main.log -a -b "Current Error Count: $error_count"
+		
+		# Check error threshold, but only if the value of
+		# of CXR_ERROR_THRESHOLD is not -1
+		if [[ ( ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ) && ( ${error_count} -gt ${CXR_ERROR_THRESHOLD} )   ]]
+		then
+			main.dieGracefully "The number of errors occured (${error_count}) exceeds the threshold (${CXR_ERROR_THRESHOLD})"
+		fi
 	fi
-	
+
 	# Do we care at all?
 	# Set this in tests etc.
 	if [[ "$CXR_ENABLE_STATE_DB" == false  ]]
@@ -1644,6 +1647,9 @@ function common.state.doContinue?()
 			return $CXR_RET_CONTINUE_MISSING
 		fi
 	fi
+	
+	# Still alive
+	touch $CXR_INSTANCE_FILE_ALIVE
 }
 
 ################################################################################
