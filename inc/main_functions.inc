@@ -587,36 +587,44 @@ function main.doCleanup()
 		# Do cleanup stuff - do this always
 		########################################
 		
-		if [[ "$CXR_DRY" == true ]]
+		if [[  $(main.functionExists? common.hash.getKeys) == true ]]
 		then
-			main.log -a "Dryrun: removing the dummy files..."
-			
-			# common.hash.getKeys returns a newline delimited string
-			oIFS="$IFS"
-			IFS='
-'
-			# Clean files away
-			for dummy_file in $(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)
-			do
-				# Reset IFS
-				IFS="$oIFS"
-
-				main.log -v "Deleting $dummy_file"
-				
-				rm -f "$dummy_file" &>/dev/null
-				
-				# Remove from hash
-				common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE "$dummy_file"
-			done
-			
-			IFS="$oIFS"
-			
-		fi # Dry?
 		
-	fi # Hollow?
+			if [[ "$CXR_DRY" == true ]]
+			then
+				main.log -a "Dryrun: removing the dummy files..."
+				
+				# common.hash.getKeys returns a newline delimited string
+				oIFS="$IFS"
+				IFS='
+	'
+				# Clean files away
+				for dummy_file in $(common.hash.getKeys $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE)
+				do
+					# Reset IFS
+					IFS="$oIFS"
+	
+					main.log -v "Deleting $dummy_file"
+					
+					rm -f "$dummy_file" &>/dev/null
+					
+					# Remove from hash
+					common.hash.delete $CXR_INSTANCE_HASH_DUMMY_FILES $CXR_LEVEL_INSTANCE "$dummy_file"
+				done
+				
+				IFS="$oIFS"
+				
+			fi # Dry?
+		
+		fi # hash functions available?
+		
+	fi # NonHollow?
 	
 	# Remove all tempfiles and redirect (function might not exist)
-	common.runner.removeTempFiles 2> /dev/null
+	if [[  $(main.functionExists? common.runner.removeTempFiles) == true ]]
+	then
+		common.runner.removeTempFiles
+	fi
 	
 	main.log -a "Deleting this instances internal files..."
 	rm -rf ${CXR_INSTANCE_DIR:-/dev/null} &> /dev/null
@@ -658,7 +666,7 @@ function main.doCleanup()
 		common.task.removeAllWorkers
 	fi
 	
-	# What we do is kill the CAMxRunner processes (whole process group by giving negative PID)
+	# What we finally do is kill the CAMxRunner processes (whole process group by giving negative PID)
 	# See <http://stackoverflow.com/questions/392022/best-way-to-kill-all-child-processes>
 	# Any child process can do this (which is good), however this means that all childs will re-execute this handler
 	# because in their processes, the trap is still in place.
