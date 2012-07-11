@@ -352,6 +352,8 @@ function common.runner.printSummary()
 	mb_needed=$(common.check.PredictModelOutputMb)
 
 	main.log -a "================================================================================"
+	main.log -a " PID@Host            ${CXR_INSTANCE}"
+	main.log -a "................................................................................"
 	main.log -a " Run name            ${CXR_RUN}"
 	main.log -a "................................................................................"
 	main.log -a " Executable          ${CXR_MODEL_EXEC}"

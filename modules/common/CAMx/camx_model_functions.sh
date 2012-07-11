@@ -97,16 +97,6 @@ function get_chemparam_file()
 		fi
 	fi
 	
-	# found one
-	if [[ ${CXR_RUN_MODEL} == true  ]]
-	then
-		# Report only if we run the model
-		main.log -a "Using chemparam file (${our_chemparam})."
-		
-		# Also report MD5
-		common.check.reportMD5 "${our_chemparam}"
-	fi
-	
 	echo "${our_chemparam}"
 }
 
