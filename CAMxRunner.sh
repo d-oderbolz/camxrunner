@@ -636,7 +636,7 @@ fi
 INFO="\nThis CAMxRunner has process id ${CXR_PID} and is running on host $(uname -n)\nRun ${CXR_RUN}, we use the ${CXR_MODEL_EXEC} executable. \n It is now $(date)\n\n The script was called as \n \t \$ ${0} ${CXR_ARGUMENTS} \n\n" 
 
 main.sendMessage "Run $CXR_RUN starts on $CXR_MACHINE" "$INFO"
-main.log "$INFO"
+main.log -a -b "$INFO"
 
 if [[ ${CXR_ERROR_THRESHOLD} != ${CXR_NO_ERROR_THRESHOLD} ]]
 then
