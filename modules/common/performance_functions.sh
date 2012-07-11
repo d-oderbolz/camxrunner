@@ -101,7 +101,7 @@ function common.performance.stopTiming()
 	if [[ "$start_time" ]]
 	then
 		# Calculate difference
-		diff=$(( $stop_time - $start_time ))
+		diff=$(common.math.FloatOperation "$stop_time - $start_time" 0)
 		
 		# Get current load
 		load="$(common.performance.getReaLoadPercent)"

@@ -1638,7 +1638,7 @@ function common.state.doContinue?()
 	# If the variable is not defined, nothing will happen
 	if [[ "${CXR_CONTINUE_FILE}" ]]
 	then
-		if [[ ! -f ${CXR_CONTINUE_FILE} ]]
+		if [[ ! -e ${CXR_CONTINUE_FILE} ]]
 		then
 			main.log -w  "The Continue file no longer exists, exiting."
 			return $CXR_RET_CONTINUE_MISSING

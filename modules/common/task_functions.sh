@@ -1032,7 +1032,7 @@ function common.task.Worker()
 
 	# We stay in this loop as long as the continue file exists
 	# or until no more tasks are around
-	while [[ -f "$CXR_CONTINUE_FILE" ]]
+	while [[ -e "$CXR_CONTINUE_FILE" ]]
 	do
 		# Do we stop here?
 		common.state.doContinue? || common.task.removeWorker $CXR_WORKER_PID
@@ -1320,7 +1320,7 @@ function common.task.controller()
 	
 	main.log "Controller: Entering controller loop (the work is carried out by background processes. I check every $CXR_WAITING_SLEEP_SECONDS seconds if all is swell.)"
 	
-	while [[ -f "$CXR_CONTINUE_FILE" ]]
+	while [[ -e "$CXR_CONTINUE_FILE" ]]
 	do
 		# Still alive
 		touch $CXR_INSTANCE_FILE_ALIVE
