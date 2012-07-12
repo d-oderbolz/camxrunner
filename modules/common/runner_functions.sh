@@ -887,7 +887,7 @@ function common.runner.removeTempFiles()
 	
 	# remove decompressed files, if wanted.
 	# Since we always leave the compressed files around,
-	# we do net need to recompress.
+	# we do not need to recompress.
 	if [[ "$CXR_REMOVE_DECOMPRESSED_FILES" == true ]]
 	then
 		main.log -a "Removing temporarily decompressed files..."
