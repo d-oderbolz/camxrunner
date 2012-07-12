@@ -695,6 +695,17 @@ function main.dieGracefully()
 	local maxNests
 	local last
 	
+	# To allow better debugging, check if we have FS tokens
+	if [[  $(main.functionExists? common.fs.afsCheckToken) == true ]]
+	then
+	
+		if [[ $(common.fs.afsCheckToken) == false ]]
+		then
+			main.log -e "No valid AFS tokens where found - this is a potential reason for the crash!"
+		fi
+	
+	fi
+	
 	# Pseudo Singleton
 	if [[ -e "$CXR_GLOBAL_ABNORMAL_TERMINATION_FILE" ]]
 	then

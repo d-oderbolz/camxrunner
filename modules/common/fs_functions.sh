@@ -255,6 +255,8 @@ function common.fs.isSubDirOf?()
 	
 }
 
+
+
 ################################################################################
 # Function: common.fs.getType
 # 
@@ -286,6 +288,43 @@ function common.fs.getType()
 	
 	echo "$result"
 }
+
+
+################################################################################
+# Function: common.fs.afsCheckToken
+# 
+# Returns true if the user has a valid AFS token or if AFS is not available,
+# false if no valid token was found.
+# 
+################################################################################
+function common.fs.afsCheckToken()
+################################################################################
+{
+	local token_exec
+	local num_tokens
+	local result
+	
+	token_exec=$(which tokens)
+	
+	if [[ $? -ne 0 ]]
+	then
+		echo true
+		return $CXR_RET_OK
+	fi
+	
+	num_tokens=$(tokens | grep Expires | wc -l)
+	
+	if [[ $num_tokens -gt 0 ]]
+	then
+		result=true
+	else
+		main.log -w "No valid tokens for AFS where found!"
+		result=false
+	fi
+	
+	echo $result
+}
+
 
 ################################################################################
 # Function: common.fs.isLocal?
