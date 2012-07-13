@@ -357,7 +357,7 @@ function common.math.FloatOperation()
 	
 	if [[ ! "$result" =~ $CXR_PATTERN_NUMERIC ]]
 	then
-		main.dieGracefully "common.math.FloatOperation: the operation $1 could not be performed!"
+		main.dieGracefully "common.math.FloatOperation: the operation "scale=$bc_res; $1" could not be performed (result: "$result") !"
 	fi
 	
 	if [[ "$resolution" -eq -1 ]]
