@@ -90,6 +90,10 @@ CXR_NO_LOCKING=false
 # setting this to false may reveal important facts.
 CXR_NO_CONC_CHECK=true
 
+# Set this to true to disable all time measurements etc.
+# if true, no ETA estimation is Possible
+CXR_NO_TIME_MEASUREMENT=true
+
 # If set >1, failed SQL statements are retried.
 # Must be at least 1, otherwise no SQL is executed.
 # We need this because if we cannet got a lock, the statement "fails"

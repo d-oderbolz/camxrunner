@@ -98,7 +98,7 @@ function common.performance.stopTiming()
 	# Get value via indirection
 	start_time=${!var:-}
 	
-	if [[ "$start_time" ]]
+	if [[ "$start_time" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		# Calculate difference
 		diff=$(common.math.FloatOperation "$stop_time - $start_time" 0)
@@ -139,7 +139,7 @@ function common.performance.stopTiming()
 		
 	else
 		# No start value found
-		main.log -e "Module $module has no start time information. Maybe common.performance.startTiming was not run?"
+		main.log -v "Module $module has no start time information. Maybe common.performance.startTiming was not run?"
 	fi
 }
 
@@ -158,6 +158,11 @@ function common.performance.estimateTotalRuntimeSeconds()
 	
 	n_tasks=$(common.task.countOpenTasks)
 	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
+	
+	if [[ ! "$mean" =~ $CXR_PATTERN_NUMERIC ]]
+	then
+		mean=0
+	fi
 	
 	result=$(common.math.FloatOperation "$n_tasks * $mean" 0)
 	
@@ -178,6 +183,13 @@ function common.performance.estimateTotalRuntimeSeconds()
 function common.performance.estimateModuleRuntimeSeconds()
 ################################################################################
 {
+	
+	if [[ CXR_NO_TIME_MEASUREMENT == true ]]
+	then
+		echo 0
+		return $CXR_RET_OK
+	fi
+	
 	local module
 	local mean
 	local estimate
@@ -186,17 +198,17 @@ function common.performance.estimateModuleRuntimeSeconds()
 	
 	mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module' AND machine='$CXR_MACHINE';")
 
-	if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
+	if [[ -z "$mean" || ! "$mean" =~ $CXR_PATTERN_NUMERIC || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 	then
 		# No data yet, try an average over more
 		mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing WHERE model='$CXR_MODEL' AND version='$CXR_MODEL_VERSION' AND module='$module';")
 		
-		if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
+		if [[ -z "$mean" || ! "$mean" =~ $CXR_PATTERN_NUMERIC || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 		then
 			# Still nothing, get avg over all
 			mean=$(common.db.getResultSet "$CXR_UNIVERSAL_TIMING_DB" "$CXR_LEVEL_UNIVERSAL" "SELECT AVG(elapsed_seconds) FROM timing;")
 		
-			if [[ -z "$mean" || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
+			if [[ -z "$mean" || ! "$mean" =~ $CXR_PATTERN_NUMERIC || $(common.math.FloatOperation "$mean == 0" 0) == 1 ]]
 			then
 				# Still nothing, use default
 				mean=600
@@ -219,6 +231,12 @@ function common.performance.estimateModuleRuntimeSeconds()
 function common.performance.reportEta()
 ################################################################################
 {
+	
+	if [[ CXR_NO_TIME_MEASUREMENT == true ]]
+	then
+		return $CXR_RET_OK
+	fi
+	
 	local percentDone
 	local elapsed
 	local left
@@ -359,6 +377,10 @@ function test_module()
 	########################################
 	# Setup tests if needed
 	########################################
+	
+	# Turn it on 
+	CXR_NO_TIME_MEASUREMENT=false
+	
 	
 	local nSeconds
 	local time

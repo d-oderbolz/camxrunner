@@ -350,11 +350,12 @@ function common.math.FloatOperation()
 	# error handling is not easy here.
 	# we cannot test $? nor PIPESTATUS in the subshell...
 	# If you really need to debug, write stderr into a tempfile and test for size
+	# As a workaround, we test if we get a number back
 	
 	# Set resolution & pass expression
 	result=$( echo "scale=$bc_res; $1" | bc )
 	
-	if [[ ! "$result" ]]
+	if [[ ! "$result" =~ $CXR_PATTERN_NUMERIC ]]
 	then
 		main.dieGracefully "common.math.FloatOperation: the operation $1 could not be performed!"
 	fi
