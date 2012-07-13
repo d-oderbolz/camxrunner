@@ -355,7 +355,7 @@ function common.math.FloatOperation()
 	# Set resolution & pass expression
 	# Make sure the leading 0 is printed
 	# http://stackoverflow.com/questions/8402181/how-do-i-get-bc1-to-print-the-leading-zero
-	result=$( echo "scale=$bc_res; $1" | bc | sed 's/^\./0./)
+	result=$( echo "scale=$bc_res; $1" | bc | sed 's/^\./0./' )
 	
 	if [[ ! "$result" =~ $CXR_PATTERN_NUMERIC ]]
 	then
