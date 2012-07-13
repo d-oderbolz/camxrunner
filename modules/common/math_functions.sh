@@ -353,7 +353,10 @@ function common.math.FloatOperation()
 	# As a workaround, we test if we get a number back
 	
 	# Set resolution & pass expression
-	result=$( echo "scale=$bc_res; $1" | bc )
+	# Make sure the leading 0 is printed
+	# http://stackoverflow.com/questions/8402181/how-do-i-get-bc1-to-print-the-leading-zero
+	# ( user potong)
+	result=$( echo "scale=$bc_res; x=$1; if(x<1) print 0; x" | bc )
 	
 	if [[ ! "$result" =~ $CXR_PATTERN_NUMERIC ]]
 	then
