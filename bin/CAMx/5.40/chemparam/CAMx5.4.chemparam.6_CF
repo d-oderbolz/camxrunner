@@ -3,7 +3,7 @@ Mechanism ID       |6
 Aerosol Option     |CF
 Description        |CB05 plus PM (CF): PNA rates set to 0; molecular units
 No of gas species  |65
-#aero, dt, bins    |23 15.0 2 0.039 2.5 10.0
+#aero, dt, bins    |25 15.0 2 0.039 2.5 10.0
 No of reactions    |156
 Prim photo rxns    |19 1 8 9 14 15 25 36 51 52 53 62 65 75 76 87 91 102 143 152
 No of sec photo rxn|4
@@ -102,6 +102,8 @@ Species Records
  21  PH2O        1.00E-09       1.0       0.0         0      0.99         1
  22  POA_10      1.00E-09       1.0       7.0         0      0.80         2 
  23  PEC_10      1.00E-09       2.0      18.0         0      0.25         2
+ 24  NA_10       1.00E-09       2.0       1.5         1      0.99         2
+ 25  PCL_10      1.00E-09       2.0       1.5         1      0.99         2
 Reaction Records
 Rxn Typ Order Parameters (1 to 12, depending upon Typ)
 1   1  1  0.000E+00
