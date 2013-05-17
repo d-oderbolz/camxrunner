@@ -1,0 +1,57 @@
+--- CAMx/readchm.f	Wed Oct 10 16:42:33 2012
++++ CAMx/readchm.f	Wed Oct 10 17:21:39 2012
+@@ -1,7 +1,7 @@
+       subroutine readchm
+       use filunit
+       use grid
+-      use chmstry
++      use chmstry
+       use tracer
+       implicit none
+ c
+@@ -268,7 +268,7 @@
+ c
+       data mchactv  /  0,  0,  0,  0,  1,  1,  1,  1,  1,  1 /
+       data mchgas   /  0,  0,  0,  0, 92, 67, 92,100, 75,999 /
+-      data mchaero  /  0,  0,  0,  0, 22, 22, 22,  0,  0,999 /
++      data mchaero  /  0,  0,  0,  0, 24, 24, 24,  0,  0,999 /
+       data mchrad   /  0,  0,  0,  0, 16, 13, 23, 19, 16,  0 /
+       data mchiessr /  0,  0,  0,  0,  2,  2,  2,  4,  4,  0 /
+       data mchrxn   /  0,  0,  0,  0,217,156,218,288,222,  0 /
+@@ -592,7 +592,7 @@
+ c
+ c-----Check over the gas phase species for deposition calculations
+ c
+-      if (ldry .and. ngas.gt.0) then
++      if ((ldry .or. lwet) .and. ngas.gt.0) then
+         do l = 1,ngas
+           if (henry0(l).eq.0.) then
+             write(iout,'(/,a,i5)')
+@@ -737,19 +737,21 @@
+           kmap(j) = nspec+1
+         enddo
+ c
+-        do 10 j = 1,nspec
++        nn = nspec
++        if (aeropt.eq.'INERT') nn = ngas
++        do 10 j = 1,nn
+           do i = 1,NSPNAM
+             if (splist(i).eq.spname(j)) then
+               kmap(i) = j
+               goto 10
+             endif
+           enddo
+-          write(iout,'(//,a)') 'ERROR: Reading CHEMPARAM file.'
+-          write(iout,'(3a)') 'Species in chemparam file ',
++cae       write(iout,'(//,a)') 'ERROR: Reading CHEMPARAM file.'
++          write(idiag,'(//,3a)') 'Species in chemparam file ',
+      &     spname(j)(:istrln(spname(j))),' is not in the internal list.'
+-          write(iout,'(2a)') 'Please make sure you are using the ',
+-     &               'correct chemparam file for this version of CAMx.'
+-          goto 910
++cae       write(iout,'(2a)') 'Please make sure you are using the ',
++cae  &               'correct chemparam file for this version of CAMx.'
++cae       goto 910
+   10    continue
+         spname(nspec+1) = blank
+         bdnl(nspec+1) = 0.
