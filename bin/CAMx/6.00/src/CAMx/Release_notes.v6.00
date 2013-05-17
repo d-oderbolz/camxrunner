@@ -1,0 +1,240 @@
+RELEASE NOTES for CAMx v6.00, 05/06/13
+
+The Comprehensive Air Quality Model with extensions (CAMx) is available at
+http://www.camx.com.  
+
+
+Overview of Version 6.00
+------------------------
+
+V6.00 is a major update from the previous release (v5.41).  The biggest changes
+affecting established users is the updated Fortran binary I/O file formats and
+the revised approach for generating photolysis inputs.  New features and
+capabilities, modifications, and bug fixes are listed below.
+
+* Use the chemistry parameters files specifically labeled for v6.00.
+* Formats and contents for meteorological, landuse, albedo/haze/ozone, and
+  photolysis rates files have changed signficantly, as described below.
+* The CAMx namelist control file has changed significantly in this release;
+  refer to the namelist template provided with the source code and the User's
+  Guide for a full list of namelist variables.
+
+Guidance for running MPI and OMP parallelization is provided in the README file
+located in the source code directory, and in the CAMx User's Guide.
+
+
+v6.00 Major Updates and New Capabilities
+----------------------------------------
+
+1. Revised Fortran binary I/O file format.  All major gridded input/output
+   fields are now in a common format; this includes all input meteorology,
+   landuse, IC/BCs, emissions, and output concentration/deposition fields.
+   While overall the format is consistent with the original CAMx/UAM output
+   format, the file headers have been updated to include additional information
+   on map projection, grid specifications, time zone, and various field-specific
+   flags.  See the User's Guide for more information.
+
+   Implications: The biggest change is to meteorological and landuse file
+                 formats.  These are now provided in 5 files: 2-D time-
+                 invariant, 2-D time-variant, 3-D time-variant, 3-D Kv, and 3-D
+                 cloud/rain.  Landuse must now be developed for 26 Zhang LU
+                 categories, CAMx internally maps these to 11 LU categories if
+                 Wesely deposition is invoked. Only the headers of IC/BC,
+                 emissions and output concentration/deposition files have been
+                 changed.
+
+                 PRE-EXISTING IC/BC AND EMISSION FILES CAN BE USED WITH V6.00
+                 FOR BACKWARD COMPATIBILITY, BUT METEOROLOGICAL INPUT FILES
+                 MUST BE GENERATED SPECIFICALLY FOR V6.00.
+
+                 Several pre-processors are available that generate the new
+                 input file formats. Some post-processing programs are also
+                 udpated to use the new information on the output file headers.
+                 Programs that read output concentration/deposition files can
+                 read both the old and new file formats but they will ignore the
+                 new header information (e.g., PAVE, VERDI, CAMxPOST, CAMxTRCT,
+                 etc.).
+
+2. Revised the process to generate photolysis (J) rates and their use in CAMx.
+
+   Implications: (1) The albedo/haze/ozone file now contains only ozone column
+                     data:
+                     a) Albedo is internally set within CAMx from input LU and
+                        snow cover;
+                     b) Haze is internally set within CAMx from the PM
+                        simulation, or a default haze profile is set for non-PM
+                        runs.
+                     c) Optional snow-cover is moved to the 2-D met file;
+                     d) Optional drought and surface roughness are removed;
+                     e) Optional land/ocean mask is still allowed.
+                     CAMx namelist variable "Albedo_Haze_Ozone" is now
+                     "Ozone_Column".
+                     USE THE NEW "O3MAP" PRE-PROCESSOR TO GENERATE THIS FILE.
+                 (2) TUV generates a clear-sky J lookup table for the following
+                     dimensions: O3 column (input), altitude above ground
+                     (input), terrain height (default), albedo (default), solar
+                     zenith (default). A single default haze profile is used in
+                     TUV.
+                     USE THE LATEST VERSION OF TUV TO GENERATE THIS FILE.
+                 (3) CAMx interpolates lookup J rates to cell-specific values
+                     of solar zenith, height above ground, terrain height, and
+                     albedo; then photolysis rates are adjusted for clouds and
+                     haze using the in-line TUV; then certain photolysis rates
+                     are adjusted for temperature and pressure.
+                 (4) The RADM cloud adjustment has been removed. TUV is now the
+                     only cloud/haze adjustment scheme.  CAMx namelist variables
+                     "TUV_Cloud_Adjust" and "TUV_Aero_Adjust" have been removed.
+
+3. Mercury chemistry has been updated to include adsorption of Hg(II) to PM and
+   gas-phase reactions with ambient bromine.  Gas-phase reactions with ambient
+   molecular chlorine (Cl2) have been removed.  The dry deposition velocity for
+   Hg(0) is set to zero for ocean cells.
+
+   Implications: 2 new Hg species: HGIIP for gas phase HG(II) adsorbed onto fine
+                 PM; HGIIPC for gas phase HG(II) absorbed onto coarse PM.
+                 Differences in Hg(0) and Hg(II) concentrations/deposition may
+                 be significant.
+
+4. Removed the vertical nesting capability in CAMx.
+
+   Implications: This rarely used feature was removed as it does not contribute
+                 significantly to runtime efficiency, leads to numerical
+                 problems along nested grid boundaries, and complicates code
+                 structures in several areas.
+                 NOTE: Namelist variable "Number_of_Layers" has been changed
+                 from an array to a scalar.
+
+
+v6.00 Modifications
+-------------------
+
+1. Added a new namelist "Flexi_Nest" flag to explicitly allow flexi-nesting of
+   meteorological, emissions, and initial condition inputs.
+
+   Implications: This change should help control cases in which input files
+                 are erroneously left out of a simulation when the user meant to
+                 include these files.  If the flag is FALSE, CAMx will require 
+                 all gridded fields to be provided for all grids and will stop 
+                 with an error message if any are missing.  If the flag is TRUE,
+                 CAMx will interpolate any missing fields from their parent 
+                 grids, as has been traditionally allowed for flexi-nesting 
+                 cases.
+
+2. Removed the namelist variable defining number of time-averaged output species
+   "Number_of_Output_Species".
+
+   Implications: Now this number is internally calculated from the list of user-
+                 defined species according to the namelist variable array
+                 "Output_Species_Names()".
+
+3. The chemistry parameters file now provides molecular weights for all gas
+   species explicitly, rather than a "diffusivity ratio" parameter. A few other
+   deposition parameters for gas species have been updated.
+
+   Implications: The diffusivity ratio is now calculated internally from the
+                 molecular weight.  This should be a mostly transparent change
+                 from the users standpoint, while providing a source of
+                 molecular weight information for the user's reference.
+
+4. Revised the implementation approach for the plume distribution override
+   feature added to v5.41.
+
+   Implications: Plume distribution override is now invoked by setting the 
+                 hourly stack flow rate value to a negative value (representing
+                 plume bottom in meters) and the plume height override to a 
+                 negative value (representing plume top in meters). Negative 
+                 stack height is no longer used for plume bottom as it is not a
+                 time-varying variable on the point source file.  Plume bottom 
+                 and top can be the same value, and all plume mass will be 
+                 injected into the single layer at that altitude.  Plume 
+                 distribution override cannot be used with PiG.
+
+5. Improved the cloud adjustmnet to solar flux calculation in dry deposition.
+
+   Implications: Prior adjustment relied on cloud fraction, which is either 1 or
+                 0 in CAMx.  Now the adjustment is based on cloud optical depth,
+                 consistent with the cloud adjustment on photolysis rates.
+                 Minor impacts to deposition velocity should be expected.
+
+6. Lowered minimum threshold windspeed to 0.1 m/s in MICROMET.F.
+
+   Implications: This change is to ensure consistent calculations of stability
+                 variables at low windspeed whenever MICROMET is called.
+                 Negligible impacts are expected.
+
+7. Removed CPU timing calls reported to the CAMx .out file
+
+   Implications: MPI applications resulted in garbage values reported for CPU
+                 times for each process. Now CAMx simply reports "Done" after
+                 each process has successfully completed.
+
+8. Improved technique for solution convergence in RADM-AQ aqueous PM chemistry
+   routine.
+
+   Implications: In rare instances, RADM-AQ would not converge to a solution
+                 in cases with low cloud water content and extremely low pH,
+                 stopping the model with an error.  This change improves the 
+                 convergence technique toward a solution.
+
+9. In-line TUV cloud/aerosol photolysis rate adjustment is now called at
+   each individual timestep in each grid, instead of once per meteorological
+   update (usually 1 hour).
+
+   Implications: This change addresses an MPI incompatibility. This should
+                 improve TUV response to evolving PM field each timestep,
+                 minor impacts to ozone and secondary PM concentration should
+                 be expected.
+
+
+v6.00 Bug Fixes
+---------------
+
+1. Fixed a bug that was not properly initializing CPA variables for OH and HO2
+   termination rates in Mechanism 5 (SAPRC99).  Fixed an incorrect assignment
+   for the O3-O1D photolysis reaction rate.
+
+   Implications: These minor fixes will lead to correct rates for these specific
+                 variables in the CPA output files. No impact to the core model
+                 results.
+
+2. Fixed a bug in OSAT/APCA and PSAT that can incorrectly assign point sources
+   to source regions under very specific conditions.
+
+   Implications: This bug may cause incorrect source attribution for point
+                 sources under the following conditions: 1) 3 or more grids in
+                 a telescoping configuration; 2) leftover group is turned on;
+                 3) the leftover group includes point sources. The bug only
+                 occurs in the 3rd or deeper grid, not the master or 2nd grids.
+                 The calculation for actually injecting the emissions is
+                 correct, just the assignment to source region is possibly in
+                 error.
+
+3. Iodine radicals have been correctly ordered in the chemistry parameters files
+   for iodine mechanisms to support running the IEH solver.
+
+   Implications: The IEH solver requires a very specific order for radicals.
+                 This change has no impact running iodine mechanisms with
+                 EBI or LSODE solvers. 
+
+4. Removed the condition that PM must be run in order to calculate a 
+   heterogeneous N2O5 hydrolysis rate.
+
+   Implications: An update in v5.41 to set a minimum heterogeneous N2O5 
+                 hydrolysis rate in ozone-only runs (no PM) was added to the 
+                 KHETERO subroutine (see v5.41 Release Notes, Modification 3).
+                 But a conditional restricting KHETERO to be called only during 
+                 PM runs was not removed, thus negating the v5.41 update for
+                 ozone-only runs. This change removes the PM requirement, so 
+                 KHETERO is now always called.
+
+5. Fixed a bug in PiG when running MPI that could lead to incorrect information
+   about which MPI domain slice a PiG puff resides.
+
+   Implications: When running PiG with MPI, domain slice location information 
+                 was not updated among all processors when some puffs traversed
+                 domain slice boundaries during transport, leading to improper
+                 slice locations for one timestep.  Slice information is now 
+                 properly updated among all processors each timestep.  Scattered
+                 and sporadic concentration differences related to PiG dumping
+                 (usually minor) are to be expected for MPI runs, but PiG 
+                 differences between MPI and non-MPI runs should be alleviated.

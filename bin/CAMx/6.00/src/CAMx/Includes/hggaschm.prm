@@ -1,0 +1,37 @@
+C  INCLUDE FILE  HGGASCHM.PRM
+C
+C  CONTAINS: Hg gas-phase chemistry parameters for PMCAMx-Hg
+C
+c----CAMx v6.00 130506
+C
+C     Copyright 2003
+C     AER, Inc.
+C
+C Revision History: 
+C***********************************************************************
+C   Version 1.0 written March 2003 by Prakash Karamchandani, AER       *
+C   Updated May 2011, Prakash Karamchandani, ENVIRON                   * 
+C*********************************************************************** 
+
+! 2nd order rate constants for Hg(0) gas-phase reactions (mol/cc)-1 s-1
+
+! Rate constant for reaction with O3
+      REAL, PARAMETER :: RKO3   = 3.0E-20
+
+! Rate constant for reaction with OH radical
+      REAL, PARAMETER :: RKOH   = 8.7E-14
+
+! Rate constant for reaction with H2O2
+      REAL, PARAMETER :: RKH2O2 = 8.5E-19
+
+! Rate constants for reaction with bromine species
+      REAL*8, PARAMETER :: RK1BR = 3.6D-13  ! Hg0 + Br => HgBr
+      REAL*8, PARAMETER :: RK2BR = 3.9D+09  ! HgBr => Hg0 + Br
+      REAL*8, PARAMETER :: RK3BR = 2.5D-10  ! HgBr + Br => HgBr2
+      REAL*8, PARAMETER :: RK4BR = 2.5D-10  ! HgBr + OH => HgBrOH
+      REAL*8, PARAMETER :: RKBRO = 1.0D-15  ! Hg0 + BrO => HgO + Br
+
+! Constant for ppm to molecules/cc conversion factor
+      REAL, PARAMETER :: COEF1 = 7.33981E+15    ! (degK/atm)(mpcc/ppm)
+
+C*********************************************************************** 
