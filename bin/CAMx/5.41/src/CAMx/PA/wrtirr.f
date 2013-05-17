@@ -1,0 +1,84 @@
+      subroutine wrtirr(iendat,endtim)
+      use filunit
+      use grid
+      use chmstry
+      use procan
+      use tracer
+c
+c----CAMx v5.41 121109
+c
+c     This routine writes to the output file for the Integrated Reaction
+c     Rates (IRR) data for the Process Analysis algorithm.  Each record 
+c     contains the all of the data for once cell and species for the 
+c     specified time period.
+c     This routine also calls the subroutines that will write the 
+c     gridded Chemical Process Analysis data.
+c
+c     Copyright 1996 - 2012
+c     ENVIRON International Corporation
+c
+c     Modifications:
+c        8/25/06    CPA output files now all UAM format, one file per grid
+c
+c     Input arguments:
+c        endtim     ending time for this period
+c        iendat     ending date for this period
+c
+c     Subroutines Called:
+c       WRTCGCPA
+c       WRTFGCPA
+c
+c
+c     Called by:
+c        CAMx
+c
+      include 'camx.prm'
+c
+c-----Argument declarations
+c
+      integer iendat
+      real    endtim 
+c
+c-----Local variables
+c
+c
+c-----Entry point
+c
+c  --- loop over the number of sub-domain cells ---
+c
+      do icel=1,npa_cels
+c
+c  --- write out the record for this cell ---
+c
+           write(irr_unit,ERR=7000) iendat, endtim, 
+     &              ipadom(icel), ipanst(icel),
+     &                  ipax(icel), ipay(icel), ipaz(icel),
+     &                                  (cirr(icel,i),i=1,nirrrxn)
+c
+c  --- next subdomain cell ---
+c
+      enddo
+c
+c  --- call routine to write the gridded CPA arrays ---
+c
+      if( lsfcfl ) then
+         do igrd = 1,ngrid        
+            call wrtcpa(igrd,iendat,endtim,igrd,ncol(igrd),nrow(igrd),
+     &                           nlay(igrd),ntotsp,ptconc(ipsa3d(igrd)))
+         enddo
+      endif
+      goto 9999
+c
+c----Error messages
+c
+ 7000 continue
+      write(iout,'(//,a)') 'ERROR in WRTIRR:'
+      write(iout,'(1X,2A)',ERR=9999) 'Writing data to the output ',
+     &                         'Integrated Reaction Rates (.irr) file.'
+      write(iout,'(10X,A,I8.5,5X,A,F8.1)') 
+     &      'Date: ',iendat,'Time: ',endtim
+      call camxerr()
+c
+ 9999 continue
+      return
+      end

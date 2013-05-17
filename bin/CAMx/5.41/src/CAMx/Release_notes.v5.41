@@ -1,0 +1,427 @@
+RELEASE NOTES for CAMx v5.41, 11/09/12
+
+The Comprehensive Air Quality Model with extensions (CAMx)
+is available at http://www.camx.com.  
+
+Join the CAMx User's Group by sending an e-mail message to:
+
+ majordomo "at" environ "dot" org
+
+Put the words "subscribe CAMxusers" in the body of the message.
+When you subscribe, Majordomo will send you a reply that provides
+details on how to use this list server.
+
+The "camxusers" group is meant for broadcasting useful
+information about CAMx and its pre- and post-processors to
+all users that subscribe to this group, or to ask about
+available datasets or issues that other users may have come
+across.  It is not meant for asking how to run CAMx, how
+to prepare inputs, or why CAMx arrived at a particular
+prediction.
+   
+Please direct specific comments or questions about problems
+or bugs with CAMx or its support software to:
+
+ ask-camx "at" environ "dot" org
+
+which comes directly to the developers.
+
+
+Overview of Version 5.41
+------------------------
+
+V5.41 includes two chemical updates, some performance-related
+modifications, and several bug fixes from the previous release
+(v5.40).
+
+There are no changes to I/O file formats from v5.40.
+
+
+v5.41 Updates
+-------------
+
+1. Two new chemical mechanims have been added:
+   1) Mech 1: CB6 with iodine chemistry intended for modeling
+      ozone in marine environments as presented in 
+      http://www.cmascenter.org/conference/2012/slides/yarwood_modeling_ozone_2012.pdf
+   2) Mech 2: CB6r1 is revision 1 to CB6.  It revises isoprene
+      and aromatics extensively, and has additional NOx recycling
+      from organic nitrates.  Not all changes discussed in the
+      reference below are implemented at this time pending results
+      of current research.
+      http://aqrp.ceer.utexas.edu/projectinfo%5C10-042%5C10-042%20Final%20Report.pdf
+
+   Implications: Use the chemistry parameters files provided
+                 for Mechs 1 & 2.  PM chemistry has not been
+                 tested with either mechanism.  Probing tools
+                 are not available with Mech 1.  OSAT and DDM
+                 are available for Mech 2, but not PA.
+
+
+v5.41 Modifications
+-------------------
+
+1. Added temperature and pressure adjustments to certain
+   photolysis rates.
+
+   Implications: Photolysis rates for NO2, O3, HCHO and
+                 CH3CHO are now adjusted for tmeperature
+                 and pressure.  Expect maximum impacts
+                 to surface ozone to remain within tenths
+                 of 1 ppb.  Larger impacts will tend to be
+                 seen over high terrain.
+
+2. Ozone dry deposition velocity over oceans is modified
+   to be a function of temperature and wind speed.
+
+   Implications: New deposition rates are set according to
+                 latest field data reported in the literature.
+                 Tends to increase deposition velocity for
+                 the W89 scheme; lowers over-ocean ozone
+                 concentrations by typically a few ppb. Tends
+                 to reduce deposition for the Zhang scheme.
+
+3. For gas-only runs, added a minimum default rate constant
+   for heterogeneous N2O5 hydrolysis based on IUPAC 2006.  
+   IUPAC lowered the recommended gas-phase rate constant for
+   N2O5 + H2O => 2 HNO3 from 2.5E-22 to <1E-22 and heterogeneous
+   reactions of N2O5 on aerosols are expected to dominate.  If
+   CAMx is run without aerosols, no heterogeneous reaction
+   rate for N2O5 can be calculated. To prevent N2O5 removal from
+   becoming too slow we now set within CAMx a minimum gas-phase
+   rate constant for N2O5 + H2O of 2.5E-22 when aerosols are
+   not simulated.
+
+   Implications: This change affects only photochemical
+                 simulations without aerosols.  "Ozone only"
+                 simulations with CB05 and SAPRC99 are
+                 unaffected because these mechanisms use an
+                 N2O5 + H2O rate constant of 2.5E-22 (or faster).
+                 "Ozone only" simulations with CB6 will now
+                 have similar N2O5 removal to CB05 and SAPRC99.
+
+4. Reduced minimum thresholds for cloud/rain water and
+   cloud temperature.
+
+   Implications: These changes potentially increase the 
+                 range of conditions applicable for wet
+                 deposition and aqueous chemistry, leading
+                 to more grid cells receiving these
+                 treatments.
+                 USE WITH UPDATED MM5CAMx AND WRFCAMx TO
+                 REALIZE FULL IMPACT FROM INCREASING WET
+                 DEPOSITION RATES.
+
+5. Added a capability for the user to specify point source
+   plume depth in the input point source file to override
+   the internal plume rise calculation.
+
+   Implications: You can set the plume bottom and top for any
+                 point source to span multiple CAMx layers.  
+                 To invoke this option for a given point source,
+                 set its stack height (hstk) and plume rise
+                 override (plmht) variables both to negative
+                 values.  The absolute values will be used for plume
+                 bottom and top, respectively.  The internal
+                 plume rise algorithm will be bypassed.  See the
+                 description of the point source file in the
+                 CAMx User's Guide to see where these variables
+                 are carried in the file.  THIS CAPABILITY IS NOT
+                 ALLOWED FOR PIG SOURCES.
+
+6. Timing tracers in the source apportionment tool (OSAT) have
+   been disabled.
+
+   Implicaitons: This feature will be removed in future releases.
+
+
+v5.41 Bug Fixes
+---------------
+
+1. Fixed two flexi-nesting bugs:
+
+   a) An array indexing bug resulted in faulty interpolation
+      of emissions to the target grid;
+   b) Lack of interpolation of cloud optical depth caused
+      zero cloud impact on photolysis on the target grid.
+
+   Implications: Potentially large differences in most species,
+                 improved agreement between flexi-nested and
+                 explicit nesting results.
+
+2. Fixed a bug in aerosol photolysis adjustment in the in-line
+   TUV option.
+
+   Implications: An array indexing bug resulted in overstating
+                 PM column burden and aerosol optical depth.
+                 This change may lead to much higher photolysis
+                 rates, impacting ozone and PM.
+
+3. Fixed interpolation of OSAT/PSAT tracers from grid to user-
+   defined receptors.
+
+   Implications: In prior versions, the interpolation resulted
+                 in up to a full grid cell error in the location
+                 of the receptor.  In areas with flat OSAT/PSAT
+                 tracer gradients, there will be insignificant
+                 impacts; expect larger differences in areas
+                 with large tracer gradients.
+
+4. The variable containing TERPwOx rates for Process Analysis
+   was added to CB05 chemistry.
+
+   Implications: This variable was erroneously absent from the
+                 CB05 code.
+
+5. Updated molecular weight definitions for OSAT CB6 tracer
+   species.
+
+   Implications: Modifies calculation of average reactivity by
+                 source group for OSAT.  Possible differences
+                 in distribution of O3N to O3V for mechanism 7
+                 source apportionment.
+
+6. The SAPRC99 definition of OSAT VOC species was reinstated.
+
+   Implications: The list of OSAT VOC species for SAPRC99 were
+                 erroneously removed in v5.40, leading to O3V
+                 tracers being calculated as lower bound.
+
+7. Fixed several bugs related to MPI:
+
+   a) Modified CAMx MPI C libary (parlib) to better handle
+      64-bit compilers.
+
+      Implications: Using some 64-bit compilers, the MPI
+                    library failed to execute, causing the
+                    model to crash.
+
+   b) Reinstated an include file that was missing from the MPI
+      pass routine for PiG sampling grids.
+
+      Implications: This bug caused CAMx to crash when using
+                    sampling grids with MPI.
+
+   c) The vertical height grid array in the PiG virtual dumping
+      algorithm was improperly dimensioned when MPI was invoked.
+
+      Implications: This bug caused large differences in output
+                    concentration fields between MPI and non-MPI
+                    applications when PiG was used with the
+                    LVISPIG virtual dumping flag.
+
+   e) Fixed the meteorological update of DDM boundary condition
+      sensitivities on the master grid when running MPI.
+
+      Implications: Previously DDM sensitivities were being
+                    adjusted on all boundaries of the MPI slice,
+                    now only makes adjustments on the physical
+                    master grid boundary. Potentially slightly
+                    different DDM results along MPI slice
+                    boundaries.
+
+   f) Corrected reporting of PiG grid cell index for chemisty
+      error messages.
+
+      Implications: This bug did not properly account for
+                    MPI slice offsets when reporting the grid
+                    cell in a PiG chemistry crash.
+
+   g) Fixed MPI pass of certain RTCMC variables that have
+      been overlooked.
+
+      Implications: Alleviates a program crash when running
+                    RTCMC with MPI parallelization.
+
+   i) Fixed bug related to WALL OF CELLS receptors with MPI
+      invoked.
+
+      Implications: Using MPI, WALL OF CELLS receptors would
+                    report zero concentrations.
+
+   j) Fixed bug related to RTRAC receptors with MPI invoked.
+
+      Implications: Using MPI, RTRAC receptors were not
+                    calculated correctly.
+      
+   k) Fixed bug when reporting list of PiG puffs in the DIAG
+      file with MPI invoked.
+
+      Implications: DIAG file was reporting only puffs in
+                    one slice.
+
+
+Overview of Version 5.40
+------------------------
+
+V5.40 includes several updates, modifications and bug fixes
+from the previous release (v5.30).  The new capabilities
+in CAMx include the next version of the Carbon Bond gas-phase
+photochemical mechanism (CB6) and an option to treat PM
+attenuation of clear-sky photolysis rates.
+
+* New chemistry parameters files are provided to support CB6.
+* Use the chemistry parameters files specifically labeled for
+  v5.40.  Default light extinction parameters are now set for
+  all aerosol species and deposition parameters for many gas
+  species have been updated.
+* There are no changes to other input file formats from versions
+  4.3 through 5.3.
+* There are no changes to core model output file formats from
+  versions 4.4 through 5.3.
+* There are no changes to Probing Tool outputs since version 5.1.
+
+Since v5.0, CAMx is capable of distributed multi-processing
+using MPI.  To use MPI you must have the MPICH or MPICH2 utility
+installed on your system.  We strongly recommend using MPICH2.
+Guidance for running MPI and OMP parallelization is provided in
+the README file located in the source code directory, and in the
+CAMx User's Guide.
+
+
+v5.40 Updates
+-------------
+
+1. Version 6 of the Carbon Bond photochemical mechanism (CB6)
+   is now available.  All CB4 variants have been removed.  The
+   current gas-phase mechanisms include CB05, CB6, and SAPRC99,
+   and all support CF and CMU PM chemistry and Process Analysis.
+
+   Implications: CB6 extensively revises CB05 with the core
+                 inorganic chemistry updated to 2010 and major
+                 revisions to the chemistry for aromatics,
+                 isoprene, alkenes, alkanes and oxygenates.
+                 Several long-lived and abundant VOCs are added
+                 explicitly and could be added to emission
+                 inventories. Several alpha-dicarbonyls are
+                 included because they are SOA precursors.
+                 Compared to CB05, more rapid ozone formation is
+                 expected for VOC sensitive conditions with less
+                 change in ozone for NOx-limited conditions.
+                 CB6 has greater computational requirements
+                 than CB05.  CB6 can be used with CB05 format
+                 emission inventories.
+
+2. The in-line TUV adjustment of clear-sky photolysis rates was
+   expanded to account for the effects of simulated PM concentrations
+   as the model runs.  This update includes an improved way to
+   define the PM model to use in concert with gas-phase chemistry:
+   aerosol options are NONE, INERT, CF, and CMU.
+
+   Implications: Aerosol optical properties are defined in the
+                 chemistry parameters file and passed to the
+                 in-line TUV algorithm.  The albedo/haze/ozone
+                 and clear-sky photolysis input files must be
+                 generated with the first haze bin set to zero
+                 opacity to avoid double-counting of haze effects.
+                 Arbitrarily named inert PM species with user-
+                 defined size bins can be specified in the
+                 chemistry parameters file.  See the CAMx
+                 User's Guide for more details.
+
+
+v5.40 Modifications
+-------------------
+
+1. Improved MPI efficiency by reducing the amount of data passed
+   back to the master node each hour.
+
+   Implications: MPI applications are faster with improved
+                 scalability to higher numbers of CPUs, especially
+                 for large applications (large/many grids, Probing
+                 Tools).
+
+2. Two internal and transparent structural modifications:
+   a) Dimensions and MPI passing of "height" and "depth" arrays
+   are handled similarly as all other met variables;
+   b) Radicals and 'state' species concentrations are combined
+   into a single vector.
+
+   Implications: No changes in model speed or to output
+                 concentrations relative to v5.30.
+
+3. PiG puff growth rates were modified to ignore growth
+   contributions from horizontal and vertical shear during
+   stable/nighttime conditions.  Shear effects remain during
+   neutral/unstable/daytime conditions.  Reduced minimum
+   limits on vertical diffusivity, turbulent flux moment, and
+   nighttime PBL depth.
+
+   Implications: These changes stem from comparing observed
+                 nocturnal plume dimensions against PiG.  PiG
+                 puff behavior will change potentially
+                 significantly at night and above the boundary
+                 layer, usually leading to longer lifetimes
+                 before dumping to the grid.
+
+v5.30 Bug Fixes
+---------------
+
+1. Improved the vertical advection of source apportionment tracers.
+
+   Implications: The source apportionment vertical advection
+                 routine was found to cause small spurious
+                 tracer concentration increments that could grow
+                 in time.  Negligible to minor impacts in source
+                 apportionment results (OSAT and PSAT) should be
+                 expected.
+
+2. The internal dimensioning of landuse arrays was improved to be
+    more robust.
+
+   Implications: This fix alleviates a model crash when dry
+                 deposition is turned off. In such cases the
+                 number of landuse categories was not set and
+                 prohibited dynamic allocation of certain
+                 variables.
+
+3. Fixed a bug in domain decomposition for MPI with 2 or more
+   nests of the same generation.
+
+   Implications:  Domain decomposition is now performed correctly
+                  and alleviates possible model crashes. The nested
+                  boundary conditions are now inherited from the
+                  correct grid.
+
+4. Fixed a bug that prohibited nested grids from inheriting the source
+   area map from the parent when running DDM.
+
+   Implications: If a DDM run included a nest but only a source area map
+                 for the parent was provided, all of the cells in the
+                 nest would be assigned to region 0. This would effectively
+                 eliminate them from the DDM calculations. This has been
+                 fixed.
+                  
+5. Changed the meteorological update of boundary conditions for
+   OSAT/DDM (used to convert from mixing ratio to density) to only
+   apply at true grid boundaries, not MPI slice boundaries.
+
+   Implications: Insignificant impact on output tracer/DDM fields
+                 at the seam of the MPI slices. 
+
+6. Code that handles seasonal LAI adjustments in routine SRFRUF
+   was simplified to be consistent with routine DRYDEP.
+
+   Implications: No impact on output concentrations or deposition.
+
+7. A flag was added to explicitly turn off chemistry in PiG
+   when the user-defined Mechanism 10 is run.
+
+   Implications: This change ensures that no chemistry is run
+                 in PiG with Mech 10 invoked.
+
+8. Fixed a bug that caused an error when reading the boundary
+   condition file for source apportionment when timestamp crossed
+   over the new year.
+
+   Implications: Now adjusts date/time properly for crossing over a
+                 new year.
+
+9. Fixed a bug in several file-writing routines that caused an
+   improper date stamp on concentration and deposition output
+   files at midnight of a new year.
+
+   Implications: No impact for most users, except now post-
+                 processors and boundary extraction programs
+                 will work more correctly when crossing over
+                 a new year.

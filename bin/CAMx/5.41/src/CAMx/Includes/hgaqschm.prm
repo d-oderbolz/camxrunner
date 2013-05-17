@@ -1,0 +1,91 @@
+C  INCLUDE FILE  HGAQSCHM.PRM
+C
+C  CONTAINS: Hg aqueous-phase chemistry parameters for PMCAMx-Hg
+C
+c----CAMx v5.41 121109
+C
+C     Copyright 2003
+C     AER, Inc.
+C
+C Revision History: 
+C***********************************************************************
+C   Version 1.0 written March 2003 by Prakash Karamchandani, AER       *
+C*********************************************************************** 
+
+! Molar volume at STP [ L/mol ]
+      REAL  MOLVOL
+      PARAMETER ( MOLVOL = 22.41410 )
+
+! Density of water at 20 C and 1 ATM (g/m3)
+      REAL  H2ODENS
+      PARAMETER ( H2ODENS = 1.E6 )
+
+! --- Aqueous equilibrium constants
+      DOUBLE PRECISION  EKHGSO3   ! --- Hg++ + SO3--  <=> HgSO3       (1/M)
+      DOUBLE PRECISION  EKHGSO32  ! --- HgSO3 + SO3-- <=> Hg(SO3)2--  (1/M)
+      DOUBLE PRECISION  EKHGCL2   ! --- HgCl2   <=> Hg++ + 2Cl-      (M**2)
+      DOUBLE PRECISION  EKHGOH2   ! --- Hg(OH)2 <=> Hg++ +2OH-       (M**2)
+      DOUBLE PRECISION  EKHCL     ! --- HCl(l)  <=> H+ + Cl-            (M)
+      DOUBLE PRECISION  EKCL2     ! --- Cl2(l)  <=> HOCl + Cl- + H+  (M**2)
+      DOUBLE PRECISION  EKHOCL    ! --- HOCL    <=> OCl- + H+           (M)
+
+      PARAMETER ( EKHGSO3  = 2.1D+13 )
+      PARAMETER ( EKHGSO32 = 1.0D+10 )
+      PARAMETER ( EKHGCL2  = 1.0D-14 )
+      PARAMETER ( EKHGOH2  = 1.0D-22 )
+      PARAMETER ( EKHCL    = 1.7D+06 )
+      PARAMETER ( EKCL2    = 5.0D-04 )
+      PARAMETER ( EKHOCL   = 3.2D-08 )
+
+! --- HG(2) adsorption to PM in droplets  (L of water per g of PM)
+      DOUBLE PRECISION  EKP
+      PARAMETER ( EKP = 34. )
+
+! --- AQUEOUS KINETIC REACTION RATE CONSTANTS
+      DOUBLE PRECISION  RKO3     ! -- Hg(0) + O3   ---> Hg(2)      (M-1 s-1)
+      DOUBLE PRECISION  RKOH     ! -- Hg(0) + OH   ---> Hg(2)      (M-1 s-1)
+      DOUBLE PRECISION  RKHOCL   ! -- Hg(0) + HOCl ---> Hg(2)      (M-1 s-1)
+      DOUBLE PRECISION  RKOCL    ! -- Hg(0) + OCl- ---> Hg(2)      (M-1 s-1)
+      DOUBLE PRECISION  RKHGSO3  ! -- HgSO3        ---> Hg(0)          (s-1)
+      DOUBLE PRECISION  RKHGSO32 ! -- Hg(SO3)2--   ---> Hg(0)          (s-1)
+      DOUBLE PRECISION  RKHO2    ! -- Hg(2) + HO2  ---> Hg(0)      (M-1 s-1)
+
+      PARAMETER ( RKO3 = 4.7D+07 )
+      PARAMETER ( RKOH = 2.0D+09 )
+      PARAMETER ( RKHOCL = 2.09D+06 )
+      PARAMETER ( RKOCL = 1.99D+06 )
+      PARAMETER ( RKHGSO3 = 1.06D-02 )
+      PARAMETER ( RKHGSO32 = 0.0D+00 )
+      PARAMETER ( RKHO2 = 1.7D+04 )
+
+! --- Reference temperature and inverse
+      DOUBLE PRECISION  TREF, TREFI
+      PARAMETER ( TREF  = 298.15 )
+      PARAMETER ( TREFI = 1./TREF )
+
+! --- Zero temperature (0 degrees Centigrade) in Kelvin
+      DOUBLE PRECISION  TZERO
+      PARAMETER ( TZERO  = 273.15 )
+
+! --- Number of species treated in Hg aqueous chemistry module
+      INTEGER  NUMSP
+      PARAMETER ( NUMSP = 8 )
+
+! --- Species pointers for local Hg chemistry array
+      INTEGER  KHG0G       ! pointer to Hg(0)
+      INTEGER  KHG2G       ! pointer to Hg(2)
+      INTEGER  KO3G        ! pointer to O3
+      INTEGER  KCL2G       ! pointer to Cl2
+      INTEGER  KHCLG       ! pointer to HCl
+      INTEGER  KSO2G       ! pointer to SO2
+      INTEGER  KOHAQ       ! pointer to aqueous OH
+      INTEGER  KHO2AQ      ! pointer to aqueous HO2
+
+      PARAMETER ( KHG0G  = 1 )
+      PARAMETER ( KHG2G  = 2 )
+      PARAMETER ( KO3G   = 3 )
+      PARAMETER ( KCL2G  = 4 )
+      PARAMETER ( KHCLG  = 5 )
+      PARAMETER ( KSO2G  = 6 )
+      PARAMETER ( KOHAQ  = 7 )
+      PARAMETER ( KHO2AQ = 8 )
