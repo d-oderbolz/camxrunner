@@ -1,0 +1,19 @@
+#This is a machine-generated file. Generated on Mon Apr 22 17:27:20 CEST 2013 by user ciarelli_g
+#It can be used to replay an installation.
+MXCELLS|300
+MXLAYER|33
+SHRFLG|1
+NOZN|5
+NALB|5
+NHAZE|3
+NRUF|9
+NHGHT|11
+NZEN|10
+MXSPEC|120
+TEMPLO|200.
+TEMPHI|320.
+PRESLO|100.0
+PRESHI|1100.
+MXTRSP|99
+MXPACEL|352
+MXPADOM|4
