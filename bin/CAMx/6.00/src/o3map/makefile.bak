@@ -1,0 +1,32 @@
+#Use these for PGF77 32-bit compiler
+#FC  = pgf77
+#FLGS =  -Wl,-Bstatic
+
+#Use these for ifort 64-bit compiler
+#FC = ifort
+#FLGS = -static
+
+#Use these for PGF90 64-bit compiler
+FC  = pgf90
+FLGS =  -Bstatic_pgi
+
+LIBS = 
+
+TARGT = o3map.linux
+
+OBJCTS = \
+TOMSprep.o \
+o3map.o \
+lcpgeo.o \
+pspgeo.o \
+utmgeo.o \
+juldate.o \
+strlen.o
+
+o3map: $(OBJCTS)
+	$(FC) -o $(TARGT) $(FLGS) $(OBJCTS) $(LIBS)
+.f.o	:
+	$(FC) -c -o $@ $(FLGS) $<
+
+clean:
+	rm *.o o3map.linux

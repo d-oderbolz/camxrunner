@@ -1,0 +1,20 @@
+Compile O3MAP using the makefile included with the source code.
+Compiler and associated flag variables are supplied for PGF and Intel.
+
+The example job script runs O3MAP in two modes: for daily input TOMS files,
+and for a monthly input TOMS file.
+
+*NOTE: The AHOMAP program will only generate the mandatory ozone column
+       inputs for CAMx.  It will not generate the optional land-ocean mask
+       fields; it is left to the user to generate the optional
+       fields and include them appropriately into the ozone column file.
+
+Revsion History
+---------------
+April 2012:
+1. Based on the older AHOMAP program but simplified to be compatible with
+   CAMx v6.0.  The file only includes the ozone column data; albedo and
+   haze fields are set inside CAMx. Snow cover has been moved to the
+   time-variant 2D surface met file.  All optional fields except land-ocean
+   mask are no longer supported in CAMx and have been removed.
+

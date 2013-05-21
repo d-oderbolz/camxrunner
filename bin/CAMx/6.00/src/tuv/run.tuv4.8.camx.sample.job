@@ -1,0 +1,173 @@
+#!/bin/csh -f
+#
+# Script to run TUV version 4.8 to prepare a clear-sky photolysis rate input
+# file for CAMx version 6+. 
+#
+# NOTE: Photolysis rate input files for CAMx6+ replace Haze with Terrain as 
+# one of the five lookup dimensions. Haze adjustments are now performed by the
+# in-line photolysis adjustment within CAMx along with cloud adjustments. A 
+# default aerosol profile by Elterman (1968) is used within TUV.
+#
+# This version picks the CAMx values for ozone column directly from the header 
+# of a CAMx O3MAP input file.  Albedo and terrain heights are hardcoded within
+# the driver TUV.F.
+#
+# ===========
+# Compilation
+# ===========
+#
+# ENVIRON has tested TUV for CAMx on DEC Alpha, Sun, SGI and Linux platforms.
+# Differences in results among platforms tend to be larger and more frequent
+# using the discrete ordinates method than the 2-stream method.  However, in
+# all cases results agreed within 0.1% which is considered an acceptable level
+# of uncertainty.
+#
+# A simple utility for comparing 2 output files is included called TUVCOMPR.
+#
+# For guidance on compiling TUV for your computer see the notes in the Makefile.
+#
+# ==============
+# User Interface
+# ==============
+#
+# The CAMx photolysis rate file is a lookup table of photolysis rates.  The file
+# is arranged in multiple panels of data.  Each panel contains data as a 
+# function of:
+#   - solar zenith angle
+#   - potolysis reaction
+#
+# Multiple panels are included to account for dependencies on:
+#   - altitude (km) above the surface
+#   - ozone column 
+#   - UV albedo
+#   - terrain height (km) above sea level
+#
+# The number of altitudes, zenith angles, ozone column, UV albedo and terrain 
+# values must be consistent with the CAMx model configuration.  The typical 
+# configuration is 11 altitudes, 10 zenith angles, 5 ozone columns, 5 UV albedos
+# and 3 terrain heights. This is determined by parameter statements in both 
+# TUV.F and the CAMx include file "camx.prm".  
+#
+# The values for ozone column are read directly from a CAMx "O3MAP" input file.
+# Therefore, the O3MAP file must be prepared prior to running TUV.
+#
+# The number of vertical levels and their values must be specified in km above 
+# the surface.  The number of levels must be consistent with the number of 
+# levels that CAMx expects to read from this file (THIS DOES NOT MEAN THAT THE 
+# TUV LEVELS MUST MATCH THE CAMx DOMAIN LAYER STRUCTURE).  
+#
+# A date is provided to TUV to estimate the sun-earth distance which varies 
+# through the year.  It would be OK to use the same date for all the days 
+# through a (say) month long episode.
+#
+# Two radiative transfer schemes can be used.  The selection is made by number:
+#   1 - pseudo-spherical two-stream delta-Eddington (ps2str.f)
+#   2 - discrete ordinates method (psndo.f)
+# Further details are given in the TUV code.  They are both sound computational
+# methods.  1 is faster, 2 is considered more accurate.  Scheme 2 (discrete 
+# ordinates) is recommended.
+#
+# The number of photolysis reactions to include in each panel of data is an 
+# input.  This depends upon the chemical mechanism selected and the way the
+# chemistry parameters file is set up.  The chemistry parameters file allows 
+# CAMx to read photolysis rates for a reaction directly from the lookup table,
+# or alternatively to calculate photolysis rates using a ratio to another 
+# reaction.  Thus, the lookup tables must have at least one reaction, may have 
+# all the photolysis reactions (N) or may have any number of reactions between 
+# 1 and N.  This provides a lot of flexibilty, which most users will not want to
+# deal with.  Here are the configurations which match the chemistry parameters 
+# files supplied with CAMx.
+#
+# SAPRC99 mechanism (CAMx mechanism 5)
+# # of phot reactions| 6
+# TUV reaction #s    | 77 68 67 80 62 82
+#
+# CB05 mechanism (CAMx mechanism 6)
+# # of phot reactions| 19
+# TUV reaction #s    | 77, 87, 86, 79, 78, 90, 66, 91, 92, 93, 94, 63, 68, 67, 62, 95, 61, 96, 82
+#
+# CB6 mechanism (CAMx mechanisms 1, 2, and 7)
+# # of phot reactions| 23
+# TUV reaction #s    | 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 117, 118, 119, 114, 115, 116
+#
+# The reaction numbers used here refer to the numbering of the database inside 
+# TUV.  The contents of this database are listed in the TUV output file, called 
+# "tuv_diag.out".
+#
+# =======
+# Run TUV
+# =======
+#
+# Here is an example script.
+#
+#------------------------------------------------------------------------------
+
+# Make a dummy O3MAP file to run the tests
+
+rm -f ./dummy_o3map
+cat << ieof >! ./dummy_o3map
+Example O3MAP file for TUV tests
+OZONE COL      0.270     0.280     0.290     0.300     0.310
+OZONE COL      01161      0.00     01165   2400.00
+22222
+22222
+22222
+22222
+22222
+ieof
+
+# Prepare the input file (always called tuv.inp)
+
+set MECH    =  CB6                  # [CB05|CB6|SAPRC99]
+set SCHEME  =  1                    # 1 = pseudo spherical 2-stream
+                                    # 2 = discrete ordinates (recommended)
+set yymmdd  = 010612                # YYMMDD format
+
+if ($SCHEME == 1) set SCM = 'ps2str'
+if ($SCHEME == 2) set SCM = 'do'
+set TUVINP  = tuv.${SCM}_${MECH}.inp
+set TUVOUT  = tuv.${SCM}_${MECH}.diag
+set OUTFILE = tuv.${SCM}_${MECH}.$yymmdd
+
+if ($MECH == 'CB05') then
+  set RXNUM = 19
+  set RXLST = '77, 87, 86, 79, 78, 90, 66, 91, 92, 93, 94, 63, 68, 67, 62, 95, 61, 96, 82'
+endif
+if ($MECH == 'CB6') then
+  set RXNUM = 23
+  set RXLST = '97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 117, 118, 119, 114, 115, 116'
+endif
+if ($MECH == 'SAPRC99') then
+  set RXNUM = 6
+  set RXLST = '77 68 67 80 62 82'
+endif
+
+cat << EOF >! ./tuv.inp
+output file name   |./$OUTFILE
+o3map file name    |./dummy_o3map
+# of vert levels   | 11
+levels, km agl     | 0. 0.15 0.35 0.60 1.00 2.00 3.00 4.00 6.00 8.00 10.0
+date (YYMMDD)      | $yymmdd
+rad transfer scheme| $SCHEME
+# of phot reactions| $RXNUM
+TUV reaction #s    | $RXLST
+EOF
+
+./src/tuv.lnx
+mv -f tuv.inp $TUVINP
+mv -f tuv_diag.out $TUVOUT
+
+# Do a quick comparison of CAMx photolysis rate files
+# and report the ratios in a flat ASCII format
+# Note: Number of reactions in the two files have to be the same.
+
+set RUN_TUVCOMPR = 'NO'             # Run TUV comparison
+if ( $RUN_TUVCOMPR == 'YES' ) then
+./tuvcompr/tuvcompr.linux << EOF
+rates file 1       |./tuv.do_CB6.$yymmdd
+rates file 2       |./tuv.ps2str_CB6.$yymmdd
+summary output file|./compare.CB6_do_ps2str
+number of reactions|$RXNUM
+number of altitudes|11
+EOF
+endif

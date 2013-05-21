@@ -1,0 +1,61 @@
+#!/bin/csh
+#
+# User input data definition
+#
+# Lines 1 & 2: Coordiniate projection and master/coarse grid location definition
+#
+# Coordinate project |LAMBERT
+# xo,yo,cln,clt,t1,t2|-2000,-1700,-97,40,45,33     (km,km,deg,deg,deg,deg)
+# or
+# Coordinate project |UTM
+# xorg,yorg,izone    |-316.,2808.,15               (km,km,unitless)
+# or
+# Coordinate project |LATLON
+# xorg,yorg          |30,-120                      (deg,deg)
+# or 
+# Coordinate project |POLAR
+# xorg,yorg,plon,plat|-100,-200,-100,40            (km,km,deg,deg)
+#
+# Line 3: Master/coarse grid cell size (km)
+# dx,dy              |36,36
+#
+# Line 4: Number of master/coarse grid cells
+# nx, ny             |95,83
+#
+# Line 5: Output file name
+# Output filename    |o3map.test
+#
+# Line 6: Number of TOMS input data files
+# Number of TOMS file|28
+#
+# Lines 7+: Begin date, End date,and the Ozone data file name.
+#           Requires begin date (YYMMDD) and end date (YYMMDD) for ozone 
+#           column data.
+#
+# Example: for June 1, 2007 daily ozone data, 
+# Bday,Eday,TOMS file|070601,070601,ozcol_data/L3_ozone_omi_20070601.txt
+#
+# Example: for August 2005 monthly ozone data,
+# Bday,Eday,TOMS file|050801,050831,ozcol_data/L3_ozavg_epc_200508.txt
+#
+./o3map.linux << EOF
+Coordinate project |LAMBERT
+xo,yo,cln,clt,t1,t2|-2500,-2000,-97,40,45,33
+dx,dy              |36.,36.
+nx,ny              |150,90
+Output filename    |o3map.test.month
+Numbr of TOMS files|1
+TOMS filename      |050801,050831,./ozcol_data/L3_ozavg_epc_200508.txt
+EOF
+#
+./o3map.linux << EOF
+Coordinate project |LAMBERT
+xo,yo,cln,clt,t1,t2|-2500,-2000,-97,40,45,33
+dx,dy              |36.,36.
+nx,ny              |150,90
+Output filename    |o3map.test.daily
+Numbr of TOMS files|3
+Bday,Eday,TOMS file|070601,070601,./ozcol_data/L3_ozone_omi_20070601.txt
+Bday,Eday,TOMS file|070602,070602,./ozcol_data/L3_ozone_omi_20070602.txt
+Bday,Eday,TOMS file|070603,070603,./ozcol_data/L3_ozone_omi_20070603.txt
+EOF
