@@ -2,7 +2,7 @@
 # This file contains defaults for CAMxRunner. 
 # 
 # Leave the next line intact, it is used for change detection
-# Version: $Id$ 
+# Version: $Id: defaults.inc 8662 2012-07-13 07:31:30Z oderbolz $ 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch),
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
@@ -905,7 +905,6 @@ CXR_AVGDIF_EXEC=$(main.getBinaryName avgdif)
 CXR_AHOMAP_EXEC=$(main.getBinaryName ahomap)
 CXR_TUV_EXEC=$(main.getBinaryName tuv)
 CXR_O3MAP_EXEC=$(main.getBinaryName o3map)
-CXR_METCONVERT_EXEC=$(main.getBinaryName metconvert)
 
 ########################################
 # Postprocessors
