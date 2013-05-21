@@ -7,7 +7,7 @@
 # Put installation configuration and other CAMx version specific information here.
 # 
 # Leave the next line intact, it is used for change detection
-# Version: $Id: installer.conf 7979 2012-02-23 22:23:07Z oderbolz $ 
+# Version: $Id: installer.conf 8695 2013-05-21 12:35:17Z ciarelli_g $ 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch),
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
@@ -145,7 +145,7 @@ CXR_AVGDIF_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/avgdif"
 CXR_ICBCPREP_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/icbcprep"
 CXR_CAMXPOST_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/camxpost"
 CXR_O3MAP_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/o3map"
-CXR_METCONVERTER_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/metconvert"
+CXR_METCONVERT_SRC_DIR="${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/metconvert"
 
 # SA Tools
 CXR_PSAT_COMBINE_SRC_DIR=${CXR_BIN_DIR}/${CXR_MODEL}/${CXR_MODEL_VERSION}/src/psat_combine
