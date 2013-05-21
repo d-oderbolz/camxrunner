@@ -1,0 +1,86 @@
+#
+# Sample job script for METCONVERT program
+# 
+#===============================================================================
+# This program converts CAMx v4.3 - v5.3 met files to the CAMx v6 format.
+# The v6 format is consistent with the CAMx/UAM-based concentration, deposition,
+# initial conditions, and emissions files (see CAMx v6 user's guide).
+# This program does not alter any grid parameters or data fields, it simply
+# reformats the data to the new file structure.
+#
+# There are five v6 met files, and this program can generate all of them in a
+# single run, or you can generate a sub-set of files.  All records in the
+# sample run below are required.  For those v6 met files that you do not
+# want to generate, leave their output file records blank, and the program will
+# ignore the associated input file records.  If you specify an output
+# path/filename, then you must also provide the necessary input
+# path/filesname(s). 
+#
+# Allowed map projections and formats:
+# Map projection:    |LATLON              Geodetic lat/lon grid
+# Map projection:    |UTM 12              UTM projection with zone number
+# Map projection:    |LCP -97. 40. 45. 33 Lambert projection with lon, lat of
+#                                         projection center, and 2 true lats
+# Map projection:    |PSP -97. 40         Polar projection with lon, lat of
+#                                         projection center
+#
+# Output files:
+# Output 2D Sfc file | landuse (11 or 26-category), topography, LAI (optional)
+#                    | requires valid "Input surface file" in v4.3 or v5.3
+#                    | format
+# Output 3D Met file | height, pressure, temperature, moisture, wind components
+# Output 2D Met file | surface temperature (must be generated with 3-D met file)
+#                    | requires valid "Input ht/press file"
+#                    | requires valid "Input wind file"
+#                    | requires valid "Input temp file"
+#                    | requires valid "Input humidity file"
+# Output 3D Kv file  | vertical diffusivity
+#                    | requires valid "Input Kv file"
+# Output 3D Cld file | cloud water, rain/snow/graupel water, cloud optical depth
+#                    | requires valid "Input cloud file" in v4.3 or v5.3 format
+#
+# This program will also optionally read a text snow cover file (the type that
+# is appended to an AHO file) and will include the snow field into the 2D met
+# file.  The snow cover file must include two header records and a field of 
+# integer 0/1 codes as shown in the example below (all can be extracted from an # existing AHO file that includes a snowcover panel):
+#
+# SNOW               N        NX        NY
+# SNOW           YYJJJ     HHMM.     YYJJJ     HHMM.
+# 0000000000000000000000000000000000000000000000000000000000000000
+# 0000000000000000001100000000000000000000000000000000000000000000
+# 0000000000000000011111000000000000000000000000000000000000000000
+# 0000000000000000001111111111111111110000000000000000000000000000
+# 0000000000000000000011111111111111000000000000000000000000000000
+# 0000000000000000000111110000011111100000000000000000000000000000
+# 0000000000000000000001100000111111000000000000000000000000000000
+# 0000000000000000000000000000011111110000000000000000000000000000
+# 0000000000000000000000000000001111000000000000000000000000000000
+# 0000000000000000000000000000000000000000000000000000000000000000
+#
+# where N is grid ID, NX is number of grid columns, NY is number of grid rows
+# YYJJJ is integer Julian date, and HHMM. is four-digit real hour/minutes
+# (e.g., 1:30 PM = 1330.00)
+#
+#===============================================================================
+#
+#!/bin/csh
+./metconvert.linux << EOF
+Time zone          |0
+Grid dim (nx,ny,nz)|68 68 16
+SW coords (xo,yo)  |-792. -1656.
+Grid size (dx,dy)  |36. 36.
+Map projection     |LCP -97. 40. 45. 33.
+Output 2D Sfc file |camxv6.2d_sfc.sample.bin
+Output 3D Met file |camxv6.3d_met.sample.bin
+Output 2D Met file |camxv6.2d_met.sample.bin
+Output 3D Kv file  |camxv6.3d_kv.sample.bin
+Output 3D Cld file |camxv6.3d_cld.sample.bin
+Input surface file |camx.lu.sample.bin
+Input ht/press file|camx.zp.sample.bin
+Input wind file    |camx.uv.sample.bin
+Input temp file    |camx.tp.sample.bin
+Input humidity file|camx.qa.sample.bin
+Input Kv file      |camx.kv.sample.bin
+Input cloud file   |camx.cr.sample.bin
+Input snow file    |snow.sample.txt
+EOF
