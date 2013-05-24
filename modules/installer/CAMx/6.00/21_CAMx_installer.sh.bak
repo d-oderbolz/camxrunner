@@ -276,7 +276,7 @@ function CAMx_installer()
 		
 		#File resulting from compilation due to CAMx defaults
 		#CAMx 5.x adds MPI info here
-		if [[ ${CXR_MODEL_VERSION:0:1} -eq 5 ]]
+		if [[ ${CXR_MODEL_VERSION:0:1} -ge 5 ]]
 		then
 			if [[ "$mpi" == true ]]
 			then
