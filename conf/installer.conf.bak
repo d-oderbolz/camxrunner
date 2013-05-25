@@ -7,7 +7,7 @@
 # Put installation configuration and other CAMx version specific information here.
 # 
 # Leave the next line intact, it is used for change detection
-# Version: $Id: installer.conf 8695 2013-05-21 12:35:17Z ciarelli_g $ 
+# Version: $Id: installer.conf 8697 2013-05-21 13:08:00Z ciarelli_g $ 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch),
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
@@ -186,7 +186,8 @@ CXR_PRE_AND_POST_PROG_SCR_ARR="$CXR_SRFLND_SRC_DIR \
                                $CXR_EXT_IRR_SRC_DIR \
                                $CXR_VERTAVG_SRC_DIR \
                                $CXR_CAMXPOST_SRC_DIR \
-                               $CXR_O3MAP_SRC_DIR"
+                               $CXR_O3MAP_SRC_DIR \
+                               $CXR_METCONVERT_SRC_DIR"
 
 # Converters
 CXR_CONVERTER_SCR_ARR="$CXR_BIN2ASC_SRC_DIR \

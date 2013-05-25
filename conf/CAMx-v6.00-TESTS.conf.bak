@@ -54,11 +54,11 @@ CXR_MISSION="TEST CAMx-v6.00"
 
 
 # The Start of the simulation in YYYY-MM-DD notation
-CXR_START_DATE=2007-06-01
+CXR_START_DATE=2009-02-11
 
 # The Stop of the simulation in YYYY-MM-DD notation
 # For some reason, we do not have data for 31. of december
-CXR_STOP_DATE=2007-06-03
+CXR_STOP_DATE=2009-03-26
 
 
 # Must be in HHMI Format, applies just to first and last day, all others are from 0000 to 2400
@@ -75,7 +75,7 @@ CXR_EMS_INPUT_FREQUENCY=60.
 CXR_OUTPUT_FREQUENCY=60.
 
 # Executable
-CXR_MODEL_EXEC=""
+CXR_MODEL_EXEC=/afs/psi.ch/project/MM5V3-7-4/CAMxRunner/bin/CAMx/6.00/CAMx-v6.00-HYBRID-SS
 
 ################################################################################
 # Geometry of simulation
@@ -104,8 +104,9 @@ CXR_MASTER_CELL_YSIZE=0.250               # deg
 CXR_MASTER_GRID_COLUMNS=281
 CXR_MASTER_GRID_ROWS=161
 
-CXR_NUMBER_OF_LAYERS[1]=14
-CXR_NUMBER_OF_LAYERS[2]=14
+# From CAMx-v6.00 vertical nesting is not anymore available
+CXR_NUMBER_OF_LAYERS[1]=33
+
 
 # Grid 0 and 1 are dummies
 CXR_NEST_MESHING_FACTOR[0]=-
@@ -122,7 +123,7 @@ CXR_NEST_END_I_INDEX[1]=-
 CXR_NEST_BEG_J_INDEX[1]=-
 CXR_NEST_END_J_INDEX[1]=-
 
-# Number of layers set above
+
 
 # Second grid. Note that the WRF grid is 6 cells wider and higher
 # because we need a border of one coarse cell (3 fine cells on either end)
@@ -164,11 +165,9 @@ CXR_FINISH_MESSAGE_RULE='Please copy this into https://wiki.intranet.psi.ch/twik
 # Model options (Solver etc.)
 ################################################################################
 CXR_DIAGNOSTIC_ERROR_CHECK=false    # True=will stop before 1st timestep
-# According to Chris, BOTT should take care of negative conc issues
-CXR_ADVECTION_SOLVER=BOTT      # (PPM,BOTT)
-CXR_CHEMISTRY_SOLVER=EBI      # (CMC,IEH,LSODE)
-
-CXR_PROBING_TOOL=None     # (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC)
+CXR_ADVECTION_SOLVER=BOTT           # (PPM,BOTT)Chris: BOTT should take care of negative conc issues
+CXR_CHEMISTRY_SOLVER=EBI            # (CMC,IEH,LSODE)
+CXR_PROBING_TOOL=None               # (None,OSAT,PSAT,GOAT,APCA,DDM,PA,RTRAC)
 CXR_CHEMISTRY=true
 CXR_DRY_DEPOSITION=true
 CXR_WET_DEPOSITION=true
@@ -218,10 +217,8 @@ CXR_MET_SCENARIO=s300
 # Either WRF or MM5
 CXR_MET_MODEL=WRF
 
-# Versionof the meteo model (not used for MM5)
+# Version of the meteo model (not used for MM5)
 CXR_MET_VERSION=3.3.1
-
-
 CXR_EMMISS_PROJECT=${CXR_MET_PROJECT}
 CXR_EMMISS_SCENARIO=sem309
 
@@ -315,8 +312,7 @@ CXR_DAY_METEO_FIRST_DAY_RULE='${CXR_DAY}_s'
 CXR_PHOTOLYSIS_RATES_FILE_RULE='${CXR_INPUT_DIR}/tuv_${CXR_CAMX_CUSTOMER}_${CXR_YEAR_S}_${CXR_WOY}.out'
 CXR_INITIAL_CONDITIONS_FILE_RULE='${CXR_INPUT_DIR}/ic_${CXR_CAMX_CUSTOMER}_moz_${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY}.bin'
 CXR_BOUNDARY_CONDITIONS_FILE_RULE='${CXR_INPUT_DIR}/bc_${CXR_CAMX_CUSTOMER}_moz_${CXR_YEAR_S}${CXR_MONTH}${CXR_DAY}.bin'
-CXR_TOP_CONCENTRATIONS_FILE_RULE='${CXR_INPUT_DIR}/topconc_${CXR_CAMX_CUSTOMER}_${CXR_YEAR_S}.${CXR_ASC_EXT}'
-CXR_ALBEDO_HAZE_OZONE_FILE_RULE='${CXR_INPUT_DIR}/ahomap_${CXR_CAMX_CUSTOMER}_1grid_${CXR_YEAR_S}_${CXR_WOY}.out'
+
 CXR_O3MAP_FILE_RULE='${CXR_INPUT_DIR}/o3map_${CXR_CAMX_CUSTOMER}_1grid_${CXR_YEAR_S}_${CXR_WOY}.out'
 
 CXR_POINT_SOURCES_FILE_RULE=''
@@ -371,32 +367,59 @@ CXR_EMISSION_ASC_FILE_RULE='${CXR_EMISSION_SOURCE_DIR}/${CXR_DATE_RAW}/${CXR_EMM
 CXR_EMISSION_BIN_FILE_RULE='${CXR_EMISSION_DIR}/camxll_emiss_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_EMMISS_SCENARIO}_${CXR_DATE_RAW}.bin'
 
 
-# Input ########################################################################
+# Input #################################################################################
+# For Meteo: For CAMx-v6.00 we need to convert from CAMx old meteo file(up to CAMx-v5.41) 
+# to CAMx-v6.00 input format. You can convert form old to new files format usind the 
+# following command : ./CAMx-v6.00-TESTS -r"convert_meteo" 
+#########################################################################################
 
 # This one is needed for initial and bounary conditions
 CXR_MMOUT_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/wrfsfc_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}_${CXR_YEAR}${CXR_MONTH}${CXR_DAY}_save.dat'
 
-#Landuse
+#These are the old CAMx file format. We keep it if you wnat ot convert them
+#Landuse pre-CAMx-v6.00 
 CXR_LANDUSE_FILE_RULE='${CXR_CONST_INPUT_DIR}/${CXR_LU_PREFIX}_domain${CXR_IGRID}_${CXR_MET_PROJECT}_lucamx${CXR_LU_SUFFIX}.bin'
 
-# Pressure
+# Pressure pre-CAMx-v6.00
 CXR_PRESSURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_zp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
-# Wind
+# Wind pre-CAMx-v6.00
 CXR_WIND_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_uv_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
-# Temperature
+# Temperature pre-CAMx-v6.00
 CXR_TEMPERATURE_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_tp_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
-# Vapor
+# Vapor pre-CAMx-v6.00
 CXR_VAPOR_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_qa_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
-# Cloud depends on CXR_TUV_CLOUD_ADJUST
+# Cloud depends on CXR_TUV_CLOUD_ADJUST. Used only for versions before CAMx-v6.00
+# Later the variable is used to evaluate the name of the Cloud file (old) in case we want 
+# to convert it to CAMx-v6.00 format.
 CXR_TUV_CLOUD_ADJUST=true
+
+# Cloud pre-CAMx-v6.00
 CXR_CLOUD_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_cr_$(common.math.if_then_else ${CXR_TUV_CLOUD_ADJUST:-false} DIAG_ "")domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
 
-# Vertical K
+# Vertical K pre-CAMx-v6.00
 CXR_K_FILE_RULE='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/${CXR_MET_PREFIX}_kv_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+#These are the new CAMx file format. We get it by running -r"convert_meteo"
+#CAMx-v6.00: 2d Surface
+CXR_2D_SFC_FILE_RULE_CAMXV6='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camxv6.${CXR_MET_PREFIX}_2d_sfc_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+#CAMx-v6.00: 3d Meteo
+CXR_3D_MET_FILE_RULE_CAMXV6='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camxv6.${CXR_MET_PREFIX}_3d_met_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+#CAMx-v6.00: 2d Meteo
+CXR_2D_MET_FILE_RULE_CAMXV6='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camxv6.${CXR_MET_PREFIX}_2d_met_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+#CAMx-v6.00: 3d Kv 
+CXR_3D_KV_FILE_RULE_CAMXV6='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camxv6.${CXR_MET_PREFIX}_3d_kv_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+#CAMx-v6.00: 3d Cloud
+CXR_3D_CLD_FILE_RULE_CAMXV6='${CXR_METEO_DIR}/${CXR_DATE_RAW}/${CXR_MET_SCENARIO}/camxv6.${CXR_MET_PREFIX}_3d_cld_domain${CXR_IGRID}_${CXR_MET_PROJECT}_${CXR_MET_SCENARIO}:${CXR_YEAR}-${CXR_MONTH}-${CXR_DAY_METEO}'
+
+ 
  
 # Emissions (ll for LatLon)
 CXR_EMISSION_FILE_RULE='${CXR_EMISSION_DIR}/camxll_emiss_domain${CXR_IGRID}_${CXR_EMMISS_PROJECT}_${CXR_EMMISS_SCENARIO}_all_${CXR_DATE_RAW}.bin'
@@ -439,8 +462,10 @@ CXR_K_ASC_FILE_RULE='${CXR_ASCII_OUTPUT_DIR}/${CXR_MET_PREFIX}_kv_CMAQ_domain${C
 # Rules to generate the URL to get the ozone column (works form October 2004 on)
 CXR_O3MAP_OZONE_COLUMN_FILE_RULE='L3_ozone_omi_${CXR_DATE_RAW}.txt'
 # Nesting of rule - attention with the quoting
-#CXR_O3MAP_OZONE_COLUMN_URL_RULE='ftp://toms.gsfc.nasa.gov/pub/omi/data/ozone/Y${CXR_YEAR}/'${CXR_AHOMAP_OZONE_COLUMN_FILE_RULE}
-CXR_O3MAP_OZONE_COLUMN_URL_RULE='ftp://ftp.psi.ch/PSI_outgoing/Y${CXR_YEAR}/'${CXR_O3MAP_OZONE_COLUMN_FILE_RULE}
+CXR_O3MAP_OZONE_COLUMN_URL_RULE='ftp://toms.gsfc.nasa.gov/pub/omi/data/ozone/Y${CXR_YEAR}/'${CXR_AHOMAP_OZONE_COLUMN_FILE_RULE}
+
+#This is our ftp server in case we want to put ozone column file somewhere else 
+#CXR_O3MAP_OZONE_COLUMN_URL_RULE='ftp://ftp.psi.ch/PSI_outgoing/Y${CXR_YEAR}/'${CXR_O3MAP_OZONE_COLUMN_FILE_RULE}
 
 
 
@@ -454,7 +479,7 @@ CXR_O3MAP_OZONE_COLUMN_DIR=${CXR_PREPROCESSOR_ONCE_INPUT_DIR}/o3map/ozone_column
 # In the case of weekly or monthly, 
 # The filerules CXR_PHOTOLYSIS_RATES_FILE_RULE and CXR_ALBEDO_HAZE_OZONE_FILE_RULE
 # need to contain CXR_WOY or CXR_MONTH, respectively
-CXR_RUN_O3MAP_TUV_INTERVAL="once"
+CXR_RUN_O3MAP_TUV_INTERVAL=weekly
 
 ########################################
 # photolysis_rates (TUV)

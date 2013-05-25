@@ -10,7 +10,7 @@
 # See http://people.web.psi.ch/oderbolz/CAMxRunner
 # 
 # Leave the next line intact, it is used for change detection
-# Version: $Id: base.conf 8639 2012-07-09 11:59:30Z oderbolz $ 
+# Version: $Id: base.conf 8688 2013-05-17 08:04:31Z ciarelli_g $ 
 #
 # Written by Daniel C. Oderbolz (CAMxRunner@psi.ch),
 # Released under the Creative Commons "Attribution-Share Alike 2.5 Switzerland"
@@ -551,6 +551,7 @@ CXR_NRUF=9
 CXR_NHGHT=11
 CXR_NZEN=10
 CXR_NLU=11
+CXR_NTRN=3
 
 # Now we need to indicate a height above ground for each of the CXR_NHGHT levels
 CXR_TUV_HEIGHTS="0. 0.15 0.35 0.60 1.00 2.00 3.00 4.00 6.00 8.00 10.0"
