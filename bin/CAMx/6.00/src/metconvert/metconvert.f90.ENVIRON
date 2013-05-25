@@ -168,18 +168,14 @@
       read(*,'(20x,a)') filname
       read(filname,*) xorg,yorg
       write(*,'(a,2f10.3)') 'Grid SW coordinates (xorg,yorg):',xorg,yorg
-!     Not clear why ENVIRON need to multiply dx and dy by 1000.
-!     This will cause an error at the starup of CAMx 
-!     xorg = 1000.*xorg
-!     yorg = 1000.*yorg
+      xorg = 1000.*xorg
+      yorg = 1000.*yorg
 
       read(*,'(20x,a)') filname
       read(filname,*) dx,dy
       write(*,'(a,2f10.3)') 'Grid spacing (dx,dy):',dx,dy
-!     Not clear why ENVIRON need to multiply dx and dy this by 1000. 
-!     This will cause an error at the starup of CAMx
-!     dx = 1000.*dx
-!     dy = 1000.*dy
+      dx = 1000.*dx
+      dy = 1000.*dy
 
       read(*,'(20x,a)') project
       if (project.eq.'LATLON') then

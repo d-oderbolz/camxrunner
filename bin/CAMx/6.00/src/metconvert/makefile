@@ -27,6 +27,8 @@ ifeq ($(strip $(DESTINATION)),)
 endif
 
 
+FLGS = -O2 -Kieee -Mbyteswapio -Mextend
+
 .SUFFIXES: .o .f90
 
 LIBS = 
