@@ -1,6 +1,7 @@
-# camxrunner
+# CAMxRunner
+
 CAMxRunner is an environment to perform complex multi-day/multi-domain air quality modelling using CAMx
-as [described in](http://www.researchgate.net/publication/232724998_CAMxRunner_a_modular_framework_for_efficient_chemical_transport_modelling)
+as described in [this paper](http://www.researchgate.net/publication/232724998_CAMxRunner_a_modular_framework_for_efficient_chemical_transport_modelling).
 
 I wrote it as part of my [PhD thesis](http://e-collection.library.ethz.ch/view/eth:6759) to run [CAMx](http://www.camx.com/) air quality simulations.
 The longest simulations I ran where a one-year run, which typically requires some stamina and even more time.
